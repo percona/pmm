@@ -28,18 +28,14 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/annotations"
+	"github.com/percona/pmm/managed/services/grafana"
 )
 
 // AddAnnotation creates an annotation in grafana, and writes the series of a node or service annotation to VictoriaMetrics.
 func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
-	headers, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errors.New("cannot get headers from metadata")
-	}
-	// get authorization from headers.
-	authorizationHeaders := headers.Get("Authorization")
-	if len(authorizationHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	authorization, err := callerAuthorization(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	events, err := s.annotationEvents(req.ServiceNames, req.NodeName)
@@ -85,7 +81,7 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 		}
 	}
 
-	id, err := s.grafanaClient.CreateAnnotation(ctx, tags, now, req.Text, authorizationHeaders[0])
+	id, err := s.grafanaClient.CreateAnnotation(ctx, tags, now, req.Text, authorization)
 	if err != nil {
 		return nil, err
 	}
@@ -103,6 +99,45 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 	}
 
 	return &managementv1.AddAnnotationResponse{AnnotationId: id}, nil
+}
+
+// RemoveAnnotation deletes an annotation from grafana, and the series that show it on dashboards from VictoriaMetrics.
+func (s *ManagementService) RemoveAnnotation(ctx context.Context, req *managementv1.RemoveAnnotationRequest) (*managementv1.RemoveAnnotationResponse, error) {
+	authorization, err := callerAuthorization(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.grafanaClient.DeleteAnnotation(ctx, req.AnnotationId, authorization)
+	if errors.Is(err, grafana.ErrAnnotationNotFound) {
+		return nil, status.Errorf(codes.NotFound, "Annotation with ID %d not found.", req.AnnotationId)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.annotationStore.Delete(ctx, []int64{req.AnnotationId})
+	if err != nil {
+		return nil, status.Errorf(codes.Unavailable,
+			"The annotation was deleted, but it may still show on dashboards until the sync job removes its series. Cause: %s", err)
+	}
+
+	return &managementv1.RemoveAnnotationResponse{}, nil
+}
+
+// callerAuthorization returns the Authorization header of the caller's request.
+func callerAuthorization(ctx context.Context) (string, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.New("cannot get headers from metadata")
+	}
+
+	authorizationHeaders := headers.Get("Authorization")
+	if len(authorizationHeaders) == 0 {
+		return "", status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+
+	return authorizationHeaders[0], nil
 }
 
 // annotationEvents returns an event for each service and for the node, in this order, with the labels of the object

@@ -919,9 +919,10 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
 	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"S\n" +
 	"\x14ListServicesResponse\x12;\n" +
-	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xa2\x13\n" +
+	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\x98\x15\n" +
 	"\x11ManagementService\x12\xac\x01\n" +
-	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\x9b\x01\n" +
+	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\xf3\x01\n" +
+	"\x10RemoveAnnotation\x12&.management.v1.RemoveAnnotationRequest\x1a'.management.v1.RemoveAnnotationResponse\"\x8d\x01\x92AX\x12\x14Remove an Annotation\x1a@Removes an annotation and the series that show it on dashboards.\x82\xd3\xe4\x93\x02,**/v1/management/annotations/{annotation_id}\x12\x9b\x01\n" +
 	"\n" +
 	"ListAgents\x12 .management.v1.ListAgentsRequest\x1a!.management.v1.ListAgentsResponse\"H\x92A(\x12\vList Agents\x1a\x19Lists Agents with filter.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/management/agents\x12\xd7\x01\n" +
 	"\x11ListAgentVersions\x12'.management.v1.ListAgentVersionsRequest\x1a(.management.v1.ListAgentVersionsResponse\"o\x92AF\x12\x13List Agent Versions\x1a/Lists Agent versions and their update severity.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/management/agents/versions\x12\xb3\x01\n" +
@@ -984,25 +985,27 @@ var (
 		(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
 		(*UniversalAgent)(nil),                // 27: management.v1.UniversalAgent
 		(*AddAnnotationRequest)(nil),          // 28: management.v1.AddAnnotationRequest
-		(*ListAgentsRequest)(nil),             // 29: management.v1.ListAgentsRequest
-		(*ListAgentVersionsRequest)(nil),      // 30: management.v1.ListAgentVersionsRequest
-		(*RegisterNodeRequest)(nil),           // 31: management.v1.RegisterNodeRequest
-		(*UnregisterNodeRequest)(nil),         // 32: management.v1.UnregisterNodeRequest
-		(*ListNodesRequest)(nil),              // 33: management.v1.ListNodesRequest
-		(*GetNodeRequest)(nil),                // 34: management.v1.GetNodeRequest
-		(*DiscoverRDSRequest)(nil),            // 35: management.v1.DiscoverRDSRequest
-		(*DiscoverAzureDatabaseRequest)(nil),  // 36: management.v1.DiscoverAzureDatabaseRequest
-		(*AddAzureDatabaseRequest)(nil),       // 37: management.v1.AddAzureDatabaseRequest
-		(*AddAnnotationResponse)(nil),         // 38: management.v1.AddAnnotationResponse
-		(*ListAgentsResponse)(nil),            // 39: management.v1.ListAgentsResponse
-		(*ListAgentVersionsResponse)(nil),     // 40: management.v1.ListAgentVersionsResponse
-		(*RegisterNodeResponse)(nil),          // 41: management.v1.RegisterNodeResponse
-		(*UnregisterNodeResponse)(nil),        // 42: management.v1.UnregisterNodeResponse
-		(*ListNodesResponse)(nil),             // 43: management.v1.ListNodesResponse
-		(*GetNodeResponse)(nil),               // 44: management.v1.GetNodeResponse
-		(*DiscoverRDSResponse)(nil),           // 45: management.v1.DiscoverRDSResponse
-		(*DiscoverAzureDatabaseResponse)(nil), // 46: management.v1.DiscoverAzureDatabaseResponse
-		(*AddAzureDatabaseResponse)(nil),      // 47: management.v1.AddAzureDatabaseResponse
+		(*RemoveAnnotationRequest)(nil),       // 29: management.v1.RemoveAnnotationRequest
+		(*ListAgentsRequest)(nil),             // 30: management.v1.ListAgentsRequest
+		(*ListAgentVersionsRequest)(nil),      // 31: management.v1.ListAgentVersionsRequest
+		(*RegisterNodeRequest)(nil),           // 32: management.v1.RegisterNodeRequest
+		(*UnregisterNodeRequest)(nil),         // 33: management.v1.UnregisterNodeRequest
+		(*ListNodesRequest)(nil),              // 34: management.v1.ListNodesRequest
+		(*GetNodeRequest)(nil),                // 35: management.v1.GetNodeRequest
+		(*DiscoverRDSRequest)(nil),            // 36: management.v1.DiscoverRDSRequest
+		(*DiscoverAzureDatabaseRequest)(nil),  // 37: management.v1.DiscoverAzureDatabaseRequest
+		(*AddAzureDatabaseRequest)(nil),       // 38: management.v1.AddAzureDatabaseRequest
+		(*AddAnnotationResponse)(nil),         // 39: management.v1.AddAnnotationResponse
+		(*RemoveAnnotationResponse)(nil),      // 40: management.v1.RemoveAnnotationResponse
+		(*ListAgentsResponse)(nil),            // 41: management.v1.ListAgentsResponse
+		(*ListAgentVersionsResponse)(nil),     // 42: management.v1.ListAgentVersionsResponse
+		(*RegisterNodeResponse)(nil),          // 43: management.v1.RegisterNodeResponse
+		(*UnregisterNodeResponse)(nil),        // 44: management.v1.UnregisterNodeResponse
+		(*ListNodesResponse)(nil),             // 45: management.v1.ListNodesResponse
+		(*GetNodeResponse)(nil),               // 46: management.v1.GetNodeResponse
+		(*DiscoverRDSResponse)(nil),           // 47: management.v1.DiscoverRDSResponse
+		(*DiscoverAzureDatabaseResponse)(nil), // 48: management.v1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseResponse)(nil),      // 49: management.v1.AddAzureDatabaseResponse
 	}
 )
 
@@ -1032,33 +1035,35 @@ var file_management_v1_service_proto_depIdxs = []int32{
 	25, // 22: management.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	5,  // 23: management.v1.ListServicesResponse.services:type_name -> management.v1.UniversalService
 	28, // 24: management.v1.ManagementService.AddAnnotation:input_type -> management.v1.AddAnnotationRequest
-	29, // 25: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
-	30, // 26: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
-	31, // 27: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
-	32, // 28: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
-	33, // 29: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
-	34, // 30: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
-	1,  // 31: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
-	6,  // 32: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
-	35, // 33: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
-	36, // 34: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
-	37, // 35: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
-	3,  // 36: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
-	38, // 37: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
-	39, // 38: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
-	40, // 39: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
-	41, // 40: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
-	42, // 41: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
-	43, // 42: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
-	44, // 43: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
-	2,  // 44: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
-	7,  // 45: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
-	45, // 46: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
-	46, // 47: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
-	47, // 48: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
-	4,  // 49: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
+	29, // 25: management.v1.ManagementService.RemoveAnnotation:input_type -> management.v1.RemoveAnnotationRequest
+	30, // 26: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
+	31, // 27: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
+	32, // 28: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
+	33, // 29: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
+	34, // 30: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
+	35, // 31: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
+	1,  // 32: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
+	6,  // 33: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
+	36, // 34: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
+	37, // 35: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
+	38, // 36: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
+	3,  // 37: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
+	39, // 38: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
+	40, // 39: management.v1.ManagementService.RemoveAnnotation:output_type -> management.v1.RemoveAnnotationResponse
+	41, // 40: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
+	42, // 41: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
+	43, // 42: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
+	44, // 43: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
+	45, // 44: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
+	46, // 45: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
+	2,  // 46: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
+	7,  // 47: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
+	47, // 48: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
+	48, // 49: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
+	49, // 50: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
+	4,  // 51: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
+	38, // [38:52] is the sub-list for method output_type
+	24, // [24:38] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
 	24, // [24:24] is the sub-list for extension extendee
 	0,  // [0:24] is the sub-list for field type_name

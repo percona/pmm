@@ -21,3 +21,12 @@ message AddAnnotationResponse {
   // ID of the annotation in Grafana.
   int64 annotation_id = 1;
 }
+
+// RemoveAnnotationRequest is a params to remove an annotation.
+message RemoveAnnotationRequest {
+  // ID of the annotation in Grafana.
+  int64 annotation_id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// RemoveAnnotationResponse is the result of removing an annotation.
+message RemoveAnnotationResponse {}

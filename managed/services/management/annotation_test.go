@@ -35,6 +35,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/annotations"
+	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -435,5 +436,65 @@ func TestAnnotations(t *testing.T) {
 
 		grafanaClient.AssertNotCalled(t, "CreateAnnotation", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 		store.AssertNotCalled(t, "Write", mock.Anything, mock.Anything)
+	})
+
+	t.Run("Remove", func(t *testing.T) {
+		ctx, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		deleted := grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(nil).Once()
+		store.On("Delete", ctx, []int64{17}).Return(nil).Once().NotBefore(deleted)
+
+		resp, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		require.NoError(t, err)
+		assert.NotNil(t, resp)
+	})
+
+	t.Run("Remove unknown annotation", func(t *testing.T) {
+		ctx, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(grafana.ErrAnnotationNotFound).Once()
+
+		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, "Annotation with ID 17 not found."), err)
+
+		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
+	})
+
+	t.Run("Remove Grafana failure", func(t *testing.T) {
+		ctx, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(errors.New("grafana is down")).Once()
+
+		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		require.ErrorContains(t, err, "grafana is down")
+
+		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
+	})
+
+	t.Run("Remove store failure", func(t *testing.T) {
+		ctx, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		deleted := grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(nil).Once()
+		store.On("Delete", ctx, []int64{17}).Return(errors.New("victoriametrics is down")).Once().NotBefore(deleted)
+
+		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		tests.AssertGRPCErrorRE(t, codes.Unavailable, `deleted.*may still show on dashboards.*sync job.*victoriametrics is down`, err)
+	})
+
+	t.Run("Remove without authorization", func(t *testing.T) {
+		_, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		ctx := metadata.NewIncomingContext(t.Context(), metadata.New(nil))
+
+		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		tests.AssertGRPCError(t, status.New(codes.Unauthenticated, "Authorization error."), err)
+
+		grafanaClient.AssertNotCalled(t, "DeleteAnnotation", mock.Anything, mock.Anything, mock.Anything)
+		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
 	})
 }

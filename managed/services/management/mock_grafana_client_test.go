@@ -77,6 +77,24 @@ func (_m *mockGrafanaClient) CreateServiceAccount(ctx context.Context, noneName 
 	return r0, r1, r2
 }
 
+// DeleteAnnotation provides a mock function with given fields: ctx, id, authorization
+func (_m *mockGrafanaClient) DeleteAnnotation(ctx context.Context, id int64, authorization string) error {
+	ret := _m.Called(ctx, id, authorization)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAnnotation")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string) error); ok {
+		r0 = rf(ctx, id, authorization)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteServiceAccount provides a mock function with given fields: ctx, noneName, force
 func (_m *mockGrafanaClient) DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error) {
 	ret := _m.Called(ctx, noneName, force)

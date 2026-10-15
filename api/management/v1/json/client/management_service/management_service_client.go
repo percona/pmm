@@ -73,6 +73,8 @@ type ClientService interface {
 
 	RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error)
 
+	RemoveAnnotation(params *RemoveAnnotationParams, opts ...ClientOption) (*RemoveAnnotationOK, error)
+
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	UnregisterNode(params *UnregisterNodeParams, opts ...ClientOption) (*UnregisterNodeOK, error)
@@ -560,6 +562,50 @@ func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) 
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*RegisterNodeDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RemoveAnnotation removes an annotation
+
+Removes an annotation and the series that show it on dashboards.
+*/
+func (a *Client) RemoveAnnotation(params *RemoveAnnotationParams, opts ...ClientOption) (*RemoveAnnotationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewRemoveAnnotationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RemoveAnnotation",
+		Method:             "DELETE",
+		PathPattern:        "/v1/management/annotations/{annotation_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveAnnotationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*RemoveAnnotationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*RemoveAnnotationDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

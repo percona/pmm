@@ -142,6 +142,89 @@ func (x *AddAnnotationResponse) GetAnnotationId() int64 {
 	return 0
 }
 
+// RemoveAnnotationRequest is a params to remove an annotation.
+type RemoveAnnotationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the annotation in Grafana.
+	AnnotationId  int64 `protobuf:"varint,1,opt,name=annotation_id,json=annotationId,proto3" json:"annotation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveAnnotationRequest) Reset() {
+	*x = RemoveAnnotationRequest{}
+	mi := &file_management_v1_annotation_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveAnnotationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveAnnotationRequest) ProtoMessage() {}
+
+func (x *RemoveAnnotationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_annotation_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveAnnotationRequest.ProtoReflect.Descriptor instead.
+func (*RemoveAnnotationRequest) Descriptor() ([]byte, []int) {
+	return file_management_v1_annotation_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RemoveAnnotationRequest) GetAnnotationId() int64 {
+	if x != nil {
+		return x.AnnotationId
+	}
+	return 0
+}
+
+// RemoveAnnotationResponse is the result of removing an annotation.
+type RemoveAnnotationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveAnnotationResponse) Reset() {
+	*x = RemoveAnnotationResponse{}
+	mi := &file_management_v1_annotation_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveAnnotationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveAnnotationResponse) ProtoMessage() {}
+
+func (x *RemoveAnnotationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_annotation_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveAnnotationResponse.ProtoReflect.Descriptor instead.
+func (*RemoveAnnotationResponse) Descriptor() ([]byte, []int) {
+	return file_management_v1_annotation_proto_rawDescGZIP(), []int{3}
+}
+
 var File_management_v1_annotation_proto protoreflect.FileDescriptor
 
 const file_management_v1_annotation_proto_rawDesc = "" +
@@ -153,7 +236,10 @@ const file_management_v1_annotation_proto_rawDesc = "" +
 	"\tnode_name\x18\x03 \x01(\tR\bnodeName\x12#\n" +
 	"\rservice_names\x18\x04 \x03(\tR\fserviceNames\"<\n" +
 	"\x15AddAnnotationResponse\x12#\n" +
-	"\rannotation_id\x18\x01 \x01(\x03R\fannotationIdB\xb0\x01\n" +
+	"\rannotation_id\x18\x01 \x01(\x03R\fannotationId\"G\n" +
+	"\x17RemoveAnnotationRequest\x12,\n" +
+	"\rannotation_id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\fannotationId\"\x1a\n" +
+	"\x18RemoveAnnotationResponseB\xb0\x01\n" +
 	"\x11com.management.v1B\x0fAnnotationProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -169,10 +255,12 @@ func file_management_v1_annotation_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_annotation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_management_v1_annotation_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_annotation_proto_goTypes  = []any{
-		(*AddAnnotationRequest)(nil),  // 0: management.v1.AddAnnotationRequest
-		(*AddAnnotationResponse)(nil), // 1: management.v1.AddAnnotationResponse
+		(*AddAnnotationRequest)(nil),     // 0: management.v1.AddAnnotationRequest
+		(*AddAnnotationResponse)(nil),    // 1: management.v1.AddAnnotationResponse
+		(*RemoveAnnotationRequest)(nil),  // 2: management.v1.RemoveAnnotationRequest
+		(*RemoveAnnotationResponse)(nil), // 3: management.v1.RemoveAnnotationResponse
 	}
 )
 
@@ -195,7 +283,7 @@ func file_management_v1_annotation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_annotation_proto_rawDesc), len(file_management_v1_annotation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

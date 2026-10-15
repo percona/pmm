@@ -70,6 +70,7 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(ctx context.Context, tags []string, time time.Time, text string, user string) (int64, error)
+	DeleteAnnotation(ctx context.Context, id int64, authorization string) error
 	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
 	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }

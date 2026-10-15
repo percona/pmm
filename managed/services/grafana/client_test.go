@@ -626,6 +626,57 @@ func TestCreateAnnotationReturnsID(t *testing.T) {
 	assert.Equal(t, int64(17), id)
 }
 
+func TestDeleteAnnotation(t *testing.T) {
+	t.Parallel()
+
+	const authorization = "Basic YWRtaW46YWRtaW4="
+
+	newClient := func(t *testing.T, statusCode int, body string) *Client {
+		t.Helper()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, http.MethodDelete, r.Method)
+			assert.Equal(t, "/api/annotations/17", r.URL.Path)
+			assert.Equal(t, authorization, r.Header.Get("Authorization"))
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(statusCode)
+			_, _ = fmt.Fprint(w, body)
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://"))
+	}
+
+	t.Run("Deleted", func(t *testing.T) {
+		t.Parallel()
+
+		c := newClient(t, http.StatusOK, `{"message":"Annotation deleted"}`)
+
+		require.NoError(t, c.DeleteAnnotation(t.Context(), 17, authorization))
+	})
+
+	t.Run("Not found", func(t *testing.T) {
+		t.Parallel()
+
+		c := newClient(t, http.StatusNotFound, `{"message":"Annotation not found"}`)
+
+		err := c.DeleteAnnotation(t.Context(), 17, authorization)
+		assert.ErrorIs(t, err, ErrAnnotationNotFound)
+	})
+
+	t.Run("Other error", func(t *testing.T) {
+		t.Parallel()
+
+		c := newClient(t, http.StatusForbidden, `{"message":"Permission denied"}`)
+
+		err := c.DeleteAnnotation(t.Context(), 17, authorization)
+		require.Error(t, err)
+		require.NotErrorIs(t, err, ErrAnnotationNotFound)
+		assert.ErrorContains(t, err, "403")
+	})
+}
+
 func TestClient(t *testing.T) {
 	l := logrus.WithField("test", t.Name())
 

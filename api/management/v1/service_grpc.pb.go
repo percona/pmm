@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_RemoveAnnotation_FullMethodName      = "/management.v1.ManagementService/RemoveAnnotation"
 	ManagementService_ListAgents_FullMethodName            = "/management.v1.ManagementService/ListAgents"
 	ManagementService_ListAgentVersions_FullMethodName     = "/management.v1.ManagementService/ListAgentVersions"
 	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
@@ -43,6 +44,8 @@ const (
 type ManagementServiceClient interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
+	// RemoveAnnotation removes an annotation.
+	RemoveAnnotation(ctx context.Context, in *RemoveAnnotationRequest, opts ...grpc.CallOption) (*RemoveAnnotationResponse, error)
 	// ListAgents returns a list of Agents filtered by service_id or node_id.
 	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	// ListAgentVersions returns a list of PMM Agent versions and their update severity.
@@ -81,6 +84,16 @@ func (c *managementServiceClient) AddAnnotation(ctx context.Context, in *AddAnno
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AddAnnotationResponse)
 	err := c.cc.Invoke(ctx, ManagementService_AddAnnotation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) RemoveAnnotation(ctx context.Context, in *RemoveAnnotationRequest, opts ...grpc.CallOption) (*RemoveAnnotationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveAnnotationResponse)
+	err := c.cc.Invoke(ctx, ManagementService_RemoveAnnotation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,6 +228,8 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 type ManagementServiceServer interface {
 	// AddAnnotation adds an annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
+	// RemoveAnnotation removes an annotation.
+	RemoveAnnotation(context.Context, *RemoveAnnotationRequest) (*RemoveAnnotationResponse, error)
 	// ListAgents returns a list of Agents filtered by service_id or node_id.
 	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	// ListAgentVersions returns a list of PMM Agent versions and their update severity.
@@ -251,6 +266,10 @@ type UnimplementedManagementServiceServer struct{}
 
 func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddAnnotation not implemented")
+}
+
+func (UnimplementedManagementServiceServer) RemoveAnnotation(context.Context, *RemoveAnnotationRequest) (*RemoveAnnotationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveAnnotation not implemented")
 }
 
 func (UnimplementedManagementServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
@@ -335,6 +354,24 @@ func _ManagementService_AddAnnotation_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_RemoveAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveAnnotationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).RemoveAnnotation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_RemoveAnnotation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).RemoveAnnotation(ctx, req.(*RemoveAnnotationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -565,6 +602,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddAnnotation",
 			Handler:    _ManagementService_AddAnnotation_Handler,
+		},
+		{
+			MethodName: "RemoveAnnotation",
+			Handler:    _ManagementService_RemoveAnnotation_Handler,
 		},
 		{
 			MethodName: "ListAgents",

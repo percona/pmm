@@ -1046,6 +1046,28 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 	return response.ID, nil
 }
 
+// ErrAnnotationNotFound is returned when Grafana has no annotation with the requested ID.
+var ErrAnnotationNotFound = errors.New("annotation not found")
+
+// DeleteAnnotation deletes the annotation with given Grafana ID.
+// It returns ErrAnnotationNotFound if Grafana has no such annotation.
+func (c *Client) DeleteAnnotation(ctx context.Context, id int64, authorization string) error {
+	// http://docs.grafana.org/http_api/annotations/#delete-annotation-by-id
+	headers := make(http.Header)
+	headers.Add("Authorization", authorization)
+
+	err := c.do(ctx, http.MethodDelete, fmt.Sprintf("/api/annotations/%d", id), "", headers, nil, nil)
+	cErr, ok := errors.AsType[*clientError](err)
+	if ok && cErr.Code == http.StatusNotFound {
+		return ErrAnnotationNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("failed to delete annotation: %w", err)
+	}
+
+	return nil
+}
+
 func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, authorization string) ([]annotation, error) {
 	// http://docs.grafana.org/http_api/annotations/#find-annotations
 

@@ -137,6 +137,14 @@ service ManagementService {
       description: "Adds an annotation."
     };
   }
+  // RemoveAnnotation removes an annotation.
+  rpc RemoveAnnotation(RemoveAnnotationRequest) returns (RemoveAnnotationResponse) {
+    option (google.api.http) = {delete: "/v1/management/annotations/{annotation_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove an Annotation"
+      description: "Removes an annotation and the series that show it on dashboards."
+    };
+  }
   // ListAgents returns a list of Agents filtered by service_id or node_id.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {get: "/v1/management/agents"};
