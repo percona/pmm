@@ -389,6 +389,51 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("TLSFromVault", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.9.1"),
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.10.0"),
+		}))
+		const ref = "vault:secret/data/pmm/mysql#tls_key"
+
+		// A reference alone, without a Vault path, needs a pmm-agent that reads it.
+		_, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: ref},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+
+		_, err = models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: "vault:secret/data/pmm"},
+		})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Invalid tls_key", err)
+
+		agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: ref},
+		})
+		require.NoError(t, err)
+		agent, err = models.FindAgentByID(q, agent.AgentID)
+		require.NoError(t, err)
+		assert.Equal(t, ref, agent.MySQLOptions.TLSKey)
+		assert.True(t, agent.UsesVault())
+
+		// A change that sets a reference is gated too, while other changes are not.
+		old, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", Username: "pmm", Password: "p",
+		})
+		require.NoError(t, err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new(ref)}})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("KEY")}})
+		require.NoError(t, err)
+		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCa: new("vault:#k")}})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Invalid tls_ca", err)
+	})
+
 	t.Run("ChangeAgentRDSExporterRoleARNGateOnlyWhenRequestSetsIt", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)

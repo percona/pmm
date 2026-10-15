@@ -416,6 +416,7 @@ type Agent struct {
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
 	// VaultPath is the Vault secret holding the database credentials, which then never reach PMM Server.
+	// Any TLS option may also hold a vault:<path>#<key> reference instead of the value, see tlsFields.
 	VaultPath *string `reform:"vault_path"`
 
 	LogLevel *string `reform:"log_level"`
@@ -435,19 +436,110 @@ type Agent struct {
 	// decrypt, by field name, so that writing the Agent back keeps them intact.
 	undecrypted map[string]string
 
-	// checkUsername and checkPassword stand in for those in Vault, see WithCheckCredentials.
+	// checkUsername and checkPassword stand in for those in Vault, see WithCheckSecrets.
 	checkUsername *string
 	checkPassword *string
 }
 
-// WithCheckCredentials returns a copy of the Agent that connects with the given username and password,
-// those which are not nil, instead of the ones in its Vault secret. It serves to check new credentials
-// before they are stored in Vault, where they replace the ones every Agent reading the secret uses.
-// The copy is never to be stored.
-func (a Agent) WithCheckCredentials(username, password *string) *Agent {
-	a.checkUsername = username
-	a.checkPassword = password
+// WithCheckSecrets returns a copy of the Agent that connects with the given secrets, by the key of its
+// Vault secret, instead of the ones in Vault. It serves to check new secrets before they are stored in
+// Vault, where they replace the ones every Agent reading the secret uses. The copy is never to be stored.
+func (a Agent) WithCheckSecrets(secrets map[string]string) *Agent {
+	if v, ok := secrets[VaultUsernameKey]; ok {
+		a.checkUsername = &v
+	}
+	if v, ok := secrets[VaultPasswordKey]; ok {
+		a.checkPassword = &v
+	}
+
+	// a is a copy, options included, so their fields can be set.
+	path := strings.Trim(pointer.GetString(a.VaultPath), "/")
+	for _, f := range a.tlsFields() {
+		v, ok := secrets[f.key]
+		if ok && *f.value == VaultRef(path, f.key) {
+			*f.value = v
+		}
+	}
 	return &a
+}
+
+// secretField is a field of an Agent that holds a secret, or a vault:<path>#<key> reference to one.
+type secretField struct {
+	// key is the key of the Agent's Vault secret that the field is stored under when it is moved there.
+	key   string
+	value *string
+}
+
+// tlsFields returns the TLS options, the client key with the certificates that go with it, by the key of
+// the Vault secret they are stored under. An Agent has only the options of its type set, so the keys of the
+// others do not clash with them. Any option may be nil.
+func tlsFields(mysql *MySQLOptions, mongo *MongoDBOptions, postgres *PostgreSQLOptions, valkey *ValkeyOptions) []secretField {
+	var res []secretField
+	if mysql != nil {
+		res = append(res,
+			secretField{VaultTLSCaKey, &mysql.TLSCa},
+			secretField{VaultTLSCertKey, &mysql.TLSCert},
+			secretField{VaultTLSKeyKey, &mysql.TLSKey},
+		)
+	}
+	if mongo != nil {
+		res = append(res,
+			secretField{VaultTLSCaKey, &mongo.TLSCa},
+			secretField{VaultTLSCertificateKeyKey, &mongo.TLSCertificateKey},
+			secretField{VaultTLSCertificateKeyFilePasswordKey, &mongo.TLSCertificateKeyFilePassword},
+		)
+	}
+	if postgres != nil {
+		res = append(res,
+			secretField{VaultTLSCaKey, &postgres.SSLCa},
+			secretField{VaultTLSCertKey, &postgres.SSLCert},
+			secretField{VaultTLSKeyKey, &postgres.SSLKey},
+		)
+	}
+	if valkey != nil {
+		res = append(res,
+			secretField{VaultTLSCaKey, &valkey.SSLCa},
+			secretField{VaultTLSCertKey, &valkey.SSLCert},
+			secretField{VaultTLSKeyKey, &valkey.SSLKey},
+		)
+	}
+	return res
+}
+
+func (a *Agent) tlsFields() []secretField {
+	return tlsFields(&a.MySQLOptions, &a.MongoDBOptions, &a.PostgreSQLOptions, &a.ValkeyOptions)
+}
+
+// VaultRef returns the vault:<path>#<key> reference to key of the Vault secret at path.
+func VaultRef(path, key string) string {
+	return vault.RefPrefix + strings.Trim(path, "/") + "#" + key
+}
+
+// UsesVault reports whether pmm-agent reads any of the Agent's secrets from Vault.
+func (a *Agent) UsesVault() bool {
+	if a.VaultPath != nil {
+		return true
+	}
+	for _, f := range a.tlsFields() {
+		if vault.IsRef(*f.value) {
+			return true
+		}
+	}
+	return false
+}
+
+// validateVaultRefs returns an error for an option of the Agent that holds an invalid Vault reference.
+func (a *Agent) validateVaultRefs() error {
+	for _, f := range a.tlsFields() {
+		if !vault.IsRef(*f.value) {
+			continue
+		}
+		_, err := vault.ParseRef(*f.value)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid %s: %s.", f.key, err)
+		}
+	}
+	return nil
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -606,10 +698,15 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
-// Keys of the Vault secret at VaultPath.
+// Keys of the Vault secret at VaultPath. Those of the TLS options are named after their API fields.
 const (
-	VaultUsernameKey = "username"
-	VaultPasswordKey = "password"
+	VaultUsernameKey                      = "username"
+	VaultPasswordKey                      = "password"
+	VaultTLSCaKey                         = "tls_ca"
+	VaultTLSCertKey                       = "tls_cert"
+	VaultTLSKeyKey                        = "tls_key"
+	VaultTLSCertificateKeyKey             = "tls_certificate_key"
+	VaultTLSCertificateKeyFilePasswordKey = "tls_certificate_key_file_password"
 )
 
 // DBCredentials returns the username and password the Agent connects to its database with.
@@ -821,7 +918,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 		}
 		if a.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-			q.Add("tlsCertificateKeyFilePassword", a.MongoDBOptions.TLSCertificateKeyFilePassword)
+			q.Add("tlsCertificateKeyFilePassword", vault.TokenForRef(a.MongoDBOptions.TLSCertificateKeyFilePassword, vault.EncodingQuery))
 		}
 		if a.MongoDBOptions.TLSCa != "" {
 			q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
@@ -1032,19 +1129,20 @@ func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 }
 
-// Files returns files map required to connect to DB.
+// Files returns files map required to connect to DB. The content of a file stored in Vault is a token,
+// which pmm-agent replaces with it.
 func (a Agent) Files() map[string]string { //nolint:gocognit
 	switch a.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
 		if a.MySQLOptions.TLSCa != "" {
-			files[TLSCaFileName] = a.MySQLOptions.TLSCa
+			files[TLSCaFileName] = vault.TokenForRef(a.MySQLOptions.TLSCa, vault.EncodingRaw)
 		}
 		if a.MySQLOptions.TLSCert != "" {
-			files[TLSCertFileName] = a.MySQLOptions.TLSCert
+			files[TLSCertFileName] = vault.TokenForRef(a.MySQLOptions.TLSCert, vault.EncodingRaw)
 		}
 		if a.MySQLOptions.TLSKey != "" {
-			files[TLSKeyFileName] = a.MySQLOptions.TLSKey
+			files[TLSKeyFileName] = vault.TokenForRef(a.MySQLOptions.TLSKey, vault.EncodingRaw)
 		}
 
 		if len(files) != 0 {
@@ -1057,10 +1155,10 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		files := make(map[string]string)
 		if a.MongoDBOptions.TLSCa != "" {
-			files[caFilePlaceholder] = a.MongoDBOptions.TLSCa
+			files[caFilePlaceholder] = vault.TokenForRef(a.MongoDBOptions.TLSCa, vault.EncodingRaw)
 		}
 		if a.MongoDBOptions.TLSCertificateKey != "" {
-			files[certificateKeyFilePlaceholder] = a.MongoDBOptions.TLSCertificateKey
+			files[certificateKeyFilePlaceholder] = vault.TokenForRef(a.MongoDBOptions.TLSCertificateKey, vault.EncodingRaw)
 		}
 
 		if len(files) != 0 {
@@ -1072,13 +1170,13 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 		files := make(map[string]string)
 
 		if a.PostgreSQLOptions.SSLCa != "" {
-			files[caFilePlaceholder] = a.PostgreSQLOptions.SSLCa
+			files[caFilePlaceholder] = vault.TokenForRef(a.PostgreSQLOptions.SSLCa, vault.EncodingRaw)
 		}
 		if a.PostgreSQLOptions.SSLCert != "" {
-			files[certificateFilePlaceholder] = a.PostgreSQLOptions.SSLCert
+			files[certificateFilePlaceholder] = vault.TokenForRef(a.PostgreSQLOptions.SSLCert, vault.EncodingRaw)
 		}
 		if a.PostgreSQLOptions.SSLKey != "" {
-			files[certificateKeyFilePlaceholder] = a.PostgreSQLOptions.SSLKey
+			files[certificateKeyFilePlaceholder] = vault.TokenForRef(a.PostgreSQLOptions.SSLKey, vault.EncodingRaw)
 		}
 
 		if len(files) != 0 {
@@ -1096,14 +1194,14 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 		files := make(map[string]string)
 
 		if a.ValkeyOptions.SSLCa != "" {
-			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
+			files[TLSCaFileName] = vault.TokenForRef(a.ValkeyOptions.SSLCa, vault.EncodingRaw)
 		}
 		// valkey_exporter calls log.Fatal on half a client key pair and the connection
 		// check cannot use one either, so the pair only ships as a unit. Registration rejects
 		// a half pair, so this only guards rows written before that validation existed.
 		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
-			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
-			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
+			files[TLSCertFileName] = vault.TokenForRef(a.ValkeyOptions.SSLCert, vault.EncodingRaw)
+			files[TLSKeyFileName] = vault.TokenForRef(a.ValkeyOptions.SSLKey, vault.EncodingRaw)
 		}
 
 		if len(files) != 0 {

@@ -34,30 +34,20 @@ type ServiceConnectionChecker interface {
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
 }
 
-// StoreCredentialsInVault stores the given credentials, those which are not empty, in the Vault secret of
-// the Agent, through its pmm-agent. Unless skipCheck is set, it first checks that the Agent connects with
-// them: they replace the credentials of every Agent that reads the secret, which wrong ones would break.
-// It reports whether it stored anything.
+// StoreCredentialsInVault stores the given secrets, by key, in the Vault secret of the Agent, through its
+// pmm-agent. Unless skipCheck is set, it first checks that the Agent connects with them: they replace the
+// secrets of every Agent that reads the secret, which wrong ones would break. It reports whether it
+// stored anything.
 func StoreCredentialsInVault(
 	ctx context.Context,
 	q *reform.Querier,
 	storer SecretStorer,
 	checker ServiceConnectionChecker,
 	agent *models.Agent,
-	username, password string,
+	secrets map[string]string,
 	skipCheck bool,
 ) (bool, error) {
-	data := make(map[string]string, 2) //nolint:mnd
-	var checkUsername, checkPassword *string
-	if username != "" {
-		data[models.VaultUsernameKey] = username
-		checkUsername = &username
-	}
-	if password != "" {
-		data[models.VaultPasswordKey] = password
-		checkPassword = &password
-	}
-	if len(data) == 0 {
+	if len(secrets) == 0 {
 		return false, nil
 	}
 
@@ -67,13 +57,13 @@ func StoreCredentialsInVault(
 			return false, err
 		}
 
-		err = checker.CheckConnectionToService(ctx, q, service, agent.WithCheckCredentials(checkUsername, checkPassword))
+		err = checker.CheckConnectionToService(ctx, q, service, agent.WithCheckSecrets(secrets))
 		if err != nil {
 			return false, err
 		}
 	}
 
-	err := storer.StoreSecret(ctx, q, pointer.GetString(agent.PMMAgentID), pointer.GetString(agent.VaultPath), data)
+	err := storer.StoreSecret(ctx, q, pointer.GetString(agent.PMMAgentID), pointer.GetString(agent.VaultPath), secrets)
 	if err != nil {
 		return false, err
 	}

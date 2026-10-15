@@ -31,7 +31,11 @@ import (
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent", "QAN MongoDB Profiler" and "Real-Time Analytics Agent".
 func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
-	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, map[string]*string{
+		models.VaultTLSCaKey:                         &req.TlsCa,
+		models.VaultTLSCertificateKeyKey:             &req.TlsCertificateKey,
+		models.VaultTLSCertificateKeyFilePasswordKey: &req.TlsCertificateKeyFilePassword,
+	})
 	mongodb := &managementv1.MongoDBServiceResult{}
 
 	// Pure request validation: this is a new agent, so there is no existing agent to grandfather,
@@ -99,7 +103,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		if err != nil {
 			return err
 		}
-		err = s.storeInVault(ctx, tx.Querier, row, req.Username, vaultPassword, req.SkipConnectionCheck)
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

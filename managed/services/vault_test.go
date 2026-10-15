@@ -65,7 +65,7 @@ func TestStoreCredentialsInVault(t *testing.T) {
 		t.Parallel()
 
 		storer := &fakeStorer{}
-		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, "", "", false)
+		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, nil, false)
 		require.NoError(t, err)
 		assert.False(t, stored)
 		assert.Empty(t, storer.path)
@@ -75,40 +75,52 @@ func TestStoreCredentialsInVault(t *testing.T) {
 		t.Parallel()
 
 		storer := &fakeStorer{}
-		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, "pmm", "s3cr3t", true)
+		secrets := map[string]string{"username": "pmm", "password": "s3cr3t", "tls_key": "-----BEGIN PRIVATE KEY-----"}
+		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, secrets, true)
 		require.NoError(t, err)
 		assert.True(t, stored)
 		assert.Equal(t, "pmm-agent-id", storer.pmmAgentID)
 		assert.Equal(t, "secret/data/pmm/mysql", storer.path)
-		assert.Equal(t, map[string]string{"username": "pmm", "password": "s3cr3t"}, storer.data)
+		assert.Equal(t, secrets, storer.data)
 	})
 
 	t.Run("StoreFails", func(t *testing.T) {
 		t.Parallel()
 
 		storer := &fakeStorer{err: errors.New("vault is down")}
-		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, "", "s3cr3t", true)
+		stored, err := StoreCredentialsInVault(t.Context(), nil, storer, &fakeChecker{}, agent, map[string]string{"password": "s3cr3t"}, true)
 		require.EqualError(t, err, "vault is down")
 		assert.False(t, stored)
 	})
 }
 
-func TestWithCheckCredentials(t *testing.T) {
+func TestWithCheckSecrets(t *testing.T) {
 	t.Parallel()
 
-	agent := &models.Agent{AgentType: models.MySQLdExporterType, Username: new("fallback"), VaultPath: new("secret/data/pmm/mysql")}
+	agent := &models.Agent{
+		AgentType:    models.MySQLdExporterType,
+		Username:     new("fallback"),
+		VaultPath:    new("secret/data/pmm/mysql"),
+		MySQLOptions: models.MySQLOptions{TLSKey: "vault:secret/data/pmm/mysql#tls_key", TLSCa: "vault:secret/data/other#tls_ca"},
+	}
 
 	// The new password is checked in plaintext, while the username stays the one in Vault.
-	username, password := agent.WithCheckCredentials(nil, new("new")).DBCredentials(vault.EncodingRaw)
+	username, password := agent.WithCheckSecrets(map[string]string{"password": "new"}).DBCredentials(vault.EncodingRaw)
 	assert.Equal(t, "new", password)
 	assert.Equal(t, vault.TokenWithFallback("secret/data/pmm/mysql", "username", vault.EncodingRaw, "fallback"), username)
 
-	username, password = agent.WithCheckCredentials(new("pmm"), nil).DBCredentials(vault.EncodingUserinfo)
+	username, password = agent.WithCheckSecrets(map[string]string{"username": "pmm"}).DBCredentials(vault.EncodingUserinfo)
 	assert.Equal(t, "pmm", username)
 	assert.Equal(t, vault.Token("secret/data/pmm/mysql", "password", vault.EncodingUserinfo), password)
+
+	// So is a new TLS key of the secret, while a reference to another secret is kept.
+	files := agent.WithCheckSecrets(map[string]string{"tls_key": "KEY", "tls_ca": "CA"}).Files()
+	assert.Equal(t, "KEY", files["tlsKey"])
+	assert.Equal(t, vault.Token("secret/data/other", "tls_ca", vault.EncodingRaw), files["tlsCa"])
 
 	// The Agent itself is not changed.
 	username, password = agent.DBCredentials(vault.EncodingRaw)
 	assert.True(t, vault.HasTokens(username))
 	assert.True(t, vault.HasTokens(password))
+	assert.Equal(t, "vault:secret/data/pmm/mysql#tls_key", agent.MySQLOptions.TLSKey)
 }

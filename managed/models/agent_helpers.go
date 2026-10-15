@@ -1159,7 +1159,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	if row.VaultPath != nil {
+	err = row.validateVaultRefs()
+	if err != nil {
+		return nil, err
+	}
+	if row.UsesVault() {
 		err = IsAgentSupported(pmmAgent, VaultFunctionality, PMMAgentMinVersionForVault)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
@@ -1171,6 +1175,114 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 // VaultFunctionality names reading credentials stored in Vault in version errors.
 const VaultFunctionality = "Credentials stored in Vault"
+
+// TakeVaultSecrets moves the secrets that params gives in plain text for an Agent with a Vault path out
+// of params, and returns them by the key of the Vault secret they are to be stored under: with a Vault
+// path, PMM Server keeps none of them. The TLS options are left with references to the keys, so that the
+// client key and the certificates that go with it are rotated together. The username goes along with a
+// password, and stays in params as the fallback for a secret that has none.
+func (p *CreateAgentParams) TakeVaultSecrets() map[string]string {
+	if strings.Trim(p.VaultPath, "/") == "" {
+		return nil
+	}
+
+	secrets := make(map[string]string)
+	if p.Password != "" {
+		secrets[VaultPasswordKey] = p.Password
+		if p.Username != "" {
+			secrets[VaultUsernameKey] = p.Username
+		}
+		p.Password = ""
+	}
+
+	for _, f := range tlsFields(&p.MySQLOptions, &p.MongoDBOptions, &p.PostgreSQLOptions, &p.ValkeyOptions) {
+		if *f.value != "" && !vault.IsRef(*f.value) {
+			secrets[f.key] = *f.value
+			*f.value = VaultRef(p.VaultPath, f.key)
+		}
+	}
+
+	if len(secrets) == 0 {
+		return nil
+	}
+	return secrets
+}
+
+// changeTLSFields is tlsFields for a change, with the fields it leaves unchanged left out.
+func (p *ChangeAgentParams) changeTLSFields() []changeSecretField {
+	var res []changeSecretField
+	add := func(key string, value **string) {
+		if *value != nil {
+			res = append(res, changeSecretField{key: key, value: value})
+		}
+	}
+	if o := p.MySQLOptions; o != nil {
+		add(VaultTLSCaKey, &o.TLSCa)
+		add(VaultTLSCertKey, &o.TLSCert)
+		add(VaultTLSKeyKey, &o.TLSKey)
+	}
+	if o := p.MongoDBOptions; o != nil {
+		add(VaultTLSCaKey, &o.TLSCa)
+		add(VaultTLSCertificateKeyKey, &o.TLSCertificateKey)
+		add(VaultTLSCertificateKeyFilePasswordKey, &o.TLSCertificateKeyFilePassword)
+	}
+	if o := p.PostgreSQLOptions; o != nil {
+		add(VaultTLSCaKey, &o.SSLCa)
+		add(VaultTLSCertKey, &o.SSLCert)
+		add(VaultTLSKeyKey, &o.SSLKey)
+	}
+	if o := p.ValkeyOptions; o != nil {
+		add(VaultTLSCaKey, &o.SSLCa)
+		add(VaultTLSCertKey, &o.SSLCert)
+		add(VaultTLSKeyKey, &o.SSLKey)
+	}
+	return res
+}
+
+// changeSecretField is a secretField that a change sets.
+type changeSecretField struct {
+	key   string
+	value **string
+}
+
+// TakeVaultTLSSecrets is CreateAgentParams.TakeVaultSecrets for the TLS options of a change of an Agent
+// whose credentials are in the Vault secret at path: it adds them to secrets, and leaves references to
+// their keys in a copy of the options. The options of p are copied before, so that the caller's are kept.
+func (p *ChangeAgentParams) TakeVaultTLSSecrets(path string, secrets map[string]string) {
+	if strings.Trim(path, "/") == "" {
+		return
+	}
+
+	if p.MySQLOptions != nil {
+		p.MySQLOptions = new(*p.MySQLOptions)
+	}
+	if p.MongoDBOptions != nil {
+		p.MongoDBOptions = new(*p.MongoDBOptions)
+	}
+	if p.PostgreSQLOptions != nil {
+		p.PostgreSQLOptions = new(*p.PostgreSQLOptions)
+	}
+	if p.ValkeyOptions != nil {
+		p.ValkeyOptions = new(*p.ValkeyOptions)
+	}
+
+	for _, f := range p.changeTLSFields() {
+		if v := **f.value; v != "" && !vault.IsRef(v) {
+			secrets[f.key] = v
+			*f.value = new(VaultRef(path, f.key))
+		}
+	}
+}
+
+// setsVaultRefs reports whether the change sets a TLS option to a Vault reference.
+func (p *ChangeAgentParams) setsVaultRefs() bool {
+	for _, f := range p.changeTLSFields() {
+		if vault.IsRef(**f.value) {
+			return true
+		}
+	}
+	return false
+}
 
 // validateVaultPath returns an error if vaultPath is set but invalid, or set together with password.
 func validateVaultPath(vaultPath, password string) error {
@@ -1688,7 +1800,11 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 	}
 
-	if pointer.GetString(params.VaultPath) != "" {
+	err = row.validateVaultRefs()
+	if err != nil {
+		return nil, err
+	}
+	if pointer.GetString(params.VaultPath) != "" || params.setsVaultRefs() {
 		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), VaultFunctionality, PMMAgentMinVersionForVault)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())

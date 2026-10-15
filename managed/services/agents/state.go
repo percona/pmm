@@ -447,7 +447,7 @@ func groupRDSExporters(rdsExporters map[*models.Node]*models.Agent) map[string]m
 // pmmAgent, which would use the Vault tokens as the credentials if it is too old. Both models.CreateAgent
 // and models.ApplyAgentChange refuse such a row, but a pmm-agent downgraded since then is caught here.
 func checkVaultSupported(pmmAgent, row *models.Agent) error {
-	if row.VaultPath == nil {
+	if !row.UsesVault() {
 		return nil
 	}
 	return models.IsAgentSupported(pmmAgent, models.VaultFunctionality, models.PMMAgentMinVersionForVault)

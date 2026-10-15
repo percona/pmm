@@ -35,7 +35,11 @@ const (
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
 func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
-	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, map[string]*string{
+		models.VaultTLSCaKey:   &req.TlsCa,
+		models.VaultTLSCertKey: &req.TlsCert,
+		models.VaultTLSKeyKey:  &req.TlsKey,
+	})
 	err := services.RequireUsername("AddMySQLServiceParams", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -120,7 +124,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 		if err != nil {
 			return err
 		}
-		err = s.storeInVault(ctx, tx.Querier, row, req.Username, vaultPassword, req.SkipConnectionCheck)
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

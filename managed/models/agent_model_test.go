@@ -1061,3 +1061,93 @@ func TestDBCredentialsFromVault(t *testing.T) {
 		assert.Equal(t, &models.DBConfig{User: "u", Password: "p", Address: "1.2.3.4", Port: 12345}, agent.DBConfig(service))
 	})
 }
+
+func TestTLSFromVault(t *testing.T) {
+	t.Parallel()
+
+	const keyPassword = "p@ss&w=rd +x"
+	secret := map[string]string{"tls_key": "KEY", "tls_ca": "CA", "tls_certificate_key": "CERT+KEY", "tls_certificate_key_file_password": keyPassword}
+	get := func(path, key string) (string, error) {
+		if path != "secret/data/pmm" {
+			return "", errors.New("unexpected path " + path)
+		}
+		return secret[key], nil
+	}
+	service := &models.Service{Address: new("1.2.3.4"), Port: new(uint16(12345))}
+
+	t.Run("FilesHoldTokens", func(t *testing.T) {
+		t.Parallel()
+
+		for _, agent := range []*models.Agent{
+			{AgentType: models.MySQLdExporterType, MySQLOptions: models.MySQLOptions{TLSKey: "vault:secret/data/pmm#tls_key", TLSCa: "CA"}},
+			{AgentType: models.PostgresExporterType, PostgreSQLOptions: models.PostgreSQLOptions{SSLKey: "vault:secret/data/pmm#tls_key", SSLCa: "CA"}},
+			{AgentType: models.ValkeyExporterType, TLS: true, ValkeyOptions: models.ValkeyOptions{SSLKey: "vault:secret/data/pmm#tls_key", SSLCert: "C", SSLCa: "CA"}},
+		} {
+			assert.True(t, agent.UsesVault(), agent.AgentType)
+			files := agent.Files()
+			resolved := make([]string, 0, len(files))
+			for _, content := range files {
+				v, _, err := vault.ReplaceTokens(content, get)
+				require.NoError(t, err)
+				resolved = append(resolved, v)
+			}
+			assert.Contains(t, resolved, "KEY", agent.AgentType)
+			assert.Contains(t, resolved, "CA", agent.AgentType)
+			for _, content := range files {
+				assert.NotContains(t, content, "vault:", agent.AgentType)
+			}
+		}
+
+		plain := &models.Agent{AgentType: models.MySQLdExporterType, MySQLOptions: models.MySQLOptions{TLSKey: "KEY"}}
+		assert.False(t, plain.UsesVault())
+		assert.Equal(t, map[string]string{"tlsKey": "KEY"}, plain.Files())
+	})
+
+	t.Run("MongoDBKeyAndItsPassword", func(t *testing.T) {
+		t.Parallel()
+
+		agent := &models.Agent{AgentType: models.MongoDBExporterType, MongoDBOptions: models.MongoDBOptions{
+			TLSCertificateKey:             "vault:secret/data/pmm#tls_certificate_key",
+			TLSCertificateKeyFilePassword: "vault:secret/data/pmm#tls_certificate_key_file_password",
+		}}
+		assert.True(t, agent.UsesVault())
+
+		dsn := agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil)
+		assert.NotContains(t, dsn, "vault:")
+		resolved, values, err := vault.ReplaceTokens(dsn, get)
+		require.NoError(t, err)
+		assert.Contains(t, values, keyPassword)
+
+		u, err := url.Parse(resolved)
+		require.NoError(t, err)
+		assert.Equal(t, keyPassword, u.Query().Get("tlsCertificateKeyFilePassword"))
+
+		key, _, err := vault.ReplaceTokens(agent.Files()["certificateKeyFilePlaceholder"], get)
+		require.NoError(t, err)
+		assert.Equal(t, "CERT+KEY", key)
+	})
+
+	t.Run("TakeVaultSecrets", func(t *testing.T) {
+		t.Parallel()
+
+		params := &models.CreateAgentParams{
+			Username: "pmm", Password: "s3cr3t", VaultPath: "/secret/data/pmm/",
+			MySQLOptions: models.MySQLOptions{TLSCa: "CA", TLSKey: "KEY", TLSCert: "vault:secret/data/other#cert"},
+		}
+		assert.Equal(t, map[string]string{"username": "pmm", "password": "s3cr3t", "tls_ca": "CA", "tls_key": "KEY"}, params.TakeVaultSecrets())
+		assert.Empty(t, params.Password)
+		assert.Equal(t, "pmm", params.Username, "it stays as the fallback")
+		assert.Equal(t, models.MySQLOptions{
+			TLSCa:   "vault:secret/data/pmm#tls_ca",
+			TLSKey:  "vault:secret/data/pmm#tls_key",
+			TLSCert: "vault:secret/data/other#cert",
+		}, params.MySQLOptions)
+
+		// Nothing to take, or no Vault path.
+		assert.Nil(t, (&models.CreateAgentParams{VaultPath: "secret/data/pmm", Username: "pmm"}).TakeVaultSecrets())
+		plain := &models.CreateAgentParams{Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: "KEY"}}
+		assert.Nil(t, plain.TakeVaultSecrets())
+		assert.Equal(t, "p", plain.Password)
+		assert.Equal(t, "KEY", plain.MySQLOptions.TLSKey)
+	})
+}

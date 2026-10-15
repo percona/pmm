@@ -99,6 +99,19 @@ func TestReplaceTokens(t *testing.T) {
 		assert.Contains(t, values, "p%40ss%3Aw%2Frd%20%7B%7B%20%7D%7D")
 	})
 
+	t.Run("QuerySurvivesURLEncoding", func(t *testing.T) {
+		t.Parallel()
+
+		q := url.Values{"tlsCertificateKeyFilePassword": []string{Token("database/creds/pmm", "password", EncodingQuery)}}
+		s, values, err := ReplaceTokens("mongodb://host:27017/?"+q.Encode(), get)
+		require.NoError(t, err)
+
+		parsed, err := url.Parse(s)
+		require.NoError(t, err)
+		assert.Equal(t, "p@ss:w/rd {{ }}", parsed.Query().Get("tlsCertificateKeyFilePassword"))
+		assert.Contains(t, values, "p%40ss%3Aw%2Frd+%7B%7B+%7D%7D")
+	})
+
 	t.Run("MissingKey", func(t *testing.T) {
 		t.Parallel()
 
@@ -141,4 +154,12 @@ func TestTokenWithFallback(t *testing.T) {
 	s, _, err = ReplaceTokens(TokenWithFallback("kv/db", "password", EncodingRaw, "fallback"), get)
 	require.NoError(t, err)
 	assert.Equal(t, "s3cr3t", s)
+}
+
+func TestTokenForRef(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, Token("secret/data/pmm/mysql", "tls_key", EncodingRaw), TokenForRef("vault:secret/data/pmm/mysql#tls_key", EncodingRaw))
+	assert.Equal(t, "-----BEGIN PRIVATE KEY-----", TokenForRef("-----BEGIN PRIVATE KEY-----", EncodingRaw))
+	assert.Equal(t, "vault:no-key", TokenForRef("vault:no-key", EncodingRaw))
 }

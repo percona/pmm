@@ -2147,15 +2147,15 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 			}
 		}
 
-		changeParams, vaultUsername, vaultPassword := vaultChange(currentAgent, params)
+		changeParams, vaultSecrets := vaultChange(currentAgent, params)
 		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, changeParams)
 		if err != nil {
 			return err
 		}
 
-		// Checked with the new credentials before they are stored, so the check below would only repeat it.
+		// Checked with the new secrets before they are stored, so the check below would only repeat it.
 		stored, err := services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, updatedAgent,
-			vaultUsername, vaultPassword, params.SkipConnectionCheck)
+			vaultSecrets, params.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}
@@ -2180,39 +2180,43 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	return agent, err
 }
 
-// vaultChange takes the credentials that go to Vault off a change of an Agent that reads its credentials
-// from Vault, or is moved to Vault by the change: a username or password given for it replaces the one
-// in its Vault secret, unless the change takes it off Vault with an empty Vault path. The username is
-// kept in PMM Server too, as the fallback for a secret that has none.
-func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*models.ChangeAgentParams, string, string) {
+// vaultChange takes the secrets that go to Vault off a change of an Agent that reads its credentials from
+// Vault, or is moved to Vault by the change, and returns them by key: a username, password or TLS option
+// given for it replaces the one in its Vault secret, unless the change takes it off Vault with an empty
+// Vault path. The username is kept in PMM Server too, as the fallback for a secret that has none, and the
+// TLS options are left with references to the keys of the secret.
+func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*models.ChangeAgentParams, map[string]string) {
 	path := pointer.GetString(current.VaultPath)
 	if params.VaultPath != nil {
 		path = *params.VaultPath
 	}
 	if path == "" {
-		return params, "", ""
-	}
-
-	username := pointer.GetString(params.Username)
-	password := pointer.GetString(params.Password)
-	if password == "" {
-		return params, username, ""
+		return params, nil
 	}
 
 	changed := *params
-	changed.Password = nil
-	return &changed, username, password
+	secrets := make(map[string]string)
+	if username := pointer.GetString(params.Username); username != "" {
+		secrets[models.VaultUsernameKey] = username
+	}
+	if password := pointer.GetString(params.Password); password != "" {
+		secrets[models.VaultPasswordKey] = password
+		changed.Password = nil
+	}
+	changed.TakeVaultTLSSecrets(path, secrets)
+
+	if len(secrets) == 0 {
+		return params, nil
+	}
+	return &changed, secrets
 }
 
 // executeAgentAdd creates an agent and returns the agent.
 func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
-	// A password given with a Vault path goes to Vault, never to PMM Server.
-	vaultPassword := ""
-	if params.VaultPath != "" {
-		vaultPassword, params.Password = params.Password, ""
-	}
+	// The secrets given with a Vault path go to Vault, never to PMM Server.
+	vaultSecrets := params.TakeVaultSecrets()
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateAgent(tx.Querier, agentType, params)
@@ -2220,8 +2224,8 @@ func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.A
 			return err
 		}
 
-		if vaultPassword != "" {
-			_, err = services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, row, params.Username, vaultPassword, params.SkipConnectionCheck)
+		if vaultSecrets != nil {
+			_, err = services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, row, vaultSecrets, params.SkipConnectionCheck)
 			if err != nil {
 				return err
 			}

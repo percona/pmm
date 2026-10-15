@@ -33,6 +33,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // ManagementService allows to interact with services.
@@ -542,25 +543,41 @@ func (s *ManagementService) validateRequest(request *managementv1.RemoveServiceR
 	return nil
 }
 
-// takeVaultPassword takes a password given with a Vault path out of the request: it goes to Vault, see
-// storeInVault, and never to PMM Server.
-func takeVaultPassword(vaultPath string, password *string) string {
-	if vaultPath == "" {
-		return ""
-	}
-
-	taken := *password
-	*password = ""
-	return taken
-}
-
-// storeInVault stores the credentials a Service is added with in the Vault secret its Agents read them
-// from, after checking that the exporter connects with them unless the check is skipped.
-func (s *ManagementService) storeInVault(ctx context.Context, q *reform.Querier, exporter *models.Agent, username, password string, skipCheck bool) error {
-	if password == "" {
+// takeVaultSecrets takes the secrets that a request for a Service with a Vault path gives in plain text out
+// of it, and returns them by the key of the Vault secret they go to, see storeInVault: PMM Server keeps
+// none of them. The username goes along with a password, and stays in the request as the fallback for a
+// secret that has none. The TLS options of the request, given by key, are left with references to their
+// keys, so that the client key and the certificates that go with it are rotated together.
+func takeVaultSecrets(vaultPath, username string, password *string, tls map[string]*string) map[string]string {
+	if strings.Trim(vaultPath, "/") == "" {
 		return nil
 	}
 
-	_, err := services.StoreCredentialsInVault(ctx, q, s.r, s.cc, exporter, username, password, skipCheck)
+	secrets := make(map[string]string)
+	if *password != "" {
+		secrets[models.VaultPasswordKey] = *password
+		if username != "" {
+			secrets[models.VaultUsernameKey] = username
+		}
+		*password = ""
+	}
+
+	for key, value := range tls {
+		if *value != "" && !vault.IsRef(*value) {
+			secrets[key] = *value
+			*value = models.VaultRef(vaultPath, key)
+		}
+	}
+
+	if len(secrets) == 0 {
+		return nil
+	}
+	return secrets
+}
+
+// storeInVault stores the secrets a Service is added with in the Vault secret its Agents read them from,
+// after checking that the exporter connects with them unless the check is skipped.
+func (s *ManagementService) storeInVault(ctx context.Context, q *reform.Querier, exporter *models.Agent, secrets map[string]string, skipCheck bool) error {
+	_, err := services.StoreCredentialsInVault(ctx, q, s.r, s.cc, exporter, secrets, skipCheck)
 	return err
 }

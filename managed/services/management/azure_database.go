@@ -190,7 +190,7 @@ func (s *ManagementService) DiscoverAzureDatabase(
 //
 //nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
-	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, nil)
 	err := services.RequireUsername("AddAzureDatabaseRequest", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -313,7 +313,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		if err != nil {
 			return err
 		}
-		err = s.storeInVault(ctx, tx.Querier, metricsExporter, req.Username, vaultPassword, req.SkipConnectionCheck)
+		err = s.storeInVault(ctx, tx.Querier, metricsExporter, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

@@ -30,7 +30,7 @@ import (
 
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
 func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.AddProxySQLServiceParams) (*managementv1.AddServiceResponse, error) {
-	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, nil)
 	err := services.RequireUsername("AddProxySQLServiceParams", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 		if err != nil {
 			return err
 		}
-		err = s.storeInVault(ctx, tx.Querier, row, req.Username, vaultPassword, req.SkipConnectionCheck)
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

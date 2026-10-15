@@ -120,7 +120,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
+		err = tlshelpers.RegisterMySQLCerts(ctx, files.Files, tlsSkipVerify)
 		if err != nil {
 			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -297,7 +297,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, tls, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(ctx, files, tls, tlsSkipVerify)
 	if err != nil {
 		cc.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
 		res.Error = err.Error()

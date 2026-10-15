@@ -101,7 +101,7 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
+		err = tlshelpers.RegisterMySQLCerts(ctx, files.Files, tlsSkipVerify)
 		if err != nil {
 			sib.l.Debugf("getMySQLInfo: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -288,7 +288,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTLS, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(ctx, files, useTLS, tlsSkipVerify)
 	if err != nil {
 		sib.l.Debugf("getValkeyInfo: failed to get TLS config: %s", err)
 		res.Error = err.Error()

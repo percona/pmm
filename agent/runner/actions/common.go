@@ -65,7 +65,7 @@ func mysqlOpen(ctx context.Context, dsn string, tlsFiles *agentv1.TextFiles, tls
 	}
 
 	if tlsFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files, tlsSkipVerify)
+		err := tlshelpers.RegisterMySQLCerts(ctx, tlsFiles.Files, tlsSkipVerify)
 		if err != nil {
 			return nil, err
 		}

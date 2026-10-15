@@ -83,6 +83,8 @@ const (
 	EncodingRaw Encoding = "raw"
 	// EncodingUserinfo escapes the value for the userinfo of a URL.
 	EncodingUserinfo Encoding = "userinfo"
+	// EncodingQuery escapes the value for the query of a URL.
+	EncodingQuery Encoding = "query"
 )
 
 const tokenStart = "~pmm-vault~" //nolint:gosec
@@ -112,6 +114,17 @@ func TokenWithFallback(path, key string, enc Encoding, fallback string) string {
 func encodeToken(p tokenPayload) string {
 	b, _ := json.Marshal(p) //nolint:errchkjson
 	return tokenStart + base64.RawURLEncoding.EncodeToString(b) + "~"
+}
+
+// TokenForRef returns the token for the value s refers to if s is a vault:<path>#<key> reference, and s
+// itself otherwise, such as for a secret stored in PMM Server or an invalid reference, which validation
+// refuses before it is stored.
+func TokenForRef(s string, enc Encoding) string {
+	ref, err := ParseRef(s)
+	if err != nil {
+		return s
+	}
+	return Token(ref.Path, ref.Key, enc)
 }
 
 // HasTokens reports whether s contains a token.
@@ -186,6 +199,8 @@ func resolveToken(token string, get Getter) (string, string, bool, error) {
 		return v, v, secret, nil
 	case EncodingUserinfo:
 		return v, url.User(v).String(), secret, nil
+	case EncodingQuery:
+		return v, url.QueryEscape(v), secret, nil
 	default:
 		return "", "", false, fmt.Errorf("unsupported vault token encoding '%s'", p.Encoding)
 	}

@@ -32,41 +32,62 @@ import (
 func TestVaultChange(t *testing.T) {
 	t.Parallel()
 
+	const ref = "vault:secret/data/pmm/mysql#tls_key"
 	vaultBacked := &models.Agent{VaultPath: new("secret/data/pmm/mysql")}
 	stored := &models.Agent{Password: new("old")}
 
 	for name, tc := range map[string]struct {
-		current            *models.Agent
-		params             models.ChangeAgentParams
-		username, password string
-		keepsPassword      bool
+		current       *models.Agent
+		params        models.ChangeAgentParams
+		secrets       map[string]string
+		keepsPassword bool
+		tlsKey        *string
 	}{
 		"PasswordOfVaultBackedAgentGoesToVault": {
-			current: vaultBacked, params: models.ChangeAgentParams{Password: new("new")}, password: "new",
+			current: vaultBacked, params: models.ChangeAgentParams{Password: new("new")}, secrets: map[string]string{"password": "new"},
 		},
 		"UsernameGoesToVaultToo": {
-			current: vaultBacked, params: models.ChangeAgentParams{Username: new("pmm"), Password: new("new")}, username: "pmm", password: "new",
+			current: vaultBacked, params: models.ChangeAgentParams{Username: new("pmm"), Password: new("new")},
+			secrets: map[string]string{"username": "pmm", "password": "new"},
 		},
 		"UsernameAlone": {
-			current: vaultBacked, params: models.ChangeAgentParams{Username: new("pmm")}, username: "pmm",
+			current: vaultBacked, params: models.ChangeAgentParams{Username: new("pmm")}, secrets: map[string]string{"username": "pmm"},
+		},
+		"TLSKeyGoesToVault": {
+			current: vaultBacked, params: models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("KEY")}},
+			secrets: map[string]string{"tls_key": "KEY"}, tlsKey: new(ref),
+		},
+		"TLSReferenceIsKept": {
+			current: vaultBacked, params: models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("vault:secret/data/x#k")}},
+			tlsKey: new("vault:secret/data/x#k"),
 		},
 		"MovedToVaultWithItsPassword": {
-			current: stored, params: models.ChangeAgentParams{VaultPath: new("secret/data/pmm/mysql"), Password: new("new")}, password: "new",
+			current: stored, params: models.ChangeAgentParams{VaultPath: new("secret/data/pmm/mysql"), Password: new("new")},
+			secrets: map[string]string{"password": "new"},
 		},
 		"TakenOffVault": {
 			current: vaultBacked, params: models.ChangeAgentParams{VaultPath: new(""), Password: new("new")}, keepsPassword: true,
 		},
 		"NotInVault": {
-			current: stored, params: models.ChangeAgentParams{Password: new("new")}, keepsPassword: true,
+			current: stored, params: models.ChangeAgentParams{Password: new("new"), MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("KEY")}},
+			keepsPassword: true, tlsKey: new("KEY"),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			params, username, password := vaultChange(tc.current, &tc.params)
-			assert.Equal(t, tc.username, username)
-			assert.Equal(t, tc.password, password)
+			var givenKey string
+			if tc.params.MySQLOptions != nil {
+				givenKey = *tc.params.MySQLOptions.TLSKey
+			}
+
+			params, secrets := vaultChange(tc.current, &tc.params)
+			assert.Equal(t, tc.secrets, secrets)
 			assert.Equal(t, tc.keepsPassword, params.Password != nil, "the password is applied to the row")
+			if tc.tlsKey != nil {
+				assert.Equal(t, *tc.tlsKey, *params.MySQLOptions.TLSKey)
+				assert.Equal(t, givenKey, *tc.params.MySQLOptions.TLSKey, "the caller's options are kept")
+			}
 		})
 	}
 }
