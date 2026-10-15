@@ -1,0 +1,45 @@
+From 98ad2a17140e7a46af6835ebec2c487c1719a504 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 15 Oct 2026 12:46:03 +0000
+Subject: [PATCH] PMM-15663 Route annotation deletes to vmselect
+
+Add a vmauth url_map entry that sends /api/v1/admin/tsdb/delete_series to the vmselect /delete/0/prometheus/ path, so pmm-managed can delete annotation series through PMM_VM_URL in HA mode. Bump pmm-ha chart to 1.6.2.
+
+Claude-Session: https://claude.ai/code/session_013Whqz9iomZCrJEjDAQov97
+Signed-off-by: Claude <noreply@anthropic.com>
+Co-authored-by: tibor.korocz <tibor.korocz@percona.com>
+---
+ charts/pmm-ha/Chart.yaml            | 2 +-
+ charts/pmm-ha/templates/vmauth.yaml | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/charts/pmm-ha/Chart.yaml b/charts/pmm-ha/Chart.yaml
+index 8994e3d..3fa9ced 100644
+--- a/charts/pmm-ha/Chart.yaml
++++ b/charts/pmm-ha/Chart.yaml
+@@ -2,7 +2,7 @@ apiVersion: v2
+ name: pmm-ha
+ description: A Helm chart for Percona Monitoring and Management (PMM)
+ type: application
+-version: 1.6.1
++version: 1.6.2
+ appVersion: "3.9.1"
+ home: https://github.com/percona/pmm
+ maintainers:
+diff --git a/charts/pmm-ha/templates/vmauth.yaml b/charts/pmm-ha/templates/vmauth.yaml
+index 7ba3004..a33f3da 100644
+--- a/charts/pmm-ha/templates/vmauth.yaml
++++ b/charts/pmm-ha/templates/vmauth.yaml
+@@ -41,6 +41,9 @@ stringData:
+         - "/api/v1/labels"
+         - "/api/v1/label/.+/values"
+         url_prefix: "http://vmselect-{{ include "pmm.fullname" . }}-vmcluster.{{ .Release.Namespace }}.svc.cluster.local:8481/select/0/prometheus/"
++      - src_paths:
++        - "/api/v1/admin/tsdb/delete_series"
++        url_prefix: "http://vmselect-{{ include "pmm.fullname" . }}-vmcluster.{{ .Release.Namespace }}.svc.cluster.local:8481/delete/0/prometheus/"
+ ---
+ # VMAuth CRD managed by VictoriaMetrics operator
+ apiVersion: operator.victoriametrics.com/v1beta1
+-- 
+2.43.0
+
