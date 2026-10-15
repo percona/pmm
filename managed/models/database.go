@@ -1384,7 +1384,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
-	err = migrateDB(db, params, keyCreated)
+	err = migrateDB(ctx, db, params, keyCreated)
 	if err != nil {
 		return nil, err
 	}
@@ -1498,6 +1498,23 @@ func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, log
 	return nil
 }
 
+// lockMigrations takes the migration lock for the transaction of q. The wait
+// for a node that holds it, possibly one whose host died with its session
+// still open, is logged and ends with the transaction's context.
+func lockMigrations(q *reform.Querier) error {
+	var locked bool
+	err := q.QueryRow("SELECT pg_try_advisory_xact_lock($1)", migrationLockID).Scan(&locked)
+	if err == nil && !locked {
+		logrus.Infof("Waiting for another PMM Server node to finish migrating the database...")
+		_, err = q.Exec("SELECT pg_advisory_xact_lock($1)", migrationLockID)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to lock database migrations: %w", err)
+	}
+
+	return nil
+}
+
 // schemaVersion returns the latest applied schema version, or 0 for an empty
 // database. It must not fail inside a transaction: a failed statement aborts it.
 func schemaVersion(q *reform.Querier) (int, error) {
@@ -1521,19 +1538,20 @@ func schemaVersion(q *reform.Querier) (int, error) {
 
 // migrateDB runs PostgreSQL database migrations. The keyCreated argument tells
 // that the encryption key was generated at this start, see migrateEncryption.
-func migrateDB(db *reform.DB, params SetupDBParams, keyCreated bool) error {
+// Waiting for another node's migrations ends with ctx.
+func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams, keyCreated bool) error {
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
 		latestVersion = *params.MigrationVersion
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	return db.InTransaction(func(tx *reform.TX) error {
+	return db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// HA nodes starting together must not run the same migrations twice:
 		// serialize them and read the schema version under the lock
-		_, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", migrationLockID)
+		err := lockMigrations(tx.Querier)
 		if err != nil {
-			return fmt.Errorf("failed to lock database migrations: %w", err)
+			return err
 		}
 		currentVersion, err := schemaVersion(tx.Querier)
 		if err != nil {

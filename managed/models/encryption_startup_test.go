@@ -16,6 +16,7 @@
 package models_test
 
 import (
+	"context"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -155,6 +156,39 @@ func TestSetupDBCreatesMissingKey(t *testing.T) {
 	stale, err := models.KeyCheckNeedsReencryption(reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier, created)
 	require.NoError(t, err)
 	assert.False(t, stale)
+}
+
+// TestSetupDBMigrationLockWaitEnds covers an HA node waiting for the
+// migration lock of a node whose host died with its session still open: the
+// wait ends with the context, so pmm-managed gives up instead of hanging.
+func TestSetupDBMigrationLockWaitEnds(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+
+	// the other node holds the migration lock
+	other, err := sqlDB.BeginTx(t.Context(), nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { assert.NoError(t, other.Rollback()) })
+	_, err = other.ExecContext(t.Context(), "SELECT pg_advisory_xact_lock($1)", 0x504d4d45)
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 500*time.Millisecond)
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		_, err := models.SetupDB(ctx, sqlDB, models.SetupDBParams{
+			Address:       models.DefaultPostgreSQLAddr,
+			Username:      "postgres",
+			SetupFixtures: models.SkipFixtures,
+		})
+		done <- err
+	}()
+
+	select {
+	case err = <-done:
+		require.ErrorContains(t, err, "failed to lock database migrations")
+	case <-time.After(30 * time.Second):
+		t.Fatal("SetupDB kept waiting for the migration lock after its context ended")
+	}
 }
 
 func TestSetupDBLoadsExistingKey(t *testing.T) {
