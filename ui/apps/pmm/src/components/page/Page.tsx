@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardActions,
-  Divider,
   GlobalStyles,
   Link,
   Typography,
@@ -20,12 +19,13 @@ import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
+  hideTitle,
   topBar,
   footer,
   children,
   maxWidth,
   fullWidth,
-  surface,
+  surface = 'paper',
   roles,
 }) => {
   const { user } = useUser();
@@ -37,21 +37,19 @@ export const Page: FC<PageProps> = ({
 
   return (
     <>
-      {surface && (
-        <GlobalStyles
-          styles={(theme) => ({
-            'html, body': {
-              backgroundColor:
-                surface === 'paper'
-                  ? theme.palette.background.paper
-                  : theme.palette.background.default,
-            },
-          })}
-        />
-      )}
+      <GlobalStyles
+        styles={(theme) => ({
+          'html, body': {
+            backgroundColor:
+              surface === 'paper'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+          },
+        })}
+      />
       <PageContainer maxWidth={resolvedMaxWidth}>
         {topBar}
-        {!!title && <Typography variant="h2">{title}</Typography>}
+        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {user?.isAuthorized && hasAccess ? (
             children
@@ -71,7 +69,6 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        <Divider />
         {footer !== undefined ? footer : <Footer />}
       </PageContainer>
     </>
