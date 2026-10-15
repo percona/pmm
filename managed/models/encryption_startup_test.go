@@ -191,6 +191,42 @@ func TestSetupDBMigrationLockWaitEnds(t *testing.T) {
 	}
 }
 
+// TestSetupDBRetriesWithGeneratedKey covers a migration that fails after the
+// missing key was generated: the retry finds the key file, but the key is
+// still the one generated for the database, so its key check is replaced
+// instead of refusing to start.
+func TestSetupDBRetriesWithGeneratedKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	path := filepath.Join(t.TempDir(), "encryption.key")
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	require.NotEmpty(t, storedKeyCheck(t, sqlDB), "of the test key, missing now")
+
+	// the first attempt fails after generating the key: another node holds the migration lock
+	other, err := sqlDB.BeginTx(t.Context(), nil)
+	require.NoError(t, err)
+	_, err = other.ExecContext(t.Context(), "SELECT pg_advisory_xact_lock($1)", 0x504d4d45)
+	require.NoError(t, err)
+	ctx, cancel := context.WithTimeout(t.Context(), 500*time.Millisecond)
+	defer cancel()
+	_, err = models.SetupDB(ctx, sqlDB, models.SetupDBParams{
+		Address:       models.DefaultPostgreSQLAddr,
+		Username:      "postgres",
+		SetupFixtures: models.SkipFixtures,
+	})
+	require.ErrorContains(t, err, "failed to lock database migrations")
+	require.NoError(t, other.Rollback())
+	_, err = os.Stat(path)
+	require.NoError(t, err, "the key was generated")
+
+	require.NoError(t, setupDB(t, sqlDB))
+	generated, err := encryption.LoadCipher(encryption.NewFileKeyProvider(path))
+	require.NoError(t, err)
+	stale, err := models.KeyCheckNeedsReencryption(reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier, generated)
+	require.NoError(t, err)
+	assert.False(t, stale, "the key check is of the generated key")
+}
+
 func TestSetupDBLoadsExistingKey(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	keepDefaultCipher(t)

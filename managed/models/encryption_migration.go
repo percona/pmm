@@ -24,6 +24,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -43,7 +44,7 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	keyPath := encryption.DefaultKeyPath()
 	provider := encryption.NewFileKeyProvider(keyPath)
 
-	var created bool
+	created := generatedKey.is(keyPath)
 	cipher, err := encryption.LoadCipher(provider)
 	if errors.Is(err, encryption.ErrKeysetNotFound) {
 		var inUse bool
@@ -56,6 +57,9 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 		}
 		cipher, err = encryption.CreateCipher(provider)
 		created = err == nil
+		if created {
+			generatedKey.set(keyPath)
+		}
 	}
 	if errors.Is(err, encryption.ErrInvalidKeyset) {
 		// e.g. a key file PMM 3.x left empty: no retry can help
@@ -73,6 +77,31 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	encryption.SetDefaultCipher(cipher)
 
 	return created, nil
+}
+
+// generatedKey is the key file this process generated, until the migration
+// that sets the database up with it commits. The file is written before the
+// migration runs, so a migration that fails and is retried finds it; the key
+// is still the one generated for this database, see migrationParams.keyCreated.
+var generatedKey generatedKeyPath
+
+type generatedKeyPath struct {
+	mu   sync.Mutex
+	path string
+}
+
+func (g *generatedKeyPath) is(path string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	return g.path != "" && g.path == path
+}
+
+func (g *generatedKeyPath) set(path string) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.path = path
 }
 
 // missingKeyError refuses to generate a key while the database holds data

@@ -1388,6 +1388,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	if err != nil {
 		return nil, err
 	}
+	generatedKey.set("")
 
 	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
 
