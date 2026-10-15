@@ -14,12 +14,12 @@ Before = be751c4b6 (main + PMM-15609 `allValue: ".+"`, the broken state). After 
 | V3 | Req 2: object selected shows only its own and global annotations | Pass: MySQL Instance Summary, Node Summary, Nodes Overview and Home with one object selected return only its annotation + global. MySQL Instances Overview with one service and Node=All also shows node annotations of all MySQL nodes (both-scope ruling, as main before PMM-15609) (`live/V3-*`) |
 | V4 | LBAC, `environment` role | Pass: role `{environment="ps-dev"}` sees only A1 (+ global from Grafana); no node annotations, matching its "No data" node panels (`live/V4-V5-lbac.txt`, `live/V4-envuser-home-panel.png`) |
 | V5 | LBAC, custom-label role | Pass: role `{team="a"}` sees only A2 (+ global) (`live/V4-V5-lbac.txt`, `live/V5-teamuser-mysql-summary-panel.png`) |
-| V6 | RemoveAnnotation: series and marker gone; NotFound for an unknown id | |
-| V7 | Delete through Grafana's API: gone within 5 minutes | |
-| V8 | VictoriaMetrics stopped during AddAnnotation: error, then series within 5 minutes | |
-| V9 | Admin tooltip on a scoped marker: Edit/Delete buttons | |
-| V10 | pmm-admin annotate prints the annotation ID | |
-| V11 | pmm-managed and Grafana logs | |
+| V6 | RemoveAnnotation: series and marker gone; NotFound for an unknown id | Pass: `DELETE /v1/management/annotations/7` 200, series 7 and Grafana annotation 7 gone at once; unknown id 404 `Annotation with ID 999999 not found.`; Viewer 403 |
+| V7 | Delete through Grafana's API: gone within 5 minutes | Pass: Grafana `DELETE /api/annotations/6` at 16:16:14; the 16:17:53 sync pass logged `Deleted the series of deleted annotations. count=1` and series 6 is gone |
+| V8 | VictoriaMetrics stopped during AddAnnotation: error, then series within 5 minutes | Pass: 503 with "The annotation was created (ID 10), but it is not shown on dashboards yet: the sync job will add it"; the 16:22:53 sync pass wrote its series (`Wrote missing annotation series. count=1`); the marker shows at its original time (`live/V6-V8-*`) |
+| V9 | Admin tooltip on a scoped marker: Edit/Delete buttons | **Defect (UX, known risk §8):** an Admin's tooltip on a scoped marker shows Edit and Delete; Delete sends `DELETE /api/annotations/undefined`, Grafana answers 403 and shows "You'll need additional permissions… annotations:delete"; nothing is deleted. Cause: `AnnotationTooltip2.tsx:31-32` (percona/grafana) tests `annoId !== 0`, and Prometheus events have no id (`live/V9-*`) |
+| V10 | pmm-admin annotate prints the annotation ID | Pass: branch pmm-admin prints `Annotation added.` + `Annotation ID: 7` (also for a global annotation); `--json` prints `{"annotation_id":"9"}` (id as a JSON string); the old pmm-admin still works against the new server and its annotation gets a series |
+| V11 | pmm-managed and Grafana logs | Pass: no errors or warnings from `annotations/sync`; Grafana's only annotation errors are the two the tests caused (id 999999, id undefined) |
 
 ## Log
 
@@ -33,3 +33,16 @@ Before = be751c4b6 (main + PMM-15609 `allValue: ".+"`, the broken state). After 
   `Wrote missing annotation series. count=4`.
 - Access control enabled; roles `env-ps-dev` `{environment="ps-dev"}` and `team-a` `{team="a"}`; Grafana Viewer users
   `envuser` and `teamuser`, one role each.
+- pmm-admin from the branch run in client container `ps_pmm_8_4_1` (the server container's own agent holds no admin
+  credentials, so annotate there answers Unauthorized, as on main). Annotations: 6 (old pmm-admin), 7, 8 (global), 9.
+- V8: VictoriaMetrics stopped 16:19:05, AddAnnotation answered 503 `The annotation was created (ID 10), but it is not
+  shown on dashboards yet: the sync job will add it. Cause: … connection refused`; VictoriaMetrics started 16:19:07.
+- 16:22:53 sync pass wrote A10. Final PS service dashboard: A1, A10 (scoped) and A4, A8 (global); A6 and A7 gone.
+
+## Not covered by this run
+
+- Feature Build packaging and a real package upgrade from the current release (the upgrade here is a binary swap
+  over existing Grafana annotations, which exercises the same backfill path).
+- HA (vmauth delete route, sync failover, vmselect cache).
+- Scale (3M series, 5,000 annotations, 1,000 nodes): Task 1 benchmark only.
+- PostgreSQL and other database dashboards; only MySQL and OS dashboards were opened.

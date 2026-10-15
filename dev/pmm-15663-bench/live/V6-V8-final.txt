@@ -1,0 +1,4 @@
+== d/mysql-instance-summary?from=now-1h&to=now&var-service_name=ps_pmm_8_4_1_97709&viewPanel=92
+grafana &tags=pmm_annotation&matchAny=true -> [\"A8 global, new pmm-admin\",\"A4 global, made before upgrade\"]
+vm -> [\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\",\"A10 ps service, added while VictoriaMetrics is down (Service Name: ps_pmm_8_4_1_97709)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V6-V8-mysql-summary-ps-final.png

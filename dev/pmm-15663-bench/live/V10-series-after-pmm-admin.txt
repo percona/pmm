@@ -1,0 +1,8 @@
+cluster=ps-single-dev-cluster environment=ps-dev node_name=ps_pmm_8_4_1 pmm_annotation_id=1 pmm_annotation_tags=t1 pmm_annotation_text=A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709) service_name=ps_pmm_8_4_1_97709
+cluster=mysql-single-dev-cluster environment=mysql-dev node_name=mysql_pmm_8_0_1 pmm_annotation_id=2 pmm_annotation_text=A2 mysql service, made before upgrade (Service Name: mysql_pmm_8_0_1_68246) service_name=mysql_pmm_8_0_1_68246 team=a
+machine_id=06cfad60d707400ca38583fc24f08a36 node_name=ps_pmm_8_4_1 pmm_annotation_id=3 pmm_annotation_text=A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)
+machine_id=87a7007bf8bf4ca1b00d6f0cbe72247b node_name=mysql_pmm_8_0_1 pmm_annotation_id=5 pmm_annotation_text=A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)
+cluster=ps-single-dev-cluster environment=ps-dev node_name=ps_pmm_8_4_1 pmm_annotation_id=6 pmm_annotation_tags=t6 pmm_annotation_text=A6 ps service, old pmm-admin client (Service Name: ps_pmm_8_4_1_97709) service_name=ps_pmm_8_4_1_97709
+cluster=ps-single-dev-cluster environment=ps-dev node_name=ps_pmm_8_4_1 pmm_annotation_id=7 pmm_annotation_tags=t7 pmm_annotation_text=A7 ps service, new pmm-admin (Service Name: ps_pmm_8_4_1_97709) service_name=ps_pmm_8_4_1_97709
+machine_id=06cfad60d707400ca38583fc24f08a36 node_name=ps_pmm_8_4_1 pmm_annotation_id=9 pmm_annotation_text=A9 ps node, new pmm-admin, json (Node Name: ps_pmm_8_4_1)
+(7 series)
