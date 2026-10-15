@@ -210,6 +210,50 @@ When you change the admin password with `change-admin-password` and `GF_SECURITY
 docker exec -t pmm-server change-admin-password <new_password>
 ```
 
+### Keep the keys of PMM Server in Vault
+
+PMM Server keeps some keys in files. The following variables give them from Vault instead:
+
+| Variable | Key |
+|----------|-----|
+| `PMM_ENCRYPTION_KEY` | The [encryption key](data_encryption.md) of the secrets PMM Server stores in its database, instead of `/srv/pmm-encryption.key` |
+| `PMM_CLICKHOUSE_PASSWORD` | The password of the `default` user of the built-in ClickHouse |
+| `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | The password of the `grafana` user of the built-in ClickHouse, which the ClickHouse data source of Grafana connects with |
+| `PMM_TLS_CERTIFICATE`, `PMM_TLS_CERTIFICATE_KEY` | The certificate of the PMM Server web interface and API, and its key, in PEM format |
+| `PMM_TLS_CA_CERTIFICATE` | The certificates of the CA that issued it, optional |
+| `GF_SECURITY_SECRET_KEY` | The key that Grafana encrypts the secrets it stores with, such as the passwords of alert contact points and data sources |
+
+For example:
+
+```sh
+docker run -d --name pmm-server \
+  -e PMM_VAULT_ADDRESS=https://vault.example.com:8200 \
+  ...
+  -e PMM_ENCRYPTION_KEY='vault:secret/data/pmm/server#encryption_key' \
+  -e PMM_TLS_CERTIFICATE='vault:secret/data/pmm/server#tls_cert' \
+  -e PMM_TLS_CERTIFICATE_KEY='vault:secret/data/pmm/server#tls_key' \
+  percona/pmm-server:3
+```
+
+The encryption key protects most of the secrets that PMM Server stores in its database: the credentials of exporters and agents with their TLS keys, the AWS and Azure keys, and the secrets that PMM Server generates itself. With the key in Vault, none of them can be read from a copy of the PMM Server data alone. The TLS files of Valkey services and the keys of backup locations are not encrypted: store them in Vault and give references to them instead, see [Read TLS files from Vault](#read-tls-files-from-vault) and [Read the other secrets PMM Server stores from Vault](#read-the-other-secrets-pmm-server-stores-from-vault). PMM Server reads the key from Vault itself, rather than at startup, so that it is not in the environment of its components, and it never writes the key to a file. To use one:
+{.power-number}
+
+1. Store a key in Vault. For a new installation, generate one:
+
+    ```sh
+    vault kv patch secret/pmm/server encryption_key="$(docker run --rm percona/pmm-server:3 pmm-encryption-rotation --generate-key)"
+    ```
+
+    For an existing installation, store the key it already uses, the content of `/srv/pmm-encryption.key`.
+
+2. Set `PMM_ENCRYPTION_KEY` to the reference, and start PMM Server.
+
+3. For an existing installation, remove `/srv/pmm-encryption.key` once PMM Server is running.
+
+In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path.
+
+PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key.
+
 !!! note
     The `PMM_AGENT_VAULT_*` variables of PMM Server's own PMM Client reach all PMM Server components, as every variable of the container does. To keep the secret ID out of their environment, use `PMM_AGENT_VAULT_SECRET_ID_FILE` with a mounted file instead of `PMM_AGENT_VAULT_SECRET_ID`.
 
@@ -244,7 +288,8 @@ The password of a monitored database can be a reference too, as an alternative t
 
 Vault support has the following limitations:
 
-- PMM Server does not read its [encryption key](data_encryption.md) from Vault. To keep it in Vault, have a Vault Agent write it to the key file.
+- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the password of the PostgreSQL superuser, the secret key of PMM Extensions, and the certificates of Nomad. `GF_DATABASE_PASSWORD` applies to an [external Grafana database](../../reference/third-party/postgresql.md#grafana-database-configuration) only.
+- Credentials in `PMM_VM_URL` are written to the configuration files of vmalert and vmproxy.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to twice the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.
