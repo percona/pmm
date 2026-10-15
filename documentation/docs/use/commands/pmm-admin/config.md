@@ -236,7 +236,7 @@ Annotation added.
 Annotation ID: 17
 ```
 
-The ID is the `annotation_id` that the `POST /v1/management/annotations` API endpoint returns. For a scoped annotation, the ID is also the number in the title of its marker on a dashboard, `Annotation 17`. To delete a scoped annotation by its ID, see [Delete a scoped annotation](../../../use/dashboards-panels/annotate/annotate.md#delete-a-scoped-annotation).
+The ID is the `annotation_id` that the `POST /v1/management/annotations` API endpoint returns. It is also the number in the title of the annotation marker on a dashboard, `Annotation 17`. To delete a scoped annotation by its ID, see [Delete a scoped annotation](../../../use/dashboards-panels/annotate/annotate.md#delete-a-scoped-annotation).
 
 ### Examples
 
