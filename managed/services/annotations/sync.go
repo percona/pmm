@@ -109,14 +109,15 @@ func (s *Syncer) syncOnce(ctx context.Context) error {
 	}
 	window := settings.DataRetention
 
-	events, err := s.grafanaEvents(ctx, window)
-	if err != nil {
-		return err
-	}
-
+	// Listed before Grafana is read, so that the series of an annotation removed in between are not written back.
 	keys, err := s.store.Keys(ctx, window)
 	if err != nil {
 		return fmt.Errorf("failed to list annotation series: %w", err)
+	}
+
+	events, err := s.grafanaEvents(ctx, window)
+	if err != nil {
+		return err
 	}
 
 	writeErr := s.writeMissing(ctx, events, keys)

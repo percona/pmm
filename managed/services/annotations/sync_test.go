@@ -320,26 +320,38 @@ func TestSync(t *testing.T) {
 		s, grafanaMock, store := setup(t)
 
 		readErr := errors.New("connection refused")
+		store.On("Keys", mock.Anything, window).Return([]Key{{AnnotationID: 9, NodeName: "n1", ServiceName: "s1"}}, nil).Once()
 		grafanaMock.ExpectQuery(testAnnotationsQuery).WithArgs(sinceWindow(window)).WillReturnError(readErr)
 
 		err := s.syncOnce(t.Context())
 		require.ErrorIs(t, err, readErr)
-		store.AssertNotCalled(t, "Keys", mock.Anything, mock.Anything)
 		store.AssertNotCalled(t, "Write", mock.Anything, mock.Anything)
 		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
 	})
 
 	t.Run("Does nothing when listing series fails", func(t *testing.T) {
-		s, grafanaMock, store := setup(t)
+		// No Grafana query is expected: an unexpected one fails the pass with another error.
+		s, _, store := setup(t)
 
 		keysErr := errors.New("vmselect unavailable")
-		expectAnnotations(grafanaMock, annotationRows().AddRow(5, epoch, "Deploy", "s1", ""))
 		store.On("Keys", mock.Anything, window).Return(nil, keysErr).Once()
 
 		err := s.syncOnce(t.Context())
 		require.ErrorIs(t, err, keysErr)
 		store.AssertNotCalled(t, "Write", mock.Anything, mock.Anything)
 		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
+	})
+
+	t.Run("Lists series before reading annotations", func(t *testing.T) {
+		// An annotation removed between the two reads must not have its series written back.
+		s, grafanaMock, store := setup(t)
+
+		expectAnnotations(grafanaMock, annotationRows())
+		store.On("Keys", mock.Anything, window).Return(nil, nil).Once().Run(func(mock.Arguments) {
+			assert.Error(t, grafanaMock.ExpectationsWereMet(), "Grafana's annotations were read before the series were listed")
+		})
+
+		require.NoError(t, s.syncOnce(t.Context()))
 	})
 
 	t.Run("Writes and deletes in batches", func(t *testing.T) {
@@ -369,12 +381,12 @@ func TestSync(t *testing.T) {
 	})
 
 	t.Run("Run syncs at start and stops with its context", func(t *testing.T) {
-		s, grafanaMock, store := setup(t)
+		s, _, store := setup(t)
 
 		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 
-		expectAnnotations(grafanaMock, annotationRows())
+		// Canceled, the pass stops before reading Grafana.
 		store.On("Keys", mock.Anything, window).Return(nil, nil).Once().Run(func(mock.Arguments) { cancel() })
 
 		done := make(chan struct{})
