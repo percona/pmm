@@ -68,6 +68,38 @@ func addMongoDBForUpdate(t *testing.T) string {
 	return serviceID
 }
 
+// addMySQLForUpdate adds a MySQL Service with an exporter and no QAN Agent and returns its ID.
+func addMySQLForUpdate(t *testing.T) string {
+	t.Helper()
+
+	nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+		NodeName: pmmapitests.TestString(t, "node-for-update"),
+		NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+	})
+
+	res, err := client.Default.ManagementService.AddService(&mservice.AddServiceParams{
+		Context: pmmapitests.Context,
+		Body: mservice.AddServiceBody{
+			Mysql: &mservice.AddServiceParamsBodyMysql{
+				NodeID:              nodeID,
+				PMMAgentID:          pmmAgentID,
+				ServiceName:         pmmapitests.TestString(t, "mysql-for-update"),
+				Address:             "10.10.10.10",
+				Port:                3306,
+				Username:            "pmm",
+				Password:            "pmm_pass",
+				SkipConnectionCheck: true,
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	serviceID := res.Payload.Mysql.Service.ServiceID
+	t.Cleanup(func() { pmmapitests.RemoveServices(t, serviceID) })
+
+	return serviceID
+}
+
 func listServiceAgents(t *testing.T, serviceID string) *agents.ListAgentsOKBody {
 	t.Helper()
 
@@ -220,7 +252,75 @@ func TestUpdateService(t *testing.T) {
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := updateMongoDB(pmmapitests.TestString(t, "no-such-service"), &mservice.UpdateServiceParamsBodyMongodb{}, false)
-		pmmapitests.AssertAPIErrorf(t, err, http.StatusNotFound, codes.NotFound, "")
+		name := pmmapitests.TestString(t, "no-such-service")
+		_, err := updateMongoDB(name, &mservice.UpdateServiceParamsBodyMongodb{}, false)
+		pmmapitests.AssertAPIErrorf(t, err, http.StatusNotFound, codes.NotFound, "Service with name %q not found.", name)
+
+		const id = "00000000-0000-4000-8000-000000000000"
+		_, err = updateMongoDB(id, &mservice.UpdateServiceParamsBodyMongodb{}, false)
+		pmmapitests.AssertAPIErrorf(t, err, http.StatusNotFound, codes.NotFound, "Service with ID %q not found.", id)
+	})
+
+	t.Run("MySQL", func(t *testing.T) {
+		t.Parallel()
+
+		serviceID := addMySQLForUpdate(t)
+
+		res, err := client.Default.ManagementService.UpdateService(&mservice.UpdateServiceParams{
+			Context:   pmmapitests.Context,
+			ServiceID: serviceID,
+			Body: mservice.UpdateServiceBody{
+				Mysql: &mservice.UpdateServiceParamsBodyMysql{
+					Environment:         new("qa"),
+					QANMysqlPerfschema:  new(true),
+					MaxQueryLength:      new(int32(1000)),
+					SkipConnectionCheck: true,
+				},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "qa", res.Payload.After.Environment)
+
+		agents := listServiceAgents(t, serviceID)
+		require.Len(t, agents.MysqldExporter, 1)
+		assert.Equal(t, "pmm", agents.MysqldExporter[0].Username)
+		require.Len(t, agents.QANMysqlPerfschemaAgent, 1)
+		assert.Equal(t, int32(1000), agents.QANMysqlPerfschemaAgent[0].MaxQueryLength)
+		// A QAN Agent with none to take its settings from has comments parsing off, as pmm-admin add leaves it.
+		assert.True(t, agents.QANMysqlPerfschemaAgent[0].DisableCommentsParsing)
+	})
+
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Parallel()
+
+		serviceID := addMongoDBForUpdate(t)
+
+		res, err := updateMongoDB(serviceID, &mservice.UpdateServiceParamsBodyMongodb{
+			EnvironmentVariableNames: &mservice.UpdateServiceParamsBodyMongodbEnvironmentVariableNames{Values: []string{"PMM_TEST_VAR"}},
+			SkipConnectionCheck:      true,
+		}, false)
+		require.NoError(t, err)
+
+		var updated []string
+		for _, agent := range res.Payload.After.Agents {
+			if agent.AgentType == "mongodb_exporter" {
+				updated = agent.EnvironmentVariableNames
+			}
+		}
+		assert.Equal(t, []string{"PMM_TEST_VAR"}, updated)
+
+		listed, err := client.Default.ManagementService.ListAgents(&mservice.ListAgentsParams{
+			Context:   pmmapitests.Context,
+			ServiceID: new(serviceID),
+		})
+		require.NoError(t, err)
+
+		var stored []string
+		for _, agent := range listed.Payload.Agents {
+			if agent.AgentType == "mongodb_exporter" {
+				stored = agent.EnvironmentVariableNames
+			}
+		}
+		assert.Equal(t, []string{"PMM_TEST_VAR"}, stored)
 	})
 }
