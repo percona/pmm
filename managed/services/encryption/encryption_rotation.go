@@ -42,11 +42,12 @@ const (
 	sweepInterval  = 2 * time.Second
 	statusRunning  = "RUNNING"
 
-	codeOK             = 0
-	codeRotationFailed = 2
-	codeRestartFailed  = 3
-	codeSweepFailed    = 4
-	codePruneFailed    = 5
+	codeOK                 = 0
+	codeDBConnectionFailed = 1 // as pmm-encryption-rotation's own
+	codeRotationFailed     = 2
+	codeRestartFailed      = 3
+	codeSweepFailed        = 4
+	codePruneFailed        = 5
 )
 
 // RotationParams configure RotateEncryptionKey.
@@ -80,6 +81,12 @@ func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
 			keyPath)
 	}
 
+	// sql.Open does not connect: fail on a wrong address or credentials before the keyset changes
+	err := sqlDB.PingContext(context.Background())
+	if err != nil {
+		return codeDBConnectionFailed, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+	}
+
 	provider := encryption.NewFileKeyProvider(keyPath)
 
 	newKeyID, err := encryption.AddNewPrimaryKey(provider)
@@ -87,6 +94,11 @@ func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
 		return codeRotationFailed, fmt.Errorf("failed to add new encryption key: %w", err)
 	}
 	logrus.Infof("Added new primary encryption key %d", newKeyID)
+	if ha {
+		// whatever fails later, the restarted pmm-managed encrypts with the new key
+		defer logrus.Warnf("Copy %s to every other PMM Server node before starting them: they cannot read values encrypted with the new key.",
+			keyPath)
+	}
 
 	err = restartPMMServer()
 	if err != nil {
@@ -116,11 +128,6 @@ func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
 			return codePruneFailed, fmt.Errorf("failed to prune retired encryption keys: %w", err)
 		}
 		logrus.Infof("Removed %d retired encryption key(s) from the keyset", len(retired))
-	}
-
-	if ha {
-		logrus.Warnf("Copy %s to every other PMM Server node before starting them: they cannot read values encrypted with the new key.",
-			keyPath)
 	}
 
 	return codeOK, nil

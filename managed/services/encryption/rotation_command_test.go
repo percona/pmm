@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	logtest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -170,6 +172,33 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		ids := keysetIDs(t, path)
 		assert.Len(t, ids, 2)
 		assert.Contains(t, ids, oldKeyID)
+	})
+
+	t.Run("database unreachable: fails before the keyset changes", func(t *testing.T) {
+		fakeSupervisorctl(t, 0)
+		path, oldKeyID := keyFile(t)
+		unreachable, err := models.OpenDB(models.SetupDBParams{Address: "127.0.0.1:1", Name: "pmm-managed", Username: "pmm-managed"})
+		require.NoError(t, err)
+		t.Cleanup(func() { assert.NoError(t, unreachable.Close()) })
+
+		code, err := RotateEncryptionKey(unreachable, RotationParams{})
+		require.ErrorContains(t, err, "failed to connect to PostgreSQL")
+		assert.Equal(t, codeDBConnectionFailed, code)
+		assert.Equal(t, []uint32{oldKeyID}, keysetIDs(t, path), "the keyset is unchanged")
+	})
+
+	t.Run("HA restart fails: still names the key file to copy", func(t *testing.T) {
+		fakeSupervisorctl(t, 1)
+		path, _ := keyFile(t)
+		t.Setenv("PMM_HA_ENABLE", "1")
+		hook := logtest.NewGlobal()
+		t.Cleanup(func() { logrus.StandardLogger().ReplaceHooks(make(logrus.LevelHooks)) })
+
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{OtherHANodesStopped: true})
+		require.Error(t, err)
+		assert.Equal(t, codeRestartFailed, code)
+		require.NotNil(t, hook.LastEntry())
+		assert.Contains(t, hook.LastEntry().Message, "Copy "+path+" to every other PMM Server node")
 	})
 
 	t.Run("no key file", func(t *testing.T) {
