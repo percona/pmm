@@ -17,7 +17,6 @@ package grafana
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"os"
 
@@ -76,7 +75,8 @@ func DatabaseDSN(fallbackAddr, sslParams string) (string, error) {
 	if raw := os.Getenv("GF_DATABASE_URL"); raw != "" {
 		_, err := url.Parse(raw)
 		if err != nil {
-			return "", fmt.Errorf("failed to parse GF_DATABASE_URL: %w", err)
+			// The parse error quotes the URL, password included.
+			return "", errors.New("failed to parse GF_DATABASE_URL")
 		}
 		return raw, nil
 	}

@@ -78,6 +78,14 @@ func TestDatabaseDSN(t *testing.T) {
 		assert.Equal(t, "postgres://user:pass@pg.example:5432/gf?sslmode=verify-full", dsn)
 	})
 
+	t.Run("keeps the password of an unparsable legacy URL out of the error", func(t *testing.T) {
+		t.Setenv("GF_DATABASE_URL", "postgres://user:s3cr3t-pass@pg.example:port/gf")
+
+		_, err := DatabaseDSN(fallbackAddr, sslParams)
+		require.ErrorContains(t, err, "GF_DATABASE_URL")
+		assert.NotContains(t, err.Error(), "s3cr3t-pass")
+	})
+
 	t.Run("uses the bundled database when nothing is configured", func(t *testing.T) {
 		// The ansible role creates this database and user under exactly this condition, so the
 		// branches cannot disagree.
