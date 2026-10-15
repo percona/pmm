@@ -421,7 +421,9 @@ type UpdatePostgreSQLServiceParams struct {
 	MaxQueryLength *int32 `protobuf:"varint,19,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`
 	// Disable query examples.
 	DisableQueryExamples *bool `protobuf:"varint,20,opt,name=disable_query_examples,json=disableQueryExamples,proto3,oneof" json:"disable_query_examples,omitempty"`
-	// Disable parsing comments from queries and showing them in QAN.
+	// Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates
+	// takes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off
+	// unless this field is false.
 	DisableCommentsParsing *bool `protobuf:"varint,21,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3,oneof" json:"disable_comments_parsing,omitempty"`
 	// Defines metrics flow model for this exporter.
 	MetricsMode *MetricsMode `protobuf:"varint,22,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`

@@ -402,13 +402,17 @@ func (u *serviceUpdate) qanAgentParams(agentType models.AgentType, template *mod
 		},
 	}
 
-	if template != nil {
+	switch {
+	case template != nil:
 		params.LogLevel = pointer.GetString(template.LogLevel)
 		params.QANOptions = models.QANOptions{
 			MaxQueryLength:          template.QANOptions.MaxQueryLength,
 			QueryExamplesDisabled:   template.QANOptions.QueryExamplesDisabled,
 			CommentsParsingDisabled: template.QANOptions.CommentsParsingDisabled,
 		}
+	case u.service.ServiceType == models.MySQLServiceType || u.service.ServiceType == models.PostgreSQLServiceType:
+		// With no QAN Agent to take the settings from, comments parsing is off, as pmm-admin add leaves it.
+		params.QANOptions.CommentsParsingDisabled = true
 	}
 
 	if agentType == models.QANMySQLSlowlogAgentType {

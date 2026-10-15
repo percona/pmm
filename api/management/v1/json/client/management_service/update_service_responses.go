@@ -4231,7 +4231,9 @@ type UpdateServiceParamsBodyMysql struct {
 	// If true, ensures qan-mysql-slowlog-agent exists; if false, removes it.
 	QANMysqlSlowlog *bool `json:"qan_mysql_slowlog,omitempty"`
 
-	// Disable parsing comments from queries and showing them in QAN.
+	// Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates
+	// takes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off
+	// unless this field is false.
 	DisableCommentsParsing *bool `json:"disable_comments_parsing,omitempty"`
 
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
@@ -4765,7 +4767,9 @@ type UpdateServiceParamsBodyPostgresql struct {
 	// Disable query examples.
 	DisableQueryExamples *bool `json:"disable_query_examples,omitempty"`
 
-	// Disable parsing comments from queries and showing them in QAN.
+	// Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates
+	// takes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off
+	// unless this field is false.
 	DisableCommentsParsing *bool `json:"disable_comments_parsing,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,

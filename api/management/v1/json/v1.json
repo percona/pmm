@@ -7381,7 +7381,7 @@
                       "x-order": 17
                     },
                     "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "description": "Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates\ntakes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off\nunless this field is false.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 18
@@ -7851,7 +7851,7 @@
                       "x-order": 19
                     },
                     "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "description": "Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates\ntakes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off\nunless this field is false.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 20

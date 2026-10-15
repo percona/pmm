@@ -421,7 +421,9 @@ type UpdateMySQLServiceParams struct {
 	QanMysqlPerfschema *bool `protobuf:"varint,17,opt,name=qan_mysql_perfschema,json=qanMysqlPerfschema,proto3,oneof" json:"qan_mysql_perfschema,omitempty"`
 	// If true, ensures qan-mysql-slowlog-agent exists; if false, removes it.
 	QanMysqlSlowlog *bool `protobuf:"varint,18,opt,name=qan_mysql_slowlog,json=qanMysqlSlowlog,proto3,oneof" json:"qan_mysql_slowlog,omitempty"`
-	// Disable parsing comments from queries and showing them in QAN.
+	// Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates
+	// takes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off
+	// unless this field is false.
 	DisableCommentsParsing *bool `protobuf:"varint,19,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3,oneof" json:"disable_comments_parsing,omitempty"`
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
 	MaxQueryLength *int32 `protobuf:"varint,20,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`

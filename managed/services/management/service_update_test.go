@@ -519,6 +519,41 @@ func TestUpdateService(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "push metrics mode is not allowed for exporters running on pmm-server"), err)
 	})
 
+	// A QAN Agent with none to take its settings from has comments parsing off, as pmm-admin add leaves it.
+	t.Run("NewQANAgentHasCommentsParsingOff", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestMySQL(ctx, t, s, m, &managementv1.AddMySQLServiceParams{Address: "127.0.0.1", Port: 3306})
+
+		turnOn := func(params *managementv1.UpdateMySQLServiceParams) *models.Agent {
+			m.expectConnectionCheck()
+			m.expectApplied()
+			_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+				ServiceId: serviceID,
+				Service:   &managementv1.UpdateServiceRequest_Mysql{Mysql: params},
+			})
+			require.NoError(t, err)
+
+			agent := serviceAgents(t, s.db.Querier, serviceID)[models.QANMySQLPerfSchemaAgentType]
+			require.NotNil(t, agent)
+			return agent
+		}
+
+		agent := turnOn(&managementv1.UpdateMySQLServiceParams{QanMysqlPerfschema: new(true)})
+		assert.True(t, agent.QANOptions.CommentsParsingDisabled)
+
+		m.expectApplied()
+		_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{QanMysqlPerfschema: new(false)},
+			},
+		})
+		require.NoError(t, err)
+
+		agent = turnOn(&managementv1.UpdateMySQLServiceParams{QanMysqlPerfschema: new(true), DisableCommentsParsing: new(false)})
+		assert.False(t, agent.QANOptions.CommentsParsingDisabled)
+	})
+
 	t.Run("MySQLLimitsAreStoredAsAddStoresThem", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestMySQL(ctx, t, s, m, &managementv1.AddMySQLServiceParams{

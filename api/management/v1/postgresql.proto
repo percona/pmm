@@ -145,7 +145,9 @@ message UpdatePostgreSQLServiceParams {
   optional int32 max_query_length = 19;
   // Disable query examples.
   optional bool disable_query_examples = 20;
-  // Disable parsing comments from queries and showing them in QAN.
+  // Disable parsing comments from queries and showing them in QAN. A QAN Agent that the update creates
+  // takes this setting from the QAN Agent it replaces; with none to take it from, comments parsing is off
+  // unless this field is false.
   optional bool disable_comments_parsing = 21;
   // Defines metrics flow model for this exporter.
   optional MetricsMode metrics_mode = 22;
