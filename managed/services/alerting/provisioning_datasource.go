@@ -21,16 +21,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 // A provisioned alert rule has to name its datasource by UID, and the UID of PMM's "Metrics"
@@ -68,83 +64,6 @@ const (
 	// error a query gets on a database Grafana has never run against.
 	undefinedTableCode = "42P01"
 )
-
-// grafanaDBFallback describes where Grafana's database lives when the deployment has not said.
-// This is the bundled case: Grafana shares PMM's own PostgreSQL server, and the database and user
-// are created by the initialization ansible role.
-type grafanaDBFallback struct {
-	// Addr is PMM's PostgreSQL address, host:port.
-	Addr string
-	// The encoded query string PMM uses for its own connection.
-	SSLParams string
-}
-
-const (
-	bundledGrafanaDB       = "grafana"
-	bundledGrafanaUser     = "grafana"
-	bundledGrafanaPassword = "grafana"
-)
-
-// grafanaDatasourceDSN works out how to reach Grafana's database.
-//
-// The order matters. Since PMM 3.2.0 an external Grafana database is configured with the discrete
-// GF_DATABASE_* variables, and that is what the pmm-ha Helm chart sets - with a user that is not
-// necessarily "grafana". GF_DATABASE_URL is the older single-URL form. Only when neither is present
-// is the database the bundled one, which is exactly the condition under which the ansible role
-// creates it, so the branches cannot overlap.
-func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
-	if host := os.Getenv("GF_DATABASE_HOST"); host != "" {
-		// Grafana overrides one setting per variable and takes the rest from grafana.ini, so every
-		// field left unset here has to fall back to what that file ships, not to an empty value.
-		dsn := url.URL{
-			Scheme: "postgres",
-			User: url.UserPassword(
-				envvars.GetEnv("GF_DATABASE_USER", bundledGrafanaUser),
-				envvars.GetEnv("GF_DATABASE_PASSWORD", bundledGrafanaPassword),
-			),
-			Host: host,
-			Path: envvars.GetEnv("GF_DATABASE_NAME", bundledGrafanaDB),
-		}
-
-		query := make(url.Values)
-		query.Set("sslmode", envvars.GetEnv("GF_DATABASE_SSL_MODE", "disable"))
-		// verify-ca and verify-full need the material as well, and PMM documents all three paths.
-		for env, param := range map[string]string{
-			"GF_DATABASE_CA_CERT_PATH":     "sslrootcert",
-			"GF_DATABASE_CLIENT_CERT_PATH": "sslcert",
-			"GF_DATABASE_CLIENT_KEY_PATH":  "sslkey",
-		} {
-			if value := os.Getenv(env); value != "" {
-				query.Set(param, value)
-			}
-		}
-		dsn.RawQuery = query.Encode()
-
-		return dsn.String(), nil
-	}
-
-	if raw := os.Getenv("GF_DATABASE_URL"); raw != "" {
-		_, err := url.Parse(raw)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse GF_DATABASE_URL: %w", err)
-		}
-		return raw, nil
-	}
-
-	if fallback.Addr == "" {
-		return "", errors.New("no Grafana database address available")
-	}
-
-	dsn := url.URL{
-		Scheme:   "postgres",
-		User:     url.UserPassword(bundledGrafanaUser, bundledGrafanaPassword),
-		Host:     fallback.Addr,
-		Path:     bundledGrafanaDB,
-		RawQuery: fallback.SSLParams,
-	}
-
-	return dsn.String(), nil
-}
 
 // deriveMetricsDatasourceUID reproduces the UID Grafana generates for a provisioned datasource that
 // does not declare one. Keeping the algorithm here rather than hard-coding its result documents why
