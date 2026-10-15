@@ -693,6 +693,7 @@
   },
   "tags": [
     {
+      "description": "AdvisorService service provides public Management API methods for Advisor Service.",
       "name": "AdvisorService"
     }
   ]

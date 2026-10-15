@@ -54,7 +54,7 @@ func (m *mockVMAPI) DeleteSeries(context.Context, []string, time.Time, time.Time
 	panic("unexpected DeleteSeries")
 }
 func (m *mockVMAPI) Flags(context.Context) (v1.FlagsResult, error) { panic("unexpected Flags") }
-func (m *mockVMAPI) LabelNames(context.Context, []string, time.Time, time.Time, ...v1.Option) ([]string, v1.Warnings, error) {
+func (m *mockVMAPI) LabelNames(context.Context, []string, time.Time, time.Time, ...v1.Option) (model.LabelNames, v1.Warnings, error) {
 	panic("unexpected LabelNames")
 }
 
@@ -85,7 +85,11 @@ func (m *mockVMAPI) Series(context.Context, []string, time.Time, time.Time, ...v
 func (m *mockVMAPI) Snapshot(context.Context, bool) (v1.SnapshotResult, error) {
 	panic("unexpected Snapshot")
 }
-func (m *mockVMAPI) Rules(context.Context) (v1.RulesResult, error)     { panic("unexpected Rules") }
+
+func (m *mockVMAPI) Rules(context.Context, []string) (v1.RulesResult, error) {
+	panic("unexpected Rules")
+}
+
 func (m *mockVMAPI) Targets(context.Context) (v1.TargetsResult, error) { panic("unexpected Targets") }
 
 func (m *mockVMAPI) TargetsMetadata(context.Context, string, string, string) ([]v1.MetricMetadata, error) {
@@ -102,6 +106,14 @@ func (m *mockVMAPI) TSDB(context.Context, ...v1.Option) (v1.TSDBResult, error) {
 
 func (m *mockVMAPI) WalReplay(context.Context) (v1.WalReplayStatus, error) {
 	panic("unexpected WalReplay")
+}
+
+func (m *mockVMAPI) TSDBBlocks(context.Context) (v1.TSDBBlocksResult, error) {
+	panic("unexpected TSDBBlocks")
+}
+
+func (m *mockVMAPI) FormatQuery(context.Context, string) (string, error) {
+	panic("unexpected FormatQuery")
 }
 
 func TestParseSnapshotBounds(t *testing.T) {

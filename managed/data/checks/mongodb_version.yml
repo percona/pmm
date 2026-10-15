@@ -20,7 +20,7 @@ checks:
               "7.0": 70032,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
               "8.0": 80021,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
           },
-          "read_url": "https://docs.percona.com/percona-platform/advisors/checks/{}.html",
+          "read_url": "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html",
       }
 
       def check_context(docs, context):

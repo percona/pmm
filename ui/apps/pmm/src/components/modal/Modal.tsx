@@ -24,7 +24,9 @@ export const Modal: FC<ModalProps> = ({
         backgroundColor: theme.palette.background.paper,
         minWidth: 480,
         maxWidth: '80vw',
-        borderRadius: 1,
+        // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+        // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+        borderRadius: '8px',
         boxShadow: theme.shadows[24],
         border: 'none',
       })}

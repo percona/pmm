@@ -1,6 +1,7 @@
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import { Icon } from 'components/icon';
+import { CirclesExtIcon } from '@percona/peak-ui';
 import { FC } from 'react';
 import { getStyles } from './HighAvailabilityIcon.styles';
 import { HighAvailabilityIconProps } from './HighAvailabilityIcon.types';
@@ -13,7 +14,7 @@ const HighAvailabilityIcon: FC<HighAvailabilityIconProps> = ({ health }) => {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <Icon data-testid="ha-icon" name="cluster" />
+      <CirclesExtIcon data-testid="ha-icon" />
       {haIcon && (
         <Box
           data-testid="ha-health-icon"

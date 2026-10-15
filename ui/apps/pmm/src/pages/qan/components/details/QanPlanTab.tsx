@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import { FC } from 'react';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/peak-ui';
 import { useQanPlan } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
@@ -18,7 +18,7 @@ export const QanPlanTab: FC = () => {
 
   return (
     <Stack spacing={1}>
-      <SyntaxHighlighter language="json" content={data.plan} showCopyButton />
+      <CodeBlock language="json" content={data.plan} copyable />
     </Stack>
   );
 };

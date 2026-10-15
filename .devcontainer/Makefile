@@ -1,0 +1,136 @@
+# Devcontainer Makefile.
+
+include Makefile.include
+
+release-dev-managed:              ## Build pmm-managed
+	make -C managed release-dev
+
+release-dev-agent:                ## Build pmm-agent
+	make -C agent release-dev
+
+release-vmproxy:                  ## Build vmproxy
+	make -C vmproxy release
+
+release-qan:                      ## Build QAN
+	make -C qan-api2 release
+
+# used by host Makefile
+_bash:
+	/bin/bash
+
+PMM_RELEASE_PATH ?= ./bin
+
+run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)	supervisorctl stop pmm-managed
+	supervisorctl stop pmm-managed
+	truncate -s 0 /srv/logs/pmm-managed.log
+	install -m 755 $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/
+	supervisorctl start pmm-managed
+
+run-managed: run-managed-ci    		## Replace pmm-managed from build, restart and tail logs
+	tail -f /srv/logs/pmm-managed.log
+
+run-agent-ci: release-dev-agent		## Replace pmm-agent from build and restart (used in CI)
+	supervisorctl stop pmm-agent
+	truncate -s 0 /srv/logs/pmm-agent.log
+	install -m 755 $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/
+	supervisorctl start pmm-agent
+
+run-agent: run-agent-ci				## Replace pmm-agent from build, restart and tail logs
+	tail -f /srv/logs/pmm-agent.log
+
+run-vmproxy-ci: release-vmproxy		## Replace vmproxy from build and restart (used in CI)
+	supervisorctl stop vmproxy
+	truncate -s 0 /srv/logs/vmproxy.log
+	install -m 755 $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/
+	supervisorctl start vmproxy
+
+run-vmproxy: run-vmproxy-ci			## Replace vmproxy from build, restart and tail logs
+	tail -f /srv/logs/vmproxy.log
+
+run-qan-ci: release-qan	            ## Replace qan-api2 from build and restart (used in CI)
+	supervisorctl stop qan-api2
+	install -m 755 $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	truncate -s 0 /srv/logs/qan-api2.log
+	supervisorctl start qan-api2
+
+run-qan: run-qan-ci	                ## Replace qan-api2 from build, restart and tail logs
+	tail -f  /srv/logs/qan-api2.log
+
+run-all: run-agent-ci run-managed-ci run-qan-ci run-vmproxy-ci	## Run all go services
+
+run: run-all                         ## Aliased to "run-all"
+	echo "run is aliased to run-all"
+
+ui-setup:                            ## Install UI dependencies
+	cd ui && yarn install
+
+run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
+	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
+	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app; \
+	supervisorctl restart grafana; \
+	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
+	cd ui && yarn dev
+
+build-ui: ui-setup               ## Build UI and deploy to system dirs
+	cd ui && yarn build
+	rm -rf /usr/share/pmm-ui
+	cp -r ui/apps/pmm/dist /usr/share/pmm-ui
+	rm -rf /usr/share/percona-dashboards/panels/pmm-compat-app /srv/grafana/plugins/pmm-compat-app
+	cp -r ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
+	cp -r ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
+	supervisorctl restart grafana
+
+run-qan-ui: setup-qan-ui setup-livereload ## Runs QAN UI with webpack livereload
+	rm -rf /srv/grafana/plugins/pmm-app/dist
+	ln -sfn $(CURDIR)/dashboards/pmm-app/dist/ /srv/grafana/plugins/pmm-app/dist;
+	cd dashboards/pmm-app && yarn dev
+
+build-qan-ui: setup-qan-ui       ## Build QAN UI and deploy
+	cd dashboards/pmm-app && yarn build
+	rm -rf /srv/grafana/plugins/pmm-app/dist
+	cp -r dashboards/pmm-app/dist /srv/grafana/plugins/pmm-app/dist
+
+setup-qan-ui:                    ## Installs QAN UI dependencies
+	cd dashboards/pmm-app && yarn install
+
+setup-livereload:                ## Add livereload scripts to grafana index file
+	grep -q "35729/livereload.js" /usr/share/grafana/public/views/index.html || \
+		sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
+	grep -q "35730/livereload.js" /usr/share/grafana/public/views/index.html || \
+		sed -i 's|</body>|<script src="http://localhost:35730/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
+
+link-pmm-compat:          ## Links the dist folder of pmm compat to the plugin directory
+	rm -rf /srv/grafana/plugins/pmm-compat-app
+	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
+
+grafana-be-build:
+	cd /root/go/src/github.com/percona/grafana && \
+	make build-go && \
+	cp ./bin/linux/amd64/grafana /usr/sbin/grafana && \
+	supervisorctl restart grafana
+
+reload-dashboards:
+	rm -r /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
+	cp -r /root/go/src/github.com/percona/pmm/dashboards/dashboards /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
+	supervisorctl restart grafana
+
+# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
+# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
+# 	go test -coverpkg="github.com/percona/pmm/managed/..." \
+# 			-tags maincover \
+# 			$(PMM_LD_FLAGS) \
+# 			-race -c -o bin/pmm-managed.test
+# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
+psql:                           ## Open database for the pmm-managed instance in psql shell
+	PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
+
+psql-test:                      ## Open database used in unit tests in psql shell
+	psql -U postgres pmm-managed-dev
+
+dlv-managed:                     ## Attach Delve to `pmm-managed`
+	go tool dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
+
+refresh-swagger:                ## Refresh swagger files
+	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json
+	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger-dev.json /usr/share/pmm-managed/swagger/swagger-dev.json

@@ -24,7 +24,7 @@ PMM Client supports:
 
     - Red Hat/CentOS/Oracle Linux 8, 9 and 10
     - Debian 11 (Bullseye), 12 (Bookworm) and 13 (Trixie)
-    - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
+    - Ubuntu 22.04 (Jammy), 24.04 (Noble) and 26.04 (Resolute)
     - Amazon Linux 2023
 
 The package manager will automatically select the appropriate version for your system architecture.

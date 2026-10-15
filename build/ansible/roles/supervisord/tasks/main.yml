@@ -29,6 +29,20 @@
 - name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: username
+    value: dummy
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: password
+    value: dummy
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
     value: /srv/logs/supervisord.log

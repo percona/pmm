@@ -33,7 +33,7 @@ type NoOp struct {
 // New creates new NoOp.
 func New() *NoOp {
 	return &NoOp{
-		changes: make(chan agents.Change, 10),
+		changes: make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 

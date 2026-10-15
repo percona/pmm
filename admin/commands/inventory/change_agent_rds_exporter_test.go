@@ -54,7 +54,6 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 			require.NoError(t, err)
 			assert.NotNil(t, result)
 
-			//nolint:gosec
 			expectedJSON := `{
 				"rds_exporter": {
 					"enable": true,

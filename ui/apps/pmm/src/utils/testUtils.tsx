@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UpdatesContext, UpdatesContextProps } from 'contexts/updates';
 import { UserContext, UserContextProps } from 'contexts/user';
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { TEST_USER_ADMIN } from './testStubs';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
@@ -47,7 +47,7 @@ export const wrapWithUpdatesProvider = (
 );
 
 export const wrapWithQueryProvider = (
-  children: ReactElement,
+  children: ReactElement | ReactNode,
   client?: QueryClient
 ) => (
   <QueryClientProvider

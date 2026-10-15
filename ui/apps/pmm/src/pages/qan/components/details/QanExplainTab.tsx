@@ -1,6 +1,6 @@
 import { Alert, Stack, Typography } from '@mui/material';
 import { FC, useMemo, useState } from 'react';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/peak-ui';
 import { useQanExamples, useQanExplain } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../../utils/qanTools';
@@ -57,19 +57,19 @@ export const QanExplainTab: FC = () => {
       {data?.classic ? (
         <Stack>
           <Typography variant="subtitle2">Classic</Typography>
-          <SyntaxHighlighter language="text" content={data.classic} showCopyButton />
+          <CodeBlock language="text" content={data.classic} copyable />
         </Stack>
       ) : null}
       {data?.json ? (
         <Stack>
           <Typography variant="subtitle2">JSON</Typography>
-          <SyntaxHighlighter language="json" content={data.json} showCopyButton />
+          <CodeBlock language="json" content={data.json} copyable />
         </Stack>
       ) : null}
       {data?.visual ? (
         <Stack>
           <Typography variant="subtitle2">Visual</Typography>
-          <SyntaxHighlighter language="json" content={data.visual} showCopyButton />
+          <CodeBlock language="json" content={data.visual} copyable />
         </Stack>
       ) : null}
       {!data?.classic && !data?.json && !data?.visual ? (

@@ -79,7 +79,7 @@ func Run() {
 		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 
 		var wg sync.WaitGroup
-		wg.Add(3)
+		wg.Add(3) //nolint:mnd
 		reloadCh := make(chan bool, 1)
 
 		go func() {

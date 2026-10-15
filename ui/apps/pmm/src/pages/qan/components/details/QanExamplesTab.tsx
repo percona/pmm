@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/peak-ui';
 import { useQanExamples } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../../utils/qanTools';
@@ -37,7 +37,7 @@ export const QanExamplesTab: FC = () => {
               {ex.exampleType}
             </Typography>
           ) : null}
-          <SyntaxHighlighter language="text" content={ex.example ?? ''} showCopyButton />
+          <CodeBlock language="text" content={ex.example ?? ''} copyable />
         </Stack>
       ))}
     </Stack>

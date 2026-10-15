@@ -154,7 +154,8 @@ func (e VersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = VersionInfoValidationError{}
@@ -256,7 +257,8 @@ func (e VersionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = VersionRequestValidationError{}
@@ -418,7 +420,8 @@ func (e VersionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = VersionResponseValidationError{}
@@ -518,7 +521,8 @@ func (e ReadinessRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ReadinessRequestValidationError{}
@@ -620,7 +624,8 @@ func (e ReadinessResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ReadinessResponseValidationError{}
@@ -722,7 +727,8 @@ func (e LeaderHealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LeaderHealthCheckRequestValidationError{}
@@ -824,7 +830,8 @@ func (e LeaderHealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LeaderHealthCheckResponseValidationError{}
@@ -930,7 +937,8 @@ func (e CheckUpdatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CheckUpdatesRequestValidationError{}
@@ -1069,7 +1077,8 @@ func (e DockerVersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DockerVersionInfoValidationError{}
@@ -1262,7 +1271,8 @@ func (e CheckUpdatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CheckUpdatesResponseValidationError{}
@@ -1364,7 +1374,8 @@ func (e ListChangeLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListChangeLogsRequestValidationError{}
@@ -1529,7 +1540,8 @@ func (e ListChangeLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListChangeLogsResponseValidationError{}
@@ -1718,7 +1730,8 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsResolutionsValidationError{}
@@ -1907,7 +1920,8 @@ func (e AdvisorRunIntervalsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AdvisorRunIntervalsValidationError{}
@@ -2150,7 +2164,8 @@ func (e SettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = SettingsValidationError{}
@@ -2257,7 +2272,8 @@ func (e OtelSettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = OtelSettingsValidationError{}
@@ -2375,7 +2391,8 @@ func (e ReadOnlySettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ReadOnlySettingsValidationError{}
@@ -2477,7 +2494,8 @@ func (e GetSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetSettingsRequestValidationError{}
@@ -2579,7 +2597,8 @@ func (e GetReadOnlySettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetReadOnlySettingsRequestValidationError{}
@@ -2710,7 +2729,8 @@ func (e GetSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetSettingsResponseValidationError{}
@@ -2842,7 +2862,8 @@ func (e GetReadOnlySettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetReadOnlySettingsResponseValidationError{}
@@ -2977,7 +2998,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.AwsPartitions != nil {
-
 		if all {
 			switch v := interface{}(m.GetAwsPartitions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3006,7 +3026,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnableAdvisor != nil {
@@ -3038,7 +3057,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.Otel != nil {
-
 		if all {
 			switch v := interface{}(m.GetOtel()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3067,7 +3085,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnableNativeQan != nil {
@@ -3141,7 +3158,8 @@ func (e ChangeSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeSettingsRequestValidationError{}
@@ -3272,7 +3290,8 @@ func (e ChangeSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeSettingsResponseValidationError{}
@@ -3442,7 +3461,8 @@ func (e LogParserPresetValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LogParserPresetValidationError{}
@@ -3545,7 +3565,8 @@ func (e ListLogParserPresetsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListLogParserPresetsRequestValidationError{}
@@ -3682,7 +3703,8 @@ func (e ListLogParserPresetsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListLogParserPresetsResponseValidationError{}
@@ -3786,7 +3808,8 @@ func (e GetLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetLogParserPresetRequestValidationError{}
@@ -3917,7 +3940,8 @@ func (e GetLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetLogParserPresetResponseValidationError{}
@@ -4025,7 +4049,8 @@ func (e AddLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddLogParserPresetRequestValidationError{}
@@ -4156,7 +4181,8 @@ func (e AddLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddLogParserPresetResponseValidationError{}
@@ -4269,7 +4295,8 @@ func (e ChangeLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeLogParserPresetRequestValidationError{}
@@ -4401,7 +4428,8 @@ func (e ChangeLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeLogParserPresetResponseValidationError{}
@@ -4506,7 +4534,8 @@ func (e RemoveLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveLogParserPresetRequestValidationError{}
@@ -4609,7 +4638,8 @@ func (e RemoveLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveLogParserPresetResponseValidationError{}

@@ -18,7 +18,7 @@ You'll find these options in the left-side menu:
 
 | Icon | Name | What you can do |
 |:----:|------|-----------------|
-| :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, anomaly detection, and upgrade status. |
+| :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, and anomaly detection. |
 | :simple-mysql:                  | MySQL | View specialized dashboards for MySQL database performance monitoring. |
 | :simple-postgresql:             | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
 | :material-monitor-dashboard:| Operating System  | Monitor server-level metrics including CPU, memory, disk, and network performance. |
@@ -80,4 +80,4 @@ Explore metrics lets you visually browse and filter available metrics without wr
 
 This adds the **Explore metrics** option under **Explore** in the left sidebar. For more information, see [Grafana Metrics Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics).
 
-![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.jpg)
+![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.png)

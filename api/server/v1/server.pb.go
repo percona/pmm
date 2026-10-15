@@ -7,16 +7,18 @@
 package serverv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	common "github.com/percona/pmm/api/common"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
+
+	common "github.com/percona/pmm/api/common"
 )
 
 const (
@@ -1417,7 +1419,7 @@ type ChangeSettingsRequest struct {
 	EnableUpdates      *bool                  `protobuf:"varint,1,opt,name=enable_updates,json=enableUpdates,proto3,oneof" json:"enable_updates,omitempty"`
 	EnableTelemetry    *bool                  `protobuf:"varint,2,opt,name=enable_telemetry,json=enableTelemetry,proto3,oneof" json:"enable_telemetry,omitempty"`
 	MetricsResolutions *MetricsResolutions    `protobuf:"bytes,3,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	// A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
 	DataRetention *durationpb.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey        *string              `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3,oneof" json:"ssh_key,omitempty"`
 	AwsPartitions *common.StringArray  `protobuf:"bytes,6,opt,name=aws_partitions,json=awsPartitions,proto3,oneof" json:"aws_partitions,omitempty"`
@@ -2388,48 +2390,51 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 	return file_server_v1_server_proto_rawDescData
 }
 
-var file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_server_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
-var file_server_v1_server_proto_goTypes = []any{
-	(DistributionMethod)(0),               // 0: server.v1.DistributionMethod
-	(*VersionInfo)(nil),                   // 1: server.v1.VersionInfo
-	(*VersionRequest)(nil),                // 2: server.v1.VersionRequest
-	(*VersionResponse)(nil),               // 3: server.v1.VersionResponse
-	(*ReadinessRequest)(nil),              // 4: server.v1.ReadinessRequest
-	(*ReadinessResponse)(nil),             // 5: server.v1.ReadinessResponse
-	(*LeaderHealthCheckRequest)(nil),      // 6: server.v1.LeaderHealthCheckRequest
-	(*LeaderHealthCheckResponse)(nil),     // 7: server.v1.LeaderHealthCheckResponse
-	(*CheckUpdatesRequest)(nil),           // 8: server.v1.CheckUpdatesRequest
-	(*DockerVersionInfo)(nil),             // 9: server.v1.DockerVersionInfo
-	(*CheckUpdatesResponse)(nil),          // 10: server.v1.CheckUpdatesResponse
-	(*ListChangeLogsRequest)(nil),         // 11: server.v1.ListChangeLogsRequest
-	(*ListChangeLogsResponse)(nil),        // 12: server.v1.ListChangeLogsResponse
-	(*MetricsResolutions)(nil),            // 13: server.v1.MetricsResolutions
-	(*AdvisorRunIntervals)(nil),           // 14: server.v1.AdvisorRunIntervals
-	(*Settings)(nil),                      // 15: server.v1.Settings
-	(*OtelSettings)(nil),                  // 16: server.v1.OtelSettings
-	(*ReadOnlySettings)(nil),              // 17: server.v1.ReadOnlySettings
-	(*GetSettingsRequest)(nil),            // 18: server.v1.GetSettingsRequest
-	(*GetReadOnlySettingsRequest)(nil),    // 19: server.v1.GetReadOnlySettingsRequest
-	(*GetSettingsResponse)(nil),           // 20: server.v1.GetSettingsResponse
-	(*GetReadOnlySettingsResponse)(nil),   // 21: server.v1.GetReadOnlySettingsResponse
-	(*ChangeSettingsRequest)(nil),         // 22: server.v1.ChangeSettingsRequest
-	(*ChangeSettingsResponse)(nil),        // 23: server.v1.ChangeSettingsResponse
-	(*LogParserPreset)(nil),               // 24: server.v1.LogParserPreset
-	(*ListLogParserPresetsRequest)(nil),   // 25: server.v1.ListLogParserPresetsRequest
-	(*ListLogParserPresetsResponse)(nil),  // 26: server.v1.ListLogParserPresetsResponse
-	(*GetLogParserPresetRequest)(nil),     // 27: server.v1.GetLogParserPresetRequest
-	(*GetLogParserPresetResponse)(nil),    // 28: server.v1.GetLogParserPresetResponse
-	(*AddLogParserPresetRequest)(nil),     // 29: server.v1.AddLogParserPresetRequest
-	(*AddLogParserPresetResponse)(nil),    // 30: server.v1.AddLogParserPresetResponse
-	(*ChangeLogParserPresetRequest)(nil),  // 31: server.v1.ChangeLogParserPresetRequest
-	(*ChangeLogParserPresetResponse)(nil), // 32: server.v1.ChangeLogParserPresetResponse
-	(*RemoveLogParserPresetRequest)(nil),  // 33: server.v1.RemoveLogParserPresetRequest
-	(*RemoveLogParserPresetResponse)(nil), // 34: server.v1.RemoveLogParserPresetResponse
-	(*timestamppb.Timestamp)(nil),         // 35: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),           // 36: google.protobuf.Duration
-	(*common.StringArray)(nil),            // 37: common.StringArray
-}
+var (
+	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 34)
+	file_server_v1_server_proto_goTypes   = []any{
+		DistributionMethod(0),                 // 0: server.v1.DistributionMethod
+		(*VersionInfo)(nil),                   // 1: server.v1.VersionInfo
+		(*VersionRequest)(nil),                // 2: server.v1.VersionRequest
+		(*VersionResponse)(nil),               // 3: server.v1.VersionResponse
+		(*ReadinessRequest)(nil),              // 4: server.v1.ReadinessRequest
+		(*ReadinessResponse)(nil),             // 5: server.v1.ReadinessResponse
+		(*LeaderHealthCheckRequest)(nil),      // 6: server.v1.LeaderHealthCheckRequest
+		(*LeaderHealthCheckResponse)(nil),     // 7: server.v1.LeaderHealthCheckResponse
+		(*CheckUpdatesRequest)(nil),           // 8: server.v1.CheckUpdatesRequest
+		(*DockerVersionInfo)(nil),             // 9: server.v1.DockerVersionInfo
+		(*CheckUpdatesResponse)(nil),          // 10: server.v1.CheckUpdatesResponse
+		(*ListChangeLogsRequest)(nil),         // 11: server.v1.ListChangeLogsRequest
+		(*ListChangeLogsResponse)(nil),        // 12: server.v1.ListChangeLogsResponse
+		(*MetricsResolutions)(nil),            // 13: server.v1.MetricsResolutions
+		(*AdvisorRunIntervals)(nil),           // 14: server.v1.AdvisorRunIntervals
+		(*Settings)(nil),                      // 15: server.v1.Settings
+		(*OtelSettings)(nil),                  // 16: server.v1.OtelSettings
+		(*ReadOnlySettings)(nil),              // 17: server.v1.ReadOnlySettings
+		(*GetSettingsRequest)(nil),            // 18: server.v1.GetSettingsRequest
+		(*GetReadOnlySettingsRequest)(nil),    // 19: server.v1.GetReadOnlySettingsRequest
+		(*GetSettingsResponse)(nil),           // 20: server.v1.GetSettingsResponse
+		(*GetReadOnlySettingsResponse)(nil),   // 21: server.v1.GetReadOnlySettingsResponse
+		(*ChangeSettingsRequest)(nil),         // 22: server.v1.ChangeSettingsRequest
+		(*ChangeSettingsResponse)(nil),        // 23: server.v1.ChangeSettingsResponse
+		(*LogParserPreset)(nil),               // 24: server.v1.LogParserPreset
+		(*ListLogParserPresetsRequest)(nil),   // 25: server.v1.ListLogParserPresetsRequest
+		(*ListLogParserPresetsResponse)(nil),  // 26: server.v1.ListLogParserPresetsResponse
+		(*GetLogParserPresetRequest)(nil),     // 27: server.v1.GetLogParserPresetRequest
+		(*GetLogParserPresetResponse)(nil),    // 28: server.v1.GetLogParserPresetResponse
+		(*AddLogParserPresetRequest)(nil),     // 29: server.v1.AddLogParserPresetRequest
+		(*AddLogParserPresetResponse)(nil),    // 30: server.v1.AddLogParserPresetResponse
+		(*ChangeLogParserPresetRequest)(nil),  // 31: server.v1.ChangeLogParserPresetRequest
+		(*ChangeLogParserPresetResponse)(nil), // 32: server.v1.ChangeLogParserPresetResponse
+		(*RemoveLogParserPresetRequest)(nil),  // 33: server.v1.RemoveLogParserPresetRequest
+		(*RemoveLogParserPresetResponse)(nil), // 34: server.v1.RemoveLogParserPresetResponse
+		(*timestamppb.Timestamp)(nil),         // 35: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),           // 36: google.protobuf.Duration
+		(*common.StringArray)(nil),            // 37: common.StringArray
+	}
+)
+
 var file_server_v1_server_proto_depIdxs = []int32{
 	35, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo

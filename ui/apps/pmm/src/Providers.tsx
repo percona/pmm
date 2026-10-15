@@ -28,7 +28,6 @@ const Providers: FC<PropsWithChildren> = () => (
                     styles={{
                       html: {
                         height: '100%',
-                        scrollbarGutter: 'stable',
                       },
                       body: {
                         margin: 0,

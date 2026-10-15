@@ -15,7 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { Dialog, DialogTitle } from '@percona/percona-ui';
+import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { FC, useEffect, useState } from 'react';
 import { getAdreAlerts, getAlertMetadataFromLabels } from 'api/adre';
 import type { CreateInvestigationBody } from 'api/investigations';

@@ -38,9 +38,17 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
+	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))
 	if err != nil {
 		errs = append(errs, err)
+	}
+	// An external ClickHouse leaves the built-in server unused, so its config files are irrelevant.
+	if err == nil && !disableInternalClickhouse {
+		linkErr := clickhouse.LinkClickHouseConfig(clickHouseConfig)
+		if linkErr != nil {
+			errs = append(errs, linkErr)
+		}
 	}
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s", warn)
@@ -60,9 +68,8 @@ func main() {
 
 	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
-	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	pmmConfigParams["DisableInternalClickhouse"] = disableInternalClickhouse
 	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
-	pmmConfigParams["ClickHouseConfig"] = clickHouseConfig
 
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
 	if isHAEnabled {

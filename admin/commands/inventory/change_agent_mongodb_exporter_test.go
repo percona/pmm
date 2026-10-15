@@ -39,19 +39,20 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentMongodbExporterCommand{
-				AgentID:                 "test-agent-id",
-				Enable:                  new(true),
-				Username:                new("newuser"),
-				Password:                new("newpass"),
-				TLS:                     new(true),
-				TLSSkipVerify:           new(false),
-				AuthenticationMechanism: new("SCRAM-SHA-256"),
-				AuthenticationDatabase:  new("admin"),
-				StatsCollections:        new("collection1,collection2"),
-				CollectionsLimit:        new(int32(100)),
-				DisableCollectors:       []string{"general_stats", "index_stats"},
-				ExposeExporter:          new(true),
-				PushMetrics:             new(false),
+				AgentID:                        "test-agent-id",
+				Enable:                         new(true),
+				Username:                       new("newuser"),
+				Password:                       new("newpass"),
+				TLS:                            new(true),
+				TLSSkipVerify:                  new(false),
+				AuthenticationMechanism:        new("SCRAM-SHA-256"),
+				AuthenticationDatabase:         new("admin"),
+				StatsCollections:               new("collection1,collection2"),
+				CollectionsLimit:               new(int32(100)),
+				EnableDiagnosticDataHistograms: new(true),
+				DisableCollectors:              []string{"general_stats", "index_stats"},
+				ExposeExporter:                 new(true),
+				PushMetrics:                    new(false),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
 					LogLevel: new(flags.LogLevel("debug")),
 				},
@@ -73,6 +74,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 					"authentication_database": "admin",
 					"stats_collections": ["collection1", "collection2"],
 					"collections_limit": 100,
+					"enable_diagnostic_data_histograms": true,
 					"disable_collectors": ["general_stats", "index_stats"],
 					"expose_exporter": true,
 					"enable_push_metrics": false,
@@ -157,6 +159,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			"--authentication-database=testdb",
 			"--stats-collections=col1,col2",
 			"--collections-limit=50",
+			"--enable-diagnostic-data-histograms",
 			"--disable-collectors=general_stats,index_stats",
 			"--expose-exporter",
 			"--push-metrics",
@@ -188,6 +191,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 				"authentication_database": "testdb",
 				"stats_collections": ["col1", "col2"],
 				"collections_limit": 50,
+				"enable_diagnostic_data_histograms": true,
 				"disable_collectors": ["general_stats", "index_stats"],
 				"expose_exporter": true,
 				"enable_push_metrics": true,
@@ -232,6 +236,7 @@ Configuration changes applied:
   - changed authentication database to testdb
   - updated stats collections: col1,col2
   - changed collections limit to 50
+  - enabled diagnostic data histograms
   - updated disabled collectors: [general_stats index_stats]
   - enabled expose exporter
   - enabled push metrics

@@ -101,7 +101,6 @@ func (o *RemoveLogParserPresetOK) GetPayload() any {
 }
 
 func (o *RemoveLogParserPresetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -173,7 +172,6 @@ func (o *RemoveLogParserPresetDefault) GetPayload() *RemoveLogParserPresetDefaul
 }
 
 func (o *RemoveLogParserPresetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RemoveLogParserPresetDefaultBody)
 
 	// response payload
@@ -189,7 +187,6 @@ RemoveLogParserPresetDefaultBody remove log parser preset default body
 swagger:model RemoveLogParserPresetDefaultBody
 */
 type RemoveLogParserPresetDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *RemoveLogParserPresetDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *RemoveLogParserPresetDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,7 +276,6 @@ func (o *RemoveLogParserPresetDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -394,7 +388,6 @@ RemoveLogParserPresetDefaultBodyDetailsItems0 `Any` contains an arbitrary serial
 swagger:model RemoveLogParserPresetDefaultBodyDetailsItems0
 */
 type RemoveLogParserPresetDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -433,7 +426,6 @@ type RemoveLogParserPresetDefaultBodyDetailsItems0 struct {
 func (o *RemoveLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -498,7 +490,6 @@ func (o *RemoveLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o RemoveLogParserPresetDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent

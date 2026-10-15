@@ -20,6 +20,7 @@ export const TextSelect = <T,>({
   disabled,
   disabledValue,
   startIcon,
+  buttonProps,
   'data-testid-button': dataTestIdButton,
 }: TextSelectProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -43,6 +44,7 @@ export const TextSelect = <T,>({
   return (
     <Stack>
       <Button
+        {...buttonProps}
         variant="text"
         onClick={handleOpen}
         endIcon={open ? <ArrowDropUp /> : <ArrowDropDown />}

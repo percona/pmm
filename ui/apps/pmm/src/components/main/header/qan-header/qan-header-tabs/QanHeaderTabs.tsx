@@ -15,7 +15,12 @@ const QanHeaderTabs: FC = () => {
     : `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
   return (
-    <Tabs value={isRealtime ? 'real-time' : 'historical'}>
+    <Tabs
+      value={isRealtime ? 'real-time' : 'historical'}
+      variant="scrollable"
+      scrollButtons="auto"
+      sx={{ flex: 1, minWidth: 0 }}
+    >
       <Tab
         value="historical"
         label={Messages.tabStoredMetrics}

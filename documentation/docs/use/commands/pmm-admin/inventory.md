@@ -66,6 +66,8 @@ Currently supports MongoDB agent types only:
 
 Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
 
+When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
+
 ### When to use `change agent` vs `remove/add`
 
 **Use `change agent` for:**
@@ -122,6 +124,21 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--tls-certificate-key-file`
 :   Path to combined cert/key file
 
+- `--skip-connection-check`
+:   Save the new settings without verifying the database connection first
+
+!!! note "When to use `--skip-connection-check`"
+    By default, PMM verifies connection-affecting changes against the database before saving them.
+    Skip this check when the agent cannot reach the database at the moment you make the change, for example:
+
+    - The database is temporarily **down or in a maintenance window**.
+    - You are rotating a **password that PMM does not yet have** (the current stored credentials
+      are already invalid, so the check would fail).
+    - The target instance is otherwise **temporarily unreachable**.
+
+    PMM saves the new settings as-is. If the values are wrong,
+    metric collection stays broken until you correct them.
+
 #### Collectors
 
 - `--enable-all-collectors`
@@ -157,6 +174,14 @@ You can also use `pmm-admin list` to see agents alongside their services.
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --password=new_secret_pass
+    ```
+
+- Update the password while the database is unreachable (skip the connection check):
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --password=new_secret_pass \
+      --skip-connection-check
     ```
 
 - Add custom labels to an agent:
@@ -223,6 +248,7 @@ The command returns a clear error message in these cases:
 - **Non-existent agent ID**: The specified agent ID does not exist in PMM inventory.
 - **Mismatched agent type**: The agent ID exists but belongs to a different agent type (e.g., using a `mysqld-exporter` ID with the `mongodb-exporter` subcommand).
 - **Invalid flag value**: A flag receives a value outside its allowed range (e.g., an invalid log level).
+- **Connection check failure**: PMM could not validate the new connection-affecting settings (credentials, TLS) against the database. No changes are saved. If the database is intentionally unreachable (down, in maintenance, or you are setting a password PMM does not yet have), re-run the command with `--skip-connection-check`.
 
 ## See also
 

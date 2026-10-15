@@ -50,7 +50,7 @@ These tests should be moved to QA testing framework.
         	Test:       	TestVersionPlain
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-agent", "-h") //nolint:gosec
+	cmd := exec.Command("pmm-agent", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 

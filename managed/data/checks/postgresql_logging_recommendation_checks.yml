@@ -12,7 +12,7 @@ checks:
       - type: POSTGRESQL_SELECT
         query: " s1.setting AS logging_collector, s2.setting AS log_temp_files, s3.setting log_checkpoints, s4.setting log_min_duration_statement, s5.unit unit, s6.min_val AS minval, s7.setting AS log_autovacuum_min_duration FROM pg_settings s1 , pg_settings s2 , pg_settings s3 , pg_settings s4 , pg_settings s5 , pg_settings s6 , pg_settings s7 WHERE s1.name = 'logging_collector' and s2.name = 'log_temp_files' and s3.name = 'log_checkpoints' and s4.name = 'log_min_duration_statement' and s5.name = 'log_min_duration_statement' and s6.name = 'log_min_duration_statement' and s7.name = 'log_autovacuum_min_duration'"
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(rows, context):
           results = []

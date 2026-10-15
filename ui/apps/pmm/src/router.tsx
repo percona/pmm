@@ -21,6 +21,7 @@ import InvestigationsListPage from 'pages/investigations/InvestigationsListPage'
 import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
 import QanPage from 'pages/qan/QanPage';
 import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
+import { AlertsPage } from 'pages/alerting/status';
 
 const router = createBrowserRouter(
   [
@@ -47,6 +48,15 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'alerting',
+              children: [
+                {
+                  path: 'status',
+                  element: <AlertsPage />,
+                },
+              ],
             },
             {
               path: 'settings/:tab?',
@@ -109,6 +119,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/alerting/alerts',
+              element: <Navigate to="/alerting/status" replace />,
             },
             // Grafana routes are handled at the Main component level
             {

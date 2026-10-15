@@ -8,7 +8,7 @@ import {
   ThemeContextProvider,
   pmmThemeOptions,
   NotistackMuiSnackbar,
-} from '@percona/percona-ui';
+} from '@percona/peak-ui';
 import { ThemeClass } from 'components/theme-class';
 import { useEffect } from 'react';
 import type { ComponentType } from 'react';

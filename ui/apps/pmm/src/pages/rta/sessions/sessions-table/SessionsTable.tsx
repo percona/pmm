@@ -4,7 +4,7 @@ import { FC, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
@@ -173,26 +173,33 @@ const SessionsTable: FC = () => {
         muiTableContainerProps={{
           sx: {
             flex: 1,
-            borderRadius: 2,
+            // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+            // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+            borderRadius: '8px',
             border: '1px solid',
             borderColor: 'divider',
           },
         }}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
               flexDirection: user?.isPMMAdmin ? 'row-reverse' : undefined,
             },
           },
         }}
         renderTopToolbarCustomActions={() =>
           user?.isPMMAdmin && (
-            <Stack direction="row" alignItems="center" gap={2}>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              rowGap={1}
+              columnGap={4}
+              pt={1}
+            >
               {selectedSessions.length > 0 && (
-                <Stack direction="row" alignItems="center" gap={2}>
-                  <Typography variant="body2">
+                <Stack direction="row" flexWrap="wrap" alignItems="center">
+                  <Typography variant="body2" sx={{ mx: 1 }}>
                     {Messages.selected(selectedSessions.length)}
                   </Typography>
                   <Button
@@ -204,22 +211,29 @@ const SessionsTable: FC = () => {
                   </Button>
                 </Stack>
               )}
-              {!!sessions.length && (
-                <Button
-                  data-testid="open-stop-all-modal"
-                  startIcon={<StopCircleOutlinedIcon />}
-                  onClick={openStopAllModal}
-                >
-                  {Messages.stopAll}
-                </Button>
-              )}
-              <Button
-                data-testid="open-new-modal"
-                startIcon={<AddOutlinedIcon />}
-                onClick={openNewSessionModal}
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                alignItems="center"
+                gap={1}
               >
-                {Messages.newSession}
-              </Button>
+                {!!sessions.length && (
+                  <Button
+                    data-testid="open-stop-all-modal"
+                    startIcon={<StopCircleOutlinedIcon />}
+                    onClick={openStopAllModal}
+                  >
+                    {Messages.stopAll}
+                  </Button>
+                )}
+                <Button
+                  data-testid="open-new-modal"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={openNewSessionModal}
+                >
+                  {Messages.newSession}
+                </Button>
+              </Stack>
             </Stack>
           )
         }

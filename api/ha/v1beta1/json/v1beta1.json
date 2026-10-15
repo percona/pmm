@@ -163,6 +163,7 @@
   },
   "tags": [
     {
+      "description": "HAService provides High Availability cluster status information.",
       "name": "HAService"
     }
   ]

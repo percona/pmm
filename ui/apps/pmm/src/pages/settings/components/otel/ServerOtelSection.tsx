@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { SwitchInput } from '@percona/percona-ui';
+import { SwitchInput } from '@percona/peak-ui';
 import { FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';

@@ -105,7 +105,7 @@ linters:
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
-          - gosec            # tests legitimately use insecure setups (0644, ignored errors, etc.)
+          - gosec            # not critical, too many things to disable
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests

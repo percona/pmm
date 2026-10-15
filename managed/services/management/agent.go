@@ -206,6 +206,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
 			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
 			EnableAllCollectors:                agent.MongoDBOptions.EnableAllCollectors,
+			EnableDiagnosticDataHistograms:     agent.MongoDBOptions.EnableDiagnosticDataHistograms,
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",

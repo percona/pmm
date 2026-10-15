@@ -12,7 +12,7 @@ checks:
       - type: METRICS_INSTANT
         query: avg by(cl_role,cluster,node_name,rs_state) (mongodb_ss_shardedIndexConsistency_numShardedCollectionsWithInconsistentIndexes{rs_state="1", node_name=~"{{.NodeName}}"})
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           results = []

@@ -5,12 +5,11 @@ Point-in-Time Recovery (PITR) restores databases up to a specific moment in time
 Point-in-Time Recovery helps you prevent data loss during a disaster such as crashed database, accidental data deletion or drop of tables, or unwanted update of multiple fields instead of a single one.
 
 ## Compatibility with Percona Backup for MongoDB
-PMM introduced the option to create PITR Backups for MongoDB in version 2.23, as part of the larger Backup Management feature. This implementation in PMM uses Percona Backup for MongoDB (pbm) behind the scenes.
+PMM introduced the option to create PITR backups for MongoDB in version 2.23 as part of the Backup Management feature. PMM uses Percona Backup for MongoDB (PBM) to create and restore these backups.
 
-Percona Backup for MongoDB is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.
-Restoring PITR backups is available for backups based on pbm ≤ 2.0.1. To restore PITR backups, make sure you have pbm ≥ 2.0.1 installed.
+PMM requires PBM 2.0.1 or later. PBM is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.
 
- Percona Backup for MongoDB supports [Percona Server for MongoDB](https://docs.percona.com/percona-server-for-mongodb/) and MongoDB Community ≤ 3.6, with [MongoDB Replication](https://docs.mongodb.com/manual/replication/) enabled. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/installation.html).
+PBM supports logical backups for MongoDB Community and Enterprise Edition with replication enabled. It supports logical, physical, and incremental backups for [Percona Server for MongoDB](https://docs.percona.com/percona-server-for-mongodb/). Check the [PBM compatibility matrix](https://docs.percona.com/percona-backup-mongodb/details/versions.html) for the MongoDB versions supported by each PBM release.
 
 ## How does it work?
 

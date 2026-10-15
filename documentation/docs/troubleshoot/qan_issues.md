@@ -85,24 +85,34 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
 
 If you're running PMM Server with less than 16 GB RAM and seeing "memory limit exceeded" errors in ClickHouse logs, switch to the low-memory configuration.
 
-PMM includes two ClickHouse profiles:
+PMM includes two built-in ClickHouse profiles:
 
-- **default**: optimized for performance (16 GB+ RAM)
+- **default**: optimized for performance on hosts with 16 GB RAM or more
 - **low-memory**: optimized for constrained environments, based on [ClickHouse recommendations](https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram)
 
 ### Switch to low-memory configuration
 
-Select the profile with the `PMM_CLICKHOUSE_CONFIG` environment variable when you create the container:
+Set the `PMM_CLICKHOUSE_CONFIG` environment variable when starting PMM Server:
 
-```bash
-docker run -e PMM_CLICKHOUSE_CONFIG=low-memory ... percona/pmm-server:3
-```
+=== "Docker"
+    ```bash
+    docker run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
+
+=== "Podman"
+    ```bash
+    podman run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
+
+The setting persists across container restarts and upgrades without any additional steps.
+
+To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or remove the variable.
 
 !!! note "Configuration details"
     Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
     
     - `default-config.xml`: default profile
     - `low-memory-config.xml`: low-memory profile
-    
 
-The `switch-config.sh` script is deprecated and will be removed in a future PMM release; use `PMM_CLICKHOUSE_CONFIG` instead.
+!!! warning "Deprecated: switch-config.sh"
+    The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.

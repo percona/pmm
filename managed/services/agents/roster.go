@@ -75,7 +75,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	defer r.rw.RUnlock()
 
 	parts := strings.Split(groupID, ":")
-	ok := len(parts) == 2
+	ok := len(parts) == 2 //nolint:mnd
 
 	PMMAgentID := parts[0]
 	agentIDs := r.m[groupID]

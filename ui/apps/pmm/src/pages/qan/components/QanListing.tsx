@@ -1,4 +1,4 @@
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
 import type { MRT_ColumnDef } from 'material-react-table';

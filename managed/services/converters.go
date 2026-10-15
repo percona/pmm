@@ -327,6 +327,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
+		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
 
 		return exporter, nil
 

@@ -56,24 +56,25 @@ func (res *addAgentMongodbExporterResult) String() string {
 type AddAgentMongodbExporterCommand struct {
 	flags.LogLevelFatalFlags
 
-	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID                     string            `arg:"" help:"Service identifier"`
-	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
-	Password                      string            `help:"MongoDB password for scraping metrics"`
-	AgentPassword                 string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck           bool              `help:"Skip connection check"`
-	TLS                           bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                 bool              `help:"Skip TLS certificate verification"`
-	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
-	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
-	TLSCaFile                     string            `help:"Path to certificate authority file"`
-	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
-	PushMetrics                   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
-	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
-	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	PMMAgentID                     string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                      string            `arg:"" help:"Service identifier"`
+	Username                       string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
+	Password                       string            `help:"MongoDB password for scraping metrics"`
+	AgentPassword                  string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels                   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck            bool              `help:"Skip connection check"`
+	TLS                            bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                  bool              `help:"Skip TLS certificate verification"`
+	TLSCertificateKeyFile          string            `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword  string            `help:"Password for certificate"`
+	TLSCaFile                      string            `help:"Path to certificate authority file"`
+	AuthenticationMechanism        string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	PushMetrics                    bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors              []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
+	CollectionsLimit               int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
+	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
@@ -92,25 +93,26 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
-				PMMAgentID:                    cmd.PMMAgentID,
-				ServiceID:                     cmd.ServiceID,
-				Username:                      cmd.Username,
-				Password:                      cmd.Password,
-				AgentPassword:                 cmd.AgentPassword,
-				CustomLabels:                  pointer.Get(customLabels),
-				SkipConnectionCheck:           cmd.SkipConnectionCheck,
-				TLS:                           cmd.TLS,
-				TLSSkipVerify:                 cmd.TLSSkipVerify,
-				TLSCertificateKey:             tlsCertificateKey,
-				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-				TLSCa:                         tlsCa,
-				AuthenticationMechanism:       cmd.AuthenticationMechanism,
-				PushMetrics:                   cmd.PushMetrics,
-				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
-				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
-				CollectionsLimit:              cmd.CollectionsLimit,
-				LogLevel:                      cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
+				PMMAgentID:                     cmd.PMMAgentID,
+				ServiceID:                      cmd.ServiceID,
+				Username:                       cmd.Username,
+				Password:                       cmd.Password,
+				AgentPassword:                  cmd.AgentPassword,
+				CustomLabels:                   pointer.Get(customLabels),
+				SkipConnectionCheck:            cmd.SkipConnectionCheck,
+				TLS:                            cmd.TLS,
+				TLSSkipVerify:                  cmd.TLSSkipVerify,
+				TLSCertificateKey:              tlsCertificateKey,
+				TLSCertificateKeyFilePassword:  cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                          tlsCa,
+				AuthenticationMechanism:        cmd.AuthenticationMechanism,
+				PushMetrics:                    cmd.PushMetrics,
+				DisableCollectors:              commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:               commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:               cmd.CollectionsLimit,
+				EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+				LogLevel:                       cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

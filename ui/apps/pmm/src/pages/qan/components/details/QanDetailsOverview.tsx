@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { FC } from 'react';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/peak-ui';
 import { useQanPanelActions, useQanPanelState } from '../../hooks/useQanPanelState';
 import { QanMetricsTab } from './QanMetricsTab';
 
@@ -37,7 +37,7 @@ export const QanDetailsOverview: FC = () => {
           }}
         >
           {state.fingerprint ? (
-            <SyntaxHighlighter language="text" content={state.fingerprint} showCopyButton />
+            <CodeBlock language="text" content={state.fingerprint} copyable />
           ) : (
             <Typography variant="body2" color="text.secondary">
               No fingerprint available for this query.

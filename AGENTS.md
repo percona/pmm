@@ -1,16 +1,20 @@
 # PMM Development Guide for AI Agents
 
-## How AI tools load this document
+## How AI agents load this document
 
-This file is the **single authoritative entry point** for AI agents. Tools are wired to it as follows:
+**`AGENTS.md` is the tool-neutral source of truth for this repo — any AI agent should read this file (and the linked component guides) directly, whichever assistant it is.** It follows the cross-tool `AGENTS.md` convention, so most agents pick it up automatically.
 
-| Tool | Entry file |
-|------|------------|
-| **Cursor** | `.cursor/rules/pmm-agents-entrypoint.mdc` (`alwaysApply: true`) → read this file |
-| **Claude Code** | [CLAUDE.md](CLAUDE.md) → read this file |
-| **GitHub Copilot** | [.github/copilot-instructions.md](.github/copilot-instructions.md) → read this file |
+Some tools also use a thin pointer file that simply routes them here — these are examples, not an exclusive list:
 
-Local-only AI skills under `.claude/` and other `.cursor/` paths remain gitignored for personal experimentation.
+| Tool | Pointer file (→ reads `AGENTS.md`) |
+|------|------|
+| Claude Code | [CLAUDE.md](CLAUDE.md) |
+| Gemini CLI | [GEMINI.md](GEMINI.md) |
+| GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
+
+Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
+
+If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, read it at session start too — it holds machine-specific paths (gitignored). **Never put secrets there**; keep credentials in environment variables or a secret store.
 
 ## Maintaining This Document
 
@@ -34,7 +38,7 @@ This guide provides the product-wide overview, architecture, domain model, conve
 
 | Audience | Location |
 |----------|----------|
-| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/process/`](docs/process/) |
+| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`dev/docs/process/`](dev/docs/process/) |
 | AI agents | This file + component `AGENTS.md` guides |
 
 This file **summarizes and links** process docs; it does not replace them. Pull out operational rules here only when agents routinely get them wrong.
@@ -76,11 +80,13 @@ Follow the sections through [Git and pull request checklist](#git-and-pull-reque
 7. For Go/API changes: run `make prepare-pr` (gen + license check + Go lint + format + `go mod tidy` — subsumes step 6 for Go).
 8. Update `AGENTS.md` (and the component guide) only if you changed structure, conventions, or workflows.
 
+For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — run PMM on a live server and verify against real data before calling it done (see [Definition of Done](#definition-of-done) and the full procedure in [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md)).
+
 ### Don'ts
 
 - Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
 - Don't use `gorm` in pmm-managed — **reform only**.
-- Don't amend/squash commits locally to address review feedback; push **new commits** ([`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md)).
+- Don't amend/squash commits locally to address review feedback; push **new commits** ([`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md)).
 - Don't force-push to `main`/`v3`.
 - Don't skip the Feature Build link in PR descriptions for user-facing changes ([`.github/pull_request_template.md`](.github/pull_request_template.md)).
 - Don't run the full repo linter on every tiny edit; do run the **targeted linter** for what you changed, and run `make prepare-pr` before declaring Go/API work PR-ready.
@@ -128,6 +134,8 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 
 CI runs separate linters per area. `make prepare-pr` covers **Go only** — it does not lint UI or dashboards.
 
+The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it with **`make init`** — do not install golangci-lint another way, since a different build reports different findings than CI.
+
 | If you changed… | Run |
 |-----------------|-----|
 | Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
@@ -150,7 +158,9 @@ Recurring tasks — follow in order before opening a PR.
 3. Implement handler/service logic in `managed/services/<domain>/`.
 4. Add or extend tests in `api-tests/<domain>/`.
 5. If UI-facing: add API module in `ui/apps/pmm/src/api/` and TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
-6. If public API docs change: update [`docs/api/`](docs/api/) (PR template checkbox).
+6. If public API docs change: update [`documentation/api/`](documentation/api/) (PR template checkbox).
+
+> Keep proto changes additive — `buf breaking` runs in CI (see [Backward compatibility](#backward-compatibility)).
 
 ### Adding a DB table or migration
 
@@ -158,6 +168,8 @@ Recurring tasks — follow in order before opening a PR.
 2. Add or update the reform model; run `//go:generate` or `make gen`.
 3. Add CRUD helpers in `*_helpers.go` or `*_crud.go` as surrounding code does.
 4. Prefer `go-sqlmock` for unit tests; use `testdb.Open` when SQL/migration behavior must be verified.
+
+> Migrations are forward-only — never edit or reorder one that has shipped (see [Backward compatibility](#backward-compatibility)).
 
 ### Adding a UI page or settings section
 
@@ -170,29 +182,60 @@ Recurring tasks — follow in order before opening a PR.
 
 ---
 
+## Definition of Done
+
+Before calling a change complete, verify every item that applies — never report done on a check you didn't run:
+
+- [ ] Builds (component build or `make release`) and, when you can exercise it, the app runs.
+- [ ] Tests pass for **every** area you touched ([Testing decision tree](#testing-decision-tree)); new behavior has new/updated tests.
+- [ ] The **matching** linter is clean ([Linting decision tree](#linting-decision-tree)); Go/API: `make prepare-pr`.
+- [ ] Ran `make gen` if you changed `.proto`, reform models, or mocked interfaces — and did **not** hand-edit generated files.
+- [ ] New source files carry the license header (`make check-license`); no secrets, credentials, or stray `fmt.Printf`/debug prints in the diff.
+- [ ] Commits use `PMM-XXXX Short summary` and are signed off (`git commit -s`).
+- [ ] Updated `AGENTS.md`/component guide **only** if structure, conventions, or workflows changed.
+
+If a change is architecturally significant or spans multiple components, propose a short plan before mass-editing. Never delete or weaken tests just to make them pass, and don't invent APIs or fields — check the proto/generated code.
+
+For any **user-visible** change (metric, dashboard, API, exporter, UI), unit tests are **not** enough: run PMM on a live server, reproduce the issue, deploy the fix, and verify with evidence — dashboards, metrics/API, and logs, across the supported version matrix. Full procedure (run/iterate loop, registering test databases, the evidence protocol): [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md).
+
+---
+
 ## Git and pull request checklist
 
-Full rules: [`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md). For commits and PR titles, use **[Conventional Commits](https://www.conventionalcommits.org/)** (`type(scope): summary`) — not the `PMM-XXXX` title style from the process doc. When opening PRs to the upstream Percona repo, confirm with reviewers if they expect conventional titles or `PMM-XXXX` titles from the process doc.
+Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md). PMM uses its own convention — **not Conventional Commits**. Commit and PR titles are `PMM-XXXX Short summary` (Jira key prefix, summary ≤50 chars, final period optional); do **not** use `type(scope):` prefixes.
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` (lowercase, dashes) |
-| Commit title | `type(scope): short imperative summary` — e.g. `feat(ui): add OTEL settings scroll`, `fix(managed): normalize log parser YAML` |
-| PR title | Same format as commit title (squash merge uses the PR title) |
-| Types | `feat` (feature), `fix` (bug), `chore` (deps, lint, tooling), `refactor`, `test`, `docs` |
-| Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `adre`, `investigations`, `dashboards`, … |
-| Ticket | Put `PMM-XXXX` in the branch name and/or PR body — not required in the title |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
+| Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
+| PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
+| Ticket | `PMM-XXXX` is required as the title prefix (and in the branch name) |
+| Sign-off | Sign commits with `git commit -s` (adds a `Signed-off-by` trailer — DCO convention; most PMM commits carry it) |
 | Review fixes | New commit per round — do not amend and force-push |
 | Merge | Squash and merge on GitHub |
 | PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
 | API changes | Check API docs updated if endpoints changed |
 | Before review | Tests and linters pass for every area touched (see [Linting decision tree](#linting-decision-tree); Go/API: `make prepare-pr`; UI: `cd ui && make lint`) |
 
+### Handling review comments (incl. bots like CodeRabbit)
+
+- **Bot findings are claims to verify, not facts.** Check each against the actual code/tooling before acting — CodeRabbit mixes correct catches with false positives. Fix the real ones (state what you verified), skip the rest with a brief reason, and keep changes minimal.
+- **Fetching them:**
+  - With `gh` (local): add `--paginate` for all pages — `gh api --paginate repos/percona/pmm/pulls/<N>/comments` (inline) and `.../issues/<N>/comments` (top-level), or `gh pr view <N> --comments`.
+  - **No `gh` (Claude Code web / sandboxes):** the unauthenticated limit is 60/hour, so don't loop — `curl -s 'https://api.github.com/repos/percona/pmm/pulls/<N>/comments?per_page=100'` gets up to 100 **inline** comments in one call (top-level ones live at `issues/<N>/comments`); for the complete thread use `WebFetch` on the PR URL.
+
+---
+
+## User documentation
+
+User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). How to write them: [`docs-contributing.md`](documentation/docs-contributing.md) (workflow + local preview) and [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (style, admonitions, variables, icons). MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
+
 ---
 
 ## Feature areas
 
-Some areas span multiple directories. When working on them, read **both** the component guide and the paths below. These paths exist on branches that land the work (e.g. ADRE, OTEL); if a directory is missing on your branch, skip it.
+Some areas span multiple directories. When working on them, read **both** the component guide and the paths below.
 
 | Area | Backend | UI | Notes |
 |------|---------|-----|-------|
@@ -200,9 +243,6 @@ Some areas span multiple directories. When working on them, read **both** the co
 | **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
 | **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
 | **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
-| **User docs** | — | — | [`documentation/`](documentation/) (MkDocs), not [`docs/process/`](docs/process/) |
-
-When these areas grow large enough to need their own conventions, extend [`managed/AGENTS.md`](managed/AGENTS.md) and [`ui/AGENTS.md`](ui/AGENTS.md) — do not duplicate architecture here.
 
 ---
 
@@ -264,6 +304,8 @@ Relationships:
 - An Agent runs on a Node (`runs_on_node_id`) and optionally monitors a Service (`service_id`)
 - A child Agent belongs to a parent PMM Agent (`pmm_agent_id`)
 
+Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Access-control (RBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
+
 ## Repository Map
 
 Core components and per-area guides: see [Component Guides](#component-guides) above.
@@ -272,8 +314,8 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 | Directory | Purpose |
 |-----------|---------|
-| `/docs` | API documentation and process docs (tech stack, best practices, git workflow) |
-| `/documentation` | User-facing documentation (MkDocs) |
+| `/dev/docs` | Developer docs: process (git workflow, tech stack, best practices) and managed architecture (data model, access control); public API docs live in `documentation/api/` |
+| `/documentation` | User-facing documentation (MkDocs project root); pages live in `documentation/docs/` |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
@@ -320,10 +362,10 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Style
 - Format with `gofumpt -s`; run `make format`
-- Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines
 - Don't add obvious/redundant comments; only comment non-obvious intent
@@ -350,6 +392,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Testing
 - Use `testify/assert` and `testify/require` (not testify suites)
+- Prefer `t.Context()` over `context.Background()`; `usetesting` misses it inside helper closures
 - Mock generation via `mockery` (config in `.mockery.yaml`)
 - Unit tests: `*_test.go` next to implementation
 - Integration tests: `/api-tests/`, run against live PMM Server
@@ -360,6 +403,29 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
+
+### Security and secrets
+- Never log, hardcode, or commit secrets — credentials, tokens, S3 keys, TLS material. `.env`, `encryption.key`, and key material are gitignored; keep it that way.
+- Persist sensitive values encrypted at rest via `managed/services/encryption` (rotation: `managed/cmd/pmm-encryption-rotation`) — not as plaintext columns.
+- Enforce authorization in the service layer and respect RBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
+- Validate and bound external input; rely on reform's parameterized queries — never string-concatenate SQL.
+- Report vulnerabilities per [`SECURITY.md`](SECURITY.md); keep exploit detail out of public issues and PRs.
+
+### Concurrency and context propagation
+- Thread `context.Context` as the first argument through call chains; honor cancellation and deadlines.
+- Give every goroutine a clear exit tied to a context or `errgroup` — don't leak goroutines on shutdown (see [Graceful Shutdown](#graceful-shutdown)).
+- Protect shared state with mutexes or channels; run `go test -race` on concurrency-sensitive packages.
+
+### Backward compatibility
+PMM Server talks to pmm-agents and API clients already deployed in the field, so changes must not break them.
+- **Proto/API:** additive only — never renumber, retype, or remove an existing field. CI runs `buf breaking` against `api/descriptor.bin` (`cd api && make`).
+- **DB migrations:** forward-only — add a new versioned migration in `managed/models/database.go`; never edit or reorder one that has shipped.
+- Gate genuinely new behavior behind version checks (`version/features.go`) when older agents/servers must keep working.
+
+### Dependencies and new files
+- Prefer the standard library and deps already in `go.mod` / `ui/package.json`; a new dependency needs justification and an AGPL-3-compatible license (CI runs a license check).
+- Go: `go get` then `go mod tidy` (both in `make prepare-pr`). UI: `yarn add` from `ui/`.
+- New Go source files need the AGPL-3 Percona license header — copy it from an existing `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license` (exemptions: `agent/`, `admin/`, `utils/`, mocks).
 
 ### Graceful Shutdown
 - Handle `SIGTERM` and `SIGINT` by canceling parent context
@@ -377,10 +443,15 @@ All long-running daemons expose on `127.0.0.1`:
 
 | Target | Purpose |
 |--------|---------|
+| `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
+| `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
+| `make env-root TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
+| `make doc-build-preview` | Preview user docs (`documentation/docs/`) with live reload at http://localhost:8000 |
+| `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
@@ -401,3 +472,7 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
+- `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
+- `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
+- `dev/docs/managed/access-control.md` — access control (RBAC) architecture

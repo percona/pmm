@@ -182,7 +182,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Password: new("new-rotated-mysql-qan-password"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-rotated-mysql-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -196,8 +197,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Username: new("new-mysql-qan-user"),
-					Password: new("another-new-mysql-qan-password"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-mysql-qan-user"),
+					Password:            new("another-new-mysql-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -254,7 +256,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Username: new("changed-mysql-qan-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-mysql-qan-user"),
 					// Note: password, custom labels, and log level are NOT specified
 				},
 			},
@@ -325,6 +328,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
+					SkipConnectionCheck:  new(true),
 					Username:             new("changed-perfschema-user"),
 					Password:             new("changed-perfschema-password"),
 					MaxQueryLength:       new(int32(1536)),

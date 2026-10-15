@@ -94,7 +94,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		request.Type, logger.MaskDSN(request.Dsn), request.Timeout,
 	)
 
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.channel.SendAndWaitResponse(ctx, request)
 	if err != nil {
 		return err
 	}

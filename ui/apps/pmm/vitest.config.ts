@@ -54,7 +54,7 @@ export default defineConfig({
     server: {
       deps: {
         fallbackCJS: true,
-        inline: ['@percona/percona-ui'],
+        inline: ['@percona/peak-ui'],
       },
     },
   },

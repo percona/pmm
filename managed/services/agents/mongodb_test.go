@@ -512,6 +512,34 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 	})
 }
 
+func TestMongodbExporterConfigDiagnosticDataHistograms(t *testing.T) {
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+	mongodb := &models.Service{
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
+	}
+	exporter := &models.Agent{
+		AgentID:       "agent-id",
+		AgentType:     models.MongoDBExporterType,
+		Username:      new("username"),
+		Password:      new("password"),
+		AgentPassword: new("agent-password"),
+		MongoDBOptions: models.MongoDBOptions{
+			EnableDiagnosticDataHistograms: true,
+		},
+	}
+
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, version.MustParse("3.10.0"))
+	require.NoError(t, err)
+	assert.Contains(t, actual.Args, "--collector.diagnosticdata-histograms")
+
+	actual, err = mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, version.MustParse("3.9.0"))
+	require.NoError(t, err)
+	assert.NotContains(t, actual.Args, "--collector.diagnosticdata-histograms")
+}
+
 func TestMongodbExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.0.0")
 	node := &models.Node{
