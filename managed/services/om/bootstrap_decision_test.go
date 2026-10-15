@@ -272,6 +272,29 @@ func TestRunIsRollingBack(t *testing.T) {
 	})
 }
 
+func TestAdminPasswordSpent(t *testing.T) {
+	adminStep := func(status string) []extensionsBootstrapStep {
+		return []extensionsBootstrapStep{step("rs_initiate", bootstrapStepSucceeded, 1), step(createAdminUserStep, status, 1)}
+	}
+
+	for _, tc := range []struct {
+		name string
+		run  extensionsBootstrapRun
+		want bool
+	}{
+		{"kept while the step is pending", extensionsBootstrapRun{Status: bootstrapRunRunning, RunSteps: adminStep(bootstrapStepPending)}, false},
+		{"kept while the step can still be retried", extensionsBootstrapRun{Status: bootstrapRunRunning, RunSteps: adminStep(bootstrapStepFailed)}, false},
+		{"spent once the user exists", extensionsBootstrapRun{Status: bootstrapRunRunning, RunSteps: adminStep(bootstrapStepSucceeded)}, true},
+		{"spent once the run stops", extensionsBootstrapRun{Status: bootstrapRunRolledBack, RunSteps: adminStep(bootstrapStepPending)}, true},
+		{"spent once a cancel turns the run to rollback", extensionsBootstrapRun{Status: bootstrapRunRunning, CancelRequested: true, RunSteps: adminStep(bootstrapStepPending)}, true},
+		{"nothing to clear for a run that never planned the step", extensionsBootstrapRun{Status: bootstrapRunRolledBack}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, adminPasswordSpent(tc.run))
+		})
+	}
+}
+
 func TestRunRollbackDone(t *testing.T) {
 	t.Run("false while any host's rollback is still in flight", func(t *testing.T) {
 		run := extensionsBootstrapRun{
