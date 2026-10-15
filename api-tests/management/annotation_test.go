@@ -16,9 +16,18 @@
 package management
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"math"
+	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
@@ -29,6 +38,9 @@ import (
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
+
+// annotationSeriesTimeout is how long VictoriaMetrics may take to make a written series queryable.
+const annotationSeriesTimeout = 60 * time.Second
 
 func TestAddAnnotation(t *testing.T) {
 	t.Parallel()
@@ -148,6 +160,7 @@ func TestAddAnnotation(t *testing.T) {
 					Address:     pmmapitests.TestString(t, "localhost"),
 					Port:        3306,
 					ServiceName: serviceName,
+					Environment: "annotation-env",
 				},
 			},
 			Context: pmmapitests.Context,
@@ -161,15 +174,16 @@ func TestAddAnnotation(t *testing.T) {
 			pmmapitests.RemoveServices(t, serviceID)
 		})
 
-		paramsAdd := &mservice.AddAnnotationParams{
-			Body: mservice.AddAnnotationBody{
-				Text:         "Some text",
-				ServiceNames: []string{serviceName},
-			},
-			Context: pmmapitests.Context,
-		}
-		_, err = client.Default.ManagementService.AddAnnotation(paramsAdd)
-		require.NoError(t, err)
+		annotationID := addAnnotation(t, mservice.AddAnnotationBody{
+			Text:         "Some text",
+			ServiceNames: []string{serviceName},
+		})
+
+		series := waitForAnnotationSeries(t, annotationID)
+		require.Len(t, series, 1)
+		assert.Equal(t, serviceName, series[0]["service_name"])
+		assert.Equal(t, nodeName, series[0]["node_name"])
+		assert.Equal(t, "annotation-env", series[0]["environment"])
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
@@ -192,14 +206,157 @@ func TestAddAnnotation(t *testing.T) {
 			pmmapitests.RemoveNodes(t, nodeID)
 		})
 
-		paramsAdd := &mservice.AddAnnotationParams{
+		annotationID := addAnnotation(t, mservice.AddAnnotationBody{
+			Text:     "Some text",
+			NodeName: nodeName,
+		})
+
+		series := waitForAnnotationSeries(t, annotationID)
+		require.Len(t, series, 1)
+		assert.Equal(t, nodeName, series[0]["node_name"])
+		assert.Empty(t, series[0]["service_name"])
+	})
+
+	t.Run("Too many labels", func(t *testing.T) {
+		t.Parallel()
+
+		const customLabelsCount = 39
+		customLabels := make(map[string]string, customLabelsCount)
+		for i := range customLabelsCount {
+			customLabels[fmt.Sprintf("label_%02d", i)] = "value"
+		}
+
+		nodeName := pmmapitests.TestString(t, "annotation-node")
+		pmmapitests.AddNode(t, &nodes.AddNodeBody{
+			Remote: &nodes.AddNodeParamsBodyRemote{
+				NodeName:     nodeName,
+				Address:      pmmapitests.TestString(t, "10.0.0.1"),
+				CustomLabels: customLabels,
+			},
+		})
+
+		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text:     "Some text",
 				NodeName: nodeName,
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.ManagementService.AddAnnotation(paramsAdd)
-		require.NoError(t, err)
+		_, err := client.Default.ManagementService.AddAnnotation(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Cannot annotate node '"+nodeName+"': too many labels")
 	})
+}
+
+func TestRemoveAnnotation(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Existing annotation", func(t *testing.T) {
+		t.Parallel()
+
+		node := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "annotation-node"))
+		annotationID := addAnnotation(t, mservice.AddAnnotationBody{
+			Text:     "Some text",
+			NodeName: node.NodeName,
+		})
+		require.Len(t, waitForAnnotationSeries(t, annotationID), 1)
+
+		params := &mservice.RemoveAnnotationParams{
+			AnnotationID: annotationID,
+			Context:      pmmapitests.Context,
+		}
+		res, err := client.Default.ManagementService.RemoveAnnotation(params)
+		require.NoError(t, err)
+		assert.True(t, res.IsCode(http.StatusOK))
+		assert.Empty(t, annotationSeries(t, annotationID))
+	})
+
+	t.Run("Non-existent annotation", func(t *testing.T) {
+		t.Parallel()
+
+		annotationID := strconv.FormatInt(math.MaxInt64, 10)
+		params := &mservice.RemoveAnnotationParams{
+			AnnotationID: annotationID,
+			Context:      pmmapitests.Context,
+		}
+		_, err := client.Default.ManagementService.RemoveAnnotation(params)
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Annotation with ID "+annotationID+" not found.")
+	})
+}
+
+// addAnnotation adds an annotation and removes it after the test, unless the test has removed it already.
+func addAnnotation(t *testing.T, body mservice.AddAnnotationBody) string {
+	t.Helper()
+
+	res, err := client.Default.ManagementService.AddAnnotation(&mservice.AddAnnotationParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, res.Payload)
+	require.NotEmpty(t, res.Payload.AnnotationID)
+
+	annotationID := res.Payload.AnnotationID
+	t.Cleanup(func() {
+		_, _ = client.Default.ManagementService.RemoveAnnotation(&mservice.RemoveAnnotationParams{
+			AnnotationID: annotationID,
+			Context:      pmmapitests.Context,
+		})
+	})
+
+	return annotationID
+}
+
+// annotationSeries returns the labels of the annotation's pmm_annotation_event series, as VictoriaMetrics reports them now.
+func annotationSeries(t *testing.T, annotationID string) []map[string]string {
+	t.Helper()
+
+	u := *pmmapitests.BaseURL
+	u.Path = "/prometheus/api/v1/query"
+	u.RawQuery = url.Values{"query": {fmt.Sprintf(`pmm_annotation_event{annotation_id="%s"}`, annotationID)}}.Encode()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, u.String(), nil)
+	require.NoError(t, err)
+
+	resp, err := pmmapitests.HTTPClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode, "unexpected response: %s", body)
+
+	var res struct {
+		Status string `json:"status"`
+		Data   struct {
+			Result []struct {
+				Metric map[string]string `json:"metric"`
+			} `json:"result"`
+		} `json:"data"`
+	}
+	err = json.Unmarshal(body, &res)
+	require.NoError(t, err)
+	require.Equal(t, "success", res.Status, "unexpected response: %s", body)
+
+	series := make([]map[string]string, 0, len(res.Data.Result))
+	for _, r := range res.Data.Result {
+		series = append(series, r.Metric)
+	}
+
+	return series
+}
+
+// waitForAnnotationSeries polls VictoriaMetrics until the series of the annotation is queryable.
+func waitForAnnotationSeries(t *testing.T, annotationID string) []map[string]string {
+	t.Helper()
+
+	deadline := time.Now().Add(annotationSeriesTimeout)
+	for {
+		series := annotationSeries(t, annotationID)
+		if len(series) != 0 {
+			return series
+		}
+
+		require.True(t, time.Now().Before(deadline), "no series of annotation %s within %s", annotationID, annotationSeriesTimeout)
+		time.Sleep(time.Second)
+	}
 }
