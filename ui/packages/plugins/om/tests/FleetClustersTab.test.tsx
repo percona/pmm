@@ -341,6 +341,35 @@ describe('FleetClustersTab', () => {
       ).toBeNull();
     });
 
+    it('keeps an environment named like the fallback apart from the unnamed one', () => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          ...twoEnvironments().environments,
+          {
+            env_name: 'Unassigned environment',
+            clusters: [
+              cluster({
+                name: 'xray',
+                services: [service({ service_name: 'xray-1' })],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+
+      const headers = groupHeaders();
+      expect(headers).toHaveLength(3);
+      expect(headers[1]).toHaveTextContent(
+        /Unassigned environment.*2 clusters/
+      );
+      expect(headers[2]).toHaveTextContent(
+        /Unassigned environment.*1 cluster(?!s)/
+      );
+    });
+
     it('leads each group with its down or degraded cluster', () => {
       renderPage();
 

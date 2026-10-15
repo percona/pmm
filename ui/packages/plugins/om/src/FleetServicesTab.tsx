@@ -123,9 +123,14 @@ const UNNAMED_GROUP: Record<string, string> = {
   cluster_name: 'No cluster',
 };
 
-const groupLabel = (row: MRT_Row<OmServiceInventoryRow>) =>
-  (row.groupingValue as string | null | undefined) ??
-  UNNAMED_GROUP[row.groupingColumnId ?? ''];
+/**
+ * Read off the row, not `groupingValue`: TanStack stringifies that, so an unset
+ * name arrives as "null" or "undefined".
+ */
+const groupLabel = (row: MRT_Row<OmServiceInventoryRow>) => {
+  const column = row.groupingColumnId as 'env_name' | 'cluster_name';
+  return row.original[column] || UNNAMED_GROUP[column];
+};
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
 function useColumns(
@@ -134,13 +139,16 @@ function useColumns(
   return useMemo(
     () => [
       {
-        accessorKey: 'env_name',
+        // '' for unset, so null and undefined fall into one group rather than two.
+        accessorFn: (row) => row.env_name ?? '',
+        id: 'env_name',
         header: 'Environment',
         Cell: ({ row: { original } }) =>
           original.env_name ?? <Unavailable reason="not_applicable" />,
       },
       {
-        accessorKey: 'cluster_name',
+        accessorFn: (row) => row.cluster_name ?? '',
+        id: 'cluster_name',
         header: 'Cluster',
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,

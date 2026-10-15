@@ -89,14 +89,21 @@ const GROUP_BY_OPTIONS: GroupByOption[] = [
   { value: NO_GROUPING, label: 'None' },
 ];
 
-/** A cluster's value in each grouping column, as the column's accessor reads it. */
-const GROUP_VALUE: Record<
-  Exclude<ClusterGrouping, typeof NO_GROUPING>,
-  (row: OmClusterRow) => string
-> = {
-  env_name: environmentLabel,
+type GroupingColumn = Exclude<ClusterGrouping, typeof NO_GROUPING>;
+
+/**
+ * A cluster's value in each grouping column, as the column's accessor reads it.
+ *
+ * The raw name, never the label: an environment really called "Unassigned
+ * environment" must not fold into the unnamed one.
+ */
+const GROUP_VALUE: Record<GroupingColumn, (row: OmClusterRow) => string> = {
+  env_name: (row) => row.env_name ?? '',
   health: (row) => row.health,
 };
+
+const groupLabel = (row: OmClusterRow, grouping: GroupingColumn) =>
+  grouping === 'health' ? row.health : environmentLabel(row);
 
 /**
  * Columns the cluster table carries but does not open with.
@@ -125,10 +132,11 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
   return useMemo(
     () => [
       {
-        accessorFn: environmentLabel,
+        accessorFn: GROUP_VALUE.env_name,
         id: 'env_name',
         header: 'Environment',
         size: 160,
+        Cell: ({ row: { original } }) => environmentLabel(original),
       },
       {
         accessorKey: 'cluster_name',
@@ -471,7 +479,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       row.getIsGrouped() && grouping !== NO_GROUPING
         ? {
             'aria-expanded': row.getIsExpanded(),
-            'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${GROUP_VALUE[grouping](row.original)}`,
+            'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${groupLabel(row.original, grouping)}`,
           }
         : {},
     renderTopToolbarCustomActions: () => (

@@ -255,6 +255,43 @@ describe('FleetServicesTab', () => {
       }
     });
 
+    it('names an unset environment, never "null" or "undefined"', () => {
+      serve(
+        topology([
+          {
+            env_name: null,
+            clusters: [
+              cluster({
+                name: 'a',
+                services: [service({ service_name: 'a-1' })],
+              }),
+            ],
+          },
+          {
+            env_name: undefined,
+            clusters: [
+              cluster({
+                name: 'b',
+                services: [service({ service_name: 'b-1' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Environment');
+
+      const header = rowFor('Unassigned environment');
+      expect(header).toHaveTextContent('(2)');
+      expect(
+        within(header).getByRole('button', {
+          name: 'Collapse Unassigned environment',
+        })
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^(null|undefined)$/)).toBeNull();
+    });
+
     it('groups by cluster from the select, with every group open', () => {
       renderTab();
 
