@@ -1285,6 +1285,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			l.Panicf("Failed to open Grafana's database: %+v", openErr)
 		}
 		defer grafanaDB.Close() //nolint:errcheck
+		// One short-lived connection is enough for a job that reads every five minutes.
+		grafanaDB.SetMaxOpenConns(1)
+		grafanaDB.SetMaxIdleConns(1)
+		grafanaDB.SetConnMaxLifetime(time.Minute)
 
 		annotationsSyncer := annotations.NewSyncer(db, grafanaDB, annotationStore)
 		haService.AddLeaderService(ha.NewContextService("annotationsSync", func(ctx context.Context) error {
