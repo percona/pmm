@@ -1,4 +1,7 @@
-import { mergeServiceIdFromSearchParams, labelsFromSearchParams } from './qanTools';
+import {
+  mergeServiceIdFromSearchParams,
+  labelsFromSearchParams,
+} from './qanTools';
 
 describe('mergeServiceIdFromSearchParams', () => {
   it('maps service_id query param to service_id label', () => {
@@ -8,7 +11,9 @@ describe('mergeServiceIdFromSearchParams', () => {
   });
 
   it('strips /service_id/ prefix', () => {
-    const params = new URLSearchParams('filter_service_id=%2Fservice_id%2Fuuid-1');
+    const params = new URLSearchParams(
+      'filter_service_id=%2Fservice_id%2Fuuid-1'
+    );
     const labels = mergeServiceIdFromSearchParams({}, params);
     expect(labels.service_id).toEqual(['uuid-1']);
   });
@@ -16,7 +21,9 @@ describe('mergeServiceIdFromSearchParams', () => {
 
 describe('labelsFromSearchParams', () => {
   it('does not treat filter_by as a dimension label', () => {
-    const params = new URLSearchParams('filter_by=query-uuid&filter_service_name=mysql1');
+    const params = new URLSearchParams(
+      'filter_by=query-uuid&filter_service_name=mysql1'
+    );
     const labels = labelsFromSearchParams(params);
     expect(labels.by).toBeUndefined();
     expect(labels.service_name).toEqual(['mysql1']);

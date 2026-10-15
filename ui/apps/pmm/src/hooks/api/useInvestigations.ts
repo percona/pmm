@@ -22,8 +22,14 @@ import {
 
 export const INVESTIGATIONS_KEYS = {
   all: ['investigations'] as const,
-  list: (params?: { status?: string; trigger?: 'auto' | 'manual'; limit?: number; offset?: number; orderBy?: string; order?: 'asc' | 'desc' }) =>
-    ['investigations', 'list', params] as const,
+  list: (params?: {
+    status?: string;
+    trigger?: 'auto' | 'manual';
+    limit?: number;
+    offset?: number;
+    orderBy?: string;
+    order?: 'asc' | 'desc';
+  }) => ['investigations', 'list', params] as const,
   detail: (id: string) => ['investigations', id] as const,
   comments: (id: string, blockId?: string) =>
     ['investigations', id, 'comments', blockId] as const,
@@ -58,7 +64,10 @@ export const useInvestigationsList = (params?: {
     enabled: params?.enabled ?? true,
   });
 
-export const useInvestigation = (id: string | undefined, options?: { enabled?: boolean; refetchInterval?: number | false }) =>
+export const useInvestigation = (
+  id: string | undefined,
+  options?: { enabled?: boolean; refetchInterval?: number | false }
+) =>
   useQuery({
     queryKey: INVESTIGATIONS_KEYS.detail(id ?? ''),
     queryFn: () => getInvestigation(id!),
@@ -80,7 +89,9 @@ export const usePatchInvestigation = (id: string) => {
   return useMutation({
     mutationFn: (body: PatchInvestigationBody) => patchInvestigation(id, body),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.detail(id) });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(id),
+      });
       queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all });
     },
   });

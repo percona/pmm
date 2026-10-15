@@ -25,7 +25,8 @@ export const PMM_ADRE_FRONTEND_TOOLS: Array<Record<string, unknown>> = [
   },
   {
     name: 'pmm_ui_open_explore',
-    description: 'Open Grafana Explore in PMM with a pre-filled query (Explore left pane JSON/state).',
+    description:
+      'Open Grafana Explore in PMM with a pre-filled query (Explore left pane JSON/state).',
     mode: 'pause',
     parameters: {
       type: 'object',
@@ -73,10 +74,22 @@ export const PMM_ADRE_FRONTEND_TOOLS: Array<Record<string, unknown>> = [
     parameters: {
       type: 'object',
       properties: {
-        url: { type: 'string', description: 'Full ServiceNow or ticket URL (use alone)' },
-        ticketId: { type: 'string', description: 'Incident sys_id (use with instanceUrl)' },
-        instanceUrl: { type: 'string', description: 'ServiceNow instance base URL (use with ticketId)' },
-        investigationId: { type: 'string', description: 'PMM investigation id (fallback when no ServiceNow URL)' },
+        url: {
+          type: 'string',
+          description: 'Full ServiceNow or ticket URL (use alone)',
+        },
+        ticketId: {
+          type: 'string',
+          description: 'Incident sys_id (use with instanceUrl)',
+        },
+        instanceUrl: {
+          type: 'string',
+          description: 'ServiceNow instance base URL (use with ticketId)',
+        },
+        investigationId: {
+          type: 'string',
+          description: 'PMM investigation id (fallback when no ServiceNow URL)',
+        },
       },
       required: ['url', 'ticketId', 'instanceUrl', 'investigationId'],
     },

@@ -21,7 +21,11 @@ const GrafanaPanelImageInner: FC<{
 }> = ({ src, alt, dashboardHref }) => {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
-  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error'; detail?: string }>('loading');
+  const [state, setState] = useState<
+    | 'loading'
+    | { status: 'success'; url: string }
+    | { status: 'error'; detail?: string }
+  >('loading');
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollRoot = usePanelScrollRoot();
 
@@ -61,7 +65,10 @@ const GrafanaPanelImageInner: FC<{
     };
     let mounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      RENDER_IMAGE_TIMEOUT_MS
+    );
 
     panelFetchQueue
       .acquire()
@@ -72,7 +79,10 @@ const GrafanaPanelImageInner: FC<{
         }
         releaseSlot = release;
         setState('loading');
-        return fetch(src, { credentials: 'include', signal: controller.signal });
+        return fetch(src, {
+          credentials: 'include',
+          signal: controller.signal,
+        });
       })
       .then(async (res) => {
         if (!res || !mounted) return null;
@@ -83,7 +93,9 @@ const GrafanaPanelImageInner: FC<{
             try {
               const json = await res.json();
               if (json.error) detail += `: ${json.error}`;
-            } catch { /* ignore */ }
+            } catch {
+              /* ignore */
+            }
           }
           throw new Error(detail);
         }
@@ -93,7 +105,9 @@ const GrafanaPanelImageInner: FC<{
             try {
               const json = await res.json();
               if (json.error) detail = json.error;
-            } catch { /* ignore */ }
+            } catch {
+              /* ignore */
+            }
           }
           throw new Error(detail);
         }
@@ -107,7 +121,11 @@ const GrafanaPanelImageInner: FC<{
         setState({ status: 'success', url: objectUrl });
       })
       .catch((err) => {
-        if (mounted) setState({ status: 'error', detail: err instanceof Error ? err.message : undefined });
+        if (mounted)
+          setState({
+            status: 'error',
+            detail: err instanceof Error ? err.message : undefined,
+          });
       })
       .finally(() => {
         clearTimeout(timeoutId);
@@ -145,7 +163,17 @@ const GrafanaPanelImageInner: FC<{
 
   if (state === 'loading') {
     return (
-      <Box sx={{ my: 1, minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 1 }}>
+      <Box
+        sx={{
+          my: 1,
+          minHeight: 500,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'rgba(255,255,255,0.03)',
+          borderRadius: 1,
+        }}
+      >
         <Typography variant="body2" color="text.secondary">
           Loading panel image…
         </Typography>
@@ -153,9 +181,11 @@ const GrafanaPanelImageInner: FC<{
     );
   }
   if (state.status === 'error') {
-    const friendlyDetail = state.detail && (state.detail.includes('<!DOCTYPE') || state.detail.length > 200)
-      ? 'Panel render timed out — try opening in Grafana directly'
-      : state.detail;
+    const friendlyDetail =
+      state.detail &&
+      (state.detail.includes('<!DOCTYPE') || state.detail.length > 200)
+        ? 'Panel render timed out — try opening in Grafana directly'
+        : state.detail;
     return (
       <Box sx={{ my: 1 }}>
         <Typography variant="body2" color="text.secondary">

@@ -1,10 +1,4 @@
-import {
-  FC,
-  PropsWithChildren,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import { FC, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { QanGroupBy, QanPanelState } from 'types/qan.types';
 import {
@@ -45,7 +39,10 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
     const fallback = defaultTimeRange();
     const columnsRaw = searchParams.get('columns');
     const columns = parseQanColumns(columnsRaw);
-    const queryId = searchParams.get('query_id') ?? searchParams.get('filter_by') ?? undefined;
+    const queryId =
+      searchParams.get('query_id') ??
+      searchParams.get('filter_by') ??
+      undefined;
     const groupBy = (searchParams.get('group_by') ?? 'queryid') as QanGroupBy;
     return {
       from: fromParam ? toIsoPeriod(Number(fromParam)) : fallback.from,
@@ -55,14 +52,18 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
         labelsFromSearchParams(searchParams),
         searchParams
       ),
-      pageNumber: Number(searchParams.get('page_number') ?? DEFAULT_PAGE_NUMBER),
+      pageNumber: Number(
+        searchParams.get('page_number') ?? DEFAULT_PAGE_NUMBER
+      ),
       pageSize: Number(searchParams.get('page_size') ?? DEFAULT_PAGE_SIZE),
       orderBy: searchParams.get('order_by') ?? `-${columns[0]}`,
       queryId,
       totals: searchParams.get('totals') === 'true',
       querySelected: !!queryId || searchParams.get('query_selected') === 'true',
       groupBy,
-      openDetailsTab: parseQanDetailsTab(searchParams.get('tab') ?? searchParams.get('details_tab')),
+      openDetailsTab: parseQanDetailsTab(
+        searchParams.get('tab') ?? searchParams.get('details_tab')
+      ),
       fingerprint: searchParams.get('fingerprint') ?? undefined,
       database: searchParams.get('selected_query_database') ?? undefined,
       dimensionSearchText: searchParams.get('dimensionSearchText') ?? '',
@@ -71,14 +72,17 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const patchParams = useCallback(
     (patch: Record<string, string | null | undefined>) => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        Object.entries(patch).forEach(([k, v]) => {
-          if (v == null || v === '') next.delete(k);
-          else next.set(k, v);
-        });
-        return next;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          Object.entries(patch).forEach(([k, v]) => {
+            if (v == null || v === '') next.delete(k);
+            else next.set(k, v);
+          });
+          return next;
+        },
+        { replace: true }
+      );
     },
     [setSearchParams]
   );
@@ -89,39 +93,45 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
         patchParams({ from: String(from), to: String(to) });
       },
       setLabels: (labels) => {
-        setSearchParams((prev) => {
-          const next = new URLSearchParams(prev);
-          appendLabelsToSearchParams(next, labels);
-          return next;
-        }, { replace: true });
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            appendLabelsToSearchParams(next, labels);
+            return next;
+          },
+          { replace: true }
+        );
       },
       selectQuery: (queryId, fingerprint, database, totals = false) => {
-        setSearchParams((prev) => {
-          const next = new URLSearchParams(prev);
-          const labels = mergeServiceIdFromSearchParams(
-            labelsFromSearchParams(prev),
-            prev
-          );
-          const serviceId = serviceUuidFromLabels(labels);
-          next.set('query_id', queryId);
-          next.set('query_selected', 'true');
-          if (totals) {
-            next.set('totals', 'true');
-            next.delete('tab');
-            next.delete('details_tab');
-          } else {
-            next.delete('totals');
-          }
-          if (fingerprint) next.set('fingerprint', fingerprint);
-          else next.delete('fingerprint');
-          if (database) next.set('selected_query_database', database);
-          else next.delete('selected_query_database');
-          if (serviceId) {
-            next.set('filter_service_id', serviceId);
-            next.set('service_id', serviceId);
-          }
-          return next;
-        }, { replace: true });
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            const labels = mergeServiceIdFromSearchParams(
+              labelsFromSearchParams(prev),
+              prev
+            );
+            const serviceId = serviceUuidFromLabels(labels);
+            next.set('query_id', queryId);
+            next.set('query_selected', 'true');
+            if (totals) {
+              next.set('totals', 'true');
+              next.delete('tab');
+              next.delete('details_tab');
+            } else {
+              next.delete('totals');
+            }
+            if (fingerprint) next.set('fingerprint', fingerprint);
+            else next.delete('fingerprint');
+            if (database) next.set('selected_query_database', database);
+            else next.delete('selected_query_database');
+            if (serviceId) {
+              next.set('filter_service_id', serviceId);
+              next.set('service_id', serviceId);
+            }
+            return next;
+          },
+          { replace: true }
+        );
       },
       closeDetails: () => {
         patchParams({
@@ -142,10 +152,12 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
       },
       setOrderBy: (orderBy) => patchParams({ order_by: orderBy }),
       setGroupBy: (groupBy) => patchParams({ group_by: groupBy }),
-      setColumns: (columns) => patchParams({ columns: JSON.stringify(columns) }),
+      setColumns: (columns) =>
+        patchParams({ columns: JSON.stringify(columns) }),
       setTab: (tab) => patchParams({ tab }),
       setTotals: (totals) => patchParams({ totals: totals ? 'true' : null }),
-      setSearchText: (text) => patchParams({ dimensionSearchText: text || null }),
+      setSearchText: (text) =>
+        patchParams({ dimensionSearchText: text || null }),
       getSplitRatio: () => splitRatio,
       setSplitRatio: (ratio) => {
         sessionStorage.setItem(SPLIT_STORAGE_KEY, String(ratio));
@@ -158,6 +170,8 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
   const value = useMemo(() => ({ state, actions }), [state, actions]);
 
   return (
-    <QanPanelContext.Provider value={value}>{children}</QanPanelContext.Provider>
+    <QanPanelContext.Provider value={value}>
+      {children}
+    </QanPanelContext.Provider>
   );
 };

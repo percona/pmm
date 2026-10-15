@@ -94,7 +94,10 @@ export const QanAiAside: FC = () => {
         <Stack direction="row" alignItems="center" spacing={1}>
           <AutoAwesomeIcon color="primary" fontSize="small" />
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, lineHeight: 1.2 }}
+            >
               AI Assistant
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -115,7 +118,8 @@ export const QanAiAside: FC = () => {
                 key={msg.serverMessageId ?? idx}
                 sx={{
                   display: 'flex',
-                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent:
+                    msg.role === 'user' ? 'flex-end' : 'flex-start',
                   mb: 1.5,
                   maxWidth: '100%',
                 }}
@@ -136,9 +140,16 @@ export const QanAiAside: FC = () => {
                     fontSize: '0.85rem',
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.25 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    sx={{ mb: 0.25 }}
+                  >
                     {msg.role === 'user' ? 'You' : 'Assistant'}
-                    {msg.timestamp != null ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
+                    {msg.timestamp != null
+                      ? ` · ${formatTimestamp(msg.timestamp)}`
+                      : ''}
                   </Typography>
                   <Markdown
                     remarkPlugins={[remarkGfm]}
@@ -173,19 +184,32 @@ export const QanAiAside: FC = () => {
               </Box>
             ) : null}
             {reasoning ? (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 1 }}
+              >
                 Reasoning: {reasoning.slice(0, 200)}…
               </Typography>
             ) : null}
             {progressSteps.length ? (
               <Typography variant="caption" color="text.secondary">
-                {progressSteps.map((s) => s.description ?? s.toolName).join(' · ')}
+                {progressSteps
+                  .map((s) => s.description ?? s.toolName)
+                  .join(' · ')}
               </Typography>
             ) : null}
-            {chatError ? <Alert severity="error" sx={{ mt: 1 }}>{chatError}</Alert> : null}
+            {chatError ? (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {chatError}
+              </Alert>
+            ) : null}
             <div ref={messagesEndRef} />
           </Box>
-          <Stack sx={{ p: 2, borderTop: 1, borderColor: 'divider' }} spacing={1}>
+          <Stack
+            sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}
+            spacing={1}
+          >
             <Stack direction="row" alignItems="flex-end" spacing={0.5}>
               <TextField
                 multiline

@@ -130,7 +130,8 @@ export const Messages = {
       title: 'Log parser presets',
       summary: (builtIn: number, custom: number) =>
         `${builtIn} built-in + ${custom} custom preset${custom === 1 ? '' : 's'}.`,
-      rawNote: 'Use preset name raw for unparsed log lines (not stored as a DB row).',
+      rawNote:
+        'Use preset name raw for unparsed log lines (not stored as a DB row).',
       addButton: 'Add preset',
       loading: 'Loading presets…',
       loadError: 'Failed to load log parser presets.',
@@ -146,7 +147,8 @@ export const Messages = {
       createTitle: 'Add log parser preset',
       editTitle: 'Edit log parser preset',
       nameLabel: 'Name',
-      nameHelp: 'Letters, digits, underscore; must start with a letter (used in pmm-admin and log_sources).',
+      nameHelp:
+        'Letters, digits, underscore; must start with a letter (used in pmm-admin and log_sources).',
       descriptionLabel: 'Description',
       yamlLabel: 'Operator YAML',
       yamlHelp:
@@ -162,12 +164,14 @@ export const Messages = {
         'OTEL collector agents on monitored nodes tail log files using parser presets. Install with pmm-admin add otel on nodes that do not appear here.',
       loading: 'Loading collectors…',
       loadError: 'Failed to load OTEL collectors.',
-      empty: 'No OTEL collector agents found. Run pmm-admin add otel on a node with pmm-agent.',
+      empty:
+        'No OTEL collector agents found. Run pmm-admin add otel on a node with pmm-agent.',
       agentMeta: (id: string, status: string, count: number) =>
         `Agent ${id} · ${status} · ${count} log source${count === 1 ? '' : 's'}`,
       configure: 'Configure log sources',
       configureTitle: (node: string) => `Log sources — ${node}`,
-      configureHelp: 'Each path is tailed by the node OTEL collector using the selected parser preset.',
+      configureHelp:
+        'Each path is tailed by the node OTEL collector using the selected parser preset.',
       pathLabel: 'Log file path',
       presetLabel: 'Parser preset',
       addSource: 'Add log source',

@@ -32,13 +32,16 @@ function readOtel(settings: Settings): ServerOtelForm {
     collectorEnabled: o.collectorEnabled ?? o.collector_enabled ?? true,
     logsRetentionDays: o.logsRetentionDays ?? o.logs_retention_days ?? 7,
     tracesRetentionDays: o.tracesRetentionDays ?? o.traces_retention_days ?? 7,
-    metricsRetentionDays: o.metricsRetentionDays ?? o.metrics_retention_days ?? 90,
+    metricsRetentionDays:
+      o.metricsRetentionDays ?? o.metrics_retention_days ?? 90,
   };
 }
 
 export const ServerOtelSection: FC<{ settings: Settings }> = ({ settings }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
-  const methods = useForm<ServerOtelForm>({ defaultValues: readOtel(settings) });
+  const methods = useForm<ServerOtelForm>({
+    defaultValues: readOtel(settings),
+  });
   const { handleSubmit, reset, register, watch } = methods;
   const collectorEnabled = watch('collectorEnabled');
 
@@ -62,9 +65,12 @@ export const ServerOtelSection: FC<{ settings: Settings }> = ({ settings }) => {
           reset(values);
         },
         onError: (error) => {
-          enqueueSnackbar(error instanceof Error ? error.message : Messages.unauthorized, {
-            variant: 'error',
-          });
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            {
+              variant: 'error',
+            }
+          );
         },
       }
     );
@@ -88,7 +94,10 @@ export const ServerOtelSection: FC<{ settings: Settings }> = ({ settings }) => {
         )}
         <FormProvider {...methods}>
           <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap={2}>
-            <SwitchInput name="collectorEnabled" label={m.collectorEnabledLabel} />
+            <SwitchInput
+              name="collectorEnabled"
+              label={m.collectorEnabledLabel}
+            />
             <Stack direction={{ xs: 'column', sm: 'row' }} gap={2}>
               <TextField
                 label={m.logsRetentionLabel}

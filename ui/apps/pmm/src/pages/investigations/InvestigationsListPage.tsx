@@ -23,10 +23,18 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { FC, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
-import { useInvestigationsList, useCreateInvestigation, useDeleteInvestigation } from 'hooks/api/useInvestigations';
+import {
+  useInvestigationsList,
+  useCreateInvestigation,
+  useDeleteInvestigation,
+} from 'hooks/api/useInvestigations';
 import { CreateInvestigationModal } from './CreateInvestigationModal';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
-import type { CreateInvestigationBody, Investigation, InvestigationListItem } from 'api/investigations';
+import type {
+  CreateInvestigationBody,
+  Investigation,
+  InvestigationListItem,
+} from 'api/investigations';
 import { useSnackbar } from 'notistack';
 
 type SortColumn = 'title' | 'status' | 'created_at' | 'updated_at';
@@ -42,7 +50,12 @@ const InvestigationsListPage: FC = () => {
   const [order, setOrder] = useState<SortOrder>('desc');
   const [trigger, setTrigger] = useState<TriggerFilter>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const { data: list, isLoading, isError, error } = useInvestigationsList({
+  const {
+    data: list,
+    isLoading,
+    isError,
+    error,
+  } = useInvestigationsList({
     orderBy,
     order,
     trigger: trigger === 'all' ? undefined : trigger,
@@ -60,9 +73,13 @@ const InvestigationsListPage: FC = () => {
   const SortIcon = ({ column }: { column: SortColumn }) =>
     orderBy === column ? (
       order === 'asc' ? (
-        <ArrowUpwardIcon sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.25 }} />
+        <ArrowUpwardIcon
+          sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.25 }}
+        />
       ) : (
-        <ArrowDownwardIcon sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.25 }} />
+        <ArrowDownwardIcon
+          sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.25 }}
+        />
       )
     ) : null;
   const createMutation = useCreateInvestigation();
@@ -83,7 +100,8 @@ const InvestigationsListPage: FC = () => {
     const timeFrom = searchParams.get('time_from') ?? undefined;
     const timeTo = searchParams.get('time_to') ?? undefined;
     const title =
-      searchParams.get('title') ?? (sourceType ? `Investigation: ${sourceType}` : undefined);
+      searchParams.get('title') ??
+      (sourceType ? `Investigation: ${sourceType}` : undefined);
     return { title, sourceType, sourceRef, timeFrom, timeTo };
   }, [searchParams]);
 
@@ -96,10 +114,9 @@ const InvestigationsListPage: FC = () => {
         navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);
       },
       onError: (err: Error) => {
-        enqueueSnackbar(
-          err?.message ?? 'Failed to create investigation',
-          { variant: 'error' }
-        );
+        enqueueSnackbar(err?.message ?? 'Failed to create investigation', {
+          variant: 'error',
+        });
       },
     });
   };
@@ -131,10 +148,15 @@ const InvestigationsListPage: FC = () => {
   const investigations = list ?? [];
 
   const handleSelectAll = () => {
-    if (selectedIds.size === investigations.length && investigations.length > 0) {
+    if (
+      selectedIds.size === investigations.length &&
+      investigations.length > 0
+    ) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(investigations.map((inv: InvestigationListItem) => inv.id)));
+      setSelectedIds(
+        new Set(investigations.map((inv: InvestigationListItem) => inv.id))
+      );
     }
   };
 
@@ -145,9 +167,17 @@ const InvestigationsListPage: FC = () => {
     try {
       await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
       setSelectedIds(new Set());
-      enqueueSnackbar(`Deleted ${count} investigation${count === 1 ? '' : 's'}`, { variant: 'success' });
+      enqueueSnackbar(
+        `Deleted ${count} investigation${count === 1 ? '' : 's'}`,
+        { variant: 'success' }
+      );
     } catch (err) {
-      enqueueSnackbar(err instanceof Error ? err.message : 'Failed to delete some investigations', { variant: 'error' });
+      enqueueSnackbar(
+        err instanceof Error
+          ? err.message
+          : 'Failed to delete some investigations',
+        { variant: 'error' }
+      );
     }
   };
 
@@ -155,12 +185,20 @@ const InvestigationsListPage: FC = () => {
     <Page
       title="Investigations"
       topBar={
-        <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1} sx={{ mb: 1 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          gap={1}
+          sx={{ mb: 1 }}
+        >
           <ToggleButtonGroup
             size="small"
             exclusive
             value={trigger}
-            onChange={(_, value: TriggerFilter | null) => value && setTrigger(value)}
+            onChange={(_, value: TriggerFilter | null) =>
+              value && setTrigger(value)
+            }
             aria-label="Filter investigations by trigger"
           >
             <ToggleButton value="all">All</ToggleButton>
@@ -194,7 +232,7 @@ const InvestigationsListPage: FC = () => {
           MUI Card defaults to overflow:hidden, so a shrunk card clips its
           content instead of letting the page scroll. */}
       <Box sx={{ flexShrink: 0 }}>
-      <Card variant="outlined">
+        <Card variant="outlined">
           <CardContent>
             {investigations.length === 0 ? (
               <Typography color="text.secondary">
@@ -206,8 +244,14 @@ const InvestigationsListPage: FC = () => {
                   <TableRow>
                     <TableCell padding="checkbox">
                       <Checkbox
-                        indeterminate={selectedIds.size > 0 && selectedIds.size < investigations.length}
-                        checked={investigations.length > 0 && selectedIds.size === investigations.length}
+                        indeterminate={
+                          selectedIds.size > 0 &&
+                          selectedIds.size < investigations.length
+                        }
+                        checked={
+                          investigations.length > 0 &&
+                          selectedIds.size === investigations.length
+                        }
                         onChange={handleSelectAll}
                         aria-label="Select all"
                       />
@@ -273,19 +317,25 @@ const InvestigationsListPage: FC = () => {
                       </TableCell>
                       <TableCell>
                         {(inv.created_at ?? inv.createdAt)
-                          ? new Date(inv.created_at ?? inv.createdAt).toLocaleString()
+                          ? new Date(
+                              inv.created_at ?? inv.createdAt
+                            ).toLocaleString()
                           : '—'}
                       </TableCell>
                       <TableCell>
                         {(inv.updated_at ?? inv.updatedAt)
-                          ? new Date(inv.updated_at ?? inv.updatedAt).toLocaleString()
+                          ? new Date(
+                              inv.updated_at ?? inv.updatedAt
+                            ).toLocaleString()
                           : '—'}
                       </TableCell>
                       <TableCell align="right">
                         <Button
                           size="small"
                           onClick={() =>
-                            navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`)
+                            navigate(
+                              `${PMM_NEW_NAV_PATH}/investigations/${inv.id}`
+                            )
                           }
                         >
                           Open
@@ -298,13 +348,13 @@ const InvestigationsListPage: FC = () => {
             )}
           </CardContent>
         </Card>
-      <CreateInvestigationModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleSubmit}
-        isPending={createMutation.isPending}
-        initial={initialFromParams}
-      />
+        <CreateInvestigationModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSubmit={handleSubmit}
+          isPending={createMutation.isPending}
+          initial={initialFromParams}
+        />
       </Box>
     </Page>
   );

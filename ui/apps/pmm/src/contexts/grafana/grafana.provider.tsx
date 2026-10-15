@@ -59,7 +59,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [grafanaDocumentTitle, setGrafanaDocumentTitle] = useState<string | null>(null);
+  const [grafanaDocumentTitle, setGrafanaDocumentTitle] = useState<
+    string | null
+  >(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const kioskMode = useKioskMode();
 
@@ -134,7 +136,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
         updateDocumentTitle(payload.title);
-        if (typeof window !== 'undefined' && window.location.pathname.includes('/graph')) {
+        if (
+          typeof window !== 'undefined' &&
+          window.location.pathname.includes('/graph')
+        ) {
           setGrafanaDocumentTitle(payload.title);
         }
       },

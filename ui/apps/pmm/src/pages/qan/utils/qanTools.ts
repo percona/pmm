@@ -33,10 +33,7 @@ export function mergeServiceIdFromSearchParams(
   params: URLSearchParams
 ): QanLabelsMap {
   const next = { ...labels };
-  const raw =
-    params.get('filter_service_id') ??
-    params.get('service_id') ??
-    '';
+  const raw = params.get('filter_service_id') ?? params.get('service_id') ?? '';
   const id = stripQanServiceId(raw);
   if (!id) return next;
   const existing = next.service_id ?? [];

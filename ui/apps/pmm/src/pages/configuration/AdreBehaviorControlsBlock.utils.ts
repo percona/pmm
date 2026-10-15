@@ -6,7 +6,9 @@ const FAST_SHIPPED: Record<string, boolean> = {
   todowrite_reminder: false,
 };
 
-export function shippedPreset(variant: AdreBehaviorVariant): Record<string, boolean> {
+export function shippedPreset(
+  variant: AdreBehaviorVariant
+): Record<string, boolean> {
   if (variant === 'investigation') return {};
   return { ...FAST_SHIPPED };
 }

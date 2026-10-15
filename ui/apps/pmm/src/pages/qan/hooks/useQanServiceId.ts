@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 import { useManagedServices } from 'hooks/api/useServices';
 import type { QanQueryExample } from 'types/qan.types';
 import { useQanPanelState } from './useQanPanelState';
-import { resolveServiceUuid, serviceIdFromExample } from '../utils/qanServiceResolve';
+import {
+  resolveServiceUuid,
+  serviceIdFromExample,
+} from '../utils/qanServiceResolve';
 
 /** Resolved PMM service UUID for QAN detail tabs, ADRE, and explain. */
 export function useQanServiceId(examples?: QanQueryExample[]): string {

@@ -14,10 +14,14 @@ describe('resolveServiceUuid', () => {
   });
 
   it('resolves service_name via inventory', () => {
-    expect(resolveServiceUuid({ service_name: ['mysql-prod'] }, services)).toBe('uuid-mysql');
+    expect(resolveServiceUuid({ service_name: ['mysql-prod'] }, services)).toBe(
+      'uuid-mysql'
+    );
   });
 
   it('falls back to example service id', () => {
-    expect(resolveServiceUuid({}, services, '/service_id/uuid-pg')).toBe('uuid-pg');
+    expect(resolveServiceUuid({}, services, '/service_id/uuid-pg')).toBe(
+      'uuid-pg'
+    );
   });
 });

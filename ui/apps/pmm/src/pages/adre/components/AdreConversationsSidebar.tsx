@@ -31,7 +31,10 @@ export interface AdreConversationsSidebarProps {
   searchLoading: boolean;
   onNewChat: () => void | Promise<void>;
   onDeleteConversation: (id: number) => void | Promise<void>;
-  onSelectConversation: (id: number, options?: { focusMessageId?: number }) => void | Promise<void>;
+  onSelectConversation: (
+    id: number,
+    options?: { focusMessageId?: number }
+  ) => void | Promise<void>;
   onSearch: (q: string) => void | Promise<void>;
 }
 
@@ -46,13 +49,16 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
   onSelectConversation,
   onSearch,
 }) => {
-  const { query, setQuery, clearQuery, searchPending } = useDebouncedAdreMessageSearch(searchLoading, onSearch);
+  const { query, setQuery, clearQuery, searchPending } =
+    useDebouncedAdreMessageSearch(searchLoading, onSearch);
 
   const q = query.trim();
 
   const onHitClick = useCallback(
     (hit: AdreSearchHit) => {
-      void onSelectConversation(hit.conversationId, { focusMessageId: hit.messageId });
+      void onSelectConversation(hit.conversationId, {
+        focusMessageId: hit.messageId,
+      });
       clearQuery();
     },
     [onSelectConversation, clearQuery]
@@ -68,11 +74,21 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
         bgcolor: '#1a1a1a',
       }}
     >
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1, py: 1, gap: 0.5 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ px: 1, py: 1, gap: 0.5 }}
+      >
         <Typography variant="subtitle2" color="text.secondary" sx={{ pl: 0.5 }}>
           Chats
         </Typography>
-        <IconButton size="small" aria-label="New chat" onClick={() => void onNewChat()} color="primary">
+        <IconButton
+          size="small"
+          aria-label="New chat"
+          onClick={() => void onNewChat()}
+          color="primary"
+        >
           <Add fontSize="small" />
         </IconButton>
       </Stack>
@@ -106,7 +122,11 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
           </Box>
         ) : !q ? (
           conversations.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ px: 2, py: 2 }}
+            >
               No conversations yet. Start typing below.
             </Typography>
           ) : (
@@ -115,7 +135,9 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                 const label = c.title?.trim() || `Chat ${c.id}`;
                 const sub =
                   c.lastMessageAt || c.updatedAt
-                    ? formatTimestamp(new Date(c.lastMessageAt || c.updatedAt).getTime())
+                    ? formatTimestamp(
+                        new Date(c.lastMessageAt || c.updatedAt).getTime()
+                      )
                     : '';
                 return (
                   <ListItem
@@ -146,7 +168,10 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                       <ListItemText
                         primary={label}
                         secondary={sub}
-                        primaryTypographyProps={{ noWrap: true, variant: 'body2' }}
+                        primaryTypographyProps={{
+                          noWrap: true,
+                          variant: 'body2',
+                        }}
                         secondaryTypographyProps={{ variant: 'caption' }}
                       />
                     </ListItemButton>
@@ -161,7 +186,11 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
           </Box>
         ) : searchHits.length > 0 ? (
           <>
-            <Typography variant="caption" color="text.secondary" sx={{ px: 1.5, py: 0.75, display: 'block' }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ px: 1.5, py: 0.75, display: 'block' }}
+            >
               Results
             </Typography>
             <List dense disablePadding>
@@ -173,7 +202,10 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                   sx={{ alignItems: 'flex-start', py: 1 }}
                 >
                   <ListItemText
-                    primaryTypographyProps={{ variant: 'body2', sx: { wordBreak: 'break-word' } }}
+                    primaryTypographyProps={{
+                      variant: 'body2',
+                      sx: { wordBreak: 'break-word' },
+                    }}
                     secondaryTypographyProps={{ variant: 'caption' }}
                     primary={formatAdreSearchSnippet(hit.snippet)}
                     secondary={
@@ -187,13 +219,23 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
             </List>
           </>
         ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 2 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ px: 2, py: 2 }}
+          >
             No matching messages.
           </Typography>
         )}
       </Box>
       <Box sx={{ p: 1, borderTop: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-        <Button fullWidth size="small" variant="outlined" startIcon={<Add />} onClick={() => void onNewChat()}>
+        <Button
+          fullWidth
+          size="small"
+          variant="outlined"
+          startIcon={<Add />}
+          onClick={() => void onNewChat()}
+        >
           New chat
         </Button>
       </Box>

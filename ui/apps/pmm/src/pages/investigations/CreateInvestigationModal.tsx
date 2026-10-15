@@ -56,13 +56,17 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
 }) => {
   const [summary, setSummary] = useState(initial?.summary ?? '');
   const [title, setTitle] = useState(initial?.title ?? '');
-  const [sourceType, setSourceType] = useState<string>(initial?.sourceType ?? 'manual');
+  const [sourceType, setSourceType] = useState<string>(
+    initial?.sourceType ?? 'manual'
+  );
   const [sourceRef, setSourceRef] = useState(initial?.sourceRef ?? '');
   const [timeFrom, setTimeFrom] = useState(initial?.timeFrom ?? '');
   const [timeTo, setTimeTo] = useState(initial?.timeTo ?? '');
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
-  const [selectedAlertKeys, setSelectedAlertKeys] = useState<Set<string>>(new Set());
+  const [selectedAlertKeys, setSelectedAlertKeys] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     if (open) {
@@ -74,7 +78,15 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       setTimeTo(initial?.timeTo ?? '');
       setSelectedAlertKeys(new Set());
     }
-  }, [open, initial?.summary, initial?.title, initial?.sourceType, initial?.sourceRef, initial?.timeFrom, initial?.timeTo]);
+  }, [
+    open,
+    initial?.summary,
+    initial?.title,
+    initial?.sourceType,
+    initial?.sourceRef,
+    initial?.timeFrom,
+    initial?.timeTo,
+  ]);
 
   useEffect(() => {
     if (!open || sourceType !== 'alert') return;
@@ -82,7 +94,10 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
     setLoadingAlerts(true);
     getAdreAlerts()
       .then((data: unknown) => {
-        const raw = data as { data?: { alerts?: AlertItem[] }; alerts?: AlertItem[] };
+        const raw = data as {
+          data?: { alerts?: AlertItem[] };
+          alerts?: AlertItem[];
+        };
         const list = raw?.data?.alerts ?? raw?.alerts ?? [];
         const arr = Array.isArray(list) ? list : [];
         if (!cancelled) setAlerts(arr);
@@ -93,13 +108,17 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       .finally(() => {
         if (!cancelled) setLoadingAlerts(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, sourceType]);
 
   // When creating from alert, set default title to "Alert: <alertname>" when selection changes (only if title is empty or already a default).
   useEffect(() => {
     if (sourceType !== 'alert' || selectedAlertKeys.size === 0) return;
-    const firstIndex = alerts.findIndex((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
+    const firstIndex = alerts.findIndex((a, i) =>
+      selectedAlertKeys.has(getAlertKey(a, i))
+    );
     if (firstIndex === -1) return;
     const first = alerts[firstIndex];
     const alertname =
@@ -122,16 +141,28 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
 
   const handleSubmit = () => {
     let finalSourceRef = sourceRef.trim();
-    let alertMeta: { nodeName?: string; serviceName?: string; clusterName?: string } = {};
+    let alertMeta: {
+      nodeName?: string;
+      serviceName?: string;
+      clusterName?: string;
+    } = {};
     let selectedAlerts: AlertItem[] = [];
     if (sourceType === 'alert' && selectedAlertKeys.size > 0) {
       const refs = alerts
-        .map((a, i) => (selectedAlertKeys.has(getAlertKey(a, i)) ? (a.fingerprint ?? getAlertKey(a, i)) : null))
+        .map((a, i) =>
+          selectedAlertKeys.has(getAlertKey(a, i))
+            ? (a.fingerprint ?? getAlertKey(a, i))
+            : null
+        )
         .filter(Boolean) as string[];
       finalSourceRef = refs.join(',');
-      const firstSelected = alerts.find((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
+      const firstSelected = alerts.find((a, i) =>
+        selectedAlertKeys.has(getAlertKey(a, i))
+      );
       alertMeta = getAlertMetadataFromLabels(firstSelected?.labels);
-      selectedAlerts = alerts.filter((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
+      selectedAlerts = alerts.filter((a, i) =>
+        selectedAlertKeys.has(getAlertKey(a, i))
+      );
     }
     const body: CreateInvestigationBody = {
       title: title.trim() || 'New investigation',
@@ -193,7 +224,11 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
           </FormControl>
           {sourceType === 'alert' && (
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                sx={{ mb: 1 }}
+              >
                 Firing alerts (select one or more)
               </Typography>
               {loadingAlerts ? (
@@ -210,7 +245,10 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
                     {alerts.map((a, index) => {
                       const key = getAlertKey(a, index);
                       const label =
-                        a.labels?.alertname ?? a.annotations?.summary ?? a.fingerprint ?? key;
+                        a.labels?.alertname ??
+                        a.annotations?.summary ??
+                        a.fingerprint ??
+                        key;
                       return (
                         <FormControlLabel
                           key={key}
@@ -261,11 +299,7 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
+        <Button variant="contained" onClick={handleSubmit} disabled={isPending}>
           {isPending ? 'Creating...' : 'Create'}
         </Button>
       </DialogActions>

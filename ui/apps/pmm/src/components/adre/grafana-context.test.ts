@@ -7,11 +7,15 @@ import {
 
 describe('stripPmmUiPrefix', () => {
   it('removes /pmm-ui prefix', () => {
-    expect(stripPmmUiPrefix('/pmm-ui/graph/d/mysql-home/foo')).toBe('/graph/d/mysql-home/foo');
+    expect(stripPmmUiPrefix('/pmm-ui/graph/d/mysql-home/foo')).toBe(
+      '/graph/d/mysql-home/foo'
+    );
   });
 
   it('leaves graph paths unchanged when no prefix', () => {
-    expect(stripPmmUiPrefix('/graph/d/pmm-home/home')).toBe('/graph/d/pmm-home/home');
+    expect(stripPmmUiPrefix('/graph/d/pmm-home/home')).toBe(
+      '/graph/d/pmm-home/home'
+    );
   });
 });
 
@@ -24,7 +28,7 @@ describe('parseGrafanaLocation', () => {
   it('parses dashboard uid and viewPanel', () => {
     const p = parseGrafanaLocation(
       '/pmm-ui/graph/d/mysql-instance-summary/instance',
-      '?viewPanel=panel-92&from=now-1h&to=now&var-service_name=mysql-mysql',
+      '?viewPanel=panel-92&from=now-1h&to=now&var-service_name=mysql-mysql'
     );
     expect(p).not.toBeNull();
     expect(p!.kind).toBe('dashboard');
@@ -35,7 +39,10 @@ describe('parseGrafanaLocation', () => {
   });
 
   it('parses explore', () => {
-    const p = parseGrafanaLocation('/graph/explore', '?left=%7B%22datasource%22%3A%22Prometheus%22%7D');
+    const p = parseGrafanaLocation(
+      '/graph/explore',
+      '?left=%7B%22datasource%22%3A%22Prometheus%22%7D'
+    );
     expect(p!.kind).toBe('explore');
     expect(p!.dashboardUid).toBeNull();
   });
@@ -56,7 +63,9 @@ describe('buildGrafanaDashboardContext', () => {
   const origin = 'https://pmm.example';
 
   it('returns empty string off Grafana', () => {
-    expect(buildGrafanaDashboardContext('/settings', '', origin, null)).toBe('');
+    expect(buildGrafanaDashboardContext('/settings', '', origin, null)).toBe(
+      ''
+    );
   });
 
   it('includes full URL, uid, viewPanel, vars, and rules', () => {
@@ -64,12 +73,14 @@ describe('buildGrafanaDashboardContext', () => {
       '/pmm-ui/graph/d/mysql-innodb/details',
       '?viewPanel=panel-38&from=now-3h&to=now&var-node_name=mysql',
       origin,
-      'MySQL / InnoDB - Grafana',
+      'MySQL / InnoDB - Grafana'
     );
     expect(ctx).toContain(`${origin}/pmm-ui/graph/d/mysql-innodb/details`);
     expect(ctx).toContain('Dashboard UID: mysql-innodb');
     expect(ctx).toContain('Focused panel (viewPanel): panel-38');
-    expect(ctx).toContain('Grafana tab / document title: MySQL / InnoDB - Grafana');
+    expect(ctx).toContain(
+      'Grafana tab / document title: MySQL / InnoDB - Grafana'
+    );
     expect(ctx).toContain('var-node_name=mysql');
     expect(ctx).toContain('Rules for this context:');
     expect(ctx).toContain('do NOT claim a specific panel ID');
@@ -80,14 +91,19 @@ describe('buildGrafanaDashboardContext', () => {
       '/graph/d/mysql-instance-summary/slug',
       '?from=now-1h&to=now',
       origin,
-      null,
+      null
     );
     expect(ctx).toContain('not set in the URL');
     expect(ctx).not.toContain('Focused panel (viewPanel):');
   });
 
   it('marks explore in context', () => {
-    const ctx = buildGrafanaDashboardContext('/graph/explore', '', origin, null);
+    const ctx = buildGrafanaDashboardContext(
+      '/graph/explore',
+      '',
+      origin,
+      null
+    );
     expect(ctx).toContain('Path kind: explore');
     expect(ctx).toContain('Grafana Explore');
   });

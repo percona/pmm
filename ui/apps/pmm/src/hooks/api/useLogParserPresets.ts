@@ -25,7 +25,13 @@ export const useLogParserPresets = (
   });
 
 export const useAddLogParserPreset = (
-  options?: Partial<UseMutationOptions<LogParserPreset, Error, Parameters<typeof addLogParserPreset>[0]>>
+  options?: Partial<
+    UseMutationOptions<
+      LogParserPreset,
+      Error,
+      Parameters<typeof addLogParserPreset>[0]
+    >
+  >
 ) => {
   const qc = useQueryClient();
   return useMutation({

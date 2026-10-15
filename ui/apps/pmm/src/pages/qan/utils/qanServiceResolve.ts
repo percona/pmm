@@ -23,7 +23,9 @@ export function resolveServiceUuid(
   const fromLabel = serviceUuidFromLabels(labels);
   if (fromLabel) return fromLabel;
 
-  const fromExample = exampleServiceId ? stripQanServiceId(exampleServiceId) : '';
+  const fromExample = exampleServiceId
+    ? stripQanServiceId(exampleServiceId)
+    : '';
   if (fromExample) return fromExample;
 
   const name = labels.service_name?.find((v) => v && !ALL_VALUES.has(v));

@@ -6,12 +6,15 @@ export type QanFiltersDrawerContextValue = {
   toggle: () => void;
 };
 
-export const QanFiltersDrawerContext = createContext<QanFiltersDrawerContextValue | null>(null);
+export const QanFiltersDrawerContext =
+  createContext<QanFiltersDrawerContextValue | null>(null);
 
 export function useQanFiltersDrawer(): QanFiltersDrawerContextValue {
   const ctx = useContext(QanFiltersDrawerContext);
   if (!ctx) {
-    throw new Error('useQanFiltersDrawer must be used within QanFiltersDrawerProvider');
+    throw new Error(
+      'useQanFiltersDrawer must be used within QanFiltersDrawerProvider'
+    );
   }
   return ctx;
 }

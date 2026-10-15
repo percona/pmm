@@ -66,14 +66,17 @@ function parseAnalysisSections(raw: string): AnalysisSection[] {
       const start = matches[i].index ?? 0;
       const nextStart = matches[i + 1]?.index ?? text.length;
       const title = matches[i][1].trim();
-      const content = text.slice(start + matches[i][0].length, nextStart).trim();
+      const content = text
+        .slice(start + matches[i][0].length, nextStart)
+        .trim();
       sections.push({ title, content });
     }
     return sections;
   }
 
   const lines = text.split('\n');
-  const marker = /^\s*(?:[-*•]\s*)?(Summary|Evidence|Recommendations?|EXPLAIN output|SHOW INDEX|SHOW CREATE TABLE)\s*:?\s*$/i;
+  const marker =
+    /^\s*(?:[-*•]\s*)?(Summary|Evidence|Recommendations?|EXPLAIN output|SHOW INDEX|SHOW CREATE TABLE)\s*:?\s*$/i;
   const sections: AnalysisSection[] = [];
   let currentTitle = 'Analysis';
   let buffer: string[] = [];
@@ -82,7 +85,10 @@ function parseAnalysisSections(raw: string): AnalysisSection[] {
     const m = line.match(marker);
     if (m) {
       if (buffer.join('\n').trim()) {
-        sections.push({ title: currentTitle, content: buffer.join('\n').trim() });
+        sections.push({
+          title: currentTitle,
+          content: buffer.join('\n').trim(),
+        });
       }
       currentTitle = m[1].trim();
       buffer = [];
@@ -94,7 +100,9 @@ function parseAnalysisSections(raw: string): AnalysisSection[] {
     sections.push({ title: currentTitle, content: buffer.join('\n').trim() });
   }
 
-  return sections.length > 0 ? sections : [{ title: 'Analysis', content: text }];
+  return sections.length > 0
+    ? sections
+    : [{ title: 'Analysis', content: text }];
 }
 
 function parsePipeTable(text: string): string[][] {
@@ -102,7 +110,12 @@ function parsePipeTable(text: string): string[][] {
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.includes('|'))
-    .map((line) => line.split('|').map((cell) => cell.trim()).filter((cell) => cell.length > 0))
+    .map((line) =>
+      line
+        .split('|')
+        .map((cell) => cell.trim())
+        .filter((cell) => cell.length > 0)
+    )
     .filter((cells) => cells.length > 1);
   if (rows.length < 2) return [];
 
@@ -111,7 +124,11 @@ function parsePipeTable(text: string): string[][] {
 
 function isStructuredSection(title: string): boolean {
   const t = title.toLowerCase();
-  return t.includes('explain') || t.includes('show index') || t.includes('show create table');
+  return (
+    t.includes('explain') ||
+    t.includes('show index') ||
+    t.includes('show create table')
+  );
 }
 
 const QanAiInsightsPageContent: FC = () => {
@@ -148,41 +165,52 @@ const QanAiInsightsPageContent: FC = () => {
   const hasContext = Boolean(serviceId.trim() && queryText.trim());
   const analysisSections = analysis ? parseAnalysisSections(analysis) : [];
 
-  const runAnalysis = useCallback((force: boolean) => {
-    setLoading(true);
-    setError(null);
-    adreQanInsights({
-      serviceId: serviceId.trim(),
-      queryText: queryText.trim(),
-      ...(queryId && { queryId }),
-      ...(fingerprint && { fingerprint }),
-      ...(timeFrom && { timeFrom }),
-      ...(timeTo && { timeTo }),
-      force,
-    })
-      .then((res) => {
-        if (mountedRef.current) {
-          setAnalysis(res.analysis ?? '');
-          setCachedAt(res.created_at ?? res.createdAt ?? null);
-          setFromCache(!!res.cached);
-          const u = res.usage;
-          setUsageLine(u ? holmesUsageSummaryLine({
-            model: u.model,
-            totalTokens: u.totalTokens ?? u.total_tokens,
-            cachedTokens: u.cachedTokens ?? u.cached_tokens,
-            totalCost: u.totalCost ?? u.total_cost,
-          }) : null);
-        }
+  const runAnalysis = useCallback(
+    (force: boolean) => {
+      setLoading(true);
+      setError(null);
+      adreQanInsights({
+        serviceId: serviceId.trim(),
+        queryText: queryText.trim(),
+        ...(queryId && { queryId }),
+        ...(fingerprint && { fingerprint }),
+        ...(timeFrom && { timeFrom }),
+        ...(timeTo && { timeTo }),
+        force,
       })
-      .catch((err: Error & { response?: { data?: { error?: string } } }) => {
-        if (mountedRef.current) {
-          setError(err?.response?.data?.error ?? err?.message ?? 'Failed to get AI insights');
-        }
-      })
-      .finally(() => {
-        if (mountedRef.current) setLoading(false);
-      });
-  }, [serviceId, queryText, queryId, fingerprint, timeFrom, timeTo]);
+        .then((res) => {
+          if (mountedRef.current) {
+            setAnalysis(res.analysis ?? '');
+            setCachedAt(res.created_at ?? res.createdAt ?? null);
+            setFromCache(!!res.cached);
+            const u = res.usage;
+            setUsageLine(
+              u
+                ? holmesUsageSummaryLine({
+                    model: u.model,
+                    totalTokens: u.totalTokens ?? u.total_tokens,
+                    cachedTokens: u.cachedTokens ?? u.cached_tokens,
+                    totalCost: u.totalCost ?? u.total_cost,
+                  })
+                : null
+            );
+          }
+        })
+        .catch((err: Error & { response?: { data?: { error?: string } } }) => {
+          if (mountedRef.current) {
+            setError(
+              err?.response?.data?.error ??
+                err?.message ??
+                'Failed to get AI insights'
+            );
+          }
+        })
+        .finally(() => {
+          if (mountedRef.current) setLoading(false);
+        });
+    },
+    [serviceId, queryText, queryId, fingerprint, timeFrom, timeTo]
+  );
 
   useEffect(() => {
     // runOnceRef enforces single auto-run per URL-context session; handleRunManual resets it.
@@ -199,12 +227,16 @@ const QanAiInsightsPageContent: FC = () => {
             setCachedAt(cached.created_at ?? cached.createdAt ?? null);
             setFromCache(true);
             const u = cached.usage;
-            setUsageLine(u ? holmesUsageSummaryLine({
-              model: u.model,
-              totalTokens: u.totalTokens ?? u.total_tokens,
-              cachedTokens: u.cachedTokens ?? u.cached_tokens,
-              totalCost: u.totalCost ?? u.total_cost,
-            }) : null);
+            setUsageLine(
+              u
+                ? holmesUsageSummaryLine({
+                    model: u.model,
+                    totalTokens: u.totalTokens ?? u.total_tokens,
+                    cachedTokens: u.cachedTokens ?? u.cached_tokens,
+                    totalCost: u.totalCost ?? u.total_cost,
+                  })
+                : null
+            );
             setLoading(false);
           } else {
             runAnalysis(false);
@@ -216,7 +248,16 @@ const QanAiInsightsPageContent: FC = () => {
     } else {
       runAnalysis(false);
     }
-  }, [hasUrlContext, urlServiceId, urlQueryText, queryId, fingerprint, timeFrom, timeTo, runAnalysis]);
+  }, [
+    hasUrlContext,
+    urlServiceId,
+    urlQueryText,
+    queryId,
+    fingerprint,
+    timeFrom,
+    timeTo,
+    runAnalysis,
+  ]);
 
   const handleRunManual = () => {
     if (!manualServiceId.trim() || !manualQueryText.trim()) return;
@@ -240,7 +281,11 @@ const QanAiInsightsPageContent: FC = () => {
         {hasContext && (
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
                 Query
               </Typography>
               <Typography
@@ -254,7 +299,9 @@ const QanAiInsightsPageContent: FC = () => {
                   fontFamily: 'monospace',
                 }}
               >
-                {queryText.length > 500 ? `${queryText.slice(0, 500)}…` : queryText}
+                {queryText.length > 500
+                  ? `${queryText.slice(0, 500)}…`
+                  : queryText}
               </Typography>
             </CardContent>
           </Card>
@@ -283,7 +330,12 @@ const QanAiInsightsPageContent: FC = () => {
           <Stack gap={1.25}>
             <Card variant="outlined">
               <CardContent>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{ mb: 1 }}
+                >
                   <Stack>
                     <Typography variant="subtitle1" fontWeight={600}>
                       AI Insights
@@ -295,7 +347,11 @@ const QanAiInsightsPageContent: FC = () => {
                       </Typography>
                     )}
                     {usageLine && (
-                      <Typography variant="caption" color="text.secondary" display="block">
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                      >
                         {usageLine}
                       </Typography>
                     )}
@@ -316,12 +372,17 @@ const QanAiInsightsPageContent: FC = () => {
 
             {analysisSections.map((section, idx) => {
               const tableRows = parsePipeTable(section.content);
-              const showTable = tableRows.length >= 2 && isStructuredSection(section.title);
+              const showTable =
+                tableRows.length >= 2 && isStructuredSection(section.title);
 
               return (
                 <Card variant="outlined" key={`${section.title}-${idx}`}>
                   <CardContent>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={600}
+                      sx={{ mb: 1 }}
+                    >
                       {section.title}
                     </Typography>
                     {showTable ? (
@@ -330,7 +391,10 @@ const QanAiInsightsPageContent: FC = () => {
                           <TableHead>
                             <TableRow>
                               {tableRows[0].map((h, i) => (
-                                <TableCell key={`${h}-${i}`} sx={{ fontWeight: 600 }}>
+                                <TableCell
+                                  key={`${h}-${i}`}
+                                  sx={{ fontWeight: 600 }}
+                                >
                                   {h}
                                 </TableCell>
                               ))}
@@ -341,7 +405,10 @@ const QanAiInsightsPageContent: FC = () => {
                               <TableRow key={rowIdx}>
                                 {row.map((cell, i) => (
                                   <TableCell key={`${rowIdx}-${i}`}>
-                                    <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontFamily: 'monospace' }}
+                                    >
                                       {cell}
                                     </Typography>
                                   </TableCell>
@@ -376,8 +443,8 @@ const QanAiInsightsPageContent: FC = () => {
         {!hasUrlContext && !loading && (
           <>
             <Typography variant="body2" color="text.secondary">
-              Select a query in Query Analytics and use the AI Insights button there to
-              analyze it. Or enter the service and query below.
+              Select a query in Query Analytics and use the AI Insights button
+              there to analyze it. Or enter the service and query below.
             </Typography>
             <Card variant="outlined">
               <CardContent>
@@ -427,7 +494,9 @@ const QanAiInsightsPage: FC = () => {
   if (settings?.nativeQanEnabled) {
     const next = new URLSearchParams(searchParams);
     next.set('tab', 'aiInsights');
-    return <Navigate to={`${PMM_NEW_NAV_PATH}/qan?${next.toString()}`} replace />;
+    return (
+      <Navigate to={`${PMM_NEW_NAV_PATH}/qan?${next.toString()}`} replace />
+    );
   }
   return <QanAiInsightsPageContent />;
 };

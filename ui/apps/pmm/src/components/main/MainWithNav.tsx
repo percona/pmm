@@ -44,9 +44,17 @@ export const MainWithNav = () => {
   }
 
   return (
-    <Stack direction="row" flex={1} sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
+    <Stack
+      direction="row"
+      flex={1}
+      sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}
+    >
       {showNav && <Sidebar />}
-      <Stack flex={1} direction="column" sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
+      <Stack
+        flex={1}
+        direction="column"
+        sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}
+      >
         {showNav && <Header />}
         <Box
           sx={{

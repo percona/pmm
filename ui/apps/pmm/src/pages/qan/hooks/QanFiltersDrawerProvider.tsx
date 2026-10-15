@@ -1,7 +1,9 @@
 import { FC, PropsWithChildren, useMemo, useState } from 'react';
 import { QanFiltersDrawerContext } from './useQanFiltersDrawer';
 
-export const QanFiltersDrawerProvider: FC<PropsWithChildren> = ({ children }) => {
+export const QanFiltersDrawerProvider: FC<PropsWithChildren> = ({
+  children,
+}) => {
   const [open, setOpen] = useState(false);
   const value = useMemo(
     () => ({

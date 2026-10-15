@@ -9,7 +9,11 @@ export function stripPmmUiPrefix(pathname: string): string {
   return pathname;
 }
 
-export type GrafanaContextKind = 'dashboard' | 'd-solo' | 'explore' | 'other-graph';
+export type GrafanaContextKind =
+  | 'dashboard'
+  | 'd-solo'
+  | 'explore'
+  | 'other-graph';
 
 export interface ParsedGrafanaLocation {
   kind: GrafanaContextKind;
@@ -23,13 +27,18 @@ export interface ParsedGrafanaLocation {
  * Parse PMM shell pathname + search into Grafana-oriented fields.
  * Returns null if the user is not under /graph (after PMM prefix strip).
  */
-export function parseGrafanaLocation(pathname: string, search: string): ParsedGrafanaLocation | null {
+export function parseGrafanaLocation(
+  pathname: string,
+  search: string
+): ParsedGrafanaLocation | null {
   const normalizedPath = stripPmmUiPrefix(pathname);
   if (!normalizedPath.startsWith(GRAFANA_SUB_PATH)) {
     return null;
   }
 
-  const searchParams = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  const searchParams = new URLSearchParams(
+    search.startsWith('?') ? search.slice(1) : search
+  );
 
   const exploreMatch = normalizedPath.match(/^\/graph\/explore(?:\/|$)/);
   if (exploreMatch) {
@@ -95,7 +104,7 @@ export function buildGrafanaDashboardContext(
   pathname: string,
   search: string,
   origin: string,
-  grafanaDocumentTitle?: string | null,
+  grafanaDocumentTitle?: string | null
 ): string {
   const parsed = parseGrafanaLocation(pathname, search);
   if (!parsed) {
@@ -104,7 +113,8 @@ export function buildGrafanaDashboardContext(
 
   const fullUrl = `${origin}${pathname}${search}`;
   const { kind, dashboardUid, normalizedPath, searchParams } = parsed;
-  const viewPanel = searchParams.get('viewPanel') ?? searchParams.get('viewpanel');
+  const viewPanel =
+    searchParams.get('viewPanel') ?? searchParams.get('viewpanel');
   const from = searchParams.get('from') ?? '';
   const to = searchParams.get('to') ?? '';
   const varLines = collectVarParams(searchParams);
@@ -121,7 +131,9 @@ export function buildGrafanaDashboardContext(
   }
 
   if (grafanaDocumentTitle?.trim()) {
-    parts.push(`- Grafana tab / document title: ${grafanaDocumentTitle.trim()}`);
+    parts.push(
+      `- Grafana tab / document title: ${grafanaDocumentTitle.trim()}`
+    );
   }
 
   if (kind === 'explore') {
@@ -132,12 +144,14 @@ export function buildGrafanaDashboardContext(
     parts.push(`- Focused panel (viewPanel): ${viewPanel}`);
   } else if (kind === 'dashboard') {
     parts.push(
-      '- Focused panel: not set in the URL (full dashboard view). Do not assert a specific panel ID.',
+      '- Focused panel: not set in the URL (full dashboard view). Do not assert a specific panel ID.'
     );
   }
 
   if (from || to) {
-    parts.push(`- Time range: from=${from || '(default)'} to=${to || '(default)'}`);
+    parts.push(
+      `- Time range: from=${from || '(default)'} to=${to || '(default)'}`
+    );
   }
 
   if (varLines.length > 0) {

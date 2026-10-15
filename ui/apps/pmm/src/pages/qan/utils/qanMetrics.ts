@@ -1,4 +1,8 @@
-import type { QanMetricCell, QanMetricPoint, QanReportRow } from 'types/qan.types';
+import type {
+  QanMetricCell,
+  QanMetricPoint,
+  QanReportRow,
+} from 'types/qan.types';
 
 /** axios-case-converter: API metric keys become camelCase (`numQueries`). */
 export function qanMetricKey(column: string): string {
@@ -21,8 +25,13 @@ export function qanMetricCell(
 }
 
 /** Display value for overview columns (Grafana QAN semantics). */
-export function qanMetricDisplayValue(column: string, row: QanReportRow): number | undefined {
-  const stats = qanMetricCell(row.metrics, column)?.stats as MetricStats | undefined;
+export function qanMetricDisplayValue(
+  column: string,
+  row: QanReportRow
+): number | undefined {
+  const stats = qanMetricCell(row.metrics, column)?.stats as
+    | MetricStats
+    | undefined;
   const isTime = column.endsWith('_time') || column.endsWith('Time');
 
   if (isTime) {
@@ -30,7 +39,11 @@ export function qanMetricDisplayValue(column: string, row: QanReportRow): number
   }
 
   const rate =
-    stats?.qps ?? stats?.sumPerSec ?? stats?.sum_per_sec ?? stats?.sum ?? stats?.rate;
+    stats?.qps ??
+    stats?.sumPerSec ??
+    stats?.sum_per_sec ??
+    stats?.sum ??
+    stats?.rate;
 
   if (rate != null && !Number.isNaN(rate)) return rate;
 

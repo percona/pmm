@@ -2,7 +2,10 @@ const DEFAULT_MAX_ALERTS = 35;
 /** Max size of JSON for `{ ok, alerts }` returned from check_alerts frontend tool. */
 const DEFAULT_MAX_TOOL_JSON = 26_000;
 
-function cloneSliceAlerts(data: unknown, maxAlerts: number): { next: unknown; sliced: boolean } {
+function cloneSliceAlerts(
+  data: unknown,
+  maxAlerts: number
+): { next: unknown; sliced: boolean } {
   if (!data || typeof data !== 'object') {
     return { next: data, sliced: false };
   }

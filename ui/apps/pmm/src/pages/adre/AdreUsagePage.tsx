@@ -21,7 +21,10 @@ import {
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Page } from 'components/page';
-import { useAdreUsageEvents, useAdreUsageSummary } from 'hooks/api/useAdreUsage';
+import {
+  useAdreUsageEvents,
+  useAdreUsageSummary,
+} from 'hooks/api/useAdreUsage';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import {
   formatTokenCount,
@@ -64,10 +67,18 @@ const AdreUsagePage: FC = () => {
   });
 
   const totals = summaryQuery.data?.totals;
-  const series = useMemo(() => summaryQuery.data?.series ?? [], [summaryQuery.data]);
-  const byFeature = summaryQuery.data?.byFeature ?? summaryQuery.data?.by_feature ?? [];
-  const byModel = summaryQuery.data?.byModel ?? summaryQuery.data?.by_model ?? [];
-  const events = useMemo(() => eventsQuery.data?.events ?? [], [eventsQuery.data]);
+  const series = useMemo(
+    () => summaryQuery.data?.series ?? [],
+    [summaryQuery.data]
+  );
+  const byFeature =
+    summaryQuery.data?.byFeature ?? summaryQuery.data?.by_feature ?? [];
+  const byModel =
+    summaryQuery.data?.byModel ?? summaryQuery.data?.by_model ?? [];
+  const events = useMemo(
+    () => eventsQuery.data?.events ?? [],
+    [eventsQuery.data]
+  );
 
   const dailyCostSeries = useMemo(() => {
     if (!summaryQuery.data) {
@@ -82,7 +93,10 @@ const AdreUsagePage: FC = () => {
     });
   }, [series, events, summaryQuery.data, range.from, range.to, totals]);
 
-  const maxSeriesCost = Math.max(...dailyCostSeries.map((s) => s.totalCost), 0.0001);
+  const maxSeriesCost = Math.max(
+    ...dailyCostSeries.map((s) => s.totalCost),
+    0.0001
+  );
   const daysWithCost = dailyCostSeries.filter((s) => s.totalCost > 0).length;
   const showCostChart = dailyCostSeries.length > 0;
   const costSeriesRef = useRef<HTMLDivElement>(null);
@@ -103,7 +117,13 @@ const AdreUsagePage: FC = () => {
         <Typography variant="body2" color="text.secondary">
           Token and cost usage across PMM AI features
         </Typography>
-        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          flexWrap="wrap"
+          useFlexGap
+        >
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel id="usage-range-label">Range</InputLabel>
             <Select
@@ -133,7 +153,12 @@ const AdreUsagePage: FC = () => {
               ))}
             </Select>
           </FormControl>
-          <Button size="small" variant="outlined" onClick={exportCsv} sx={{ flexShrink: 0 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={exportCsv}
+            sx={{ flexShrink: 0 }}
+          >
             Export CSV
           </Button>
         </Stack>
@@ -147,12 +172,24 @@ const AdreUsagePage: FC = () => {
         <Alert severity="error">Failed to load usage summary.</Alert>
       ) : (
         <Box sx={{ flexShrink: 0 }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+            sx={{ mb: 3 }}
+          >
             {[
-              { label: 'Total cost', value: formatUsdCost(num(totals?.totalCost ?? totals?.total_cost)) || '$0' },
+              {
+                label: 'Total cost',
+                value:
+                  formatUsdCost(num(totals?.totalCost ?? totals?.total_cost)) ||
+                  '$0',
+              },
               {
                 label: 'Total tokens',
-                value: formatTokenCount(num(totals?.totalTokens ?? totals?.total_tokens)) || '0',
+                value:
+                  formatTokenCount(
+                    num(totals?.totalTokens ?? totals?.total_tokens)
+                  ) || '0',
               },
               {
                 label: 'Cached tokens',
@@ -162,7 +199,10 @@ const AdreUsagePage: FC = () => {
                     : ''
                 }`,
               },
-              { label: 'AI calls', value: String(num(totals?.callCount ?? totals?.call_count)) },
+              {
+                label: 'AI calls',
+                value: String(num(totals?.callCount ?? totals?.call_count)),
+              },
             ].map((card) => (
               <Card key={card.label} variant="outlined" sx={{ flex: 1 }}>
                 <CardContent>
@@ -175,19 +215,31 @@ const AdreUsagePage: FC = () => {
             ))}
           </Stack>
 
-          <Card variant="outlined" sx={{ mb: 3, flexShrink: 0, overflow: 'visible' }}>
+          <Card
+            variant="outlined"
+            sx={{ mb: 3, flexShrink: 0, overflow: 'visible' }}
+          >
             <CardContent sx={{ overflow: 'visible', pb: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Cost over time
               </Typography>
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                sx={{ mb: 2 }}
+              >
                 Daily cost in the selected range (UTC days)
-                {daysWithCost > 0 ? ` · ${daysWithCost} day${daysWithCost === 1 ? '' : 's'} with usage` : ''}
+                {daysWithCost > 0
+                  ? ` · ${daysWithCost} day${daysWithCost === 1 ? '' : 's'} with usage`
+                  : ''}
               </Typography>
               {!showCostChart ? (
                 <Typography variant="body2" color="text.secondary">
                   No daily breakdown yet for this range.{' '}
-                  <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>Open AI Assistant</RouterLink>
+                  <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>
+                    Open AI Assistant
+                  </RouterLink>
                 </Typography>
               ) : (
                 <TableContainer
@@ -208,11 +260,28 @@ const AdreUsagePage: FC = () => {
                   <Table size="medium" stickyHeader>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ bgcolor: 'background.paper', width: 110, py: 1.5 }}>
+                        <TableCell
+                          sx={{
+                            bgcolor: 'background.paper',
+                            width: 110,
+                            py: 1.5,
+                          }}
+                        >
                           Day (UTC)
                         </TableCell>
-                        <TableCell sx={{ bgcolor: 'background.paper', py: 1.5 }}>Cost</TableCell>
-                        <TableCell align="right" sx={{ bgcolor: 'background.paper', width: 110, py: 1.5 }}>
+                        <TableCell
+                          sx={{ bgcolor: 'background.paper', py: 1.5 }}
+                        >
+                          Cost
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            bgcolor: 'background.paper',
+                            width: 110,
+                            py: 1.5,
+                          }}
+                        >
                           Amount
                         </TableCell>
                       </TableRow>
@@ -220,10 +289,19 @@ const AdreUsagePage: FC = () => {
                     <TableBody>
                       {dailyCostSeries.map((row) => {
                         const cost = row.totalCost;
-                        const pct = cost > 0 ? Math.max(8, (cost / maxSeriesCost) * 100) : 0;
+                        const pct =
+                          cost > 0
+                            ? Math.max(8, (cost / maxSeriesCost) * 100)
+                            : 0;
                         return (
-                          <TableRow key={row.bucket} hover={cost > 0} sx={{ '&:last-child td': { borderBottom: 0 } }}>
-                            <TableCell sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}>
+                          <TableRow
+                            key={row.bucket}
+                            hover={cost > 0}
+                            sx={{ '&:last-child td': { borderBottom: 0 } }}
+                          >
+                            <TableCell
+                              sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}
+                            >
                               {formatUsageDayLabel(row.bucket)}
                             </TableCell>
                             <TableCell sx={{ py: 1.5 }}>
@@ -251,7 +329,10 @@ const AdreUsagePage: FC = () => {
                                 ) : null}
                               </Box>
                             </TableCell>
-                            <TableCell align="right" sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}>
+                            <TableCell
+                              align="right"
+                              sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}
+                            >
                               {cost > 0 ? formatUsdCost(cost) : '—'}
                             </TableCell>
                           </TableRow>
@@ -264,14 +345,23 @@ const AdreUsagePage: FC = () => {
             </CardContent>
           </Card>
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+            sx={{ mb: 3 }}
+          >
             <Card variant="outlined" sx={{ flex: 1 }}>
               <CardContent>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   By feature
                 </Typography>
                 {byFeature.map((row) => (
-                  <Stack key={row.feature} direction="row" justifyContent="space-between" sx={{ py: 0.5 }}>
+                  <Stack
+                    key={row.feature}
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ py: 0.5 }}
+                  >
                     <Typography variant="body2">
                       {HOLMES_FEATURE_LABELS[row.feature ?? ''] ?? row.feature}
                     </Typography>
@@ -288,8 +378,15 @@ const AdreUsagePage: FC = () => {
                   By model
                 </Typography>
                 {byModel.map((row) => (
-                  <Stack key={row.model} direction="row" justifyContent="space-between" sx={{ py: 0.5 }}>
-                    <Typography variant="body2">{row.model || 'default'}</Typography>
+                  <Stack
+                    key={row.model}
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ py: 0.5 }}
+                  >
+                    <Typography variant="body2">
+                      {row.model || 'default'}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {formatUsdCost(num(row.totalCost ?? row.total_cost))}
                     </Typography>
@@ -324,25 +421,43 @@ const AdreUsagePage: FC = () => {
                 <Table size="small" stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ bgcolor: 'background.paper' }}>Time</TableCell>
-                      <TableCell sx={{ bgcolor: 'background.paper' }}>Feature</TableCell>
-                      <TableCell sx={{ bgcolor: 'background.paper' }}>Model</TableCell>
-                      <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>
+                        Time
+                      </TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>
+                        Feature
+                      </TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>
+                        Model
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ bgcolor: 'background.paper' }}
+                      >
                         Tokens
                       </TableCell>
-                      <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                      <TableCell
+                        align="right"
+                        sx={{ bgcolor: 'background.paper' }}
+                      >
                         Cost
                       </TableCell>
-                      <TableCell sx={{ bgcolor: 'background.paper' }}>User</TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>
+                        User
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {events.map((ev) => (
                       <TableRow key={ev.id}>
                         <TableCell>
-                          {new Date(ev.createdAt ?? ev.created_at ?? '').toLocaleString()}
+                          {new Date(
+                            ev.createdAt ?? ev.created_at ?? ''
+                          ).toLocaleString()}
                         </TableCell>
-                        <TableCell>{HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}</TableCell>
+                        <TableCell>
+                          {HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}
+                        </TableCell>
                         <TableCell>{ev.model || 'default'}</TableCell>
                         <TableCell align="right">
                           {formatTokensWithCached(
@@ -353,7 +468,9 @@ const AdreUsagePage: FC = () => {
                         <TableCell align="right">
                           {formatUsdCost(ev.totalCost ?? ev.total_cost)}
                         </TableCell>
-                        <TableCell>{ev.triggeredBy ?? ev.triggered_by ?? '—'}</TableCell>
+                        <TableCell>
+                          {ev.triggeredBy ?? ev.triggered_by ?? '—'}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

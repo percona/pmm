@@ -12,7 +12,9 @@ function isAdreChatUiMode(v: unknown): v is AdreChatUiMode {
 }
 
 /** Server/settings default when no stored mode: legacy `chat` matches Fast in the UI. */
-export function defaultChatModeFromSettings(defaultChatMode: string | undefined): AdreChatUiMode {
+export function defaultChatModeFromSettings(
+  defaultChatMode: string | undefined
+): AdreChatUiMode {
   if (defaultChatMode === 'investigation') return 'investigation';
   if (defaultChatMode === 'fast' || defaultChatMode === 'chat') return 'fast';
 
@@ -24,11 +26,13 @@ export function loadAdreChatUiPreferences(): AdreChatUiPrefs {
     const raw = localStorage.getItem(ADRE_CHAT_UI_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      return {};
 
     const rec = parsed as Record<string, unknown>;
     const prefs: AdreChatUiPrefs = {};
-    if (typeof rec.model === 'string' && rec.model.length > 0) prefs.model = rec.model;
+    if (typeof rec.model === 'string' && rec.model.length > 0)
+      prefs.model = rec.model;
     if (isAdreChatUiMode(rec.mode)) prefs.mode = rec.mode;
 
     return prefs;
@@ -39,7 +43,9 @@ export function loadAdreChatUiPreferences(): AdreChatUiPrefs {
 
 /** Merge into existing stored prefs. Use `model: ''` or `removeModel: true` to clear a stored model id. */
 export function saveAdreChatUiPreferences(
-  patch: Partial<Pick<AdreChatUiPrefs, 'mode' | 'model'>> & { removeModel?: boolean }
+  patch: Partial<Pick<AdreChatUiPrefs, 'mode' | 'model'>> & {
+    removeModel?: boolean;
+  }
 ): void {
   try {
     const prev = loadAdreChatUiPreferences();

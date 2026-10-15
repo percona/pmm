@@ -15,7 +15,9 @@ import {
 /** Returns markdown component overrides for rendering Grafana panel images, code blocks, and dashboard links within chat messages. */
 export function getMarkdownComponents(content: string) {
   const panelKeysFromImages = new Set(
-    getRenderImageUrlsInContent(content).map(parseRenderImageUrlToPanelKey).filter(Boolean)
+    getRenderImageUrlsInContent(content)
+      .map(parseRenderImageUrlToPanelKey)
+      .filter(Boolean)
   );
 
   return {
@@ -57,7 +59,10 @@ export function getMarkdownComponents(content: string) {
           border: 2,
           borderColor: 'divider',
           borderRadius: Number(theme.shape.borderRadius) / 4,
-          bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.action.hover,
+          bgcolor:
+            theme.palette.mode === 'dark'
+              ? theme.palette.grey[800]
+              : theme.palette.action.hover,
           // Fenced code: undo the inline <code> chrome so the block reads as one preformatted unit.
           '& code': {
             display: 'block',
@@ -75,7 +80,14 @@ export function getMarkdownComponents(content: string) {
     ),
     table: ({ children }: { children?: ReactNode }) => (
       <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>
-        <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+        <Box
+          component="table"
+          sx={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: '0.85rem',
+          }}
+        >
           {children}
         </Box>
       </Box>

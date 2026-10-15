@@ -2,7 +2,10 @@ import { Box, Card, CardContent, Link, Typography } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
-import { toSameOriginUrl, withRenderCacheParam } from 'components/adre/adre-chat-markdown.utils';
+import {
+  toSameOriginUrl,
+  withRenderCacheParam,
+} from 'components/adre/adre-chat-markdown.utils';
 
 const RENDER_IMAGE_TIMEOUT_MS = 60000;
 
@@ -12,12 +15,19 @@ const PanelImageWithFetch: FC<{
   alt: string;
   href: string | null;
 }> = ({ src, alt, href }) => {
-  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error'; detail?: string }>('loading');
+  const [state, setState] = useState<
+    | 'loading'
+    | { status: 'success'; url: string }
+    | { status: 'error'; detail?: string }
+  >('loading');
 
   useEffect(() => {
     let objectUrl: string | null = null;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      RENDER_IMAGE_TIMEOUT_MS
+    );
 
     fetch(src, { credentials: 'include', signal: controller.signal })
       .then(async (res) => {
@@ -28,7 +38,9 @@ const PanelImageWithFetch: FC<{
             try {
               const json = await res.json();
               if (json.error) detail += `: ${json.error}`;
-            } catch { /* ignore */ }
+            } catch {
+              /* ignore */
+            }
           }
           throw new Error(detail);
         }
@@ -38,7 +50,9 @@ const PanelImageWithFetch: FC<{
             try {
               const json = await res.json();
               if (json.error) detail = json.error;
-            } catch { /* ignore */ }
+            } catch {
+              /* ignore */
+            }
           }
           throw new Error(detail);
         }
@@ -48,7 +62,12 @@ const PanelImageWithFetch: FC<{
         objectUrl = URL.createObjectURL(blob);
         setState({ status: 'success', url: objectUrl });
       })
-      .catch((err) => setState({ status: 'error', detail: err instanceof Error ? err.message : undefined }))
+      .catch((err) =>
+        setState({
+          status: 'error',
+          detail: err instanceof Error ? err.message : undefined,
+        })
+      )
       .finally(() => clearTimeout(timeoutId));
 
     return () => {
@@ -68,14 +87,21 @@ const PanelImageWithFetch: FC<{
     return (
       <Box sx={{ mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Image failed to load{(() => {
+          Image failed to load
+          {(() => {
             if (!state.detail) return '';
-            if (state.detail.includes('<!DOCTYPE') || state.detail.length > 200) return ' (Panel render timed out — try opening in Grafana directly)';
+            if (state.detail.includes('<!DOCTYPE') || state.detail.length > 200)
+              return ' (Panel render timed out — try opening in Grafana directly)';
             return ` (${state.detail})`;
           })()}
         </Typography>
         {href && (
-          <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5 }}>
+          <Link
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ display: 'inline-block', mt: 0.5 }}
+          >
             Open panel in Grafana
           </Link>
         )}
@@ -88,13 +114,23 @@ const PanelImageWithFetch: FC<{
       src={state.url}
       alt={alt}
       loading="lazy"
-      sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
+      sx={{
+        maxWidth: '100%',
+        height: 'auto',
+        borderRadius: 1,
+        display: 'block',
+      }}
     />
   );
   return (
     <Box sx={{ mb: 1 }}>
       {href ? (
-        <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'block' }}>
+        <Link
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ display: 'block' }}
+        >
           {img}
         </Link>
       ) : (
@@ -121,9 +157,13 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const panelId = config.panelId ?? config.panel_id;
   const timeFrom = config.timeFrom ?? config.time_from;
   const timeTo = config.timeTo ?? config.time_to;
-  const imageUrlRaw = typeof config.image_url === 'string' ? config.image_url : null;
-  const imageUrl = imageUrlRaw ? toSameOriginUrl(withRenderCacheParam(imageUrlRaw)) : null;
-  const dashboardUrl = typeof config.dashboard_url === 'string' ? config.dashboard_url : null;
+  const imageUrlRaw =
+    typeof config.image_url === 'string' ? config.image_url : null;
+  const imageUrl = imageUrlRaw
+    ? toSameOriginUrl(withRenderCacheParam(imageUrlRaw))
+    : null;
+  const dashboardUrl =
+    typeof config.dashboard_url === 'string' ? config.dashboard_url : null;
 
   const toEpochMsOrOriginal = (s: string) => {
     if (!s) return s;
@@ -180,7 +220,12 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
           />
         )}
         {href ? (
-          <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'block', mt: 1 }}>
+          <Link
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ display: 'block', mt: 1 }}
+          >
             Open panel in Grafana
           </Link>
         ) : !embedSrc && !renderImageSrc ? (

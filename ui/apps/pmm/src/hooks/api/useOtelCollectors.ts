@@ -27,7 +27,9 @@ export const useOtelCollectors = (
     ...options,
   });
 
-export const usePmmAgents = (options?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listPmmAgents>>>>) =>
+export const usePmmAgents = (
+  options?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listPmmAgents>>>>
+) =>
   useQuery({
     queryKey: PMM_AGENTS_KEY,
     queryFn: listPmmAgents,
@@ -35,7 +37,9 @@ export const usePmmAgents = (options?: Partial<UseQueryOptions<Awaited<ReturnTyp
   });
 
 export const useInventoryNodes = (
-  options?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listInventoryNodes>>>>
+  options?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof listInventoryNodes>>>
+  >
 ) =>
   useQuery({
     queryKey: INVENTORY_NODES_KEY,
@@ -45,12 +49,17 @@ export const useInventoryNodes = (
 
 export const useChangeOtelCollectorLogSources = (
   options?: Partial<
-    UseMutationOptions<OtelCollectorAgent, Error, { agentId: string; logSources: OtelLogSource[] }>
+    UseMutationOptions<
+      OtelCollectorAgent,
+      Error,
+      { agentId: string; logSources: OtelLogSource[] }
+    >
   >
 ) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ agentId, logSources }) => changeOtelCollectorLogSources(agentId, logSources),
+    mutationFn: ({ agentId, logSources }) =>
+      changeOtelCollectorLogSources(agentId, logSources),
     onSuccess: (...args) => {
       qc.invalidateQueries({ queryKey: OTEL_COLLECTORS_KEY });
       options?.onSuccess?.(...args);

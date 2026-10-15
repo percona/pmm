@@ -57,7 +57,11 @@ describe('normalizeOperatorYaml', () => {
     const normalized = normalizeOperatorYaml(indented);
 
     expect(normalized).toBe(
-      ["- type: regex_parser", "  regex: '^(?P<timestamp>\\\\d{4})'", '  parse_from: body'].join('\n')
+      [
+        '- type: regex_parser',
+        "  regex: '^(?P<timestamp>\\\\d{4})'",
+        '  parse_from: body',
+      ].join('\n')
     );
   });
 });

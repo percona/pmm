@@ -20,7 +20,10 @@ export const QanExplainTab: FC = () => {
     }),
     [state]
   );
-  const { data: exData, isLoading: exLoading } = useQanExamples(exampleParams, !!state.queryId);
+  const { data: exData, isLoading: exLoading } = useQanExamples(
+    exampleParams,
+    !!state.queryId
+  );
   const serviceId = useQanServiceId(exData?.examples);
   const example = exData?.examples?.[exampleIdx];
 
@@ -40,11 +43,13 @@ export const QanExplainTab: FC = () => {
   );
 
   if (exLoading || isLoading) return <QanDetailsLoading />;
-  if (isError) return <QanDetailsError message="Failed to load EXPLAIN output." />;
+  if (isError)
+    return <QanDetailsError message="Failed to load EXPLAIN output." />;
   if (!serviceId) {
     return (
       <Alert severity="info">
-        Select a service filter or ensure examples include a service id to run EXPLAIN.
+        Select a service filter or ensure examples include a service id to run
+        EXPLAIN.
       </Alert>
     );
   }
@@ -52,7 +57,8 @@ export const QanExplainTab: FC = () => {
   return (
     <Stack spacing={2}>
       <Typography variant="caption" color="text.secondary">
-        Advisory: review EXPLAIN output before applying any suggested changes in your environment.
+        Advisory: review EXPLAIN output before applying any suggested changes in
+        your environment.
       </Typography>
       {data?.classic ? (
         <Stack>
@@ -73,7 +79,9 @@ export const QanExplainTab: FC = () => {
         </Stack>
       ) : null}
       {!data?.classic && !data?.json && !data?.visual ? (
-        <Typography color="text.secondary">No EXPLAIN data available.</Typography>
+        <Typography color="text.secondary">
+          No EXPLAIN data available.
+        </Typography>
       ) : null}
     </Stack>
   );

@@ -1,4 +1,8 @@
-import { clearAllFilters, getActiveFilterChips, removeFilterChip } from './qanFilterChips';
+import {
+  clearAllFilters,
+  getActiveFilterChips,
+  removeFilterChip,
+} from './qanFilterChips';
 
 describe('qanFilterChips', () => {
   it('lists active filter chips excluding $__all', () => {
@@ -16,7 +20,11 @@ describe('qanFilterChips', () => {
   });
 
   it('removes a single chip value', () => {
-    const next = removeFilterChip({ database: ['app', 'logs'] }, 'database', 'app');
+    const next = removeFilterChip(
+      { database: ['app', 'logs'] },
+      'database',
+      'app'
+    );
     expect(next.database).toEqual(['logs']);
   });
 
@@ -27,7 +35,10 @@ describe('qanFilterChips', () => {
   });
 
   it('ignores spurious by label from legacy filter_by param', () => {
-    const chips = getActiveFilterChips({ by: ['query-id'], service_id: ['svc-1'] });
+    const chips = getActiveFilterChips({
+      by: ['query-id'],
+      service_id: ['svc-1'],
+    });
     expect(chips).toHaveLength(1);
     expect(chips[0].key).toBe('service_id');
   });

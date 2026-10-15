@@ -38,11 +38,22 @@ export const QanAiInsightsTab: FC = () => {
     }),
     [state]
   );
-  const { data: exData } = useQanExamples(exampleParams, !!state.queryId && !state.totals);
+  const { data: exData } = useQanExamples(
+    exampleParams,
+    !!state.queryId && !state.totals
+  );
   const serviceId = useQanServiceId(exData?.examples);
 
   const cacheKey = useMemo(
-    () => ['qan', 'ai-insights', serviceId, state.queryId, state.from, state.to] as const,
+    () =>
+      [
+        'qan',
+        'ai-insights',
+        serviceId,
+        state.queryId,
+        state.from,
+        state.to,
+      ] as const,
     [serviceId, state.queryId, state.from, state.to]
   );
 
@@ -97,14 +108,17 @@ export const QanAiInsightsTab: FC = () => {
 
   if (state.totals) {
     return (
-      <Alert severity="info">AI Insights are not available for the totals row.</Alert>
+      <Alert severity="info">
+        AI Insights are not available for the totals row.
+      </Alert>
     );
   }
 
   if (!serviceId) {
     return (
       <Alert severity="info">
-        Select a service filter or open a query with examples to run AI Insights.
+        Select a service filter or open a query with examples to run AI
+        Insights.
       </Alert>
     );
   }
@@ -126,8 +140,8 @@ export const QanAiInsightsTab: FC = () => {
   return (
     <Stack spacing={2}>
       <Alert severity="info" variant="outlined">
-        AI recommendations are advisory only. Copy suggested SQL and review before executing in
-        your database.
+        AI recommendations are advisory only. Copy suggested SQL and review
+        before executing in your database.
       </Alert>
       <Stack direction="row" justifyContent="flex-end">
         <Button

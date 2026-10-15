@@ -38,13 +38,24 @@ function isLogBlock(title?: string, content?: string): boolean {
 export const MarkdownBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = block.dataJson as { content?: string } | undefined;
   const rawContent = data?.content ?? '';
-  const isLog = useMemo(() => isLogBlock(block.title, rawContent), [block.title, rawContent]);
+  const isLog = useMemo(
+    () => isLogBlock(block.title, rawContent),
+    [block.title, rawContent]
+  );
   const content = useMemo(
     () => (isLog ? sortLogLinesOldestFirst(rawContent) : rawContent),
     [isLog, rawContent]
   );
   return (
-    <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover', borderLeft: 4, borderLeftColor: 'grey.400' }}>
+    <Card
+      variant="outlined"
+      sx={{
+        mb: 2,
+        bgcolor: 'action.hover',
+        borderLeft: 4,
+        borderLeftColor: 'grey.400',
+      }}
+    >
       {block.title && (
         <CardContent sx={{ pb: 0 }}>
           <Typography variant="subtitle1" fontWeight={600}>

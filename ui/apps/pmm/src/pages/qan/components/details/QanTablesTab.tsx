@@ -17,7 +17,10 @@ export const QanTablesTab: FC = () => {
     }),
     [state]
   );
-  const { data: exData, isLoading: exLoading } = useQanExamples(exampleParams, !!state.queryId);
+  const { data: exData, isLoading: exLoading } = useQanExamples(
+    exampleParams,
+    !!state.queryId
+  );
   const tables = useMemo(() => exData?.examples?.[0]?.tables ?? [], [exData]);
 
   const schemaParams = useMemo(
@@ -38,10 +41,15 @@ export const QanTablesTab: FC = () => {
   );
 
   if (exLoading || isLoading) return <QanDetailsLoading />;
-  if (isError) return <QanDetailsError message="Failed to load table schema." />;
+  if (isError)
+    return <QanDetailsError message="Failed to load table schema." />;
 
   if (!tables.length) {
-    return <Typography color="text.secondary">No tables associated with this query.</Typography>;
+    return (
+      <Typography color="text.secondary">
+        No tables associated with this query.
+      </Typography>
+    );
   }
 
   return (

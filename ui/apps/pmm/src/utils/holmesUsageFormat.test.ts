@@ -1,4 +1,9 @@
-import { aggregateInvestigationUsage, aggregateUsageSeriesByDay, fillDailyCostSeries, resolveDailyCostChartRows } from './holmesUsageFormat';
+import {
+  aggregateInvestigationUsage,
+  aggregateUsageSeriesByDay,
+  fillDailyCostSeries,
+  resolveDailyCostChartRows,
+} from './holmesUsageFormat';
 
 describe('fillDailyCostSeries', () => {
   it('returns newest day first and drops leading zero-cost days', () => {
@@ -7,7 +12,11 @@ describe('fillDailyCostSeries', () => {
       { bucket: '2026-05-22', total_cost: 0.84 },
     ]);
 
-    const filled = fillDailyCostSeries(series, '2026-04-23T00:00:00.000Z', '2026-05-23T12:00:00.000Z');
+    const filled = fillDailyCostSeries(
+      series,
+      '2026-04-23T00:00:00.000Z',
+      '2026-05-23T12:00:00.000Z'
+    );
 
     expect(filled[0]?.bucket).toBe('2026-05-23');
     expect(filled[1]?.bucket).toBe('2026-05-22');
@@ -16,9 +25,15 @@ describe('fillDailyCostSeries', () => {
   });
 
   it('keeps only the latest day when the range has no usage', () => {
-    const filled = fillDailyCostSeries([], '2026-05-20T00:00:00.000Z', '2026-05-23T12:00:00.000Z');
+    const filled = fillDailyCostSeries(
+      [],
+      '2026-05-20T00:00:00.000Z',
+      '2026-05-23T12:00:00.000Z'
+    );
 
-    expect(filled).toEqual([expect.objectContaining({ bucket: '2026-05-23', totalCost: 0 })]);
+    expect(filled).toEqual([
+      expect.objectContaining({ bucket: '2026-05-23', totalCost: 0 }),
+    ]);
   });
 });
 
@@ -50,7 +65,9 @@ describe('resolveDailyCostChartRows', () => {
       total_cost: 0.6,
     });
 
-    expect(rows).toEqual([expect.objectContaining({ bucket: '2026-05-23', totalCost: 0.6 })]);
+    expect(rows).toEqual([
+      expect.objectContaining({ bucket: '2026-05-23', totalCost: 0.6 }),
+    ]);
   });
 });
 

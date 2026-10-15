@@ -7,6 +7,8 @@ describe('serviceTypeToQanDatabase', () => {
   });
 
   it('maps mongodb service type', () => {
-    expect(serviceTypeToQanDatabase('SERVICE_TYPE_MONGODB_SERVICE')).toBe('mongodb');
+    expect(serviceTypeToQanDatabase('SERVICE_TYPE_MONGODB_SERVICE')).toBe(
+      'mongodb'
+    );
   });
 });

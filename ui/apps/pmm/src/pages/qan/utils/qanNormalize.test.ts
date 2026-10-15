@@ -35,7 +35,10 @@ describe('qanNormalize', () => {
     });
 
     it('parses string array from URL', () => {
-      expect(parseQanColumns('["load","num_queries"]')).toEqual(['load', 'num_queries']);
+      expect(parseQanColumns('["load","num_queries"]')).toEqual([
+        'load',
+        'num_queries',
+      ]);
     });
   });
 

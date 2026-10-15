@@ -5,7 +5,10 @@ import { QanControls } from './QanControls';
 import { QanFilterDrawer } from './QanFilterDrawer';
 import { QanListing } from './QanListing';
 import { QanSectionTab } from './QanSectionTab';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import { QanFiltersDrawerProvider } from '../hooks/QanFiltersDrawerProvider';
 
 export const QanLayout: FC<PropsWithChildren> = ({ children }) => {
@@ -13,7 +16,9 @@ export const QanLayout: FC<PropsWithChildren> = ({ children }) => {
   const { getSplitRatio } = useQanPanelActions();
   const showSectionTab = querySelected && !totals;
   const listFlex = showSectionTab ? `${getSplitRatio() * 100}%` : '1 1 auto';
-  const detailsFlex = showSectionTab ? `${(1 - getSplitRatio()) * 100}%` : undefined;
+  const detailsFlex = showSectionTab
+    ? `${(1 - getSplitRatio()) * 100}%`
+    : undefined;
 
   return (
     <QanFiltersDrawerProvider>

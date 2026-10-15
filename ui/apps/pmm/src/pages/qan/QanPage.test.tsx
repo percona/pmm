@@ -27,17 +27,25 @@ vi.mock('hooks/useAdreChat', () => ({
 }));
 
 vi.mock('hooks/api/useQan', () => ({
-  useQanReport: () => ({ data: { rows: [], totalRows: 0 }, isLoading: false, isError: false }),
+  useQanReport: () => ({
+    data: { rows: [], totalRows: 0 },
+    isLoading: false,
+    isError: false,
+  }),
   useQanFilters: () => ({ data: { labels: {} }, isLoading: false }),
   useQanMetricNames: () => ({ data: { data: [] } }),
 }));
 
 vi.mock('components/page', () => ({
-  Page: ({ children }: { children: React.ReactNode }) => <div data-testid="qan-page">{children}</div>,
+  Page: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="qan-page">{children}</div>
+  ),
 }));
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return (
     <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={['/pmm-ui/qan']}>{children}</MemoryRouter>

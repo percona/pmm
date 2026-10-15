@@ -13,11 +13,17 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { FC, useEffect, useMemo } from 'react';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import { getVisibleQanTabs } from '../utils/qanTabVisibility';
 import { useQanDatabaseType } from '../hooks/useQanDatabaseType';
 import type { QanDetailsTab } from 'types/qan.types';
-import { QAN_SECTION_TAB_LABELS, QAN_SECTION_TAB_ORDER } from '../utils/qanSectionTabs';
+import {
+  QAN_SECTION_TAB_LABELS,
+  QAN_SECTION_TAB_ORDER,
+} from '../utils/qanSectionTabs';
 import { QanDetailsOverview } from './details/QanDetailsOverview';
 import { QanExamplesTab } from './details/QanExamplesTab';
 import { QanExplainPlanTab } from './details/QanExplainPlanTab';
@@ -46,7 +52,7 @@ export const QanSectionTab: FC = () => {
 
   const activeTab = tabs.includes(state.openDetailsTab)
     ? state.openDetailsTab
-    : tabs[0] ?? 'details';
+    : (tabs[0] ?? 'details');
 
   useEffect(() => {
     if (tabs.length && state.openDetailsTab !== activeTab) {
@@ -111,7 +117,12 @@ export const QanSectionTab: FC = () => {
               sx={tabSx}
               label={
                 t === 'aiInsights' ? (
-                  <Stack direction="row" alignItems="center" spacing={0.75} component="span">
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.75}
+                    component="span"
+                  >
                     <AutoAwesomeIcon sx={{ fontSize: 20 }} />
                     <span>{QAN_SECTION_TAB_LABELS[t]}</span>
                   </Stack>
@@ -122,17 +133,37 @@ export const QanSectionTab: FC = () => {
             />
           ))}
         </Tabs>
-        <Stack direction="row" alignItems="center" sx={{ flexShrink: 0, pb: 0.25 }}>
-          <IconButton size="small" onClick={showMoreListing} aria-label="Show more listing">
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ flexShrink: 0, pb: 0.25 }}
+        >
+          <IconButton
+            size="small"
+            onClick={showMoreListing}
+            aria-label="Show more listing"
+          >
             <KeyboardArrowUpIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={showMoreDetails} aria-label="Show more details">
+          <IconButton
+            size="small"
+            onClick={showMoreDetails}
+            aria-label="Show more details"
+          >
             <KeyboardArrowDownIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={maximizeDetails} aria-label="Maximize details">
+          <IconButton
+            size="small"
+            onClick={maximizeDetails}
+            aria-label="Maximize details"
+          >
             <OpenInFullIcon fontSize="small" />
           </IconButton>
-          <IconButton onClick={() => actions.closeDetails()} aria-label="Close details" size="small">
+          <IconButton
+            onClick={() => actions.closeDetails()}
+            aria-label="Close details"
+            size="small"
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

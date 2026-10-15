@@ -73,7 +73,12 @@ const LogSourcesEditor: FC<{
         </Typography>
       )}
       {rows.map((row, index) => (
-        <Stack key={`${index}-${row.path}`} direction={{ xs: 'column', sm: 'row' }} gap={1} alignItems="flex-start">
+        <Stack
+          key={`${index}-${row.path}`}
+          direction={{ xs: 'column', sm: 'row' }}
+          gap={1}
+          alignItems="flex-start"
+        >
           <TextField
             label={m.pathLabel}
             value={row.path}
@@ -95,12 +100,21 @@ const LogSourcesEditor: FC<{
               </MenuItem>
             ))}
           </TextField>
-          <IconButton aria-label="remove" onClick={() => removeRow(index)} sx={{ mt: { sm: 0.5 } }}>
+          <IconButton
+            aria-label="remove"
+            onClick={() => removeRow(index)}
+            sx={{ mt: { sm: 0.5 } }}
+          >
             <DeleteOutlineIcon />
           </IconButton>
         </Stack>
       ))}
-      <Button startIcon={<AddIcon />} onClick={addRow} size="small" sx={{ alignSelf: 'flex-start' }}>
+      <Button
+        startIcon={<AddIcon />}
+        onClick={addRow}
+        size="small"
+        sx={{ alignSelf: 'flex-start' }}
+      >
         {m.addSource}
       </Button>
     </Stack>
@@ -128,7 +142,10 @@ const ConfigureCollectorDialog: FC<{
       .map((r) => ({ path: r.path.trim(), preset: (r.preset || 'raw').trim() }))
       .filter((r) => r.path);
     try {
-      await changeSources.mutateAsync({ agentId: agentId(collector), logSources: cleaned });
+      await changeSources.mutateAsync({
+        agentId: agentId(collector),
+        logSources: cleaned,
+      });
       enqueueSnackbar(m.saved, { variant: 'success' });
       onClose();
     } catch (err) {
@@ -143,11 +160,19 @@ const ConfigureCollectorDialog: FC<{
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {m.configureHelp}
         </Typography>
-        <LogSourcesEditor rows={rows} presetNames={presetNames} onChange={setRows} />
+        <LogSourcesEditor
+          rows={rows}
+          presetNames={presetNames}
+          onChange={setRows}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{m.cancel}</Button>
-        <Button variant="contained" onClick={save} disabled={changeSources.isPending}>
+        <Button
+          variant="contained"
+          onClick={save}
+          disabled={changeSources.isPending}
+        >
           {changeSources.isPending ? m.saving : m.save}
         </Button>
       </DialogActions>
@@ -226,11 +251,21 @@ export const LogCollectorsSection: FC = () => {
                 direction="row"
                 alignItems="center"
                 gap={1}
-                sx={{ py: 1, px: 1.5, borderRadius: 1, border: 1, borderColor: 'divider' }}
+                sx={{
+                  py: 1,
+                  px: 1.5,
+                  borderRadius: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
               >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="subtitle2">{label}</Typography>
-                  <Typography variant="caption" color="text.secondary" display="block">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
                     {m.agentMeta(agentId(c), c.status ?? '—', sources.length)}
                   </Typography>
                 </Box>

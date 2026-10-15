@@ -4,7 +4,11 @@ import type { InvestigationBlock } from 'api/investigations';
 
 export const LogsViewBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = (block.dataJson || {}) as { content?: string; lines?: string[] };
-  const text = data.content ?? (Array.isArray(data.lines) ? data.lines.join('\n') : '') ?? block.title ?? '';
+  const text =
+    data.content ??
+    (Array.isArray(data.lines) ? data.lines.join('\n') : '') ??
+    block.title ??
+    '';
   return (
     <Card variant="outlined" sx={{ mb: 2, bgcolor: 'grey.50' }}>
       {block.title && (
@@ -15,7 +19,16 @@ export const LogsViewBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
         </CardContent>
       )}
       <CardContent>
-        <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', maxHeight: 400, overflow: 'auto' }}>
+        <Typography
+          variant="body2"
+          component="pre"
+          sx={{
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'monospace',
+            maxHeight: 400,
+            overflow: 'auto',
+          }}
+        >
           {text || '(No logs)'}
         </Typography>
       </CardContent>

@@ -59,23 +59,31 @@ export function normalizeOperatorYaml(yaml: string): string {
   s = s.replace(/" parse_from:/g, '"\n  parse_from:');
   s = s.replace(/" parse_to:/g, '"\n  parse_to:');
   s = s.replace(/" - type:/g, '"\n- type:');
-  s = s.replace(/^(\s*regex:\s+)(.+?\$\s*)parse_from:/gm, "$1'$2'\n  parse_from:");
-  s = s.replace(/^(\s*regex:\s+)([^'"\n][^\n]*)$/gm, (line, prefix: string, value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed || trimmed.startsWith("'") || trimmed.startsWith('"')) {
+  s = s.replace(
+    /^(\s*regex:\s+)(.+?\$\s*)parse_from:/gm,
+    "$1'$2'\n  parse_from:"
+  );
+  s = s.replace(
+    /^(\s*regex:\s+)([^'"\n][^\n]*)$/gm,
+    (line, prefix: string, value: string) => {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed.startsWith("'") || trimmed.startsWith('"')) {
+        return line;
+      }
+      if (trimmed.includes(':')) {
+        return `${prefix}'${trimmed}'`;
+      }
       return line;
     }
-    if (trimmed.includes(':')) {
-      return `${prefix}'${trimmed}'`;
-    }
-    return line;
-  });
+  );
   s = dedentOperatorYaml(s);
   return s.trim();
 }
 
 export async function listLogParserPresets(): Promise<LogParserPreset[]> {
-  const res = await api.get<{ presets: LogParserPreset[] }>('/server/log-parser-presets');
+  const res = await api.get<{ presets: LogParserPreset[] }>(
+    '/server/log-parser-presets'
+  );
   return res.data.presets ?? [];
 }
 
@@ -102,7 +110,8 @@ export async function changeLogParserPreset(
 ): Promise<LogParserPreset> {
   const payload: Record<string, string> = {};
   if (body.description !== undefined) payload.description = body.description;
-  if (body.operatorYaml !== undefined) payload.operatorYaml = normalizeOperatorYaml(body.operatorYaml);
+  if (body.operatorYaml !== undefined)
+    payload.operatorYaml = normalizeOperatorYaml(body.operatorYaml);
   const res = await api.put<{ preset: LogParserPreset }>(
     `/server/log-parser-presets/${id}`,
     payload,

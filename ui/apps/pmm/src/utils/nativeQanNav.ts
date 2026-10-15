@@ -1,7 +1,9 @@
 import { PMM_BASE_PATH } from 'lib/constants';
 import { stripQanServiceId } from 'utils/qanServiceId';
 
-export function buildNativeQanPath(params: Record<string, string | undefined>): string {
+export function buildNativeQanPath(
+  params: Record<string, string | undefined>
+): string {
   const sp = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v == null || v === '') return;

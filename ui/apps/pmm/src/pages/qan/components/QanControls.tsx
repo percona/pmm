@@ -11,7 +11,10 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import {
   buildNativeQanShareLink,
   toDatetimeLocalValue,
@@ -36,7 +39,9 @@ export const QanControls: FC = () => {
   const state = useQanPanelState();
   const actions = useQanPanelActions();
   const { enqueueSnackbar } = useSnackbar();
-  const [searchDraft, setSearchDraft] = useState(state.dimensionSearchText ?? '');
+  const [searchDraft, setSearchDraft] = useState(
+    state.dimensionSearchText ?? ''
+  );
 
   useEffect(() => {
     setSearchDraft(state.dimensionSearchText ?? '');
@@ -51,7 +56,10 @@ export const QanControls: FC = () => {
     return () => clearTimeout(id);
   }, [searchDraft, state.dimensionSearchText, actions]);
 
-  const fromLocal = useMemo(() => toDatetimeLocalValue(state.from), [state.from]);
+  const fromLocal = useMemo(
+    () => toDatetimeLocalValue(state.from),
+    [state.from]
+  );
   const toLocal = useMemo(() => toDatetimeLocalValue(state.to), [state.to]);
 
   const copyLink = useCallback(() => {

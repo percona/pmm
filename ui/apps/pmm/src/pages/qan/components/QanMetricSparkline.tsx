@@ -35,7 +35,10 @@ export const QanMetricSparkline: FC<QanMetricSparklineProps> = ({
             flex: 1,
             height: '100%',
             minWidth: 2,
-            bgcolor: value >= threshold && value > 0 ? 'primary.light' : 'action.disabledBackground',
+            bgcolor:
+              value >= threshold && value > 0
+                ? 'primary.light'
+                : 'action.disabledBackground',
             borderRadius: 0.25,
           }}
         />

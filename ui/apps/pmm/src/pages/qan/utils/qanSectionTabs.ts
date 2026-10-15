@@ -26,5 +26,7 @@ export function parseQanDetailsTab(raw: string | null): QanDetailsTab {
     'tables',
     'aiInsights',
   ];
-  return (allowed.includes(raw as QanDetailsTab) ? raw : 'details') as QanDetailsTab;
+  return (
+    allowed.includes(raw as QanDetailsTab) ? raw : 'details'
+  ) as QanDetailsTab;
 }

@@ -10,7 +10,10 @@ import {
 } from '@mui/material';
 import { FC, useMemo } from 'react';
 import { useQanMetricNames } from 'hooks/api/useQan';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import { DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
 import { metricNamesFromResponse } from '../utils/qanNormalize';
 
@@ -25,7 +28,9 @@ export const QanManageColumns: FC = () => {
     return [...new Set([...DEFAULT_QAN_COLUMNS, ...names])];
   }, [data]);
 
-  const selectedColumns = Array.isArray(state.columns) ? state.columns : DEFAULT_QAN_COLUMNS;
+  const selectedColumns = Array.isArray(state.columns)
+    ? state.columns
+    : DEFAULT_QAN_COLUMNS;
 
   const onChange = (e: SelectChangeEvent<string[]>) => {
     const value = e.target.value;

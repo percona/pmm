@@ -36,7 +36,10 @@ export const TimelineSection: FC<{ events: InvestigationTimelineEvent[] }> = ({
         }}
       >
         {events.map((event) => {
-          const eventTime = event.eventTime ?? (event as { event_time?: string }).event_time ?? '';
+          const eventTime =
+            event.eventTime ??
+            (event as { event_time?: string }).event_time ??
+            '';
           const timeStr = formatEventTime(eventTime);
           const label = [timeStr, event.title, event.description]
             .filter(Boolean)

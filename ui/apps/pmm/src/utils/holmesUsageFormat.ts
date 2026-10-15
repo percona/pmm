@@ -21,7 +21,10 @@ export function formatUsdCost(cost: number | undefined): string {
   return `$${cost.toFixed(4)}`;
 }
 
-export function formatTokensWithCached(total?: number, cached?: number): string {
+export function formatTokensWithCached(
+  total?: number,
+  cached?: number
+): string {
   const totalStr = formatTokenCount(total);
   if (!totalStr) return '';
   if (cached != null && cached > 0) {
@@ -30,7 +33,9 @@ export function formatTokensWithCached(total?: number, cached?: number): string 
   return `${totalStr} tokens`;
 }
 
-export function holmesUsageSummaryLine(usage: HolmesUsageDisplay): string | null {
+export function holmesUsageSummaryLine(
+  usage: HolmesUsageDisplay
+): string | null {
   const parts: string[] = [];
   if (usage.model) parts.push(usage.model);
   if (usage.totalTokens != null) {
@@ -43,10 +48,14 @@ export function holmesUsageSummaryLine(usage: HolmesUsageDisplay): string | null
 
 export function holmesUsageTooltip(usage: HolmesUsageDisplay): string {
   const lines: string[] = [];
-  if (usage.promptTokens != null) lines.push(`Prompt: ${usage.promptTokens.toLocaleString()}`);
-  if (usage.completionTokens != null) lines.push(`Completion: ${usage.completionTokens.toLocaleString()}`);
-  if (usage.cachedTokens != null) lines.push(`Cached: ${usage.cachedTokens.toLocaleString()}`);
-  if (usage.totalCost != null) lines.push(`Cost: ${formatUsdCost(usage.totalCost)}`);
+  if (usage.promptTokens != null)
+    lines.push(`Prompt: ${usage.promptTokens.toLocaleString()}`);
+  if (usage.completionTokens != null)
+    lines.push(`Completion: ${usage.completionTokens.toLocaleString()}`);
+  if (usage.cachedTokens != null)
+    lines.push(`Cached: ${usage.cachedTokens.toLocaleString()}`);
+  if (usage.totalCost != null)
+    lines.push(`Cost: ${formatUsdCost(usage.totalCost)}`);
   return lines.join('\n');
 }
 
@@ -71,7 +80,12 @@ export function aggregateAssistantMessageUsage(
     total_cost?: number;
     model?: string;
   }>
-): { callCount: number; totalTokens: number; totalCached: number; totalCost: number } {
+): {
+  callCount: number;
+  totalTokens: number;
+  totalCached: number;
+  totalCost: number;
+} {
   let callCount = 0;
   let totalTokens = 0;
   let totalCached = 0;
@@ -81,7 +95,8 @@ export function aggregateAssistantMessageUsage(
     const tokens = m.totalTokens ?? m.total_tokens;
     const cached = m.cachedTokens ?? m.cached_tokens ?? 0;
     const cost = m.totalCost ?? m.total_cost ?? 0;
-    const hasUsage = tokens != null || cost > 0 || (m.model != null && m.model !== '');
+    const hasUsage =
+      tokens != null || cost > 0 || (m.model != null && m.model !== '');
     if (!hasUsage) continue;
     callCount++;
     totalTokens += tokens ?? 0;
@@ -137,7 +152,12 @@ export function aggregateUsageSeriesByDay(
         callCount: prev.callCount + calls,
       });
     } else {
-      byDay.set(bucket, { bucket, totalCost: cost, totalTokens: tokens, callCount: calls });
+      byDay.set(bucket, {
+        bucket,
+        totalCost: cost,
+        totalTokens: tokens,
+        callCount: calls,
+      });
     }
   }
   return [...byDay.values()].sort((a, b) => a.bucket.localeCompare(b.bucket));
@@ -189,7 +209,9 @@ export function resolveDailyCostChartRows(input: {
     if (daySeries.length > 0) {
       return [...daySeries].sort((a, b) => b.bucket.localeCompare(a.bucket));
     }
-    const fromEvents = dailySeriesFromUsageEvents(input.events).filter((row) => row.totalCost > 0);
+    const fromEvents = dailySeriesFromUsageEvents(input.events).filter(
+      (row) => row.totalCost > 0
+    );
     if (fromEvents.length > 0) {
       return fromEvents.sort((a, b) => b.bucket.localeCompare(a.bucket));
     }
@@ -203,7 +225,9 @@ export function fillDailyCostSeries(
   fromISO: string,
   toISO: string
 ): DailyCostPoint[] {
-  const byDay = new Map(series.map((row) => [normalizeUsageDayBucket(row.bucket), row]));
+  const byDay = new Map(
+    series.map((row) => [normalizeUsageDayBucket(row.bucket), row])
+  );
   const start = new Date(fromISO);
   const end = new Date(toISO);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
@@ -301,11 +325,15 @@ function messageHasUsage(m: UsageMessageRow): boolean {
   return tokens != null || cost > 0 || !!model;
 }
 
-function usageStepsFromMessages(messages: UsageMessageRow[]): InvestigationUsageStep[] {
+function usageStepsFromMessages(
+  messages: UsageMessageRow[]
+): InvestigationUsageStep[] {
   return messages
     .filter(messageHasUsage)
     .map((m) => ({
-      id: m.id ?? `${m.createdAt ?? m.created_at ?? ''}-${m.holmesFeature ?? m.holmes_feature ?? 'assistant'}`,
+      id:
+        m.id ??
+        `${m.createdAt ?? m.created_at ?? ''}-${m.holmesFeature ?? m.holmes_feature ?? 'assistant'}`,
       createdAt: m.createdAt ?? m.created_at ?? '',
       feature: m.holmesFeature ?? m.holmes_feature ?? 'investigation_chat',
       model: m.model ?? 'default',
@@ -322,7 +350,9 @@ function normalizeUsageEvents(events: unknown): InvestigationUsageStep[] {
     .map((row) => {
       const ev = row as UsageEventRow;
       return {
-        id: ev.id ?? `${ev.createdAt ?? ev.created_at ?? ''}-${ev.feature ?? 'usage'}`,
+        id:
+          ev.id ??
+          `${ev.createdAt ?? ev.created_at ?? ''}-${ev.feature ?? 'usage'}`,
         createdAt: ev.createdAt ?? ev.created_at ?? '',
         feature: ev.feature ?? 'investigation_run',
         model: ev.model ?? 'default',
@@ -400,7 +430,8 @@ export function aggregateInvestigationUsage(input: {
     stepTotals.totalCost
   );
 
-  const hasUsage = callCount > 0 || totalTokens > 0 || totalCost > 0 || steps.length > 0;
+  const hasUsage =
+    callCount > 0 || totalTokens > 0 || totalCost > 0 || steps.length > 0;
 
   return { callCount, totalTokens, totalCached, totalCost, hasUsage, steps };
 }

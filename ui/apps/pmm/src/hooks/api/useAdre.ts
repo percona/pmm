@@ -37,7 +37,8 @@ export const useUpdateAdreSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: Partial<AdreSettings>) => updateAdreSettings(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.settings }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ADRE_KEYS.settings }),
   });
 };
 
@@ -45,14 +46,17 @@ export const useAdreModels = (options?: { enabled?: boolean }) =>
   useQuery({
     queryKey: ADRE_KEYS.models,
     queryFn: getAdreModels,
-    enabled: (options?.enabled ?? true),
+    enabled: options?.enabled ?? true,
   });
 
 export const useAdreAlerts = (options?: { enabled?: boolean }) => {
   const query = useQuery({
     queryKey: ADRE_KEYS.alerts,
     queryFn: async () => {
-      const data = (await getAdreAlerts()) as { data?: { alerts?: unknown[] }; alerts?: unknown[] };
+      const data = (await getAdreAlerts()) as {
+        data?: { alerts?: unknown[] };
+        alerts?: unknown[];
+      };
       const list = data?.data?.alerts ?? data?.alerts ?? [];
       return Array.isArray(list) ? list : [];
     },
@@ -70,19 +74,26 @@ export const useAdreDeployment = (options?: { enabled?: boolean }) =>
     enabled: options?.enabled ?? true,
   });
 
-const useDeploymentMutation = <TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>) => {
+const useDeploymentMutation = <TArgs, TResult>(
+  fn: (args: TArgs) => Promise<TResult>
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
   });
 };
 
 export const useUpdateAdreDeploymentConfig = () =>
-  useDeploymentMutation((configYaml: string) => updateAdreDeploymentConfig(configYaml));
+  useDeploymentMutation((configYaml: string) =>
+    updateAdreDeploymentConfig(configYaml)
+  );
 
 export const useUpdateAdreDeploymentModels = () =>
-  useDeploymentMutation((models: AdreDeploymentModelInput[]) => updateAdreDeploymentModels(models));
+  useDeploymentMutation((models: AdreDeploymentModelInput[]) =>
+    updateAdreDeploymentModels(models)
+  );
 
 export const useDeleteAdreDeploymentModel = () =>
   useDeploymentMutation((name: string) => deleteAdreDeploymentModel(name));
@@ -91,7 +102,9 @@ export const useUpdateAdreDeploymentPmmUrl = () =>
   useDeploymentMutation((pmmUrl: string) => updateAdreDeploymentPmmUrl(pmmUrl));
 
 export const useUpsertAdreDeploymentSkill = () =>
-  useDeploymentMutation((skill: AdreDeploymentSkillInput) => upsertAdreDeploymentSkill(skill));
+  useDeploymentMutation((skill: AdreDeploymentSkillInput) =>
+    upsertAdreDeploymentSkill(skill)
+  );
 
 export const useDeleteAdreDeploymentSkill = () =>
   useDeploymentMutation((name: string) => deleteAdreDeploymentSkill(name));
@@ -100,7 +113,8 @@ export const useApplyAdreDeployment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => applyAdreDeployment(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
   });
 };
 
@@ -108,7 +122,8 @@ export const useProvisionAdreDeployment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => provisionAdreDeployment(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
   });
 };
 
@@ -116,6 +131,7 @@ export const useMarkAdreDeploymentRestarted = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => markAdreDeploymentRestarted(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
   });
 };

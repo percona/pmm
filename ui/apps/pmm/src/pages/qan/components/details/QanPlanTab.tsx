@@ -7,13 +7,20 @@ import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
 
 export const QanPlanTab: FC = () => {
   const state = useQanPanelState();
-  const { data, isLoading, isError } = useQanPlan(state.queryId ?? '', !!state.queryId);
+  const { data, isLoading, isError } = useQanPlan(
+    state.queryId ?? '',
+    !!state.queryId
+  );
 
   if (isLoading) return <QanDetailsLoading />;
   if (isError) return <QanDetailsError message="Failed to load query plan." />;
 
   if (!data?.plan) {
-    return <Typography color="text.secondary">No plan available for this query.</Typography>;
+    return (
+      <Typography color="text.secondary">
+        No plan available for this query.
+      </Typography>
+    );
   }
 
   return (

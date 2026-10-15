@@ -2,7 +2,9 @@ import { Card, CardContent, Typography } from '@mui/material';
 import { FC } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
 
-export const SchemaViewBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
+export const SchemaViewBlock: FC<{ block: InvestigationBlock }> = ({
+  block,
+}) => {
   const data = (block.dataJson || {}) as { content?: string; schema?: string };
   const text = data.content ?? data.schema ?? block.title ?? '';
   return (
@@ -15,7 +17,16 @@ export const SchemaViewBlock: FC<{ block: InvestigationBlock }> = ({ block }) =>
         </CardContent>
       )}
       <CardContent>
-        <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', overflow: 'auto', maxHeight: 400 }}>
+        <Typography
+          variant="body2"
+          component="pre"
+          sx={{
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'monospace',
+            overflow: 'auto',
+            maxHeight: 400,
+          }}
+        >
           {text || '(No schema)'}
         </Typography>
       </CardContent>

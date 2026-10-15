@@ -31,7 +31,9 @@ function getAlertKey(a: AlertItem, index: number): string {
   return a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
 }
 
-export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }) => {
+export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({
+  alerts: alertsProp,
+}) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateInvestigation();
@@ -63,7 +65,9 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
       }
     };
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [alertsProp, enqueueSnackbar]);
 
   const toggle = (key: string) => {
@@ -87,7 +91,9 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
       .filter(Boolean)
       .join(',');
     const first = items[0];
-    const { nodeName, serviceName, clusterName } = getAlertMetadataFromLabels(first?.labels);
+    const { nodeName, serviceName, clusterName } = getAlertMetadataFromLabels(
+      first?.labels
+    );
     createMutation.mutate(
       {
         title,
@@ -104,7 +110,9 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
         },
         onError: (err) => {
           enqueueSnackbar(
-            err instanceof Error ? err.message : 'Failed to create investigation',
+            err instanceof Error
+              ? err.message
+              : 'Failed to create investigation',
             { variant: 'error' }
           );
         },
@@ -127,7 +135,11 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
         boxSizing: 'border-box',
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" sx={{ flexShrink: 0, mb: 1 }}>
+      <Typography
+        variant="subtitle2"
+        color="text.secondary"
+        sx={{ flexShrink: 0, mb: 1 }}
+      >
         Firing alerts ({alerts.length})
       </Typography>
       <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
@@ -144,14 +156,25 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
             <FormGroup sx={{ gap: 0 }}>
               {alerts.map((a, index) => {
                 const key = getAlertKey(a, index);
-                const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
-                const { nodeName, serviceName } = getAlertMetadataFromLabels(a.labels);
+                const label =
+                  a.labels?.alertname ??
+                  a.annotations?.summary ??
+                  (a.fingerprint ? String(a.fingerprint) : key);
+                const { nodeName, serviceName } = getAlertMetadataFromLabels(
+                  a.labels
+                );
                 const severity = a.labels?.severity ?? a.labels?.Severity ?? '';
                 const schema = a.labels?.schema ?? a.labels?.database ?? '';
                 const queryID = a.labels?.query_id ?? a.labels?.queryid ?? '';
-                const shortFingerprint = (a.labels?.fingerprint ?? a.fingerprint ?? '').toString();
+                const shortFingerprint = (
+                  a.labels?.fingerprint ??
+                  a.fingerprint ??
+                  ''
+                ).toString();
                 const fingerprintHint = shortFingerprint
-                  ? (shortFingerprint.length > 34 ? `${shortFingerprint.slice(0, 34)}…` : shortFingerprint)
+                  ? shortFingerprint.length > 34
+                    ? `${shortFingerprint.slice(0, 34)}…`
+                    : shortFingerprint
                   : '';
                 const details = [
                   nodeName && `node=${nodeName}`,
@@ -160,7 +183,9 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                   queryID && `qid=${queryID}`,
                   severity && `sev=${severity}`,
                   fingerprintHint && `fp=${fingerprintHint}`,
-                ].filter(Boolean).join(' · ');
+                ]
+                  .filter(Boolean)
+                  .join(' · ');
                 return (
                   <FormControlLabel
                     key={key}
@@ -172,7 +197,13 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                       />
                     }
                     label={
-                      <Box sx={{ minWidth: 0, maxWidth: '100%', overflow: 'hidden' }}>
+                      <Box
+                        sx={{
+                          minWidth: 0,
+                          maxWidth: '100%',
+                          overflow: 'hidden',
+                        }}
+                      >
                         <Typography
                           variant="caption"
                           sx={{
@@ -182,7 +213,9 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                             wordBreak: 'break-word',
                           }}
                         >
-                          {String(label).length > 40 ? `${String(label).slice(0, 40)}…` : label}
+                          {String(label).length > 40
+                            ? `${String(label).slice(0, 40)}…`
+                            : label}
                         </Typography>
                         {details && (
                           <Typography
@@ -200,7 +233,12 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                         )}
                       </Box>
                     }
-                    sx={{ m: 0, py: 0.25, alignItems: 'flex-start', maxWidth: '100%' }}
+                    sx={{
+                      m: 0,
+                      py: 0.25,
+                      alignItems: 'flex-start',
+                      maxWidth: '100%',
+                    }}
                   />
                 );
               })}

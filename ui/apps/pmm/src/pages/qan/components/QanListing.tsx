@@ -3,7 +3,10 @@ import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
 import type { MRT_ColumnDef } from 'material-react-table';
 import { useQanReport } from 'hooks/api/useQan';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import { getLabelQueryParams, DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
 import { qanMetricDisplayValue, qanMetricSparkline } from '../utils/qanMetrics';
 import { formatQanMetricFigure, qanColumnLabel } from '../utils/qanDisplay';
@@ -41,7 +44,10 @@ export const QanListing: FC = () => {
   const rows = data?.rows ?? [];
   const tableRows = rows.length > 1 ? rows : rows.length === 1 ? rows : [];
 
-  const sorting = useMemo(() => sortingFromOrderBy(state.orderBy), [state.orderBy]);
+  const sorting = useMemo(
+    () => sortingFromOrderBy(state.orderBy),
+    [state.orderBy]
+  );
   const pagination = useMemo(
     () => ({ pageIndex: state.pageNumber - 1, pageSize: state.pageSize }),
     [state.pageNumber, state.pageSize]
@@ -190,7 +196,8 @@ export const QanListing: FC = () => {
           manualSorting
           onSortingChange={(updater) => {
             const current = sortingFromOrderBy(state.orderBy);
-            const next = typeof updater === 'function' ? updater(current) : updater;
+            const next =
+              typeof updater === 'function' ? updater(current) : updater;
             const orderBy = orderByFromSorting(next);
             if (orderBy) actions.setOrderBy(orderBy);
           }}
@@ -198,7 +205,8 @@ export const QanListing: FC = () => {
           rowCount={data?.totalRows ?? 0}
           onPaginationChange={(updater) => {
             const current = pagination;
-            const next = typeof updater === 'function' ? updater(current) : updater;
+            const next =
+              typeof updater === 'function' ? updater(current) : updater;
             actions.setPage(next.pageIndex + 1, next.pageSize);
           }}
           muiTableContainerProps={{ sx: { flex: 1 } }}
@@ -206,7 +214,9 @@ export const QanListing: FC = () => {
             sx: {
               fontWeight: 500,
               fontSize: 16,
-              '&:not(:first-of-type):not(:nth-of-type(2))': { textAlign: 'right' },
+              '&:not(:first-of-type):not(:nth-of-type(2))': {
+                textAlign: 'right',
+              },
             },
           }}
           muiBottomToolbarProps={{

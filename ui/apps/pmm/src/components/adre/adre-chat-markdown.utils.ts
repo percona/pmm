@@ -44,7 +44,9 @@ function createPanelFetchQueue(maxConcurrent: number) {
   return { acquire, release };
 }
 
-export const panelFetchQueue = createPanelFetchQueue(PANEL_IMAGE_MAX_CONCURRENT);
+export const panelFetchQueue = createPanelFetchQueue(
+  PANEL_IMAGE_MAX_CONCURRENT
+);
 
 function toEpochMsOrOriginal(s: string): string {
   if (!s) return s;
@@ -95,7 +97,9 @@ export function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
       const path = renderSrc.startsWith('/') ? renderSrc : `/${renderSrc}`;
       const searchStart = path.indexOf('?');
       pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
-      params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+      params = new URLSearchParams(
+        searchStart === -1 ? '' : path.slice(searchStart + 1)
+      );
     }
 
     let uid: string | null = null;
@@ -130,7 +134,12 @@ export function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
 }
 
 export function isGrafanaRenderImageSrc(src: string): boolean {
-  if (src.includes(GRAFANA_RENDER_PATH) && src.includes('dashboard_uid=') && src.includes('panel_id=')) return true;
+  if (
+    src.includes(GRAFANA_RENDER_PATH) &&
+    src.includes('dashboard_uid=') &&
+    src.includes('panel_id=')
+  )
+    return true;
 
   return src.includes(GRAFANA_RENDER_D_SOLO) && src.includes('panelId=');
 }
@@ -167,7 +176,9 @@ export function parseRenderImageUrlToPanelKey(url: string): string | null {
       const path = url.startsWith('/') ? url : `/${url}`;
       const searchStart = path.indexOf('?');
       pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
-      params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+      params = new URLSearchParams(
+        searchStart === -1 ? '' : path.slice(searchStart + 1)
+      );
     }
     let uid: string | null = null;
     let panelId: string | null = null;

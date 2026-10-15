@@ -1,4 +1,10 @@
-export type QanGroupBy = 'queryid' | 'service_name' | 'database' | 'schema' | 'username' | 'client_host';
+export type QanGroupBy =
+  | 'queryid'
+  | 'service_name'
+  | 'database'
+  | 'schema'
+  | 'username'
+  | 'client_host';
 
 export type QanDetailsTab =
   | 'details'

@@ -10,7 +10,10 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { LogParserPreset, presetOperatorYaml } from 'api/logParserPresets';
-import { useAddLogParserPreset, useChangeLogParserPreset } from 'hooks/api/useLogParserPresets';
+import {
+  useAddLogParserPreset,
+  useChangeLogParserPreset,
+} from 'hooks/api/useLogParserPresets';
 import { apiErrorMessage } from 'utils/apiErrorMessage';
 import { Messages } from '../../Settings.messages';
 
@@ -48,7 +51,9 @@ export const LogParserPresetDialog: FC<{
     } else {
       setName(state.preset.name);
       setDescription(state.preset.description ?? '');
-      setOperatorYaml(presetOperatorYaml(state.preset) || DEFAULT_OPERATOR_YAML);
+      setOperatorYaml(
+        presetOperatorYaml(state.preset) || DEFAULT_OPERATOR_YAML
+      );
     }
   }, [state]);
 
@@ -74,7 +79,9 @@ export const LogParserPresetDialog: FC<{
       enqueueSnackbar(m.saved, { variant: 'success' });
       onClose();
     } catch (err) {
-      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), { variant: 'error' });
+      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), {
+        variant: 'error',
+      });
     }
   };
 

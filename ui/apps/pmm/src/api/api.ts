@@ -21,10 +21,7 @@ export const addApiErrorInterceptor = () => {
     errorInterceptor = api.interceptors.response.use(
       (response) => response,
       (error: AxiosError<{ error?: string; message?: string }>) => {
-        if (
-          error.response &&
-          error.response.status >= 400
-        ) {
+        if (error.response && error.response.status >= 400) {
           // pmm-managed's hand-written JSON handlers return {"error": "..."}, while gRPC-gateway
           // errors use {"message": "..."}. Prefer the real message over the generic fallback.
           let message =

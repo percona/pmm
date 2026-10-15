@@ -45,11 +45,11 @@ export const AdreBehaviorControlsBlock: FC<AdreBehaviorControlsBlockProps> = ({
         {title}
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        {description}{' '}
-        See your AI service documentation for{' '}
-        fast mode / prompt controls
-        . Clearing the map to <code>{'{}'}</code> in Advanced JSON makes PMM use the shipped preset for that mode when calling the AI backend. On the AI service container,{' '}
-        <code>ENABLED_PROMPTS</code> can still override what the API enables.
+        {description} See your AI service documentation for fast mode / prompt
+        controls . Clearing the map to <code>{'{}'}</code> in Advanced JSON
+        makes PMM use the shipped preset for that mode when calling the AI
+        backend. On the AI service container, <code>ENABLED_PROMPTS</code> can
+        still override what the API enables.
       </Typography>
       <Stack gap={0.5} sx={{ pl: 0.5 }}>
         {ADRE_BEHAVIOR_CONTROL_KEYS.map((key) => (
@@ -74,7 +74,11 @@ export const AdreBehaviorControlsBlock: FC<AdreBehaviorControlsBlockProps> = ({
           if (jsonDraft == null) return;
           try {
             const parsed = JSON.parse(jsonDraft) as unknown;
-            if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+            if (
+              parsed === null ||
+              typeof parsed !== 'object' ||
+              Array.isArray(parsed)
+            ) {
               throw new Error('Root value must be a JSON object');
             }
             const next: Record<string, boolean> = {};

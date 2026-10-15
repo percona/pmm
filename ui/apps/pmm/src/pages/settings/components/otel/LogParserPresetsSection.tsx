@@ -12,14 +12,21 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { FC, useMemo, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
-import { LogParserPreset, presetBuiltIn, presetUsageCount } from 'api/logParserPresets';
+import {
+  LogParserPreset,
+  presetBuiltIn,
+  presetUsageCount,
+} from 'api/logParserPresets';
 import {
   useLogParserPresets,
   useRemoveLogParserPreset,
 } from 'hooks/api/useLogParserPresets';
 import { apiErrorMessage } from 'utils/apiErrorMessage';
 import { Messages } from '../../Settings.messages';
-import { LogParserPresetDialog, PresetDialogState } from './LogParserPresetDialog';
+import {
+  LogParserPresetDialog,
+  PresetDialogState,
+} from './LogParserPresetDialog';
 
 export const LogParserPresetsSection: FC = () => {
   const { data: presets = [], isLoading, isError } = useLogParserPresets();
@@ -40,20 +47,31 @@ export const LogParserPresetsSection: FC = () => {
       await removePreset.mutateAsync(preset.id);
       enqueueSnackbar(m.deleted, { variant: 'success' });
     } catch (err) {
-      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), { variant: 'error' });
+      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), {
+        variant: 'error',
+      });
     }
   };
 
   return (
     <Box>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 2 }}
+      >
         <Box>
           <Typography variant="h6">{m.title}</Typography>
           <Typography variant="body2" color="text.secondary">
             {m.summary(counts.builtIn, counts.custom)} {m.rawNote}
           </Typography>
         </Box>
-        <Button startIcon={<AddIcon />} variant="outlined" onClick={() => setDialog({ mode: 'create' })}>
+        <Button
+          startIcon={<AddIcon />}
+          variant="outlined"
+          onClick={() => setDialog({ mode: 'create' })}
+        >
           {m.addButton}
         </Button>
       </Stack>
@@ -77,10 +95,21 @@ export const LogParserPresetsSection: FC = () => {
               direction="row"
               alignItems="center"
               gap={1}
-              sx={{ py: 1, px: 1.5, borderRadius: 1, border: 1, borderColor: 'divider' }}
+              sx={{
+                py: 1,
+                px: 1.5,
+                borderRadius: 1,
+                border: 1,
+                borderColor: 'divider',
+              }}
             >
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  gap={1}
+                  flexWrap="wrap"
+                >
                   <Typography variant="subtitle2">{preset.name}</Typography>
                   <Chip
                     size="small"
@@ -88,27 +117,45 @@ export const LogParserPresetsSection: FC = () => {
                     variant="outlined"
                   />
                   {presetUsageCount(preset) > 0 && (
-                    <Chip size="small" label={m.usedBy(presetUsageCount(preset))} variant="outlined" />
+                    <Chip
+                      size="small"
+                      label={m.usedBy(presetUsageCount(preset))}
+                      variant="outlined"
+                    />
                   )}
                 </Stack>
                 {!!preset.description && (
-                  <Typography variant="body2" color="text.secondary" noWrap title={preset.description}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    noWrap
+                    title={preset.description}
+                  >
                     {preset.description}
                   </Typography>
                 )}
               </Box>
               <Tooltip title={m.edit}>
-                <IconButton size="small" onClick={() => setDialog({ mode: 'edit', preset })}>
+                <IconButton
+                  size="small"
+                  onClick={() => setDialog({ mode: 'edit', preset })}
+                >
                   <EditOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               {!presetBuiltIn(preset) && (
-                <Tooltip title={presetUsageCount(preset) > 0 ? m.deleteBlocked : m.delete}>
+                <Tooltip
+                  title={
+                    presetUsageCount(preset) > 0 ? m.deleteBlocked : m.delete
+                  }
+                >
                   <span>
                     <IconButton
                       size="small"
                       onClick={() => onDelete(preset)}
-                      disabled={removePreset.isPending || presetUsageCount(preset) > 0}
+                      disabled={
+                        removePreset.isPending || presetUsageCount(preset) > 0
+                      }
                     >
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>

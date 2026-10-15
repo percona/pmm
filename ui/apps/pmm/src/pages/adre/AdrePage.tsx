@@ -1,7 +1,23 @@
-import { Alert, Box, Button, Card, CardContent, FormControlLabel, Link, Stack, Switch, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  FormControlLabel,
+  Link,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { FC, useState, useEffect } from 'react';
 import { Page } from 'components/page';
-import { useAdreSettings, useAdreAlerts, useUpdateAdreSettings } from 'hooks/api/useAdre';
+import {
+  useAdreSettings,
+  useAdreAlerts,
+  useUpdateAdreSettings,
+} from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
 import { AdreChatPanel } from './components/AdreChatPanel';
@@ -9,15 +25,21 @@ import { AdreAlertsPanel, type AlertItem } from './components/AdreAlertsPanel';
 
 /** True when the error is an HTTP 403 (assumes axios-style error.response.status). */
 function isForbiddenError(err: unknown): boolean {
-  return typeof err === 'object' && err != null && 'response' in err &&
-    (err as { response?: { status?: number } }).response?.status === 403;
+  return (
+    typeof err === 'object' &&
+    err != null &&
+    'response' in err &&
+    (err as { response?: { status?: number } }).response?.status === 403
+  );
 }
 
 const AdrePage: FC = () => {
   const { user } = useUser();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   const updateSettings = useUpdateAdreSettings();
-  const { alerts } = useAdreAlerts({ enabled: !!(settings?.enabled && settings?.url) });
+  const { alerts } = useAdreAlerts({
+    enabled: !!(settings?.enabled && settings?.url),
+  });
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
   const settingsEnabled = settings?.enabled;
@@ -60,10 +82,13 @@ const AdrePage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
-              Contact an administrator to configure the Autonomous Database Reliability
-              Engineer (ADRE) in PMM Settings.
+              Contact an administrator to configure the Autonomous Database
+              Reliability Engineer (ADRE) in PMM Settings.
             </Alert>
-            <Link href={PMM_SETTINGS_URL} sx={{ mt: 1, display: 'inline-block' }}>
+            <Link
+              href={PMM_SETTINGS_URL}
+              sx={{ mt: 1, display: 'inline-block' }}
+            >
               Open PMM Settings
             </Link>
           </CardContent>
@@ -79,8 +104,8 @@ const AdrePage: FC = () => {
           <CardContent>
             <Stack gap={2}>
               <Alert severity="info">
-                Configure the AI backend in Settings to enable the Autonomous Database
-                Reliability Engineer (ADRE). Set the service URL and
+                Configure the AI backend in Settings to enable the Autonomous
+                Database Reliability Engineer (ADRE). Set the service URL and
                 enable the feature.
               </Alert>
               {isAdmin && (

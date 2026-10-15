@@ -10,7 +10,10 @@ import {
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { FC } from 'react';
 import { CodeBlock } from '@percona/peak-ui';
-import { useQanPanelActions, useQanPanelState } from '../../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../../hooks/useQanPanelState';
 import { QanMetricsTab } from './QanMetricsTab';
 
 export const QanDetailsOverview: FC = () => {

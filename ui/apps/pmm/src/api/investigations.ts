@@ -241,7 +241,9 @@ export const deleteInvestigation = async (id: string): Promise<void> => {
 export const getInvestigationBlocks = async (
   id: string
 ): Promise<InvestigationBlock[]> => {
-  const res = await api.get<InvestigationBlock[]>(`/investigations/${id}/blocks`);
+  const res = await api.get<InvestigationBlock[]>(
+    `/investigations/${id}/blocks`
+  );
   return res.data;
 };
 
@@ -340,7 +342,9 @@ export const postInvestigationChat = async (
   return res.data;
 };
 
-export const postInvestigationRun = async (id: string): Promise<ChatResponse> => {
+export const postInvestigationRun = async (
+  id: string
+): Promise<ChatResponse> => {
   const res = await api.post<ChatResponse>(`/investigations/${id}/run`, {});
   return res.data;
 };
@@ -371,8 +375,9 @@ export const createServiceNowTicket = async (
 export const getInvestigationUsage = async (
   investigationId: string
 ): Promise<{ investigationId: string; events: InvestigationUsageEvent[] }> => {
-  const res = await api.get<{ investigationId: string; events: InvestigationUsageEvent[] }>(
-    `/investigations/${investigationId}/usage`
-  );
+  const res = await api.get<{
+    investigationId: string;
+    events: InvestigationUsageEvent[];
+  }>(`/investigations/${investigationId}/usage`);
   return res.data;
 };

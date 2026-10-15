@@ -9,7 +9,12 @@ import type {
 export interface QanPanelActions {
   setTimeRange: (from: number, to: number) => void;
   setLabels: (labels: QanLabelsMap) => void;
-  selectQuery: (queryId: string, fingerprint?: string, database?: string, totals?: boolean) => void;
+  selectQuery: (
+    queryId: string,
+    fingerprint?: string,
+    database?: string,
+    totals?: boolean
+  ) => void;
   closeDetails: () => void;
   setPage: (pageNumber: number, pageSize?: number) => void;
   setOrderBy: (orderBy: string) => void;

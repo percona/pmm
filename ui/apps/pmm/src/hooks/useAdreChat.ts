@@ -36,10 +36,17 @@ export interface UseAdreChatOptions {
 }
 
 function sessionKeyForContext(context: AdreChatContext): string {
-  return context === 'qan-aside' ? SESSION_CONV_ID_KEY_QAN_ASIDE : SESSION_CONV_ID_KEY;
+  return context === 'qan-aside'
+    ? SESSION_CONV_ID_KEY_QAN_ASIDE
+    : SESSION_CONV_ID_KEY;
 }
 
-export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
+export type ProgressStep = {
+  id: string;
+  toolName: string;
+  description?: string;
+  status: 'running' | 'done';
+};
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -58,7 +65,9 @@ function mapServerRowsToChat(messages: AdreMessageRow[]): ChatMessage[] {
     if (m.role !== 'user' && m.role !== 'assistant') continue;
     const usage = normalizeHolmesUsage(m);
     const hasUsage =
-      usage.totalTokens != null || usage.totalCost != null || (usage.model != null && usage.model !== '');
+      usage.totalTokens != null ||
+      usage.totalCost != null ||
+      (usage.model != null && usage.model !== '');
     out.push({
       role: m.role as 'user' | 'assistant',
       content: m.content,
@@ -95,14 +104,18 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
   const [searchHits, setSearchHits] = useState<AdreSearchHit[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   /** After loading history, AdreChatPanel scrolls to this server message id, then clears. */
-  const [scrollToMessageId, setScrollToMessageId] = useState<number | null>(null);
+  const [scrollToMessageId, setScrollToMessageId] = useState<number | null>(
+    null
+  );
   const streamStartTimeRef = useRef<number | null>(null);
   const progressStepsRef = useRef<ProgressStep[]>([]);
 
   const refreshConversations = useCallback(async () => {
     setConversationsLoading(true);
     try {
-      const { conversations: rows } = await listAdreConversations({ limit: 50 });
+      const { conversations: rows } = await listAdreConversations({
+        limit: 50,
+      });
       setConversations(rows ?? []);
     } catch {
       /* ignore list errors */
@@ -172,7 +185,10 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
     [loadMessagesFor, enqueueSnackbar, sessionStorageKey]
   );
 
-  const clearScrollToMessage = useCallback(() => setScrollToMessageId(null), []);
+  const clearScrollToMessage = useCallback(
+    () => setScrollToMessageId(null),
+    []
+  );
 
   const newChat = useCallback(async () => {
     try {
@@ -189,16 +205,21 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
       setChatError(null);
       await refreshConversations();
     } catch (e) {
-      enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
+      enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', {
+        variant: 'error',
+      });
     }
   }, [enqueueSnackbar, refreshConversations, sessionStorageKey]);
 
   const deleteConversation = useCallback(
     async (id: number) => {
-      if (!window.confirm('Delete this conversation? This cannot be undone.')) return;
+      if (!window.confirm('Delete this conversation? This cannot be undone.'))
+        return;
       try {
         await deleteAdreConversation(id);
-        const { conversations: rows } = await listAdreConversations({ limit: 50 });
+        const { conversations: rows } = await listAdreConversations({
+          limit: 50,
+        });
         setConversations(rows ?? []);
         if (conversationId === id) {
           const next = rows?.[0];
@@ -209,10 +230,18 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
           }
         }
       } catch (e) {
-        enqueueSnackbar(e instanceof Error ? e.message : 'Failed to delete conversation', { variant: 'error' });
+        enqueueSnackbar(
+          e instanceof Error ? e.message : 'Failed to delete conversation',
+          { variant: 'error' }
+        );
       }
     },
-    [conversationId, enqueueSnackbar, selectConversation, clearActiveConversation]
+    [
+      conversationId,
+      enqueueSnackbar,
+      selectConversation,
+      clearActiveConversation,
+    ]
   );
 
   /** Invalidates stale async work when the effect re-runs (e.g. React Strict Mode remount or ADRE disabled). */
@@ -229,7 +258,9 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
     const gen = ++adreInitGenRef.current;
     (async () => {
       try {
-        const { conversations: rows } = await listAdreConversations({ limit: 50 });
+        const { conversations: rows } = await listAdreConversations({
+          limit: 50,
+        });
         if (gen !== adreInitGenRef.current) return;
         setConversations(rows ?? []);
 
@@ -301,7 +332,10 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
           setHistory([]);
           await refreshConversations();
         } catch (e) {
-          enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
+          enqueueSnackbar(
+            e instanceof Error ? e.message : 'Failed to start chat',
+            { variant: 'error' }
+          );
           return;
         }
       }
@@ -315,7 +349,10 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
       streamStartTimeRef.current = Date.now();
 
       const userTimestamp = Date.now();
-      setHistory((prev: ChatMessage[]) => [...prev, { role: 'user', content: userAsk, timestamp: userTimestamp }]);
+      setHistory((prev: ChatMessage[]) => [
+        ...prev,
+        { role: 'user', content: userAsk, timestamp: userTimestamp },
+      ]);
 
       try {
         const modeRaw = options?.mode;
@@ -343,7 +380,12 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
           if (event.type === 'start_tool') {
             const next = [
               ...progressStepsRef.current,
-              { id: event.id, toolName: event.toolName, description: event.description, status: 'running' as const },
+              {
+                id: event.id,
+                toolName: event.toolName,
+                description: event.description,
+                status: 'running' as const,
+              },
             ];
             progressStepsRef.current = next;
             setProgressSteps(next);
@@ -365,9 +407,16 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
           },
           onProgress: handleProgress,
           onFrontendToolsRequired: async ({ pending_frontend_tool_calls }) => {
-            const results: Array<{ tool_call_id: string; tool_name: string; result: string }> = [];
+            const results: Array<{
+              tool_call_id: string;
+              tool_name: string;
+              result: string;
+            }> = [];
             for (const call of pending_frontend_tool_calls) {
-              const result = await executeFrontendTool(call.tool_name, call.arguments ?? {});
+              const result = await executeFrontendTool(
+                call.tool_name,
+                call.arguments ?? {}
+              );
               results.push({
                 tool_call_id: call.tool_call_id,
                 tool_name: call.tool_name,
@@ -383,9 +432,13 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
         let assistantUsage: HolmesUsage | undefined;
         let serverMessageId: number | undefined;
         try {
-          const { messages } = await getAdreMessages(activeConversationId, { limit: 20 });
+          const { messages } = await getAdreMessages(activeConversationId, {
+            limit: 20,
+          });
           const mapped = mapServerRowsToChat(messages);
-          const lastAsst = [...mapped].reverse().find((m) => m.role === 'assistant');
+          const lastAsst = [...mapped]
+            .reverse()
+            .find((m) => m.role === 'assistant');
           assistantUsage = lastAsst?.usage;
           serverMessageId = lastAsst?.serverMessageId;
         } catch {
@@ -399,7 +452,9 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
             content: fullResponse,
             timestamp: Date.now(),
             reasoning: fullReasoning || undefined,
-            ...(finalProgressSteps.length > 0 && { progressSteps: finalProgressSteps }),
+            ...(finalProgressSteps.length > 0 && {
+              progressSteps: finalProgressSteps,
+            }),
             ...(assistantUsage && { usage: assistantUsage }),
             ...(serverMessageId != null && { serverMessageId }),
           },
@@ -408,7 +463,8 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
         setReasoning('');
         void refreshConversations();
       } catch (err) {
-        const rawMessage = err instanceof Error ? err.message : 'Chat request failed';
+        const rawMessage =
+          err instanceof Error ? err.message : 'Chat request failed';
         const normalizedMessage = normalizeChatError(rawMessage);
         setChatError(normalizedMessage);
         enqueueSnackbar(normalizedMessage, { variant: 'error' });
@@ -424,7 +480,13 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
         streamStartTimeRef.current = null;
       }
     },
-    [conversationId, enqueueSnackbar, refreshConversations, loadMessagesFor, sessionStorageKey]
+    [
+      conversationId,
+      enqueueSnackbar,
+      refreshConversations,
+      loadMessagesFor,
+      sessionStorageKey,
+    ]
   );
 
   const allMessages: (ChatMessage & { streaming?: boolean })[] = [
@@ -498,7 +560,9 @@ function exploreLeftQueryParam(raw: string): string {
 }
 
 /** Holmes may emit snake_case arguments; handlers expect camelCase. */
-function normalizeFrontendToolArgs(raw: Record<string, unknown>): Record<string, unknown> {
+function normalizeFrontendToolArgs(
+  raw: Record<string, unknown>
+): Record<string, unknown> {
   const a = { ...raw };
   const copy = (from: string, to: string) => {
     if (a[to] == null && a[from] != null) a[to] = a[from];
@@ -518,11 +582,16 @@ async function executeFrontendTool(
   args: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
   const argsNorm = normalizeFrontendToolArgs(args);
-  const audit = (outcome: 'success' | 'denied' | 'error', details?: Record<string, unknown>) => {
+  const audit = (
+    outcome: 'success' | 'denied' | 'error',
+    details?: Record<string, unknown>
+  ) => {
     try {
       const key = 'pmm-adre-frontend-tool-audit';
       const raw = localStorage.getItem(key);
-      const arr = raw ? (JSON.parse(raw) as Array<Record<string, unknown>>) : [];
+      const arr = raw
+        ? (JSON.parse(raw) as Array<Record<string, unknown>>)
+        : [];
       arr.push({
         ts: new Date().toISOString(),
         tool: toolName,
@@ -549,7 +618,9 @@ async function executeFrontendTool(
           argsNorm.vars && typeof argsNorm.vars === 'object'
             ? (argsNorm.vars as Record<string, unknown>)
             : {};
-        Object.entries(vars).forEach(([k, v]) => params.set(`var-${k}`, String(v)));
+        Object.entries(vars).forEach(([k, v]) =>
+          params.set(`var-${k}`, String(v))
+        );
         const q = params.toString();
         window.open(`/graph/d/${uid}${q ? `?${q}` : ''}`, '_self');
         audit('success');
@@ -564,7 +635,10 @@ async function executeFrontendTool(
       case 'pmm_ui_open_investigation': {
         const id = String(argsNorm.id ?? '').trim();
         if (!id) return { ok: false, error: 'id is required' };
-        window.open(`${PMM_BASE_PATH}/investigations/${encodeURIComponent(id)}`, '_self');
+        window.open(
+          `${PMM_BASE_PATH}/investigations/${encodeURIComponent(id)}`,
+          '_self'
+        );
         audit('success');
         return { ok: true };
       }
@@ -600,7 +674,9 @@ async function executeFrontendTool(
         const directUrl = String(argsNorm.url ?? '').trim();
         const ticketId = String(argsNorm.ticketId ?? '').trim();
         const instanceUrl = String(argsNorm.instanceUrl ?? '').trim();
-        const approved = window.confirm('AI requested opening/creating a ServiceNow ticket. Continue?');
+        const approved = window.confirm(
+          'AI requested opening/creating a ServiceNow ticket. Continue?'
+        );
         if (!approved) {
           audit('denied');
           return { ok: false, error: 'user denied action' };
@@ -620,9 +696,15 @@ async function executeFrontendTool(
         const invID = String(argsNorm.investigationId ?? '').trim();
         if (!invID) {
           audit('error', { error: 'missing URL/ticketId context' });
-          return { ok: false, error: 'url or (ticketId + instanceUrl) is required' };
+          return {
+            ok: false,
+            error: 'url or (ticketId + instanceUrl) is required',
+          };
         }
-        window.open(`${PMM_BASE_PATH}/investigations/${encodeURIComponent(invID)}`, '_self');
+        window.open(
+          `${PMM_BASE_PATH}/investigations/${encodeURIComponent(invID)}`,
+          '_self'
+        );
         audit('success', { mode: 'fallback_investigation' });
         return { ok: true };
       }
@@ -630,7 +712,11 @@ async function executeFrontendTool(
         const raw = await getAdreAlerts();
         const { value, truncated } = compactAdreAlertsForToolResult(raw);
         audit('success', { truncated });
-        return { ok: true, alerts: value, ...(truncated && { truncated: true }) };
+        return {
+          ok: true,
+          alerts: value,
+          ...(truncated && { truncated: true }),
+        };
       }
       case 'pmm_ui_render_graph': {
         const panelId = String(argsNorm.panelId ?? '').trim();
@@ -647,15 +733,27 @@ async function executeFrontendTool(
           return { ok: true, rendered: true };
         }
         audit('success', { rendered: false });
-        return { ok: true, rendered: false, reason: 'Missing dashboardUid/panelId for graph rendering' };
+        return {
+          ok: true,
+          rendered: false,
+          reason: 'Missing dashboardUid/panelId for graph rendering',
+        };
       }
       default:
         audit('error', { error: 'unknown tool' });
-        return { ok: false, error: `unknown frontend tool: ${toolName} (resolved: ${resolvedTool})` };
+        return {
+          ok: false,
+          error: `unknown frontend tool: ${toolName} (resolved: ${resolvedTool})`,
+        };
     }
   } catch (e) {
-    audit('error', { error: e instanceof Error ? e.message : 'execution failed' });
-    return { ok: false, error: e instanceof Error ? e.message : 'execution failed' };
+    audit('error', {
+      error: e instanceof Error ? e.message : 'execution failed',
+    });
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : 'execution failed',
+    };
   }
 }
 
@@ -687,7 +785,16 @@ export function formatTimestamp(ts: number): string {
   const diff = now - ts;
   if (diff < 60_000) return 'Just now';
   if (diff < 3600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86400_000) return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  if (diff < 86400_000)
+    return d.toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }

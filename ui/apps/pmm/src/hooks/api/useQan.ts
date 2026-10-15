@@ -25,7 +25,8 @@ export const QAN_KEYS = {
   }) => ['qan', 'filters', params] as const,
   metricNames: (mainMetric: string, groupBy: string) =>
     ['qan', 'metricNames', mainMetric, groupBy] as const,
-  metrics: (params: QanGetMetricsRequest) => ['qan', 'metrics', params] as const,
+  metrics: (params: QanGetMetricsRequest) =>
+    ['qan', 'metrics', params] as const,
   examples: (params: {
     filterBy: string;
     groupBy: string;
@@ -75,7 +76,11 @@ export function useQanFilters(
   });
 }
 
-export function useQanMetricNames(mainMetric: string, groupBy: string, enabled = true) {
+export function useQanMetricNames(
+  mainMetric: string,
+  groupBy: string,
+  enabled = true
+) {
   return useQuery({
     queryKey: QAN_KEYS.metricNames(mainMetric, groupBy),
     queryFn: () => getQanMetricNames({ mainMetricName: mainMetric, groupBy }),

@@ -17,7 +17,9 @@ export const ADRE_BEHAVIOR_CONTROL_KEYS = [
   'time_skills',
 ] as const;
 
-export type AdreBehaviorControlsMap = Partial<Record<(typeof ADRE_BEHAVIOR_CONTROL_KEYS)[number], boolean>>;
+export type AdreBehaviorControlsMap = Partial<
+  Record<(typeof ADRE_BEHAVIOR_CONTROL_KEYS)[number], boolean>
+>;
 
 export interface AdreSettings {
   enabled: boolean;
@@ -230,11 +232,16 @@ export const getAdreUsageEvents = async (params?: {
   investigationId?: string;
   format?: string;
 }): Promise<{ events: AdreUsageEvent[] }> => {
-  const res = await api.get<{ events: AdreUsageEvent[] }>('/adre/usage/events', { params });
+  const res = await api.get<{ events: AdreUsageEvent[] }>(
+    '/adre/usage/events',
+    { params }
+  );
   return res.data;
 };
 
-export function normalizeHolmesUsage(row: Partial<HolmesUsage & AdreMessageRow>): HolmesUsage {
+export function normalizeHolmesUsage(
+  row: Partial<HolmesUsage & AdreMessageRow>
+): HolmesUsage {
   return {
     model: row.model,
     promptTokens: row.promptTokens ?? row.prompt_tokens,
@@ -265,7 +272,10 @@ export const getAdreModels = async (): Promise<string[]> => {
 export const adreQanInsights = async (
   body: AdreQanInsightsRequest
 ): Promise<AdreQanInsightsResponse> => {
-  const res = await api.post<AdreQanInsightsResponse>('/adre/qan-insights', body);
+  const res = await api.post<AdreQanInsightsResponse>(
+    '/adre/qan-insights',
+    body
+  );
   return res.data;
 };
 
@@ -284,7 +294,10 @@ export const getQanInsightsCache = async (
 };
 
 /** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */
-export type AdreChatStreamCallback = (content?: string, reasoning?: string) => void;
+export type AdreChatStreamCallback = (
+  content?: string,
+  reasoning?: string
+) => void;
 
 /** Progress event when HolmesGPT starts or finishes a tool call (SSE events start_tool_calling, tool_calling_result). */
 export interface AdreStreamProgressEvent {
@@ -306,7 +319,9 @@ export interface AdreChatStreamOptions {
       arguments?: Record<string, unknown>;
     }>;
     conversation_history: unknown[];
-  }) => Promise<Array<{ tool_call_id: string; tool_name: string; result: string }>>;
+  }) => Promise<
+    Array<{ tool_call_id: string; tool_name: string; result: string }>
+  >;
 }
 
 export const adreChatStream = async (
@@ -317,9 +332,14 @@ export const adreChatStream = async (
     typeof onChunkOrOptions === 'function'
       ? onChunkOrOptions
       : onChunkOrOptions.onChunk;
-  const onProgress = typeof onChunkOrOptions === 'function' ? undefined : onChunkOrOptions.onProgress;
+  const onProgress =
+    typeof onChunkOrOptions === 'function'
+      ? undefined
+      : onChunkOrOptions.onProgress;
   const onFrontendToolsRequired =
-    typeof onChunkOrOptions === 'function' ? undefined : onChunkOrOptions.onFrontendToolsRequired;
+    typeof onChunkOrOptions === 'function'
+      ? undefined
+      : onChunkOrOptions.onFrontendToolsRequired;
 
   const response = await fetch('/v1/adre/chat', {
     method: 'POST',
@@ -360,7 +380,8 @@ export const adreChatStream = async (
             type: 'start_tool',
             id,
             toolName,
-            description: typeof o.description === 'string' ? o.description : undefined,
+            description:
+              typeof o.description === 'string' ? o.description : undefined,
           });
         } catch {
           // ignore parse errors
@@ -370,14 +391,19 @@ export const adreChatStream = async (
       if (lastEvent === 'tool_calling_result' && trimmed.startsWith('{')) {
         try {
           const o = JSON.parse(trimmed) as Record<string, unknown>;
-          const toolCallId = typeof o.tool_call_id === 'string' ? o.tool_call_id : '';
+          const toolCallId =
+            typeof o.tool_call_id === 'string' ? o.tool_call_id : '';
           const name = typeof o.name === 'string' ? o.name : '';
-          const result = o.result && typeof o.result === 'object' ? (o.result as AdreStreamProgressEvent['result']) : undefined;
+          const result =
+            o.result && typeof o.result === 'object'
+              ? (o.result as AdreStreamProgressEvent['result'])
+              : undefined;
           onProgress?.({
             type: 'tool_result',
             id: toolCallId,
             toolName: name,
-            description: typeof o.description === 'string' ? o.description : undefined,
+            description:
+              typeof o.description === 'string' ? o.description : undefined,
             result,
           });
         } catch {
@@ -405,7 +431,10 @@ export const adreChatStream = async (
             }>;
             conversation_history?: unknown[];
           };
-          if (onFrontendToolsRequired && (o.pending_frontend_tool_calls?.length ?? 0) > 0) {
+          if (
+            onFrontendToolsRequired &&
+            (o.pending_frontend_tool_calls?.length ?? 0) > 0
+          ) {
             const results = await onFrontendToolsRequired({
               pending_frontend_tool_calls: o.pending_frontend_tool_calls ?? [],
               conversation_history: o.conversation_history ?? [],
@@ -499,14 +528,22 @@ export const listAdreConversations = async (params?: {
   cursor?: string;
   q?: string;
 }): Promise<{ conversations: AdreConversation[]; nextCursor?: string }> => {
-  const res = await api.get<{ conversations: AdreConversation[]; nextCursor?: string }>('/adre/conversations', {
+  const res = await api.get<{
+    conversations: AdreConversation[];
+    nextCursor?: string;
+  }>('/adre/conversations', {
     params,
   });
   return res.data;
 };
 
-export const createAdreConversation = async (body?: { title?: string }): Promise<AdreConversation> => {
-  const res = await api.post<AdreConversation>('/adre/conversations', body ?? {});
+export const createAdreConversation = async (body?: {
+  title?: string;
+}): Promise<AdreConversation> => {
+  const res = await api.post<AdreConversation>(
+    '/adre/conversations',
+    body ?? {}
+  );
   return res.data;
 };
 
@@ -526,9 +563,12 @@ export const getAdreMessages = async (
   conversationId: number,
   params?: { limit?: number; before?: number; after?: number }
 ): Promise<{ messages: AdreMessageRow[] }> => {
-  const res = await api.get<{ messages: AdreMessageRow[] }>(`/adre/conversations/${conversationId}/messages`, {
-    params,
-  });
+  const res = await api.get<{ messages: AdreMessageRow[] }>(
+    `/adre/conversations/${conversationId}/messages`,
+    {
+      params,
+    }
+  );
   return res.data;
 };
 
@@ -536,9 +576,12 @@ export const searchAdreMessages = async (
   q: string,
   limit?: number
 ): Promise<{ hits: AdreSearchHit[] }> => {
-  const res = await api.get<{ hits: AdreSearchHit[] }>('/adre/messages/search', {
-    params: { q, limit },
-  });
+  const res = await api.get<{ hits: AdreSearchHit[] }>(
+    '/adre/messages/search',
+    {
+      params: { q, limit },
+    }
+  );
   return res.data;
 };
 
@@ -592,7 +635,8 @@ function formatHolmesStreamError(data: string): string {
     try {
       const o = JSON.parse(trimmed) as Record<string, unknown>;
       const msg = typeof o.msg === 'string' ? o.msg.trim() : '';
-      const desc = typeof o.description === 'string' ? o.description.trim() : '';
+      const desc =
+        typeof o.description === 'string' ? o.description.trim() : '';
       const code = o.error_code != null ? String(o.error_code) : '';
       const parts = [msg, desc].filter((p) => p.length > 0);
       let out = parts.length > 0 ? parts.join(' — ') : 'Request failed';
@@ -613,7 +657,12 @@ function parseSSEData(data: string): { content?: string; reasoning?: string } {
     try {
       const o = JSON.parse(trimmed) as Record<string, unknown>;
       const contentRaw =
-        o.text ?? o.delta ?? o.content ?? o.analysis ?? flattenInstructions(o.instructions) ?? flattenSections(o.sections);
+        o.text ??
+        o.delta ??
+        o.content ??
+        o.analysis ??
+        flattenInstructions(o.instructions) ??
+        flattenSections(o.sections);
       const content = stringFromValue(contentRaw);
       const reasoningRaw = o.reasoning ?? o.thinking ?? o.thought;
       const reasoning = stringFromValue(reasoningRaw);
@@ -652,7 +701,12 @@ function flattenSections(v: unknown): string | undefined {
 
 function stringFromValue(v: unknown): string | undefined {
   if (typeof v === 'string') return v;
-  if (v && typeof v === 'object' && 'content' in v && typeof (v as { content: unknown }).content === 'string') {
+  if (
+    v &&
+    typeof v === 'object' &&
+    'content' in v &&
+    typeof (v as { content: unknown }).content === 'string'
+  ) {
     return (v as { content: string }).content;
   }
   return undefined;
@@ -737,19 +791,29 @@ export const getAdreDeployment = async (): Promise<AdreDeployment> => {
   return res.data;
 };
 
-export const updateAdreDeploymentConfig = async (configYaml: string): Promise<AdreReloadOutcome> => {
-  const res = await api.put<{ reload?: AdreReloadOutcome }>('/adre/deployment/config', { configYaml });
+export const updateAdreDeploymentConfig = async (
+  configYaml: string
+): Promise<AdreReloadOutcome> => {
+  const res = await api.put<{ reload?: AdreReloadOutcome }>(
+    '/adre/deployment/config',
+    { configYaml }
+  );
   return reloadFrom(res.data);
 };
 
 export const updateAdreDeploymentModels = async (
   models: AdreDeploymentModelInput[]
 ): Promise<AdreReloadOutcome> => {
-  const res = await api.put<{ reload?: AdreReloadOutcome }>('/adre/deployment/models', { models });
+  const res = await api.put<{ reload?: AdreReloadOutcome }>(
+    '/adre/deployment/models',
+    { models }
+  );
   return reloadFrom(res.data);
 };
 
-export const deleteAdreDeploymentModel = async (name: string): Promise<AdreReloadOutcome> => {
+export const deleteAdreDeploymentModel = async (
+  name: string
+): Promise<AdreReloadOutcome> => {
   const res = await api.delete<{ reload?: AdreReloadOutcome }>(
     `/adre/deployment/models/${encodeURIComponent(name)}`
   );
@@ -759,7 +823,10 @@ export const deleteAdreDeploymentModel = async (name: string): Promise<AdreReloa
 export const updateAdreDeploymentPmmUrl = async (
   pmmUrl: string
 ): Promise<{ restartRequired: boolean }> => {
-  const res = await api.put<{ restartRequired?: boolean }>('/adre/deployment/provisioning', { pmmUrl });
+  const res = await api.put<{ restartRequired?: boolean }>(
+    '/adre/deployment/provisioning',
+    { pmmUrl }
+  );
   return { restartRequired: res.data.restartRequired ?? false };
 };
 
@@ -773,7 +840,9 @@ export const upsertAdreDeploymentSkill = async (
   return reloadFrom(res.data);
 };
 
-export const deleteAdreDeploymentSkill = async (name: string): Promise<AdreReloadOutcome> => {
+export const deleteAdreDeploymentSkill = async (
+  name: string
+): Promise<AdreReloadOutcome> => {
   const res = await api.delete<{ reload?: AdreReloadOutcome }>(
     `/adre/deployment/skills/${encodeURIComponent(name)}`
   );
@@ -781,7 +850,10 @@ export const deleteAdreDeploymentSkill = async (name: string): Promise<AdreReloa
 };
 
 export const applyAdreDeployment = async (): Promise<AdreReloadOutcome> => {
-  const res = await api.post<{ reload?: AdreReloadOutcome }>('/adre/deployment/apply', {});
+  const res = await api.post<{ reload?: AdreReloadOutcome }>(
+    '/adre/deployment/apply',
+    {}
+  );
   return reloadFrom(res.data);
 };
 

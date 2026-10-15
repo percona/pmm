@@ -15,13 +15,15 @@ export function getActiveFilterChips(labels: QanLabelsMap): QanFilterChip[] {
   const chips: QanFilterChip[] = [];
   Object.entries(labels).forEach(([key, values]) => {
     if (key === 'interval' || key === 'by') return;
-    asStringList(values).filter(hasAllValueOrText).forEach((value) => {
-      chips.push({
-        key,
-        value,
-        label: `${key === 'service_id' ? 'service' : key.replace(/_/g, ' ')}: ${value}`,
+    asStringList(values)
+      .filter(hasAllValueOrText)
+      .forEach((value) => {
+        chips.push({
+          key,
+          value,
+          label: `${key === 'service_id' ? 'service' : key.replace(/_/g, ' ')}: ${value}`,
+        });
       });
-    });
   });
   return chips;
 }

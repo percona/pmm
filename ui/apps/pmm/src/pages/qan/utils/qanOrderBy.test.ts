@@ -10,10 +10,14 @@ describe('qanOrderBy', () => {
   });
 
   it('encodes MRT descending sort as API order_by with minus prefix', () => {
-    expect(orderByFromSorting([{ id: 'query_time', desc: true }])).toBe('-query_time');
+    expect(orderByFromSorting([{ id: 'query_time', desc: true }])).toBe(
+      '-query_time'
+    );
   });
 
   it('encodes MRT ascending sort as API order_by without prefix', () => {
-    expect(orderByFromSorting([{ id: 'query_time', desc: false }])).toBe('query_time');
+    expect(orderByFromSorting([{ id: 'query_time', desc: false }])).toBe(
+      'query_time'
+    );
   });
 });

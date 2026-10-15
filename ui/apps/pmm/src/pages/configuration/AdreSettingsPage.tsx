@@ -22,7 +22,11 @@ import {
 } from '@mui/material';
 import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import { Page } from 'components/page';
-import { useAdreModels, useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
+import {
+  useAdreModels,
+  useAdreSettings,
+  useUpdateAdreSettings,
+} from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
 import { AdreBehaviorControlsBlock } from 'pages/configuration/AdreBehaviorControlsBlock';
 import { hydrateAdreBehaviorMap } from 'pages/configuration/AdreBehaviorControlsBlock.utils';
@@ -76,20 +80,25 @@ const AdreSettingsPage: FC = () => {
   const [localTlsSkipVerify, setLocalTlsSkipVerify] = useState(
     settings?.tlsSkipVerify ?? settings?.tls_skip_verify ?? false
   );
-  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('investigation');
+  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<
+    'fast' | 'investigation'
+  >('investigation');
   const [localFastModel, setLocalFastModel] = useState('');
   const [localInvestigationModel, setLocalInvestigationModel] = useState('');
   const [localQanInsightsModel, setLocalQanInsightsModel] = useState('');
-  const [localAdreMaxConversationMessages, setLocalAdreMaxConversationMessages] = useState(40);
-  const [localBehaviorFast, setLocalBehaviorFast] = useState<Record<string, boolean>>(() =>
-    hydrateAdreBehaviorMap(undefined, 'fast')
-  );
-  const [localBehaviorInvestigation, setLocalBehaviorInvestigation] = useState<Record<string, boolean>>(() =>
-    hydrateAdreBehaviorMap(undefined, 'investigation')
-  );
-  const [localBehaviorFormat, setLocalBehaviorFormat] = useState<Record<string, boolean>>(() =>
-    hydrateAdreBehaviorMap(undefined, 'format')
-  );
+  const [
+    localAdreMaxConversationMessages,
+    setLocalAdreMaxConversationMessages,
+  ] = useState(40);
+  const [localBehaviorFast, setLocalBehaviorFast] = useState<
+    Record<string, boolean>
+  >(() => hydrateAdreBehaviorMap(undefined, 'fast'));
+  const [localBehaviorInvestigation, setLocalBehaviorInvestigation] = useState<
+    Record<string, boolean>
+  >(() => hydrateAdreBehaviorMap(undefined, 'investigation'));
+  const [localBehaviorFormat, setLocalBehaviorFormat] = useState<
+    Record<string, boolean>
+  >(() => hydrateAdreBehaviorMap(undefined, 'format'));
   const [localChatPrompt, setLocalChatPrompt] = useState(
     settings?.chatPromptDisplay ?? settings?.chatPrompt ?? ''
   );
@@ -100,10 +109,13 @@ const AdreSettingsPage: FC = () => {
     settings?.qanInsightsPromptDisplay ?? settings?.qanInsightsPrompt ?? ''
   );
   const [localServiceNowURL, setLocalServiceNowURL] = useState(
-    settings?.servicenowUrl ?? settings?.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
+    settings?.servicenowUrl ??
+      settings?.servicenow_url ??
+      'https://perconadev.service-now.com/api/pellc/percona_connector/create'
   );
   const [localServiceNowAPIKey, setLocalServiceNowAPIKey] = useState('');
-  const [localServiceNowClientToken, setLocalServiceNowClientToken] = useState('');
+  const [localServiceNowClientToken, setLocalServiceNowClientToken] =
+    useState('');
   const [localPromptMaxBytes, setLocalPromptMaxBytes] = useState(
     settings?.promptMaxBytes ?? settings?.prompt_max_bytes ?? 16 * 1024
   );
@@ -116,61 +128,120 @@ const AdreSettingsPage: FC = () => {
   const [localSlackBotToken, setLocalSlackBotToken] = useState('');
   const [localSlackAppToken, setLocalSlackAppToken] = useState('');
   const [localSlackAllowedChannels, setLocalSlackAllowedChannels] = useState(
-    (settings?.slackAllowedChannels ?? settings?.slack_allowed_channels ?? []).join('\n')
+    (
+      settings?.slackAllowedChannels ??
+      settings?.slack_allowed_channels ??
+      []
+    ).join('\n')
   );
   const [localSlackAllowedUsers, setLocalSlackAllowedUsers] = useState(
-    (settings?.slackAllowedUsers ?? settings?.slack_allowed_users ?? []).join('\n')
+    (settings?.slackAllowedUsers ?? settings?.slack_allowed_users ?? []).join(
+      '\n'
+    )
   );
-  const [localSlackAutoInvestigateChannels, setLocalSlackAutoInvestigateChannels] = useState(
-    (settings?.slackAutoInvestigateChannels ?? settings?.slack_auto_investigate_channels ?? []).join('\n')
+  const [
+    localSlackAutoInvestigateChannels,
+    setLocalSlackAutoInvestigateChannels,
+  ] = useState(
+    (
+      settings?.slackAutoInvestigateChannels ??
+      settings?.slack_auto_investigate_channels ??
+      []
+    ).join('\n')
   );
   const [localSlackAlertBotIds, setLocalSlackAlertBotIds] = useState(
-    (settings?.slackAlertBotIds ?? settings?.slack_alert_bot_ids ?? []).join('\n')
+    (settings?.slackAlertBotIds ?? settings?.slack_alert_bot_ids ?? []).join(
+      '\n'
+    )
   );
-  const [localAutoInvestigateMinSeverity, setLocalAutoInvestigateMinSeverity] = useState(
-    settings?.autoInvestigateMinSeverity ?? settings?.auto_investigate_min_severity ?? ''
+  const [localAutoInvestigateMinSeverity, setLocalAutoInvestigateMinSeverity] =
+    useState(
+      settings?.autoInvestigateMinSeverity ??
+        settings?.auto_investigate_min_severity ??
+        ''
+    );
+  const [
+    localAutoInvestigateLabelMatchers,
+    setLocalAutoInvestigateLabelMatchers,
+  ] = useState(
+    (
+      settings?.autoInvestigateLabelMatchers ??
+      settings?.auto_investigate_label_matchers ??
+      []
+    ).join('\n')
   );
-  const [localAutoInvestigateLabelMatchers, setLocalAutoInvestigateLabelMatchers] = useState(
-    (settings?.autoInvestigateLabelMatchers ?? settings?.auto_investigate_label_matchers ?? []).join('\n')
-  );
-  const [localAutoInvestigateHourlyCap, setLocalAutoInvestigateHourlyCap] = useState(
-    settings?.autoInvestigateHourlyCap ?? settings?.auto_investigate_hourly_cap ?? 0
-  );
+  const [localAutoInvestigateHourlyCap, setLocalAutoInvestigateHourlyCap] =
+    useState(
+      settings?.autoInvestigateHourlyCap ??
+        settings?.auto_investigate_hourly_cap ??
+        0
+    );
 
   useEffect(() => {
     if (settings) {
       setLocalEnabled(settings.enabled);
       setLocalUrl(settings.url ?? '');
-      setLocalTlsSkipVerify(settings.tlsSkipVerify ?? settings.tls_skip_verify ?? false);
+      setLocalTlsSkipVerify(
+        settings.tlsSkipVerify ?? settings.tls_skip_verify ?? false
+      );
       const dm =
         settings.defaultChatMode ??
-        (settings.default_chat_mode === 'investigation' ? 'investigation' : 'fast');
-      setLocalDefaultChatMode(dm === 'investigation' ? 'investigation' : 'fast');
+        (settings.default_chat_mode === 'investigation'
+          ? 'investigation'
+          : 'fast');
+      setLocalDefaultChatMode(
+        dm === 'investigation' ? 'investigation' : 'fast'
+      );
       setLocalFastModel(settings.chatModel ?? settings.chat_model ?? '');
-      setLocalInvestigationModel(settings.investigationModel ?? settings.investigation_model ?? '');
-      setLocalQanInsightsModel(settings.qanInsightsModel ?? settings.qan_insights_model ?? '');
+      setLocalInvestigationModel(
+        settings.investigationModel ?? settings.investigation_model ?? ''
+      );
+      setLocalQanInsightsModel(
+        settings.qanInsightsModel ?? settings.qan_insights_model ?? ''
+      );
       setLocalAdreMaxConversationMessages(
         settings.adreMaxConversationMessages ??
           settings.adre_max_conversation_messages ??
           40
       );
       setLocalBehaviorFast(
-        hydrateAdreBehaviorMap(behaviorFromSettings(settings, 'behaviorControlsFast', 'behavior_controls_fast'), 'fast')
+        hydrateAdreBehaviorMap(
+          behaviorFromSettings(
+            settings,
+            'behaviorControlsFast',
+            'behavior_controls_fast'
+          ),
+          'fast'
+        )
       );
       setLocalBehaviorInvestigation(
         hydrateAdreBehaviorMap(
-          behaviorFromSettings(settings, 'behaviorControlsInvestigation', 'behavior_controls_investigation'),
+          behaviorFromSettings(
+            settings,
+            'behaviorControlsInvestigation',
+            'behavior_controls_investigation'
+          ),
           'investigation'
         )
       );
       setLocalBehaviorFormat(
         hydrateAdreBehaviorMap(
-          behaviorFromSettings(settings, 'behaviorControlsFormatReport', 'behavior_controls_format_report'),
+          behaviorFromSettings(
+            settings,
+            'behaviorControlsFormatReport',
+            'behavior_controls_format_report'
+          ),
           'format'
         )
       );
-      setLocalChatPrompt(settings.chatPromptDisplay ?? settings.chatPrompt ?? '');
-      setLocalInvestigationPrompt(settings.investigationPromptDisplay ?? settings.investigationPrompt ?? '');
+      setLocalChatPrompt(
+        settings.chatPromptDisplay ?? settings.chatPrompt ?? ''
+      );
+      setLocalInvestigationPrompt(
+        settings.investigationPromptDisplay ??
+          settings.investigationPrompt ??
+          ''
+      );
       setLocalQanInsightsPrompt(
         settings.qanInsightsPromptDisplay ??
           settings.qanInsightsPrompt ??
@@ -179,35 +250,63 @@ const AdreSettingsPage: FC = () => {
           ''
       );
       setLocalServiceNowURL(
-        settings.servicenowUrl ?? settings.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
+        settings.servicenowUrl ??
+          settings.servicenow_url ??
+          'https://perconadev.service-now.com/api/pellc/percona_connector/create'
       );
-      setLocalPromptMaxBytes(settings.promptMaxBytes ?? settings.prompt_max_bytes ?? 16 * 1024);
-      setLocalSlackEnabled(settings.slackEnabled ?? settings.slack_enabled ?? false);
+      setLocalPromptMaxBytes(
+        settings.promptMaxBytes ?? settings.prompt_max_bytes ?? 16 * 1024
+      );
+      setLocalSlackEnabled(
+        settings.slackEnabled ?? settings.slack_enabled ?? false
+      );
       setLocalSlackAutoInvestigate(
-        settings.slackAutoInvestigate ?? settings.slack_auto_investigate ?? false
+        settings.slackAutoInvestigate ??
+          settings.slack_auto_investigate ??
+          false
       );
       setLocalSlackBotToken('');
       setLocalSlackAppToken('');
       setLocalSlackAllowedChannels(
-        (settings.slackAllowedChannels ?? settings.slack_allowed_channels ?? []).join('\n')
+        (
+          settings.slackAllowedChannels ??
+          settings.slack_allowed_channels ??
+          []
+        ).join('\n')
       );
       setLocalSlackAllowedUsers(
-        (settings.slackAllowedUsers ?? settings.slack_allowed_users ?? []).join('\n')
+        (settings.slackAllowedUsers ?? settings.slack_allowed_users ?? []).join(
+          '\n'
+        )
       );
       setLocalSlackAutoInvestigateChannels(
-        (settings.slackAutoInvestigateChannels ?? settings.slack_auto_investigate_channels ?? []).join('\n')
+        (
+          settings.slackAutoInvestigateChannels ??
+          settings.slack_auto_investigate_channels ??
+          []
+        ).join('\n')
       );
       setLocalSlackAlertBotIds(
-        (settings.slackAlertBotIds ?? settings.slack_alert_bot_ids ?? []).join('\n')
+        (settings.slackAlertBotIds ?? settings.slack_alert_bot_ids ?? []).join(
+          '\n'
+        )
       );
       setLocalAutoInvestigateMinSeverity(
-        settings.autoInvestigateMinSeverity ?? settings.auto_investigate_min_severity ?? ''
+        settings.autoInvestigateMinSeverity ??
+          settings.auto_investigate_min_severity ??
+          ''
       );
       setLocalAutoInvestigateLabelMatchers(
-        (settings.autoInvestigateLabelMatchers ?? settings.auto_investigate_label_matchers ?? []).join('\n')
+        (
+          settings.autoInvestigateLabelMatchers ??
+          settings.auto_investigate_label_matchers ??
+          []
+        ).join('\n')
       );
       setLocalAutoInvestigateHourlyCap(
-        settings.autoInvestigateHourlyCap ?? settings.auto_investigate_hourly_cap ?? 0
+        settings.autoInvestigateHourlyCap ??
+          settings.auto_investigate_hourly_cap ??
+          0
       );
     }
   }, [settings]);
@@ -247,24 +346,36 @@ const AdreSettingsPage: FC = () => {
         qan_insights_prompt: localQanInsightsPrompt || undefined,
         prompt_max_bytes: localPromptMaxBytes,
         servicenow_url: localServiceNowURL || undefined,
-        ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
-        ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),
+        ...(localServiceNowAPIKey
+          ? { servicenow_api_key: localServiceNowAPIKey }
+          : {}),
+        ...(localServiceNowClientToken
+          ? { servicenow_client_token: localServiceNowClientToken }
+          : {}),
         slack_enabled: localSlackEnabled,
         slack_auto_investigate: localSlackAutoInvestigate,
         ...(localSlackBotToken ? { slack_bot_token: localSlackBotToken } : {}),
         ...(localSlackAppToken ? { slack_app_token: localSlackAppToken } : {}),
         slack_allowed_channels: splitList(localSlackAllowedChannels),
         slack_allowed_users: splitList(localSlackAllowedUsers),
-        slack_auto_investigate_channels: splitList(localSlackAutoInvestigateChannels),
+        slack_auto_investigate_channels: splitList(
+          localSlackAutoInvestigateChannels
+        ),
         slack_alert_bot_ids: splitList(localSlackAlertBotIds),
         auto_investigate_min_severity: localAutoInvestigateMinSeverity,
-        auto_investigate_label_matchers: splitLines(localAutoInvestigateLabelMatchers),
-        auto_investigate_hourly_cap: Math.max(0, Number(localAutoInvestigateHourlyCap) || 0),
+        auto_investigate_label_matchers: splitLines(
+          localAutoInvestigateLabelMatchers
+        ),
+        auto_investigate_hourly_cap: Math.max(
+          0,
+          Number(localAutoInvestigateHourlyCap) || 0
+        ),
       } as Partial<AdreSettings> & Record<string, unknown>,
       {
         onError: (err: unknown) => {
           const msg =
-            (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+            (err as { response?: { data?: { error?: string } } })?.response
+              ?.data?.error ??
             (err as Error)?.message ??
             'Failed to save settings';
           enqueueSnackbar(msg, { variant: 'error' });
@@ -306,7 +417,10 @@ const AdreSettingsPage: FC = () => {
               Contact an administrator to configure the AI Assistant (ADRE) in
               PMM Settings.
             </Alert>
-            <Link href={PMM_SETTINGS_URL} sx={{ mt: 1, display: 'inline-block' }}>
+            <Link
+              href={PMM_SETTINGS_URL}
+              sx={{ mt: 1, display: 'inline-block' }}
+            >
               Open PMM Settings
             </Link>
           </CardContent>
@@ -318,11 +432,14 @@ const AdreSettingsPage: FC = () => {
   if (!isAdmin) {
     return (
       <Page {...pageProps}>
-        <Card variant="outlined" sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
+        <Card
+          variant="outlined"
+          sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}
+        >
           <CardContent>
             <Alert severity="info">
-              Admin access is required to modify AI Assistant settings. Contact your administrator or
-              open PMM Settings.
+              Admin access is required to modify AI Assistant settings. Contact
+              your administrator or open PMM Settings.
             </Alert>
           </CardContent>
         </Card>
@@ -333,13 +450,20 @@ const AdreSettingsPage: FC = () => {
   return (
     <Page {...pageProps}>
       <Box
-        sx={{ flex: 1, minHeight: 0, minWidth: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch', p: 2 }}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          p: 2,
+        }}
         data-testid="adre-settings-scroll"
       >
         <Box sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Configure the Autonomous Database Reliability Engineer (ADRE) and AI backend for
-            AI-assisted investigations.
+            Configure the Autonomous Database Reliability Engineer (ADRE) and AI
+            backend for AI-assisted investigations.
           </Typography>
 
           <Tabs
@@ -368,7 +492,9 @@ const AdreSettingsPage: FC = () => {
                       control={
                         <Switch
                           checked={localEnabled}
-                          onChange={(_e: SyntheticEvent, v: boolean) => setLocalEnabled(v)}
+                          onChange={(_e: SyntheticEvent, v: boolean) =>
+                            setLocalEnabled(v)
+                          }
                         />
                       }
                       label="Enable ADRE"
@@ -377,7 +503,9 @@ const AdreSettingsPage: FC = () => {
                       label="AI service URL"
                       placeholder="http://localhost:8080"
                       value={localUrl}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setLocalUrl(e.target.value)
+                      }
                       size="small"
                       fullWidth
                     />
@@ -385,21 +513,32 @@ const AdreSettingsPage: FC = () => {
                       control={
                         <Switch
                           checked={localTlsSkipVerify}
-                          onChange={(_e: SyntheticEvent, v: boolean) => setLocalTlsSkipVerify(v)}
-                          disabled={!localEnabled || !(localUrl ?? '').trim().startsWith('https://')}
+                          onChange={(_e: SyntheticEvent, v: boolean) =>
+                            setLocalTlsSkipVerify(v)
+                          }
+                          disabled={
+                            !localEnabled ||
+                            !(localUrl ?? '').trim().startsWith('https://')
+                          }
                         />
                       }
                       label="Skip TLS certificate verification"
                     />
                     {localTlsSkipVerify ? (
                       <Alert severity="warning" sx={{ py: 0 }}>
-                        PMM will not verify the Holmes TLS certificate. Use only for development or
-                        trusted networks with self-signed certificates.
+                        PMM will not verify the Holmes TLS certificate. Use only
+                        for development or trusted networks with self-signed
+                        certificates.
                       </Alert>
                     ) : (
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        Available when the AI service URL uses https. You can also set{' '}
-                        <strong>PMM_ADRE_TLS_SKIP_VERIFY=true</strong> at container startup.
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                      >
+                        Available when the AI service URL uses https. You can
+                        also set <strong>PMM_ADRE_TLS_SKIP_VERIFY=true</strong>{' '}
+                        at container startup.
                       </Typography>
                     )}
                   </Stack>
@@ -413,8 +552,12 @@ const AdreSettingsPage: FC = () => {
                       <Select
                         value={localDefaultChatMode}
                         label="Default mode in ADRE panel"
-                        onChange={(e: SelectChangeEvent<'fast' | 'investigation'>) =>
-                          setLocalDefaultChatMode(e.target.value as 'fast' | 'investigation')
+                        onChange={(
+                          e: SelectChangeEvent<'fast' | 'investigation'>
+                        ) =>
+                          setLocalDefaultChatMode(
+                            e.target.value as 'fast' | 'investigation'
+                          )
                         }
                       >
                         <MenuItem value="fast">Fast</MenuItem>
@@ -426,7 +569,9 @@ const AdreSettingsPage: FC = () => {
                       <Select
                         value={localFastModel}
                         label="Fast mode model"
-                        onChange={(e: SelectChangeEvent<string>) => setLocalFastModel(e.target.value)}
+                        onChange={(e: SelectChangeEvent<string>) =>
+                          setLocalFastModel(e.target.value)
+                        }
                       >
                         <MenuItem value="">Service default</MenuItem>
                         {models.map((m) => (
@@ -476,7 +621,9 @@ const AdreSettingsPage: FC = () => {
                       inputProps={{ min: 4, max: 200 }}
                       value={localAdreMaxConversationMessages}
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setLocalAdreMaxConversationMessages(parseInt(e.target.value, 10) || 40)
+                        setLocalAdreMaxConversationMessages(
+                          parseInt(e.target.value, 10) || 40
+                        )
                       }
                       size="small"
                       fullWidth
@@ -488,7 +635,9 @@ const AdreSettingsPage: FC = () => {
                       inputProps={{ min: 1024, max: 65536 }}
                       value={localPromptMaxBytes}
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setLocalPromptMaxBytes(parseInt(e.target.value, 10) || 16 * 1024)
+                        setLocalPromptMaxBytes(
+                          parseInt(e.target.value, 10) || 16 * 1024
+                        )
                       }
                       size="small"
                       fullWidth
@@ -511,7 +660,9 @@ const AdreSettingsPage: FC = () => {
                     label="Fast mode prompt"
                     placeholder="Additional system prompt for Fast mode"
                     value={localChatPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalChatPrompt(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     multiline
@@ -522,7 +673,9 @@ const AdreSettingsPage: FC = () => {
                     label="Investigation mode prompt"
                     placeholder="Additional system prompt for Investigation mode"
                     value={localInvestigationPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalInvestigationPrompt(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     multiline
@@ -533,7 +686,9 @@ const AdreSettingsPage: FC = () => {
                     label="QAN AI Insights prompt"
                     placeholder="System prompt for QAN AI Insights (query analytics and optimization). Leave empty for default."
                     value={localQanInsightsPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalQanInsightsPrompt(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalQanInsightsPrompt(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     multiline
@@ -553,7 +708,9 @@ const AdreSettingsPage: FC = () => {
                 description="Tuning for the Fast path in the ADRE chat panel (tools / TodoWrite, etc.)."
                 value={localBehaviorFast}
                 onChange={setLocalBehaviorFast}
-                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                onJsonError={(msg) =>
+                  enqueueSnackbar(msg, { variant: 'error' })
+                }
               />
               <AdreBehaviorControlsBlock
                 variant="investigation"
@@ -561,7 +718,9 @@ const AdreSettingsPage: FC = () => {
                 description="Used for investigation chat and investigation runs. Empty preset means service defaults for omitted keys."
                 value={localBehaviorInvestigation}
                 onChange={setLocalBehaviorInvestigation}
-                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                onJsonError={(msg) =>
+                  enqueueSnackbar(msg, { variant: 'error' })
+                }
               />
               <AdreBehaviorControlsBlock
                 variant="format"
@@ -569,7 +728,9 @@ const AdreSettingsPage: FC = () => {
                 description="Used when PMM turns a raw investigation report into structured JSON."
                 value={localBehaviorFormat}
                 onChange={setLocalBehaviorFormat}
-                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                onJsonError={(msg) =>
+                  enqueueSnackbar(msg, { variant: 'error' })
+                }
               />
             </Stack>
           )}
@@ -582,9 +743,16 @@ const AdreSettingsPage: FC = () => {
                     Slack integration
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Optional Socket Mode bot for @mentions and thread replies (runs on the PMM HA leader).
-                    {(settings?.slackConfigured ?? settings?.slack_configured) && (
-                      <Chip label="Tokens saved" size="small" color="success" sx={{ ml: 1 }} />
+                    Optional Socket Mode bot for @mentions and thread replies
+                    (runs on the PMM HA leader).
+                    {(settings?.slackConfigured ??
+                      settings?.slack_configured) && (
+                      <Chip
+                        label="Tokens saved"
+                        size="small"
+                        color="success"
+                        sx={{ ml: 1 }}
+                      />
                     )}
                   </Typography>
                   <FormControlLabel
@@ -606,33 +774,45 @@ const AdreSettingsPage: FC = () => {
                     control={
                       <Switch
                         checked={localSlackAutoInvestigate}
-                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalSlackAutoInvestigate(v)}
+                        onChange={(_e: SyntheticEvent, v: boolean) =>
+                          setLocalSlackAutoInvestigate(v)
+                        }
                         disabled={!localSlackEnabled}
                       />
                     }
                     label="Auto-investigate firing alerts (Grafana Alertmanager)"
                   />
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    When enabled, firing alerts from Grafana Alertmanager (via a reconciliation poll, plus
-                    an optional auto-provisioned webhook) create one investigation per alert episode and post
-                    a summary to the output channels below. Bound the cost with the severity floor / label
-                    matchers / hourly cap.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    When enabled, firing alerts from Grafana Alertmanager (via a
+                    reconciliation poll, plus an optional auto-provisioned
+                    webhook) create one investigation per alert episode and post
+                    a summary to the output channels below. Bound the cost with
+                    the severity floor / label matchers / hourly cap.
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
-                      Enable ADRE and set the AI service URL first (General tab).
+                      Enable ADRE and set the AI service URL first (General
+                      tab).
                     </Typography>
                   ) : null}
                   <Typography variant="body2" color="text.secondary">
-                    Clickable Grafana links in Slack use <strong>Public address</strong> from{' '}
-                    <strong>PMM Settings → Advanced</strong> when that field is set.
+                    Clickable Grafana links in Slack use{' '}
+                    <strong>Public address</strong> from{' '}
+                    <strong>PMM Settings → Advanced</strong> when that field is
+                    set.
                   </Typography>
                   <TextField
                     label="Slack Bot User OAuth Token"
                     type="password"
                     placeholder="Leave empty to keep existing value"
                     value={localSlackBotToken}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackBotToken(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackBotToken(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     disabled={!localSlackEnabled}
@@ -643,7 +823,9 @@ const AdreSettingsPage: FC = () => {
                     type="password"
                     placeholder="Leave empty to keep existing value"
                     value={localSlackAppToken}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackAppToken(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackAppToken(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     disabled={!localSlackEnabled}
@@ -653,14 +835,21 @@ const AdreSettingsPage: FC = () => {
                   <Typography variant="subtitle2" fontWeight={600}>
                     Human chat allowlists (fail-closed)
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    The bot replies only in listed channels to listed users. Leave a list empty and it
-                    answers no one. Use Slack object IDs (channels Cxxxx, users Uxxxx), one per line.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    The bot replies only in listed channels to listed users.
+                    Leave a list empty and it answers no one. Use Slack object
+                    IDs (channels Cxxxx, users Uxxxx), one per line.
                   </Typography>
                   <TextField
                     label="Allowed channels"
                     value={localSlackAllowedChannels}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackAllowedChannels(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackAllowedChannels(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     multiline
@@ -671,7 +860,9 @@ const AdreSettingsPage: FC = () => {
                   <TextField
                     label="Allowed users"
                     value={localSlackAllowedUsers}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackAllowedUsers(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackAllowedUsers(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     multiline
@@ -747,7 +938,9 @@ const AdreSettingsPage: FC = () => {
                     type="number"
                     value={localAutoInvestigateHourlyCap}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setLocalAutoInvestigateHourlyCap(Math.max(0, Math.floor(Number(e.target.value) || 0)))
+                      setLocalAutoInvestigateHourlyCap(
+                        Math.max(0, Math.floor(Number(e.target.value) || 0))
+                      )
                     }
                     size="small"
                     fullWidth
@@ -768,16 +961,25 @@ const AdreSettingsPage: FC = () => {
                     ServiceNow Integration
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Configure ServiceNow credentials to enable creating incident tickets from investigation reports.
-                    {(settings?.servicenowConfigured ?? settings?.servicenow_configured) && (
-                      <Chip label="Configured" size="small" color="success" sx={{ ml: 1 }} />
+                    Configure ServiceNow credentials to enable creating incident
+                    tickets from investigation reports.
+                    {(settings?.servicenowConfigured ??
+                      settings?.servicenow_configured) && (
+                      <Chip
+                        label="Configured"
+                        size="small"
+                        color="success"
+                        sx={{ ml: 1 }}
+                      />
                     )}
                   </Typography>
                   <TextField
                     label="ServiceNow API URL"
                     placeholder="https://yourinstance.service-now.com/api/pellc/percona_connector/create"
                     value={localServiceNowURL}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowURL(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalServiceNowURL(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     helperText="Percona Connector endpoint on your ServiceNow instance"
@@ -787,7 +989,9 @@ const AdreSettingsPage: FC = () => {
                     type="password"
                     placeholder="Leave empty to keep existing value"
                     value={localServiceNowAPIKey}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowAPIKey(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalServiceNowAPIKey(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     helperText="ServiceNow API key; leave empty to keep the current value"
@@ -797,7 +1001,9 @@ const AdreSettingsPage: FC = () => {
                     type="password"
                     placeholder="Leave empty to keep existing value"
                     value={localServiceNowClientToken}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowClientToken(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalServiceNowClientToken(e.target.value)
+                    }
                     size="small"
                     fullWidth
                     helperText="ServiceNow client token; leave empty to keep the current value"
@@ -808,7 +1014,11 @@ const AdreSettingsPage: FC = () => {
           )}
 
           <Box sx={{ mt: 2 }}>
-            <Button variant="contained" onClick={onSave} disabled={updateSettings.isPending}>
+            <Button
+              variant="contained"
+              onClick={onSave}
+              disabled={updateSettings.isPending}
+            >
               {updateSettings.isPending ? 'Saving...' : 'Save'}
             </Button>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>

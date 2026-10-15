@@ -1,7 +1,10 @@
 import { Button, Chip, Stack } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { FC, useMemo } from 'react';
-import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import {
+  useQanPanelActions,
+  useQanPanelState,
+} from '../hooks/useQanPanelState';
 import { useQanFiltersDrawer } from '../hooks/useQanFiltersDrawer';
 import {
   clearAllFilters,
@@ -13,7 +16,10 @@ export const QanControlsToolbar: FC = () => {
   const state = useQanPanelState();
   const actions = useQanPanelActions();
   const { toggle } = useQanFiltersDrawer();
-  const chips = useMemo(() => getActiveFilterChips(state.labels), [state.labels]);
+  const chips = useMemo(
+    () => getActiveFilterChips(state.labels),
+    [state.labels]
+  );
 
   return (
     <Stack
@@ -40,14 +46,21 @@ export const QanControlsToolbar: FC = () => {
       >
         Filters
       </Button>
-      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={0.5}
+        sx={{ flexWrap: 'wrap' }}
+      >
         {chips.map((chip) => (
           <Chip
             key={`${chip.key}-${chip.value}`}
             label={chip.label}
             size="medium"
             onDelete={() =>
-              actions.setLabels(removeFilterChip(state.labels, chip.key, chip.value))
+              actions.setLabels(
+                removeFilterChip(state.labels, chip.key, chip.value)
+              )
             }
             sx={{
               borderRadius: '100px',

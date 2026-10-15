@@ -14,5 +14,7 @@ function pmmRenderPath(url: string): string {
 export function isAllowedPMMImageUrl(url: string): boolean {
   const normalized = toSameOriginUrl(url.trim());
   const path = pmmRenderPath(normalized);
-  return path.startsWith('/v1/grafana/render') || path.startsWith('/graph/render');
+  return (
+    path.startsWith('/v1/grafana/render') || path.startsWith('/graph/render')
+  );
 }

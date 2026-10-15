@@ -25,7 +25,11 @@ export const BlockRenderer: FC<{ block: InvestigationBlock }> = ({ block }) => {
     case 'single_panel':
     case 'panel_group':
     case 'logs_view':
-      return block.type === 'logs_view' ? <LogsViewBlock block={block} /> : <PanelBlock block={block} />;
+      return block.type === 'logs_view' ? (
+        <LogsViewBlock block={block} />
+      ) : (
+        <PanelBlock block={block} />
+      );
     case 'slow_query_analysis':
       return <SlowQueryAnalysisBlock block={block} />;
     case 'top_queries':
@@ -42,7 +46,9 @@ export const BlockRenderer: FC<{ block: InvestigationBlock }> = ({ block }) => {
           block={{
             ...block,
             type: 'markdown',
-            dataJson: block.dataJson ?? { content: `(Unsupported block type: ${block.type})` },
+            dataJson: block.dataJson ?? {
+              content: `(Unsupported block type: ${block.type})`,
+            },
           }}
         />
       );

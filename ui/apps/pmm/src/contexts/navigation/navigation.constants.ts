@@ -473,7 +473,10 @@ export const NAV_INVESTIGATIONS: NavItem = {
   icon: 'intelligence',
   text: 'Investigations',
   url: `${PMM_NEW_NAV_PATH}/investigations`,
-  matches: [`${PMM_NEW_NAV_PATH}/investigations`, `${PMM_NEW_NAV_PATH}/investigations/*`],
+  matches: [
+    `${PMM_NEW_NAV_PATH}/investigations`,
+    `${PMM_NEW_NAV_PATH}/investigations/*`,
+  ],
 };
 
 //

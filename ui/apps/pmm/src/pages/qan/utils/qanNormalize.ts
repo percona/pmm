@@ -1,4 +1,7 @@
-import type { QanFilterLabelValue, QanGetMetricNamesResponse } from 'types/qan.types';
+import type {
+  QanFilterLabelValue,
+  QanGetMetricNamesResponse,
+} from 'types/qan.types';
 import { DEFAULT_QAN_COLUMNS } from './qanTools';
 
 /** qan-api2 returns metric names as a map (key → label), not an array. */
@@ -10,7 +13,9 @@ export function metricNamesFromResponse(
   if (Array.isArray(raw)) {
     return raw
       .map((item) => (typeof item === 'string' ? item : item?.name))
-      .filter((name): name is string => typeof name === 'string' && name.length > 0);
+      .filter(
+        (name): name is string => typeof name === 'string' && name.length > 0
+      );
   }
   if (typeof raw === 'object') {
     return Object.keys(raw);

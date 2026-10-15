@@ -21,7 +21,13 @@ type BlockData = {
 function pickImageURL(block: InvestigationBlock): string {
   const cfg = (block.configJson ?? {}) as BlockData;
   const data = (block.dataJson ?? {}) as BlockData;
-  const url = cfg.url || cfg.image_url || data.url || data.image_url || data.content || '';
+  const url =
+    cfg.url ||
+    cfg.image_url ||
+    data.url ||
+    data.image_url ||
+    data.content ||
+    '';
   return typeof url === 'string' ? url.trim() : '';
 }
 
@@ -30,7 +36,12 @@ export const ImageBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = (block.dataJson ?? {}) as BlockData;
   const rawSrc = pickImageURL(block);
   const src = toSameOriginUrl(withRenderCacheParam(rawSrc));
-  const alt = (cfg.alt || data.alt || block.title || 'Investigation image').trim();
+  const alt = (
+    cfg.alt ||
+    data.alt ||
+    block.title ||
+    'Investigation image'
+  ).trim();
   const caption = (cfg.caption || data.caption || '').trim();
 
   return (
@@ -57,7 +68,11 @@ export const ImageBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
               dashboardHref={dashboardUrlFromRenderUrl(rawSrc)}
             />
             {caption && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.75 }}
+              >
                 {caption}
               </Typography>
             )}
@@ -80,7 +95,11 @@ export const ImageBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
               }}
             />
             {caption && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.75 }}
+              >
                 {caption}
               </Typography>
             )}
