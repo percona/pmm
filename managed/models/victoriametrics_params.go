@@ -18,8 +18,13 @@ package models
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/url"
+	"os"
 	"strings"
+
+	config "github.com/percona/promconfig"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -155,10 +160,37 @@ func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, e
 	if err != nil {
 		return nil, err
 	}
-	return &VictoriaMetricsParams{
+	vmp := &VictoriaMetricsParams{
 		BaseConfigPath: basePath,
 		url:            URL,
-	}, nil
+	}
+	err = vmp.ValidateBaseConfig()
+	if err != nil {
+		return vmp, err
+	}
+
+	return vmp, nil
+}
+
+// ValidateBaseConfig returns an error when the user's base config exists but cannot be parsed.
+// pmm-managed refuses to start on it, which marks the container unhealthy so the mistake is
+// noticed instead of the file being silently ignored.
+func (vmp *VictoriaMetricsParams) ValidateBaseConfig() error {
+	buf, err := os.ReadFile(vmp.BaseConfigPath)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("cannot read base config %s: %w", vmp.BaseConfigPath, err)
+	}
+
+	var cfg config.Config
+	err = yaml.Unmarshal(buf, &cfg)
+	if err != nil {
+		return fmt.Errorf("cannot parse base config %s: %w", vmp.BaseConfigPath, err)
+	}
+
+	return nil
 }
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.

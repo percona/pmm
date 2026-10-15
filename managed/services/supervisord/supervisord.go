@@ -110,7 +110,10 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 	s.retireRemovedPrograms(logsDir)
 
-	var err error
+	err := s.vmParams.ValidateBaseConfig()
+	if err != nil {
+		return err
+	}
 
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {

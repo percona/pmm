@@ -16,6 +16,8 @@
 package models
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,6 +28,20 @@ func TestVictoriaMetricsParams(t *testing.T) {
 	t.Run("read non exist baseConfigFile", func(t *testing.T) {
 		_, err := NewVictoriaMetricsParams("nonExistConfigFile.yml", VMBaseURL)
 		require.NoError(t, err)
+	})
+	t.Run("base config is validated", func(t *testing.T) {
+		dir := t.TempDir()
+		valid := filepath.Join(dir, "valid.yml")
+		require.NoError(t, os.WriteFile(valid, []byte("rule_files:\n  - /srv/rules.yml\n"), 0o600))
+		broken := filepath.Join(dir, "broken.yml")
+		require.NoError(t, os.WriteFile(broken, []byte("rule_files: [unclosed\n"), 0o600))
+
+		_, err := NewVictoriaMetricsParams(valid, VMBaseURL)
+		require.NoError(t, err)
+
+		vmp, err := NewVictoriaMetricsParams(broken, VMBaseURL)
+		require.ErrorContains(t, err, "cannot parse base config "+broken)
+		require.ErrorContains(t, vmp.ValidateBaseConfig(), "cannot parse base config "+broken)
 	})
 	t.Run("ParsedURL returns a copy", func(t *testing.T) {
 		vmp, err := NewVictoriaMetricsParams(BasePrometheusConfigPath, "https://user:pass@vm:8428/")
