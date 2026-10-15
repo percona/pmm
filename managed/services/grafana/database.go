@@ -32,10 +32,10 @@ const (
 
 // DatabaseDSN works out how to reach Grafana's database.
 //
-// fallbackAddr and sslParams describe where Grafana's database lives when the deployment has not said.
-// This is the bundled case: Grafana shares PMM's own PostgreSQL server, and the database and user
-// are created by the initialization ansible role. fallbackAddr is PMM's PostgreSQL address, host:port;
-// sslParams is the encoded query string PMM uses for its own connection.
+// The fallback address and SSL parameters describe where Grafana's database lives when the deployment
+// has not said. This is the bundled case: Grafana shares PMM's own PostgreSQL server, and the database
+// and user are created by the initialization ansible role. The address is PMM's PostgreSQL address,
+// host:port; the parameters are the encoded query string PMM uses for its own connection.
 //
 // The order matters. Since PMM 3.2.0 an external Grafana database is configured with the discrete
 // GF_DATABASE_* variables, and that is what the pmm-ha Helm chart sets - with a user that is not
