@@ -274,6 +274,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			l.Warnf("Leaving %s %s out of the state of pmm-agent %s: %s.", row.AgentType, row.AgentID, agent.id, err)
 			continue
 		}
+		resolved, err := row.WithServerSecrets(ctx)
+		if err != nil {
+			l.Errorf("Leaving %s out of the state of pmm-agent %s: cannot read its %s.", row.AgentID, agent.id, err)
+			continue
+		}
+		row = resolved
 
 		switch row.AgentType {
 		case models.PMMAgentType:

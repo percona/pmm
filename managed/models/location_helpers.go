@@ -27,6 +27,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/utils/vault"
 )
 
 var pathRe = regexp.MustCompile(`^[\.:\/\w-]*$`) // Dots, slashes, letters, digits, underscores, dashes.
@@ -121,6 +123,17 @@ func checkS3Config(c *S3LocationConfig, withBucketLocation bool) error {
 
 	if c.SecretKey == "" {
 		return status.Error(codes.InvalidArgument, "S3 secretKey field is empty.")
+	}
+
+	// PMM Server reads keys stored in Vault whenever it uses them, see createMinioClient.
+	for name, key := range map[string]string{"accessKey": c.AccessKey, "secretKey": c.SecretKey} {
+		if !vault.IsRef(key) {
+			continue
+		}
+		_, err := vault.ParseRef(key)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid S3 %s: %s.", name, err)
+		}
 	}
 
 	if c.BucketName == "" {

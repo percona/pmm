@@ -34,6 +34,7 @@ import (
 	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // AgentsService works with inventory API Agents.
@@ -2199,7 +2200,8 @@ func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*mode
 	if username := pointer.GetString(params.Username); username != "" {
 		secrets[models.VaultUsernameKey] = username
 	}
-	if password := pointer.GetString(params.Password); password != "" {
+	// A reference to another secret replaces the Vault path rather than goes to it.
+	if password := pointer.GetString(params.Password); password != "" && !vault.IsRef(password) {
 		secrets[models.VaultPasswordKey] = password
 		changed.Password = nil
 	}

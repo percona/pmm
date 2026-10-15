@@ -23,10 +23,10 @@ import (
 	"os"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/vault"
 )
 
@@ -37,29 +37,6 @@ const vaultEnvTimeout = time.Minute
 
 var envNameRE = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
-// vaultConfigFromEnv returns the Vault configuration of PMM Server, given by the PMM_VAULT_* variables.
-func vaultConfigFromEnv(getenv func(string) string) vault.Config {
-	skipVerify, _ := strconv.ParseBool(getenv("PMM_VAULT_TLS_SKIP_VERIFY"))
-
-	return vault.Config{
-		Address:       getenv("PMM_VAULT_ADDRESS"),
-		Namespace:     getenv("PMM_VAULT_NAMESPACE"),
-		CACert:        getenv("PMM_VAULT_CA_CERT"),
-		TLSSkipVerify: skipVerify,
-		AuthMethod:    getenv("PMM_VAULT_AUTH_METHOD"),
-		AuthMount:     getenv("PMM_VAULT_AUTH_MOUNT"),
-		Token:         getenv("PMM_VAULT_TOKEN"),
-		TokenFile:     getenv("PMM_VAULT_TOKEN_FILE"),
-		RoleID:        getenv("PMM_VAULT_ROLE_ID"),
-		SecretID:      getenv("PMM_VAULT_SECRET_ID"),
-		SecretIDFile:  getenv("PMM_VAULT_SECRET_ID_FILE"),
-		Role:          getenv("PMM_VAULT_ROLE"),
-		JWTFile:       getenv("PMM_VAULT_JWT_FILE"),
-		AWSRegion:     getenv("PMM_VAULT_AWS_REGION"),
-		AWSServerID:   getenv("PMM_VAULT_AWS_SERVER_ID"),
-	}
-}
-
 // vaultEnvPrefixes are the prefixes of the variables that may be Vault references: those of PMM Server,
 // Grafana, and the VictoriaMetrics components, whose credentials an HA deployment sets.
 var vaultEnvPrefixes = []string{"PMM_", "GF_", "VM_", "VMAGENT_"} //nolint:gochecknoglobals
@@ -67,13 +44,15 @@ var vaultEnvPrefixes = []string{"PMM_", "GF_", "VM_", "VMAGENT_"} //nolint:goche
 // vaultEnv writes to out a shell `export` command for every variable of environ with one of
 // vaultEnvPrefixes whose value is a vault:<path>#<key> reference, with the value read from Vault. The
 // entrypoint of PMM Server evaluates them before anything reads those variables. The PMM_VAULT_*
-// variables configure Vault itself and are never resolved.
+// variables configure Vault itself and are never resolved, and neither are the PMM_AGENT_* ones of
+// PMM Server's pmm-agent, which reads its references itself and would save the values to its
+// configuration file otherwise.
 func vaultEnv(ctx context.Context, cfg vault.Config, environ []string, out io.Writer) error {
 	var refs [][2]string
 	for _, kv := range environ {
 		name, value, _ := strings.Cut(kv, "=")
 		hasPrefix := slices.ContainsFunc(vaultEnvPrefixes, func(prefix string) bool { return strings.HasPrefix(name, prefix) })
-		if !vault.IsRef(value) || !hasPrefix || strings.HasPrefix(name, "PMM_VAULT_") {
+		if !vault.IsRef(value) || !hasPrefix || strings.HasPrefix(name, "PMM_VAULT_") || strings.HasPrefix(name, "PMM_AGENT_") {
 			continue
 		}
 		if !envNameRE.MatchString(name) {
@@ -140,12 +119,20 @@ func runVaultPut(ref string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), vaultEnvTimeout)
 	defer cancel()
 
-	return vaultPut(ctx, vaultConfigFromEnv(os.Getenv), ref, os.Stdin)
+	cfg, err := secrets.ConfigFromEnv(os.Getenv)
+	if err != nil {
+		return err
+	}
+	return vaultPut(ctx, cfg, ref, os.Stdin)
 }
 
 func runVaultEnv() error {
 	ctx, cancel := context.WithTimeout(context.Background(), vaultEnvTimeout)
 	defer cancel()
 
-	return vaultEnv(ctx, vaultConfigFromEnv(os.Getenv), os.Environ(), os.Stdout)
+	cfg, err := secrets.ConfigFromEnv(os.Getenv)
+	if err != nil {
+		return err
+	}
+	return vaultEnv(ctx, cfg, os.Environ(), os.Stdout)
 }

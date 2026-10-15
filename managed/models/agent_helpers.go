@@ -16,6 +16,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
@@ -834,6 +835,10 @@ func CreateNodeExporter(q *reform.Querier,
 	if err != nil {
 		return nil, err
 	}
+	err = row.validateVaultRefs(context.Background())
+	if err != nil {
+		return nil, err
+	}
 
 	return insertAgent(q, *row)
 }
@@ -916,6 +921,10 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
 	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
+		return nil, err
+	}
+	err = row.validateVaultRefs(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -1159,7 +1168,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	err = row.validateVaultRefs()
+	err = row.validateVaultRefs(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -1187,7 +1196,7 @@ func (p *CreateAgentParams) TakeVaultSecrets() map[string]string {
 	}
 
 	secrets := make(map[string]string)
-	if p.Password != "" {
+	if p.Password != "" && !vault.IsRef(p.Password) {
 		secrets[VaultPasswordKey] = p.Password
 		if p.Username != "" {
 			secrets[VaultUsernameKey] = p.Username
@@ -1274,8 +1283,11 @@ func (p *ChangeAgentParams) TakeVaultTLSSecrets(path string, secrets map[string]
 	}
 }
 
-// setsVaultRefs reports whether the change sets a TLS option to a Vault reference.
+// setsVaultRefs reports whether the change sets a TLS option or the password to a Vault reference.
 func (p *ChangeAgentParams) setsVaultRefs() bool {
+	if p.Password != nil && vault.IsRef(*p.Password) {
+		return true
+	}
 	for _, f := range p.changeTLSFields() {
 		if vault.IsRef(**f.value) {
 			return true
@@ -1800,11 +1812,11 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 	}
 
-	err = row.validateVaultRefs()
+	err = row.validateVaultRefs(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	if pointer.GetString(params.VaultPath) != "" || params.setsVaultRefs() {
+	if row.UsesVault() && (pointer.GetString(params.VaultPath) != "" || params.setsVaultRefs()) {
 		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), VaultFunctionality, PMMAgentMinVersionForVault)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())

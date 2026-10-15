@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/vault"
 )
 
@@ -48,9 +49,10 @@ func TestVaultEnv(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 
-	cfg := vaultConfigFromEnv(func(name string) string {
+	cfg, err := secrets.ConfigFromEnv(func(name string) string {
 		return map[string]string{"PMM_VAULT_ADDRESS": srv.URL, "PMM_VAULT_TOKEN": "root"}[name]
 	})
+	require.NoError(t, err)
 
 	t.Run("Exports", func(t *testing.T) {
 		t.Parallel()
@@ -62,6 +64,7 @@ func TestVaultEnv(t *testing.T) {
 			"VMAGENT_remoteWrite_basicAuth_password=vault:secret/data/pmm-server#clickhouse_password",
 			"PMM_DEBUG=1",
 			"PMM_VAULT_TOKEN_FILE=vault:not/resolved#key",
+			"PMM_AGENT_SERVER_PASSWORD=vault:not/resolved#key",
 			"OTHER=vault:not/resolved#key",
 		}, &out)
 		require.NoError(t, err)

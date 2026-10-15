@@ -17,6 +17,7 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"database/sql/driver"
 	"encoding/hex"
@@ -25,6 +26,7 @@ import (
 	"maps"
 	"net"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"text/template"
@@ -38,6 +40,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
@@ -515,12 +518,48 @@ func VaultRef(path, key string) string {
 	return vault.RefPrefix + strings.Trim(path, "/") + "#" + key
 }
 
+// passwordUsedByServer reports whether PMM Server uses the Agent's password itself, to scrape the exporter,
+// rather than pmm-agent to connect to a database.
+func (a *Agent) passwordUsedByServer() bool {
+	return a.AgentType == ExternalExporterType || a.AgentType == VMAgentType
+}
+
+// agentFields returns the fields of the Agent that pmm-agent reads from Vault when they hold a reference:
+// the database password and the TLS options.
+func (a *Agent) agentFields() []secretField {
+	res := a.tlsFields()
+	if a.Password != nil && !a.passwordUsedByServer() {
+		res = append(res, secretField{VaultPasswordKey, a.Password})
+	}
+	return res
+}
+
+// serverFields returns the fields of the Agent that PMM Server reads from Vault when they hold a reference,
+// see WithServerSecrets: those it uses itself, and those it sends to pmm-agent as they are.
+func (a *Agent) serverFields() []secretField {
+	var res []secretField
+	if a.AgentPassword != nil {
+		res = append(res, secretField{"agent_password", a.AgentPassword})
+	}
+	if a.Password != nil && a.passwordUsedByServer() {
+		res = append(res, secretField{VaultPasswordKey, a.Password})
+	}
+	return append(res,
+		secretField{"aws_access_key", &a.AWSOptions.AWSAccessKey},
+		secretField{"aws_secret_key", &a.AWSOptions.AWSSecretKey},
+		secretField{"azure_client_id", &a.AzureOptions.ClientID},
+		secretField{"azure_client_secret", &a.AzureOptions.ClientSecret},
+		secretField{"azure_tenant_id", &a.AzureOptions.TenantID},
+		secretField{"azure_subscription_id", &a.AzureOptions.SubscriptionID},
+	)
+}
+
 // UsesVault reports whether pmm-agent reads any of the Agent's secrets from Vault.
 func (a *Agent) UsesVault() bool {
 	if a.VaultPath != nil {
 		return true
 	}
-	for _, f := range a.tlsFields() {
+	for _, f := range a.agentFields() {
 		if vault.IsRef(*f.value) {
 			return true
 		}
@@ -528,9 +567,51 @@ func (a *Agent) UsesVault() bool {
 	return false
 }
 
-// validateVaultRefs returns an error for an option of the Agent that holds an invalid Vault reference.
-func (a *Agent) validateVaultRefs() error {
-	for _, f := range a.tlsFields() {
+// HasServerSecrets reports whether PMM Server reads any of the Agent's secrets from Vault.
+func (a *Agent) HasServerSecrets() bool {
+	for _, f := range a.serverFields() {
+		if vault.IsRef(*f.value) {
+			return true
+		}
+	}
+	return false
+}
+
+// WithServerSecrets returns a copy of the Agent with the references in the fields that PMM Server reads
+// from Vault replaced with the secrets they refer to. The copy is never to be stored.
+func (a Agent) WithServerSecrets(ctx context.Context) (*Agent, error) {
+	// a is a copy, options included, but the strings these fields point to are shared with the caller.
+	if a.AgentPassword != nil {
+		a.AgentPassword = new(*a.AgentPassword)
+	}
+	if a.Password != nil {
+		a.Password = new(*a.Password)
+	}
+
+	for _, f := range a.serverFields() {
+		v, err := secrets.Resolve(ctx, *f.value)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", f.key, err)
+		}
+		*f.value = v
+	}
+	return &a, nil
+}
+
+// ServerSecretsFingerprint returns a fingerprint of the values of the fields that PMM Server reads from Vault,
+// for telling whether they changed there, see WithServerSecrets.
+func (a *Agent) ServerSecretsFingerprint() string {
+	h := sha256.New()
+	for _, f := range a.serverFields() {
+		h.Write([]byte(f.key + "\x00" + *f.value + "\x00"))
+	}
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// validateVaultRefs returns an error for a field of the Agent that holds an invalid Vault reference, or a
+// reference to a secret that PMM Server cannot read although it is the one to read it.
+func (a *Agent) validateVaultRefs(ctx context.Context) error {
+	for _, f := range slices.Concat(a.agentFields(), a.serverFields()) {
 		if !vault.IsRef(*f.value) {
 			continue
 		}
@@ -538,6 +619,11 @@ func (a *Agent) validateVaultRefs() error {
 		if err != nil {
 			return status.Errorf(codes.InvalidArgument, "Invalid %s: %s.", f.key, err)
 		}
+	}
+
+	_, err := a.WithServerSecrets(ctx)
+	if err != nil {
+		return status.Errorf(codes.FailedPrecondition, "Failed to read the %s.", err)
 	}
 	return nil
 }
@@ -717,7 +803,7 @@ func (a *Agent) DBCredentials(enc vault.Encoding) (string, string) {
 	username := pointer.GetString(a.Username)
 	path := pointer.GetString(a.VaultPath)
 	if path == "" {
-		return username, pointer.GetString(a.Password)
+		return username, vault.TokenForRef(pointer.GetString(a.Password), enc)
 	}
 
 	vaultUsername := vault.TokenWithFallback(path, VaultUsernameKey, enc, username)

@@ -29,6 +29,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/version"
@@ -432,6 +433,31 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCa: new("vault:#k")}})
 		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Invalid tls_ca", err)
+	})
+
+	t.Run("ServerSecretsFromVault", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		t.Cleanup(func() { secrets.Configure(nil, 0) })
+
+		params := &models.CreateAgentParams{
+			PMMAgentID: "A1", ServiceID: "S1", Username: "pmm", Password: "p",
+			AgentPassword: "vault:secret/data/pmm#agent_password",
+		}
+
+		// PMM Server reads it, so it must be able to.
+		_, err := models.CreateAgent(q, models.MySQLdExporterType, params)
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Failed to read the agent_password: .*no Vault configured", err)
+
+		secrets.Configure(mapSecrets{"secret/data/pmm#agent_password": "metrics-pw"}, time.Minute)
+		agent, err := models.CreateAgent(q, models.MySQLdExporterType, params)
+		require.NoError(t, err)
+		agent, err = models.FindAgentByID(q, agent.AgentID)
+		require.NoError(t, err)
+		assert.Equal(t, "vault:secret/data/pmm#agent_password", pointer.GetString(agent.AgentPassword), "the reference is stored")
+
+		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{AgentPassword: new("vault:secret/data/pmm#missing")})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Failed to read the agent_password", err)
 	})
 
 	t.Run("ChangeAgentRDSExporterRoleARNGateOnlyWhenRequestSetsIt", func(t *testing.T) {

@@ -16,6 +16,7 @@
 package models_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -33,6 +34,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/vault"
 )
@@ -1149,5 +1151,82 @@ func TestTLSFromVault(t *testing.T) {
 		assert.Nil(t, plain.TakeVaultSecrets())
 		assert.Equal(t, "p", plain.Password)
 		assert.Equal(t, "KEY", plain.MySQLOptions.TLSKey)
+	})
+}
+
+type mapSecrets map[string]string
+
+func (m mapSecrets) Get(_ context.Context, path, key string) (string, error) {
+	v, ok := m[path+"#"+key]
+	if !ok {
+		return "", errors.New("no such secret")
+	}
+	return v, nil
+}
+
+// Not parallel: it configures the process-wide Vault client of PMM Server.
+func TestServerSecretsFromVault(t *testing.T) {
+	stored := mapSecrets{
+		"secret/data/pmm#agent_password": "metrics-pw",
+		"secret/data/pmm#aws_secret_key": "aws-secret",
+		"secret/data/pmm#client_secret":  "azure-secret",
+		"secret/data/pmm#exporter":       "exporter-pw",
+	}
+	secrets.Configure(stored, time.Minute)
+	t.Cleanup(func() { secrets.Configure(nil, 0) })
+
+	agent := &models.Agent{
+		AgentID:       "agent-id",
+		AgentType:     models.RDSExporterType,
+		AgentPassword: new("vault:secret/data/pmm#agent_password"),
+		AWSOptions:    models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "vault:secret/data/pmm#aws_secret_key"},
+		AzureOptions:  models.AzureOptions{ClientSecret: "vault:secret/data/pmm#client_secret"},
+	}
+	assert.True(t, agent.HasServerSecrets())
+	assert.False(t, agent.UsesVault(), "pmm-agent gets them read")
+
+	resolved, err := agent.WithServerSecrets(t.Context())
+	require.NoError(t, err)
+	assert.Equal(t, "metrics-pw", resolved.GetAgentPassword())
+	assert.Equal(t, "AKIA", resolved.AWSOptions.AWSAccessKey)
+	assert.Equal(t, "aws-secret", resolved.AWSOptions.AWSSecretKey)
+	assert.Equal(t, "azure-secret", resolved.AzureOptions.ClientSecret)
+	assert.Equal(t, "vault:secret/data/pmm#agent_password", *agent.AgentPassword, "the Agent itself is not changed")
+	assert.Equal(t, "vault:secret/data/pmm#aws_secret_key", agent.AWSOptions.AWSSecretKey)
+
+	// A rotated secret changes the fingerprint.
+	before := resolved.ServerSecretsFingerprint()
+	stored["secret/data/pmm#aws_secret_key"] = "rotated"
+	resolved, err = agent.WithServerSecrets(t.Context())
+	require.NoError(t, err)
+	assert.NotEqual(t, before, resolved.ServerSecretsFingerprint())
+
+	t.Run("ExternalExporterPassword", func(t *testing.T) {
+		external := &models.Agent{AgentType: models.ExternalExporterType, Username: new("u"), Password: new("vault:secret/data/pmm#exporter")}
+		assert.True(t, external.HasServerSecrets())
+		assert.False(t, external.UsesVault(), "PMM Server scrapes the exporter with it")
+
+		resolved, err := external.WithServerSecrets(t.Context())
+		require.NoError(t, err)
+		assert.Equal(t, "exporter-pw", pointer.GetString(resolved.Password))
+	})
+
+	t.Run("DatabasePassword", func(t *testing.T) {
+		// pmm-agent reads it, as it does for a Vault path, and PMM Server never does.
+		db := &models.Agent{AgentType: models.MySQLdExporterType, Username: new("pmm"), Password: new("vault:secret/data/db#password")}
+		assert.True(t, db.UsesVault())
+		assert.False(t, db.HasServerSecrets())
+
+		_, password := db.DBCredentials(vault.EncodingRaw)
+		assert.Equal(t, vault.Token("secret/data/db", "password", vault.EncodingRaw), password)
+	})
+
+	t.Run("Unreadable", func(t *testing.T) {
+		secrets.Configure(nil, 0)
+		t.Cleanup(func() { secrets.Configure(stored, time.Minute) })
+
+		_, err := agent.WithServerSecrets(t.Context())
+		require.ErrorIs(t, err, secrets.ErrNotConfigured)
+		require.ErrorContains(t, err, "agent_password")
 	})
 }

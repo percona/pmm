@@ -112,9 +112,11 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/managed/utils/secrets"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -887,6 +889,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
+	configureVault(l)
+
 	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
@@ -1276,6 +1280,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	if secrets.Configured() {
+		wg.Go(func() {
+			agentsStateUpdater.WatchServerSecrets(ctx, secrets.CacheTTL())
+		})
+	}
+
 	wg.Go(func() {
 		alertingProvisioner.Run(ctx)
 	})
@@ -1423,4 +1433,24 @@ func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 	}
 
 	return logrus.InfoLevel
+}
+
+// configureVault sets up reading the secrets that PMM Server uses itself from Vault, when the settings that
+// hold them refer to it, see the secrets package.
+func configureVault(l *logrus.Entry) {
+	if os.Getenv("PMM_VAULT_ADDRESS") == "" {
+		return
+	}
+
+	cfg, err := secrets.ConfigFromEnv(os.Getenv)
+	if err != nil {
+		l.Fatalf("Invalid Vault configuration: %s.", err)
+	}
+	client, err := vault.New(cfg)
+	if err != nil {
+		l.Fatalf("Invalid Vault configuration: %s.", err)
+	}
+
+	secrets.Configure(client, cfg.EffectiveCacheTTL())
+	l.Infof("Reading the secrets stored in Vault from %s.", cfg.Address)
 }

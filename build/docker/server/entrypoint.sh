@@ -76,16 +76,27 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
 fi
 
 # Replace the PMM_*, GF_*, VM_* and VMAGENT_* variables given as vault:<path>#<key> references with the
-# secrets they point to, before anything reads them. The credentials of Vault itself are dropped once they
-# are used, so that supervisord's children do not inherit them.
+# secrets they point to, before anything reads them. pmm-managed reads the secrets of the settings that refer
+# to Vault while it runs, so it gets the credentials of Vault too, in files rather than in the environment
+# that every component of PMM Server inherits.
 if [ -n "$PMM_VAULT_ADDRESS" ]; then
-    declare VAULT_EXPORTS
+    declare VAULT_EXPORTS VAULT_CREDENTIALS_DIR
     if ! VAULT_EXPORTS=$(pmm-managed-init vault-env); then
         echo "FATAL: failed to read the PMM Server secrets from Vault." >&2
         exit 1
     fi
     eval "$VAULT_EXPORTS"
-    unset VAULT_EXPORTS PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID
+
+    VAULT_CREDENTIALS_DIR=$(mktemp -d)
+    if [ -n "$PMM_VAULT_TOKEN" ] && [ -z "$PMM_VAULT_TOKEN_FILE" ]; then
+        (umask 077 && printf '%s' "$PMM_VAULT_TOKEN" > "$VAULT_CREDENTIALS_DIR/token")
+        export PMM_VAULT_TOKEN_FILE="$VAULT_CREDENTIALS_DIR/token"
+    fi
+    if [ -n "$PMM_VAULT_SECRET_ID" ] && [ -z "$PMM_VAULT_SECRET_ID_FILE" ]; then
+        (umask 077 && printf '%s' "$PMM_VAULT_SECRET_ID" > "$VAULT_CREDENTIALS_DIR/secret-id")
+        export PMM_VAULT_SECRET_ID_FILE="$VAULT_CREDENTIALS_DIR/secret-id"
+    fi
+    unset VAULT_EXPORTS VAULT_CREDENTIALS_DIR PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID
 fi
 
 # Initialize /srv if empty
