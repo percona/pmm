@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/vault"
 )
@@ -46,13 +47,15 @@ var vaultEnvPrefixes = []string{"PMM_", "GF_", "VM_", "VMAGENT_"} //nolint:goche
 // entrypoint of PMM Server evaluates them before anything reads those variables. The PMM_VAULT_*
 // variables configure Vault itself and are never resolved, and neither are the PMM_AGENT_* ones of
 // PMM Server's pmm-agent, which reads its references itself and would save the values to its
-// configuration file otherwise.
+// configuration file otherwise, nor the encryption key, which pmm-managed reads itself to keep it
+// out of the environment of every component.
 func vaultEnv(ctx context.Context, cfg vault.Config, environ []string, out io.Writer) error {
 	var refs [][2]string
 	for _, kv := range environ {
 		name, value, _ := strings.Cut(kv, "=")
 		hasPrefix := slices.ContainsFunc(vaultEnvPrefixes, func(prefix string) bool { return strings.HasPrefix(name, prefix) })
-		if !vault.IsRef(value) || !hasPrefix || strings.HasPrefix(name, "PMM_VAULT_") || strings.HasPrefix(name, "PMM_AGENT_") {
+		skipped := strings.HasPrefix(name, "PMM_VAULT_") || strings.HasPrefix(name, "PMM_AGENT_") || name == encryption.KeyEnvVar
+		if !vault.IsRef(value) || !hasPrefix || skipped {
 			continue
 		}
 		if !envNameRE.MatchString(name) {

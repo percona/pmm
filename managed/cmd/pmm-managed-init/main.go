@@ -72,6 +72,12 @@ func main() {
 			errs = append(errs, linkErr)
 		}
 	}
+	if !disableInternalClickhouse {
+		passwordsErr := clickhouse.ApplyPasswords(os.Getenv)
+		if passwordsErr != nil {
+			errs = append(errs, passwordsErr)
+		}
+	}
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s", warn)
 	}
@@ -116,6 +122,11 @@ func main() {
 // All nodes of an HA cluster share one PostgreSQL database but keep their own key file, so
 // letting a node generate its own key leaves it unable to decrypt rows written by the others.
 func checkHAEncryptionKey() error {
+	// Given as a reference to the key in Vault, as a rule, which every node reads the same.
+	if os.Getenv(encryption.KeyEnvVar) != "" {
+		return nil
+	}
+
 	path := encryption.KeyPath()
 
 	info, err := os.Stat(path)

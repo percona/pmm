@@ -293,6 +293,23 @@ bash /opt/ansible/roles/extensions/files/extensions-secrets
 # can then read it out of /proc/<pid>/environ.
 unset PMM_EXTENSIONS_POSTGRES_PASSWORD
 
+# A certificate given in the environment, read from Vault as a rule, replaces the one nginx reads from
+# /srv/nginx at every start, so that PMM Server serves the one in Vault. The CA certificate is optional.
+if [ -n "$PMM_TLS_CERTIFICATE" ] || [ -n "$PMM_TLS_CERTIFICATE_KEY" ]; then
+    if [ -z "$PMM_TLS_CERTIFICATE" ] || [ -z "$PMM_TLS_CERTIFICATE_KEY" ]; then
+        echo "FATAL: PMM_TLS_CERTIFICATE and PMM_TLS_CERTIFICATE_KEY must be given together." >&2
+        exit 1
+    fi
+    echo "Installing the TLS certificate given by PMM_TLS_CERTIFICATE..."
+    mkdir -p /srv/nginx
+    (umask 077 && printf '%s\n' "$PMM_TLS_CERTIFICATE_KEY" > /srv/nginx/certificate.key)
+    printf '%s\n' "$PMM_TLS_CERTIFICATE" > /srv/nginx/certificate.crt
+    if [ -n "$PMM_TLS_CA_CERTIFICATE" ]; then
+        printf '%s\n' "$PMM_TLS_CA_CERTIFICATE" > /srv/nginx/ca-certs.pem
+    fi
+fi
+unset PMM_TLS_CERTIFICATE PMM_TLS_CERTIFICATE_KEY PMM_TLS_CA_CERTIFICATE
+
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 

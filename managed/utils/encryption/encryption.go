@@ -18,6 +18,7 @@ package encryption
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -34,6 +35,9 @@ import (
 	"github.com/tink-crypto/tink-go/keyset"
 	"github.com/tink-crypto/tink-go/tink"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/utils/secrets"
+	"github.com/percona/pmm/utils/vault"
 )
 
 var (
@@ -48,6 +52,10 @@ var (
 
 // CustomEncryptionKeyPathEnvVar is an environment variable to set custom encryption key path.
 const CustomEncryptionKeyPathEnvVar = "PMM_ENCRYPTION_KEY_PATH"
+
+// KeyEnvVar is an environment variable that holds the encryption key itself, usually as a vault:<path>#<key>
+// reference to it, instead of the key file. Nothing writes the key to a file then.
+const KeyEnvVar = "PMM_ENCRYPTION_KEY"
 
 // getDefaultEncryption returns the default encryption instance, initializing it lazily if needed.
 func getDefaultEncryption() *Encryption {
@@ -104,6 +112,14 @@ func isTest() bool {
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
+	if given := os.Getenv(KeyEnvVar); given != "" {
+		e, err := newFromEnv(given)
+		if err != nil {
+			logrus.Panicf("Encryption: %v", err)
+		}
+		return e
+	}
+
 	e := &Encryption{Path: KeyPath()}
 
 	bytes, err := os.ReadFile(e.Path)
@@ -128,8 +144,67 @@ func New() *Encryption {
 	return e
 }
 
+// newFromEnv creates an encryption with the key given by KeyEnvVar, read from Vault if it is a reference.
+func newFromEnv(given string) (*Encryption, error) {
+	key, err := secrets.Resolve(context.Background(), given)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read the key given by %s: %w", KeyEnvVar, err)
+	}
+
+	e := &Encryption{Key: strings.TrimSpace(key)}
+	e.Primitive, err = e.getPrimitive()
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+
+// previousKey is the key that rotateKeyInVault replaced, for RestoreOldEncryptionKey.
+var previousKey string
+
+// rotateKeyInVault generates a new key, and stores it in Vault under the reference that KeyEnvVar gives.
+func rotateKeyInVault(ref string) error {
+	if !vault.IsRef(ref) {
+		return fmt.Errorf("the encryption key is given by %s: store it in Vault to rotate it, "+
+			"or decrypt and encrypt the data with a new one yourself", KeyEnvVar)
+	}
+
+	e := &Encryption{}
+	key, err := e.GenerateKey()
+	if err != nil {
+		return err
+	}
+	e.Key = key
+	e.Primitive, err = e.getPrimitive()
+	if err != nil {
+		return err
+	}
+
+	defaultEncryptionMtx.Lock()
+	defer defaultEncryptionMtx.Unlock()
+
+	if defaultEncryption == nil {
+		defaultEncryption, err = newFromEnv(ref)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = secrets.WriteRef(context.Background(), ref, key)
+	if err != nil {
+		return err
+	}
+	previousKey = defaultEncryption.Key
+	defaultEncryption = e
+	return nil
+}
+
 // RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
 func RotateEncryptionKey() error {
+	if given := os.Getenv(KeyEnvVar); given != "" {
+		return rotateKeyInVault(given)
+	}
+
 	err := backupOldEncryptionKey()
 	if err != nil {
 		return err
@@ -144,6 +219,14 @@ func RotateEncryptionKey() error {
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
+	if given := os.Getenv(KeyEnvVar); given != "" {
+		err := secrets.WriteRef(context.Background(), given, previousKey)
+		if err != nil {
+			return fmt.Errorf("could not restore old encryption key: %w", err)
+		}
+		return nil
+	}
+
 	err := os.Rename(strings.TrimSuffix(KeyPath(), ".key")+"_old.key", KeyPath())
 	if err != nil {
 		return fmt.Errorf("could not restore old encryption key: %w", err)

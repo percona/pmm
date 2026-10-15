@@ -102,6 +102,27 @@ func ResolveAll(ctx context.Context, strs ...*string) error {
 	return nil
 }
 
+// WriteRef stores value under the key that the vault:<path>#<key> reference ref points to.
+func WriteRef(ctx context.Context, ref, value string) error {
+	h := current.Load()
+	if h == nil {
+		return fmt.Errorf("cannot store %s: %w", ref, ErrNotConfigured)
+	}
+
+	w, ok := h.store.(interface {
+		WriteRef(ctx context.Context, ref, value string) error
+	})
+	if !ok {
+		return fmt.Errorf("cannot store %s: Vault is read-only", ref)
+	}
+
+	err := w.WriteRef(ctx, ref, value)
+	if err != nil {
+		return fmt.Errorf("cannot store %s in Vault: %w", ref, err)
+	}
+	return nil
+}
+
 // ConfigFromEnv returns the Vault configuration of PMM Server, given by the PMM_VAULT_* variables.
 func ConfigFromEnv(getenv func(string) string) (vault.Config, error) {
 	skipVerify, _ := strconv.ParseBool(getenv("PMM_VAULT_TLS_SKIP_VERIFY"))

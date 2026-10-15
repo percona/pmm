@@ -260,8 +260,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		// skip various HA-related variables
-		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
+		// skip various HA-related variables, and the encryption key, which must never be logged
+		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ENCRYPTION_KEY", "PMM_ADMIN_PASSWORD":
 			continue
 
 		case pkgenv.EnableAccessControl:
@@ -340,9 +340,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			// skip the Vault settings of PMM Server and of its pmm-agent, which hold credentials, and the
-			// rest of the pmm-agent settings: the unknown ones are logged with their values
-			if strings.HasPrefix(k, "PMM_VAULT_") || strings.HasPrefix(k, "PMM_AGENT_") {
+			// skip the Vault settings of PMM Server and of its pmm-agent, which hold credentials, the rest
+			// of the pmm-agent settings, and the TLS certificate of PMM Server with its key: the unknown
+			// ones are logged with their values
+			if strings.HasPrefix(k, "PMM_VAULT_") || strings.HasPrefix(k, "PMM_AGENT_") || strings.HasPrefix(k, "PMM_TLS_") {
 				continue
 			}
 

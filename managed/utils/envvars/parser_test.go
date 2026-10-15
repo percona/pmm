@@ -80,6 +80,8 @@ func TestEnvVarValidator(t *testing.T) {
 		envs := []string{
 			"PMM_VAULT_ADDRESS=https://vault:8200", "PMM_VAULT_TOKEN=hvs.secret", "PMM_VAULT_SECRET_ID=secret-id",
 			"PMM_AGENT_VAULT_TOKEN=hvs.agent-secret", "PMM_AGENT_SERVER_PASSWORD=glsa_token",
+			"PMM_ENCRYPTION_KEY=vault:secret/data/pmm/server#encryption_key",
+			"PMM_TLS_CERTIFICATE_KEY=-----BEGIN PRIVATE KEY-----",
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
