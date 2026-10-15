@@ -686,8 +686,9 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 	}
 
 	_, err = sqlDB.ExecContext(t.Context(),
-		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, created_at) VALUES ('R1', $1, $2, $3, $4)`,
-		toLegacy("admin"), toLegacy("legacy-password"), toLegacy("legacy-key-file"), time.Now())
+		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, admin_username, admin_password, created_at) `+
+			`VALUES ('R1', $1, $2, $3, $4, $5, $6)`,
+		toLegacy("admin"), toLegacy("legacy-password"), toLegacy("legacy-key-file"), toLegacy("dba"), toLegacy("legacy-admin-password"), time.Now())
 	require.NoError(t, err)
 	// a secret stored through the model is an envelope already
 	require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
@@ -695,6 +696,8 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 		MongoDBUsername: "admin",
 		MongoDBPassword: "new-password",
 		KeyFile:         "new-key-file",
+		AdminUsername:   "dba",
+		AdminPassword:   "new-admin-password",
 	}))
 
 	ids, err := models.OmBootstrapSecretsNeedingReencryption(q, cipher)
@@ -704,12 +707,12 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 	require.NoError(t, models.MigrateEncryption(q))
 
 	for _, runID := range []string{"R1", "R2"} {
-		var username, password, keyFile string
+		var username, password, keyFile, adminUsername, adminPassword string
 		err = sqlDB.QueryRowContext(t.Context(),
-			`SELECT mongodb_username, mongodb_password, key_file FROM om_bootstrap_secrets WHERE run_id = $1`, runID).
-			Scan(&username, &password, &keyFile)
+			`SELECT mongodb_username, mongodb_password, key_file, admin_username, admin_password FROM om_bootstrap_secrets WHERE run_id = $1`, runID).
+			Scan(&username, &password, &keyFile, &adminUsername, &adminPassword)
 		require.NoError(t, err)
-		for _, stored := range []string{username, password, keyFile} {
+		for _, stored := range []string{username, password, keyFile, adminUsername, adminPassword} {
 			keyID, ok := encryption.StoredKeyID(stored)
 			require.True(t, ok, "value %q is not an envelope", stored)
 			assert.Equal(t, cipher.PrimaryKeyID(), keyID)
@@ -721,6 +724,8 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 	assert.Equal(t, "admin", secret.MongoDBUsername.Reveal())
 	assert.Equal(t, "legacy-password", secret.MongoDBPassword.Reveal())
 	assert.Equal(t, "legacy-key-file", secret.KeyFile.Reveal())
+	assert.Equal(t, "dba", secret.AdminUsername.Reveal())
+	assert.Equal(t, "legacy-admin-password", secret.AdminPassword.Reveal())
 
 	ids, err = models.OmBootstrapSecretsNeedingReencryption(q, cipher)
 	require.NoError(t, err)
@@ -749,7 +754,8 @@ func TestMigrateEncryptionOmBootstrapSecretsWrongKey(t *testing.T) {
 	foreign := strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 
 	_, err = sqlDB.ExecContext(t.Context(),
-		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, created_at) VALUES ('R1', '', $1, '', $2)`,
+		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, admin_username, admin_password, created_at) `+
+			`VALUES ('R1', '', $1, '', '', '', $2)`,
 		foreign, time.Now())
 	require.NoError(t, err)
 

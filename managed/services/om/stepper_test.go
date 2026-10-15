@@ -82,7 +82,7 @@ func TestAdminUserCredentials(t *testing.T) {
 		secret, err := models.FindOmBootstrapSecretByRunID(db.Querier, "run-abc")
 		require.NoError(t, err)
 		assert.Empty(t, secret.AdminPassword)
-		assert.Equal(t, "monitoring-secret", secret.MongoDBPassword, "the exporter still needs its own password")
+		assert.Equal(t, "monitoring-secret", secret.MongoDBPassword.Reveal(), "the exporter still needs its own password")
 		_, err = svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
 		require.ErrorIs(t, err, errAdminPasswordGone)
 	})

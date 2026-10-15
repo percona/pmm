@@ -1572,9 +1572,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Regexp(t, "^[A-Za-z0-9]{8,}$", response.GetGeneratedAdminPassword())
 		secret, err := models.FindOmBootstrapSecretByRunID(svc.db.Querier, "run-abc")
 		require.NoError(t, err)
-		assert.Equal(t, "admin", secret.AdminUsername)
-		assert.Equal(t, response.GetGeneratedAdminPassword(), secret.AdminPassword)
-		assert.Equal(t, bootstrapMongoDBUsername, secret.MongoDBUsername)
+		assert.Equal(t, "admin", secret.AdminUsername.Reveal())
+		assert.Equal(t, response.GetGeneratedAdminPassword(), secret.AdminPassword.Reveal())
+		assert.Equal(t, bootstrapMongoDBUsername, secret.MongoDBUsername.Reveal())
 		assert.NotEqual(t, secret.AdminPassword, secret.MongoDBPassword)
 	})
 
@@ -1599,8 +1599,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Empty(t, response.GetGeneratedAdminPassword())
 		secret, err := models.FindOmBootstrapSecretByRunID(svc.db.Querier, "run-abc")
 		require.NoError(t, err)
-		assert.Equal(t, "dba", secret.AdminUsername)
-		assert.Equal(t, "chosen-secret", secret.AdminPassword)
+		assert.Equal(t, "dba", secret.AdminUsername.Reveal())
+		assert.Equal(t, "chosen-secret", secret.AdminPassword.Reveal())
 	})
 
 	t.Run("refuses administrator credentials MongoDB could not create", func(t *testing.T) {
