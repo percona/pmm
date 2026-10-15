@@ -16,6 +16,7 @@ package management
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"net"
@@ -225,6 +226,13 @@ func (f *UpdateCommonFlags) endpoint(address string, common AddCommonFlags, sock
 // target returns the ID or name of the Service to update: --service-id, the name given on the command line,
 // or else the only Service of the type on this Node.
 func (f *UpdateCommonFlags) target(name string, serviceType string) (string, error) {
+	// Kong fills the arguments in order, so an address given alone lands in <name>. Picking the Service by a flag
+	// as well would drop it without a word.
+	if f.typed["name"] && (f.typed["service-id"] || f.typed["service-name"]) {
+		return "", errors.New("the <name> argument and --service-id or --service-name are both given;" +
+			" pass the Service once, and the address as the argument after the name or with --host and --port")
+	}
+
 	if f.ServiceID != "" {
 		return f.ServiceID, nil
 	}

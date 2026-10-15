@@ -178,6 +178,21 @@ func TestUpdateMongoDB(t *testing.T) {
 		assert.JSONEq(t, `{"mongodb": {"address": "10.0.0.1", "port": 27018, "connection_timeout": "2s"}}`, run.body)
 	})
 
+	// An address given alone lands in <name>, which a Service picked by a flag would drop without a word.
+	t.Run("NameWithServiceFlag", func(t *testing.T) {
+		const want = "the <name> argument and --service-id or --service-name are both given;" +
+			" pass the Service once, and the address as the argument after the name or with --host and --port"
+
+		_, err := runUpdate(t, &UpdateMongoDBCommand{}, "--service-id=1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "10.0.0.1:27018")
+		require.EqualError(t, err, want)
+
+		_, err = runUpdate(t, &UpdateMongoDBCommand{}, "--service-name=mongodb_srv_1", "10.0.0.1:27018")
+		require.EqualError(t, err, want)
+
+		_, err = runUpdate(t, &UpdateHAProxyCommand{}, "--service-id=1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "haproxy_srv_1")
+		require.EqualError(t, err, want)
+	})
+
 	t.Run("CredentialsSource", func(t *testing.T) {
 		credentials := filepath.Join(t.TempDir(), "credentials.json")
 		require.NoError(t, os.WriteFile(credentials, []byte(`{"username": "pmm", "password": "s3cret"}`), 0o600))
