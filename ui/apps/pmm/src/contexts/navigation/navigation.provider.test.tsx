@@ -79,7 +79,7 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
 describe('NavigationProvider', () => {
-  describe('Management section', () => {
+  describe('Apps section', () => {
     it.each([
       ['admin', TEST_USER_ADMIN],
       ['editor', TEST_USER_EDITOR],
@@ -89,7 +89,7 @@ describe('NavigationProvider', () => {
       const management = findById(navTree, 'management');
 
       expect(management).toBeDefined();
-      expect(management?.text).toBe('Management');
+      expect(management?.text).toBe('Apps');
       expect(management?.url).toBeUndefined();
       expect(management?.children?.map((child) => child.id)).toEqual([
         'extensions-mysql-backups',
@@ -127,7 +127,7 @@ describe('NavigationProvider', () => {
       const ids = renderNavTree().map((item) => item.id);
       // Only the block the section joins is pinned: asserting the whole tree
       // would break on any unrelated nav addition without telling us anything
-      // about where Management landed.
+      // about where Apps landed.
       const block = ids.slice(ids.indexOf('inventory-divider'));
 
       expect(block).toEqual([
@@ -223,20 +223,17 @@ describe('NavigationProvider', () => {
         'extensions-mysql-backups',
         `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`,
       ],
-    ])(
-      'marks %s active and keeps it inside Management for %s',
-      (childId, path) => {
-        const navTree = renderNavTree(TEST_USER_VIEWER, {
-          initialEntries: [path],
-        });
-        const management = findById(navTree, 'management');
-        const active = findActiveNavItem(navTree, path);
+    ])('marks %s active and keeps it inside Apps for %s', (childId, path) => {
+      const navTree = renderNavTree(TEST_USER_VIEWER, {
+        initialEntries: [path],
+      });
+      const management = findById(navTree, 'management');
+      const active = findActiveNavItem(navTree, path);
 
-        expect(active?.id).toBe(childId);
-        // The sidebar expands a section when its active child is the very object
-        // held in `children`, so identity — not just the id — has to match.
-        expect(management?.children).toContain(active);
-      }
-    );
+      expect(active?.id).toBe(childId);
+      // The sidebar expands a section when its active child is the very object
+      // held in `children`, so identity — not just the id — has to match.
+      expect(management?.children).toContain(active);
+    });
   });
 });

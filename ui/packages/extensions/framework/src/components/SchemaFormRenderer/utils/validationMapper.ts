@@ -16,7 +16,6 @@
  */
 
 import type { RegisterOptions } from 'react-hook-form';
-import { fromDatetimeLocalValue } from '../../../utils/datetimeLocal';
 import type { PluginField } from '../types';
 import { getAtPath, setAtPath } from './fieldPath';
 
@@ -140,10 +139,11 @@ export function buildValidationRules(field: PluginField): RegisterOptions {
  * Coerce raw form values into the types the backend expects.
  *
  * react-hook-form's Controller does not expose setValueAs, so integer/float
- * fields reach the submit handler as strings, and datetime fields hold
- * `datetime-local` wall-clock strings. This walks the schema and converts
- * values based on their declared type. Empty strings become undefined so
- * optional numeric / datetime fields serialise cleanly.
+ * fields reach the submit handler as strings. This walks the schema and converts
+ * values based on their declared type. Datetime fields submit their wall-clock
+ * string unchanged, since snippets read it in the executor host's zone
+ * (PMM-15707). Empty strings become undefined so optional numeric / datetime
+ * fields serialise cleanly.
  */
 export function coerceFormValues(
   values: Record<string, unknown>,
@@ -173,14 +173,11 @@ export function coerceFormValues(
     }
     if (field.type === 'datetime') {
       const trimmed = typeof raw === 'string' ? raw.trim() : raw;
-      if (trimmed === '' || trimmed === null || trimmed === undefined) {
-        setAtPath(out, field.name, undefined);
-        continue;
-      }
-      const iso = fromDatetimeLocalValue(raw);
-      // Keep unparseable raw so the backend can reject it rather than silently
-      // dropping a value the user typed (mirrors integer/float above).
-      setAtPath(out, field.name, iso ?? raw);
+      setAtPath(
+        out,
+        field.name,
+        trimmed === '' || trimmed === null ? undefined : trimmed
+      );
       continue;
     }
     if (
