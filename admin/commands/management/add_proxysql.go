@@ -54,7 +54,7 @@ type AddProxySQLCommand struct {
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	Username            string            `default:"admin" help:"ProxySQL username"`
 	Password            string            `default:"admin" help:"ProxySQL password"`
-	VaultPath           string            `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath           string            `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Environment         string            `help:"Environment name"`
@@ -99,6 +99,9 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 	cmd.AgentPassword = creds.AgentPassword
 	cmd.Password = creds.Password
 	cmd.Username = creds.Username
+	if creds.VaultPath != "" {
+		cmd.VaultPath = creds.VaultPath
+	}
 
 	return nil
 }

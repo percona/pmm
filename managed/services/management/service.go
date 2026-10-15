@@ -541,3 +541,26 @@ func (s *ManagementService) validateRequest(request *managementv1.RemoveServiceR
 	}
 	return nil
 }
+
+// takeVaultPassword takes a password given with a Vault path out of the request: it goes to Vault, see
+// storeInVault, and never to PMM Server.
+func takeVaultPassword(vaultPath string, password *string) string {
+	if vaultPath == "" {
+		return ""
+	}
+
+	taken := *password
+	*password = ""
+	return taken
+}
+
+// storeInVault stores the credentials a Service is added with in the Vault secret its Agents read them
+// from, after checking that the exporter connects with them unless the check is skipped.
+func (s *ManagementService) storeInVault(ctx context.Context, q *reform.Querier, exporter *models.Agent, username, password string, skipCheck bool) error {
+	if password == "" {
+		return nil
+	}
+
+	_, err := services.StoreCredentialsInVault(ctx, q, s.r, s.cc, exporter, username, password, skipCheck)
+	return err
+}

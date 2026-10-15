@@ -2333,7 +2333,7 @@
                       "x-order": 33
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 34
                     }
@@ -2624,7 +2624,7 @@
                       "x-order": 36
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 37
                     }
@@ -2895,7 +2895,7 @@
                       "x-order": 33
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 34
                     }
@@ -3108,7 +3108,7 @@
                       "x-order": 22
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 23
                     }
@@ -3674,7 +3674,7 @@
                       "x-order": 37
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 38
                     }
@@ -3894,7 +3894,7 @@
                       "x-order": 24
                     },
                     "vault_path": {
-                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                       "type": "string",
                       "x-order": 25
                     }
@@ -7288,7 +7288,7 @@
                   "x-order": 26
                 },
                 "vault_path": {
-                  "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\nExclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.",
+                  "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
                   "type": "string",
                   "x-order": 27
                 }

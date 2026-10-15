@@ -59,7 +59,7 @@ type AddPostgreSQLCommand struct {
 	Socket            string `help:"Path to socket"`
 	Username          string `default:"postgres" help:"PostgreSQL username"`
 	Password          string `help:"PostgreSQL password"`
-	VaultPath         string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath         string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	Database          string `help:"PostgreSQL database"`
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
@@ -116,6 +116,9 @@ func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 	cmd.AgentPassword = creds.AgentPassword
 	cmd.Password = creds.Password
 	cmd.Username = creds.Username
+	if creds.VaultPath != "" {
+		cmd.VaultPath = creds.VaultPath
+	}
 
 	return nil
 }

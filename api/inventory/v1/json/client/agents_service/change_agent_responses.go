@@ -7726,7 +7726,8 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 	EnableDiagnosticDataHistograms *bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -8174,7 +8175,8 @@ type ChangeAgentParamsBodyMysqldExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -8883,7 +8885,8 @@ type ChangeAgentParamsBodyPostgresExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -9224,7 +9227,8 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -9571,7 +9575,8 @@ type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -9918,7 +9923,8 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgent struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -10265,7 +10271,8 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -10615,7 +10622,8 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -10959,7 +10967,8 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -11306,7 +11315,8 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -11970,7 +11980,8 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
@@ -12314,7 +12325,8 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels

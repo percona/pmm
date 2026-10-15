@@ -30,6 +30,7 @@ import (
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
 func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
+	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
 	err := services.RequireUsername("AddPostgreSQLServiceParams", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -88,6 +89,10 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, row, req.Username, vaultPassword, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

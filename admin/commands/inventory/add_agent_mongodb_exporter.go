@@ -61,7 +61,7 @@ type AddAgentMongodbExporterCommand struct {
 	ServiceID                      string            `arg:"" help:"Service identifier"`
 	Username                       string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                       string            `help:"MongoDB password for scraping metrics"`
-	VaultPath                      string            `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath                      string            `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	AgentPassword                  string            `help:"Custom password for /metrics endpoint"`
 	CustomLabels                   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck            bool              `help:"Skip connection check"`

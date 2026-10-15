@@ -379,7 +379,8 @@ type AddRDSServiceParams struct {
 	// Mutually exclusive with aws_access_key and aws_secret_key.
 	AwsRoleArn string `protobuf:"bytes,38,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,39,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

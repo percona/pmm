@@ -1067,7 +1067,8 @@ message AddMySQLdExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 20;
 }
 
@@ -1111,7 +1112,8 @@ message ChangeMySQLdExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 19;
 }
 
@@ -1173,7 +1175,8 @@ message AddMongoDBExporterParams {
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 24;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 25;
 }
 
@@ -1231,7 +1234,8 @@ message ChangeMongoDBExporterParams {
   // An empty list removes all previously set environment variable names.
   optional common.StringArray environment_variable_names = 24;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 25;
 }
 
@@ -1279,7 +1283,8 @@ message AddPostgresExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 20;
 }
 
@@ -1325,7 +1330,8 @@ message ChangePostgresExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 20;
 }
 
@@ -1363,7 +1369,8 @@ message AddProxySQLExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 15;
 }
 
@@ -1399,7 +1406,8 @@ message ChangeProxySQLExporterParams {
   // Skip connection check.
   optional bool skip_connection_check = 14;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 15;
 }
 
@@ -1439,7 +1447,8 @@ message AddQANMySQLPerfSchemaAgentParams {
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 16;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 17;
 }
 
@@ -1477,7 +1486,8 @@ message ChangeQANMySQLPerfSchemaAgentParams {
   // Log level for exporter.
   optional LogLevel log_level = 16;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 17;
 }
 
@@ -1520,7 +1530,8 @@ message AddQANMySQLSlowlogAgentParams {
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 17;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 18;
 }
 
@@ -1560,7 +1571,8 @@ message ChangeQANMySQLSlowlogAgentParams {
   // Log level for exporter.
   optional LogLevel log_level = 17;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 18;
 }
 
@@ -1600,7 +1612,8 @@ message AddQANMongoDBProfilerAgentParams {
   // Log level for agent.
   LogLevel log_level = 15;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 16;
 }
 
@@ -1638,7 +1651,8 @@ message ChangeQANMongoDBProfilerAgentParams {
   // Skip connection check.
   optional bool skip_connection_check = 16;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 17;
 }
 
@@ -1678,7 +1692,8 @@ message AddQANMongoDBMongologAgentParams {
   // Log level for agent.
   LogLevel log_level = 15;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 16;
 }
 
@@ -1716,7 +1731,8 @@ message ChangeQANMongoDBMongologAgentParams {
   // Skip connection check.
   optional bool skip_connection_check = 16;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 17;
 }
 
@@ -1752,7 +1768,8 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   // Log level for exporter.
   LogLevel log_level = 14;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 15;
 }
 
@@ -1788,7 +1805,8 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   // Skip connection check.
   optional bool skip_connection_check = 15;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 16;
 }
 
@@ -1826,7 +1844,8 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   // Log level for exporter.
   LogLevel log_level = 15;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 16;
 }
 
@@ -1864,7 +1883,8 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   // Skip connection check.
   optional bool skip_connection_check = 16;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 17;
 }
 
@@ -2072,7 +2092,8 @@ message AddValkeyExporterParams {
     gte: {seconds: 0}
   }];
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 18;
 }
 
@@ -2117,7 +2138,8 @@ message ChangeValkeyExporterParams {
   // Skip connection check.
   optional bool skip_connection_check = 17;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 18;
 }
 
@@ -2157,7 +2179,8 @@ message AddRTAMongoDBAgentParams {
   // Real-Time Analytics options.
   RTAOptions rta_options = 14;
   // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
   string vault_path = 15;
 }
 
@@ -2189,7 +2212,8 @@ message ChangeRTAMongoDBAgentParams {
   // Skip connection check.
   optional bool skip_connection_check = 13;
   // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-  // An empty value stops reading the credentials from Vault.
+  // A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+  // Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
   optional string vault_path = 14;
 }
 

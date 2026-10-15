@@ -73,7 +73,7 @@ type ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	Enable    *bool   `help:"Enable or disable the agent"`
 	Username  *string `help:"Username for PostgreSQL connection"`
 	Password  *string `help:"Password for PostgreSQL connection"`
-	VaultPath *string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath *string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 
 	// TLS options
 	TLS           *bool   `help:"Use TLS for database connections"`

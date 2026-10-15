@@ -84,12 +84,14 @@ type Credentials struct {
 	AgentPassword string `json:"agentpassword"`
 	Password      string `json:"password"`
 	Username      string `json:"username"`
+	// VaultPath is the Vault secret pmm-agent reads the password, and optionally the username, from.
+	VaultPath string `json:"vault_path"`
 }
 
 // ReadFromSource parses a JSON file src and return
 // a Credentials pointer containing the data.
 func ReadFromSource(src string) (*Credentials, error) {
-	creds := Credentials{"", "", ""}
+	var creds Credentials
 
 	f, err := os.Lstat(src)
 	if err != nil {

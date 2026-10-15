@@ -288,6 +288,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 //
 //nolint:gocognit,cyclop,maintidx
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
+	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
 	err := services.RequireUsername("AddRDSServiceParams", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -415,6 +416,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			if err != nil {
 				return err
 			}
+			err = s.storeInVault(ctx, tx.Querier, mysqldExporter, req.Username, vaultPassword, req.SkipConnectionCheck)
+			if err != nil {
+				return err
+			}
 			invMySQLdExporter, err := services.ToAPIAgent(tx.Querier, mysqldExporter)
 			if err != nil {
 				return err
@@ -507,6 +512,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})
+			if err != nil {
+				return err
+			}
+			err = s.storeInVault(ctx, tx.Querier, postgresExporter, req.Username, vaultPassword, req.SkipConnectionCheck)
 			if err != nil {
 				return err
 			}

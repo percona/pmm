@@ -17,6 +17,7 @@ package management
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,8 +40,41 @@ const (
 
 	vaultPath = "secret/data/pmm/api-tests"
 
-	vaultPasswordError = "Password and Vault path are mutually exclusive: the password is read from Vault."
+	vaultStoreError = "Failed to store the credentials in Vault: "
 )
+
+// storedInVault reports whether the credentials a request gave were stored in Vault. Only a PMM Server whose
+// own pmm-agent has Vault configured stores them; anywhere else the request is refused, changing nothing.
+func storedInVault(t *testing.T, err error) bool {
+	t.Helper()
+
+	if err == nil {
+		return true
+	}
+	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, vaultStoreError)
+	return false
+}
+
+// removeAddedService removes the Service an AddService response describes, whichever its type is.
+func removeAddedService(t *testing.T, res *mservice.AddServiceOK) {
+	t.Helper()
+
+	for _, f := range reflect.ValueOf(res.Payload).Elem().Fields() {
+		if f.Kind() != reflect.Pointer || f.IsNil() {
+			continue
+		}
+		for _, name := range []string{"Service", "Mysql", "Postgresql"} {
+			service := f.Elem().FieldByName(name)
+			if service.IsValid() && !service.IsNil() {
+				t.Cleanup(func() { pmmapitests.RemoveServices(t, service.Elem().FieldByName("ServiceID").String()) })
+			}
+		}
+		node := f.Elem().FieldByName("Node")
+		if node.IsValid() && !node.IsNil() {
+			t.Cleanup(func() { pmmapitests.RemoveNodes(t, node.Elem().FieldByName("NodeID").String()) })
+		}
+	}
+}
 
 func addService(t *testing.T, body mservice.AddServiceBody) (*mservice.AddServiceOK, error) {
 	t.Helper()
@@ -186,7 +220,7 @@ func TestAddServicesWithCredentialsInVault(t *testing.T) {
 	})
 }
 
-func TestAddServicesWithCredentialsInVaultErrors(t *testing.T) {
+func TestAddServicesWithPasswordAndVaultPath(t *testing.T) {
 	t.Parallel()
 
 	for name, body := range map[string]func(t *testing.T, password, vaultPath string) mservice.AddServiceBody{
@@ -229,9 +263,13 @@ func TestAddServicesWithCredentialsInVaultErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
+			// The password goes to Vault, and PMM Server stores the path only.
 			res, err := addService(t, body(t, "password", vaultPath))
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, vaultPasswordError)
-			assert.Nil(t, res)
+			if storedInVault(t, err) {
+				removeAddedService(t, res)
+			} else {
+				assert.Nil(t, res)
+			}
 
 			res, err = addService(t, body(t, "", "secret/../pmm"))
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "vault path 'secret/../pmm' has an empty or relative segment")
@@ -348,8 +386,11 @@ func TestAddRDSWithCredentialsInVault(t *testing.T) {
 		t.Parallel()
 
 		res, err := addService(t, rdsBody(t, "DISCOVER_RDS_ENGINE_MYSQL", "username", "password", vaultPath))
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, vaultPasswordError)
-		assert.Nil(t, res)
+		if storedInVault(t, err) {
+			removeAddedService(t, res)
+		} else {
+			assert.Nil(t, res)
+		}
 
 		res, err = addService(t, rdsBody(t, "DISCOVER_RDS_ENGINE_MYSQL", "", "password", ""))
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddRDSServiceParams.Username: value length must be at least 1 runes")

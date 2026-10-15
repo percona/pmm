@@ -146,6 +146,18 @@ func changeAgent(t *testing.T, at vaultAgentType, agentID string, values map[str
 	})
 }
 
+// storedInVault reports whether the credentials a request gave were stored in Vault. Only a PMM Server whose
+// own pmm-agent has Vault configured stores them; anywhere else the request is refused, changing nothing.
+func storedInVault(t *testing.T, err error) bool {
+	t.Helper()
+
+	if err == nil {
+		return true
+	}
+	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Failed to store the credentials in Vault: ")
+	return false
+}
+
 func TestAgentsWithCredentialsInVault(t *testing.T) {
 	t.Parallel()
 
@@ -176,8 +188,14 @@ func TestAgentsWithCredentialsInVault(t *testing.T) {
 				require.Equal(t, 1, listed.Len())
 				assert.Equal(t, vaultPath, listed.Index(0).Elem().FieldByName("VaultPath").Interface())
 
-				// A password replaces the Vault path.
-				changed, err := changeAgent(t, at, agentID, map[string]any{"Username": "username", "Password": "password"})
+				// A password given for an Agent that reads its credentials from Vault goes to Vault.
+				changed, err := changeAgent(t, at, agentID, map[string]any{"Password": "password"})
+				if storedInVault(t, err) {
+					assert.Equal(t, vaultPath, oneOfField(t, changed.Payload, at.field, "VaultPath"))
+				}
+
+				// An empty Vault path takes the Agent off Vault, with the password stored in PMM Server again.
+				changed, err = changeAgent(t, at, agentID, map[string]any{"Username": "username", "Password": "password", "VaultPath": new("")})
 				require.NoError(t, err)
 				assert.Empty(t, oneOfField(t, changed.Payload, at.field, "VaultPath"))
 				assert.Equal(t, "username", oneOfField(t, changed.Payload, at.field, "Username"))
@@ -192,19 +210,23 @@ func TestAgentsWithCredentialsInVault(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, otherVaultPath, oneOfField(t, changed.Payload, at.field, "VaultPath"))
 
-				_, err = changeAgent(t, at, agentID, map[string]any{"Password": "password", "VaultPath": vaultPath})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Password and Vault path are mutually exclusive: the password is read from Vault.")
+				// A password given with a new Vault path goes to that path.
+				changed, err = changeAgent(t, at, agentID, map[string]any{"Password": "password", "VaultPath": vaultPath})
+				if storedInVault(t, err) {
+					assert.Equal(t, vaultPath, oneOfField(t, changed.Payload, at.field, "VaultPath"))
+				}
 
 				_, err = changeAgent(t, at, agentID, map[string]any{"VaultPath": "secret/../pmm"})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "vault path 'secret/../pmm' has an empty or relative segment")
 
 				// An empty Vault path stops reading the credentials from Vault.
-				changed, err = changeAgent(t, at, agentID, map[string]any{"VaultPath": new("")})
+				changed, err = changeAgent(t, at, agentID, map[string]any{"VaultPath": new(""), "Password": "password"})
 				require.NoError(t, err)
 				assert.Empty(t, oneOfField(t, changed.Payload, at.field, "VaultPath"))
 			})
 
 			t.Run("AddWithPassword", func(t *testing.T) {
+				// The password goes to Vault, and PMM Server stores the path only.
 				res, err := client.Default.AgentsService.AddAgent(addAgentRequest(t, at, map[string]any{
 					"PMMAgentID": pmmServerAgentID,
 					"ServiceID":  serviceID,
@@ -212,8 +234,14 @@ func TestAgentsWithCredentialsInVault(t *testing.T) {
 					"Password":   "password",
 					"VaultPath":  vaultPath,
 				}))
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Password and Vault path are mutually exclusive: the password is read from Vault.")
-				assert.Nil(t, res)
+				if !storedInVault(t, err) {
+					assert.Nil(t, res)
+					return
+				}
+
+				agentID := oneOfField(t, res.Payload, at.field, "AgentID").(string)
+				t.Cleanup(func() { pmmapitests.RemoveAgents(t, agentID) })
+				assert.Equal(t, vaultPath, oneOfField(t, res.Payload, at.field, "VaultPath"))
 			})
 
 			t.Run("AddWithInvalidPath", func(t *testing.T) {

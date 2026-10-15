@@ -5826,7 +5826,8 @@ type AddMySQLdExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6041,7 +6042,8 @@ type ChangeMySQLdExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,19,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6265,7 +6267,8 @@ type AddMongoDBExporterParams struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `protobuf:"varint,24,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6529,7 +6532,8 @@ type ChangeMongoDBExporterParams struct {
 	// An empty list removes all previously set environment variable names.
 	EnvironmentVariableNames *common.StringArray `protobuf:"bytes,24,opt,name=environment_variable_names,json=environmentVariableNames,proto3,oneof" json:"environment_variable_names,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6781,7 +6785,8 @@ type AddPostgresExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6998,7 +7003,8 @@ type ChangePostgresExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7205,7 +7211,8 @@ type AddProxySQLExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,14,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7377,7 +7384,8 @@ type ChangeProxySQLExporterParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,14,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7553,7 +7561,8 @@ type AddQANMySQLPerfSchemaAgentParams struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,16,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7743,7 +7752,8 @@ type ChangeQANMySQLPerfSchemaAgentParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7936,7 +7946,8 @@ type AddQANMySQLSlowlogAgentParams struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,17,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8135,7 +8146,8 @@ type ChangeQANMySQLSlowlogAgentParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8332,7 +8344,8 @@ type AddQANMongoDBProfilerAgentParams struct {
 	// Log level for agent.
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8515,7 +8528,8 @@ type ChangeQANMongoDBProfilerAgentParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8705,7 +8719,8 @@ type AddQANMongoDBMongologAgentParams struct {
 	// Log level for agent.
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8888,7 +8903,8 @@ type ChangeQANMongoDBMongologAgentParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9074,7 +9090,8 @@ type AddQANPostgreSQLPgStatementsAgentParams struct {
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9248,7 +9265,8 @@ type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,15,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9429,7 +9447,8 @@ type AddQANPostgreSQLPgStatMonitorAgentParams struct {
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9612,7 +9631,8 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -10625,7 +10645,8 @@ type AddValkeyExporterParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,17,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -10824,7 +10845,8 @@ type ChangeValkeyExporterParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,17,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -11020,7 +11042,8 @@ type AddRTAMongoDBAgentParams struct {
 	// Real-Time Analytics options.
 	RtaOptions *RTAOptions `protobuf:"bytes,14,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -11190,7 +11213,8 @@ type ChangeRTAMongoDBAgentParams struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,13,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
-	// An empty value stops reading the credentials from Vault.
+	// A password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the
+	// Agent connects with it. An empty value, given with a password, stops reading the credentials from Vault.
 	VaultPath     *string `protobuf:"bytes,14,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

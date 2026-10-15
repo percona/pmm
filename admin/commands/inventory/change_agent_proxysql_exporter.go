@@ -73,7 +73,7 @@ type ChangeAgentProxysqlExporterCommand struct {
 	Enable        *bool   `help:"Enable or disable the agent"`
 	Username      *string `help:"Username for ProxySQL connection"`
 	Password      *string `help:"Password for ProxySQL connection"`
-	VaultPath     *string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath     *string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	AgentPassword *string `help:"Custom password for agent /metrics endpoint"`
 
 	// TLS options

@@ -2147,12 +2147,20 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 			}
 		}
 
-		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, params)
+		changeParams, vaultUsername, vaultPassword := vaultChange(currentAgent, params)
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, changeParams)
 		if err != nil {
 			return err
 		}
 
-		if !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
+		// Checked with the new credentials before they are stored, so the check below would only repeat it.
+		stored, err := services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, updatedAgent,
+			vaultUsername, vaultPassword, params.SkipConnectionCheck)
+		if err != nil {
+			return err
+		}
+
+		if !stored && !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
 			service, err := models.FindServiceByID(tx.Querier, pointer.GetString(updatedAgent.ServiceID))
 			if err != nil {
 				return err
@@ -2172,14 +2180,51 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	return agent, err
 }
 
+// vaultChange takes the credentials that go to Vault off a change of an Agent that reads its credentials
+// from Vault, or is moved to Vault by the change: a username or password given for it replaces the one
+// in its Vault secret, unless the change takes it off Vault with an empty Vault path. The username is
+// kept in PMM Server too, as the fallback for a secret that has none.
+func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*models.ChangeAgentParams, string, string) {
+	path := pointer.GetString(current.VaultPath)
+	if params.VaultPath != nil {
+		path = *params.VaultPath
+	}
+	if path == "" {
+		return params, "", ""
+	}
+
+	username := pointer.GetString(params.Username)
+	password := pointer.GetString(params.Password)
+	if password == "" {
+		return params, username, ""
+	}
+
+	changed := *params
+	changed.Password = nil
+	return &changed, username, password
+}
+
 // executeAgentAdd creates an agent and returns the agent.
 func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
+
+	// A password given with a Vault path goes to Vault, never to PMM Server.
+	vaultPassword := ""
+	if params.VaultPath != "" {
+		vaultPassword, params.Password = params.Password, ""
+	}
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateAgent(tx.Querier, agentType, params)
 		if err != nil {
 			return err
+		}
+
+		if vaultPassword != "" {
+			_, err = services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, row, params.Username, vaultPassword, params.SkipConnectionCheck)
+			if err != nil {
+				return err
+			}
 		}
 
 		if !params.SkipConnectionCheck && params.ServiceID != "" {

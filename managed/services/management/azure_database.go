@@ -190,6 +190,7 @@ func (s *ManagementService) DiscoverAzureDatabase(
 //
 //nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
+	vaultPassword := takeVaultPassword(req.VaultPath, &req.Password)
 	err := services.RequireUsername("AddAzureDatabaseRequest", req.Username, req.VaultPath)
 	if err != nil {
 		return nil, err
@@ -309,6 +310,10 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, metricsExporter, req.Username, vaultPassword, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

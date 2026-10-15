@@ -7272,7 +7272,8 @@ type AddAgentParamsBodyMongodbExporter struct {
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -7435,7 +7436,8 @@ type AddAgentParamsBodyMysqldExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -7754,7 +7756,8 @@ type AddAgentParamsBodyPostgresExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -7900,7 +7903,8 @@ type AddAgentParamsBodyProxysqlExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8051,7 +8055,8 @@ type AddAgentParamsBodyQANMongodbMongologAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8202,7 +8207,8 @@ type AddAgentParamsBodyQANMongodbProfilerAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8354,7 +8360,8 @@ type AddAgentParamsBodyQANMysqlPerfschemaAgent struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8510,7 +8517,8 @@ type AddAgentParamsBodyQANMysqlSlowlogAgent struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8656,7 +8664,8 @@ type AddAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -8805,7 +8814,8 @@ type AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 
@@ -9085,7 +9095,8 @@ type AddAgentParamsBodyRtaMongodbAgent struct {
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 
 	// rta options
@@ -9340,7 +9351,8 @@ type AddAgentParamsBodyValkeyExporter struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 

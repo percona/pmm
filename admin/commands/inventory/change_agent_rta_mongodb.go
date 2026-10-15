@@ -70,7 +70,7 @@ type ChangeAgentRTAMongoDBAgentCommand struct {
 	Enable    *bool   `help:"Enable or disable the agent"`
 	Username  *string `help:"MongoDB username for scraping metrics"`
 	Password  *string `help:"MongoDB password for scraping metrics"`
-	VaultPath *string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
+	VaultPath *string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 
 	// TLS options
 	TLS                           *bool   `help:"Use TLS to connect to the database"`

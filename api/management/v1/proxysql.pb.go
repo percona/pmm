@@ -84,7 +84,8 @@ type AddProxySQLServiceParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,24,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath     string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -277,7 +277,8 @@ type AddAzureDatabaseBody struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
-	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
 	VaultPath string `json:"vault_path,omitempty"`
 }
 

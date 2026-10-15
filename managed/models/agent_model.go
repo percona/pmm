@@ -434,6 +434,20 @@ type Agent struct {
 	// undecrypted holds the stored ciphertext of the secret fields this node's key could not
 	// decrypt, by field name, so that writing the Agent back keeps them intact.
 	undecrypted map[string]string
+
+	// checkUsername and checkPassword stand in for those in Vault, see WithCheckCredentials.
+	checkUsername *string
+	checkPassword *string
+}
+
+// WithCheckCredentials returns a copy of the Agent that connects with the given username and password,
+// those which are not nil, instead of the ones in its Vault secret. It serves to check new credentials
+// before they are stored in Vault, where they replace the ones every Agent reading the secret uses.
+// The copy is never to be stored.
+func (a Agent) WithCheckCredentials(username, password *string) *Agent {
+	a.checkUsername = username
+	a.checkPassword = password
+	return &a
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -609,7 +623,15 @@ func (a *Agent) DBCredentials(enc vault.Encoding) (string, string) {
 		return username, pointer.GetString(a.Password)
 	}
 
-	return vault.TokenWithFallback(path, VaultUsernameKey, enc, username), vault.Token(path, VaultPasswordKey, enc)
+	vaultUsername := vault.TokenWithFallback(path, VaultUsernameKey, enc, username)
+	if a.checkUsername != nil {
+		vaultUsername = *a.checkUsername
+	}
+	vaultPassword := vault.Token(path, VaultPasswordKey, enc)
+	if a.checkPassword != nil {
+		vaultPassword = *a.checkPassword
+	}
+	return vaultUsername, vaultPassword
 }
 
 // DBConfig contains values required to connect to DB.
@@ -1100,6 +1122,8 @@ func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		pointer.GetString(svc.Address),
 		pointer.GetString(a.Username),
 		pointer.GetString(a.Password),
+		pointer.GetString(a.checkUsername),
+		pointer.GetString(a.checkPassword),
 		a.ExporterOptions.MetricsPath,
 	}
 
