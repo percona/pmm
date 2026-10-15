@@ -24,6 +24,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm/utils/vault"
 )
 
 const defaultWindowPeriod = time.Hour
@@ -711,5 +713,83 @@ func TestMergeFlags(t *testing.T) {
 
 		assert.Equal(t, "/opt/pmm/exporters/node_exporter", cfg.Paths.NodeExporter)
 		assert.Equal(t, "/opt/pmm/tmp", cfg.Paths.TempDir)
+	})
+}
+
+func TestVault(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.WithField("test", t.Name())
+
+	t.Run("Flags", func(t *testing.T) {
+		t.Parallel()
+
+		var cfg Config
+		_, err := get([]string{
+			"--vault-address=https://vault:8200",
+			"--vault-namespace=team",
+			"--vault-auth-method=approle",
+			"--vault-auth-mount=pmm-approle",
+			"--vault-role-id=role",
+			"--vault-secret-id-file=/run/secrets/secret-id",
+			"--vault-cache-ttl=30s",
+			"--server-password=vault:secret/data/pmm/agent#token",
+		}, &cfg, l)
+		require.NoError(t, err)
+		assert.Equal(t, vault.Config{
+			Address:      "https://vault:8200",
+			Namespace:    "team",
+			AuthMethod:   vault.AuthMethodAppRole,
+			AuthMount:    "pmm-approle",
+			RoleID:       "role",
+			SecretIDFile: "/run/secrets/secret-id",
+			CacheTTL:     30 * time.Second,
+		}, cfg.Vault)
+		assert.Equal(t, "vault:secret/data/pmm/agent#token", cfg.Server.Password)
+	})
+
+	t.Run("UnknownAuthMethod", func(t *testing.T) {
+		t.Parallel()
+
+		var cfg Config
+		_, err := get([]string{"--vault-auth-method=ldap"}, &cfg, l)
+		require.ErrorContains(t, err, "enum value must be one of token,approle,kubernetes,aws")
+	})
+
+	t.Run("File", func(t *testing.T) {
+		t.Parallel()
+
+		name := writeConfig(t, &Config{
+			ID:     "agent-id",
+			Server: Server{Address: "127.0.0.1:443", Username: "service_token", Password: "vault:secret/data/pmm/agent#token"},
+			Vault: vault.Config{
+				Address:    "https://vault:8200",
+				AuthMethod: vault.AuthMethodKubernetes,
+				Role:       "pmm-agent",
+				CacheTTL:   2 * time.Minute,
+			},
+		})
+
+		b, err := os.ReadFile(name)
+		require.NoError(t, err)
+		assert.Contains(t, string(b), "vault:\n    address: https://vault:8200\n    auth-method: kubernetes\n    role: pmm-agent\n    cache-ttl: 2m0s\n")
+
+		cfg, err := LoadFromFile(name, nil)
+		require.NoError(t, err)
+		assert.Equal(t, vault.Config{
+			Address:    "https://vault:8200",
+			AuthMethod: vault.AuthMethodKubernetes,
+			Role:       "pmm-agent",
+			CacheTTL:   2 * time.Minute,
+		}, cfg.Vault)
+		assert.Equal(t, "vault:secret/data/pmm/agent#token", cfg.Server.Password)
+	})
+
+	t.Run("NotSavedWhenUnset", func(t *testing.T) {
+		t.Parallel()
+
+		b, err := os.ReadFile(writeConfig(t, &Config{ID: "agent-id"}))
+		require.NoError(t, err)
+		assert.NotContains(t, string(b), "vault")
 	})
 }

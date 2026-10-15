@@ -392,6 +392,7 @@ func Setup() {
 
 	cfg := configStorage.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
+	configureVault(cfg, l)
 
 	configFilepath, running := checkStatus(loadedFilepath, l)
 

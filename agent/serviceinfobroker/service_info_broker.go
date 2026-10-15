@@ -35,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongofix"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -108,7 +109,14 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 		}
 	}
 
-	cfg, err := mysql.ParseDSN(dsn)
+	// Resolved apart from dsn: rendering dsn below must not see secrets that may clash with its delimiters.
+	resolved, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	cfg, err := mysql.ParseDSN(resolved)
 	if err != nil {
 		sib.l.Debugf("getMySQLInfo: failed to parse DSN: %s", err)
 		res.Error = err.Error()
@@ -322,6 +330,12 @@ func extractValkeyVersion(infoString string) (string, error) {
 
 func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *agentv1.ServiceInfoResponse {
 	var res agentv1.ServiceInfoResponse
+
+	dsn, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {

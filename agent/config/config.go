@@ -34,6 +34,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/utils/nodeinfo"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -180,9 +181,10 @@ type Config struct {
 	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
 	ProcMountsPath                 string `yaml:"proc-mounts-path,omitempty"`
 
-	Server Server `yaml:"server"`
-	Paths  Paths  `yaml:"paths"`
-	Ports  Ports  `yaml:"ports"`
+	Server Server       `yaml:"server"`
+	Paths  Paths        `yaml:"paths"`
+	Ports  Ports        `yaml:"ports"`
+	Vault  vault.Config `yaml:"vault,omitempty"`
 
 	LogLevel string `yaml:"log-level"`
 	Debug    bool   `yaml:"debug"`
@@ -508,7 +510,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
 	app.Flag("server-username", "Username to connect to PMM Server [PMM_AGENT_SERVER_USERNAME]").
 		Envar("PMM_AGENT_SERVER_USERNAME").StringVar(&cfg.Server.Username)
-	app.Flag("server-password", "Password to connect to PMM Server [PMM_AGENT_SERVER_PASSWORD]").
+	app.Flag("server-password", "Password to connect to PMM Server, or a vault:<path>#<key> reference to it [PMM_AGENT_SERVER_PASSWORD]").
 		Envar("PMM_AGENT_SERVER_PASSWORD").StringVar(&cfg.Server.Password)
 	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation [PMM_AGENT_SERVER_INSECURE_TLS]").
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
@@ -547,6 +549,39 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
+
+	app.Flag("vault-address", "HashiCorp Vault address to read credentials stored in Vault from [PMM_AGENT_VAULT_ADDRESS]").
+		Envar("PMM_AGENT_VAULT_ADDRESS").PlaceHolder("<https://host:port>").StringVar(&cfg.Vault.Address)
+	app.Flag("vault-namespace", "Vault namespace [PMM_AGENT_VAULT_NAMESPACE]").
+		Envar("PMM_AGENT_VAULT_NAMESPACE").StringVar(&cfg.Vault.Namespace)
+	app.Flag("vault-ca-cert", "Path to the CA certificate of Vault [PMM_AGENT_VAULT_CA_CERT]").
+		Envar("PMM_AGENT_VAULT_CA_CERT").StringVar(&cfg.Vault.CACert)
+	app.Flag("vault-tls-skip-verify", "Skip Vault TLS certificate validation [PMM_AGENT_VAULT_TLS_SKIP_VERIFY]").
+		Envar("PMM_AGENT_VAULT_TLS_SKIP_VERIFY").BoolVar(&cfg.Vault.TLSSkipVerify)
+	app.Flag("vault-auth-method", "Vault auth method: token (default), approle, kubernetes or aws [PMM_AGENT_VAULT_AUTH_METHOD]").
+		Envar("PMM_AGENT_VAULT_AUTH_METHOD").EnumVar(&cfg.Vault.AuthMethod, vault.AuthMethods...)
+	app.Flag("vault-auth-mount", "Path the Vault auth method is mounted at, the method name by default [PMM_AGENT_VAULT_AUTH_MOUNT]").
+		Envar("PMM_AGENT_VAULT_AUTH_MOUNT").StringVar(&cfg.Vault.AuthMount)
+	app.Flag("vault-token", "Vault token for the token auth method [PMM_AGENT_VAULT_TOKEN]").
+		Envar("PMM_AGENT_VAULT_TOKEN").StringVar(&cfg.Vault.Token)
+	app.Flag("vault-token-file", "File with the Vault token for the token auth method, such as a Vault Agent sink [PMM_AGENT_VAULT_TOKEN_FILE]").
+		Envar("PMM_AGENT_VAULT_TOKEN_FILE").StringVar(&cfg.Vault.TokenFile)
+	app.Flag("vault-role-id", "Role ID for the approle auth method [PMM_AGENT_VAULT_ROLE_ID]").
+		Envar("PMM_AGENT_VAULT_ROLE_ID").StringVar(&cfg.Vault.RoleID)
+	app.Flag("vault-secret-id", "Secret ID for the approle auth method [PMM_AGENT_VAULT_SECRET_ID]").
+		Envar("PMM_AGENT_VAULT_SECRET_ID").StringVar(&cfg.Vault.SecretID)
+	app.Flag("vault-secret-id-file", "File with the secret ID for the approle auth method [PMM_AGENT_VAULT_SECRET_ID_FILE]").
+		Envar("PMM_AGENT_VAULT_SECRET_ID_FILE").StringVar(&cfg.Vault.SecretIDFile)
+	app.Flag("vault-role", "Vault role for the kubernetes and aws auth methods [PMM_AGENT_VAULT_ROLE]").
+		Envar("PMM_AGENT_VAULT_ROLE").StringVar(&cfg.Vault.Role)
+	app.Flag("vault-jwt-file", "Service account token for the kubernetes auth method [PMM_AGENT_VAULT_JWT_FILE]").
+		Envar("PMM_AGENT_VAULT_JWT_FILE").StringVar(&cfg.Vault.JWTFile)
+	app.Flag("vault-aws-region", "Region of the STS endpoint for the aws auth method, the global endpoint by default [PMM_AGENT_VAULT_AWS_REGION]").
+		Envar("PMM_AGENT_VAULT_AWS_REGION").StringVar(&cfg.Vault.AWSRegion)
+	app.Flag("vault-aws-server-id", "X-Vault-AWS-IAM-Server-ID header value for the aws auth method [PMM_AGENT_VAULT_AWS_SERVER_ID]").
+		Envar("PMM_AGENT_VAULT_AWS_SERVER_ID").StringVar(&cfg.Vault.AWSServerID)
+	app.Flag("vault-cache-ttl", "How long secrets without a lease are reused, and how often changed secrets are looked for [PMM_AGENT_VAULT_CACHE_TTL]").
+		Envar("PMM_AGENT_VAULT_CACHE_TTL").DurationVar(&cfg.Vault.CacheTTL)
 
 	app.Flag("ports-min", "Minimal allowed port number for listening sockets [PMM_AGENT_PORTS_MIN]").
 		Envar("PMM_AGENT_PORTS_MIN").Uint16Var(&cfg.Ports.Min)

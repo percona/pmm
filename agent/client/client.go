@@ -48,6 +48,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -169,7 +170,7 @@ func (c *Client) Run(ctx context.Context) error {
 		connErr, agentServiceDialErr, rtaServiceDialErr error
 	)
 	for {
-		sharedConn, connErr = createConnectionToServer(cfg, c.l)
+		sharedConn, connErr = createConnectionToServer(ctx, cfg, c.l)
 		if connErr != nil {
 			c.l.Errorf("Failed to create gRPC connection to server %s: %s.", cfg.Server.Address, connErr)
 		} else {
@@ -577,7 +578,7 @@ LOOP:
 
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
-				err := c.handleStartActionRequest(p)
+				err := c.handleStartActionRequest(ctx, p)
 				if err != nil {
 					status = convertAgentErrorToGrpcStatus(err)
 					break
@@ -595,7 +596,7 @@ LOOP:
 
 			case *agentv1.StartJobRequest:
 				var resp agentv1.StartJobResponse
-				err := c.handleStartJobRequest(p)
+				err := c.handleStartJobRequest(ctx, p)
 				if err != nil {
 					resp.Error = err.Error()
 				}
@@ -649,7 +650,7 @@ LOOP:
 	c.l.Debug("Channel closed.")
 }
 
-func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
+func (c *Client) handleStartActionRequest(ctx context.Context, p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
 	timeoutErr := p.Timeout.CheckValid()
 	if timeoutErr != nil {
@@ -752,12 +753,15 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTSummary, []string{})
 
 	case *agentv1.StartActionRequest_PtPgSummaryParams:
+		err = resolveCredentials(ctx, &params.PtPgSummaryParams.Username, &params.PtPgSummaryParams.Password)
 		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 	case *agentv1.StartActionRequest_PtMysqlSummaryParams:
+		err = resolveCredentials(ctx, &params.PtMysqlSummaryParams.Username, &params.PtMysqlSummaryParams.Password)
 		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 
 	case *agentv1.StartActionRequest_PtMongodbSummaryParams:
+		err = resolveCredentials(ctx, &params.PtMongodbSummaryParams.Username, &params.PtMongodbSummaryParams.Password)
 		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 	case *agentv1.StartActionRequest_RestartSysServiceParams:
 		var service string
@@ -783,7 +787,7 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	return c.runner.StartAction(action)
 }
 
-func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
+func (c *Client) handleStartJobRequest(ctx context.Context, p *agentv1.StartJobRequest) error {
 	err := p.Timeout.CheckValid()
 	if err != nil {
 		return err
@@ -814,6 +818,10 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 			Address:  j.MysqlBackup.Address,
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
+		}
+		err = resolveCredentials(ctx, &dbConnCfg.User, &dbConnCfg.Password)
+		if err != nil {
+			return err
 		}
 		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder)
 
@@ -903,6 +911,18 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 	return c.runner.StartJob(job)
 }
 
+// resolveCredentials replaces the Vault tokens in the given credentials with the secrets they stand for.
+func resolveCredentials(ctx context.Context, credentials ...*string) error {
+	for _, c := range credentials {
+		v, err := secrets.ResolveString(ctx, *c)
+		if err != nil {
+			return err
+		}
+		*c = v
+	}
+	return nil
+}
+
 func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string) (string, error) {
 	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(jobID, "/", "_"))
 	res, err := templates.RenderDSN(dsn, files, tempDir)
@@ -946,7 +966,7 @@ type dialResult struct {
 }
 
 // createConnectionToServer tries to connect to the server once.
-func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.ClientConn, error) {
+func createConnectionToServer(ctx context.Context, cfg *config.Config, l *logrus.Entry) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
 		grpc.WithUserAgent("pmm-agent/" + version.Version),
 		grpc.WithDefaultCallOptions(
@@ -969,14 +989,20 @@ func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.Client
 	}
 
 	if cfg.Server.Username != "" {
+		// Read on every connection, so that a token rotated in Vault is picked up on reconnect.
+		password, err := secrets.ResolveRef(ctx, cfg.Server.Password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to resolve the PMM Server password: %w", err)
+		}
+
 		if cfg.Server.Username == "service_token" || cfg.Server.Username == "api_key" {
 			opts = append(opts, grpc.WithPerRPCCredentials(&tokenAuth{
-				token: cfg.Server.Password,
+				token: password,
 			}))
 		} else {
 			opts = append(opts, grpc.WithPerRPCCredentials(&basicAuth{
 				username: cfg.Server.Username,
-				password: cfg.Server.Password,
+				password: password,
 			}))
 		}
 	}

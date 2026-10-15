@@ -33,6 +33,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -41,9 +42,24 @@ import (
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/apitransport"
 	"github.com/percona/pmm/utils/servererror"
+	"github.com/percona/pmm/utils/vault"
 )
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
+
+// resolveUserinfo returns user with its password read from Vault, if it is a vault:<path>#<key> reference.
+func resolveUserinfo(user *url.Userinfo, l *logrus.Entry) *url.Userinfo {
+	password, ok := user.Password()
+	if !ok || !vault.IsRef(password) {
+		return user
+	}
+
+	resolved, err := secrets.ResolveRef(context.Background(), password)
+	if err != nil {
+		l.Fatalf("Failed to read the PMM Server password from Vault: %s.", err)
+	}
+	return url.UserPassword(user.Username(), resolved)
+}
 
 // setLocalTransport configures transport for accessing local pmm-agent API.
 //
@@ -95,7 +111,7 @@ func localReload() error {
 func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	apitransport.SetAuth(transport, u.User)
+	apitransport.SetAuth(transport, resolveUserinfo(u.User, l))
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 

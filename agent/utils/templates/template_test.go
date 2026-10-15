@@ -15,6 +15,8 @@
 package templates
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -24,7 +26,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/utils/vault"
 )
 
 const (
@@ -90,4 +94,69 @@ func fileContentMatch(file, content string) bool {
 	}
 
 	return content == string(fileContent)
+}
+
+type mapGetter map[string]string
+
+func (m mapGetter) Get(_ context.Context, path, key string) (string, error) {
+	v, ok := m[path+"#"+key]
+	if !ok {
+		return "", errors.New("no such secret")
+	}
+	return v, nil
+}
+
+// Not parallel: it configures the process-wide Vault client.
+func TestRenderVaultTokens(t *testing.T) {
+	// The password holds the very delimiters the template uses, which pmm-managed could not avoid
+	// without knowing it: it must still come out intact, because it is inserted after rendering.
+	secrets.Configure(mapGetter{"kv/mysql#password": "pa{{ss}}"})
+	t.Cleanup(func() { secrets.Configure(nil) })
+
+	token := vault.Token("kv/mysql", "password", vault.EncodingRaw)
+
+	t.Run("Files", func(t *testing.T) {
+		tr := &TemplateRenderer{
+			TextFiles:          map[string]string{"myCnf": "[client]\nuser=pmm\npassword=" + token + "\n"},
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			TempDir:            t.TempDir(),
+		}
+
+		params, err := tr.RenderFiles(map[string]any{})
+		require.NoError(t, err)
+
+		arg, err := tr.RenderTemplate("args", "--config.my-cnf={{ .TextFiles.myCnf }}", params)
+		require.NoError(t, err)
+		path := filepath.Join(tr.TempDir, "myCnf")
+		assert.Equal(t, "--config.my-cnf="+path, string(arg))
+
+		b, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, "[client]\nuser=pmm\npassword=pa{{ss}}\n", string(b))
+		assert.Equal(t, []string{"pa{{ss}}"}, tr.SecretValues())
+	})
+
+	t.Run("DSNWithoutFiles", func(t *testing.T) {
+		dsn, err := RenderDSN("pmm:"+token+"@tcp(127.0.0.1:3306)/", nil, t.TempDir())
+		require.NoError(t, err)
+		assert.Equal(t, "pmm:pa{{ss}}@tcp(127.0.0.1:3306)/", dsn)
+	})
+
+	t.Run("DSNWithFiles", func(t *testing.T) {
+		files := &agentv1.TextFiles{
+			Files:              map[string]string{"caFilePlaceholder": "ca"},
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+		}
+		dir := t.TempDir()
+		dsn, err := RenderDSN("pmm:"+token+"@tcp(127.0.0.1:3306)/?ca={{ .TextFiles.caFilePlaceholder }}", files, dir)
+		require.NoError(t, err)
+		assert.Equal(t, "pmm:pa{{ss}}@tcp(127.0.0.1:3306)/?ca="+filepath.Join(dir, "caFilePlaceholder"), dsn)
+	})
+
+	t.Run("MissingSecret", func(t *testing.T) {
+		_, err := RenderDSN(vault.Token("kv/mysql", "nope", vault.EncodingRaw), nil, t.TempDir())
+		require.ErrorIs(t, err, secrets.ErrUnavailable)
+	})
 }

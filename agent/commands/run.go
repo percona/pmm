@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/signal"
@@ -35,8 +36,10 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/serviceinfobroker"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/versioner"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -67,6 +70,7 @@ func Run() {
 		cfg := configStorage.Get()
 
 		prepareLogger(cfg, logStore, l)
+		configureVault(cfg, l)
 
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 		connectionChecker := connectionchecker.New(configStorage)
@@ -145,6 +149,33 @@ func prepareConfig(l *logrus.Entry) (*config.Storage, string) {
 	}
 
 	return configStorage, configFilepath
+}
+
+// configureVault sets up reading the credentials stored in Vault. An invalid configuration is reported
+// when a credential is read, along with what reads it, rather than stopping pmm-agent here.
+func configureVault(cfg *config.Config, l *logrus.Entry) {
+	if !cfg.Vault.Enabled() {
+		secrets.Configure(nil)
+		return
+	}
+
+	client, err := vault.New(cfg.Vault)
+	if err != nil {
+		l.Errorf("Invalid Vault configuration: %s.", err)
+		secrets.Configure(invalidVault{err: fmt.Errorf("invalid Vault configuration: %w", err)})
+		return
+	}
+
+	l.Infof("Reading credentials stored in Vault from %s.", cfg.Vault.Address)
+	secrets.Configure(client)
+}
+
+type invalidVault struct {
+	err error
+}
+
+func (v invalidVault) Get(context.Context, string, string) (string, error) {
+	return "", v.err
 }
 
 func prepareLogger(cfg *config.Config, logStore *tailog.Store, l *logrus.Entry) {

@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongofix"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/utils/templates"
 	agent_version "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -127,7 +128,14 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 		}
 	}
 
-	cfg, err := mysql.ParseDSN(dsn)
+	// Resolved apart from dsn: rendering dsn below must not see secrets that may clash with its delimiters.
+	resolved, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	cfg, err := mysql.ParseDSN(resolved)
 	if err != nil {
 		cc.l.Debugf("checkMySQLConnection: failed to parse DSN: %s", err)
 		res.Error = err.Error()
@@ -307,6 +315,12 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 
 func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
+
+	dsn, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
