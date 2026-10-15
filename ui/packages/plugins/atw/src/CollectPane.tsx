@@ -265,6 +265,49 @@ export interface BatchItemError {
   message: string;
 }
 
+/**
+ * Display name for a script in a list that prefers titles.
+ *
+ * Titles are not unique by contract. When more than one entry in `peers` shares
+ * this title, the filename is appended so the reader can tell them apart.
+ */
+export function scriptListLabel(
+  title: string | undefined,
+  filename: string,
+  peers: readonly { title: string }[]
+): string {
+  const trimmed = title?.trim();
+  if (!trimmed) {
+    return filename;
+  }
+  const ambiguous =
+    peers.filter((peer) => peer.title.trim() === trimmed).length > 1;
+  return ambiguous ? `${trimmed} (${filename})` : trimmed;
+}
+
+/**
+ * Caption under a picker option: description when it is enough, otherwise the
+ * filename when titles (and descriptions) do not distinguish the row.
+ */
+export function scriptOptionCaption(
+  option: AtwSnippetSummary,
+  options: readonly AtwSnippetSummary[]
+): string | undefined {
+  const sameTitle = options.filter((peer) => peer.title === option.title);
+  if (sameTitle.length > 1) {
+    const descriptions = new Set(
+      sameTitle.map((peer) => peer.description.trim())
+    );
+    const descriptionsDistinguish =
+      descriptions.size === sameTitle.length &&
+      ![...descriptions].some((text) => text === '');
+    if (!descriptionsDistinguish) {
+      return option.name;
+    }
+  }
+  return option.description.trim() || undefined;
+}
+
 /** Summarise the batch response's per-item errors for a banner, by script title. */
 export function batchItemErrors(
   response: AtwBatchExecuteResponse,
@@ -278,8 +321,11 @@ export function batchItemErrors(
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      const name =
-        titles.get(item.snippet_filename)?.trim() || item.snippet_filename;
+      const name = scriptListLabel(
+        titles.get(item.snippet_filename),
+        item.snippet_filename,
+        snippets
+      );
       return {
         key: item.snippet_filename,
         message: `${name}: ${detail}`,
@@ -757,15 +803,17 @@ export function CollectPane({
         isOptionEqualToValue={(option, value) => option.name === value.name}
         renderOption={(props, option) => {
           const { key, ...liProps } = props as typeof props & { key: string };
+          const caption = scriptOptionCaption(option, options);
           return (
             // The server matches the description too, so a hit can look
-            // unrelated to the typed term.
+            // unrelated to the typed term. Filename appears only when titles
+            // (and descriptions) would leave two options looking the same.
             <Box component="li" key={key} {...liProps}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="body2">{option.title}</Typography>
-                {option.description && (
+                {caption && (
                   <Typography variant="caption" color="text.secondary">
-                    {option.description}
+                    {caption}
                   </Typography>
                 )}
               </Box>

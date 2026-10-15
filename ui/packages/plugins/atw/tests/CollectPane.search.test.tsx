@@ -268,6 +268,28 @@ describe('CollectPane snippet search', () => {
     consoleError.mockRestore();
   });
 
+  it('shows filenames when same-titled hits have no distinguishing description', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('summary');
+
+    const options = await screen.findAllByRole(
+      'option',
+      { name: /Summary/ },
+      { timeout: 3000 }
+    );
+    expect(options.map((option) => option.textContent)).toEqual([
+      expect.stringContaining('ops/pt-summary.sh'),
+      expect.stringContaining('diag/summary.sh'),
+    ]);
+  });
+
   it('drops the previous term’s hits while the next search is in flight', async () => {
     // The second term never resolves, so the query is still fetching and holds
     // the first term's page as placeholder data throughout the assertion.
