@@ -15,16 +15,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useState } from 'react';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useCopyToClipboard } from '@pmm-extensions/framework';
 
 interface GeneratedPasswordDialogProps {
@@ -39,7 +46,10 @@ export const GeneratedPasswordDialog = ({
   password,
   onSaved,
 }: GeneratedPasswordDialogProps) => {
+  const [revealed, setRevealed] = useState(false);
   const clipboard = useCopyToClipboard();
+  const revealLabel = revealed ? 'Hide password' : 'Show password';
+  const copyLabel = clipboard.copied ? 'Copied' : 'Copy password';
 
   return (
     <Dialog open maxWidth="sm" fullWidth>
@@ -60,24 +70,49 @@ export const GeneratedPasswordDialog = ({
           <TextField
             label="Password"
             value={password}
+            type={revealed ? 'text' : 'password'}
+            autoComplete="off"
             fullWidth
+            helperText={
+              clipboard.failed
+                ? 'Copying is not available here. Show the password and copy it by hand.'
+                : ' '
+            }
             slotProps={{
               htmlInput: { readOnly: true, sx: { fontFamily: 'monospace' } },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      aria-label={revealLabel}
+                      title={revealLabel}
+                      onClick={() => setRevealed((shown) => !shown)}
+                    >
+                      {revealed ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      size="small"
+                      aria-label={copyLabel}
+                      title={copyLabel}
+                      color={clipboard.failed ? 'error' : undefined}
+                      onClick={() => void clipboard.copy(password)}
+                    >
+                      {clipboard.copied ? (
+                        <CheckIcon color="success" />
+                      ) : (
+                        <ContentCopyIcon />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button
-          color={clipboard.failed ? 'error' : undefined}
-          onClick={() => void clipboard.copy(password)}
-        >
-          {clipboard.copied
-            ? 'Copied'
-            : clipboard.failed
-              ? 'Could not copy - select it instead'
-              : 'Copy password'}
-        </Button>
         <Button variant="contained" onClick={onSaved}>
           I have saved it
         </Button>
