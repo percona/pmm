@@ -83,9 +83,6 @@ if [ ! -f "$DIST_FILE" ]; then
     mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus,victoriametrics}
 fi
 
-# vmalert is no longer shipped, but servers upgraded from older versions still have its logs on /srv.
-rm -f /srv/logs/vmalert.log* || true
-
 # Sync bundled Grafana plugins into /srv when the bundled set changes. 
 # This must happen before supervisord starts.
 declare PLUGINS_SRC=/usr/share/percona-dashboards/panels

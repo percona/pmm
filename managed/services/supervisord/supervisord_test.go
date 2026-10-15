@@ -263,3 +263,68 @@ func TestProgramRunningStatuses(t *testing.T) {
 		})
 	}
 }
+
+func TestRetireRemovedPrograms(t *testing.T) {
+	t.Parallel()
+
+	// recordingSupervisorctl returns a Service whose supervisorctl appends each call's
+	// arguments as a line to the returned file.
+	recordingSupervisorctl := func(t *testing.T) (*Service, string) {
+		t.Helper()
+
+		dir := t.TempDir()
+		calls := filepath.Join(dir, "calls")
+		path := filepath.Join(dir, "supervisorctl")
+		script := fmt.Sprintf("#!/bin/sh\necho \"$*\" >> '%s'\n", calls)
+		require.NoError(t, os.WriteFile(path, []byte(script), 0o700))
+
+		s := &Service{
+			configDir:         t.TempDir(),
+			supervisorctlPath: path,
+			l:                 logrus.WithField("component", "supervisord-test"),
+		}
+		return s, calls
+	}
+
+	touch := func(t *testing.T, path string) {
+		t.Helper()
+		require.NoError(t, os.WriteFile(path, nil, 0o600))
+	}
+
+	t.Run("config left by an older pmm-managed", func(t *testing.T) {
+		t.Parallel()
+
+		s, calls := recordingSupervisorctl(t)
+		logs := t.TempDir()
+		touch(t, filepath.Join(s.configDir, "vmalert.ini"))
+		touch(t, filepath.Join(s.configDir, "vmproxy.ini"))
+		touch(t, filepath.Join(logs, "vmalert.log"))
+		touch(t, filepath.Join(logs, "vmalert.log.1"))
+		touch(t, filepath.Join(logs, "vmproxy.log"))
+
+		s.retireRemovedPrograms(logs)
+
+		assert.NoFileExists(t, filepath.Join(s.configDir, "vmalert.ini"))
+		assert.FileExists(t, filepath.Join(s.configDir, "vmproxy.ini"))
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log"))
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log.1"))
+		assert.FileExists(t, filepath.Join(logs, "vmproxy.log"))
+
+		b, err := os.ReadFile(calls)
+		require.NoError(t, err)
+		assert.Equal(t, "reread\nupdate vmalert\n", string(b))
+	})
+
+	t.Run("only logs left on /srv by an upgrade", func(t *testing.T) {
+		t.Parallel()
+
+		s, calls := recordingSupervisorctl(t)
+		logs := t.TempDir()
+		touch(t, filepath.Join(logs, "vmalert.log"))
+
+		s.retireRemovedPrograms(logs)
+
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log"))
+		assert.NoFileExists(t, calls, "supervisorctl must not run when there is no config to forget")
+	})
+}
