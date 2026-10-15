@@ -6,7 +6,7 @@ PMM can read the secrets it needs from [HashiCorp Vault](https://developer.hashi
 
 PMM reads three kinds of secrets from Vault:
 
-- **Database credentials**: When you add a service with a Vault path, PMM Server stores only that path. PMM Client reads the username and password from Vault whenever it starts an exporter or a Query Analytics (QAN) agent, runs an action, checks a connection, or takes a backup. If you also give a password, PMM Client stores it in Vault for you, and PMM Server does not keep it.
+- **Database credentials**: When you add a service with a Vault path, PMM Server stores only that path. PMM Client reads the username, the password and the TLS files from Vault whenever it starts an exporter or a Query Analytics (QAN) agent, runs an action, checks a connection, or takes a backup. If you also give a password or TLS files, PMM Client stores them in Vault for you, and PMM Server does not keep them.
 - **PMM Server token**: PMM Client reads the token it connects to PMM Server with from a Vault reference in its configuration, each time it connects. When PMM Client registers, it can store the token it receives in Vault.
 - **PMM Server secrets**: PMM Server reads the environment variables you set to a Vault reference when its container starts, before any of its components use them.
 
@@ -124,6 +124,24 @@ To move it back, set an empty Vault path together with a password. PMM Server st
 ```sh
 pmm-admin inventory change agent mysqld-exporter <agent-id> --vault-path= --password='...'
 ```
+
+### Read TLS files from Vault
+
+The TLS client key, its certificate and the CA certificate of a service can be stored in Vault too, as can the password of a MongoDB client key file. Give a reference of the form `vault:<path>#<key>` instead of a file:
+
+```sh
+pmm-admin add mysql --username=pmm --password='...' --tls \
+  --tls-ca=/etc/pmm/ca.pem \
+  --tls-cert=/etc/pmm/client-cert.pem \
+  --tls-key='vault:secret/data/pmm/mysql-prod#tls_key' \
+  mysql-prod 10.0.0.5:3306
+```
+
+PMM Server stores the reference, and PMM Client reads the content from Vault each time it uses it. A reference works with or without a Vault path, for each TLS option of MySQL, MongoDB, PostgreSQL, and Valkey services, such as `--tls-key` or `--tls-key-file`, and for `--tls-certificate-key-file-password` of MongoDB. In the API, set the reference as the value of the field.
+
+When a service has a Vault path, the TLS files you give are stored in its Vault secret along with the password, so that the key and the certificates that go with it are rotated together. They are stored under keys named after the API fields: `tls_ca`, `tls_cert`, and `tls_key`, or `tls_ca`, `tls_certificate_key`, and `tls_certificate_key_file_password` for MongoDB. PMM Server stores references to them. When you take the service off Vault, these references stay; give the TLS files again to store them in PMM Server.
+
+When the key or a certificate changes in Vault, the exporters and agents that use it restart with the new one, as they do for a changed password.
 
 ### Remote databases
 
