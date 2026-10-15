@@ -37,15 +37,13 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentValkeyExporterCommand{
-				AgentID:     "test-agent-valkey-update",
-				Enable:      new(true),
-				Username:    new("redis_user"),
-				Password:    new("redis_pass"),
-				TLS:         new(true),
-				PushMetrics: new(false),
-				LogLevelNoFatalChangeFlags: flags.LogLevelNoFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
+				AgentID:      "test-agent-valkey-update",
+				Enable:       new(true),
+				Username:     new("redis_user"),
+				Password:     new("redis_pass"),
+				TLS:          new(true),
+				PushMetrics:  new(false),
+				LogLevel:     new(flags.LogLevel("debug")),
 				CustomLabels: &map[string]string{"environment": "test"},
 			}
 

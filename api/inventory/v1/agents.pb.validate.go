@@ -2585,6 +2585,8 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for AwsRoleArn
+
 	// no validation rules for Status
 
 	// no validation rules for ListenPort
@@ -13068,6 +13070,19 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if m.GetAwsRoleArn() != "" {
+		if !_AddRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := AddRDSExporterParamsValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
 	}
@@ -13148,6 +13163,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSExporterParamsValidationError{}
+
+var _AddRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on ChangeRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13259,6 +13276,21 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.AwsRoleArn != nil {
+		if m.GetAwsRoleArn() != "" {
+			if !_ChangeRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "AwsRoleArn",
+					reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeRDSExporterParamsMultiError(errors)
 	}
@@ -13339,6 +13371,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRDSExporterParamsValidationError{}
+
+var _ChangeRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on AddExternalExporterParams with the rules
 // defined in the proto definition for this message. If any rules are

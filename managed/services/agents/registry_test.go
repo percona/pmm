@@ -18,6 +18,8 @@ package agents
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -144,6 +146,28 @@ func TestUnregister(t *testing.T) {
 	})
 }
 
+func pmmAgentRow(agentID string, connected bool) []driver.Value {
+	columns := models.AgentTable.Columns()
+	values := make([]driver.Value, len(columns))
+	for i, c := range columns {
+		switch c {
+		case "agent_id":
+			values[i] = agentID
+		case "agent_type":
+			values[i] = string(models.PMMAgentType)
+		case "created_at", "updated_at":
+			values[i] = time.Now()
+		case "disabled", "tls", "tls_skip_verify":
+			values[i] = false
+		case "is_connected":
+			values[i] = connected
+		case "status":
+			values[i] = ""
+		}
+	}
+	return values
+}
+
 // TestUnregisterPersistsDisconnectInHA guards against the connection status staying true after a
 // disconnect: the handler unregisters with the context of the stream that just ended, which is
 // already canceled.
@@ -176,6 +200,84 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 
 	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
 	assert.Empty(t, r.connectionCache)
+}
+
+func TestIsConnectedInHA(t *testing.T) {
+	t.Parallel()
+
+	const (
+		disconnectedID = "/agent_id/00000000-0000-4000-8000-000000000002"
+		exporterID     = "/agent_id/00000000-0000-4000-8000-000000000003"
+	)
+
+	newRegistry := func(t *testing.T) (*Registry, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		r := newTestRegistry()
+		r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+		r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		r.connectionCache = make(map[string]string)
+		return r, mock
+	}
+
+	t.Run("fresh cache answers misses without a query", func(t *testing.T) {
+		t.Parallel()
+
+		r, _ := newRegistry(t)
+		r.connectionCache[testAgentID] = ""
+		r.connectionCacheTTL = time.Now().Add(time.Minute)
+		ttl := r.connectionCacheTTL
+
+		assert.False(t, r.IsConnected(exporterID))
+		assert.True(t, r.IsConnected(testAgentID))
+		// Any rebuild, even a failed one, would advance the TTL.
+		assert.Equal(t, ttl, r.connectionCacheTTL)
+	})
+
+	t.Run("failed rebuild keeps the last snapshot", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t)
+		r.connectionCache[testAgentID] = ""
+		mock.ExpectBegin().WillReturnError(errors.New("database is down"))
+
+		assert.True(t, r.IsConnected(testAgentID))
+		assert.False(t, r.connectionCacheExpired())
+	})
+
+	t.Run("expired cache is rebuilt once for concurrent callers", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1`).
+			WithArgs(string(models.PMMAgentType)).
+			WillDelayFor(100 * time.Millisecond).
+			WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).
+				AddRow(pmmAgentRow(testAgentID, true)...).
+				AddRow(pmmAgentRow(disconnectedID, false)...))
+		mock.ExpectCommit()
+
+		var wg sync.WaitGroup
+		for range 10 {
+			wg.Go(func() {
+				assert.True(t, r.IsConnected(testAgentID))
+			})
+		}
+		wg.Wait()
+
+		assert.False(t, r.IsConnected(disconnectedID))
+		assert.False(t, r.IsConnected(exporterID))
+		assert.True(t, r.IsConnected(testAgentID))
+	})
 }
 
 func TestKickConn(t *testing.T) {
@@ -374,16 +476,12 @@ func TestIsConnectedKeepsStatusesOnDatabaseError(t *testing.T) {
 	assert.True(t, r.IsConnected(models.PMMServerAgentID))
 	assert.True(t, isConnectedInDB(t, db))
 
-	// Every failed refresh moves the retry, so an unchanged one means the database was not queried:
-	// a lookup missing from the cache is answered from it until the retry is due.
-	retryAt := r.connectionCacheRetryAt
-	require.False(t, retryAt.IsZero())
+	// A failed refresh still waits for the TTL, so a lookup missing from the cache does not query the
+	// database again.
+	ttl := r.connectionCacheTTL
+	require.False(t, r.connectionCacheExpired())
 	assert.False(t, r.IsConnected("/agent_id/missing"))
-	assert.Equal(t, retryAt, r.connectionCacheRetryAt)
-
-	r.connectionCacheRetryAt = time.Now().Add(-time.Second)
-	assert.False(t, r.IsConnected("/agent_id/missing"))
-	assert.True(t, r.connectionCacheRetryAt.After(retryAt), "the refresh is not retried once due")
+	assert.Equal(t, ttl, r.connectionCacheTTL)
 }
 
 // TestGetNamesTheReplicaHoldingTheConnection covers a request for a pmm-agent connected to another

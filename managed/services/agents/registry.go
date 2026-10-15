@@ -42,9 +42,6 @@ const (
 	prometheusSubsystem = "agents"
 	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
 	connectionCacheTTL = 10 * time.Second
-	// How long the connection statuses are served from the cache after they could not be fetched,
-	// so that a failing database is not queried by every status check.
-	connectionCacheRetryDelay = time.Second
 	// How long to wait for a pong when telling a still-alive connection apart from a stale one,
 	// on registration of an agent whose ID is already registered. It must stay well below
 	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
@@ -110,10 +107,10 @@ type Registry struct {
 
 	// Cache for connection status in HA mode: pmm-agent ID -> PMM_HA_NODE_ID of the replica holding
 	// the connection, "" when the connection ID names none.
-	connectionCache        map[string]string
-	connectionCacheTTL     time.Time
-	connectionCacheRetryAt time.Time
-	cacheMu                sync.RWMutex
+	connectionCache    map[string]string
+	connectionCacheTTL time.Time
+	cacheMu            sync.RWMutex
+	rebuildMu          sync.Mutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -196,24 +193,15 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: check cache first, then database
-	now := time.Now()
+	_, connected := r.connectionOwner(pmmAgentID)
+	return connected
+}
+
+func (r *Registry) connectionCacheExpired() bool {
 	r.cacheMu.RLock()
-	_, exists := r.connectionCache[pmmAgentID]
-	fresh := !now.After(r.connectionCacheTTL)
-	retrying := now.Before(r.connectionCacheRetryAt)
-	r.cacheMu.RUnlock()
-	if (fresh && exists) || retrying {
-		return exists
-	}
+	defer r.cacheMu.RUnlock()
 
-	r.rebuildConnectionCache()
-
-	r.cacheMu.RLock()
-	_, exists = r.connectionCache[pmmAgentID]
-	r.cacheMu.RUnlock()
-
-	return exists
+	return time.Now().After(r.connectionCacheTTL)
 }
 
 // rebuildConnectionCache fetches all agent connection statuses from the database
@@ -261,21 +249,15 @@ func (r *Registry) rebuildConnectionCache() {
 		return nil
 	})
 	if err != nil {
-		// The previous statuses are kept, and fetched again after connectionCacheRetryDelay: an empty
-		// cache would report every agent as disconnected, and let the Nodes protected while it is
-		// connected go.
-		logrus.WithField("component", "agents/registry").WithError(err).Warn("Failed to fetch agent connection statuses.")
-
-		r.cacheMu.Lock()
-		r.connectionCacheRetryAt = time.Now().Add(connectionCacheRetryDelay)
-		r.cacheMu.Unlock()
-		return
+		logrus.WithField("component", "agents/registry").Errorf("Failed to rebuild the connection cache: %v", err)
 	}
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	// On error, keep the last snapshot and still wait for the TTL, so a failing database is not queried on every call.
+	if err == nil {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
-	r.connectionCacheRetryAt = time.Time{}
 	r.cacheMu.Unlock()
 }
 
@@ -500,7 +482,7 @@ func (r *Registry) persistDisconnect(ctx context.Context, conn *pmmAgentInfo) {
 		logger.Get(ctx).Errorf("Failed to update the connection status for agent %s: %v", conn.id, err)
 	}
 
-	// A newer connection, if there is one, is read back from the database.
+	// A newer connection, if there is one, is read back from the database once the cache expires.
 	r.cacheMu.Lock()
 	delete(r.connectionCache, conn.id)
 	r.cacheMu.Unlock()
@@ -635,16 +617,16 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
 }
 
-// connectionOwner returns the replica holding the pmm-agent's connection as cached in HA mode. Unlike
-// IsConnected it rebuilds the cache only once it expires, not on every miss: get misses for every
-// pmm-agent connected elsewhere or not at all.
+// connectionOwner returns the replica holding the pmm-agent's connection as cached in HA mode. A fresh
+// cache answers misses too, otherwise every exporter ID costs a query.
 func (r *Registry) connectionOwner(pmmAgentID string) (string, bool) {
-	now := time.Now()
-	r.cacheMu.RLock()
-	expired := now.After(r.connectionCacheTTL) && !now.Before(r.connectionCacheRetryAt)
-	r.cacheMu.RUnlock()
-	if expired {
-		r.rebuildConnectionCache()
+	if r.connectionCacheExpired() {
+		r.rebuildMu.Lock()
+		// Concurrent callers share a single rebuild.
+		if r.connectionCacheExpired() {
+			r.rebuildConnectionCache()
+		}
+		r.rebuildMu.Unlock()
 	}
 
 	r.cacheMu.RLock()
