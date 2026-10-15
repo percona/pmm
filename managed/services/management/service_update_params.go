@@ -319,8 +319,8 @@ func haproxyServiceChange(p *managementv1.UpdateHAProxyServiceParams) *serviceCh
 		password:      p.Password,
 		tlsSkipVerify: p.TlsSkipVerify,
 		exporter: models.ChangeExporterOptions{
-			MetricsScheme: p.Scheme,
-			MetricsPath:   p.MetricsPath,
+			MetricsScheme: orDefault(p.Scheme, defaultMetricsScheme),
+			MetricsPath:   orDefault(p.MetricsPath, defaultMetricsPath),
 		},
 		metricsMode:         p.MetricsMode,
 		listenPort:          p.ListenPort,
@@ -343,8 +343,8 @@ func externalServiceChange(p *managementv1.UpdateExternalServiceParams) *service
 		password:      p.Password,
 		tlsSkipVerify: p.TlsSkipVerify,
 		exporter: models.ChangeExporterOptions{
-			MetricsScheme: p.Scheme,
-			MetricsPath:   p.MetricsPath,
+			MetricsScheme: orDefault(p.Scheme, defaultMetricsScheme),
+			MetricsPath:   orDefault(p.MetricsPath, defaultMetricsPath),
 		},
 		metricsMode:         p.MetricsMode,
 		listenPort:          p.ListenPort,
@@ -355,6 +355,22 @@ func externalServiceChange(p *managementv1.UpdateExternalServiceParams) *service
 	c.service.Port = port(p.ListenPort)
 
 	return c
+}
+
+// The scheme and the metrics path that adding an external exporter stores for empty values.
+const (
+	defaultMetricsScheme = "http"
+	defaultMetricsPath   = "/metrics"
+)
+
+// orDefault returns the default for an empty value, as adding the Service does, and the value otherwise;
+// nil, which leaves the setting as it is, stays nil.
+func orDefault(value *string, def string) *string {
+	if value == nil || *value != "" {
+		return value
+	}
+
+	return &def
 }
 
 // stringMap returns nil for a missing map and a non-nil, possibly empty map otherwise, so that an empty map clears.

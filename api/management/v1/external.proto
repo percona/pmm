@@ -75,9 +75,9 @@ message UpdateExternalServiceParams {
   optional string username = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // HTTP basic auth password for collecting metrics.
   optional string password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Scheme to generate URI to exporter metrics endpoints.
+  // Scheme to generate URI to exporter metrics endpoints. An empty value resets it to http.
   optional string scheme = 3;
-  // Path under which metrics are exposed, used to generate URI.
+  // Path under which metrics are exposed, used to generate URI. An empty value resets it to /metrics.
   optional string metrics_path = 4;
   // Listen port for scraping metrics.
   optional uint32 listen_port = 5 [(validate.rules).uint32 = {

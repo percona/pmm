@@ -252,9 +252,9 @@ type UpdateExternalServiceParams struct {
 	Username *string `protobuf:"bytes,1,opt,name=username,proto3,oneof" json:"username,omitempty"`
 	// HTTP basic auth password for collecting metrics.
 	Password *string `protobuf:"bytes,2,opt,name=password,proto3,oneof" json:"password,omitempty"`
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints. An empty value resets it to http.
 	Scheme *string `protobuf:"bytes,3,opt,name=scheme,proto3,oneof" json:"scheme,omitempty"`
-	// Path under which metrics are exposed, used to generate URI.
+	// Path under which metrics are exposed, used to generate URI. An empty value resets it to /metrics.
 	MetricsPath *string `protobuf:"bytes,4,opt,name=metrics_path,json=metricsPath,proto3,oneof" json:"metrics_path,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort *uint32 `protobuf:"varint,5,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`

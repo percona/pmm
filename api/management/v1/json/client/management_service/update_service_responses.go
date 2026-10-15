@@ -3116,10 +3116,10 @@ type UpdateServiceParamsBodyExternal struct {
 	// HTTP basic auth password for collecting metrics.
 	Password *string `json:"password,omitempty"`
 
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints. An empty value resets it to http.
 	Scheme *string `json:"scheme,omitempty"`
 
-	// Path under which metrics are exposed, used to generate URI.
+	// Path under which metrics are exposed, used to generate URI. An empty value resets it to /metrics.
 	MetricsPath *string `json:"metrics_path,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -3344,10 +3344,10 @@ type UpdateServiceParamsBodyHaproxy struct {
 	// HTTP basic auth password for collecting metrics.
 	Password *string `json:"password,omitempty"`
 
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints. An empty value resets it to http.
 	Scheme *string `json:"scheme,omitempty"`
 
-	// Path under which metrics are exposed, used to generate URI.
+	// Path under which metrics are exposed, used to generate URI. An empty value resets it to /metrics.
 	MetricsPath *string `json:"metrics_path,omitempty"`
 
 	// Listen port for scraping metrics.

@@ -683,5 +683,22 @@ func TestUpdateService(t *testing.T) {
 		labels, err := exporter.GetCustomLabels()
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"team": "ops"}, labels)
+
+		// An empty scheme or metrics path resets it to the default, as adding the Service does.
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_External{
+				External: &managementv1.UpdateExternalServiceParams{
+					Scheme:              new(""),
+					MetricsPath:         new(""),
+					SkipConnectionCheck: true,
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		exporter = serviceAgents(t, s.db.Querier, serviceID)[models.ExternalExporterType]
+		assert.Equal(t, "http", exporter.ExporterOptions.MetricsScheme)
+		assert.Equal(t, "/metrics", exporter.ExporterOptions.MetricsPath)
 	})
 }
