@@ -594,6 +594,11 @@ LOOP:
 			case *agentv1.ServiceInfoRequest:
 				responsePayload = c.serviceInfoBroker.GetInfoFromService(ctx, p, req.ID)
 
+			case *agentv1.StoreSecretRequest:
+				// Answered on its own: Vault may be slow, and every request queued behind would wait for it.
+				go c.storeSecret(ctx, req.ID, p)
+				continue LOOP
+
 			case *agentv1.StartJobRequest:
 				var resp agentv1.StartJobResponse
 				err := c.handleStartJobRequest(ctx, p)
@@ -909,6 +914,18 @@ func (c *Client) handleStartJobRequest(ctx context.Context, p *agentv1.StartJobR
 	}
 
 	return c.runner.StartJob(job)
+}
+
+// storeSecret stores the credentials PMM Server asks for in Vault and answers the request.
+func (c *Client) storeSecret(ctx context.Context, id uint32, req *agentv1.StoreSecretRequest) {
+	var resp agentv1.StoreSecretResponse
+	err := secrets.Write(ctx, req.Path, req.Data)
+	if err != nil {
+		c.l.Warnf("Failed to store Vault secret %s: %s.", req.Path, err)
+		resp.Error = err.Error()
+	}
+
+	c.channel.Send(&channel.AgentResponse{ID: id, Payload: &resp})
 }
 
 // resolveCredentials replaces the Vault tokens in the given credentials with the secrets they stand for.

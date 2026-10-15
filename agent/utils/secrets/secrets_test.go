@@ -35,6 +35,13 @@ func (m mapGetter) Get(_ context.Context, path, key string) (string, error) {
 	return v, nil
 }
 
+func (m mapGetter) Write(_ context.Context, path string, data map[string]string) error {
+	for k, v := range data {
+		m[path+"#"+k] = v
+	}
+	return nil
+}
+
 // Not parallel: the tests configure the process-wide Vault client.
 func TestSecrets(t *testing.T) {
 	user := vault.Token("database/creds/pmm", "username", vault.EncodingUserinfo)
@@ -99,4 +106,22 @@ func TestSecrets(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEqual(t, before, after)
 	})
+}
+
+// Not parallel: it configures the process-wide Vault client.
+func TestWrite(t *testing.T) {
+	t.Cleanup(func() { Configure(nil) })
+
+	Configure(nil)
+	require.ErrorIs(t, Write(t.Context(), "secret/data/pmm", map[string]string{"password": "s3cr3t"}), ErrNotConfigured)
+	assert.Empty(t, Written(), "a failed write is not signalled")
+
+	stored := mapGetter{}
+	Configure(stored)
+	require.NoError(t, WriteRef(t.Context(), "vault:secret/data/pmm#password", "s3cr3t"))
+	assert.Equal(t, mapGetter{"secret/data/pmm#password": "s3cr3t"}, stored)
+	require.Len(t, Written(), 1)
+	<-Written()
+
+	require.ErrorContains(t, WriteRef(t.Context(), "secret/data/pmm#password", "s3cr3t"), "vault:")
 }

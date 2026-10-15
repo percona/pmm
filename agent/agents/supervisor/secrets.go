@@ -20,14 +20,23 @@ import (
 
 	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/vault"
 )
 
 // processStrings returns the parameters of an Agent process that may hold Vault tokens, in a stable order.
-func processStrings(p *agentv1.SetStateRequest_AgentProcess) []string {
+func (s *Supervisor) processStrings(p *agentv1.SetStateRequest_AgentProcess) []string {
 	res := slices.Concat(p.Args, p.Env)
 	for _, name := range slices.Sorted(maps.Keys(p.TextFiles)) {
 		res = append(res, p.TextFiles[name])
+	}
+
+	// vmagent gets the PMM Server password, which may be read from Vault too, see processParams.
+	if p.Type == inventoryv1.AgentType_AGENT_TYPE_VM_AGENT {
+		ref, err := vault.ParseRef(s.cfg.Get().Server.Password)
+		if err == nil {
+			res = append(res, vault.Token(ref.Path, ref.Key, vault.EncodingRaw))
+		}
 	}
 	return res
 }
@@ -52,7 +61,7 @@ func hasTokens(strs []string) bool {
 // until then, so that a SetState with the same parameters starts it too instead of taking it for running.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) retryProcessLocked(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess) {
-	if !hasTokens(processStrings(agentProcess)) {
+	if !hasTokens(s.processStrings(agentProcess)) {
 		return
 	}
 
@@ -96,7 +105,7 @@ func (s *Supervisor) refreshSecrets() {
 			candidates = append(candidates, candidate{
 				id:          id,
 				state:       agent.requestedState,
-				strs:        processStrings(agent.requestedState),
+				strs:        s.processStrings(agent.requestedState),
 				fingerprint: agent.secretsFingerprint,
 			})
 		}

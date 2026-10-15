@@ -175,7 +175,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 }
 
 // Run waits for context and stop all agents when it's done. Meanwhile, if Vault is configured,
-// it restarts the Agents whose Vault secrets change.
+// it restarts the Agents whose Vault secrets change, at once for those pmm-agent writes itself.
 func (s *Supervisor) Run(ctx context.Context) {
 	var refresh <-chan time.Time
 	if vaultCfg := s.cfg.Get().Vault; vaultCfg.Enabled() {
@@ -190,6 +190,8 @@ func (s *Supervisor) Run(ctx context.Context) {
 			s.stopAll() //nolint:contextcheck
 			return
 		case <-refresh:
+			s.refreshSecrets() //nolint:contextcheck
+		case <-secrets.Written():
 			s.refreshSecrets() //nolint:contextcheck
 		}
 	}
@@ -850,7 +852,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		return err
 	}
 
-	fingerprint, err := secrets.Fingerprint(s.ctx, processStrings(agentProcess)...)
+	fingerprint, err := secrets.Fingerprint(s.ctx, s.processStrings(agentProcess)...)
 	if err != nil {
 		return err
 	}
@@ -1240,7 +1242,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
-		processParams.Env = append(processParams.Env, os.Environ()...)
+		processParams.Env = append(processParams.Env, environWithoutVault()...)
 	default:
 		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
@@ -1416,3 +1418,11 @@ func trimPrefix(s string) string {
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )
+
+// environWithoutVault returns pmm-agent's environment without its Vault settings, which hold the
+// credentials pmm-agent logs in to Vault with.
+func environWithoutVault() []string {
+	return slices.DeleteFunc(os.Environ(), func(kv string) bool {
+		return strings.HasPrefix(kv, "PMM_AGENT_VAULT_")
+	})
+}

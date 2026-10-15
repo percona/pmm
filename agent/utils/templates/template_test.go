@@ -106,6 +106,10 @@ func (m mapGetter) Get(_ context.Context, path, key string) (string, error) {
 	return v, nil
 }
 
+func (m mapGetter) Write(context.Context, string, map[string]string) error {
+	return errors.New("not used")
+}
+
 // Not parallel: it configures the process-wide Vault client.
 func TestRenderVaultTokens(t *testing.T) {
 	// The password holds the very delimiters the template uses, which pmm-managed could not avoid

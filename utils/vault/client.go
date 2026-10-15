@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"os"
@@ -192,27 +193,97 @@ func (e *responseError) Error() string {
 	return msg
 }
 
-// read reads the secret, logging in again once if Vault rejects the token it has.
-// Must be called with c.m held.
-func (c *Client) read(ctx context.Context, path string) (map[string]string, *secretResponse, error) {
-	token, err := c.authToken(ctx)
+// Write stores data in the secret at the API path of a KV secrets engine, version 1 or 2, keeping
+// the keys of the secret that data does not have. The path is the one Read takes.
+func (c *Client) Write(ctx context.Context, path string, data map[string]string) error {
+	path = strings.Trim(path, "/")
+
+	c.m.Lock()
+	defer c.m.Unlock()
+
+	// Whatever happens below, a cached value may no longer be what Vault has.
+	delete(c.cache, path)
+
+	// Checked before reading: reading the path of another engine may have side effects, such as the
+	// database engine creating a user.
+	kv2, err := c.kvVersion2(ctx, path)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	var resp secretResponse
-	err = c.do(ctx, http.MethodGet, path, token, nil, &resp)
-	re, ok := errors.AsType[*responseError](err)
-	if ok && re.status == http.StatusForbidden {
-		c.token = ""
-		token, err = c.authToken(ctx)
-		if err != nil {
-			return nil, nil, err
+	current, _, err := c.read(ctx, path)
+	re, notFound := errors.AsType[*responseError](err)
+	switch {
+	case notFound && re.status == http.StatusNotFound, errors.Is(err, errNoData):
+		current = nil
+	case err != nil:
+		return err
+	}
+
+	merged := maps.Clone(current)
+	if merged == nil {
+		merged = make(map[string]string, len(data))
+	}
+	maps.Copy(merged, data)
+
+	var body any = merged
+	if kv2 {
+		body = map[string]any{"data": merged}
+	}
+
+	return c.withToken(ctx, func(token string) error {
+		return c.do(ctx, http.MethodPost, path, token, body, nil)
+	})
+}
+
+// WriteRef stores value under the key a vault:<path>#<key> reference points to.
+func (c *Client) WriteRef(ctx context.Context, ref, value string) error {
+	r, err := ParseRef(ref)
+	if err != nil {
+		return err
+	}
+	return c.Write(ctx, r.Path, map[string]string{r.Key: value})
+}
+
+// kvVersion2 reports whether the path belongs to a KV version 2 engine, whose writes wrap the data, and
+// returns an error for an engine other than KV. It asks Vault, which answers any token with a capability
+// on the path. If Vault does not answer, only the API path of KV version 2, <mount>/data/<name>, is taken
+// for KV: any other path may belong to an engine that reading has side effects for.
+// Must be called with c.m held.
+func (c *Client) kvVersion2(ctx context.Context, path string) (bool, error) {
+	var resp struct {
+		Data struct {
+			Type    string            `json:"type"`
+			Options map[string]string `json:"options"`
+		} `json:"data"`
+	}
+	err := c.withToken(ctx, func(token string) error {
+		return c.do(ctx, http.MethodGet, "sys/internal/ui/mounts/"+path, token, nil, &resp)
+	})
+	if err == nil && resp.Data.Type != "" {
+		if resp.Data.Type != "kv" && resp.Data.Type != "generic" {
+			return false, fmt.Errorf("vault path %s belongs to a %s secrets engine, only KV secrets can be written", path, resp.Data.Type)
 		}
-
-		resp = secretResponse{}
-		err = c.do(ctx, http.MethodGet, path, token, nil, &resp)
+		return resp.Data.Options["version"] == "2", nil
 	}
+
+	segments := strings.Split(path, "/")
+	if len(segments) > 2 && segments[1] == "data" {
+		return true, nil
+	}
+	if err == nil {
+		err = errors.New("no secrets engine in the answer")
+	}
+	return false, fmt.Errorf("cannot tell the secrets engine of vault path %s, only KV secrets can be written: %w", path, err)
+}
+
+// read reads the secret. Must be called with c.m held.
+func (c *Client) read(ctx context.Context, path string) (map[string]string, *secretResponse, error) {
+	var resp secretResponse
+	err := c.withToken(ctx, func(token string) error {
+		resp = secretResponse{}
+		return c.do(ctx, http.MethodGet, path, token, nil, &resp)
+	})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -223,6 +294,28 @@ func (c *Client) read(ctx context.Context, path string) (map[string]string, *sec
 	}
 
 	return data, &resp, nil
+}
+
+// withToken calls fn with a token, logging in again once if Vault rejects the token it has.
+// Must be called with c.m held.
+func (c *Client) withToken(ctx context.Context, fn func(token string) error) error {
+	token, err := c.authToken(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = fn(token)
+	re, ok := errors.AsType[*responseError](err)
+	if !ok || re.status != http.StatusForbidden {
+		return err
+	}
+
+	c.token = ""
+	token, err = c.authToken(ctx)
+	if err != nil {
+		return err
+	}
+	return fn(token)
 }
 
 // authToken returns a token, logging in when there is none or it is about to expire.
@@ -338,12 +431,16 @@ func (c *Client) do(ctx context.Context, method, path, token string, in, out any
 		return fmt.Errorf("vault %s %s: %w", method, path, err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 		var e struct {
 			Errors []string `json:"errors"`
 		}
 		_ = json.Unmarshal(b, &e)
 		return &responseError{method: method, path: path, status: resp.StatusCode, errors: e.Errors}
+	}
+
+	if out == nil || len(b) == 0 {
+		return nil
 	}
 
 	err = json.Unmarshal(b, out)
@@ -353,13 +450,15 @@ func (c *Client) do(ctx context.Context, method, path, token string, in, out any
 	return nil
 }
 
+var errNoData = errors.New("the secret version has no data, it may be deleted or destroyed")
+
 // secretData flattens the data of a secret, unwrapping the KV version 2 envelope.
 func secretData(raw map[string]any) (map[string]string, error) {
 	if _, ok := raw["metadata"]; ok {
 		if _, ok := raw["data"]; ok {
 			inner, _ := raw["data"].(map[string]any)
 			if inner == nil {
-				return nil, errors.New("the secret version has no data, it may be deleted or destroyed")
+				return nil, errNoData
 			}
 			raw = inner
 		}

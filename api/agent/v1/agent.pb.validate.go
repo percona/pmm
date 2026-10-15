@@ -4559,6 +4559,218 @@ var _ interface {
 	ErrorName() string
 } = ServiceInfoResponseValidationError{}
 
+// Validate checks the field values on StoreSecretRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StoreSecretRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StoreSecretRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StoreSecretRequestMultiError, or nil if none found.
+func (m *StoreSecretRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StoreSecretRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Path
+
+	// no validation rules for Data
+
+	if len(errors) > 0 {
+		return StoreSecretRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// StoreSecretRequestMultiError is an error wrapping multiple validation errors
+// returned by StoreSecretRequest.ValidateAll() if the designated constraints
+// aren't met.
+type StoreSecretRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StoreSecretRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StoreSecretRequestMultiError) AllErrors() []error { return m }
+
+// StoreSecretRequestValidationError is the validation error returned by
+// StoreSecretRequest.Validate if the designated constraints aren't met.
+type StoreSecretRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StoreSecretRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StoreSecretRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StoreSecretRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StoreSecretRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StoreSecretRequestValidationError) ErrorName() string {
+	return "StoreSecretRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StoreSecretRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStoreSecretRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = StoreSecretRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StoreSecretRequestValidationError{}
+
+// Validate checks the field values on StoreSecretResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StoreSecretResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StoreSecretResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StoreSecretResponseMultiError, or nil if none found.
+func (m *StoreSecretResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StoreSecretResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Error
+
+	if len(errors) > 0 {
+		return StoreSecretResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// StoreSecretResponseMultiError is an error wrapping multiple validation
+// errors returned by StoreSecretResponse.ValidateAll() if the designated
+// constraints aren't met.
+type StoreSecretResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StoreSecretResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StoreSecretResponseMultiError) AllErrors() []error { return m }
+
+// StoreSecretResponseValidationError is the validation error returned by
+// StoreSecretResponse.Validate if the designated constraints aren't met.
+type StoreSecretResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StoreSecretResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StoreSecretResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StoreSecretResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StoreSecretResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StoreSecretResponseValidationError) ErrorName() string {
+	return "StoreSecretResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StoreSecretResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStoreSecretResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = StoreSecretResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StoreSecretResponseValidationError{}
+
 // Validate checks the field values on JobStatusRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -7257,6 +7469,47 @@ func (m *AgentMessage) validate(all bool) error {
 			}
 		}
 
+	case *AgentMessage_StoreSecret:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetStoreSecret()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "StoreSecret",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "StoreSecret",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetStoreSecret()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "StoreSecret",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8043,6 +8296,47 @@ func (m *ServerMessage) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "ServiceInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ServerMessage_StoreSecret:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetStoreSecret()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "StoreSecret",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "StoreSecret",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetStoreSecret()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "StoreSecret",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

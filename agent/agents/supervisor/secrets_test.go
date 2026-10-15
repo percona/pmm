@@ -50,6 +50,16 @@ func (f *fakeVault) Get(_ context.Context, path, key string) (string, error) {
 	return v, nil
 }
 
+func (f *fakeVault) Write(_ context.Context, path string, data map[string]string) error {
+	f.m.Lock()
+	defer f.m.Unlock()
+
+	for k, v := range data {
+		f.secrets[path+"#"+k] = v
+	}
+	return nil
+}
+
 func (f *fakeVault) setPassword(value string, err error) {
 	f.m.Lock()
 	defer f.m.Unlock()
@@ -141,6 +151,22 @@ func TestSupervisorVaultSecrets(t *testing.T) {
 		s.rw.RLock()
 		assert.NotEqual(t, before, s.agentProcesses["sleep1"].secretsFingerprint)
 		s.rw.RUnlock()
+	})
+
+	t.Run("RestartOnWrite", func(t *testing.T) {
+		// No periodic check runs in this test: the write itself restarts the Agents.
+		require.NoError(t, secrets.Write(t.Context(), "kv/db", map[string]string{"password": "third"}))
+		assertChanges(
+			t, s,
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "noop1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING},
+			&agentv1.StateChangedRequest{AgentId: "noop1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
+			&agentv1.StateChangedRequest{AgentId: "noop1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
+			&agentv1.StateChangedRequest{AgentId: "noop1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+		)
 	})
 
 	t.Run("RetryWhenVaultIsBack", func(t *testing.T) {

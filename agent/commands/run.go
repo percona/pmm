@@ -178,6 +178,10 @@ func (v invalidVault) Get(context.Context, string, string) (string, error) {
 	return "", v.err
 }
 
+func (v invalidVault) Write(context.Context, string, map[string]string) error {
+	return v.err
+}
+
 func prepareLogger(cfg *config.Config, logStore *tailog.Store, l *logrus.Entry) {
 	config.ConfigureLogger(cfg)
 	logStore.Resize(cfg.LogLinesCount)

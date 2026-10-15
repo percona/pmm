@@ -45,6 +45,16 @@ type fakeVault struct {
 	tokenTTL int64
 	secrets  map[string]func() map[string]any
 	headers  http.Header
+
+	// mounts maps mount paths, such as "secret/", to their engine type and KV version.
+	mounts       map[string][2]string
+	mountsDenied bool
+	writes       []fakeWrite
+}
+
+type fakeWrite struct {
+	path string
+	body map[string]any
 }
 
 func newFakeVault(t *testing.T) (*fakeVault, *httptest.Server) {
@@ -88,6 +98,43 @@ func (fv *fakeVault) serve(w http.ResponseWriter, r *http.Request) {
 
 	if !fv.tokens[r.Header.Get("X-Vault-Token")] {
 		writeJSON(fv.t, w, http.StatusForbidden, map[string]any{"errors": []string{"permission denied"}})
+		return
+	}
+
+	if mountPath, ok := strings.CutPrefix(path, "sys/internal/ui/mounts/"); ok {
+		for mount, info := range fv.mounts {
+			if !fv.mountsDenied && strings.HasPrefix(mountPath, mount) {
+				writeJSON(fv.t, w, http.StatusOK, map[string]any{"data": map[string]any{
+					"path": mount, "type": info[0], "options": map[string]any{"version": info[1]},
+				}})
+				return
+			}
+		}
+		writeJSON(fv.t, w, http.StatusForbidden, map[string]any{"errors": []string{"permission denied"}})
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		if strings.HasPrefix(path, "database/") {
+			writeJSON(fv.t, w, http.StatusMethodNotAllowed, map[string]any{"errors": []string{"unsupported operation"}})
+			return
+		}
+
+		var body map[string]any
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		fv.writes = append(fv.writes, fakeWrite{path: path, body: body})
+
+		if inner, ok := body["data"].(map[string]any); ok {
+			fv.secrets[path] = kv2(inner)
+			writeJSON(fv.t, w, http.StatusOK, map[string]any{"data": map[string]any{"version": len(fv.writes)}})
+			return
+		}
+		fv.secrets[path] = func() map[string]any { return map[string]any{"data": body} }
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
@@ -427,4 +474,102 @@ func TestConfigString(t *testing.T) {
 	assert.Contains(t, s, "Address:https://vault:8200")
 	assert.Contains(t, s, "RoleID:role")
 	assert.Equal(t, "hvs.secret", cfg.Token)
+}
+
+func TestClientWrite(t *testing.T) {
+	t.Parallel()
+
+	newClient := func(t *testing.T) (*fakeVault, *Client) {
+		t.Helper()
+
+		fv, srv := newFakeVault(t)
+		fv.mounts = map[string][2]string{
+			"secret/":   {"kv", "2"},
+			"kv/":       {"kv", "1"},
+			"database/": {"database", ""},
+		}
+		c, err := New(Config{Address: srv.URL, Token: "static-token", CacheTTL: time.Hour})
+		require.NoError(t, err)
+		return fv, c
+	}
+
+	t.Run("KV2NewSecret", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		require.NoError(t, c.WriteRef(t.Context(), "vault:secret/data/pmm/agents/node1#token", "glsa_1"))
+		require.Len(t, fv.writes, 1)
+		assert.Equal(t, map[string]any{"data": map[string]any{"token": "glsa_1"}}, fv.writes[0].body)
+
+		v, err := c.GetRef(t.Context(), "vault:secret/data/pmm/agents/node1#token")
+		require.NoError(t, err)
+		assert.Equal(t, "glsa_1", v)
+	})
+
+	t.Run("KV2KeepsOtherKeysAndDropsTheCache", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		fv.secrets["secret/data/pmm/mysql"] = kv2(map[string]any{"username": "pmm", "password": "old"})
+
+		v, err := c.Get(t.Context(), "secret/data/pmm/mysql", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "old", v)
+
+		require.NoError(t, c.Write(t.Context(), "secret/data/pmm/mysql", map[string]string{"password": "new"}))
+		assert.Equal(t, map[string]any{"data": map[string]any{"username": "pmm", "password": "new"}}, fv.writes[0].body)
+
+		// Cached for an hour, yet the new value is read at once.
+		v, err = c.Get(t.Context(), "secret/data/pmm/mysql", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "new", v)
+	})
+
+	t.Run("KV1", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		fv.secrets["kv/pmm/mysql"] = func() map[string]any { return map[string]any{"data": map[string]any{"username": "pmm"}} }
+
+		require.NoError(t, c.Write(t.Context(), "kv/pmm/mysql", map[string]string{"password": "p"}))
+		assert.Equal(t, map[string]any{"username": "pmm", "password": "p"}, fv.writes[0].body)
+	})
+
+	t.Run("DeletedKV2VersionIsReplaced", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		fv.secrets["secret/data/gone"] = func() map[string]any {
+			return map[string]any{"data": map[string]any{"data": nil, "metadata": map[string]any{"deletion_time": "now"}}}
+		}
+
+		require.NoError(t, c.Write(t.Context(), "secret/data/gone", map[string]string{"token": "t"}))
+		assert.Equal(t, map[string]any{"data": map[string]any{"token": "t"}}, fv.writes[0].body)
+	})
+
+	t.Run("OtherEngine", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		err := c.Write(t.Context(), "database/creds/pmm", map[string]string{"password": "p"})
+		require.EqualError(t, err, "vault path database/creds/pmm belongs to a database secrets engine, only KV secrets can be written")
+		assert.Zero(t, fv.reads, "reading the credentials of the database engine would create a user")
+		assert.Empty(t, fv.writes)
+	})
+
+	t.Run("MountsDeniedFallsBackToThePath", func(t *testing.T) {
+		t.Parallel()
+
+		fv, c := newClient(t)
+		fv.mountsDenied = true
+
+		require.NoError(t, c.Write(t.Context(), "secret/data/pmm/x", map[string]string{"k": "v"}))
+		assert.Equal(t, []fakeWrite{{path: "secret/data/pmm/x", body: map[string]any{"data": map[string]any{"k": "v"}}}}, fv.writes)
+
+		// Any other path may be one that reading has side effects for, such as database/creds/<role>.
+		err := c.Write(t.Context(), "database/creds/pmm", map[string]string{"k": "v"})
+		require.ErrorContains(t, err, "cannot tell the secrets engine of vault path database/creds/pmm")
+		assert.Zero(t, fv.reads)
+		assert.Len(t, fv.writes, 1)
+	})
 }

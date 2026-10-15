@@ -31,13 +31,16 @@ import (
 	"github.com/percona/pmm/utils/vault"
 )
 
-// Getter returns the value of key in the Vault secret at path.
-type Getter interface {
+// Store reads and writes Vault secrets.
+type Store interface {
+	// Get returns the value of key in the secret at path.
 	Get(ctx context.Context, path, key string) (string, error)
+	// Write stores data in the secret at path, keeping the keys of the secret that data does not have.
+	Write(ctx context.Context, path string, data map[string]string) error
 }
 
 type holder struct {
-	getter Getter
+	store Store
 }
 
 var current atomic.Pointer[holder] //nolint:gochecknoglobals
@@ -50,19 +53,24 @@ var (
 	ErrNotConfigured = errors.New("no Vault is configured for this pmm-agent (see --vault-address and the other --vault-* flags)")
 )
 
-// Configure sets the Vault client secrets are read with; nil means Vault is not configured.
-func Configure(g Getter) {
-	if g == nil {
+// Configure sets the Vault client secrets are read and written with; nil means Vault is not configured.
+func Configure(s Store) {
+	if s == nil {
 		current.Store(nil)
 		return
 	}
-	current.Store(&holder{getter: g})
+	current.Store(&holder{store: s})
+}
+
+// Configured reports whether Vault is configured.
+func Configured() bool {
+	return current.Load() != nil
 }
 
 func loadHolder() (*holder, error) {
 	h := current.Load()
 	if h == nil {
-		return nil, fmt.Errorf("%w: %w", ErrUnavailable, ErrNotConfigured)
+		return nil, ErrNotConfigured
 	}
 	return h, nil
 }
@@ -76,11 +84,11 @@ func Resolve(ctx context.Context, s string) (string, []string, error) {
 
 	h, err := loadHolder()
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("%w: %w", ErrUnavailable, err)
 	}
 
 	res, values, err := vault.ReplaceTokens(s, func(path, key string) (string, error) {
-		return h.getter.Get(ctx, path, key)
+		return h.store.Get(ctx, path, key)
 	})
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrUnavailable, err)
@@ -107,10 +115,10 @@ func ResolveRef(ctx context.Context, s string) (string, error) {
 
 	h, err := loadHolder()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %w", ErrUnavailable, err)
 	}
 
-	v, err := h.getter.Get(ctx, ref.Path, ref.Key)
+	v, err := h.store.Get(ctx, ref.Path, ref.Key)
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrUnavailable, err)
 	}
@@ -140,4 +148,41 @@ func Fingerprint(ctx context.Context, strs ...string) (string, error) {
 		return "", nil
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// Write stores data in the Vault secret at path, keeping the keys of the secret that data does not have.
+func Write(ctx context.Context, path string, data map[string]string) error {
+	h, err := loadHolder()
+	if err != nil {
+		return err
+	}
+	err = h.store.Write(ctx, path, data)
+	if err != nil {
+		return err
+	}
+
+	select {
+	case written <- struct{}{}:
+	default:
+	}
+	return nil
+}
+
+// written receives after every successful Write, see Written.
+var written = make(chan struct{}, 1) //nolint:gochecknoglobals
+
+// Written returns a channel that receives after secrets are written, so that the Agents that read them
+// are restarted at once, as they are when their credentials change in PMM Server, rather than at the
+// next periodic check.
+func Written() <-chan struct{} {
+	return written
+}
+
+// WriteRef stores value under the key a vault:<path>#<key> reference points to.
+func WriteRef(ctx context.Context, ref, value string) error {
+	r, err := vault.ParseRef(ref)
+	if err != nil {
+		return err
+	}
+	return Write(ctx, r.Path, map[string]string{r.Key: value})
 }
