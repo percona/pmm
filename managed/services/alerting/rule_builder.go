@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/prometheus/common/model"
+
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/services"
@@ -65,6 +67,9 @@ const (
 // thresholdRefIDSanitizer strips anything a Grafana ref ID cannot carry, so a parameter
 // name with punctuation still yields a usable ref ID.
 var thresholdRefIDSanitizer = regexp.MustCompile(`[^A-Za-z0-9_]`)
+
+// sqlStringEscaper escapes text for a single-quoted ClickHouse string literal.
+var sqlStringEscaper = strings.NewReplacer(`\`, `\\`, `'`, `\'`)
 
 type promQueryModel struct {
 	Expr          string `json:"expr"`
@@ -203,10 +208,6 @@ func newQueryData(
 		return newPromQueryData(uid, query.RefID, expr)
 
 	case alert.ClickHouse:
-		if len(filters) != 0 {
-			return services.Data{}, fmt.Errorf("query %s: filters on ClickHouse queries are not supported yet", query.RefID)
-		}
-
 		uid, err := datasourceUIDFor(datasourceUIDs, alert.ClickHouse)
 		if err != nil {
 			return services.Data{}, err
@@ -215,6 +216,11 @@ func newQueryData(
 		sql, err := fillExprWithParams(query.Expr, params)
 		if err != nil {
 			return services.Data{}, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
+		}
+
+		sql, err = filterClickHouseSQL(sql, filters)
+		if err != nil {
+			return services.Data{}, fmt.Errorf("failed to filter query %s: %w", query.RefID, err)
 		}
 
 		return newClickHouseQueryData(uid, query.RefID, sql)
@@ -269,6 +275,59 @@ func datasourceUIDFor(datasourceUIDs map[alert.Datasource]string, datasource ale
 	return uid, nil
 }
 
+// validateFilters rejects filters no datasource can apply: unknown types, invalid label names and non-RE2 regexps.
+func validateFilters(filters []*alertingv1.Filter) error {
+	for _, filter := range filters {
+		if filter.Type != alertingv1.FilterType_FILTER_TYPE_MATCH && filter.Type != alertingv1.FilterType_FILTER_TYPE_MISMATCH {
+			return fmt.Errorf("filter type %s is not supported", filter.Type)
+		}
+
+		if !model.LegacyValidation.IsValidLabelName(filter.Label) {
+			return fmt.Errorf("filter label '%s' is not a valid label name", filter.Label)
+		}
+
+		_, err := regexp.Compile(filter.Regexp)
+		if err != nil {
+			return fmt.Errorf("filter regexp for label '%s' is invalid: %w", filter.Label, err)
+		}
+	}
+
+	return nil
+}
+
+// filterClickHouseSQL keeps the rows whose label columns pass the filters, matching like label_match and label_mismatch.
+func filterClickHouseSQL(sql string, filters []*alertingv1.Filter) (string, error) {
+	if len(filters) == 0 {
+		return sql, nil
+	}
+
+	conditions := make([]string, 0, len(filters))
+	for _, filter := range filters {
+		// The label goes into the SQL as a quoted column name, unescaped.
+		if !model.LegacyValidation.IsValidLabelName(filter.Label) {
+			return "", fmt.Errorf("filter label '%s' is not a valid label name", filter.Label)
+		}
+
+		var condition string
+		switch filter.Type {
+		case alertingv1.FilterType_FILTER_TYPE_MATCH:
+			// Like label_match's `(re)|`, an empty label passes too.
+			condition = fmt.Sprintf("match(`%s`, '%s')", filter.Label, sqlStringEscaper.Replace("^(?:(?:"+filter.Regexp+")|)$"))
+		case alertingv1.FilterType_FILTER_TYPE_MISMATCH:
+			condition = fmt.Sprintf("NOT match(`%s`, '%s')", filter.Label, sqlStringEscaper.Replace("^(?:"+filter.Regexp+")$"))
+		default:
+			return "", fmt.Errorf("unknown filter type: %s", filter.Type)
+		}
+
+		conditions = append(conditions, condition)
+	}
+
+	// The newline before `)` keeps a trailing `-- comment` from swallowing it.
+	body := strings.TrimRight(sql, "; \t\r\n")
+
+	return fmt.Sprintf("SELECT * FROM (\n%s\n) WHERE %s", body, strings.Join(conditions, " AND ")), nil //nolint:unqueryvet // keeps the template's own columns
+}
+
 func fillAndFilterExpr(expr string, params map[string]string, filters []*alertingv1.Filter) (string, error) {
 	filledExpr, err := fillExprWithParams(expr, params)
 	if err != nil {
@@ -283,7 +342,7 @@ func fillAndFilterExpr(expr string, params map[string]string, filters []*alertin
 		case alertingv1.FilterType_FILTER_TYPE_MISMATCH:
 			filledExpr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, filledExpr, filter.Label, filter.Regexp)
 		default:
-			return "", fmt.Errorf("unknown filter type: %T", filter)
+			return "", fmt.Errorf("unknown filter type: %s", filter.Type)
 		}
 	}
 

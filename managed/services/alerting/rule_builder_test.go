@@ -199,16 +199,6 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 			wantErr: "failed to fill expression C",
 		},
 		{
-			name: "filter on a ClickHouse query",
-			tmpl: &alert.Template{
-				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
-				Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"}},
-				Condition:   "B",
-			},
-			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType_FILTER_TYPE_MATCH, Label: "service_name", Regexp: "db"}},
-			wantErr: "query A: filters on ClickHouse queries are not supported yet",
-		},
-		{
 			name: "unknown filter type",
 			tmpl: &alert.Template{
 				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
@@ -297,4 +287,139 @@ func TestBuildClickHouseRuleDataRequiresItsUID(t *testing.T) {
 	_, err := buildGrafanaRuleData(template, map[alert.Datasource]string{alert.Metrics: "metrics-uid"}, "", nil, nil)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "the clickhouse datasource UID is not resolved")
+}
+
+func matchFilter(label, re string) *alertingv1.Filter {
+	return &alertingv1.Filter{Type: alertingv1.FilterType_FILTER_TYPE_MATCH, Label: label, Regexp: re}
+}
+
+func mismatchFilter(label, re string) *alertingv1.Filter {
+	return &alertingv1.Filter{Type: alertingv1.FilterType_FILTER_TYPE_MISMATCH, Label: label, Regexp: re}
+}
+
+func TestBuildClickHouseRuleDataWithFilters(t *testing.T) {
+	t.Parallel()
+
+	template := &alert.Template{
+		Queries: []alert.TemplateQuery{
+			{RefID: "A", Expr: "SELECT $__toTime AS time, service_name, max(v) AS v FROM pmm.metrics GROUP BY service_name", Datasource: alert.ClickHouse},
+			{RefID: "M", Expr: "up"},
+		},
+		Expressions: []alert.TemplateExpression{
+			{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"},
+			{RefID: "C", Type: "math", Expression: "$B > 5 && $M == 1"},
+		},
+		Condition: "C",
+	}
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "", nil, []*alertingv1.Filter{matchFilter("service_name", "db.*")})
+	require.NoError(t, err)
+	byRef := dataByRefID(t, built.data)
+
+	// Each datasource gets the same filter in its own language.
+	var model clickhouseQueryModel
+	require.NoError(t, json.Unmarshal(byRef["A"].Model, &model))
+	assert.Contains(t, model.RawSQL, "WHERE match(`service_name`, '^(?:(?:db.*)|)$')")
+	assert.Equal(t, `label_match(up, "service_name", "(db.*)|")`, exprOf(t, byRef["M"]))
+}
+
+func TestFilterClickHouseSQL(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name    string
+		sql     string
+		filters []*alertingv1.Filter
+		want    string
+		wantErr string
+	}{
+		{
+			name: "no filters leave the query unchanged",
+			sql:  "SELECT 1;",
+			want: "SELECT 1;",
+		},
+		{
+			name:    "match keeps an empty label, like label_match",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{matchFilter("service_name", "db1|db2")},
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(`service_name`, '^(?:(?:db1|db2)|)$')",
+		},
+		{
+			name:    "mismatch",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{mismatchFilter("environment", "dev")},
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(`environment`, '^(?:dev)$')",
+		},
+		{
+			name:    "several filters are ANDed",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{matchFilter("service_name", "db"), mismatchFilter("node_name", "n1")},
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(`service_name`, '^(?:(?:db)|)$') AND NOT match(`node_name`, '^(?:n1)$')",
+		},
+		{
+			name:    "trailing semicolon and whitespace are dropped",
+			sql:     "SELECT 1 ;\n",
+			filters: []*alertingv1.Filter{mismatchFilter("service_name", "db")},
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(`service_name`, '^(?:db)$')",
+		},
+		{
+			name:    "a trailing line comment stays inside the subquery",
+			sql:     "SELECT 1 -- slow ones",
+			filters: []*alertingv1.Filter{mismatchFilter("service_name", "db")},
+			want:    "SELECT * FROM (\nSELECT 1 -- slow ones\n) WHERE NOT match(`service_name`, '^(?:db)$')",
+		},
+		{
+			name:    "quotes and backslashes in the regexp stay inside the string literal",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{mismatchFilter("service_name", `\d') OR 1=1 --`)},
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(`service_name`, '^(?:\\\\d\\') OR 1=1 --)$')",
+		},
+		{
+			name:    "a label that is not a column name is rejected",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{matchFilter("a`) OR 1=1 --", "x")},
+			wantErr: "is not a valid label name",
+		},
+		{
+			name:    "unknown filter type",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType(999), Label: "l", Regexp: "r"}},
+			wantErr: "unknown filter type",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := filterClickHouseSQL(tc.sql, tc.filters)
+			if tc.wantErr != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErr)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestValidateFilters(t *testing.T) {
+	t.Parallel()
+
+	require.NoError(t, validateFilters(nil))
+	require.NoError(t, validateFilters([]*alertingv1.Filter{matchFilter("service_name", "db.*|other"), mismatchFilter("env", "dev")}))
+
+	for _, label := range []string{"", "1st", "service name", "service`name", "a;b", "a-b"} {
+		err := validateFilters([]*alertingv1.Filter{matchFilter(label, "x")})
+		require.Error(t, err, "label %q", label)
+		assert.Contains(t, err.Error(), "is not a valid label name")
+	}
+
+	err := validateFilters([]*alertingv1.Filter{matchFilter("service_name", "(unclosed")})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "filter regexp for label 'service_name' is invalid")
+
+	err = validateFilters([]*alertingv1.Filter{{Type: alertingv1.FilterType_FILTER_TYPE_UNSPECIFIED, Label: "l", Regexp: "r"}})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "filter type FILTER_TYPE_UNSPECIFIED is not supported")
 }

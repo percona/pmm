@@ -713,6 +713,11 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
+	err = validateFilters(req.Filters)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid filter: %v.", err)
+	}
+
 	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)

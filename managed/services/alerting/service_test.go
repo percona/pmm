@@ -623,6 +623,24 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 		assert.Equal(t, buildRuleLabelTemplate("service_name", "C"), captured.Labels["service_name"])
 	})
 
+	t.Run("invalid filter returns InvalidArgument", func(t *testing.T) {
+		// Rejected before any datasource is resolved.
+		svc, _ := setup(t)
+
+		_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+			TemplateName: clickhouse.Name,
+			FolderUid:    "folder-uid",
+			Group:        "test-group",
+			Filters: []*alerting.Filter{{
+				Type:   alerting.FilterType_FILTER_TYPE_MATCH,
+				Label:  "service_name` OR 1=1",
+				Regexp: "db",
+			}},
+		})
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, err.Error(), "is not a valid label name")
+	})
+
 	t.Run("missing required fields return InvalidArgument", func(t *testing.T) {
 		for _, tc := range []struct {
 			name string
