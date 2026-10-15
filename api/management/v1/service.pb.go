@@ -715,9 +715,9 @@ func (*UpdateServiceRequest_Valkey) isUpdateServiceRequest_Service() {}
 
 type UpdateServiceResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Service with its Agents before the update.
+	// Service with its Agents before the update. Its status is not filled in.
 	Before *UniversalService `protobuf:"bytes,1,opt,name=before,proto3" json:"before,omitempty"`
-	// Service with its Agents after the update, or as it would be with dry_run.
+	// Service with its Agents after the update, or as it would be with dry_run. Its status is not filled in.
 	After *UniversalService `protobuf:"bytes,2,opt,name=after,proto3" json:"after,omitempty"`
 	// Warning message.
 	Warning       string `protobuf:"bytes,3,opt,name=warning,proto3" json:"warning,omitempty"`
@@ -1183,7 +1183,7 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
 	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"S\n" +
 	"\x14ListServicesResponse\x12;\n" +
-	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xd2\x15\n" +
+	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xc8\x16\n" +
 	"\x11ManagementService\x12\xac\x01\n" +
 	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\x9b\x01\n" +
 	"\n" +
@@ -1200,8 +1200,8 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\vDiscoverRDS\x12!.management.v1.DiscoverRDSRequest\x1a\".management.v1.DiscoverRDSResponse\"Y\x92A(\x12\fDiscover RDS\x1a\x18Discovers RDS instances.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/management/services:discoverRDS\x12\x8f\x02\n" +
 	"\x15DiscoverAzureDatabase\x12+.management.v1.DiscoverAzureDatabaseRequest\x1a,.management.v1.DiscoverAzureDatabaseResponse\"\x9a\x01\x92Ag\x12\x17Discover Azure Database\x1aLDiscovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.\x82\xd3\xe4\x93\x02*:\x01*\"%/v1/management/services:discoverAzure\x12\xc6\x01\n" +
 	"\x10AddAzureDatabase\x12&.management.v1.AddAzureDatabaseRequest\x1a'.management.v1.AddAzureDatabaseResponse\"a\x92A6\x12\x12Add Azure Database\x1a Adds an Azure Database instance.\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/management/services/azure\x12\xc7\x01\n" +
-	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}\x12\xad\x02\n" +
-	"\rUpdateService\x12#.management.v1.UpdateServiceRequest\x1a$.management.v1.UpdateServiceResponse\"\xd0\x01\x92A\x9d\x01\x12\x10Update a Service\x1a\x88\x01Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept.\x82\xd3\xe4\x93\x02):\x01*\x1a$/v1/management/services/{service_id}B\xad\x01\n" +
+	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}\x12\xa3\x03\n" +
+	"\rUpdateService\x12#.management.v1.UpdateServiceRequest\x1a$.management.v1.UpdateServiceResponse\"\xc6\x02\x92A\x93\x02\x12\x10Update a Service\x1a\xfe\x01Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.\x82\xd3\xe4\x93\x02):\x01*\x1a$/v1/management/services/{service_id}B\xad\x01\n" +
 	"\x11com.management.v1B\fServiceProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (

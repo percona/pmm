@@ -64,6 +64,7 @@ message AddHAProxyServiceParams {
 // Update HAProxy
 
 // UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 message UpdateHAProxyServiceParams {
   // HTTP basic auth username for collecting metrics.
   optional string username = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];

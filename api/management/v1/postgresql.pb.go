@@ -379,6 +379,7 @@ func (x *AddPostgreSQLServiceParams) GetConnectionTimeout() *durationpb.Duration
 }
 
 // UpdatePostgreSQLServiceParams holds the PostgreSQL Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 type UpdatePostgreSQLServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Node and Service access address (DNS name or IP). Replaces the socket.
@@ -415,7 +416,8 @@ type UpdatePostgreSQLServiceParams struct {
 	TlsKey *string `protobuf:"bytes,16,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
 	QanPostgresqlPgstatementsAgent *bool `protobuf:"varint,17,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3,oneof" json:"qan_postgresql_pgstatements_agent,omitempty"`
-	// If true, ensures qan-postgresql-pgstatmonitor-agent exists; if false, removes it.
+	// If true, ensures qan-postgresql-pgstatmonitor-agent exists; without the pg_stat_monitor extension,
+	// qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
 	QanPostgresqlPgstatmonitorAgent *bool `protobuf:"varint,18,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3,oneof" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
 	MaxQueryLength *int32 `protobuf:"varint,19,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`

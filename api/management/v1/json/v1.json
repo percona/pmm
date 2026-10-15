@@ -7230,7 +7230,7 @@
     },
     "/v1/management/services/{service_id}": {
       "put": {
-        "description": "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept.",
+        "description": "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.",
         "tags": [
           "ManagementService"
         ],
@@ -7252,7 +7252,7 @@
               "type": "object",
               "properties": {
                 "mysql": {
-                  "description": "UpdateMySQLServiceParams holds the MySQL Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateMySQLServiceParams holds the MySQL Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -7475,7 +7475,7 @@
                   "x-order": 0
                 },
                 "mongodb": {
-                  "description": "UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -7717,7 +7717,7 @@
                   "x-order": 1
                 },
                 "postgresql": {
-                  "description": "UpdatePostgreSQLServiceParams holds the PostgreSQL Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdatePostgreSQLServiceParams holds the PostgreSQL Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -7832,7 +7832,7 @@
                       "x-order": 16
                     },
                     "qan_postgresql_pgstatmonitor_agent": {
-                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists; if false, removes it.",
+                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists; without the pg_stat_monitor extension,\nqan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 17
@@ -7932,7 +7932,7 @@
                   "x-order": 2
                 },
                 "proxysql": {
-                  "description": "UpdateProxySQLServiceParams holds the ProxySQL Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateProxySQLServiceParams holds the ProxySQL Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -8078,7 +8078,7 @@
                   "x-order": 3
                 },
                 "haproxy": {
-                  "description": "UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "username": {
@@ -8171,7 +8171,7 @@
                   "x-order": 4
                 },
                 "external": {
-                  "description": "UpdateExternalServiceParams holds the External Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateExternalServiceParams holds the External Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "username": {
@@ -8270,7 +8270,7 @@
                   "x-order": 5
                 },
                 "valkey": {
-                  "description": "UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.",
+                  "description": "UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.\nA map or list field replaces the stored one, and an empty one clears it.",
                   "type": "object",
                   "properties": {
                     "address": {

@@ -226,6 +226,7 @@ func (x *AddHAProxyServiceParams) GetTlsSkipVerify() bool {
 }
 
 // UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 type UpdateHAProxyServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// HTTP basic auth username for collecting metrics.

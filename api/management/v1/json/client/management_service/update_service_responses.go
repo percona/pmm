@@ -3107,6 +3107,7 @@ func (o *UpdateServiceOKBodyBeforeAgentsItems0RtaOptions) UnmarshalBinary(b []by
 
 /*
 UpdateServiceParamsBodyExternal UpdateExternalServiceParams holds the External Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyExternal
 */
 type UpdateServiceParamsBodyExternal struct {
@@ -3335,6 +3336,7 @@ func (o *UpdateServiceParamsBodyExternalCustomLabels) UnmarshalBinary(b []byte) 
 
 /*
 UpdateServiceParamsBodyHaproxy UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyHaproxy
 */
 type UpdateServiceParamsBodyHaproxy struct {
@@ -3560,6 +3562,7 @@ func (o *UpdateServiceParamsBodyHaproxyCustomLabels) UnmarshalBinary(b []byte) e
 
 /*
 UpdateServiceParamsBodyMongodb UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyMongodb
 */
 type UpdateServiceParamsBodyMongodb struct {
@@ -4180,6 +4183,7 @@ func (o *UpdateServiceParamsBodyMongodbStatsCollections) UnmarshalBinary(b []byt
 
 /*
 UpdateServiceParamsBodyMysql UpdateMySQLServiceParams holds the MySQL Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyMysql
 */
 type UpdateServiceParamsBodyMysql struct {
@@ -4707,6 +4711,7 @@ func (o *UpdateServiceParamsBodyMysqlExtraDsnParams) UnmarshalBinary(b []byte) e
 
 /*
 UpdateServiceParamsBodyPostgresql UpdatePostgreSQLServiceParams holds the PostgreSQL Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyPostgresql
 */
 type UpdateServiceParamsBodyPostgresql struct {
@@ -4758,7 +4763,8 @@ type UpdateServiceParamsBodyPostgresql struct {
 	// If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
 	QANPostgresqlPgstatementsAgent *bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
-	// If true, ensures qan-postgresql-pgstatmonitor-agent exists; if false, removes it.
+	// If true, ensures qan-postgresql-pgstatmonitor-agent exists; without the pg_stat_monitor extension,
+	// qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
 	QANPostgresqlPgstatmonitorAgent *bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
@@ -5138,6 +5144,7 @@ func (o *UpdateServiceParamsBodyPostgresqlDisableCollectors) UnmarshalBinary(b [
 
 /*
 UpdateServiceParamsBodyProxysql UpdateProxySQLServiceParams holds the ProxySQL Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyProxysql
 */
 type UpdateServiceParamsBodyProxysql struct {
@@ -5534,6 +5541,7 @@ func (o *UpdateServiceParamsBodyProxysqlDisableCollectors) UnmarshalBinary(b []b
 
 /*
 UpdateServiceParamsBodyValkey UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 swagger:model UpdateServiceParamsBodyValkey
 */
 type UpdateServiceParamsBodyValkey struct {

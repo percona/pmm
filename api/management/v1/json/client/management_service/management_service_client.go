@@ -657,7 +657,7 @@ func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOpti
 /*
 UpdateService updates a service
 
-Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept.
+Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.
 */
 func (a *Client) UpdateService(params *UpdateServiceParams, opts ...ClientOption) (*UpdateServiceOK, error) {
 	// NOTE: parameters are not validated before sending

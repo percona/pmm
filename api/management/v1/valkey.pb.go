@@ -298,6 +298,7 @@ func (x *AddValkeyServiceParams) GetConnectionTimeout() *durationpb.Duration {
 }
 
 // UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 type UpdateValkeyServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Node and Service access address (DNS name or IP). Replaces the socket.

@@ -410,6 +410,7 @@ func (x *AddMongoDBServiceParams) GetEnableDiagnosticDataHistograms() bool {
 }
 
 // UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
 type UpdateMongoDBServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Node and Service access address (DNS name or IP). Replaces the socket.

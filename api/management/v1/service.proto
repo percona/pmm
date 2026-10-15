@@ -73,9 +73,9 @@ message UpdateServiceRequest {
 }
 
 message UpdateServiceResponse {
-  // Service with its Agents before the update.
+  // Service with its Agents before the update. Its status is not filled in.
   UniversalService before = 1;
-  // Service with its Agents after the update, or as it would be with dry_run.
+  // Service with its Agents after the update, or as it would be with dry_run. Its status is not filled in.
   UniversalService after = 2;
   // Warning message.
   string warning = 3;
@@ -313,7 +313,7 @@ service ManagementService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update a Service"
-      description: "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept."
+      description: "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs."
     };
   }
 }
