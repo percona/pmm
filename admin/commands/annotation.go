@@ -29,10 +29,13 @@ import (
 
 var annotationResultT = ParseTemplate(`
 Annotation added.
+Annotation ID: {{ .AnnotationID }}
 `)
 
 // annotationResult is a result of annotation command.
-type annotationResult struct{}
+type annotationResult struct {
+	AnnotationID string
+}
 
 // Result is a command run result.
 func (res *annotationResult) Result() {}
@@ -151,7 +154,7 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	_, err = managementClient.Default.ManagementService.AddAnnotation(&mservice.AddAnnotationParams{
+	resp, err := managementClient.Default.ManagementService.AddAnnotation(&mservice.AddAnnotationParams{
 		Body: mservice.AddAnnotationBody{
 			Text:         cmd.Text,
 			Tags:         cmd.Tags,
@@ -164,5 +167,10 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	return &annotationResult{}, nil
+	var annotationID string
+	if resp.Payload != nil {
+		annotationID = resp.Payload.AnnotationID
+	}
+
+	return &annotationResult{AnnotationID: annotationID}, nil
 }
