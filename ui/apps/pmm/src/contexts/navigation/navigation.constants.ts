@@ -415,7 +415,7 @@ export const NAV_VALKEY: NavItem = {
 //
 export const NAV_EBPF: NavItem = {
   id: 'ebpf',
-  icon: 'network',
+  icon: NetworkNodeIcon,
   text: 'eBPF',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
   matches: [
@@ -434,7 +434,7 @@ export const NAV_QAN: NavItem = {
 
 export const NAV_QAN_NATIVE: NavItem = {
   id: 'qan',
-  icon: 'qan',
+  icon: QueryStatsIcon,
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_PATH}/qan`,
   matches: [
@@ -456,21 +456,21 @@ export const NAV_RTA: NavItem = {
 
 export const NAV_ADRE: NavItem = {
   id: 'adre',
-  icon: 'intelligence',
+  icon: NetworkIntelligenceIcon,
   text: 'AI Assistant',
   url: `${PMM_NEW_NAV_PATH}/adre`,
 };
 
 export const NAV_ADRE_USAGE: NavItem = {
   id: 'adre-usage',
-  icon: 'intelligence',
+  icon: NetworkIntelligenceIcon,
   text: 'AI Usage',
   url: `${PMM_NEW_NAV_PATH}/adre/usage`,
 };
 
 export const NAV_INVESTIGATIONS: NavItem = {
   id: 'investigations',
-  icon: 'intelligence',
+  icon: NetworkIntelligenceIcon,
   text: 'Investigations',
   url: `${PMM_NEW_NAV_PATH}/investigations`,
   matches: [
