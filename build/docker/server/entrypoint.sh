@@ -75,6 +75,19 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
     echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
 
+# Replace the PMM_* and GF_* variables given as vault:<path>#<key> references with the secrets they point to,
+# before anything reads them. The credentials of Vault itself are dropped once they are used, so that
+# supervisord's children do not inherit them.
+if [ -n "$PMM_VAULT_ADDRESS" ]; then
+    declare VAULT_EXPORTS
+    if ! VAULT_EXPORTS=$(pmm-managed-init vault-env); then
+        echo "FATAL: failed to read the PMM Server secrets from Vault." >&2
+        exit 1
+    fi
+    eval "$VAULT_EXPORTS"
+    unset VAULT_EXPORTS PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID
+fi
+
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
