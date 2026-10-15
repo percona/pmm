@@ -26,6 +26,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/annotations"
 )
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
@@ -68,7 +69,7 @@ type checksService interface {
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
-	CreateAnnotation(ctx context.Context, tags []string, time time.Time, text string, user string) (string, error)
+	CreateAnnotation(ctx context.Context, tags []string, time time.Time, text string, user string) (int64, error)
 	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
 	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }
@@ -100,4 +101,11 @@ type versionCache interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
+}
+
+// annotationStore is a subset of methods of annotations.Store used by this package.
+// We use it instead of real type for testing.
+type annotationStore interface {
+	Write(ctx context.Context, events []annotations.Event) error
+	Delete(ctx context.Context, ids []int64) error
 }

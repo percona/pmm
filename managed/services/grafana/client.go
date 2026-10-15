@@ -1016,8 +1016,8 @@ func (a *annotation) decode() {
 }
 
 // CreateAnnotation creates annotation with given text and tags ("pmm_annotation" is added automatically)
-// and returns Grafana's response text which is typically "Annotation added" or "Failed to save annotation".
-func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.Time, text, authorization string) (string, error) {
+// and returns its Grafana ID.
+func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.Time, text, authorization string) (int64, error) {
 	// http://docs.grafana.org/http_api/annotations/#create-annotation
 	request := &annotation{
 		Tags: tags,
@@ -1028,22 +1028,22 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 
 	b, err := json.Marshal(request)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %w", err)
+		return 0, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
 	headers := make(http.Header)
 	headers.Add("Authorization", authorization)
 
 	var response struct {
-		Message string `json:"message"`
+		ID int64 `json:"id"`
 	}
 
 	err = c.do(ctx, "POST", "/api/annotations", "", headers, b, &response)
 	if err != nil {
-		return "", fmt.Errorf("failed to create annotation: %w", err)
+		return 0, fmt.Errorf("failed to create annotation: %w", err)
 	}
 
-	return response.Message, nil
+	return response.ID, nil
 }
 
 func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, authorization string) ([]annotation, error) {

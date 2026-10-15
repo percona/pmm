@@ -16,4 +16,8 @@ message AddAnnotationRequest {
   repeated string service_names = 4;
 }
 
-message AddAnnotationResponse {}
+// AddAnnotationResponse is the result of adding an annotation.
+message AddAnnotationResponse {
+  // ID of the annotation in Grafana.
+  int64 annotation_id = 1;
+}

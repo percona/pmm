@@ -173,6 +173,8 @@ func (m *AddAnnotationResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for AnnotationId
+
 	if len(errors) > 0 {
 		return AddAnnotationResponseMultiError(errors)
 	}

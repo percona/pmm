@@ -79,6 +79,7 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
+	"github.com/percona/pmm/managed/services/annotations"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -226,6 +227,7 @@ type gRPCServerDeps struct {
 	agentsStateUpdater        *agents.StateUpdater
 	externalExporterStatusSvc *agents.ExternalExporterStatusService
 	grafanaClient             *grafana.Client
+	annotationStore           *annotations.Store
 	templatesService          *alerting.Service
 	backupService             *backup.Service
 	dumpService               *dump.Service
@@ -326,6 +328,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.annotationStore,
 		deps.internalNodePrefixes,
 		deps.ha.Params().Enabled,
 	)
@@ -1279,6 +1282,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				agentService:              agentService,
 				agentsRegistry:            agentsRegistry,
 				agentsStateUpdater:        agentsStateUpdater,
+				annotationStore:           annotations.NewStore(vmParams.ParsedURL()),
 				externalExporterStatusSvc: externalExporterStatusSvc,
 				backupRemovalService:      backupRemovalService,
 				backupService:             backupService,

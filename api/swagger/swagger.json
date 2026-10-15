@@ -21196,7 +21196,16 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "description": "AddAnnotationResponse is the result of adding an annotation.",
+              "type": "object",
+              "properties": {
+                "annotation_id": {
+                  "description": "ID of the annotation in Grafana.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

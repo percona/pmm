@@ -39,16 +39,17 @@ import (
 type ManagementService struct { //nolint:revive
 	managementv1.UnimplementedManagementServiceServer
 
-	db            *reform.DB
-	r             agentsRegistry
-	state         agentsStateUpdater
-	cc            connectionChecker
-	sib           serviceInfoBroker
-	vmdb          prometheusService
-	vc            versionCache
-	grafanaClient grafanaClient
-	vmClient      victoriaMetricsClient
-	l             *logrus.Entry
+	db              *reform.DB
+	r               agentsRegistry
+	state           agentsStateUpdater
+	cc              connectionChecker
+	sib             serviceInfoBroker
+	vmdb            prometheusService
+	vc              versionCache
+	grafanaClient   grafanaClient
+	vmClient        victoriaMetricsClient
+	annotationStore annotationStore
+	l               *logrus.Entry
 
 	// internalNodePrefixes holds the Node name prefixes reserved for the internal
 	// infrastructure of this PMM deployment, e.g. its HA persistence layer.
@@ -86,6 +87,7 @@ func NewManagementService(
 	vc versionCache,
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
+	annotationStore annotationStore,
 	internalNodePrefixes []string,
 	haEnabled bool,
 ) *ManagementService {
@@ -99,6 +101,7 @@ func NewManagementService(
 		vc:                   vc,
 		grafanaClient:        grafanaClient,
 		vmClient:             vmClient,
+		annotationStore:      annotationStore,
 		l:                    logrus.WithField("service", "management"),
 		internalNodePrefixes: internalNodePrefixes,
 		haEnabled:            haEnabled,

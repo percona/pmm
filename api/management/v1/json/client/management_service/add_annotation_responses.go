@@ -53,7 +53,7 @@ AddAnnotationOK describes a response with status code 200, with default header v
 A successful response.
 */
 type AddAnnotationOK struct {
-	Payload any
+	Payload *AddAnnotationOKBody
 }
 
 // IsSuccess returns true when this add annotation Ok response has a 2xx status code
@@ -96,13 +96,15 @@ func (o *AddAnnotationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/annotations][%d] addAnnotationOk %s", 200, payload)
 }
 
-func (o *AddAnnotationOK) GetPayload() any {
+func (o *AddAnnotationOK) GetPayload() *AddAnnotationOKBody {
 	return o.Payload
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(AddAnnotationOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -449,6 +451,43 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res AddAnnotationDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAnnotationOKBody AddAnnotationResponse is the result of adding an annotation.
+swagger:model AddAnnotationOKBody
+*/
+type AddAnnotationOKBody struct {
+	// ID of the annotation in Grafana.
+	AnnotationID string `json:"annotation_id,omitempty"`
+}
+
+// Validate validates this add annotation OK body
+func (o *AddAnnotationOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add annotation OK body based on context it is used
+func (o *AddAnnotationOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAnnotationOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAnnotationOKBody) UnmarshalBinary(b []byte) error {
+	var res AddAnnotationOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

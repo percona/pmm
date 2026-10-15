@@ -602,6 +602,30 @@ func TestGetServiceAccountIDFromName(t *testing.T) {
 	})
 }
 
+func TestCreateAnnotationReturnsID(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/api/annotations" {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		assert.Equal(t, "Basic YWRtaW46YWRtaW4=", r.Header.Get("Authorization"))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = fmt.Fprint(w, `{"message":"Annotation added","id":17}`)
+	}))
+	t.Cleanup(ts.Close)
+
+	c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+
+	id, err := c.CreateAnnotation(t.Context(), []string{"tag1"}, time.Now(), "text", "Basic YWRtaW46YWRtaW4=")
+	require.NoError(t, err)
+	assert.Equal(t, int64(17), id)
+}
+
 func TestClient(t *testing.T) {
 	l := logrus.WithField("test", t.Name())
 
@@ -731,9 +755,9 @@ func TestClient(t *testing.T) {
 
 		t.Run("Normal", func(t *testing.T) {
 			from := time.Now()
-			msg, err := c.CreateAnnotation(ctx, []string{"tag1", "tag2"}, from, "Normal", authorization)
+			id, err := c.CreateAnnotation(ctx, []string{"tag1", "tag2"}, from, "Normal", authorization)
 			require.NoError(t, err)
-			assert.Equal(t, "Annotation added", msg)
+			assert.Positive(t, id)
 
 			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second), authorization)
 			require.NoError(t, err)
@@ -754,9 +778,9 @@ func TestClient(t *testing.T) {
 
 		t.Run("No tags", func(t *testing.T) {
 			from := time.Now()
-			msg, err := c.CreateAnnotation(ctx, nil, from, "No tags", authorization)
+			id, err := c.CreateAnnotation(ctx, nil, from, "No tags", authorization)
 			require.NoError(t, err)
-			assert.Equal(t, "Annotation added", msg)
+			assert.Positive(t, id)
 
 			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second), authorization)
 			require.NoError(t, err)

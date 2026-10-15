@@ -38,6 +38,7 @@ packages:
     interfaces:
       agentsRegistry:
       agentsStateUpdater:
+      annotationStore:
       checksService:
       connectionChecker:
       grafanaClient:

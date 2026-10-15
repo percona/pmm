@@ -15,22 +15,22 @@ type mockGrafanaClient struct {
 }
 
 // CreateAnnotation provides a mock function with given fields: ctx, tags, _a2, text, user
-func (_m *mockGrafanaClient) CreateAnnotation(ctx context.Context, tags []string, _a2 time.Time, text string, user string) (string, error) {
+func (_m *mockGrafanaClient) CreateAnnotation(ctx context.Context, tags []string, _a2 time.Time, text string, user string) (int64, error) {
 	ret := _m.Called(ctx, tags, _a2, text, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateAnnotation")
 	}
 
-	var r0 string
+	var r0 int64
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string, time.Time, string, string) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string, time.Time, string, string) (int64, error)); ok {
 		return rf(ctx, tags, _a2, text, user)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string, time.Time, string, string) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string, time.Time, string, string) int64); ok {
 		r0 = rf(ctx, tags, _a2, text, user)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(int64)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, []string, time.Time, string, string) error); ok {

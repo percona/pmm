@@ -96,8 +96,11 @@ func (x *AddAnnotationRequest) GetServiceNames() []string {
 	return nil
 }
 
+// AddAnnotationResponse is the result of adding an annotation.
 type AddAnnotationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the annotation in Grafana.
+	AnnotationId  int64 `protobuf:"varint,1,opt,name=annotation_id,json=annotationId,proto3" json:"annotation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -132,6 +135,13 @@ func (*AddAnnotationResponse) Descriptor() ([]byte, []int) {
 	return file_management_v1_annotation_proto_rawDescGZIP(), []int{1}
 }
 
+func (x *AddAnnotationResponse) GetAnnotationId() int64 {
+	if x != nil {
+		return x.AnnotationId
+	}
+	return 0
+}
+
 var File_management_v1_annotation_proto protoreflect.FileDescriptor
 
 const file_management_v1_annotation_proto_rawDesc = "" +
@@ -141,8 +151,9 @@ const file_management_v1_annotation_proto_rawDesc = "" +
 	"\x04text\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04text\x12\x12\n" +
 	"\x04tags\x18\x02 \x03(\tR\x04tags\x12\x1b\n" +
 	"\tnode_name\x18\x03 \x01(\tR\bnodeName\x12#\n" +
-	"\rservice_names\x18\x04 \x03(\tR\fserviceNames\"\x17\n" +
-	"\x15AddAnnotationResponseB\xb0\x01\n" +
+	"\rservice_names\x18\x04 \x03(\tR\fserviceNames\"<\n" +
+	"\x15AddAnnotationResponse\x12#\n" +
+	"\rannotation_id\x18\x01 \x01(\x03R\fannotationIdB\xb0\x01\n" +
 	"\x11com.management.v1B\x0fAnnotationProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -164,7 +175,6 @@ var (
 		(*AddAnnotationResponse)(nil), // 1: management.v1.AddAnnotationResponse
 	}
 )
-
 var file_management_v1_annotation_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
