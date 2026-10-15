@@ -15,21 +15,25 @@ You turn annotations on or off with the switches in the second row menu bar. Das
 - **PMM Annotations**: shows global annotations
 - **PMM Annotations: nodes and services**: shows scoped annotations
 
+On most dashboards, both switches are on by default.
+
 ![PMM Annotations switch](../../../images/PMM_Common_Controls_Annotation_Toggle.jpg)
 
 ## Scoped annotations on dashboards
 
-Scoped annotations show when the **PMM Annotations: nodes and services** switch is on, including when the node or service variables are set to **All**. What a dashboard shows depends on its variables:
+Scoped annotations show when the **PMM Annotations: nodes and services** switch is on, including when the node or service variables are set to **All**. Which scoped annotations a dashboard shows depends on the type of dashboard:
 
-- A node dashboard shows node annotations.
-- A service dashboard shows service annotations.
-- A dashboard with both node and service variables shows both.
+- The OS dashboards, such as **Node Summary**, and the **Home Dashboard** show node annotations.
+- The service dashboards, such as **MySQL Instance Summary** and the Valkey dashboards, show service annotations.
+- Some overview dashboards, such as **MySQL Instances Overview** and **PostgreSQL Instances Overview Extended**, show both node and service annotations.
 
-The other variables on the dashboard, such as environment or region, filter the annotations in the same way that they filter the graphs. If you select one node on a node dashboard, or one service on a service dashboard, the dashboard shows only the annotations of that node or service. On a dashboard with both variables, selecting a service narrows the service annotations but not the node annotations.
+A few dashboards, such as **ProxySQL Instance Summary**, don't have the **PMM Annotations: nodes and services** switch and show global annotations only.
+
+The other variables on the dashboard, such as environment or region, filter the annotations in the same way that they filter the graphs. If you select one node on a dashboard that shows node annotations, or one service on a dashboard that shows service annotations, the dashboard shows only the annotations of that node or service. On a dashboard that shows both, selecting a service narrows the service annotations but not the node annotations.
 
 ## Access control
 
-Label-based access control (LBAC) applies to scoped annotations on dashboards. Users see the scoped annotations of the nodes and services whose metrics they can see, and no others. For more information, see [Access control in PMM](../../../admin/roles/access-control/intro.md).
+Label-based access control (LBAC) applies to scoped annotations on dashboards. On a dashboard, users see the scoped annotations of the nodes and services whose metrics they can see. For more information, see [Access control in PMM](../../../admin/roles/access-control/intro.md).
 
 ## Retention
 
@@ -66,22 +70,22 @@ For example, to delete the annotation with ID `17`:
 curl -X DELETE -H 'Authorization: Bearer <SERVICE_TOKEN>' https://127.0.0.1/v1/management/annotations/17
 ```
 
-If PMM deletes the annotation but can't remove it from dashboards, the endpoint returns an `Unavailable` error (HTTP status 503). The annotation then disappears from dashboards within about 5 minutes.
+If PMM deletes the annotation but can't remove it from dashboards, the endpoint returns an `Unavailable` error (HTTP status 503). PMM retries the removal every 5 minutes, so the annotation usually disappears from dashboards within about 5 minutes. The removal needs the VictoriaMetrics delete API, so the annotation stays on dashboards while PMM can't reach that API.
 
-If you delete a scoped annotation with the Grafana annotations API instead, it also disappears from dashboards within about 5 minutes.
+If you delete a scoped annotation with the Grafana annotations API instead, PMM removes it from dashboards in the same way, usually within about 5 minutes.
 
 ## Limitations
 
 Scoped annotations have the following limitations:
 
 - You can't edit or delete a scoped annotation from its marker on a dashboard.
-- Users with the Editor role can't delete scoped annotations.
+- Only users with the Admin role can delete a scoped annotation through the PMM API.
 
 To delete a scoped annotation, see [Delete a scoped annotation](#delete-a-scoped-annotation).
 
 ## Label limit
 
-PMM adds the labels of the node or service to a scoped annotation, together with labels for the annotation ID, text, and tags. A scoped annotation can have at most 40 labels.
+PMM stores a scoped annotation in VictoriaMetrics as a `pmm_annotation_event` series. The series carries the labels of the node or service, together with the `pmm_annotation_id`, `pmm_annotation_text`, and `pmm_annotation_tags` labels for the annotation ID, text, and tags. A scoped annotation can have at most 40 labels, and the metric name counts as one of them.
 
 If a node or service carries so many labels that the annotation would exceed this limit, PMM rejects the request and doesn't create the annotation. For example:
 
