@@ -308,13 +308,16 @@ func filterClickHouseSQL(sql string, filters []*alertingv1.Filter) (string, erro
 			return "", fmt.Errorf("filter label '%s' is not a valid label name", filter.Label)
 		}
 
+		// Compared as text, with NULL as the empty label MetricsQL sees for a missing one.
+		column := fmt.Sprintf("ifNull(toString(`%s`), '')", filter.Label)
+
 		var condition string
 		switch filter.Type {
 		case alertingv1.FilterType_FILTER_TYPE_MATCH:
 			// Like label_match's `(re)|`, an empty label passes too.
-			condition = fmt.Sprintf("match(`%s`, '%s')", filter.Label, sqlStringEscaper.Replace("^(?:(?:"+filter.Regexp+")|)$"))
+			condition = fmt.Sprintf("match(%s, '%s')", column, sqlStringEscaper.Replace("^(?:(?:"+filter.Regexp+")|)$"))
 		case alertingv1.FilterType_FILTER_TYPE_MISMATCH:
-			condition = fmt.Sprintf("NOT match(`%s`, '%s')", filter.Label, sqlStringEscaper.Replace("^(?:"+filter.Regexp+")$"))
+			condition = fmt.Sprintf("NOT match(%s, '%s')", column, sqlStringEscaper.Replace("^(?:"+filter.Regexp+")$"))
 		default:
 			return "", fmt.Errorf("unknown filter type: %s", filter.Type)
 		}
