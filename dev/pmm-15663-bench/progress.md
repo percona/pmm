@@ -88,3 +88,69 @@ Task 10: minor (deferred): shared vmauth credential can now delete — covered b
 Task 10: complete (chart commits 2af1f99..98ad2a1, review clean; patch on bench branch 7ca98737b, not pushed to percona-helm-charts — no access)
 Task 5: implementer DONE_WITH_CONCERNS, commit e063b3314 (extracted callerAuthorization helper shared with AddAnnotation)
 Task 5: pre-existing: `go test ./services/management/...` in parallel hits a duplicate testdb name in backup; serial run (-p 1) clean
+Ruling: api/descriptor.bin stays untouched on this branch — CI only logs the `make -C api descriptors` diff (main.yml:47-52), the change is additive, and keeping the baseline leaves the unreleased RPC free to change — cost if wrong: the descriptor gets refreshed in a later PR or at release.
+Ruling: RemoveAnnotation returns Unauthenticated without an Authorization header, exactly as AddAnnotation does (brief-mandated) — cost if wrong: a cookie-only UI caller gets 401; noted for live QA and PMM-15073.
+Task 5: minor (deferred): non-404 Grafana errors pass through as codes.Unknown with the Grafana URL/body (inherited from AddAnnotation)
+Task 5: minor (deferred): Remove subtests build a testdb they don't need; DeleteAnnotation doc comment is two sentences; proto comment wording "is a params"
+Task 5: complete (commits a520f3a2c..e063b3314, review clean)
+Task 6: dispatched (BASE e063b3314)
+Ruling: pmm-admin annotationResult.AnnotationID is a string — the generated client types int64 as string (grpc-gateway JSON) — test uses "17", output unchanged — cost if wrong: none.
+Task 6: implementer DONE, commit 55e1ea0d4
+Task 6: review — spec ✅; reviewer's Critical (Co-authored-by trailer) overruled by the trailer ruling above (runner-hook policy, already on pushed commits); Important: --json key must be snake_case annotation_id
+Task 6: minor (deferred): nil payload prints "Annotation ID: " with empty value; RunCmd extraction not unit-tested; resp vs result naming
+Task 6: fix round 1/5 dispatched (json tag)
+Task 6: fix round 1 commit 4a3257c45 (pushed), re-review running
+Ruling: Task 7 dispatched before Task 6's re-review returns — the re-review is read-only on a one-line fix, and any further Task 6 fix waits until Task 7 finishes so two agents never commit in the worktree at once — cost if wrong: a Task 6 fix lands after Task 7's commits.
+Task 7: dispatched (agent aa41cbe, model opus, BASE 4a3257c45, decisions in task-7-decisions.txt)
+Task 6: fix round 1/5 (1 addressed, 0 open — snake_case json tag; commits 55e1ea0d4..4a3257c45)
+Task 6: minor (deferred): fix commit title is 51 chars (rule ≤50); squash-merge uses the PR title, so it does not reach main
+Task 6: complete (commits e063b3314..4a3257c45, review clean after 1 fix round)
+Ruling: Task 9 runs in parallel with Task 7 in a second worktree (.superpowers/wt-dash, branch PMM-15663-dashboards-wip from 4a3257c45) — it touches only dashboards/, Task 7 only managed/ — its commits are cherry-picked onto PMM-15663-scoped-annotations afterwards — cost if wrong: a cherry-pick conflict, resolved by hand.
+Ruling: the new dashboard entry uses the same Prometheus datasource reference as the dashboard's own panels (mostly the name "Metrics"), not the benchmark's uid — consistent with every panel — cost if wrong: none, Grafana resolves both.
+Ruling: dashboard matchers include only labels the term's series carry (node term: node_name/node_name_list, region, az, node_type) — a node series has no environment/cluster — cost if wrong: none.
+Task 9: dispatched (agent a782aba, model opus, worktree wt-dash, BASE 4a3257c45)
+Task 9: implementer DONE_WITH_CONCERNS, commit c825cb592 on PMM-15663-dashboards-wip (61 dashboards: 39 service, 14 node, 8 both; 7 new hidden node_name_list)
+Ruling: D1 accepted — matchers are the labels each dashboard's panels filter on plus the term's own node/service, not every fleet variable; spec 5.5 says "Matchers copy each dashboard's panel matchers", and hidden All-without-allValue variables would otherwise hide annotations the panels show — cost if wrong: an unfiltered fleet variable doesn't narrow annotations.
+Ruling: D2 (node_name_list whenever node_name can be All with an allValue), D3 (enable/hide/iconColor copied from the sibling "PMM Annotations" entry) and D5 (test_all_value.py counts annotation use of a _list variable as used) accepted — consistent with the spec, reviewed in the task review — cost if wrong: small, reviewer checks.
+Task 7: implementer DONE_WITH_CONCERNS, commits 678e8f458, f4d1c295e, e288a7680; TestImports fails since Tasks 4–5 (management imports services/annotations and services/grafana)
+Ruling: ErrAnnotationNotFound moves to the shared package managed/services (errors.go, where other sentinels live and which both grafana and management may import); TestImports whitelists services/annotations for management (same mechanism inventory uses for management/common) and lists annotations among the independent services; packages.dot regenerated — fixes a Task 4–5 defect, done by the Task 7 implementer before review — cost if wrong: a reviewer may prefer moving annotations out of services/.
+Ruling: a tag naming both a node and a service with no text suffix naming it yields both events (as Grafana's tag match would show it) — cost if wrong: one extra marker on the other dashboard type.
+Ruling: accepted risk — if the Grafana DSN pointed at a different database that has an `annotation` table, the delete step would remove most series; it is the DSN the alerting provisioner already trusts — cost if wrong: series deleted until the next backfill rewrites them from the real Grafana DB (only annotations within retention).
+Task 7: TestImports fix done — commits 7e6757af4, 809191646; reviewing range 4a3257c45..809191646
+Ruling: Task 11 runs in parallel in a third worktree (.superpowers/wt-docs, branch PMM-15663-docs-wip from 809191646), touching only documentation/; its `make doc-build` check moves to Task 12, when the shared dev VM is free — commits cherry-picked afterwards — cost if wrong: a docs build error found later.
+Ruling: no new release-notes file — the next version file does not exist and the target release is undecided; the release-note entry is drafted in the Task 11 report for the PR description — cost if wrong: the release owner adds it to the version file.
+Task 11: dispatched (agent a0935a1, worktree wt-docs)
+Task 9: review — ❌ 2 Important: (1) service term includes child node_name derived from $service_name (MySQL_Table_Details, MySQL_Replication_Summary); (2) MongoDB_ReplSet_Summary should use $service_name_list (set narrowing); D4, D5 accepted by reviewer
+Ruling: pmm-qan stays rewritten — consistent with the scope mapping; its entry is hidden — cost if wrong: an unneeded node_name_list refresh on QAN.
+Ruling: both-scope overviews keep node annotations unnarrowed by the service selection — unchanged mapping from main (spec 5.5) — cost if wrong: node annotations of other nodes in node_name_list show when one service is picked.
+Task 9: minor (deferred): no expected-scope map in tests (a dropped term would pass); is_prometheus accepts any non "-- " string; VictoriaMetrics_Agents_Overview node term uses $node_name not $node_name_list; commit title 54 chars (brief-prescribed)
+Task 9: fix round 1/5 dispatched (2 findings)
+Task 11: implementer DONE_WITH_CONCERNS, commit bf9c9d6a1 on PMM-15663-docs-wip (annotate.md, pmm-admin config.md Output section, ui_components.md)
+Ruling: user docs say LBAC applies to scoped annotations on dashboards and add no caveat about Grafana's own annotations API (which ignores LBAC for every annotation, before and after this change); the gap goes to the user in the final report — cost if wrong: docs silent on a pre-existing limitation.
+Task 11: note for Task 12: retake PMM_Common_Controls_Annotation_Toggle.jpg (now two switches) during live verification
+Task 7: minor (deferred, final review should triage): grafanaDB keeps database/sql pool defaults (alerting reader uses 1 conn, 1 min lifetime) — stale-connection error after idle in HA
+Task 7: minor (deferred, final review should triage): first pass on a fresh install logs Error before Grafana tables exist (42P01); alerting treats it as expected
+Task 7: minor (deferred, final review should triage): mass-delete guard — existence query returning 0 of N>0 ids deletes all; a "0 of N: warn and skip" guard would cover the wrong-DSN ruling too
+Task 7: minor (deferred, final review should triage): DSN parse error may log a GF_DATABASE_URL password (pre-existing in alerting, now logged twice)
+Task 7: minor (deferred): PMM DB reads ignore the pass ctx; repeated Validate warning every pass; tag order without ORDER BY; test builds mockSyncStore by hand
+Task 7: complete (commits 4a3257c45..809191646, review clean)
+Task 8: dispatched (BASE 809191646)
+Task 9: fix round 1 commit 98dbd022c (20 dashboards: derived node_name dropped from service term; $service_name_list where panels use it); re-review running
+Task 11: review — ❌ 4 Important (release note says turn on a default-on switch; selection claim too broad on both-scope dashboards; marker title claimed for global annotations; promises editing)
+Task 11: minor (deferred): Editors vs Grafana API delete wording; label count includes __name__; link texts vs target H1s; release-note bullet long; HA 90-day retention; POST Unavailable retry creates a duplicate; curl without -k
+Task 11: fix round 1/5 dispatched (4 findings)
+Task 11: fix round 1 commit d16249691 (4 addressed per implementer + optional custom-labels wording); re-review running
+Task 9: fix round 1/5 (2 addressed, 0 open — derived node_name dropped from service terms on 20 dashboards, $service_name_list where panels use it; commits c825cb592..98dbd022c)
+Task 9: minor (deferred): descendants() duplicated in tool and test (test checks consistency, not independent derivation)
+Task 9: complete (commits 4a3257c45..98dbd022c on PMM-15663-dashboards-wip, review clean after 1 fix round); cherry-pick c825cb592 98dbd022c after Task 8
+Task 11: fix round 1/5 (4 addressed, 0 open; commits bf9c9d6a1..d16249691)
+Task 11: minor (deferred, final review should check against the merged dashboards): annotate.md:26 "a dashboard with both node and service variables shows both" — scope follows the old tags, not the variables (e.g. MySQL_Amazon_Aurora_Details has a hidden node_name but is service-only); page doesn't say the new switch is on by default; label count omits __name__
+Task 11: complete (commits 809191646..d16249691 on PMM-15663-docs-wip, review clean after 1 fix round); cherry-pick bf9c9d6a1 d16249691 after Task 8
+Task 8: implementer DONE_WITH_CONCERNS, commit 572d44091; live server showed Grafana 12.4.5 answers 403 (not 404) for DELETE of an unknown annotation id -> RemoveAnnotation returned 500
+Ruling: Grafana's 403 on DELETE /api/annotations/{id} maps to services.ErrAnnotationNotFound like 404 — only PMM admins reach RemoveAnnotation and a Grafana admin always holds annotations:delete, so 403 there means an unresolvable id — fixed by the Task 8 implementer (it holds the live setup) — cost if wrong: a genuine Grafana permission failure is reported as NotFound.
+Ruling: the api-test checks NotFound with a never-existing id instead of "remove again" — Grafana keeps answering 200 for a just-deleted id for ~20–50 s — cost if wrong: none.
+Task 8: 403 fix commit 4f74d9a07; live: unknown id -> 404, TestAddAnnotation (8) and TestRemoveAnnotation (2) pass against the hot-swapped server; in review
+Cherry-picked Task 9 (c825cb592 -> e0bf8940b, 98dbd022c -> 83ef785fd) and Task 11 (bf9c9d6a1 -> 3e6761316, d16249691 -> 93eabfcc6) onto PMM-15663-scoped-annotations; dashboard suite green on the combined branch; pushed
+Task 8: minor (deferred, final review should triage): literal "annotation-node"/"annotation-service" names now carry series assertions on a shared server (use TestString); "Add Basic Annotation" leaks a global annotation per run; annotationSeries fails on a transient VM error instead of retrying; 403 comment lacks the why; stale commit body
+Task 8: complete (commits 809191646..4f74d9a07, review clean)
+Final review: dispatched (agent abb4cd2, opus, range be751c4b6..93eabfcc6, triage list final-triage-list.txt)
