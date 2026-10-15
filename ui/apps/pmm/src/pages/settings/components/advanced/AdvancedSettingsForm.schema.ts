@@ -47,6 +47,7 @@ export const createAdvancedSettingsSchema = (loadedRetention?: string) =>
       frequentInterval: z.string(),
       azureDiscover: z.boolean(),
       accessControl: z.boolean(),
+      openManager: z.boolean(),
     })
     .superRefine((data, ctx) => {
       if (!data.stt) return;
