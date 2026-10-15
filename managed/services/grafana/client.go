@@ -1055,7 +1055,8 @@ func (c *Client) DeleteAnnotation(ctx context.Context, id int64, authorization s
 
 	err := c.do(ctx, http.MethodDelete, fmt.Sprintf("/api/annotations/%d", id), "", headers, nil, nil)
 	cErr, ok := errors.AsType[*clientError](err)
-	if ok && cErr.Code == http.StatusNotFound {
+	// Grafana 12 answers 403 for an id it cannot resolve.
+	if ok && (cErr.Code == http.StatusNotFound || cErr.Code == http.StatusForbidden) {
 		return services.ErrAnnotationNotFound
 	}
 	if err != nil {

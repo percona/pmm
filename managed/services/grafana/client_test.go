@@ -665,15 +665,24 @@ func TestDeleteAnnotation(t *testing.T) {
 		assert.ErrorIs(t, err, services.ErrAnnotationNotFound)
 	})
 
+	t.Run("Forbidden", func(t *testing.T) {
+		t.Parallel()
+
+		c := newClient(t, http.StatusForbidden, `{"message":"You'll need additional permissions to perform this action."}`)
+
+		err := c.DeleteAnnotation(t.Context(), 17, authorization)
+		assert.ErrorIs(t, err, services.ErrAnnotationNotFound)
+	})
+
 	t.Run("Other error", func(t *testing.T) {
 		t.Parallel()
 
-		c := newClient(t, http.StatusForbidden, `{"message":"Permission denied"}`)
+		c := newClient(t, http.StatusInternalServerError, `{"message":"Internal error"}`)
 
 		err := c.DeleteAnnotation(t.Context(), 17, authorization)
 		require.Error(t, err)
 		require.NotErrorIs(t, err, services.ErrAnnotationNotFound)
-		assert.ErrorContains(t, err, "403")
+		assert.ErrorContains(t, err, "500")
 	})
 }
 
