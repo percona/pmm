@@ -274,7 +274,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 
 			u, err := url.Parse(server.URL)
 			require.NoError(t, err)
-			setServerTransport(u, true, logrus.WithField("test", t.Name()))
+			require.NoError(t, setServerTransport(t.Context(), u, true, logrus.WithField("test", t.Name())))
 
 			// The caller owns the deadline, so the test supplies the one checkRegistrationOnServer would.
 			ctx, cancel := context.WithTimeout(t.Context(), registrationCheckTimeout)

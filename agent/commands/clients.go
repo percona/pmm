@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -48,17 +49,17 @@ import (
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 
 // resolveUserinfo returns user with its password read from Vault, if it is a vault:<path>#<key> reference.
-func resolveUserinfo(user *url.Userinfo, l *logrus.Entry) *url.Userinfo {
+func resolveUserinfo(ctx context.Context, user *url.Userinfo) (*url.Userinfo, error) {
 	password, ok := user.Password()
 	if !ok || !vault.IsRef(password) {
-		return user
+		return user, nil
 	}
 
-	resolved, err := secrets.ResolveRef(context.Background(), password)
+	resolved, err := secrets.ResolveRef(ctx, password)
 	if err != nil {
-		l.Fatalf("Failed to read the PMM Server password from Vault: %s.", err)
+		return nil, fmt.Errorf("failed to read the PMM Server password from Vault: %w", err)
 	}
-	return url.UserPassword(user.Username(), resolved)
+	return url.UserPassword(user.Username(), resolved), nil
 }
 
 // setLocalTransport configures transport for accessing local pmm-agent API.
@@ -108,10 +109,15 @@ func localReload() error {
 // setServerTransport configures transport for accessing PMM Server API.
 //
 // This method is not thread-safe.
-func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
+func setServerTransport(ctx context.Context, u *url.URL, insecureTLS bool, l *logrus.Entry) error {
+	user, err := resolveUserinfo(ctx, u.User)
+	if err != nil {
+		return err
+	}
+
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	apitransport.SetAuth(transport, resolveUserinfo(u.User, l))
+	apitransport.SetAuth(transport, user)
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
@@ -149,6 +155,8 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 
 	managementClient.Default.SetTransport(transport)
 	inventoryClient.Default.SetTransport(transport)
+
+	return nil
 }
 
 // errAgentNotFound reports that PMM Server has no Agent with the given ID.

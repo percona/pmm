@@ -28,9 +28,11 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/utils/secrets"
 	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/servererror"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // registrationState is what `pmm-agent setup` knows about the Node registration the Agent holds.
@@ -67,13 +69,17 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 		// register reports the missing server address with an actionable message
 		return registrationMissing
 	}
-	setServerTransport(u, running.Server.InsecureTLS, l)
-
 	// One deadline for the check as a whole. It may ask PMM Server twice - once with the credentials the
 	// Agent runs with, and again with those given to setup when the first are refused - and an operator
 	// waits for a check, not for however many lookups it takes.
 	ctx, cancel := context.WithTimeout(context.Background(), registrationCheckTimeout)
 	defer cancel()
+
+	err := setServerTransport(ctx, u, running.Server.InsecureTLS, l)
+	if err != nil {
+		fmt.Printf("Failed to check the registration of pmm-agent %s with %s: %s.\n", running.ID, running.Server.Address, err)
+		return registrationUnverified
+	}
 
 	return checkRegistration(ctx, running, withGivenCredentials(serverNodeOfAgent, running, given, l))
 }
@@ -110,7 +116,11 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 		fmt.Printf("PMM Server at %s does not accept the credentials pmm-agent %s runs with,"+
 			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
 		// running skips the certificate check when the file does, as the Agent itself does, see runningServer.
-		setServerTransport(u, running.Server.InsecureTLS, l)
+		e := setServerTransport(ctx, u, running.Server.InsecureTLS, l)
+		if e != nil {
+			fmt.Printf("Failed to check the registration with the credentials given to setup: %s.\n", e)
+			return node, err
+		}
 
 		found, e := lookup(ctx, agentID)
 		switch {
@@ -137,7 +147,44 @@ func holdsToken(c *config.Config) bool {
 
 // sameCredentials reports whether asking again would ask with the credentials PMM Server just refused.
 func sameCredentials(a, b *config.Config) bool {
-	return a.Server.Username == b.Server.Username && a.Server.Password == b.Server.Password
+	return a.Server.Username == b.Server.Username && serverPassword(a) == serverPassword(b)
+}
+
+// serverPassword returns the password c reaches PMM Server with, read from Vault when it is a reference.
+// A reference that cannot be read stands for itself, which can only make two credentials differ.
+func serverPassword(c *config.Config) string {
+	password, err := secrets.ResolveRef(context.Background(), c.Server.Password)
+	if err != nil {
+		return c.Server.Password
+	}
+	return password
+}
+
+// tokenKey is the key the service token is stored under in the Vault secret --server-token-vault-path names.
+const tokenKey = "token"
+
+// tokenRef returns the vault:<path>#<key> reference to store the service token issued at registration
+// under: the one --server-token-vault-path asks for, or else the reference the Agent reads its token from,
+// given to setup or in the file, so that registering again replaces the token in place. An empty result
+// means that the token goes to the configuration file.
+func tokenRef(cfg, fileCfg *config.Config) string {
+	if cfg.Setup.ServerTokenVaultPath != "" {
+		return vault.RefPrefix + strings.Trim(cfg.Setup.ServerTokenVaultPath, "/") + "#" + tokenKey
+	}
+
+	for _, c := range []*config.Config{cfg, fileCfg} {
+		if c != nil && holdsToken(c) && vault.IsRef(c.Server.Password) {
+			return c.Server.Password
+		}
+	}
+	return ""
+}
+
+// adoptsReference reports whether the credentials given to setup are a Vault reference to the very token
+// the Agent runs with, which moves that token to Vault without registering the Node again.
+func adoptsReference(cfg, fileCfg *config.Config) bool {
+	return vault.IsRef(cfg.Server.Password) && cfg.Server.Username == fileCfg.Server.Username &&
+		serverPassword(cfg) == serverPassword(fileCfg)
 }
 
 // checkRegistration turns what PMM Server says about the Agent into the state of its registration. The
@@ -271,7 +318,7 @@ func registeredConfig(configFilepath string, cfg *config.Config) (*config.Config
 func keepRegistration(cfg, fileCfg *config.Config) {
 	flags := append(unappliedSetupFlags(&cfg.Setup), unappliedCredentials(cfg, fileCfg)...)
 
-	if fileCfg.Server.Password != "" {
+	if fileCfg.Server.Password != "" && !adoptsReference(cfg, fileCfg) {
 		cfg.Server.Username = fileCfg.Server.Username
 		cfg.Server.Password = fileCfg.Server.Password
 	}
@@ -291,11 +338,60 @@ func unappliedCredentials(cfg, fileCfg *config.Config) []string {
 	// Both fields, because keepRegistration restores both: a username given with the password the Agent
 	// already runs with is discarded just the same, and saying nothing about it is what lets it pass for
 	// an accepted one.
-	if cfg.Server.Username == fileCfg.Server.Username && cfg.Server.Password == fileCfg.Server.Password {
+	if cfg.Server.Username == fileCfg.Server.Username && serverPassword(cfg) == serverPassword(fileCfg) {
 		return nil
 	}
 
 	return []string{"--server-username", "--server-password"}
+}
+
+// vaultConfig returns a configuration with the Vault settings the Agent is going to run with: those of
+// the file it runs with, with the given flags applied, unless setup loaded that file itself. `pmm-admin
+// config` runs setup without --config-file, which leaves the settings only the file has out of cfg.
+func vaultConfig(cfg, fileCfg *config.Config, loadedFromFile bool, args []string, l *logrus.Entry) *config.Config {
+	if loadedFromFile || fileCfg == nil {
+		return cfg
+	}
+
+	merged := *fileCfg
+	err := config.MergeFlags(&merged, args, l)
+	if err != nil {
+		// configToStore reports it.
+		return cfg
+	}
+	return &merged
+}
+
+// withoutEnvironmentVaultCredentials returns cfg with the Vault token and secret ID that the environment
+// gave, rather than the flags, replaced by those of the configuration file, which may be nil: an operator
+// who passes them that way, as PMM Server does for its own pmm-agent, keeps them off the disk.
+func withoutEnvironmentVaultCredentials(cfg, fileCfg *config.Config, args []string) *config.Config {
+	var fileVault vault.Config
+	if fileCfg != nil {
+		fileVault = fileCfg.Vault
+	}
+
+	stored := *cfg
+	if fromEnvironment("PMM_AGENT_VAULT_TOKEN", "vault-token", args) {
+		stored.Vault.Token = fileVault.Token
+	}
+	if fromEnvironment("PMM_AGENT_VAULT_SECRET_ID", "vault-secret-id", args) {
+		stored.Vault.SecretID = fileVault.SecretID
+	}
+	return &stored
+}
+
+// fromEnvironment reports whether the setting of the given flag comes from its environment variable.
+func fromEnvironment(env, flag string, args []string) bool {
+	if _, ok := os.LookupEnv(env); !ok {
+		return false
+	}
+	for _, arg := range args {
+		if arg == "--"+flag || strings.HasPrefix(arg, "--"+flag+"=") {
+			return false
+		}
+	}
+	return true
 }
 
 // configToStore returns the configuration `pmm-agent setup` is to write.
@@ -392,7 +488,6 @@ func Setup() {
 
 	cfg := configStorage.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
-	configureVault(cfg, l)
 
 	configFilepath, running := checkStatus(loadedFilepath, l)
 
@@ -408,6 +503,17 @@ func Setup() {
 			" Otherwise repair the file, or remove it to register this Node afresh.\n",
 			configFilepath, err)
 		os.Exit(1)
+	}
+
+	// Configured only now: the Vault settings the Agent runs with may be in the file alone.
+	configureVault(vaultConfig(cfg, fileCfg, loadedFilepath != "", os.Args[1:], l), l)
+
+	if cfg.Setup.ServerTokenVaultPath != "" {
+		err = vault.ValidatePath(cfg.Setup.ServerTokenVaultPath)
+		if err != nil {
+			fmt.Printf("Invalid --server-token-vault-path: %s.\n", err)
+			os.Exit(1)
+		}
 	}
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
@@ -431,7 +537,7 @@ func Setup() {
 	if !cfg.Setup.SkipRegistration {
 		switch registrationOf(cfg, fileCfg, checkRegistrationOnServer, l) {
 		case registrationMissing:
-			register(cfg, l)
+			register(cfg, fileCfg, l)
 		case registrationConfirmed:
 			fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
 				cfg.Server.Address, cfg.ID)
@@ -461,7 +567,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	err = config.SaveToFile(configFilepath, stored, "Updated by `pmm-agent setup`.")
+	err = config.SaveToFile(configFilepath, withoutEnvironmentVaultCredentials(stored, fileCfg, os.Args[1:]), "Updated by `pmm-agent setup`.")
 	if err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)
@@ -543,7 +649,7 @@ func registerErrorMessage(err error, host string, insecureTLS bool) string {
 	return msg
 }
 
-func register(cfg *config.Config, l *logrus.Entry) {
+func register(cfg, fileCfg *config.Config, l *logrus.Entry) {
 	fmt.Printf("Registering pmm-agent on PMM Server...\n")
 
 	u := cfg.Server.URL()
@@ -552,7 +658,20 @@ func register(cfg *config.Config, l *logrus.Entry) {
 		os.Exit(1)
 	}
 
-	setServerTransport(u, cfg.Server.InsecureTLS, l)
+	// Asked before registering, which replaces the token PMM Server knows the Node by.
+	ref := tokenRef(cfg, fileCfg)
+	if ref != "" && !secrets.Configured() {
+		fmt.Printf("The service token is to be stored in Vault (%s), but Vault is not configured."+
+			" Set the --vault-* flags or the PMM_AGENT_VAULT_* variables.\n", ref)
+		os.Exit(1)
+	}
+
+	err := setServerTransport(context.Background(), u, cfg.Server.InsecureTLS, l)
+	if err != nil {
+		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", err)
+		os.Exit(1)
+	}
+
 	agentID, token, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
@@ -563,6 +682,18 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	if token != "" {
 		cfg.Server.Username = "service_token"
 		cfg.Server.Password = token
+
+		if ref != "" {
+			// Never stored in the file instead: the operator asked for it to be kept out of there.
+			err = secrets.WriteRef(context.Background(), ref, token)
+			if err != nil {
+				fmt.Printf("Registered pmm-agent %s, but failed to store its service token in Vault: %s.\n"+
+					"The token was not saved. Re-run with --force once Vault accepts it, which registers the Node again.\n",
+					agentID, err)
+				os.Exit(1)
+			}
+			cfg.Server.Password = ref
+		}
 	} else {
 		l.Info("PMM Server responded with an empty service token. Consider upgrading PMM Server to the latest version.")
 	}

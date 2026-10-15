@@ -142,13 +142,29 @@ func prepareConfig(l *logrus.Entry) (*config.Storage, string) {
 
 	if configFilepath != "" {
 		cfg := configStorage.Get()
-		err := config.SaveToFile(configFilepath, cfg, "")
+		err := config.SaveToFile(configFilepath, withStoredVaultCredentials(cfg, configFilepath), "")
 		if err != nil {
 			l.Warnf("Failed to save updated config: %s", err)
 		}
 	}
 
 	return configStorage, configFilepath
+}
+
+// withStoredVaultCredentials returns cfg with the Vault token and secret ID the configuration file holds,
+// rather than those given by flags or the environment: an operator who passes them that way keeps them
+// off the disk, and saving the configuration is not to undo that.
+func withStoredVaultCredentials(cfg *config.Config, configFilepath string) *config.Config {
+	stored := *cfg
+	stored.Vault.Token = ""
+	stored.Vault.SecretID = ""
+
+	fileCfg, err := config.LoadFromFile(configFilepath, &cfg.Encryption)
+	if err == nil {
+		stored.Vault.Token = fileCfg.Vault.Token
+		stored.Vault.SecretID = fileCfg.Vault.SecretID
+	}
+	return &stored
 }
 
 // configureVault sets up reading the credentials stored in Vault. An invalid configuration is reported

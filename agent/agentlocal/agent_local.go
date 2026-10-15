@@ -28,6 +28,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -50,9 +51,11 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -144,6 +147,17 @@ func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*ag
 	var serverInfo *agentlocal.ServerInfo
 	cfg := s.cfg.Get()
 	if u := cfg.Server.URL(); u != nil {
+		// pmm-admin reaches PMM Server with the credentials in this URL, so a password kept in Vault is read for it.
+		password, ok := u.User.Password()
+		if ok && vault.IsRef(password) {
+			resolved, err := secrets.ResolveRef(ctx, password)
+			if err != nil {
+				s.l.Warnf("Failed to read the PMM Server password from Vault: %s.", err)
+			} else {
+				u.User = url.UserPassword(u.User.Username(), resolved)
+			}
+		}
+
 		serverInfo = &agentlocal.ServerInfo{
 			Url:         u.String(),
 			InsecureTls: cfg.Server.InsecureTLS,

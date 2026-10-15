@@ -45,18 +45,19 @@ type ConfigCommand struct {
 	flags.MetricsModeFlags
 	flags.LogLevelFatalFlags
 
-	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
-	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
-	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
-	NodeModel         string   `help:"Node model"`
-	Region            string   `help:"Node region"`
-	Az                string   `help:"Node availability zone"`
-	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
-	Force             bool     `help:"Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents"`
-	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
-	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
-	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
-	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
+	NodeAddress          string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
+	NodeType             string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
+	NodeName             string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
+	NodeModel            string   `help:"Node model"`
+	Region               string   `help:"Node region"`
+	Az                   string   `help:"Node availability zone"`
+	AgentPassword        string   `help:"Custom password for /metrics endpoint"`
+	ServerTokenVaultPath string   `help:"Vault secret to store the service token issued at registration in" env:"PMM_AGENT_SETUP_SERVER_TOKEN_VAULT_PATH"`
+	Force                bool     `help:"Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents"`
+	DisableCollectors    []string `help:"Comma-separated list of collector names to exclude from exporter"`
+	CustomLabels         string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
+	BasePath             string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
+	LogLinesCount        uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 
 	// Forwarded to `pmm-agent setup`, which has to read the configuration file to tell whether this Node
 	// is already registered. Without the key an encrypted file reads exactly like a damaged one.
@@ -149,6 +150,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 
 	if cmd.AgentPassword != "" {
 		res = append(res, "--agent-password="+cmd.AgentPassword)
+	}
+
+	if cmd.ServerTokenVaultPath != "" {
+		res = append(res, "--server-token-vault-path="+cmd.ServerTokenVaultPath)
 	}
 
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
