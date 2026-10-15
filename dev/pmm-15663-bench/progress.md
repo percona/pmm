@@ -45,3 +45,25 @@ Ruling: lint as `GOTOOLCHAIN=go1.27.1 bin/golangci-lint run ...` — the contain
 Ruling: accept the Co-authored-by trailer the runner's global hooks put on every commit — host policy, also on earlier bench commits — cost if wrong: one trailer line per commit.
 Ruling: the controller transcribed Task 2's report into task-2-report.md (the implementer declined to write .md files); impl-context now states the report file is required — cost if wrong: none.
 Task 2: implementer DONE_WITH_CONCERNS, commit 9702d85c3; controller ran lint with go1.27.1: 0 issues
+Task 2: minor (deferred): Co-authored-by trailer on the commit — covered by the trailer ruling above
+Task 2: minor (deferred): straddle test covers only a 2-byte rune; add 3- and 4-byte cases
+Task 2: minor (deferred): reserved-wins on empty value tested only for tags, not text/annotation_id
+Task 2: minor (deferred): invalid-custom-labels test asserts only require.Error
+Task 2: minor (deferred, final review should triage as likely must-fix): no value-length check besides text — joined `tags` or a custom label value over 4,096 bytes makes VictoriaMetrics drop the series silently; Validate could reject any value over MaxTextBytes
+Task 2: complete (commits be751c4b6..9702d85c3, review clean)
+Task 3: dispatched (agent ac94386, BASE 9702d85c3)
+Task 3: implementer DONE_WITH_CONCERNS, commit c80f2b67a; report transcribed by controller
+Ruling: Keys stays strict (errors on a missing or non-numeric annotation_id) — only pmm-managed writes this metric, a failing sync pass is logged and retried, and skipping would hide a writer bug — cost if wrong: a stray hand-written series blocks backfill and delete mirroring until removed.
+Ruling: implementer report files use .txt (task-N-report.txt) — implementers decline to write .md files under their own standing rules — cost if wrong: none.
+Task 1: implementer DONE — GO (list form 168.6 ms Grafana / 30 ms engine at 3,070,727 series; .+ 158.5 / 29 ms); evidence commit e3fcafaa1 on bench branch; VM PMM-15663-bench2 torn down; in review
+Task 3: minor (deferred): no test that the password never appears in errors (closed server / cancelled ctx)
+Task 3: minor (deferred): Keys aborts on one bad series — covered by the Keys ruling above
+Task 3: minor (deferred): Event.timeSeries() lives in store.go
+Task 3: minor (deferred): `do` errors don't name the operation; error body read unbounded
+Task 3: note for Task 7: Write sends one request — cap the batch size in the sync; a key missing from VictoriaMetrics must only ever cause a rewrite, never a delete
+Task 3: complete (commits 9702d85c3..c80f2b67a, review clean)
+Task 4: dispatched (agent a43d850, BASE c80f2b67a)
+Task 1: minor (deferred): RESULTS.md P5 says the list form costs "about 10 ms more" — within run-to-run spread
+Task 1: minor (deferred): run order after ingest not recorded; report says "uncommitted" (stale)
+Task 1: note for Task 12 HA: expression size scales with name length (10 KB for 1,000 9-char names); HA vmselect may keep VictoriaMetrics' default -search.maxQueryLen (16 KB per the VM research, unverified) — check node overviews with long names in the HA run; PR 6045's HA run passed large panel queries, so the limit may already be raised
+Task 1: complete (bench commit e3fcafaa1, review clean; script preserved as dev/pmm-15663-bench/bench_node_list.py)
