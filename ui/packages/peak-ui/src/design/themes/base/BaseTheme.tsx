@@ -1419,6 +1419,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiChip: {
         styleOverrides: {
+          // 1.5× the chip height, so short labels stay pill-shaped instead of round
+          root: ({ ownerState }) => ({
+            minWidth: ownerState.size === 'small' ? 36 : 48,
+          }),
           filled: ({ theme, ownerState: { color } }) => {
             if (!color || color === 'default') {
               return {
