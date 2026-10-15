@@ -11,11 +11,11 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 
-| Package         | Path                  | Purpose                                                       |
-| --------------- | --------------------- | ------------------------------------------------------------- |
-| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                        |
-| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)        |
-| **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup) |
+| Package         | Path                  | Purpose                                                             |
+| --------------- | --------------------- | ------------------------------------------------------------------- |
+| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                              |
+| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana app plugin: PMM ↔ Grafana integration, PMM panels (Webpack) |
+| **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup)       |
 
 ### Key Technology Choices
 
@@ -90,6 +90,15 @@ Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider`
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour
 
+### PMM Grafana plugins (pmm-compat)
+
+`ui/apps/pmm-compat/src/plugins/` holds the PMM panel and datasource plugins that dashboards use (`pmm-check-panel`, `pmm-update-panel`, `pmm-pt-summary-panel`, `pmm-pt-summary-datasource`). Each folder with a `plugin.json` and `module.ts(x)` is built as a plugin nested in `pmm-compat-app` and ships with it. Never change a plugin `id`: saved dashboards reference it. Every nested plugin ID must also be listed in `allow_loading_unsigned_plugins` (`build/ansible/roles/grafana/files/grafana.ini`), because unsigned child plugins are checked by their own ID.
+
+- Import only public `@grafana/*` packages — nothing from the Grafana fork's `app/*`.
+- Call the PMM API through `plugins/shared/api` (`getBackendSrv()` with `showErrorAlert: false`), not axios.
+- Hold server state in TanStack Query hooks from `plugins/shared/hooks`; panel modules wrap the panel in `withQueryClient`.
+- Style with `useStyles2` and `@emotion/css` against the Grafana theme; MUI and peak-ui aren't available inside Grafana.
+
 ## API Layer
 
 API calls are organized in `src/api/` using axios. Each API module provides typed request/response functions that are consumed by custom hooks in `src/hooks/`.
@@ -112,6 +121,7 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - Use MUI and `@percona/peak-ui` components for consistent styling — browse the [Storybook catalog](https://percona.github.io/peak-ui) before building a component from scratch
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
+- Split a component's support code into sibling files named after it: `<Name>.messages.ts` (user-facing text as `export const Messages = { … }`, functions for dynamic strings), `<Name>.constants.ts` (`UPPER_SNAKE_CASE` named exports), `<Name>.utils.ts` (named arrow functions), `<Name>.types.ts` and `<Name>.styles.ts`; component folders are kebab-case with an `index.ts` re-export
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
 - Build native pages on the shared `Page` wrapper (`src/components/page`); it renders on the paper surface by default, so don't pass `surface="paper"`. Opt out with `surface="canvas"` only for a page composed of cards (Help center, Updates), where the darker tone makes the cards stand out
 
