@@ -72,7 +72,7 @@ func (cmd *UpdateHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	return cmd.runUpdate(target, mservice.UpdateServiceBody{Haproxy: body}, "HAProxy", haproxySettings, credentialSecretFlags)
+	return cmd.runUpdate(target, mservice.UpdateServiceBody{Haproxy: body}, "HAProxy", haproxySettings, passwordSecretFlags)
 }
 
 func haproxySettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {

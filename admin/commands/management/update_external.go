@@ -53,7 +53,7 @@ func (cmd *UpdateExternalCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	return cmd.runUpdate(target, mservice.UpdateServiceBody{External: body}, "External", externalSettings, credentialSecretFlags)
+	return cmd.runUpdate(target, mservice.UpdateServiceBody{External: body}, "External", externalSettings, passwordSecretFlags)
 }
 
 // UpdateExternalServerlessCommand is used by Kong for CLI flags and commands.
@@ -92,7 +92,7 @@ func (cmd *UpdateExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	return cmd.runUpdate(target, mservice.UpdateServiceBody{External: body}, "External", externalSettings, credentialSecretFlags)
+	return cmd.runUpdate(target, mservice.UpdateServiceBody{External: body}, "External", externalSettings, passwordSecretFlags)
 }
 
 // externalUpdateBody converts the flags shared by both external commands.

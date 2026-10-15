@@ -192,6 +192,20 @@ func TestUpdateMongoDB(t *testing.T) {
 		assert.Contains(t, result.Changes, settingChange{Flag: "--password", Before: secretValue, After: secretValue})
 	})
 
+	// Only the secrets the file holds are sent, so only those are reported as changed.
+	t.Run("CredentialsSourceReportsOnlyWhatItSends", func(t *testing.T) {
+		credentials := filepath.Join(t.TempDir(), "credentials.json")
+		require.NoError(t, os.WriteFile(credentials, []byte(`{"username": "admin"}`), 0o600))
+
+		run, err := runUpdate(t, &UpdateMongoDBCommand{}, "mongodb_srv_1", "--credentials-source="+credentials)
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"mongodb": {"username": "admin"}}`, run.body)
+
+		output := run.res.String()
+		assert.NotContains(t, output, "--password (new value)")
+		assert.NotContains(t, output, "--agent-password (new value)")
+	})
+
 	t.Run("DryRun", func(t *testing.T) {
 		run, err := runUpdate(t, &UpdateMongoDBCommand{}, "mongodb_srv_1", "--max-collections-limit=0", "--dry-run")
 		require.NoError(t, err)
@@ -326,6 +340,15 @@ func TestUpdateHAProxy(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "/v1/management/services/haproxy_srv_1", run.path)
 	assert.JSONEq(t, `{"haproxy": {"scheme": "https", "tls_skip_verify": false}}`, run.body)
+
+	// HAProxy has no agent password, so one in the credentials file is neither sent nor reported.
+	credentials := filepath.Join(t.TempDir(), "credentials.json")
+	require.NoError(t, os.WriteFile(credentials, []byte(`{"password": "s3cret", "agentpassword": "agent"}`), 0o600))
+	run, err = runUpdate(t, &UpdateHAProxyCommand{}, "haproxy_srv_1", "--credentials-source="+credentials)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"haproxy": {"password": "s3cret"}}`, run.body)
+	assert.Contains(t, run.res.String(), "--password (new value)")
+	assert.NotContains(t, run.res.String(), "--agent-password")
 }
 
 func TestSettingChangeString(t *testing.T) {

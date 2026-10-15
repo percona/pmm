@@ -58,6 +58,8 @@ type UpdateCommonFlags struct {
 
 	// typed holds the names of the flags and arguments given on the command line.
 	typed map[string]bool
+	// sourced holds the names of the flags whose values --credentials-source supplied.
+	sourced map[string]bool
 }
 
 // SetTypedFlags records the flags and arguments given on the command line; update changes only those.
@@ -174,14 +176,18 @@ func (f *UpdateCommonFlags) credentials(username, password, agentPassword, sourc
 		return nil, nil, nil, fmt.Errorf("failed to retrieve credentials from %s: %w", source, err)
 	}
 
+	f.sourced = make(map[string]bool)
 	if creds.Username != "" {
 		u = &creds.Username
+		f.sourced["username"] = true
 	}
 	if creds.Password != "" {
 		p = &creds.Password
+		f.sourced["password"] = true
 	}
 	if creds.AgentPassword != "" {
 		a = &creds.AgentPassword
+		f.sourced["agent-password"] = true
 	}
 
 	return u, p, a, nil
@@ -275,6 +281,12 @@ func (f *UpdateCommonFlags) target(name string, serviceType string) (string, err
 // typedAny reports whether any of the flags is given on the command line.
 func (f *UpdateCommonFlags) typedAny(names []string) bool {
 	return slices.ContainsFunc(names, func(name string) bool { return f.typed[name] })
+}
+
+// sentAny reports whether the update sends a value for any of the flags: given on the command line, or read
+// from --credentials-source.
+func (f *UpdateCommonFlags) sentAny(names []string) bool {
+	return f.typedAny(names) || slices.ContainsFunc(names, func(name string) bool { return f.sourced[name] })
 }
 
 // typedValue returns the value of the flag if it is given on the command line, and an empty string otherwise.
@@ -451,7 +463,7 @@ func (f *UpdateCommonFlags) runUpdate(
 			}
 		}
 
-		if old != s.Value || f.typedAny(secretFlags[s.Flag]) {
+		if old != s.Value || f.sentAny(secretFlags[s.Flag]) {
 			res.Changes = append(res.Changes, settingChange{Flag: s.Flag, Before: old, After: s.Value, isBool: s.isBool})
 		}
 	}
@@ -459,7 +471,7 @@ func (f *UpdateCommonFlags) runUpdate(
 	// A file that no setting shows, such as a CA certificate, can only be reported as updated.
 	for _, flag := range slices.Sorted(maps.Keys(secretFlags)) {
 		shown := slices.ContainsFunc(res.Settings, func(s setting) bool { return s.Flag == flag })
-		if !shown && f.typedAny(secretFlags[flag]) {
+		if !shown && f.sentAny(secretFlags[flag]) {
 			res.Changes = append(res.Changes, settingChange{Flag: flag, After: updatedValue})
 		}
 	}
@@ -567,8 +579,15 @@ func portSettingValue(port int64) string {
 	return strconv.FormatInt(port, 10)
 }
 
-// credentialSecretFlags maps the secret settings of all Services to the flags that change them.
+// credentialSecretFlags maps the secret settings of database Services to the flags that change them. A secret that
+// --credentials-source supplies counts as given by its flag.
 var credentialSecretFlags = map[string][]string{
-	"--password":       {"password", "credentials-source"},
-	"--agent-password": {"agent-password", "credentials-source"},
+	"--password":       {"password"},
+	"--agent-password": {"agent-password"},
+}
+
+// passwordSecretFlags maps the secret settings of the Services that have no --agent-password to the flags that
+// change them.
+var passwordSecretFlags = map[string][]string{
+	"--password": {"password"},
 }
