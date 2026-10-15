@@ -55,3 +55,4 @@ overrides:
 
 minimumReleaseAgeExclude:
   - '@percona/peak-ui@1.0.25'
+  - '@percona/peak-ui@1.0.28'
