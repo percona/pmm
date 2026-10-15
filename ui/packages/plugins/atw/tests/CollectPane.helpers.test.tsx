@@ -46,9 +46,29 @@ describe('batchItemErrors', () => {
     } as unknown as AtwBatchExecuteResponse;
 
     expect(batchItemErrors(response, snippets)).toEqual([
-      'B: no host',
-      'gone.sh: validation failed',
+      { key: 'b.sh', message: 'B: no host' },
+      { key: 'gone.sh', message: 'gone.sh: validation failed' },
     ]);
+  });
+
+  it('keys each line by filename so matching titles do not collide', () => {
+    const twins: AtwSnippetSummary[] = [
+      { name: 'a.sh', title: 'Summary', description: '' },
+      { name: 'b.sh', title: 'Summary', description: '' },
+    ];
+    const response = {
+      items: [
+        { snippet_filename: 'a.sh', task_history_id: null, error: 'no host' },
+        { snippet_filename: 'b.sh', task_history_id: null, error: 'no host' },
+      ],
+    } as unknown as AtwBatchExecuteResponse;
+
+    const errors = batchItemErrors(response, twins);
+    expect(errors.map((item) => item.message)).toEqual([
+      'Summary: no host',
+      'Summary: no host',
+    ]);
+    expect(new Set(errors.map((item) => item.key)).size).toBe(2);
   });
 });
 

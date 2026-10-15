@@ -259,11 +259,17 @@ export function buildBatchPayload(
   };
 }
 
+/** One per-item failure for the Collect banner, keyed by filename for React. */
+export interface BatchItemError {
+  key: string;
+  message: string;
+}
+
 /** Summarise the batch response's per-item errors for a banner, by script title. */
 export function batchItemErrors(
   response: AtwBatchExecuteResponse,
   snippets: AtwSnippetSummary[]
-): string[] {
+): BatchItemError[] {
   const titles = new Map(
     snippets.map((snippet) => [snippet.name, snippet.title])
   );
@@ -274,7 +280,10 @@ export function batchItemErrors(
         typeof item.error === 'string' ? item.error : 'validation failed';
       const name =
         titles.get(item.snippet_filename)?.trim() || item.snippet_filename;
-      return `${name}: ${detail}`;
+      return {
+        key: item.snippet_filename,
+        message: `${name}: ${detail}`,
+      };
     });
 }
 
@@ -353,7 +362,7 @@ export function CollectPane({
   const { canMutate } = useAuth();
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
   const [selected, setSelected] = useState<AtwSnippetSummary[]>([]);
-  const [itemErrors, setItemErrors] = useState<string[]>([]);
+  const [itemErrors, setItemErrors] = useState<BatchItemError[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [formDefaults, setFormDefaults] = useState<
@@ -828,8 +837,8 @@ export function CollectPane({
         <Alert severity="warning" sx={{ mt: 3 }}>
           Some scripts did not start:
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
-            {itemErrors.map((message) => (
-              <li key={message}>{message}</li>
+            {itemErrors.map((item) => (
+              <li key={item.key}>{item.message}</li>
             ))}
           </Box>
         </Alert>

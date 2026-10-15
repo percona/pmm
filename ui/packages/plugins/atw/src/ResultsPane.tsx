@@ -556,7 +556,11 @@ export function ResultsPane({
         executions={
           resend?.executions.map((execution) => ({
             ...execution,
-            snippet_title: knownExecutions.get(execution.id)?.snippet_title,
+            // Prefer a title from the loaded page; keep whatever the send log
+            // already carried when that row is off-page (paginated out).
+            snippet_title:
+              knownExecutions.get(execution.id)?.snippet_title ??
+              execution.snippet_title,
           })) ?? selectedExecutions
         }
         defaultCaseRef={resend?.caseRef ?? incident?.case_ref}

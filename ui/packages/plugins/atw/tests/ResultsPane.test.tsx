@@ -673,6 +673,45 @@ describe('ResultsPane diagnostics send', () => {
     ).toBeNull();
   });
 
+  it('keeps an off-page re-send title from the send log when the page has none', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION],
+        total: 40,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                ...OFF_PAGE_EXECUTION,
+                snippet_title: 'Off-page Summary',
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Off-page Summary')).toBeTruthy();
+    });
+    expect(screen.queryByText('diag/off-page.sh')).toBeNull();
+  });
+
   it('flags a send history it could not load', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/send-jobs/')) {
