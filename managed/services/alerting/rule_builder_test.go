@@ -24,14 +24,21 @@ import (
 
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/services"
 )
+
+// testDatasourceUIDs are the resolved datasource UIDs the builder tests pass in.
+var testDatasourceUIDs = map[alert.Datasource]string{
+	alert.Metrics:    "metrics-uid",
+	alert.ClickHouse: "clickhouse-uid",
+}
 
 func TestBuildGrafanaRuleDataSingleExpression(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(&alert.Template{
 		Expr: "up == 1",
-	}, "metrics-uid", "", nil, nil)
+	}, testDatasourceUIDs, "", nil, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "A", built.condition)
 	require.Len(t, built.data, 1)
@@ -53,7 +60,7 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 			Expression: "$A > $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", "", map[string]string{}, nil)
+	}, testDatasourceUIDs, "", map[string]string{}, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "C", built.condition)
 	require.Len(t, built.data, 3)
@@ -64,7 +71,7 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 	assert.Equal(t, "C", built.data[2].RefID)
 	assert.Equal(t, grafanaExprDatasourceUID, built.data[2].DatasourceUID)
 
-	var mathModel mathExpressionModel
+	var mathModel expressionModel
 	err = json.Unmarshal(built.data[2].Model, &mathModel)
 	require.NoError(t, err)
 	assert.Equal(t, "math", mathModel.Type)
@@ -85,7 +92,7 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 			Expression: "$A < $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", "", map[string]string{
+	}, testDatasourceUIDs, "", map[string]string{
 		"window":    "[5m]",
 		"threshold": "80",
 	}, []*alertingv1.Filter{{
@@ -120,7 +127,7 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 		},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > $B"}},
 		Condition:   "C",
-	}, "metrics-uid", "", map[string]string{}, nil)
+	}, testDatasourceUIDs, "", map[string]string{}, nil)
 	require.NoError(t, err)
 	require.Len(t, built.data, 3)
 
@@ -137,7 +144,7 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 	// Math node (leg C): server-side expression, no time range, __expr__ datasource.
 	assert.Equal(t, 0, built.data[2].RelativeTimeRange.From)
 	assert.Equal(t, 0, built.data[2].RelativeTimeRange.To)
-	var mathModel mathExpressionModel
+	var mathModel expressionModel
 	require.NoError(t, json.Unmarshal(built.data[2].Model, &mathModel))
 	assert.False(t, mathModel.Hide)
 	assert.Equal(t, queryIntervalMs, mathModel.IntervalMs)
@@ -152,7 +159,7 @@ func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
 		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
 		Condition:   "C",
-	}, "metrics-uid", "", map[string]string{}, []*alertingv1.Filter{{
+	}, testDatasourceUIDs, "", map[string]string{}, []*alertingv1.Filter{{
 		Type:   alertingv1.FilterType_FILTER_TYPE_MISMATCH,
 		Label:  "node_name",
 		Regexp: "staging.*",
@@ -192,6 +199,16 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 			wantErr: "failed to fill expression C",
 		},
 		{
+			name: "filter on a ClickHouse query",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
+				Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"}},
+				Condition:   "B",
+			},
+			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType_FILTER_TYPE_MATCH, Label: "service_name", Regexp: "db"}},
+			wantErr: "query A: filters on ClickHouse queries are not supported yet",
+		},
+		{
 			name: "unknown filter type",
 			tmpl: &alert.Template{
 				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
@@ -205,9 +222,79 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", "", map[string]string{}, tc.filters)
+			_, err := buildGrafanaRuleData(tc.tmpl, testDatasourceUIDs, "", map[string]string{}, tc.filters)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.wantErr)
 		})
 	}
+}
+
+func TestBuildClickHouseRuleData(t *testing.T) {
+	t.Parallel()
+
+	template := &alert.Template{
+		Queries: []alert.TemplateQuery{
+			{
+				RefID:      "A",
+				Expr:       "SELECT $__toTime AS time, service_name, max(v) AS v FROM pmm.metrics WHERE v > [[ .floor ]] GROUP BY service_name",
+				Datasource: alert.ClickHouse,
+			},
+			{RefID: "M", Expr: "up"},
+		},
+		Expressions: []alert.TemplateExpression{
+			{RefID: "B", Type: "reduce", Reducer: "max", Expression: "${A}"},
+			{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]] && $M == 1"},
+		},
+		Condition: "C",
+	}
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "", map[string]string{"floor": "1", "threshold": "5"}, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "C", built.condition)
+	byRef := dataByRefID(t, built.data)
+
+	clickhouse := byRef["A"]
+	assert.Equal(t, "clickhouse-uid", clickhouse.DatasourceUID)
+	assert.Equal(t, "timeseries", clickhouse.QueryType)
+	assert.Equal(t, services.RelativeTimeRange{From: 300, To: 0}, clickhouse.RelativeTimeRange)
+	var model clickhouseQueryModel
+	require.NoError(t, json.Unmarshal(clickhouse.Model, &model))
+	assert.Equal(t, clickhouseQueryModel{
+		RefID:      "A",
+		EditorType: "sql",
+		QueryType:  "timeseries",
+		Format:     0,
+		RawSQL:     "SELECT $__toTime AS time, service_name, max(v) AS v FROM pmm.metrics WHERE v > 1 GROUP BY service_name",
+		IntervalMs: 60000,
+	}, model)
+
+	assert.Equal(t, "metrics-uid", byRef["M"].DatasourceUID)
+	assert.Equal(t, "up", exprOf(t, byRef["M"]))
+
+	reduce := byRef["B"]
+	assert.Equal(t, grafanaExprDatasourceUID, reduce.DatasourceUID)
+	var reduceModel expressionModel
+	require.NoError(t, json.Unmarshal(reduce.Model, &reduceModel))
+	assert.Equal(t, "reduce", reduceModel.Type)
+	assert.Equal(t, "A", reduceModel.Expression, "Grafana needs a bare ref, it does not unwrap ${A}")
+	assert.Equal(t, "max", reduceModel.Reducer)
+	assert.Equal(t, reduceSettings{Mode: "dropNN"}, reduceModel.Settings)
+
+	assert.Equal(t, "$B > 5 && $M == 1", expressionOf(t, byRef["C"]))
+	assert.NotContains(t, string(byRef["C"].Model), "reducer")
+	assert.NotContains(t, string(byRef["C"].Model), "settings")
+}
+
+func TestBuildClickHouseRuleDataRequiresItsUID(t *testing.T) {
+	t.Parallel()
+
+	template := &alert.Template{
+		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
+		Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"}},
+		Condition:   "B",
+	}
+
+	_, err := buildGrafanaRuleData(template, map[alert.Datasource]string{alert.Metrics: "metrics-uid"}, "", nil, nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "the clickhouse datasource UID is not resolved")
 }

@@ -35,6 +35,20 @@ const (
 	queryIntervalMs          = 1000
 	maxDataPoints            = 43200
 
+	// A ClickHouse query covers one QAN bucket plus the time QAN data takes to arrive, and
+	// buckets by QAN's own minute so a finer `$__timeInterval` never splits it.
+	clickhouseRelativeFromSeconds = 300
+	clickhouseIntervalMs          = 60000
+
+	// Model fields of the ClickHouse plugin's time series SQL query.
+	clickhouseQueryType        = "timeseries"
+	clickhouseFormatTimeSeries = 0
+	clickhouseEditorType       = "sql"
+
+	// Strict reduce mode turns a single gap into NaN, and Grafana treats a NaN condition
+	// as firing.
+	reduceModeDropNonNumbers = "dropNN"
+
 	// Prefixes the ref ID of each injected threshold query.
 	thresholdRefIDPrefix = "T_"
 
@@ -61,14 +75,29 @@ type promQueryModel struct {
 	MaxDataPoints int    `json:"maxDataPoints"`
 }
 
-type mathExpressionModel struct {
+type clickhouseQueryModel struct {
+	RefID      string `json:"refId"`
+	EditorType string `json:"editorType"`
+	QueryType  string `json:"queryType"`
+	Format     int    `json:"format"`
+	RawSQL     string `json:"rawSql"`
+	IntervalMs int    `json:"intervalMs"`
+}
+
+type expressionModel struct {
 	Type          string            `json:"type"`
 	Expression    string            `json:"expression"`
+	Reducer       string            `json:"reducer,omitempty"`
+	Settings      reduceSettings    `json:"settings,omitzero"`
 	RefID         string            `json:"refId"`
 	Datasource    map[string]string `json:"datasource"`
 	Hide          bool              `json:"hide"`
 	IntervalMs    int               `json:"intervalMs"`
 	MaxDataPoints int               `json:"maxDataPoints"`
+}
+
+type reduceSettings struct {
+	Mode string `json:"mode"`
 }
 
 // grafanaRuleData is what the builder produced: the steps, the condition ref ID, and the
@@ -81,21 +110,16 @@ type grafanaRuleData struct {
 
 func buildGrafanaRuleData(
 	template *alert.Template,
-	metricsDatasourceUID string,
+	datasourceUIDs map[alert.Datasource]string,
 	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
 ) (grafanaRuleData, error) {
 	if template.UsesMultipleExpressions() {
-		return buildMultiExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
+		return buildMultiExpressionRuleData(template, datasourceUIDs, ruleID, params, filters)
 	}
 
-	expr, err := fillAndFilterExpr(template.Expr, params, filters)
-	if err != nil {
-		return grafanaRuleData{}, err
-	}
-
-	data, err := newPromQueryData(metricsDatasourceUID, "A", expr)
+	data, err := newQueryData(alert.TemplateQuery{RefID: "A", Expr: template.Expr}, datasourceUIDs, params, filters)
 	if err != nil {
 		return grafanaRuleData{}, err
 	}
@@ -105,7 +129,7 @@ func buildGrafanaRuleData(
 
 func buildMultiExpressionRuleData(
 	template *alert.Template,
-	metricsDatasourceUID string,
+	datasourceUIDs map[alert.Datasource]string,
 	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
@@ -118,16 +142,7 @@ func buildMultiExpressionRuleData(
 	data := make([]services.Data, 0, len(template.Queries)+len(template.Expressions)+len(injections))
 
 	for _, query := range template.Queries {
-		if query.Datasource == alert.ClickHouse {
-			return grafanaRuleData{}, fmt.Errorf("query %s: ClickHouse queries are not supported yet", query.RefID)
-		}
-
-		expr, err := fillAndFilterExpr(query.Expr, params, filters)
-		if err != nil {
-			return grafanaRuleData{}, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
-		}
-
-		item, err := newPromQueryData(metricsDatasourceUID, query.RefID, expr)
+		item, err := newQueryData(query, datasourceUIDs, params, filters)
 		if err != nil {
 			return grafanaRuleData{}, err
 		}
@@ -136,7 +151,12 @@ func buildMultiExpressionRuleData(
 	}
 
 	for _, injection := range injections {
-		item, err := newPromQueryData(metricsDatasourceUID, injection.refID, injection.expr)
+		metricsUID, err := datasourceUIDFor(datasourceUIDs, alert.Metrics)
+		if err != nil {
+			return grafanaRuleData{}, err
+		}
+
+		item, err := newPromQueryData(metricsUID, injection.refID, injection.expr)
 		if err != nil {
 			return grafanaRuleData{}, err
 		}
@@ -145,20 +165,7 @@ func buildMultiExpressionRuleData(
 	}
 
 	for _, expression := range template.Expressions {
-		if expression.Type != alert.ExpressionMath {
-			return grafanaRuleData{}, fmt.Errorf("expression %s: %s expressions are not supported yet", expression.RefID, expression.Type)
-		}
-
-		// Swap the parameter tokens for their threshold ref IDs before filling, so the
-		// default is never baked into the rule.
-		body := swapOverridableTokens(expression.Expression, injections)
-
-		expr, err := fillExprWithParams(body, params)
-		if err != nil {
-			return grafanaRuleData{}, fmt.Errorf("failed to fill expression %s: %w", expression.RefID, err)
-		}
-
-		item, err := newMathExpressionData(expression.RefID, expr)
+		item, err := newTemplateExpressionData(expression, injections, params)
 		if err != nil {
 			return grafanaRuleData{}, err
 		}
@@ -172,6 +179,94 @@ func buildMultiExpressionRuleData(
 	}
 
 	return grafanaRuleData{data: data, condition: template.Condition, thresholdRefs: thresholdRefs}, nil
+}
+
+// newQueryData builds a template query for the datasource it runs against.
+func newQueryData(
+	query alert.TemplateQuery,
+	datasourceUIDs map[alert.Datasource]string,
+	params map[string]string,
+	filters []*alertingv1.Filter,
+) (services.Data, error) {
+	switch query.Datasource {
+	case "", alert.Metrics:
+		uid, err := datasourceUIDFor(datasourceUIDs, alert.Metrics)
+		if err != nil {
+			return services.Data{}, err
+		}
+
+		expr, err := fillAndFilterExpr(query.Expr, params, filters)
+		if err != nil {
+			return services.Data{}, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
+		}
+
+		return newPromQueryData(uid, query.RefID, expr)
+
+	case alert.ClickHouse:
+		if len(filters) != 0 {
+			return services.Data{}, fmt.Errorf("query %s: filters on ClickHouse queries are not supported yet", query.RefID)
+		}
+
+		uid, err := datasourceUIDFor(datasourceUIDs, alert.ClickHouse)
+		if err != nil {
+			return services.Data{}, err
+		}
+
+		sql, err := fillExprWithParams(query.Expr, params)
+		if err != nil {
+			return services.Data{}, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
+		}
+
+		return newClickHouseQueryData(uid, query.RefID, sql)
+	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return services.Data{}, fmt.Errorf("query %s: unhandled datasource '%s'", query.RefID, query.Datasource)
+}
+
+// newTemplateExpressionData builds a template expression, pointing overridable parameter
+// tokens at their injected threshold steps.
+func newTemplateExpressionData(
+	expression alert.TemplateExpression,
+	injections []thresholdInjection,
+	params map[string]string,
+) (services.Data, error) {
+	if expression.Type == alert.ExpressionReduce {
+		// Grafana takes the input as a bare ref ID; it strips only a leading `$`, not `${...}`.
+		return newExpressionData(expressionModel{
+			Type:       alert.ExpressionReduce,
+			Expression: expression.ReduceInput(),
+			Reducer:    expression.Reducer,
+			Settings:   reduceSettings{Mode: reduceModeDropNonNumbers},
+			RefID:      expression.RefID,
+		})
+	}
+
+	// Swap the parameter tokens for their threshold ref IDs before filling, so the
+	// default is never baked into the rule.
+	body := swapOverridableTokens(expression.Expression, injections)
+
+	expr, err := fillExprWithParams(body, params)
+	if err != nil {
+		return services.Data{}, fmt.Errorf("failed to fill expression %s: %w", expression.RefID, err)
+	}
+
+	return newExpressionData(expressionModel{
+		Type:       alert.ExpressionMath,
+		Expression: expr,
+		RefID:      expression.RefID,
+	})
+}
+
+// datasourceUIDFor returns the resolved UID of a datasource the rule needs.
+func datasourceUIDFor(datasourceUIDs map[alert.Datasource]string, datasource alert.Datasource) (string, error) {
+	uid := datasourceUIDs[datasource]
+	if uid == "" {
+		return "", fmt.Errorf("the %s datasource UID is not resolved", datasource)
+	}
+
+	return uid, nil
 }
 
 func fillAndFilterExpr(expr string, params map[string]string, filters []*alertingv1.Filter) (string, error) {
@@ -219,33 +314,55 @@ func newPromQueryData(metricsDatasourceUID, refID, expr string) (services.Data, 
 	}, nil
 }
 
-func newMathExpressionData(refID, expression string) (services.Data, error) {
-	model, err := json.Marshal(mathExpressionModel{
-		Type:       alert.ExpressionMath,
-		Expression: expression,
+func newClickHouseQueryData(clickhouseDatasourceUID, refID, sql string) (services.Data, error) {
+	model, err := json.Marshal(clickhouseQueryModel{
 		RefID:      refID,
-		// Grafana's expression datasource identifies itself by the same sentinel
-		// for both type and uid.
-		Datasource: map[string]string{
-			"type": grafanaExprDatasourceUID,
-			"uid":  grafanaExprDatasourceUID,
-		},
-		Hide:          false,
-		IntervalMs:    queryIntervalMs,
-		MaxDataPoints: maxDataPoints,
+		EditorType: clickhouseEditorType,
+		QueryType:  clickhouseQueryType,
+		Format:     clickhouseFormatTimeSeries,
+		RawSQL:     sql,
+		IntervalMs: clickhouseIntervalMs,
 	})
 	if err != nil {
-		return services.Data{}, fmt.Errorf("failed to marshal math expression model: %w", err)
+		return services.Data{}, fmt.Errorf("failed to marshal ClickHouse query model: %w", err)
 	}
 
 	return services.Data{
 		RefID:         refID,
+		DatasourceUID: clickhouseDatasourceUID,
+		QueryType:     clickhouseQueryType,
+		RelativeTimeRange: services.RelativeTimeRange{
+			From: clickhouseRelativeFromSeconds,
+			To:   0,
+		},
+		Model: model,
+	}, nil
+}
+
+// newExpressionData completes a server-side expression step with the fields every step shares.
+func newExpressionData(model expressionModel) (services.Data, error) {
+	// Grafana's expression datasource identifies itself by the same sentinel
+	// for both type and uid.
+	model.Datasource = map[string]string{
+		"type": grafanaExprDatasourceUID,
+		"uid":  grafanaExprDatasourceUID,
+	}
+	model.IntervalMs = queryIntervalMs
+	model.MaxDataPoints = maxDataPoints
+
+	b, err := json.Marshal(model)
+	if err != nil {
+		return services.Data{}, fmt.Errorf("failed to marshal %s expression model: %w", model.Type, err)
+	}
+
+	return services.Data{
+		RefID:         model.RefID,
 		DatasourceUID: grafanaExprDatasourceUID,
 		RelativeTimeRange: services.RelativeTimeRange{
 			From: 0,
 			To:   0,
 		},
-		Model: model,
+		Model: b,
 	}, nil
 }
 

@@ -317,3 +317,19 @@ func TestValidateSingleExpressionRejectsConditionWithoutQueries(t *testing.T) {
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "queries are required")
 }
+
+func TestUsesDatasource(t *testing.T) {
+	t.Parallel()
+
+	single := Template{Expr: "up"}
+	assert.True(t, single.UsesDatasource(Metrics), "a single-expression template runs on Metrics")
+	assert.False(t, single.UsesDatasource(ClickHouse))
+
+	unset := Template{Queries: []TemplateQuery{{RefID: "A", Expr: "up"}}}
+	assert.True(t, unset.UsesDatasource(Metrics), "an unset datasource is Metrics")
+	assert.False(t, unset.UsesDatasource(ClickHouse))
+
+	clickhouse := clickHouseTemplate()
+	assert.True(t, clickhouse.UsesDatasource(ClickHouse))
+	assert.False(t, clickhouse.UsesDatasource(Metrics))
+}

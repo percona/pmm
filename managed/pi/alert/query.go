@@ -60,6 +60,18 @@ type TemplateExpression struct {
 	Reducer    string `yaml:"reducer,omitempty"`
 }
 
+// UsesDatasource reports whether any template query runs on the datasource, counting an unset
+// datasource, and a single-expression template, as Metrics.
+func (r *Template) UsesDatasource(datasource Datasource) bool {
+	if !r.UsesMultipleExpressions() {
+		return datasource == Metrics
+	}
+
+	return slices.ContainsFunc(r.Queries, func(q TemplateQuery) bool {
+		return q.Datasource == datasource || (q.Datasource == "" && datasource == Metrics)
+	})
+}
+
 // UsesMultipleExpressions reports whether the template defines queries and a condition.
 func (r *Template) UsesMultipleExpressions() bool {
 	return len(r.Queries) > 0
@@ -121,7 +133,7 @@ func (r *Template) validateMultipleExpressionSteps() error {
 
 	// Checked once every ref is known, as a reduce may read a step declared after it.
 	for _, expression := range r.Expressions {
-		input := expression.reduceInput()
+		input := expression.ReduceInput()
 		if input == "" {
 			continue
 		}
@@ -166,8 +178,8 @@ func (r *Template) validateClickHouseQueries(refs map[string]Datasource) error {
 	return nil
 }
 
-// reduceInput returns the ref ID a reduce expression reads, or "" for any other expression.
-func (e TemplateExpression) reduceInput() string {
+// ReduceInput returns the ref ID a reduce expression reads, or "" for any other expression.
+func (e TemplateExpression) ReduceInput() string {
 	if e.Type != ExpressionReduce {
 		return ""
 	}
@@ -239,7 +251,7 @@ func validateExpressions(expressions []TemplateExpression, refs map[string]Datas
 					expression.RefID, expression.Reducer, strings.Join(reducers, ", "),
 				)
 			}
-			if expression.reduceInput() == "" {
+			if expression.ReduceInput() == "" {
 				return fmt.Errorf("template expression %s must reduce a single step, e.g. `$A`", expression.RefID)
 			}
 		default:

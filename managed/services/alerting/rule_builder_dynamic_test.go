@@ -82,7 +82,7 @@ func exprOf(t *testing.T, item services.Data) string {
 func expressionOf(t *testing.T, item services.Data) string {
 	t.Helper()
 
-	var model mathExpressionModel
+	var model expressionModel
 	require.NoError(t, json.Unmarshal(item.Model, &model))
 
 	return model.Expression
@@ -92,7 +92,7 @@ func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestBuildRuleDataSwapsTokenForThresholdRef(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestBuildRuleDataWithoutRuleIDIsUnchanged(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "",
+		overridableRuleTemplate(), testDatasourceUIDs, "",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -154,7 +154,7 @@ func TestBuildRuleDataWithoutOverridableParams(t *testing.T) {
 	template.Params[0].Overridable = false
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -180,7 +180,7 @@ func TestThresholdQueryMatchesCollectorDescriptor(t *testing.T) {
 	require.Len(t, labels, 2, "could not read variableLabels from %s", desc)
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -207,7 +207,7 @@ func TestThresholdRefIDAvoidsTemplateCollision(t *testing.T) {
 	})
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -244,7 +244,7 @@ func TestThresholdPairsEachParamWithItsOwnQuery(t *testing.T) {
 	}
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"first": "1", "second": "2"}, nil,
 	)
 	require.NoError(t, err)
@@ -263,7 +263,7 @@ func TestThresholdQueryIsNotFiltered(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"},
 		[]*alertingv1.Filter{{
 			Type:   alertingv1.FilterType_FILTER_TYPE_MATCH,
@@ -357,7 +357,7 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 		t.Parallel()
 
 		built, err := buildGrafanaRuleData(
-			overridableRuleTemplate(), "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
+			overridableRuleTemplate(), testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, built.thresholdRefs)
@@ -372,7 +372,7 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 		template.Params[0].Overridable = false
 
 		built, err := buildGrafanaRuleData(
-			template, "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
+			template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
 		assert.Empty(t, built.thresholdRefs)
