@@ -32,7 +32,7 @@ export type SelectInputProps<T extends FieldValues = FieldValues> = {
   formControlProps?: FormControlProps;
   /** The choices, as MUI MenuItem elements; with none, a disabled "No options" item is shown. */
   children?: React.ReactNode | React.ReactNode[];
-  /** Marks the field required with an asterisk on the label; validation itself goes in `controllerProps.rules`. */
+  /** Adds an asterisk to the label and makes the browser block form submit while nothing is selected; rules go in `controllerProps.rules`. */
   isRequired?: boolean;
   /** Replaces the dropdown arrow with a spinner while the choices are being fetched. */
   loading?: boolean;
