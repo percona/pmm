@@ -43,7 +43,7 @@ EOF
 sync)
 	base=$("$VMSH" ssh "$RUN" cat /root/.devvm-base)
 	git add -A -N
-	git diff --binary "$base" | "$VMSH" ssh "$RUN" "cd $REPO && git reset -q --hard $base && git clean -qfd && git apply --allow-empty --whitespace=nowarn && git add -A && git commit -qm devvm-sync --allow-empty && echo synced to \$(git rev-parse --short HEAD) on base ${base:0:9}"
+	git diff --binary "$base" | "$VMSH" ssh "$RUN" "cd $REPO && (git fetch -q origin $BRANCH || true) && git reset -q --hard $base && git clean -qfd && git apply --allow-empty --whitespace=nowarn && git add -A && git commit -qm devvm-sync --allow-empty && echo synced to \$(git rev-parse --short HEAD) on base ${base:0:9}"
 	;;
 run)
 	in_container "$2"
