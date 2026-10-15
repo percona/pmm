@@ -16,6 +16,8 @@
 package models
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,7 +38,24 @@ const MigrationBackupPattern = "pmm-encryption-migration-backup-*.json"
 // older PMM versions cannot read the envelope format. Values are as sensitive
 // as the database itself (legacy ciphertext, or secrets PMM 3.x stored as
 // plaintext), so the file is readable by the owner only.
+//
+// The file is written before the migration commits. A migration that fails
+// later is rolled back and retried with the same rows, so the file name
+// carries a digest of the rows and an existing backup of them is reused.
 func writeMigrationBackup(rows map[string][]map[string]any) (string, error) {
+	tables, err := json.Marshal(rows)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(tables)
+	digest := hex.EncodeToString(sum[:8])
+	for _, dir := range migrationBackupDirs() {
+		existing, _ := filepath.Glob(filepath.Join(dir, "pmm-encryption-migration-backup-*-"+digest+".json"))
+		if len(existing) != 0 {
+			return existing[0], nil
+		}
+	}
+
 	data, err := json.MarshalIndent(map[string]any{
 		"created_at": time.Now().UTC().Format(time.RFC3339),
 		"key_path":   encryption.DefaultKeyPath(),
@@ -48,7 +67,7 @@ func writeMigrationBackup(rows map[string][]map[string]any) (string, error) {
 
 	var errs []error
 	for _, dir := range migrationBackupDirs() {
-		path, err := writeFileAtomically(dir, data)
+		path, err := writeFileAtomically(dir, digest, data)
 		if err == nil {
 			return path, nil
 		}
@@ -81,7 +100,7 @@ func MigrationBackupFiles() []string {
 	return files
 }
 
-func writeFileAtomically(dir string, data []byte) (string, error) {
+func writeFileAtomically(dir, digest string, data []byte) (string, error) {
 	tmp, err := os.CreateTemp(dir, ".pmm-encryption-migration-backup-*.tmp")
 	if err != nil {
 		return "", fmt.Errorf("failed to create migration backup in %s: %w", dir, err)
@@ -100,9 +119,13 @@ func writeFileAtomically(dir string, data []byte) (string, error) {
 		return "", fmt.Errorf("failed to write migration backup in %s: %w", dir, err)
 	}
 
-	name := fmt.Sprintf("pmm-encryption-migration-backup-%s.json", time.Now().UTC().Format("20060102T150405.000000000Z"))
+	name := fmt.Sprintf("pmm-encryption-migration-backup-%s-%s.json", time.Now().UTC().Format("20060102T150405.000000000Z"), digest)
 	path := filepath.Join(dir, name)
 	err = os.Rename(tmp.Name(), path)
+	if err == nil {
+		// the backup holds the only copy of the values the migration rewrites
+		err = encryption.SyncDir(dir)
+	}
 	if err != nil {
 		return "", fmt.Errorf("failed to write migration backup in %s: %w", dir, err)
 	}

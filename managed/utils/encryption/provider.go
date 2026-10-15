@@ -160,7 +160,7 @@ func (p *FileKeyProvider) Store(handle *keyset.Handle) error {
 	if err != nil {
 		return fmt.Errorf("failed to store encryption keyset: %w", err)
 	}
-	err = syncDir(filepath.Dir(p.path))
+	err = SyncDir(filepath.Dir(p.path))
 	if err != nil {
 		return fmt.Errorf("failed to store encryption keyset: %w", err)
 	}
@@ -198,12 +198,12 @@ func keepOwner(tmp *os.File, path string) error {
 	return nil
 }
 
-// syncDir makes a rename in the directory durable: after a crash, the data
-// encrypted with a new key must not find the old key file, so a failure
-// stops the caller before anything is encrypted with that key. A file system
-// that cannot sync a directory at all says so (EINVAL, ENOTSUP); there the
-// rename is as durable as it gets.
-func syncDir(path string) error {
+// SyncDir makes a rename in the directory durable. For the key file: after a
+// crash, the data encrypted with a new key must not find the old key file, so
+// a failure stops the caller before anything is encrypted with that key. A
+// file system that cannot sync a directory at all says so (EINVAL, ENOTSUP);
+// there the rename is as durable as it gets.
+func SyncDir(path string) error {
 	dir, err := os.Open(path) //nolint:gosec
 	if err != nil {
 		return err

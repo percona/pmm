@@ -125,8 +125,8 @@ func TestNonAEADKeyset(t *testing.T) {
 }
 
 func TestSyncDir(t *testing.T) {
-	require.NoError(t, syncDir(t.TempDir()))
-	require.ErrorIs(t, syncDir(filepath.Join(t.TempDir(), "missing")), os.ErrNotExist, "a failure is reported")
+	require.NoError(t, SyncDir(t.TempDir()))
+	require.ErrorIs(t, SyncDir(filepath.Join(t.TempDir(), "missing")), os.ErrNotExist, "a failure is reported")
 }
 
 // TestStoreKeepsOwner covers rotation run as root: the replaced key file

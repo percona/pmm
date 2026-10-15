@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -422,6 +423,14 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 		now, now)
 	require.NoError(t, err)
 
+	// pmm-managed retries a migration rolled back after the backup was written
+	for range 2 {
+		err = reform.NewDB(sqlDB, postgresql.Dialect, nil).InTransaction(func(tx *reform.TX) error {
+			require.NoError(t, models.MigrateEncryption(tx.Querier))
+			return errors.New("a later step failed")
+		})
+		require.EqualError(t, err, "a later step failed")
+	}
 	require.NoError(t, models.MigrateEncryption(q))
 
 	files, err := filepath.Glob(filepath.Join(dir, models.MigrationBackupPattern))
