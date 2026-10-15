@@ -436,6 +436,11 @@ func makeBuckets(
 			continue
 		}
 
+		// Real-Time Analytics polling is PMM's own load, not the monitored workload.
+		if agents.IsRTAQuery(v.Fingerprint) {
+			continue
+		}
+
 		// In fingerprint field there is no fingerprint yet.
 		// It contains whole query without any changes.
 		// This in workaround to keep original query until field "Query" will be

@@ -371,8 +371,11 @@ type StateChangedRequest struct {
 	ListenPort      uint32                 `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	ProcessExecPath string                 `protobuf:"bytes,4,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	Version         string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Human-readable reason for the status, such as why a built-in agent failed to initialize or what it
+	// cannot collect while running. Empty when there is nothing to report.
+	StatusMessage string `protobuf:"bytes,6,opt,name=status_message,json=statusMessage,proto3" json:"status_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StateChangedRequest) Reset() {
@@ -436,6 +439,13 @@ func (x *StateChangedRequest) GetProcessExecPath() string {
 func (x *StateChangedRequest) GetVersion() string {
 	if x != nil {
 		return x.Version
+	}
+	return ""
+}
+
+func (x *StateChangedRequest) GetStatusMessage() string {
+	if x != nil {
+		return x.StatusMessage
 	}
 	return ""
 }
@@ -6647,14 +6657,15 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\fcurrent_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vcurrentTime\"S\n" +
 	"\x11QANCollectRequest\x12>\n" +
 	"\x0emetrics_bucket\x18\x01 \x03(\v2\x17.agent.v1.MetricsBucketR\rmetricsBucket\"\x14\n" +
-	"\x12QANCollectResponse\"\xca\x01\n" +
+	"\x12QANCollectResponse\"\xf1\x01\n" +
 	"\x13StateChangedRequest\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12\x1f\n" +
 	"\vlisten_port\x18\x03 \x01(\rR\n" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
-	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
+	"\aversion\x18\x05 \x01(\tR\aversion\x12%\n" +
+	"\x0estatus_message\x18\x06 \x01(\tR\rstatusMessage\"\x16\n" +
 	"\x14StateChangedResponse\"\xd9\v\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +

@@ -1299,6 +1299,9 @@ var databaseSchema = [][]string{
 			registered_at TIMESTAMP
 		)`,
 	},
+	125: {
+		`ALTER TABLE agents ADD COLUMN status_message TEXT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
