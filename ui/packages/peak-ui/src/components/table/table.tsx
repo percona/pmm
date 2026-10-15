@@ -424,11 +424,17 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span .MuiIconButton-root': {
               width: 32,
               height: 32,
-              margin: 0,
+              // Fit the 20px label line, or without column actions it pushes its filter field down
+              margin: '-6px 0',
               padding: '6px',
               transform: 'none',
               '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
             },
+            // An inline wrapper's line box would still make the indicator's label row taller
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span:has(> .MuiIconButton-root)':
+              {
+                display: 'flex',
+              },
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
               transform: 'none',
               width: 20,
