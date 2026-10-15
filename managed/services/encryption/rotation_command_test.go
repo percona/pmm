@@ -52,6 +52,10 @@ func keyFile(t *testing.T) (string, uint32) {
 	c, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
 	require.NoError(t, err)
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	// keep migration backups of the PMM Server the tests run on out of sight
+	savedDefault := encryption.DefaultEncryptionKeyPath
+	encryption.DefaultEncryptionKeyPath = path
+	t.Cleanup(func() { encryption.DefaultEncryptionKeyPath = savedDefault })
 
 	return path, c.PrimaryKeyID()
 }
@@ -109,6 +113,26 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, codeOK, code)
 
+		ids := keysetIDs(t, path)
+		require.Len(t, ids, 1)
+		assert.NotEqual(t, oldKeyID, ids[0])
+	})
+
+	t.Run("prune refused while migration backups exist", func(t *testing.T) {
+		fakeSupervisorctl(t, 0)
+		path, oldKeyID := keyFile(t)
+		backup := filepath.Join(filepath.Dir(path), "pmm-encryption-migration-backup-20261015T000000.000000000Z.json")
+		require.NoError(t, os.WriteFile(backup, []byte("{}"), 0o600))
+
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{Prune: true})
+		require.ErrorContains(t, err, backup)
+		require.ErrorContains(t, err, "--migration-backup-key-saved")
+		assert.Equal(t, codeRotationFailed, code)
+		assert.Equal(t, []uint32{oldKeyID}, keysetIDs(t, path), "the keyset is unchanged")
+
+		code, err = RotateEncryptionKey(sqlDB, RotationParams{Prune: true, MigrationBackupKeySaved: true})
+		require.NoError(t, err)
+		assert.Equal(t, codeOK, code)
 		ids := keysetIDs(t, path)
 		require.Len(t, ids, 1)
 		assert.NotEqual(t, oldKeyID, ids[0])

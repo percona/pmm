@@ -58,6 +58,9 @@ type RotationParams struct {
 	// OtherHANodesStopped confirms that PMM Server is stopped on every other
 	// node of an HA cluster; rotation is refused in HA without it.
 	OtherHANodesStopped bool
+	// MigrationBackupKeySaved confirms that a copy of the key file is kept
+	// elsewhere; Prune is refused without it while migration backups exist.
+	MigrationBackupKeySaved bool
 }
 
 // RotateEncryptionKey adds a new primary key to the encryption keyset — the
@@ -85,6 +88,15 @@ func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
 	err := sqlDB.PingContext(context.Background())
 	if err != nil {
 		return codeDBConnectionFailed, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+	}
+
+	// the migration backups are the only way back to a PMM version that cannot read the envelope
+	// format, and pruning removes the keys they are encrypted with
+	backups := models.MigrationBackupFiles()
+	if params.Prune && len(backups) != 0 && !params.MigrationBackupKeySaved {
+		return codeRotationFailed, fmt.Errorf("refusing to prune: it removes the keys that the migration backups %s are encrypted with. "+
+			"Copy %s somewhere safe first, then run pmm-encryption-rotation --prune --migration-backup-key-saved",
+			strings.Join(backups, ", "), keyPath)
 	}
 
 	provider := encryption.NewFileKeyProvider(keyPath)
@@ -118,11 +130,6 @@ func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
 	logrus.Infoln("All stored secrets are re-encrypted with the new key")
 
 	if params.Prune {
-		backups := models.MigrationBackupFiles()
-		if len(backups) != 0 {
-			logrus.Warnf("Pruning removes the keys the values in %s are encrypted with; "+
-				"keep a copy of the key file from before this rotation to read them later.", strings.Join(backups, ", "))
-		}
 		retired, err := encryption.PruneRetiredKeys(provider)
 		if err != nil {
 			return codePruneFailed, fmt.Errorf("failed to prune retired encryption keys: %w", err)
