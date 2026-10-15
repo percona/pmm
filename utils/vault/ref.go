@@ -1,0 +1,187 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package vault
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+// RefPrefix starts a reference to a value stored in Vault: vault:<path>#<key>.
+const RefPrefix = "vault:"
+
+// Ref points to the value of a key in a Vault secret.
+type Ref struct {
+	Path string
+	Key  string
+}
+
+// IsRef reports whether s is a reference to a value stored in Vault.
+func IsRef(s string) bool {
+	return strings.HasPrefix(s, RefPrefix)
+}
+
+// ParseRef parses a vault:<path>#<key> reference.
+func ParseRef(s string) (Ref, error) {
+	rest, ok := strings.CutPrefix(s, RefPrefix)
+	if !ok {
+		return Ref{}, fmt.Errorf("vault reference must start with %s", RefPrefix)
+	}
+
+	i := strings.LastIndex(rest, "#")
+	if i < 0 || rest[i+1:] == "" {
+		return Ref{}, errors.New("vault reference must have the form vault:<path>#<key>")
+	}
+
+	ref := Ref{Path: rest[:i], Key: rest[i+1:]}
+	err := ValidatePath(ref.Path)
+	if err != nil {
+		return Ref{}, err
+	}
+	return ref, nil
+}
+
+// ValidatePath returns an error if path cannot be the API path of a Vault secret.
+func ValidatePath(path string) error {
+	trimmed := strings.Trim(path, "/")
+	if trimmed == "" {
+		return errors.New("vault path must not be empty")
+	}
+	if strings.ContainsAny(trimmed, " \t\r\n?#") {
+		return fmt.Errorf("vault path '%s' must not contain whitespace, '?' or '#'", path)
+	}
+	for s := range strings.SplitSeq(trimmed, "/") {
+		if s == "" || s == "." || s == ".." {
+			return fmt.Errorf("vault path '%s' has an empty or relative segment", path)
+		}
+	}
+	return nil
+}
+
+// Encoding is how a secret value is escaped where a token stands for it.
+type Encoding string
+
+const (
+	// EncodingRaw inserts the value as is.
+	EncodingRaw Encoding = "raw"
+	// EncodingUserinfo escapes the value for the userinfo of a URL.
+	EncodingUserinfo Encoding = "userinfo"
+)
+
+const tokenStart = "~pmm-vault~" //nolint:gosec
+
+var tokenRE = regexp.MustCompile(`~pmm-vault~([A-Za-z0-9_-]+)~`) //nolint:gochecknoglobals
+
+type tokenPayload struct {
+	Path     string   `json:"p"`
+	Key      string   `json:"k"`
+	Encoding Encoding `json:"e"`
+	Fallback *string  `json:"f,omitempty"`
+}
+
+// Token returns a placeholder that pmm-agent replaces with the value of key in the secret at path,
+// escaped as enc. pmm-managed puts tokens where database credentials go, so that the credentials
+// themselves never leave Vault for PMM Server. A token consists of URL-unreserved characters only:
+// it passes unchanged through the URL, DSN and template encoding of the strings it is put in.
+func Token(path, key string, enc Encoding) string {
+	return encodeToken(tokenPayload{Path: strings.Trim(path, "/"), Key: key, Encoding: enc})
+}
+
+// TokenWithFallback is Token for a key the secret may not have: fallback stands in for its value then.
+func TokenWithFallback(path, key string, enc Encoding, fallback string) string {
+	return encodeToken(tokenPayload{Path: strings.Trim(path, "/"), Key: key, Encoding: enc, Fallback: &fallback})
+}
+
+func encodeToken(p tokenPayload) string {
+	b, _ := json.Marshal(p) //nolint:errchkjson
+	return tokenStart + base64.RawURLEncoding.EncodeToString(b) + "~"
+}
+
+// HasTokens reports whether s contains a token.
+func HasTokens(s string) bool {
+	return strings.Contains(s, tokenStart)
+}
+
+// Getter returns the value of key in the secret at path.
+type Getter func(path, key string) (string, error)
+
+// ReplaceTokens replaces the tokens in s with the values get returns. Alongside the result it returns
+// every value it inserted, both as read and as escaped, for redacting them from logs.
+func ReplaceTokens(s string, get Getter) (string, []string, error) {
+	if !HasTokens(s) {
+		return s, nil, nil
+	}
+
+	var values []string
+	var firstErr error
+	res := tokenRE.ReplaceAllStringFunc(s, func(token string) string {
+		if firstErr != nil {
+			return token
+		}
+
+		v, escaped, err := resolveToken(token, get)
+		if err != nil {
+			firstErr = err
+			return token
+		}
+
+		values = append(values, v)
+		if escaped != v {
+			values = append(values, escaped)
+		}
+		return escaped
+	})
+	if firstErr != nil {
+		return "", nil, firstErr
+	}
+
+	return res, values, nil
+}
+
+func resolveToken(token string, get Getter) (string, string, error) {
+	b, err := base64.RawURLEncoding.DecodeString(strings.TrimSuffix(strings.TrimPrefix(token, tokenStart), "~"))
+	if err != nil {
+		return "", "", fmt.Errorf("invalid vault token: %w", err)
+	}
+
+	var p tokenPayload
+	err = json.Unmarshal(b, &p)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid vault token: %w", err)
+	}
+
+	v, err := get(p.Path, p.Key)
+	_, missing := errors.AsType[*KeyNotFoundError](err)
+	if missing && p.Fallback != nil {
+		v, err = *p.Fallback, nil
+	}
+	if err != nil {
+		return "", "", err
+	}
+
+	switch p.Encoding {
+	case EncodingRaw:
+		return v, v, nil
+	case EncodingUserinfo:
+		return v, url.User(v).String(), nil
+	default:
+		return "", "", fmt.Errorf("unsupported vault token encoding '%s'", p.Encoding)
+	}
+}

@@ -1,0 +1,405 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package vault
+
+import (
+	"bytes"
+	"context"
+	"crypto/x509"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+	"sync"
+	"time"
+
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+
+	"github.com/percona/pmm/utils/tlsconfig"
+)
+
+const (
+	requestTimeout  = 10 * time.Second
+	maxResponseSize = 1 << 20
+
+	// For errorCacheTTL a failed read is answered with its error before Vault is asked again,
+	// so that many readers of an unreachable Vault fail fast instead of waiting for it one by one.
+	errorCacheTTL = 5 * time.Second
+)
+
+// Client reads secrets from Vault. It is safe for concurrent use.
+type Client struct {
+	cfg  Config
+	http *http.Client
+	now  func() time.Time
+
+	// m serializes reads, so that concurrent readers of a dynamic secret share one set of credentials.
+	m           sync.Mutex
+	token       string
+	tokenExpiry time.Time
+	cache       map[string]cachedSecret
+}
+
+type cachedSecret struct {
+	data    map[string]string
+	err     error
+	expires time.Time
+}
+
+// New returns a Client for an enabled configuration.
+func New(cfg Config) (*Client, error) {
+	if !cfg.Enabled() {
+		return nil, errors.New("vault address is not set")
+	}
+
+	err := cfg.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	tlsConfig := tlsconfig.Get()
+	tlsConfig.InsecureSkipVerify = cfg.TLSSkipVerify
+	if cfg.CACert != "" {
+		pem, err := os.ReadFile(cfg.CACert)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read vault CA certificate: %w", err)
+		}
+
+		pool := x509.NewCertPool()
+		if !pool.AppendCertsFromPEM(pem) {
+			return nil, fmt.Errorf("no certificates found in vault CA certificate %s", cfg.CACert)
+		}
+		tlsConfig.RootCAs = pool
+	}
+
+	transport := http.DefaultTransport.(*http.Transport).Clone() //nolint:forcetypeassert
+	transport.TLSClientConfig = tlsConfig
+
+	return &Client{
+		cfg:   cfg,
+		http:  &http.Client{Transport: transport, Timeout: requestTimeout},
+		now:   time.Now,
+		cache: make(map[string]cachedSecret),
+	}, nil
+}
+
+// Read returns the data of the secret at the API path, e.g. secret/data/pmm/mysql for the secret
+// pmm/mysql of the KV version 2 engine mounted at secret/. The KV version 2 envelope is unwrapped.
+//
+// A secret with a lease, such as database credentials, is reused until two thirds of the lease
+// have passed, so every reader gets the same credentials until they are about to expire. Any other
+// secret is reused for the cache TTL.
+func (c *Client) Read(ctx context.Context, path string) (map[string]string, error) {
+	path = strings.Trim(path, "/")
+
+	c.m.Lock()
+	defer c.m.Unlock()
+
+	now := c.now()
+	if s, ok := c.cache[path]; ok && now.Before(s.expires) {
+		return s.data, s.err
+	}
+
+	data, resp, err := c.read(ctx, path)
+	if err != nil {
+		c.cache[path] = cachedSecret{err: err, expires: now.Add(errorCacheTTL)}
+		return nil, err
+	}
+
+	ttl := c.cfg.EffectiveCacheTTL()
+	if resp.LeaseID != "" && resp.LeaseDuration > 0 {
+		ttl = time.Duration(resp.LeaseDuration) * time.Second * 2 / 3 //nolint:mnd
+	}
+	c.cache[path] = cachedSecret{data: data, expires: now.Add(ttl)}
+
+	return data, nil
+}
+
+// Get returns the value of key in the secret at path.
+func (c *Client) Get(ctx context.Context, path, key string) (string, error) {
+	data, err := c.Read(ctx, path)
+	if err != nil {
+		return "", err
+	}
+
+	v, ok := data[key]
+	if !ok {
+		return "", &KeyNotFoundError{Path: strings.Trim(path, "/"), Key: key}
+	}
+	return v, nil
+}
+
+// KeyNotFoundError is returned when a secret has no value for the key asked for.
+type KeyNotFoundError struct {
+	Path string
+	Key  string
+}
+
+func (e *KeyNotFoundError) Error() string {
+	return fmt.Sprintf("vault secret %s has no key %s", e.Path, e.Key)
+}
+
+// GetRef returns the value a vault:<path>#<key> reference points to.
+func (c *Client) GetRef(ctx context.Context, ref string) (string, error) {
+	r, err := ParseRef(ref)
+	if err != nil {
+		return "", err
+	}
+	return c.Get(ctx, r.Path, r.Key)
+}
+
+type secretResponse struct {
+	LeaseID       string         `json:"lease_id"`
+	LeaseDuration int64          `json:"lease_duration"`
+	Data          map[string]any `json:"data"`
+}
+
+type loginResponse struct {
+	Auth *struct {
+		ClientToken   string `json:"client_token"`
+		LeaseDuration int64  `json:"lease_duration"`
+	} `json:"auth"`
+}
+
+type responseError struct {
+	method string
+	path   string
+	status int
+	errors []string
+}
+
+func (e *responseError) Error() string {
+	msg := fmt.Sprintf("vault %s %s: %d %s", e.method, e.path, e.status, http.StatusText(e.status))
+	if len(e.errors) != 0 {
+		msg += ": " + strings.Join(e.errors, "; ")
+	}
+	return msg
+}
+
+// read reads the secret, logging in again once if Vault rejects the token it has.
+// Must be called with c.m held.
+func (c *Client) read(ctx context.Context, path string) (map[string]string, *secretResponse, error) {
+	token, err := c.authToken(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp secretResponse
+	err = c.do(ctx, http.MethodGet, path, token, nil, &resp)
+	re, ok := errors.AsType[*responseError](err)
+	if ok && re.status == http.StatusForbidden {
+		c.token = ""
+		token, err = c.authToken(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		resp = secretResponse{}
+		err = c.do(ctx, http.MethodGet, path, token, nil, &resp)
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data, err := secretData(resp.Data)
+	if err != nil {
+		return nil, nil, fmt.Errorf("vault secret %s: %w", path, err)
+	}
+
+	return data, &resp, nil
+}
+
+// authToken returns a token, logging in when there is none or it is about to expire.
+// Must be called with c.m held.
+func (c *Client) authToken(ctx context.Context) (string, error) {
+	if c.token != "" && (c.tokenExpiry.IsZero() || c.now().Before(c.tokenExpiry)) {
+		return c.token, nil
+	}
+
+	token, ttl, err := c.login(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	c.token = token
+	c.tokenExpiry = time.Time{}
+	if ttl > 0 {
+		c.tokenExpiry = c.now().Add(ttl * 2 / 3) //nolint:mnd
+	}
+	return token, nil
+}
+
+func (c *Client) login(ctx context.Context) (string, time.Duration, error) {
+	var body map[string]any
+	switch c.cfg.authMethod() {
+	case AuthMethodToken:
+		if c.cfg.TokenFile == "" {
+			return c.cfg.Token, 0, nil
+		}
+		token, err := readSecretFile(c.cfg.TokenFile)
+		return token, 0, err
+
+	case AuthMethodAppRole:
+		secretID := c.cfg.SecretID
+		if c.cfg.SecretIDFile != "" {
+			var err error
+			secretID, err = readSecretFile(c.cfg.SecretIDFile)
+			if err != nil {
+				return "", 0, err
+			}
+		}
+		body = map[string]any{"role_id": c.cfg.RoleID, "secret_id": secretID}
+
+	case AuthMethodKubernetes:
+		jwtFile := c.cfg.JWTFile
+		if jwtFile == "" {
+			jwtFile = DefaultKubernetesJWTFile
+		}
+		jwt, err := readSecretFile(jwtFile)
+		if err != nil {
+			return "", 0, err
+		}
+		body = map[string]any{"role": c.cfg.Role, "jwt": jwt}
+
+	case AuthMethodAWS:
+		awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+		if err != nil {
+			return "", 0, fmt.Errorf("failed to load AWS configuration: %w", err)
+		}
+		body, err = awsLoginData(ctx, awsCfg.Credentials, c.cfg.AWSRegion, c.cfg.AWSServerID, c.now())
+		if err != nil {
+			return "", 0, err
+		}
+		body["role"] = c.cfg.Role
+	}
+
+	var resp loginResponse
+	err := c.do(ctx, http.MethodPost, "auth/"+strings.Trim(c.cfg.authMount(), "/")+"/login", "", body, &resp)
+	if err != nil {
+		return "", 0, fmt.Errorf("vault login with method %s failed: %w", c.cfg.authMethod(), err)
+	}
+	if resp.Auth == nil || resp.Auth.ClientToken == "" {
+		return "", 0, fmt.Errorf("vault login with method %s returned no token", c.cfg.authMethod())
+	}
+
+	return resp.Auth.ClientToken, time.Duration(resp.Auth.LeaseDuration) * time.Second, nil
+}
+
+func (c *Client) do(ctx context.Context, method, path, token string, in, out any) error {
+	var body io.Reader
+	if in != nil {
+		b, err := json.Marshal(in)
+		if err != nil {
+			return err
+		}
+		body = bytes.NewReader(b)
+	}
+
+	u := strings.TrimSuffix(c.cfg.Address, "/") + "/v1/" + escapePath(path)
+	req, err := http.NewRequestWithContext(ctx, method, u, body)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("X-Vault-Request", "true")
+	if token != "" {
+		req.Header.Set("X-Vault-Token", token)
+	}
+	if c.cfg.Namespace != "" {
+		req.Header.Set("X-Vault-Namespace", c.cfg.Namespace)
+	}
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("vault %s %s: %w", method, path, err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return fmt.Errorf("vault %s %s: %w", method, path, err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		var e struct {
+			Errors []string `json:"errors"`
+		}
+		_ = json.Unmarshal(b, &e)
+		return &responseError{method: method, path: path, status: resp.StatusCode, errors: e.Errors}
+	}
+
+	err = json.Unmarshal(b, out)
+	if err != nil {
+		return fmt.Errorf("vault %s %s: invalid response: %w", method, path, err)
+	}
+	return nil
+}
+
+// secretData flattens the data of a secret, unwrapping the KV version 2 envelope.
+func secretData(raw map[string]any) (map[string]string, error) {
+	if _, ok := raw["metadata"]; ok {
+		if _, ok := raw["data"]; ok {
+			inner, _ := raw["data"].(map[string]any)
+			if inner == nil {
+				return nil, errors.New("the secret version has no data, it may be deleted or destroyed")
+			}
+			raw = inner
+		}
+	}
+
+	res := make(map[string]string, len(raw))
+	for k, v := range raw {
+		switch v := v.(type) {
+		case string:
+			res[k] = v
+		case nil:
+			res[k] = ""
+		default:
+			b, err := json.Marshal(v)
+			if err != nil {
+				return nil, err
+			}
+			res[k] = string(b)
+		}
+	}
+	return res, nil
+}
+
+func escapePath(path string) string {
+	segments := strings.Split(path, "/")
+	for i, s := range segments {
+		segments[i] = url.PathEscape(s)
+	}
+	return strings.Join(segments, "/")
+}
+
+func readSecretFile(path string) (string, error) {
+	b, err := os.ReadFile(path) //nolint:gosec
+	if err != nil {
+		return "", fmt.Errorf("failed to read %s: %w", path, err)
+	}
+
+	s := strings.TrimSpace(string(b))
+	if s == "" {
+		return "", fmt.Errorf("%s is empty", path)
+	}
+	return s, nil
+}
