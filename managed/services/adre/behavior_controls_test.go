@@ -88,6 +88,45 @@ func TestResolveBehaviorControlsForPostChat_normalizesLegacy(t *testing.T) {
 	}
 }
 
+func TestNormalizeBehaviorControlsForHolmes_dropsAiSafety(t *testing.T) {
+	out := NormalizeBehaviorControlsForHolmes(map[string]bool{"ai_safety": false, "intro": true})
+	if _, ok := out["ai_safety"]; ok {
+		t.Fatalf("ai_safety should be removed after normalize, got %#v", out)
+	}
+	if v, ok := out["intro"]; !ok || v != true {
+		t.Fatalf("expected intro preserved, got %#v", out)
+	}
+}
+
+func TestResolveBehaviorControlsForInvestigation_enablesTodoWriteByDefault(t *testing.T) {
+	for name, out := range map[string]map[string]bool{
+		"investigation": ResolveBehaviorControlsForInvestigation(minimalSettingsWithAdre()),
+		"postchat":      ResolveBehaviorControlsForPostChat(minimalSettingsWithAdre(), "investigation"),
+	} {
+		if !out["todowrite_instructions"] || !out["todowrite_reminder"] {
+			t.Fatalf("%s: expected TodoWrite opted in, got %#v", name, out)
+		}
+	}
+}
+
+func TestResolveBehaviorControlsForInvestigation_storedOverridesDefaults(t *testing.T) {
+	s := minimalSettingsWithAdre()
+	s.Adre.BehaviorControlsInvestigation = map[string]bool{
+		"todowrite_reminder": false,
+		"time_runbooks":      false,
+	}
+	out := ResolveBehaviorControlsForInvestigation(s)
+	if v := out["todowrite_reminder"]; v != false {
+		t.Fatalf("stored todowrite_reminder should win, got %#v", out)
+	}
+	if v := out["todowrite_instructions"]; v != true {
+		t.Fatalf("unset todowrite_instructions should keep the default, got %#v", out)
+	}
+	if v, ok := out["time_skills"]; !ok || v != false {
+		t.Fatalf("expected legacy time_runbooks normalized to time_skills=false, got %#v", out)
+	}
+}
+
 func minimalSettingsWithAdre() *models.Settings {
 	return &models.Settings{}
 }

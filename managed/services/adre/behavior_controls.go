@@ -28,7 +28,7 @@ var KnownBehaviorControlKeys = []string{
 	"ask_user",
 	"todowrite_instructions", //nolint:goconst
 	"todowrite_reminder",
-	"ai_safety",
+	"ai_safety", // removed in Holmes 0.30 (HolmesGPT #1970); accepted for saved settings, dropped before calling Holmes
 	"toolset_instructions",
 	"permission_errors",
 	"general_instructions",
@@ -52,9 +52,12 @@ func DefaultBehaviorControlsFast() map[string]bool {
 	}
 }
 
-// DefaultBehaviorControlsInvestigation is nil: do not send behavior_controls (Holmes defaults for investigation).
+// DefaultBehaviorControlsInvestigation opts into TodoWrite planning, which Holmes disables by default since 0.43 (ROB-574).
 func DefaultBehaviorControlsInvestigation() map[string]bool {
-	return nil
+	return map[string]bool{
+		"todowrite_instructions": true,
+		"todowrite_reminder":     true,
+	}
 }
 
 // DefaultBehaviorControlsFormatReport minimizes prompt noise for the JSON formatting pass.
@@ -66,12 +69,14 @@ func DefaultBehaviorControlsFormatReport() map[string]bool {
 	}
 }
 
-// NormalizeBehaviorControlsForHolmes maps legacy keys to Holmes PromptComponent names (HolmesGPT #1953: time_runbooks → time_skills).
+// NormalizeBehaviorControlsForHolmes maps legacy keys to Holmes PromptComponent names (HolmesGPT #1953: time_runbooks → time_skills)
+// and drops keys Holmes no longer has.
 func NormalizeBehaviorControlsForHolmes(m map[string]bool) map[string]bool {
 	if len(m) == 0 {
 		return m
 	}
 	out := maps.Clone(m)
+	delete(out, "ai_safety")
 	if v, ok := out["time_runbooks"]; ok {
 		if _, has := out["time_skills"]; !has {
 			out["time_skills"] = v
@@ -85,11 +90,7 @@ func NormalizeBehaviorControlsForHolmes(m map[string]bool) map[string]bool {
 // Empty stored map means use shipped preset (Decision 7).
 func ResolveBehaviorControlsForPostChat(settings *models.Settings, mode string) map[string]bool {
 	if mode == "investigation" { //nolint:goconst
-		src := settings.Adre.BehaviorControlsInvestigation
-		if len(src) == 0 {
-			return nil
-		}
-		return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
+		return ResolveBehaviorControlsForInvestigation(settings)
 	}
 	src := settings.Adre.BehaviorControlsFast
 	if len(src) == 0 {
@@ -98,13 +99,11 @@ func ResolveBehaviorControlsForPostChat(settings *models.Settings, mode string) 
 	return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
 }
 
-// ResolveBehaviorControlsForInvestigation returns behavior_controls for investigation chat/run.
+// ResolveBehaviorControlsForInvestigation returns behavior_controls for investigation chat/run: stored keys override the shipped preset.
 func ResolveBehaviorControlsForInvestigation(settings *models.Settings) map[string]bool {
-	src := settings.Adre.BehaviorControlsInvestigation
-	if len(src) == 0 {
-		return DefaultBehaviorControlsInvestigation()
-	}
-	return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
+	out := DefaultBehaviorControlsInvestigation()
+	maps.Copy(out, settings.Adre.BehaviorControlsInvestigation)
+	return NormalizeBehaviorControlsForHolmes(out)
 }
 
 // ResolveBehaviorControlsForFormatReport returns behavior_controls for FormatInvestigationReport.

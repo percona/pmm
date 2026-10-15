@@ -10,7 +10,7 @@ A Linux host with **Docker + the Compose plugin** (`docker compose`), plus **`op
 
 ```bash
 cp .env.example .env
-# set: PMM_IMAGE (an ADRE build — see below), HOLMES_IMAGE (>= 0.36.0),
+# set: PMM_IMAGE (an ADRE build — see below), HOLMES_IMAGE (targets 0.45.0),
 #      MODEL_NAME / LITELLM_MODEL / LLM_API_KEY
 ./install.sh
 ```
@@ -33,8 +33,9 @@ It's re-runnable: the cert is kept if present and the provisioning calls are ide
 - **`PMM_IMAGE`** — an ADRE-capable PMM Server image. ADRE (AI Deployment, reload, HTTPS enforcement) lives on
   the `tibi-holmes` fork; **the official `percona/pmm-server:3` does not have it** (`/v1/adre/*` → 404). Use the
   Feature Build image for that branch.
-- **`HOLMES_IMAGE`** — `>= 0.36.0` (native HTTPS + `/api/admin/reload`); the official image is
-  `robustadev/holmes:0.36.0` ([release](https://github.com/HolmesGPT/holmesgpt/releases/tag/0.36.0)). Pin a digest for prod.
+- **`HOLMES_IMAGE`** — `>= 0.36.0` (native HTTPS + `/api/admin/reload`); targets
+  `robustadev/holmes:0.45.0` ([release](https://github.com/HolmesGPT/holmesgpt/releases/tag/0.45.0)). Pin a digest for prod.
+  Since 0.43.0 Holmes turns TodoWrite planning off by default; PMM opts Investigation mode back in via `behavior_controls`.
 - **Model + key** — `MODEL_NAME` (no slashes), `LITELLM_MODEL`, `LLM_API_KEY`.
 
 Everything else (config dir, TLS cert, bootstrap `.env`, provisioning) is automated.

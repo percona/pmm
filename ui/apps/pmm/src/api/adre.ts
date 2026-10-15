@@ -6,7 +6,6 @@ export const ADRE_BEHAVIOR_CONTROL_KEYS = [
   'ask_user',
   'todowrite_instructions',
   'todowrite_reminder',
-  'ai_safety',
   'toolset_instructions',
   'permission_errors',
   'general_instructions',

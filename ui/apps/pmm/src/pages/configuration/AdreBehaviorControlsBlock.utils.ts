@@ -6,10 +6,16 @@ const FAST_SHIPPED: Record<string, boolean> = {
   todowrite_reminder: false,
 };
 
+// Holmes disables TodoWrite planning by default since 0.43 (ROB-574); Investigation opts back in.
+const INVESTIGATION_SHIPPED: Record<string, boolean> = {
+  todowrite_instructions: true,
+  todowrite_reminder: true,
+};
+
 export function shippedPreset(
   variant: AdreBehaviorVariant
 ): Record<string, boolean> {
-  if (variant === 'investigation') return {};
+  if (variant === 'investigation') return { ...INVESTIGATION_SHIPPED };
   return { ...FAST_SHIPPED };
 }
 
