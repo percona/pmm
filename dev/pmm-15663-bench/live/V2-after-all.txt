@@ -1,0 +1,15 @@
+== d/pmm-home?from=now-1h&to=now&var-node_name=All
+"grafana &matchAny=false&dashboardUID=pmm-home -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) (last_over_time(pmm_annotation_event{service_name=\"\",region=~\".*\",node_type=~\"container\",node_name=~\"(mysql_pmm_8_0_1|pmm-server|ps_pmm_8_4_1)\"}[$__interval] offset -$__interval)) -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V2-after-pmm-home-all.png
+== d/node-instance-overview?from=now-1h&to=now&var-node_name=All
+"grafana &matchAny=false&dashboardUID=node-instance-overview -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) (last_over_time(pmm_annotation_event{service_name=\"\",region=~\".*\",node_type=~\".*\",node_name=~\"(mysql_pmm_8_0_1|pmm-server|ps_pmm_8_4_1)\"}[$__interval] offset -$__interval)) -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V2-after-node-instance-overview-all.png
+== d/mysql-instance-overview?from=now-1h&to=now&var-node_name=All&var-service_name=All
+"grafana &matchAny=false&dashboardUID=mysql-instance-overview -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) (last_over_time(pmm_annotation_event{service_name=\"\",region=~\".*\",node_name=~\"(mysql_pmm_8_0_1|ps_pmm_8_4_1)\"}[$__interval] offset -$__interval)) or max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\".*\",cluster=~\".*\",replication_set=~\".*\",region=~\".*\",node_name=~\".+\",service_name=~\".+\",service_type=\"mysql\"}[$__interval] offset -$__interval)) -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\",\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\",\"A2 mysql service, made before upgrade (Service Name: mysql_pmm_8_0_1_68246)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V2-after-mysql-instance-overview-all.png

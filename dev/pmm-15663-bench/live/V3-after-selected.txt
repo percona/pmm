@@ -1,0 +1,35 @@
+== d/mysql-instance-summary?from=now-1h&to=now&var-service_name=ps_pmm_8_4_1_97709&viewPanel=92
+"grafana &matchAny=false&dashboardUID=mysql-instance-summary -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V3-mysql-summary-ps-panel.png
+== d/mysql-instance-summary?from=now-1h&to=now&var-service_name=mysql_pmm_8_0_1_68246
+"grafana &matchAny=false&dashboardUID=mysql-instance-summary -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A2 mysql service, made before upgrade (Service Name: mysql_pmm_8_0_1_68246)\"]"
+== d/node-instance-summary?from=now-1h&to=now&var-node_name=ps_pmm_8_4_1&viewPanel=2
+"grafana &matchAny=false&dashboardUID=node-instance-summary -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V3-node-summary-ps-panel.png
+== d/node-instance-overview?from=now-1h&to=now&var-node_name=mysql_pmm_8_0_1
+"grafana &matchAny=false&dashboardUID=node-instance-overview -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\"]"
+== d/pmm-home?from=now-1h&to=now&var-node_name=ps_pmm_8_4_1
+"grafana &matchAny=false&dashboardUID=pmm-home -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\"]"
+== d/mysql-instance-overview?from=now-1h&to=now&var-node_name=All&var-service_name=ps_pmm_8_4_1_97709
+"grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+grafana &matchAny=false&dashboardUID=mysql-instance-overview -> []
+vm -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\",\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\"]"
+== d/mysql-instance-overview?from=now-1h&to=now&var-node_name=ps_pmm_8_4_1&var-service_name=All
+"grafana &matchAny=false&dashboardUID=mysql-instance-overview -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\"]"
+== d/pmm-home?from=now-1h&to=now&var-node_name=All&viewPanel=62
+"grafana &matchAny=false&dashboardUID=pmm-home -> []
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A3 ps node, made before upgrade (Node Name: ps_pmm_8_4_1)\",\"A5 mysql node, made before upgrade (Node Name: mysql_pmm_8_0_1)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V2-home-all-panel.png

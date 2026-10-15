@@ -1,0 +1,14 @@
+== [env] d/mysql-instance-overview?from=now-1h&to=now&var-node_name=All&var-service_name=All
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A1 ps service, made before upgrade (Service Name: ps_pmm_8_4_1_97709)\"]"
+== [env] d/pmm-home?from=now-1h&to=now&var-node_name=All&viewPanel=62
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [null]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V4-envuser-home-panel.png
+== [team] d/mysql-instance-overview?from=now-1h&to=now&var-node_name=All&var-service_name=All
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A2 mysql service, made before upgrade (Service Name: mysql_pmm_8_0_1_68246)\"]"
+== [team] d/mysql-instance-summary?from=now-1h&to=now&var-service_name=mysql_pmm_8_0_1_68246&viewPanel=92
+grafana &tags=pmm_annotation&matchAny=true -> [\"A4 global, made before upgrade\"]
+vm -> [\"A2 mysql service, made before upgrade (Service Name: mysql_pmm_8_0_1_68246)\"]"
+shot /srv/runner/1/percona/pmm/dev/pmm-15663-bench/live/V5-teamuser-mysql-summary-panel.png
