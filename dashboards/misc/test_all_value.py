@@ -34,7 +34,7 @@ BOUNDED = {
     ('MongoDB/MongoDB_MMAPv1_Details.json', 'node_name'),
     ('MongoDB/MongoDB_Router_Summary.json', 'node_name'),
     ('MongoDB/MongoDB_Router_Summary.json', 'service_name'),
-    # Group Replication members only; this hidden variable is always All and feeds the annotation tag.
+    # Group Replication members only; this hidden variable is always All and feeds the scoped annotation expr.
     ('MySQL/MySQL_Group_Replication_Summary.json', 'service_name'),
     ('MySQL/MySQL_Instances_Compare.json', 'node_name'),
 }

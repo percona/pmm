@@ -4,7 +4,7 @@
 For each dashboard whose "PMM Annotations" entry is tagged $node_name, $service_name or $service:
 - "PMM Annotations" keeps only the "pmm_annotation" tag (global annotations);
 - "PMM Annotations: nodes and services" reads the pmm_annotation_event series with the label
-  filters the dashboard's panels use;
+  filters the dashboard's panels use, except variables derived from the service selection;
 - a hidden node_name_list is added where node series need it to follow the environment filter.
 
 Idempotent: a dashboard rewritten earlier keeps its scope through its existing scoped entry.
@@ -82,16 +82,29 @@ def prometheus_targets(panel):
 
 
 def panel_filters(dashboard, variables):
-    """Fleet labels the panels filter on: label -> variable name, from label="$var" or label=~"$var"."""
-    found = {}
+    """Fleet labels the panels filter on: label -> variable names, from label="$var" or label=~"$var"."""
+    found = collections.defaultdict(set)
     for panel in walk_panels(dashboard.get('panels', [])):
         for target in prometheus_targets(panel):
             for label, op, value in MATCHER.findall(target['expr']):
                 if op == '!=' or label not in SERVICE_LABELS:
                     continue
-                for name in (label, 'service') if label == 'service_name' else (label,):
+                names = (label, 'service', 'service_name_list') if label == 'service_name' else (label,)
+                for name in names:
                     if name in variables and re.search(VAR_REF.format(name=name), value):
-                        found.setdefault(label, name)
+                        found[label].add(name)
+    return found
+
+
+def descendants(variables, root):
+    """Variables whose query depends on $root, directly or through another variable."""
+    found, todo = set(), [root]
+    while todo:
+        parent = todo.pop()
+        for name, var in variables.items():
+            if name != root and name not in found and re.search(VAR_REF.format(name=parent), var_query(var)):
+                found.add(name)
+                todo.append(name)
     return found
 
 
@@ -220,7 +233,7 @@ def rewrite(dashboard):
         if not node:
             raise Unfit('node annotations without a node_name variable')
         matchers = ['service_name=""']
-        matchers += [f'{label}=~"${filters[label]}"' for label in NODE_LABELS if label in filters]
+        matchers += [f'{label}=~"${label}"' for label in NODE_LABELS if label in filters]
         if uses_node_list(variables):
             if 'node_name_list' not in variables:
                 lst = dashboard['templating']['list']
@@ -234,10 +247,18 @@ def rewrite(dashboard):
         service = 'service_name' if 'service_name' in variables else 'service' if 'service' in variables else None
         if not service:
             raise Unfit('service annotations without a service_name or service variable')
-        chosen = dict(filters)
-        chosen.setdefault('service_name', service)
+        # A variable derived from the service selection (node_name of the picked service) would hide
+        # the other services' annotations; $service_name_list carries filters the series lack (set).
+        derived = descendants(variables, service)
         matchers = ['service_name!=""']
-        matchers += [f'{label}=~"${chosen[label]}"' for label in SERVICE_LABELS if label in chosen]
+        for label in SERVICE_LABELS:
+            if label == 'service_name':
+                name = 'service_name_list' if 'service_name_list' in filters[label] else service
+            elif label in filters and label not in derived:
+                name = label
+            else:
+                continue
+            matchers.append(f'{label}=~"${name}"')
         stype = service_type(variables[service])
         if stype:
             matchers.append(f'service_type="{stype}"')

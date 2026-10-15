@@ -59,8 +59,30 @@ def first_variables(dashboard):
     return seen
 
 
+def base(name):
+    """The fleet variable a hidden <var>_list narrows."""
+    return name.removesuffix('_list') if name in ('node_name_list', 'service_name_list') else name
+
+
 def label_of(name):
-    return 'service_name' if name == 'service' else name
+    return 'service_name' if base(name) == 'service' else base(name)
+
+
+def var_query(var):
+    query = var.get('query')
+    return query.get('query', '') if isinstance(query, dict) else query or ''
+
+
+def descendants(variables, root):
+    """Variables whose query depends on $root, directly or through another variable."""
+    found, todo = set(), [root]
+    while todo:
+        parent = todo.pop()
+        for name, var in variables.items():
+            if name != root and name not in found and re.search(VAR_REF.format(name=parent), var_query(var)):
+                found.add(name)
+                todo.append(name)
+    return found
 
 
 def exprs(panels):
@@ -181,7 +203,10 @@ class TestScopedAnnotations(unittest.TestCase):
         """Each term filters on exactly the fleet labels the panels filter on, plus its own object.
 
         A hidden variable no panel uses would only hide annotations: on All without allValue
-        it expands to the listed values, which never match a series without that label.
+        it expands to the listed values, which never match a series without that label. The
+        service term also leaves out variables derived from the service selection (node_name of
+        the picked service would hide the other services), and reads $service_name_list where
+        the panels do, since that list carries filters the series lack (MongoDB "set").
         """
         bad = []
         for rel, dashboard, found in self.scoped():
@@ -198,19 +223,26 @@ class TestScopedAnnotations(unittest.TestCase):
                         bad.append(f'{rel}: {kind} term: unexpected matcher {label}{op}"{value}"')
                         continue
                     name = m.group(1)
-                    base = 'node_name' if name == 'node_name_list' else name
                     if name not in variables:
                         bad.append(f'{rel}: {kind} term: ${name} is not a variable')
-                    if label_of(base) != label:
+                    if label_of(name) != label:
                         bad.append(f'{rel}: {kind} term: {label} filtered by ${name}')
-                    got.add((label, base))
-                want = {(l, n) for l, n in filters if l in allowed}
+                    got.add((label, base(name)))
                 if kind == 'service':
-                    want |= {('service_name', n) for n in ('service_name', 'service') if n in variables}
+                    service = 'service_name' if 'service_name' in variables else 'service'
+                    derived = descendants(variables, service)
+                    want = {(l, base(n)) for l, n in filters
+                            if l in allowed and l != 'service_name' and base(n) not in derived}
+                    want.add(('service_name', service))
+                    scope = 'service_name_list' if ('service_name', 'service_name_list') in filters else service
+                    got_scope = [v for l, _, v in matchers if l == 'service_name']
+                    if got_scope != [f'${scope}']:
+                        bad.append(f'{rel}: service term filters service_name on {got_scope}, want ${scope}')
                 else:
+                    want = {(l, base(n)) for l, n in filters if l in allowed}
                     want.add(('node_name', 'node_name'))
                 if got != want:
-                    bad.append(f'{rel}: {kind} term filters on {sorted(got)}, panels on {sorted(want)}')
+                    bad.append(f'{rel}: {kind} term filters on {sorted(got)}, want {sorted(want)}')
         self.assertEqual(bad, [], '\n'.join(bad))
 
     def test_node_list_used(self):

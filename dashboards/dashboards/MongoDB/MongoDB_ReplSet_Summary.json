@@ -30,13 +30,13 @@
             {
                 "datasource": "Metrics",
                 "enable": true,
-                "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",service_type=\"mongodb\"}[$__interval] offset -$__interval))",
+                "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name_list\",service_type=\"mongodb\"}[$__interval] offset -$__interval))",
                 "hide": false,
                 "iconColor": "#e0752d",
                 "name": "PMM Annotations: nodes and services",
                 "tagKeys": "tags",
                 "target": {
-                    "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",service_type=\"mongodb\"}[$__interval] offset -$__interval))",
+                    "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name_list\",service_type=\"mongodb\"}[$__interval] offset -$__interval))",
                     "interval": "",
                     "refId": "Anno"
                 },
