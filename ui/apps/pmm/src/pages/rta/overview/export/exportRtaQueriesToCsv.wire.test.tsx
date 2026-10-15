@@ -3,7 +3,8 @@ import { generateCsv, mkConfig } from 'export-to-csv';
 import { api } from 'api/api';
 import { useRealtimeQueries } from 'hooks/api/useRealtime';
 import { wrapWithQueryProvider } from 'utils/testUtils';
-import { collectCsvColumns, mapQueryToCsvRow } from './exportRtaQueriesToCsv';
+import { collectCsvColumns } from 'utils/csv.utils';
+import { mapQueryToCsvRow, RTA_CSV_COLUMNS } from './exportRtaQueriesToCsv';
 
 vi.mock('contexts/user', () => ({
   useUser: () => ({ user: { id: 1 } }),
@@ -80,7 +81,7 @@ describe('rta csv export, from the wire', () => {
     await waitFor(() => expect(result.current.data).toHaveLength(2));
 
     const rows = (result.current.data ?? []).map(mapQueryToCsvRow);
-    const columns = collectCsvColumns(rows);
+    const columns = collectCsvColumns(rows, RTA_CSV_COLUMNS);
     const csv = String(generateCsv(mkConfig({ columnHeaders: columns }))(rows));
 
     // the agreed columns keep their names and their order

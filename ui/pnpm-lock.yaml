@@ -75,8 +75,8 @@ importers:
         specifier: ^7.5.0
         version: 7.29.4(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@mui/material@7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@mui/system@7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(date-fns@4.1.0)(moment@2.30.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@percona/peak-ui':
-        specifier: 1.0.28
-        version: 1.0.28(46f3b00c55de1f105bc9f3068b58f1a0)
+        specifier: 1.0.29
+        version: 1.0.29(46f3b00c55de1f105bc9f3068b58f1a0)
       '@pmm-extensions/api':
         specifier: workspace:*
         version: link:../../packages/extensions/api
@@ -2130,8 +2130,8 @@ packages:
       react-dom: ^18.3.1
       react-hook-form: ^7.50.0
 
-  '@percona/peak-ui@1.0.28':
-    resolution: {integrity: sha512-LWNAZ705it9qu6DtWiKT4lobzc7YSIGji4j8c4g+UfPqUQP/+CqHfjVxOfvc2ANq3i4jE84SO0WZCgs3DZCQyA==}
+  '@percona/peak-ui@1.0.29':
+    resolution: {integrity: sha512-nZsxoqVRe7p9Nc4g1cCqaChwWnLUUjhAGiHwKob6HIITp3ccXyYBlM9haSj33QsDV6u8dEqEqdANQQfJtJpEcQ==}
     peerDependencies:
       '@emotion/react': ^11.11.4
       '@emotion/styled': ^11.11.5
@@ -9569,7 +9569,7 @@ snapshots:
       react-hook-form: 7.84.0(react@19.2.8)
       react-is: 18.3.1
 
-  '@percona/peak-ui@1.0.28(46f3b00c55de1f105bc9f3068b58f1a0)':
+  '@percona/peak-ui@1.0.29(46f3b00c55de1f105bc9f3068b58f1a0)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.18)(react@19.2.8)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
