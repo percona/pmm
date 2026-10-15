@@ -27,6 +27,7 @@ import {
 import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import {
+  MRT_ExpandAllButton,
   MRT_ExpandButton,
   MaterialReactTable,
   useMaterialReactTable,
@@ -233,7 +234,9 @@ function useColumns(
       },
       {
         id: 'last_success_at',
-        size: 140,
+        // 130, not 140: the six default columns then fit the ~1056px the page gets
+        // at 1440 with the nav open, rather than overflowing it by 4px.
+        size: 130,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
         // never answered next to the oldest one rather than at the end.
@@ -553,15 +556,20 @@ export const FleetServicesTab = () => {
     displayColumnDefOptions: {
       'mrt-row-expand': {
         size: 60,
-        // Just the control: the "remove" mode's default header lists the grouped
-        // columns' names, which the select already shows.
-        Header: () => null,
+        // Just the expand-all control: the "remove" mode's default header lists the
+        // grouped columns' names, which the select already shows.
+        Header: ({ table }) => <MRT_ExpandAllButton table={table} />,
         Cell: ({ row, table, staticRowIndex }) => {
           if (!row.groupingColumnId) {
             return null;
           }
           return (
-            <Stack direction="row" alignItems="center" gap={0.5}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={0.5}
+              sx={{ width: 'max-content' }}
+            >
               <MRT_ExpandButton
                 row={row}
                 table={table}
@@ -577,10 +585,18 @@ export const FleetServicesTab = () => {
           );
         },
         // A group header is wider than the expand column; its row has nothing in
-        // the other cells, so it runs across them.
+        // the other cells, so it runs across them - above them, or their backgrounds
+        // paint over it.
         muiTableBodyCellProps: ({ row }) =>
           row.getIsGrouped()
-            ? { sx: { overflow: 'visible', whiteSpace: 'nowrap' } }
+            ? {
+                sx: {
+                  overflow: 'visible',
+                  whiteSpace: 'nowrap',
+                  position: 'relative',
+                  zIndex: 1,
+                },
+              }
             : {},
       },
     },

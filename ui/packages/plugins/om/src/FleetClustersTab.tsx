@@ -328,6 +328,9 @@ const GroupHeader = ({
       direction="row"
       alignItems="center"
       gap={2}
+      // Its own width, not the expand column's: squeezed into that, the counts
+      // collapse to nothing.
+      sx={{ width: 'max-content' }}
       data-testid="om-cluster-group"
     >
       <Stack direction="row" alignItems="center" gap={0.5}>
@@ -500,10 +503,18 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
             />
           ),
         // A group header is wider than the expand column; its row has nothing in
-        // the other cells, so it runs across them.
+        // the other cells, so it runs across them - above them, or their backgrounds
+        // paint over it.
         muiTableBodyCellProps: ({ row }) =>
           row.getIsGrouped()
-            ? { sx: { overflow: 'visible', whiteSpace: 'nowrap' } }
+            ? {
+                sx: {
+                  overflow: 'visible',
+                  whiteSpace: 'nowrap',
+                  position: 'relative',
+                  zIndex: 1,
+                },
+              }
             : {},
       },
     },
