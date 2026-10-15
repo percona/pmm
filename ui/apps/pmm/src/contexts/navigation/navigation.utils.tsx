@@ -59,6 +59,7 @@ import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
+import { PreviewChip } from 'components/preview-chip';
 import { HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
@@ -336,10 +337,14 @@ export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
   children.length ? [{ ...section, children }] : [];
 
 export const addExtensionsApps = (): NavItem[] =>
-  addSection(NAV_MANAGEMENT, [
-    NAV_EXTENSIONS_MYSQL_BACKUPS,
-    NAV_EXTENSIONS_ATW,
-  ]);
+  addSection(
+    {
+      ...NAV_MANAGEMENT,
+      badge: <PreviewChip level="tech" />,
+      badgeAlwaysVisible: true,
+    },
+    [NAV_EXTENSIONS_MYSQL_BACKUPS, NAV_EXTENSIONS_ATW]
+  );
 
 /**
  * OM's navigation, deliberately not part of `addExtensionsApps`. Shown inside the

@@ -130,7 +130,10 @@ func redirectToTestServer(t *testing.T, srv *httptest.Server) {
 	runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
 	require.True(t, ok)
 
-	transport, ok := runtime.Transport.(*http.Transport)
+	retry, ok := runtime.Transport.(interface{ Unwrap() http.RoundTripper })
+	require.True(t, ok)
+
+	transport, ok := retry.Unwrap().(*http.Transport)
 	require.True(t, ok)
 
 	transport.DialContext = func(ctx context.Context, network, _ string) (net.Conn, error) {
