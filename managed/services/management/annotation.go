@@ -110,6 +110,12 @@ func (s *ManagementService) RemoveAnnotation(ctx context.Context, req *managemen
 
 	err = s.grafanaClient.DeleteAnnotation(ctx, req.AnnotationId, authorization)
 	if errors.Is(err, services.ErrAnnotationNotFound) {
+		// An annotation deleted through Grafana's API keeps its series until the sync job runs; deleting is idempotent.
+		storeErr := s.annotationStore.Delete(ctx, []int64{req.AnnotationId})
+		if storeErr != nil {
+			s.l.WithField("annotation_id", req.AnnotationId).WithError(storeErr).Warn("Failed to delete the series of an annotation Grafana does not have.")
+		}
+
 		return nil, status.Errorf(codes.NotFound, "Annotation with ID %d not found.", req.AnnotationId)
 	}
 	if err != nil {

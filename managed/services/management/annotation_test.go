@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -477,12 +479,31 @@ func TestAnnotations(t *testing.T) {
 		ctx, s, _, grafanaClient, store, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(services.ErrAnnotationNotFound).Once()
+		notFound := grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(services.ErrAnnotationNotFound).Once()
+		store.On("Delete", ctx, []int64{17}).Return(nil).Once().NotBefore(notFound)
+
+		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, "Annotation with ID 17 not found."), err)
+	})
+
+	t.Run("Remove unknown annotation store failure", func(t *testing.T) {
+		ctx, s, _, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		l, hook := logrustest.NewNullLogger()
+		s.l = logrus.NewEntry(l)
+
+		notFound := grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(services.ErrAnnotationNotFound).Once()
+		store.On("Delete", ctx, []int64{17}).Return(errors.New("victoriametrics is down")).Once().NotBefore(notFound)
 
 		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, "Annotation with ID 17 not found."), err)
 
-		store.AssertNotCalled(t, "Delete", mock.Anything, mock.Anything)
+		require.Len(t, hook.AllEntries(), 1)
+		entry := hook.LastEntry()
+		assert.Equal(t, logrus.WarnLevel, entry.Level)
+		assert.Equal(t, int64(17), entry.Data["annotation_id"])
+		assert.ErrorContains(t, entry.Data[logrus.ErrorKey].(error), "victoriametrics is down")
 	})
 
 	t.Run("Remove Grafana failure", func(t *testing.T) {
