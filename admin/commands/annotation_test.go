@@ -25,10 +25,22 @@ import (
 func TestAnnotationResult(t *testing.T) {
 	t.Parallel()
 
-	res := &annotationResult{AnnotationID: "17"}
-	assert.Equal(t, "Annotation added.\nAnnotation ID: 17\n", res.String())
+	t.Run("with ID", func(t *testing.T) {
+		t.Parallel()
 
-	data, err := json.Marshal(res)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"annotation_id":"17"}`, string(data))
+		res := &annotationResult{AnnotationID: "17"}
+		assert.Equal(t, "Annotation added.\nAnnotation ID: 17\n", res.String())
+
+		data, err := json.Marshal(res)
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"annotation_id":"17"}`, string(data))
+	})
+
+	t.Run("without ID", func(t *testing.T) {
+		t.Parallel()
+
+		// A server older than PMM-15663 returns no annotation ID.
+		res := &annotationResult{}
+		assert.Equal(t, "Annotation added.\n", res.String())
+	})
 }

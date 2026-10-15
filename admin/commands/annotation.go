@@ -29,7 +29,7 @@ import (
 
 var annotationResultT = ParseTemplate(`
 Annotation added.
-Annotation ID: {{ .AnnotationID }}
+{{ if .AnnotationID }}Annotation ID: {{ .AnnotationID }}{{ end }}
 `)
 
 // annotationResult is a result of annotation command.
