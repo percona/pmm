@@ -31838,12 +31838,12 @@
                   "x-order": 9
                 },
                 "admin_username": {
-                  "description": "The customer's own MongoDB administrator, created with the root role.\nLeft empty, the install creates no administrator.",
+                  "description": "MongoDB administrator to create with the root role; empty creates none.",
                   "type": "string",
                   "x-order": 10
                 },
                 "admin_password": {
-                  "description": "The administrator's password; needs admin_username. Left empty, PMM generates one and returns it once.\nIt must be valid under SASLprep, which MongoDB applies to SCRAM-SHA-256 passwords.",
+                  "description": "Administrator's password, valid under SASLprep; requires admin_username.\nEmpty means PMM generates one and returns it in generated_admin_password.",
                   "type": "string",
                   "x-order": 11
                 }
@@ -31855,7 +31855,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). The run's MongoDB users are created only\nonce every host is up, minutes after this response; PMM keeps their\ncredentials encrypted in its own Postgres (PMM-15347/questions.md Q7).",
+              "description": "TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.",
               "type": "object",
               "properties": {
                 "run_id": {
@@ -31864,7 +31864,7 @@
                   "x-order": 0
                 },
                 "generated_admin_password": {
-                  "description": "The administrator password PMM generated, set only when the request named admin_username without\nadmin_password. PMM deletes its copy once the install no longer needs it, so this response is the\nonly place to read it.",
+                  "description": "Password PMM generated when admin_username came without admin_password.\nOnly returned here: PMM deletes its copy once the install no longer needs it.",
                   "type": "string",
                   "x-order": 1
                 }

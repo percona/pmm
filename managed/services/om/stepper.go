@@ -327,7 +327,7 @@ func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*model
 	return created, nil
 }
 
-// newBootstrapSecret generates the monitoring user's password and the keyFile, for the caller to assign a run.
+// newBootstrapSecret generates a run's monitoring user password and keyFile.
 func newBootstrapSecret() (*models.OmBootstrapSecret, error) {
 	password, err := generateBootstrapSecret(bootstrapPasswordBytes)
 	if err != nil {

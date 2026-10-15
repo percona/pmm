@@ -4088,11 +4088,10 @@ type TriggerHostBootstrapRequest struct {
 	// named gets the same default, rather than its proto3 zero value; see
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]*BootstrapMemberConfig `protobuf:"bytes,10,rep,name=member_configs,json=memberConfigs,proto3" json:"member_configs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// The customer's own MongoDB administrator, created with the root role.
-	// Left empty, the install creates no administrator.
+	// MongoDB administrator to create with the root role; empty creates none.
 	AdminUsername string `protobuf:"bytes,11,opt,name=admin_username,json=adminUsername,proto3" json:"admin_username,omitempty"`
-	// The administrator's password; needs admin_username. Left empty, PMM generates one and returns it once.
-	// It must be valid under SASLprep, which MongoDB applies to SCRAM-SHA-256 passwords.
+	// Administrator's password, valid under SASLprep; requires admin_username.
+	// Empty means PMM generates one and returns it in generated_admin_password.
 	AdminPassword string `protobuf:"bytes,12,opt,name=admin_password,json=adminPassword,proto3" json:"admin_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4315,21 +4314,13 @@ func (x *BootstrapMemberConfig) GetBindIp() string {
 	return ""
 }
 
-// TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
-//
-// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
-// off. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not
-// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
-// here (PMM-15347/plan.md §4 item 9). The run's MongoDB users are created only
-// once every host is up, minutes after this response; PMM keeps their
-// credentials encrypted in its own Postgres (PMM-15347/questions.md Q7).
+// TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
 type TriggerHostBootstrapResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
 	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	// The administrator password PMM generated, set only when the request named admin_username without
-	// admin_password. PMM deletes its copy once the install no longer needs it, so this response is the
-	// only place to read it.
+	// Password PMM generated when admin_username came without admin_password.
+	// Only returned here: PMM deletes its copy once the install no longer needs it.
 	GeneratedAdminPassword string `protobuf:"bytes,2,opt,name=generated_admin_password,json=generatedAdminPassword,proto3" json:"generated_admin_password,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache

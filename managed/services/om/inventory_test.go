@@ -170,8 +170,7 @@ func (s *extensionsStub) service(t *testing.T) *Service {
 	return svc.WithProbeSource(s.server.URL, "test-token")
 }
 
-// bootstrapService serves both apps from the stub, backed by a test database for the secrets a trigger
-// stores. Not parallel-safe: storeTestDB recreates one fixed-name database.
+// bootstrapService serves both apps from the stub with a test database; not parallel-safe.
 func (s *extensionsStub) bootstrapService(t *testing.T) *Service {
 	t.Helper()
 
@@ -1753,8 +1752,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 }
 
-// validateTrigger runs a valid request, changed by edit, through the gRPC validation interceptor
-// pmm-managed installs, since proto validation does not run in the service.
+// validateTrigger runs a valid request, changed by edit, through pmm-managed's gRPC validation interceptor.
 func validateTrigger(t *testing.T, edit func(*omv1.TriggerHostBootstrapRequest)) error {
 	t.Helper()
 

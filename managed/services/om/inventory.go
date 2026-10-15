@@ -457,7 +457,7 @@ func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
 	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
 }
 
-// abandonRun cancels a run PMM cannot carry through, best-effort: an app too old for a setting may lack :cancel too.
+// abandonRun cancels a run PMM cannot carry through, best-effort.
 func (s *Service) abandonRun(ctx context.Context, runID, reason string) {
 	s.l.Warnf("bootstrap run %s: cancelling it: %s", runID, reason)
 	_, err := s.bootstrap.cancelRun(ctx, runID)
@@ -466,8 +466,7 @@ func (s *Service) abandonRun(ctx context.Context, runID, reason string) {
 	}
 }
 
-// newAdminSecret returns a run's secret carrying the requested administrator, nil when none is named,
-// and the password PMM generated for it.
+// newAdminSecret returns a secret for the named administrator (nil if none) and any password PMM generated.
 func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapSecret, string, error) {
 	username, password := req.GetAdminUsername(), req.GetAdminPassword()
 	if username == "" {

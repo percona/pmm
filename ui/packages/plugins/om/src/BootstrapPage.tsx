@@ -458,7 +458,7 @@ export const BootstrapPage = () => {
   });
   const nameError = replicaSetNameError(replicaSetName);
   const usernameError = adminUsernameError(adminUsername);
-  // Each field is judged once something is typed in it, so an untouched field does not start out red.
+  // Judged once typed, so an untouched field does not start out red.
   const passwordError =
     passwordMode === 'enter' && adminPassword !== ''
       ? adminPasswordError(adminPassword)

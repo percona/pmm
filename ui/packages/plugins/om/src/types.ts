@@ -564,9 +564,6 @@ export interface OmBootstrapMemberConfig {
 /**
  * A bootstrap run accepted by the app, from
  * `POST /v1/om/inventory/hosts:bootstrap`.
- *
- * The users themselves are created only once every host is up, minutes after
- * this response - see `run_id`'s own comment for how to watch it happen.
  */
 export interface OmHostBootstrapAccepted {
   /** The om_bootstrap run's id - pass to `useBootstrapRun` to watch its progress. */
