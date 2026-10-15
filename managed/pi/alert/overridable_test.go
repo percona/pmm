@@ -142,15 +142,28 @@ func TestValidateOverridableRejectsParamComparedAgainstAnExpression(t *testing.T
 	t.Parallel()
 
 	template := overridableTemplate()
+	template.Queries = append(template.Queries, TemplateQuery{RefID: "M", Expr: "up"})
 	template.Expressions = []TemplateExpression{
 		{RefID: "B", Type: "math", Expression: "$A * 2"},
-		{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
+		// $B is the nearest step, so the param must not be paired with the earlier query $M.
+		{RefID: "C", Type: "math", Expression: "$M > 0 && $B > [[ .threshold ]]"},
 	}
 	template.Condition = "C"
 
 	err := template.Validate()
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "not compared against any query in expression C")
+	assert.Contains(t, err.Error(), "compared against expression $B, but can only be compared against a MetricsQL query")
+}
+
+func TestValidateOverridableRejectsTokenInQuery(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Queries[0].Expr = "up > [[ .threshold ]]"
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "overridable parameter 'threshold' is used in query A, but can only be used in expressions")
 }
 
 func TestValidateOverridableRequiresBareComparand(t *testing.T) {

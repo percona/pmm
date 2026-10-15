@@ -32,7 +32,6 @@ const (
 	// both the datasource "type" and "uid" to be this literal "__expr__" value.
 	grafanaExprDatasourceUID = "__expr__"
 	queryRelativeFromSeconds = 600
-	expressionTypeMath       = "math"
 	queryIntervalMs          = 1000
 	maxDataPoints            = 43200
 
@@ -119,6 +118,10 @@ func buildMultiExpressionRuleData(
 	data := make([]services.Data, 0, len(template.Queries)+len(template.Expressions)+len(injections))
 
 	for _, query := range template.Queries {
+		if query.Datasource == alert.ClickHouse {
+			return grafanaRuleData{}, fmt.Errorf("query %s: ClickHouse queries are not supported yet", query.RefID)
+		}
+
 		expr, err := fillAndFilterExpr(query.Expr, params, filters)
 		if err != nil {
 			return grafanaRuleData{}, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
@@ -142,6 +145,10 @@ func buildMultiExpressionRuleData(
 	}
 
 	for _, expression := range template.Expressions {
+		if expression.Type != alert.ExpressionMath {
+			return grafanaRuleData{}, fmt.Errorf("expression %s: %s expressions are not supported yet", expression.RefID, expression.Type)
+		}
+
 		// Swap the parameter tokens for their threshold ref IDs before filling, so the
 		// default is never baked into the rule.
 		body := swapOverridableTokens(expression.Expression, injections)
@@ -214,7 +221,7 @@ func newPromQueryData(metricsDatasourceUID, refID, expr string) (services.Data, 
 
 func newMathExpressionData(refID, expression string) (services.Data, error) {
 	model, err := json.Marshal(mathExpressionModel{
-		Type:       expressionTypeMath,
+		Type:       alert.ExpressionMath,
 		Expression: expression,
 		RefID:      refID,
 		// Grafana's expression datasource identifies itself by the same sentinel
