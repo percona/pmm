@@ -1826,6 +1826,41 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	return nil
 }
 
+// updatePMMServerAgentsCredentials sets the credentials of the Agents that monitor PMM Server's own
+// PostgreSQL to those pmm-managed connects to it with. They are copied when the Agents are created, and
+// would go stale once the password changes, as it does when it is rotated in Vault.
+func updatePMMServerAgentsCredentials(q *reform.Querier, params SetupDBParams) error {
+	service, err := FindServiceByName(q, PMMServerPostgreSQLServiceName)
+	if status.Code(err) == codes.NotFound {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	agents, err := FindAgents(q, AgentFilters{PMMAgentID: PMMServerAgentID, ServiceID: service.ServiceID})
+	if err != nil {
+		return err
+	}
+
+	for _, agent := range agents {
+		if agent.AgentType != PostgresExporterType && agent.AgentType != QANPostgreSQLPgStatementsAgentType {
+			continue
+		}
+		if pointer.GetString(agent.Username) == params.Username && pointer.GetString(agent.Password) == params.Password {
+			continue
+		}
+
+		agent.Username = pointer.ToStringOrNil(params.Username)
+		agent.Password = pointer.ToStringOrNil(params.Password)
+		err = UpdateAgent(q, agent)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, ContainerNodeType, &CreateNodeParams{
@@ -1836,7 +1871,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
 			// this fixture was already added previously
-			return nil
+			return updatePMMServerAgentsCredentials(q, params)
 		}
 		return err
 	}

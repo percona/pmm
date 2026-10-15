@@ -17,10 +17,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -58,16 +60,20 @@ func vaultConfigFromEnv(getenv func(string) string) vault.Config {
 	}
 }
 
-// vaultEnv writes to out a shell `export` command for every PMM_* and GF_* variable of environ whose
-// value is a vault:<path>#<key> reference, with the value read from Vault. The entrypoint of PMM Server
-// evaluates them before anything reads those variables. The PMM_VAULT_* variables configure Vault itself
-// and are never resolved.
+// vaultEnvPrefixes are the prefixes of the variables that may be Vault references: those of PMM Server,
+// Grafana, and the VictoriaMetrics components, whose credentials an HA deployment sets.
+var vaultEnvPrefixes = []string{"PMM_", "GF_", "VM_", "VMAGENT_"} //nolint:gochecknoglobals
+
+// vaultEnv writes to out a shell `export` command for every variable of environ with one of
+// vaultEnvPrefixes whose value is a vault:<path>#<key> reference, with the value read from Vault. The
+// entrypoint of PMM Server evaluates them before anything reads those variables. The PMM_VAULT_*
+// variables configure Vault itself and are never resolved.
 func vaultEnv(ctx context.Context, cfg vault.Config, environ []string, out io.Writer) error {
 	var refs [][2]string
 	for _, kv := range environ {
 		name, value, _ := strings.Cut(kv, "=")
-		if !vault.IsRef(value) || strings.HasPrefix(name, "PMM_VAULT_") ||
-			(!strings.HasPrefix(name, "PMM_") && !strings.HasPrefix(name, "GF_")) {
+		hasPrefix := slices.ContainsFunc(vaultEnvPrefixes, func(prefix string) bool { return strings.HasPrefix(name, prefix) })
+		if !vault.IsRef(value) || !hasPrefix || strings.HasPrefix(name, "PMM_VAULT_") {
 			continue
 		}
 		if !envNameRE.MatchString(name) {
@@ -105,6 +111,36 @@ func vaultEnv(ctx context.Context, cfg vault.Config, environ []string, out io.Wr
 // shellQuote quotes s for a POSIX shell: inside single quotes only the single quote itself needs escaping.
 func shellQuote(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+}
+
+// vaultPutCommand is the argument that makes pmm-managed-init store a secret given on stdin in Vault,
+// under the vault:<path>#<key> reference that follows it.
+const vaultPutCommand = "vault-put"
+
+// vaultPut stores the value read from in under the vault:<path>#<key> reference ref. A single trailing
+// newline is not part of the value.
+func vaultPut(ctx context.Context, cfg vault.Config, ref string, in io.Reader) error {
+	if !cfg.Enabled() {
+		return errors.New("PMM_VAULT_ADDRESS is not set")
+	}
+
+	b, err := io.ReadAll(in)
+	if err != nil {
+		return err
+	}
+
+	client, err := vault.New(cfg)
+	if err != nil {
+		return err
+	}
+	return client.WriteRef(ctx, ref, strings.TrimSuffix(string(b), "\n"))
+}
+
+func runVaultPut(ref string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), vaultEnvTimeout)
+	defer cancel()
+
+	return vaultPut(ctx, vaultConfigFromEnv(os.Getenv), ref, os.Stdin)
 }
 
 func runVaultEnv() error {

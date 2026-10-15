@@ -74,6 +74,20 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("Vault and pmm-agent env variables are neither parsed nor logged", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_VAULT_ADDRESS=https://vault:8200", "PMM_VAULT_TOKEN=hvs.secret", "PMM_VAULT_SECRET_ID=secret-id",
+			"PMM_AGENT_VAULT_TOKEN=hvs.agent-secret", "PMM_AGENT_SERVER_PASSWORD=glsa_token",
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("AWS SDK env variables", func(t *testing.T) {
 		t.Parallel()
 

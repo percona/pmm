@@ -340,6 +340,12 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
+			// skip the Vault settings of PMM Server and of its pmm-agent, which hold credentials, and the
+			// rest of the pmm-agent settings: the unknown ones are logged with their values
+			if strings.HasPrefix(k, "PMM_VAULT_") || strings.HasPrefix(k, "PMM_AGENT_") {
+				continue
+			}
+
 			// skip PMM HA environment variables
 			if strings.HasPrefix(k, "PMM_HA_") {
 				continue

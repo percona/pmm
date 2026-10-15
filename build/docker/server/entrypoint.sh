@@ -75,9 +75,9 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
     echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
 
-# Replace the PMM_* and GF_* variables given as vault:<path>#<key> references with the secrets they point to,
-# before anything reads them. The credentials of Vault itself are dropped once they are used, so that
-# supervisord's children do not inherit them.
+# Replace the PMM_*, GF_*, VM_* and VMAGENT_* variables given as vault:<path>#<key> references with the
+# secrets they point to, before anything reads them. The credentials of Vault itself are dropped once they
+# are used, so that supervisord's children do not inherit them.
 if [ -n "$PMM_VAULT_ADDRESS" ]; then
     declare VAULT_EXPORTS
     if ! VAULT_EXPORTS=$(pmm-managed-init vault-env); then

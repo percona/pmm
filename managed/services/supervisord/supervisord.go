@@ -306,7 +306,9 @@ environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
 	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+	{{- if .ClickhousePassword}}
 	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+	{{- end}}
 
 
 autorestart = true
@@ -332,7 +334,9 @@ environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
     PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    {{- if .PostgresDBPassword}}
     PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    {{- end}}
     PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
@@ -340,7 +344,9 @@ environment =
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_DATASOURCE_USER="{{ .ClickhouseDatasourceUser }}",
+    {{- if .ClickhouseDatasourcePassword}}
     PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
+    {{- end}}
     {{- if .PMMServerHost}}
     GF_SERVER_DOMAIN="{{ .PMMServerHost }}",
     {{- end}}
@@ -413,15 +419,27 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
+// defaultUnlessInherited returns def unless the environment variable name is set, and an empty string,
+// which leaves the variable out of the configuration, if it is. The programs inherit the environment of
+// supervisord, so a credential set there is not to be written to a configuration file on disk as well:
+// it may come from Vault, see pmm-managed-init vault-env.
+func defaultUnlessInherited(name, def string) string {
+	_, ok := os.LookupEnv(name)
+	if ok {
+		return ""
+	}
+	return def
+}
+
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	clickhousePassword := defaultUnlessInherited("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	clickhouseDatasourceUser := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_USER", defaultClickhouseDatasourceUser)
-	clickhouseDatasourcePassword := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", defaultClickhouseDatasourcePassword)
+	clickhouseDatasourcePassword := defaultUnlessInherited("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", defaultClickhouseDatasourcePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -493,7 +511,7 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
-	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
+	templateParams["PostgresDBPassword"] = defaultUnlessInherited("PMM_POSTGRES_DBPASSWORD", s.pgParams.DBPassword)
 	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath

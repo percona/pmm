@@ -50,6 +50,15 @@ func main() {
 		}
 		return
 	}
+
+	if len(os.Args) == 3 && os.Args[1] == vaultPutCommand {
+		err := runVaultPut(os.Args[2])
+		if err != nil {
+			logrus.Errorf("Failed to store the secret in Vault: %s.", err)
+			os.Exit(1)
+		}
+		return
+	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))

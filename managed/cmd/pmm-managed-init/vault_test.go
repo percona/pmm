@@ -59,6 +59,7 @@ func TestVaultEnv(t *testing.T) {
 		err := vaultEnv(t.Context(), cfg, []string{
 			"PMM_ADMIN_PASSWORD=vault:secret/data/pmm-server#admin_password",
 			"GF_DATABASE_PASSWORD=vault:secret/data/pmm-server#clickhouse_password",
+			"VMAGENT_remoteWrite_basicAuth_password=vault:secret/data/pmm-server#clickhouse_password",
 			"PMM_DEBUG=1",
 			"PMM_VAULT_TOKEN_FILE=vault:not/resolved#key",
 			"OTHER=vault:not/resolved#key",
@@ -69,7 +70,8 @@ func TestVaultEnv(t *testing.T) {
 		b, err := exec.CommandContext(t.Context(), "bash", "-c", script).Output()
 		require.NoError(t, err)
 		assert.Equal(t, tricky+"|ch", string(b))
-		assert.Equal(t, 2, strings.Count(out.String(), "export "))
+		assert.Equal(t, 3, strings.Count(out.String(), "export "))
+		assert.Contains(t, out.String(), "export VMAGENT_remoteWrite_basicAuth_password='ch'\n")
 	})
 
 	t.Run("NoReferences", func(t *testing.T) {
@@ -95,4 +97,34 @@ func TestVaultEnv(t *testing.T) {
 		require.EqualError(t, err, "failed to read PMM_ADMIN_PASSWORD from Vault: vault secret secret/data/pmm-server has no key nope")
 		assert.Empty(t, out.String())
 	})
+}
+
+func TestVaultPut(t *testing.T) {
+	t.Parallel()
+
+	var written map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Header.Get("X-Vault-Token") != "root":
+			w.WriteHeader(http.StatusForbidden)
+		case r.URL.Path == "/v1/sys/internal/ui/mounts/secret/data/pmm-server":
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"type": "kv", "options": map[string]any{"version": "2"}}})
+		case r.Method == http.MethodGet:
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": map[string]any{"data": map[string]any{"admin_password": "old", "other": "kept"}, "metadata": map[string]any{}},
+			})
+		default:
+			_ = json.NewDecoder(r.Body).Decode(&written)
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	t.Cleanup(srv.Close)
+
+	cfg := vault.Config{Address: srv.URL, Token: "root"}
+	err := vaultPut(t.Context(), cfg, "vault:secret/data/pmm-server#admin_password", strings.NewReader("n3w pass\n"))
+	require.NoError(t, err)
+	assert.Equal(t, map[string]any{"data": map[string]any{"admin_password": "n3w pass", "other": "kept"}}, written)
+
+	err = vaultPut(t.Context(), vault.Config{}, "vault:secret/data/pmm-server#admin_password", strings.NewReader("x"))
+	require.EqualError(t, err, "PMM_VAULT_ADDRESS is not set")
 }

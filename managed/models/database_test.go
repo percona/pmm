@@ -21,10 +21,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/lib/pq/pqerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -558,4 +561,30 @@ func TestDatabaseMigrations(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	})
+}
+
+func TestPMMServerAgentsFollowTheDatabaseCredentials(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	// A later start with other credentials, such as a password rotated in Vault.
+	_, err := models.SetupDB(t.Context(), sqlDB, models.SetupDBParams{
+		Address:       models.DefaultPostgreSQLAddr,
+		Name:          "pmm-managed-dev",
+		Username:      "pmm-managed",
+		Password:      "rotated",
+		SetupFixtures: models.SetupFixtures,
+	})
+	require.NoError(t, err)
+
+	service, err := models.FindServiceByName(db.Querier, models.PMMServerPostgreSQLServiceName)
+	require.NoError(t, err)
+	agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: service.ServiceID})
+	require.NoError(t, err)
+	require.Len(t, agents, 2)
+	for _, agent := range agents {
+		assert.Equal(t, "pmm-managed", pointer.GetString(agent.Username), agent.AgentType)
+		assert.Equal(t, "rotated", pointer.GetString(agent.Password), agent.AgentType)
+	}
 }
