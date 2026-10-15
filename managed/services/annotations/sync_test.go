@@ -40,7 +40,8 @@ const (
 FROM annotation a
 JOIN annotation_tag at ON at.annotation_id = a.id
 JOIN tag t ON t.id = at.tag_id
-WHERE a.org_id = 1 AND a.alert_id = 0 AND a.epoch >= $1`
+WHERE a.org_id = 1 AND a.alert_id = 0 AND a.epoch >= $1
+ORDER BY a.id, t.key, t.value`
 	testExistingQuery = `SELECT id FROM annotation WHERE id = ANY($1)`
 )
 
