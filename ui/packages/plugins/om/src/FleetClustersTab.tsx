@@ -15,11 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useId, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Box,
-  ButtonBase,
-  Collapse,
   LinearProgress,
   Stack,
   Table,
@@ -31,11 +29,15 @@ import {
   Typography,
 } from '@mui/material';
 import { EmptyState } from './components/EmptyState';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  MRT_ExpandAllButton,
+  MRT_ExpandButton,
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  type MRT_ExpandedState,
+  type MRT_Row,
+  type MRT_TableInstance,
 } from 'material-react-table';
 import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { NESTED_TABLE_WRAPPER } from './nestedTable';
@@ -45,23 +47,22 @@ import { MemberState } from './components/MemberState';
 import { ServiceLink } from './components/ServiceLink';
 import { Duration } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
+import {
+  GroupBySelect,
+  NO_GROUPING,
+  type GroupByOption,
+} from './components/GroupBySelect';
 import { useOmTopology } from './topologyHooks';
 import { pluralize } from './format';
-import {
-  clusterHealthRank,
-  downFirst,
-  toEnvironmentSections,
-} from './topology';
-import type {
-  OmClusterHealth,
-  OmClusterRow,
-  OmEnvironmentSection,
-  OmProcessRole,
-} from './types';
+import { clusterHealthRank, downFirst, toClusterRows } from './topology';
+import type { OmClusterHealth, OmClusterRow, OmProcessRole } from './types';
 import { OmError } from './components/OmError';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
+
+const environmentLabel = (row: OmClusterRow) =>
+  row.env_name ?? UNNAMED_ENVIRONMENT;
 
 /** `3 mongod · 1 Router`, in the document's own role order. */
 function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
@@ -73,7 +74,30 @@ function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
     .join(' · ');
 }
 
-/** Columns for one environment's cluster table. */
+type ClusterGrouping = 'env_name' | 'health' | typeof NO_GROUPING;
+
+/**
+ * Environment by default, not Health: grouping by health would reshuffle the groups
+ * every time a member flips, and the down-first sort already puts trouble at the top
+ * of each environment (PMM-15712).
+ */
+const DEFAULT_GROUPING: ClusterGrouping = 'env_name';
+
+const GROUP_BY_OPTIONS: GroupByOption[] = [
+  { value: 'env_name', label: 'Environment' },
+  { value: 'health', label: 'Health' },
+  { value: NO_GROUPING, label: 'None' },
+];
+
+/** A cluster's value in each grouping column, as the column's accessor reads it. */
+const GROUP_VALUE: Record<
+  Exclude<ClusterGrouping, typeof NO_GROUPING>,
+  (row: OmClusterRow) => string
+> = {
+  env_name: environmentLabel,
+  health: (row) => row.health,
+};
+
 /**
  * Columns the cluster table carries but does not open with.
  *
@@ -82,27 +106,30 @@ function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
  * page a reader opens had a scrollbar and three columns off-screen, which is the whole
  * of P17.
  *
- * **Up and Down go because Health already says it.** The Health column states Healthy,
- * Degraded or Down in words with an icon; the counts restate the same fact in numbers
- * beside it. Keeping both spends two columns of a table that does not fit to say one
- * thing twice, and the design review's "one style for up" asks for the opposite.
+ * Services goes because Members states the same total as its denominator, and the
+ * width it frees is what lets Environment show when the table is not grouped by it.
+ *
+ * Process is a roll-up that a reader asking "is this a router" answers by unfolding
+ * the row, whose member table carries its own Process column.
  *
  * Versions is a roll-up of the members, and a reader who wants it is asking about one
  * cluster - which is what unfolding the row answers.
- *
- * **Process stays**, though it is a roll-up too. It is the only column that
- * distinguishes a mongos from a replica-set member, which has no member state to show
- * instead, so hiding it would make a router unidentifiable in a sharded cluster.
  */
 const HIDDEN_BY_DEFAULT = {
-  up_services: false,
-  down_services: false,
+  total_services: false,
+  roles: false,
   versions: false,
 };
 
 function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
   return useMemo(
     () => [
+      {
+        accessorFn: environmentLabel,
+        id: 'env_name',
+        header: 'Environment',
+        size: 160,
+      },
       {
         accessorKey: 'cluster_name',
         header: 'Cluster',
@@ -122,20 +149,21 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
           <ClusterHealthBadge health={original.health} />
         ),
       },
-      { accessorKey: 'total_services', header: 'Services', size: 100 },
       {
         // Plain text, never a status colour: the Health column is the verdict.
-        accessorKey: 'up_services',
-        header: 'Up',
-        size: 170,
+        accessorFn: (row) => row.up_services,
+        id: 'members',
+        header: 'Members',
+        size: 120,
+        Header: () => (
+          <Tooltip title="Members up, out of all the members in the cluster">
+            <span>Members</span>
+          </Tooltip>
+        ),
         Cell: ({ row: { original } }) =>
-          `${original.up_services} of ${original.total_services} members up`,
+          `${original.up_services}/${original.total_services}`,
       },
-      {
-        accessorKey: 'down_services',
-        header: 'Down',
-        size: 90,
-      },
+      { accessorKey: 'total_services', header: 'Services', size: 100 },
       {
         accessorFn: (row) => describeRoles(row.by_process_role),
         id: 'roles',
@@ -272,26 +300,148 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
 };
 
 /**
- * One environment, as its own foldable table.
+ * A group's header row: what it is grouped on, and the counts the per-environment
+ * headers carried, so a folded group still says how it is doing.
  *
- * A component per environment rather than a loop over table instances: each table
- * owns its sorting, filtering, expanded rows and fold state, and hooks cannot be
- * called in a loop anyway.
- *
- * Folded away, an environment still shows its counts — the header is what makes
- * folding useful on an estate with more environments than fit on a screen, and a
- * header that hid its numbers would just be a heading.
+ * "Up" stays neutral and "down" turns red only above zero: with the Health column
+ * removed from a grouped row, a red "down" is its only alarm.
  */
-const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
-  const [open, setOpen] = useState(true);
-  const regionId = useId();
+const GroupHeader = ({
+  row,
+  table,
+  staticRowIndex,
+  grouping,
+}: {
+  row: MRT_Row<OmClusterRow>;
+  table: MRT_TableInstance<OmClusterRow>;
+  staticRowIndex?: number;
+  grouping: ClusterGrouping;
+}) => {
+  const clusters = row.getLeafRows().map((leaf) => leaf.original);
+  const sum = (field: 'total_services' | 'up_services' | 'down_services') =>
+    clusters.reduce((total, cluster) => total + cluster[field], 0);
+  const services = sum('total_services');
+  const down = sum('down_services');
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      gap={2}
+      data-testid="om-cluster-group"
+    >
+      <Stack direction="row" alignItems="center" gap={0.5}>
+        <MRT_ExpandButton
+          row={row}
+          table={table}
+          staticRowIndex={staticRowIndex}
+        />
+        {grouping === 'health' ? (
+          <ClusterHealthBadge health={row.original.health} />
+        ) : (
+          <Typography variant="subtitle2" component="h2">
+            {environmentLabel(row.original)}
+          </Typography>
+        )}
+      </Stack>
+      <Typography variant="body2" color="text.secondary">
+        <strong>{clusters.length}</strong>{' '}
+        {pluralize(clusters.length, 'cluster')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        <strong>{services}</strong> {pluralize(services, 'service')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        <strong>{sum('up_services')}</strong> up
+      </Typography>
+      <Typography
+        variant="body2"
+        color={down ? 'error.main' : 'text.secondary'}
+      >
+        <strong>{down}</strong> down
+      </Typography>
+    </Stack>
+  );
+};
+
+/**
+ * Group rows open, and cluster rows folded, by default.
+ *
+ * TanStack's expanded state cannot say "open unless closed": `true` would also unfold
+ * every cluster's member table, and collapsing a row deletes its key rather than
+ * storing `false`. So the two are kept apart - the groups a reader closed, and the
+ * clusters they opened - and merged into the state the table reads.
+ */
+function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
+  const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>({});
+  const [openClusters, setOpenClusters] = useState<Record<string, boolean>>({});
+  // TanStack names a top-level group row `<columnId>:<groupingValue>`.
+  const groupIds = useMemo(
+    () =>
+      grouping === NO_GROUPING
+        ? []
+        : [
+            ...new Set(
+              rows.map((row) => `${grouping}:${GROUP_VALUE[grouping](row)}`)
+            ),
+          ],
+    [rows, grouping]
+  );
+  const expanded = useMemo(() => {
+    const state: Record<string, boolean> = { ...openClusters };
+    for (const id of groupIds) {
+      if (!closedGroups[id]) {
+        state[id] = true;
+      }
+    }
+    return state;
+  }, [groupIds, closedGroups, openClusters]);
+
+  const onExpandedChange = (
+    updater: MRT_ExpandedState | ((old: MRT_ExpandedState) => MRT_ExpandedState)
+  ) => {
+    const next = typeof updater === 'function' ? updater(expanded) : updater;
+    // `true` is "expand all": every group and every cluster.
+    const isOpen = (id: string) => next === true || !!next[id];
+    setClosedGroups(
+      Object.fromEntries(
+        groupIds.filter((id) => !isOpen(id)).map((id) => [id, true])
+      )
+    );
+    setOpenClusters(
+      Object.fromEntries(
+        rows.filter((row) => isOpen(row.id)).map((row) => [row.id, true])
+      )
+    );
+  };
+
+  return { expanded, onExpandedChange };
+}
+
+/**
+ * Every cluster in one table, grouped by what the reader picks in the toolbar.
+ *
+ * One table rather than one per environment, so the clusters can be read by
+ * environment, by health or flat without the page changing shape (PMM-15712).
+ */
+const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
+  const [grouping, setGrouping] = useState<ClusterGrouping>(DEFAULT_GROUPING);
+  const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
   const columns = useColumns();
   const table = useMaterialReactTable({
     columns,
-    data: section.clusters,
+    data: rows,
     enablePagination: false,
     enableDensityToggle: false,
     enableExpanding: true,
+    enableGrouping: true,
+    // The grouped column says the same thing on every row of its group, and the
+    // group header already says it once.
+    groupedColumnMode: 'remove',
+    // Grouping is the toolbar select's job: no drag handle on any header, and no
+    // "grouped by" banner offering a second way to change it.
+    enableColumnDragging: false,
+    positionToolbarAlertBanner: 'none',
     // Grid layout, so the `size` on each column is honoured. The default sizes every
     // column to its header's chrome instead, which at 1440px with the nav open spent
     // the whole ~980px on six columns of mostly single digits.
@@ -300,10 +450,8 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     // the chooser does, and the icon it adds to every header is a slice of the width
     // this table does not have.
     enableColumnActions: false,
-    // The toolbar is back, for one reason: the chooser. Three columns are hidden by
-    // default here, and with no toolbar there was no way to show them again - which
-    // makes a default into a removal, and is not what P17 asked for. Everything else
-    // it can carry is off, so it is one icon rather than a second header.
+    // The toolbar carries the Group by select and the column chooser; everything
+    // else it can hold is off.
     enableGlobalFilter: false,
     enableFullScreenToggle: false,
     enableHiding: true,
@@ -314,10 +462,61 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     // the row order shifted between polls.
     getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
+    // MRT labels every toggle "Expand" whatever its state; a group's says which
+    // group and whether it is open.
+    muiExpandButtonProps: ({ row }) =>
+      row.getIsGrouped() && grouping !== NO_GROUPING
+        ? {
+            'aria-expanded': row.getIsExpanded(),
+            'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${GROUP_VALUE[grouping](row.original)}`,
+          }
+        : {},
+    renderTopToolbarCustomActions: () => (
+      <GroupBySelect
+        options={GROUP_BY_OPTIONS}
+        value={grouping}
+        onChange={(value) => setGrouping(value as ClusterGrouping)}
+      />
+    ),
+    displayColumnDefOptions: {
+      'mrt-row-expand': {
+        size: 60,
+        // Just the expand-all control: the "remove" mode's default lists the
+        // grouped columns' names here, which the select already shows.
+        Header: ({ table }) => <MRT_ExpandAllButton table={table} />,
+        Cell: ({ row, table, staticRowIndex }) =>
+          row.getIsGrouped() ? (
+            <GroupHeader
+              row={row}
+              table={table}
+              staticRowIndex={staticRowIndex}
+              grouping={grouping}
+            />
+          ) : (
+            <MRT_ExpandButton
+              row={row}
+              table={table}
+              staticRowIndex={staticRowIndex}
+            />
+          ),
+        // A group header is wider than the expand column; its row has nothing in
+        // the other cells, so it runs across them.
+        muiTableBodyCellProps: ({ row }) =>
+          row.getIsGrouped()
+            ? { sx: { overflow: 'visible', whiteSpace: 'nowrap' } }
+            : {},
+      },
+    },
+    state: {
+      grouping: grouping === NO_GROUPING ? [] : [grouping],
+      expanded,
+    },
+    onExpandedChange,
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
-      // Trouble first: a degraded or down cluster leads its environment.
+      // Trouble first: a degraded or down cluster leads its group. Groups themselves
+      // keep the document's order, since they have no health of their own to sort on.
       sorting: [
         { id: 'health', desc: false },
         { id: 'cluster_name', desc: false },
@@ -325,62 +524,7 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     },
   });
 
-  return (
-    <Stack gap={1}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        gap={2}
-        flexWrap="wrap"
-      >
-        <ButtonBase
-          onClick={() => setOpen(!open)}
-          aria-expanded={open}
-          aria-controls={regionId}
-          sx={{ gap: 1, px: 0.5, borderRadius: 1 }}
-        >
-          <ExpandMoreIcon
-            fontSize="small"
-            sx={{
-              transition: 'transform 150ms',
-              transform: open ? 'none' : 'rotate(-90deg)',
-            }}
-          />
-          <Typography variant="h5" component="h2">
-            {section.env_name ?? UNNAMED_ENVIRONMENT}
-          </Typography>
-        </ButtonBase>
-        <Stack direction="row" spacing={2} flexWrap="wrap">
-          <Typography variant="body2" color="text.secondary">
-            <strong>{section.clusters.length}</strong>{' '}
-            {pluralize(section.clusters.length, 'cluster')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            <strong>{section.total_services}</strong>{' '}
-            {pluralize(section.total_services, 'service')}
-          </Typography>
-          {/* "Up" neutral, "down" red above zero: with no Health column beside these
-              lines, a red "down" is their only alarm. */}
-          <Typography variant="body2" color="text.secondary">
-            <strong>{section.up_services}</strong> up
-          </Typography>
-          <Typography
-            variant="body2"
-            color={section.down_services ? 'error.main' : 'text.secondary'}
-          >
-            <strong>{section.down_services}</strong> down
-          </Typography>
-        </Stack>
-      </Stack>
-      {/* `unmountOnExit` keeps a folded estate off the DOM; the table's own state
-          lives in the hook instance above, so sorting and unfolded clusters survive
-          the round trip. */}
-      <Collapse in={open} id={regionId} unmountOnExit>
-        <MaterialReactTable table={table} />
-      </Collapse>
-    </Stack>
-  );
+  return <MaterialReactTable table={table} />;
 };
 
 /** Fleet-level counts, so the headline numbers need no reading of rows. */
@@ -419,8 +563,9 @@ const Counts = ({
 };
 
 /**
- * The estate one level above the service table: a table per environment, a row per
- * cluster, and each row unfolds into the services it was rolled up from.
+ * The estate one level above the service table: a row per cluster, grouped by
+ * environment unless the reader picks otherwise, and each row unfolds into the
+ * services it was rolled up from.
  *
  * The document is a nested `environments -> clusters -> services` tree and this is the
  * reading that keeps the nesting whole. Topology renders the same snapshot flat, one
@@ -429,7 +574,7 @@ const Counts = ({
  */
 export const FleetClustersTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
-  const sections = useMemo(() => toEnvironmentSections(data), [data]);
+  const rows = useMemo(() => toClusterRows(data), [data]);
 
   if (isPending) {
     return <LinearProgress />;
@@ -461,7 +606,7 @@ export const FleetClustersTab = () => {
         />
       </Stack>
 
-      {sections.length === 0 ? (
+      {rows.length === 0 ? (
         <EmptyState title="No MongoDB clusters yet">
           This page shows every MongoDB cluster PMM monitors, and the health of
           each one&apos;s members.{' '}
@@ -470,15 +615,7 @@ export const FleetClustersTab = () => {
             : FLEET_NOT_COLLECTED}
         </EmptyState>
       ) : (
-        // Indexed fallback: two sibling sections with no env_name would otherwise
-        // share a React key. Environments carry no server-issued id the way clusters
-        // now do -- see EnvironmentTable's getRowId -- so this stays index-based.
-        sections.map((section, index) => (
-          <EnvironmentTable
-            key={section.env_name ?? `unnamed-${index}`}
-            section={section}
-          />
-        ))
+        <ClustersTable rows={rows} />
       )}
     </Stack>
   );

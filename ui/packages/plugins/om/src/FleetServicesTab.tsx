@@ -27,9 +27,11 @@ import {
 import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import {
+  MRT_ExpandButton,
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  type MRT_Row,
 } from 'material-react-table';
 import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
@@ -51,6 +53,11 @@ import {
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
+import {
+  GroupBySelect,
+  NO_GROUPING,
+  type GroupByOption,
+} from './components/GroupBySelect';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -101,6 +108,23 @@ const HIDDEN_BY_DEFAULT = {
   argv: false,
   node_id: false,
 };
+
+/** Flat by default, as the tab has always opened; the grouping keys lead the columns. */
+const GROUP_BY_OPTIONS: GroupByOption[] = [
+  { value: 'env_name', label: 'Environment' },
+  { value: 'cluster_name', label: 'Cluster' },
+  { value: NO_GROUPING, label: 'None' },
+];
+
+/** What a group header calls a group whose services carry no name for it. */
+const UNNAMED_GROUP: Record<string, string> = {
+  env_name: 'Unassigned environment',
+  cluster_name: 'No cluster',
+};
+
+const groupLabel = (row: MRT_Row<OmServiceInventoryRow>) =>
+  (row.groupingValue as string | null | undefined) ??
+  UNNAMED_GROUP[row.groupingColumnId ?? ''];
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
 function useColumns(
@@ -457,6 +481,7 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
+  const [grouping, setGrouping] = useState(NO_GROUPING);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
@@ -499,6 +524,66 @@ export const FleetServicesTab = () => {
     columns,
     data: rows,
     enableGrouping: true,
+    // Grouping is the toolbar select's job: no drag handle on any header, and no
+    // "grouped by" banner offering a second way to change it. The grouped column
+    // says the same thing on every row of its group, so it leaves the rows.
+    enableColumnDragging: false,
+    positionToolbarAlertBanner: 'none',
+    groupedColumnMode: 'remove',
+    renderTopToolbarCustomActions: ({ table }) => (
+      <GroupBySelect
+        options={GROUP_BY_OPTIONS}
+        value={grouping}
+        onChange={(value) => {
+          setGrouping(value);
+          // Every group of the new grouping opens, as a fresh grouping should.
+          table.setExpanded(true);
+        }}
+      />
+    ),
+    // MRT labels every toggle "Expand" whatever its state; a group's says which
+    // group and whether it is open.
+    muiExpandButtonProps: ({ row }) =>
+      row.getIsGrouped()
+        ? {
+            'aria-expanded': row.getIsExpanded(),
+            'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${groupLabel(row)}`,
+          }
+        : {},
+    displayColumnDefOptions: {
+      'mrt-row-expand': {
+        size: 60,
+        // Just the control: the "remove" mode's default header lists the grouped
+        // columns' names, which the select already shows.
+        Header: () => null,
+        Cell: ({ row, table, staticRowIndex }) => {
+          if (!row.groupingColumnId) {
+            return null;
+          }
+          return (
+            <Stack direction="row" alignItems="center" gap={0.5}>
+              <MRT_ExpandButton
+                row={row}
+                table={table}
+                staticRowIndex={staticRowIndex}
+              />
+              <Typography variant="subtitle2" component="span">
+                {groupLabel(row)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                ({row.subRows?.length ?? 0})
+              </Typography>
+            </Stack>
+          );
+        },
+        // A group header is wider than the expand column; its row has nothing in
+        // the other cells, so it runs across them.
+        muiTableBodyCellProps: ({ row }) =>
+          row.getIsGrouped()
+            ? { sx: { overflow: 'visible', whiteSpace: 'nowrap' } }
+            : {},
+      },
+    },
     // See FleetClustersTab: without these MRT sizes every column to its header's
     // chrome rather than its content, and the table overflows the width the page
     // actually gets. The per-column menu's only verb beyond sorting is "hide this
@@ -525,9 +610,13 @@ export const FleetServicesTab = () => {
             setSelectedId(row.original.service_id ?? null);
           },
     }),
+    state: {
+      grouping: grouping === NO_GROUPING ? [] : [grouping],
+    },
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
+      expanded: true,
       // Down services first, so a failure is the first row a reader sees.
       sorting: [
         { id: 'status', desc: false },

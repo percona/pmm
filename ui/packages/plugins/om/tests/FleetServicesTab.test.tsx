@@ -236,4 +236,41 @@ describe('FleetServicesTab', () => {
       `${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
+  describe('Group by (PMM-15712)', () => {
+    const groupBy = (label: string) => {
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Group by' }));
+      fireEvent.click(screen.getByRole('option', { name: label }));
+    };
+
+    it('opens flat, with no drag-to-group handle on any column header', () => {
+      renderTab();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('None');
+      for (const header of screen.getAllByRole('columnheader')) {
+        expect(
+          within(header).queryByRole('button', { name: /move/i })
+        ).toBeNull();
+      }
+    });
+
+    it('groups by cluster from the select, with every group open', () => {
+      renderTab();
+
+      groupBy('Cluster');
+
+      const header = rowFor('orders');
+      expect(header).toHaveTextContent('(4)');
+      expect(
+        within(header).getByRole('button', { name: 'Collapse orders' })
+      ).toHaveAttribute('aria-expanded', 'true');
+      expect(
+        screen.getByRole('link', { name: 'orders-2' })
+      ).toBeInTheDocument();
+
+      groupBy('None');
+      expect(screen.queryByText('(4)')).toBeNull();
+    });
+  });
 });
