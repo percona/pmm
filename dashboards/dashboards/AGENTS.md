@@ -43,6 +43,7 @@ dashboards/dashboards/*.json
 - Follow the existing directory structure when adding dashboards for a new domain
 - Keep one dashboard per JSON file, named to match the dashboard title
 - Register new dashboards in `pmm-app/src/plugin.json` under the `includes` array
+- Tag "PMM Annotations" with `pmm_annotation` only; node and service annotations come from the "PMM Annotations: nodes and services" entry, which `misc/scoped-annotations.py` adds with the panels' label filters (checked by `misc/test_annotations.py`)
 
 ### Don't
 - Don't edit dashboard JSON by hand unless making targeted fixes — use the Grafana UI for design work

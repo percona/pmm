@@ -32,12 +32,27 @@
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
-                        "pmm_annotation",
-                        "$service_name",
-                        "$node_name"
+                        "pmm_annotation"
                     ],
                     "type": "tags"
                 }
+            },
+            {
+                "datasource": "Metrics",
+                "enable": false,
+                "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name=\"\",node_name=~\"$node_name_list\"}[$__interval] offset -$__interval)) or max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",service_type=\"postgresql\"}[$__interval] offset -$__interval))",
+                "hide": false,
+                "iconColor": "orange",
+                "name": "PMM Annotations: nodes and services",
+                "tagKeys": "tags",
+                "target": {
+                    "expr": "max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name=\"\",node_name=~\"$node_name_list\"}[$__interval] offset -$__interval)) or max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name!=\"\",environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",service_type=\"postgresql\"}[$__interval] offset -$__interval))",
+                    "interval": "",
+                    "refId": "Anno"
+                },
+                "textFormat": "{{text}}",
+                "titleFormat": "Annotation {{annotation_id}}",
+                "useValueForTime": true
             }
         ]
     },
@@ -1310,6 +1325,36 @@
             },
             {
                 "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\",node_name=~\"$node_name\"},node_name)",
+                "description": "Every Node Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; node_name uses allValue \".*\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name list",
+                "multi": true,
+                "name": "node_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\",node_name=~\"$node_name\"},node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".+",
+                "current": {
                     "text": "All",
                     "value": [
                         "$__all"
@@ -1328,8 +1373,7 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "allValue": ".*",

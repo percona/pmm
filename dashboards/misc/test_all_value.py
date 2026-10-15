@@ -127,7 +127,8 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                 for name in sorted(set(fleet) & SERVICE_VARIABLES):
                     if re.search(VAR_REF.format(name=re.escape(name)), sql):
                         bad.append(f'{rel}: SQL uses ${name}, use ${name}_list')
-            text = json.dumps(dashboard.get('panels', []))
+            # Node annotations read node_name_list too (PMM-15663).
+            text = json.dumps([dashboard.get('panels', []), dashboard.get('annotations', {})])
             for name in FLEET_VARIABLES:
                 lst = variables.get(f'{name}_list')
                 if not lst:
