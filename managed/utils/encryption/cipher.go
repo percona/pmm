@@ -59,7 +59,8 @@ var (
 )
 
 const (
-	// Tink AES-GCM ciphertext: output prefix, 12-byte IV and 16-byte tag.
+	// Tink AES-GCM ciphertext: output prefix, 12-byte IV and 16-byte tag; the
+	// shortest legacy or envelope ciphertext.
 	minLegacyCiphertextLen = tinkPrefixLen + 12 + 16
 	// Upper bound of stacked legacy layers removed from one value; each
 	// buggy rotation added two.

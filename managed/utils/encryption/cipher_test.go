@@ -171,7 +171,12 @@ func TestCipherPlaintextPassthrough(t *testing.T) {
 		// valid base64 decoding to bytes starting with the Tink prefix byte:
 		// authentication fails, so it is still treated as plaintext
 		"AeEBAg==",
+		// start with the envelope prefix but are not base64 of a Tink ciphertext
+		EnvelopePrefix + "ecret",
+		EnvelopePrefix + "%%%not-base64%%%",
+		EnvelopePrefix + "AeEBAg==",
 	} {
+		assert.False(t, IsEncrypted(plaintext), plaintext)
 		decrypted, err := c.Decrypt(plaintext)
 		require.NoError(t, err)
 		assert.Equal(t, plaintext, decrypted)
@@ -183,11 +188,6 @@ func TestCipherPlaintextPassthrough(t *testing.T) {
 
 func TestCipherEnvelopeHardFailures(t *testing.T) {
 	c := newTestCipher(t)
-
-	t.Run("malformed base64", func(t *testing.T) {
-		_, err := c.Decrypt(EnvelopePrefix + "%%%not-base64%%%")
-		assert.Error(t, err)
-	})
 
 	t.Run("corrupted ciphertext", func(t *testing.T) {
 		stored, err := c.Encrypt("secret")

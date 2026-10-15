@@ -754,3 +754,64 @@ func TestMigrateEncryptionOmBootstrapSecretsWrongKey(t *testing.T) {
 	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT mongodb_password FROM om_bootstrap_secrets WHERE run_id = 'R1'`).Scan(&password))
 	assert.Equal(t, foreign, password)
 }
+
+// TestMigrateEncryptionEnvelopeLookAlike covers stored values that start with
+// the envelope prefix but are not envelopes. Where PMM 3.x may have stored
+// plaintext, such a value is a secret like any other; where it stored only
+// ciphertext, it is a corrupted envelope, and the refusal must not offer the
+// setting that accepts a lost key: it would not help.
+func TestMigrateEncryptionEnvelopeLookAlike(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	const secret = encryption.EnvelopePrefix + "ecret"
+	now := time.Now()
+	_, err := sqlDB.ExecContext(t.Context(),
+		`INSERT INTO backup_locations (id, name, description, type, s3_config, created_at, updated_at) `+
+			`VALUES ('L1', 'loc', '', 's3', $1, $2, $3)`,
+		`{"endpoint": "https://minio.example.com", "access_key": "minio", "secret_key": "`+secret+`", "bucket_name": "b", "bucket_region": "r"}`, now, now)
+	require.NoError(t, err)
+
+	t.Run("where plaintext may be stored, it is a secret", func(t *testing.T) {
+		require.NoError(t, models.MigrateEncryption(q))
+
+		var raw string
+		require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT s3_config FROM backup_locations WHERE id = 'L1'`).Scan(&raw))
+		var stored models.S3LocationConfig
+		require.NoError(t, json.Unmarshal([]byte(raw), &stored))
+		assert.True(t, encryption.IsEncrypted(stored.SecretKey))
+		location, err := models.FindBackupLocationByID(q, "L1")
+		require.NoError(t, err)
+		assert.Equal(t, secret, location.S3Config.SecretKey)
+	})
+
+	t.Run("where only ciphertext is stored, refuse and change nothing", func(t *testing.T) {
+		_, err = sqlDB.ExecContext(t.Context(),
+			`UPDATE settings SET settings = settings || '{"encrypted_items": ["pmm-managed.agents.password"]}'::jsonb`)
+		require.NoError(t, err)
+		_, err = sqlDB.ExecContext(t.Context(),
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+				"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+		require.NoError(t, err)
+		_, err = sqlDB.ExecContext(t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+				`VALUES ('PA', 'pmm-agent', 'N1', false, '', $1, $2, false, false)`, now, now)
+		require.NoError(t, err)
+		_, err = sqlDB.ExecContext(t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, password, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+				`VALUES ('A1', 'node_exporter', $1, 'PA', 'N1', false, '', $2, $3, false, false)`, secret, now, now)
+		require.NoError(t, err)
+
+		err = models.MigrateEncryption(q)
+		require.ErrorIs(t, err, encryption.ErrMalformedEnvelope)
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+		assert.NotContains(t, err.Error(), encryption.AcceptKeyLossEnvVar)
+
+		var password string
+		require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = 'A1'`).Scan(&password))
+		assert.Equal(t, secret, password)
+	})
+}

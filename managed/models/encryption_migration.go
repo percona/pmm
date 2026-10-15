@@ -296,7 +296,7 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 		return err
 	}
 	if keyMismatch {
-		undecryptable = append(undecryptable, errors.New("settings encryption key check: the key this database was set up with is required"))
+		undecryptable = append(undecryptable, fmt.Errorf("settings encryption key check: %w", errKeyCheckMismatch))
 	}
 
 	scans := make([]*secretsScan, len(secretTables))
@@ -319,7 +319,11 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 	undecryptable = append(undecryptable, u...)
 	lost = append(lost, l...)
 	if len(undecryptable) != 0 {
-		return errUndecryptable(undecryptable, params.acceptValue(cipher))
+		var accept string
+		if lossAcceptable(undecryptable) {
+			accept = params.acceptValue(cipher)
+		}
+		return errUndecryptable(undecryptable, accept)
 	}
 	if len(lost) != 0 {
 		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
@@ -485,6 +489,23 @@ func resolveUnknownKeys(unknownKey []error, keyReadsData bool) ([]error, []error
 	}
 
 	return unknownKey, nil
+}
+
+// errKeyCheckMismatch reports that the key check in the settings does not
+// decrypt with the key, see checkKey.
+var errKeyCheckMismatch = errors.New("the key this database was set up with is required")
+
+// lossAcceptable reports whether setting encryption.AcceptKeyLossEnvVar
+// resolves every problem: it accepts values of keys the keyset does not hold
+// and replaces the key check, but corrupted values stay undecryptable.
+func lossAcceptable(problems []error) bool {
+	for _, p := range problems {
+		if !errors.Is(p, encryption.ErrUnknownKey) && !errors.Is(p, encryption.ErrLegacyUnknownKey) && !errors.Is(p, errKeyCheckMismatch) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // ErrEncryptionKeyMismatch is returned when the encryption key cannot decrypt
@@ -682,6 +703,11 @@ type inspector struct {
 
 func (i *inspector) value(column, stored string) {
 	if stored == "" {
+		return
+	}
+	if encryption.HasEnvelopePrefix(stored) && !encryption.IsEncrypted(stored) && i.strict[column] {
+		// plaintext where only ciphertext is stored: a corrupted envelope
+		i.undecryptable = append(i.undecryptable, columnProblem{column, encryption.ErrMalformedEnvelope})
 		return
 	}
 	if !encryption.IsEncrypted(stored) {

@@ -309,6 +309,7 @@ func TestCorruptedCiphertextFailsReads(t *testing.T) {
 
 	err = models.MigrateEncryption(q)
 	require.ErrorContains(t, err, "cannot decrypt stored credentials")
+	assert.NotContains(t, err.Error(), encryption.AcceptKeyLossEnvVar, "accepting a lost key does not help")
 	assert.Equal(t, corruptPassword, storedPassword(t, sqlDB, "bad-password"), "nothing is rewritten")
 }
 
