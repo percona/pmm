@@ -16,7 +16,9 @@
 package models_test
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -814,4 +816,61 @@ func TestMigrateEncryptionEnvelopeLookAlike(t *testing.T) {
 		require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = 'A1'`).Scan(&password))
 		assert.Equal(t, secret, password)
 	})
+}
+
+// TestMigrateEncryptionCiphertextLookAlikeSecret covers a scalar secret whose
+// plaintext has the shape of legacy ciphertext of an unknown key, as about one
+// in 256 OM bootstrap key files has. Only options blobs carry layers stacked
+// by key rotation before PMM 3.9.1, so after rotation the secret is neither
+// reported as lost nor backed up.
+func TestMigrateEncryptionCiphertextLookAlikeSecret(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	forgetKeyCheck(t, sqlDB)
+
+	dir := t.TempDir()
+	keyPath := filepath.Join(dir, "encryption.key")
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, keyPath)
+	savedDefault := encryption.DefaultEncryptionKeyPath
+	encryption.DefaultEncryptionKeyPath = keyPath
+	t.Cleanup(func() { encryption.DefaultEncryptionKeyPath = savedDefault })
+	previous, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	t.Cleanup(func() { encryption.SetDefaultCipher(previous) })
+
+	provider := encryption.NewFileKeyProvider(keyPath)
+	cipher, err := encryption.CreateCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(cipher)
+
+	// the Tink output prefix byte, then a key ID no keyset holds
+	raw := make([]byte, 756)
+	_, err = rand.Read(raw)
+	require.NoError(t, err)
+	raw[0] = 0x01
+	keyFile := base64.StdEncoding.EncodeToString(raw)
+	require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
+		RunID:           "R1",
+		MongoDBUsername: "admin",
+		MongoDBPassword: "password",
+		KeyFile:         models.EncryptedString(keyFile),
+	}))
+
+	_, err = encryption.AddNewPrimaryKey(provider)
+	require.NoError(t, err)
+	rotated, err := encryption.LoadCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(rotated)
+	require.NoError(t, models.MigrateEncryption(q))
+
+	assert.Empty(t, backupFiles(t, dir), "nothing was lost")
+	ids, err := models.OmBootstrapSecretsNeedingReencryption(q, rotated)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+	secret, err := models.FindOmBootstrapSecretByRunID(q, "R1")
+	require.NoError(t, err)
+	assert.Equal(t, keyFile, secret.KeyFile.Reveal())
 }

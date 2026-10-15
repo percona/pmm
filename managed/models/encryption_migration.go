@@ -701,7 +701,10 @@ type inspector struct {
 	preEnvelope bool
 }
 
-func (i *inspector) value(column, stored string) {
+// value inspects one stored secret; inOptions is set for a sub-field of an
+// options blob, the only fields key rotation before PMM 3.9.1 stacked layers
+// on (PMM-15188).
+func (i *inspector) value(column, stored string, inOptions bool) {
 	if stored == "" {
 		return
 	}
@@ -727,6 +730,9 @@ func (i *inspector) value(column, stored string) {
 		// plaintext that happens to look like ciphertext
 	case errors.Is(err, encryption.ErrLegacyUnknownKey):
 		i.unknownKey = append(i.unknownKey, columnProblem{column, err})
+	case errors.Is(err, encryption.ErrLegacyInnerKeyLost) && !inOptions:
+		// plaintext under the layer that happens to look like ciphertext,
+		// e.g. a base64-encoded random secret
 	case errors.Is(err, encryption.ErrLegacyInnerKeyLost):
 		// the key matches; the secret was lost to stacked layers before
 		i.lost = append(i.lost, columnProblem{column, err})
@@ -745,7 +751,7 @@ func (i *inspector) column(c secretColumn, v sql.NullString) error {
 		return nil
 	}
 	if c.options == nil {
-		i.value(c.name, v.String)
+		i.value(c.name, v.String, false)
 		return nil
 	}
 
@@ -756,7 +762,7 @@ func (i *inspector) column(c secretColumn, v sql.NullString) error {
 	}
 
 	return applyToSecretFields(target, func(s string) (string, error) {
-		i.value(c.name, s)
+		i.value(c.name, s, true)
 		return s, nil
 	})
 }
