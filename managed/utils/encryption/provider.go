@@ -33,6 +33,10 @@ import (
 // ErrKeysetNotFound is returned by KeyProvider.Load when no keyset exists yet.
 var ErrKeysetNotFound = errors.New("encryption keyset not found")
 
+// ErrInvalidKeyset is returned for a keyset that cannot be used, e.g. an empty
+// or corrupted key file; retrying does not help.
+var ErrInvalidKeyset = errors.New("invalid encryption keyset")
+
 // KeyProvider loads and stores the Tink keyset used by Cipher.
 type KeyProvider interface {
 	// Load returns the stored keyset, or an error wrapping ErrKeysetNotFound
@@ -84,14 +88,18 @@ func (p *FileKeyProvider) Load() (*keyset.Handle, error) {
 		return nil, fmt.Errorf("failed to read encryption keyset: %w", err)
 	}
 
-	serialized, err := base64.StdEncoding.DecodeString(strings.TrimSpace(string(data)))
+	encoded := strings.TrimSpace(string(data))
+	if encoded == "" {
+		return nil, fmt.Errorf("%w: %s is empty", ErrInvalidKeyset, p.path)
+	}
+	serialized, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode encryption keyset %s: %w", p.path, err)
+		return nil, fmt.Errorf("%w: failed to decode %s: %w", ErrInvalidKeyset, p.path, err)
 	}
 
 	handle, err := insecurecleartextkeyset.Read(keyset.NewBinaryReader(bytes.NewReader(serialized)))
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse encryption keyset %s: %w", p.path, err)
+		return nil, fmt.Errorf("%w: failed to parse %s: %w", ErrInvalidKeyset, p.path, err)
 	}
 
 	return handle, nil

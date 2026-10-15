@@ -57,6 +57,11 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 		cipher, err = encryption.CreateCipher(provider)
 		created = err == nil
 	}
+	if errors.Is(err, encryption.ErrInvalidKeyset) {
+		// e.g. a key file PMM 3.x left empty: no retry can help
+		return false, &keyError{msg: fmt.Sprintf("the encryption key at %s cannot be used (%s); restore the key file "+
+			"from a backup or point %s at the right one", keyPath, err, encryption.CustomEncryptionKeyPathEnvVar), err: err}
+	}
 	if err != nil {
 		return false, err
 	}
@@ -82,7 +87,7 @@ func missingKeyError(keyPath string, ha bool) error {
 			"and restart: PMM Server then names the value of %s that accepts the loss", keyPath, encryption.AcceptKeyLossEnvVar)
 	}
 
-	return &keyError{msg}
+	return &keyError{msg: msg}
 }
 
 // acceptKeyLoss reports whether the administrator has accepted that the key
@@ -517,10 +522,16 @@ var ErrEncryptionKeyMismatch = errors.New("encryption key does not match the dat
 // keyError is a refusal to start that only the right key file resolves.
 type keyError struct {
 	msg string
+	// err is the cause, if any
+	err error
 }
 
 func (e *keyError) Error() string {
 	return e.msg
+}
+
+func (e *keyError) Unwrap() error {
+	return e.err
 }
 
 // Is reports the error as ErrEncryptionKeyMismatch.

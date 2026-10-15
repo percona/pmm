@@ -64,6 +64,9 @@ func TestFileKeyProviderLoadErrors(t *testing.T) {
 			_, err := LoadCipher(NewFileKeyProvider(path))
 			require.Error(t, err)
 			require.NotErrorIs(t, err, ErrKeysetNotFound, "a broken key file must not look like a missing one")
+			if path != dir {
+				require.ErrorIs(t, err, ErrInvalidKeyset)
+			}
 
 			// a broken key file is never replaced by a new key
 			_, err = CreateCipher(NewFileKeyProvider(path))
@@ -138,6 +141,7 @@ func TestKeysetWithoutTinkPrefix(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = LoadCipher(handleProvider{handle})
+	require.ErrorIs(t, err, ErrInvalidKeyset)
 	require.ErrorContains(t, err, "output prefix instead of TINK")
 
 	c := newTestCipher(t)

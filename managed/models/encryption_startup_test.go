@@ -229,6 +229,25 @@ func TestSetupDBRefusesMissingKeyWithEncryptedData(t *testing.T) {
 	assert.Equal(t, stored, storedPassword(t, sqlDB, "E1"))
 }
 
+// TestSetupDBRefusesBrokenKey covers a key file PMM 3.x left empty or
+// truncated, as it did not write the key atomically: retrying cannot help, so
+// pmm-managed must stop at once with the reason, and keep the file.
+func TestSetupDBRefusesBrokenKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	path := filepath.Join(t.TempDir(), "pmm-encryption.key")
+	require.NoError(t, os.WriteFile(path, nil, 0o600))
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+
+	err := setupDB(t, sqlDB)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	require.ErrorIs(t, err, encryption.ErrInvalidKeyset)
+	require.ErrorContains(t, err, path)
+	data, err := os.ReadFile(path)
+	require.NoError(t, err)
+	assert.Empty(t, data, "the key file is kept")
+}
+
 func TestSetupDBUsesPreviousKey(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	keepDefaultCipher(t)

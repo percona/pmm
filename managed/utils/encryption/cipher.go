@@ -168,7 +168,7 @@ func LoadOrCreateCipher(p KeyProvider) (*Cipher, error) {
 func newCipher(p KeyProvider, handle *keyset.Handle) (*Cipher, error) {
 	primitive, err := aead.New(handle)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create AEAD primitive: %w", err)
+		return nil, fmt.Errorf("%w: failed to create AEAD primitive: %w", ErrInvalidKeyset, err)
 	}
 	primary, err := handle.Primary()
 	if err != nil {
@@ -201,7 +201,7 @@ func (c *Cipher) WithLegacyKeys(p KeyProvider) (*Cipher, error) {
 	}
 	primitive, err := aead.New(handle)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create AEAD primitive: %w", err)
+		return nil, fmt.Errorf("%w: failed to create AEAD primitive: %w", ErrInvalidKeyset, err)
 	}
 	keyIDs, err := handleKeyIDs(handle)
 	if err != nil {
@@ -244,7 +244,8 @@ func LegacyBackupKeyPath(keyPath string) string {
 func handleKeyIDs(handle *keyset.Handle) (map[uint32]bool, error) {
 	for _, info := range handle.KeysetInfo().GetKeyInfo() {
 		if info.GetOutputPrefixType() != tinkpb.OutputPrefixType_TINK {
-			return nil, fmt.Errorf("encryption key %d uses the %s output prefix instead of TINK", info.GetKeyId(), info.GetOutputPrefixType())
+			return nil, fmt.Errorf("%w: encryption key %d uses the %s output prefix instead of TINK",
+				ErrInvalidKeyset, info.GetKeyId(), info.GetOutputPrefixType())
 		}
 	}
 
