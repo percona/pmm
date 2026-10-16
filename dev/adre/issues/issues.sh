@@ -17,11 +17,12 @@ TRUTH=$STATE_DIR/incidents.jsonl
 # In-container directory for workload files and their pid files.
 CDIR=/tmp/adre-issues
 
+# Engines alternate, and incidents that raise an alert are spread through the cycle.
 ROTATION=(
-  mysql_full_scans pg_lock_waits mongo_collscans mysql_deadlocks pg_connection_storm mongo_auth_failures
-  mysql_replica_break pg_dead_tuples mongo_big_sorts mysql_connection_storm pg_temp_files mongo_timeouts
-  mysql_auth_failures pg_deadlocks mongo_write_storm mysql_lock_waits pg_auth_failures mongo_stepdown
-  pg_seq_scans pg_vacuum_blocked pg_checkpoint_storm pg_rollbacks pg_shm_exhausted host_cpu_saturation
+  mysql_replica_break pg_lock_waits mongo_collscans pg_connection_storm mysql_deadlocks mongo_stepdown
+  pg_dead_tuples mysql_full_scans mongo_auth_failures mysql_connection_storm pg_temp_files mongo_big_sorts
+  pg_rollbacks mysql_auth_failures mongo_timeouts pg_vacuum_blocked mysql_lock_waits mongo_write_storm
+  pg_deadlocks pg_auth_failures host_cpu_saturation pg_seq_scans pg_checkpoint_storm pg_shm_exhausted
 )
 
 mkdir -p "$STATE_DIR"
