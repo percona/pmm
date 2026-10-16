@@ -22,6 +22,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -54,6 +55,9 @@ func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) 
 	if usage == nil && model == "" && len(in.Metadata) == 0 {
 		return 0, nil
 	}
+	if model == "" {
+		model = defaultHolmesModel(in.DB)
+	}
 
 	metaJSON := []byte("{}")
 	if usage != nil && len(usage.RawMetadata) > 0 {
@@ -84,9 +88,6 @@ func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) 
 			ev.TotalTokens = usage.TotalTokens
 			ev.CachedTokens = usage.CachedTokens
 			ev.TotalCost = usage.TotalCost
-			ev.CostPrompt = usage.CostPrompt
-			ev.CostCompletion = usage.CostCompletion
-			ev.CostCached = usage.CostCached
 		}
 		if in.LatencyMs > 0 {
 			ms := int32(in.LatencyMs) //nolint:gosec
@@ -168,6 +169,30 @@ func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) 
 		observeHolmesUsage(in.Feature, usage)
 	}
 	return eventID, nil
+}
+
+// defaultHolmesModel returns the model Holmes runs when a request names none: config.yaml's model: if it is a
+// configured model, else the first model_list.yaml entry (rendered in name order).
+func defaultHolmesModel(q reform.DBTX) string {
+	mdls, err := models.ListAdreModels(q)
+	if err != nil || len(mdls) == 0 {
+		return ""
+	}
+	cfg, err := models.GetAdreHolmesConfig(q)
+	if err == nil {
+		var c struct {
+			Model string `yaml:"model"`
+		}
+		err = yaml.Unmarshal([]byte(cfg.ConfigYAML), &c)
+		if err == nil && c.Model != "" {
+			for _, m := range mdls {
+				if m.Name == c.Model {
+					return c.Model
+				}
+			}
+		}
+	}
+	return mdls[0].Name
 }
 
 // ApplyHolmesUsageToAdreMessage sets token/cost fields on an AdreMessage before insert.

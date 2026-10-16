@@ -22,21 +22,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// sampleHolmesMetadata is the ai_answer_end metadata shape of Holmes 0.45 for a request with several LLM calls:
+// "usage" is the last call, "costs" the whole request.
 const sampleHolmesMetadata = `{
   "usage": {
-    "prompt_tokens": 22904,
-    "completion_tokens": 21,
-    "total_tokens": 22925,
-    "cached_tokens": 21120
+    "prompt_tokens": 54934,
+    "completion_tokens": 4580,
+    "total_tokens": 59514,
+    "cached_tokens": 53083
   },
   "costs": {
-    "total_cost": 0.014,
-    "prompt_tokens": 0.003,
-    "completion_tokens": 0.001,
-    "cached_tokens": 0.002
+    "total_cost": 0.4129714,
+    "total_tokens": 212887,
+    "cached_tokens": 152557,
+    "prompt_tokens": 207499,
+    "completion_tokens": 5388,
+    "cache_creation_tokens": 54932,
+    "max_prompt_tokens_per_call": 54934
   },
   "tokens": {
-    "system_tokens": 22000
+    "system_tokens": 10284
   }
 }`
 
@@ -48,15 +53,27 @@ func TestParseHolmesMetadata(t *testing.T) {
 		u := ParseHolmesMetadata([]byte(sampleHolmesMetadata))
 		require.NotNil(t, u)
 		require.NotNil(t, u.PromptTokens)
-		assert.Equal(t, int32(22904), *u.PromptTokens)
+		assert.Equal(t, int32(207499), *u.PromptTokens, "tokens must cover every LLM call, not the last one")
 		require.NotNil(t, u.CompletionTokens)
-		assert.Equal(t, int32(21), *u.CompletionTokens)
+		assert.Equal(t, int32(5388), *u.CompletionTokens)
 		require.NotNil(t, u.TotalTokens)
-		assert.Equal(t, int32(22925), *u.TotalTokens)
+		assert.Equal(t, int32(212887), *u.TotalTokens)
 		require.NotNil(t, u.CachedTokens)
-		assert.Equal(t, int32(21120), *u.CachedTokens)
+		assert.Equal(t, int32(152557), *u.CachedTokens)
 		require.NotNil(t, u.TotalCost)
-		assert.InDelta(t, 0.014, *u.TotalCost, 0.0001)
+		assert.InDelta(t, 0.4129714, *u.TotalCost, 0.0000001)
+	})
+
+	t.Run("costs without token counts falls back to usage", func(t *testing.T) {
+		t.Parallel()
+		u := ParseHolmesMetadata([]byte(`{"usage":{"total_tokens":100,"prompt_tokens":90.0},"costs":{"total_cost":0.5}}`))
+		require.NotNil(t, u)
+		require.NotNil(t, u.TotalTokens)
+		assert.Equal(t, int32(100), *u.TotalTokens)
+		require.NotNil(t, u.PromptTokens)
+		assert.Equal(t, int32(90), *u.PromptTokens)
+		require.NotNil(t, u.TotalCost)
+		assert.InDelta(t, 0.5, *u.TotalCost, 0.0001)
 	})
 
 	t.Run("empty", func(t *testing.T) {
@@ -89,7 +106,7 @@ func TestExtractUsageFromMetadata(t *testing.T) {
 	require.NotNil(t, p)
 	require.NotNil(t, c)
 	require.NotNil(t, tot)
-	assert.Equal(t, int32(22904), *p)
-	assert.Equal(t, int32(21), *c)
-	assert.Equal(t, int32(22925), *tot)
+	assert.Equal(t, int32(207499), *p)
+	assert.Equal(t, int32(5388), *c)
+	assert.Equal(t, int32(212887), *tot)
 }

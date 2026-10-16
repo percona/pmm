@@ -16,6 +16,7 @@
 package adre
 
 import (
+	"cmp"
 	"encoding/json"
 	"strings"
 )
@@ -38,55 +39,57 @@ type HolmesUsage struct {
 	TotalTokens      *int32
 	CachedTokens     *int32
 	TotalCost        *float64
-	CostPrompt       *float64
-	CostCompletion   *float64
-	CostCached       *float64
 	RawMetadata      json.RawMessage
 }
 
+// holmesTokenCounts is the token block shared by Holmes metadata "usage" (last LLM call) and "costs" (whole request).
+type holmesTokenCounts struct {
+	PromptTokens     *float64 `json:"prompt_tokens"`
+	CompletionTokens *float64 `json:"completion_tokens"`
+	TotalTokens      *float64 `json:"total_tokens"`
+	CachedTokens     *float64 `json:"cached_tokens"`
+}
+
+func tokenCount(v *float64) *int32 {
+	if v == nil {
+		return nil
+	}
+	n := int32(*v) //nolint:gosec
+	return &n
+}
+
 // ParseHolmesMetadata extracts usage and cost fields from Holmes /api/chat metadata.
+// Token counts come from "costs", which sums every LLM call of the request; "usage" covers only the last call
+// and is used when "costs" lacks a field.
 func ParseHolmesMetadata(raw json.RawMessage) *HolmesUsage {
 	if len(raw) == 0 {
 		return nil
 	}
 	out := &HolmesUsage{RawMetadata: append(json.RawMessage(nil), raw...)}
 	var meta struct {
-		Usage json.RawMessage `json:"usage"`
-		Costs json.RawMessage `json:"costs"`
-		Model string          `json:"model"`
+		Usage *holmesTokenCounts `json:"usage"`
+		Costs *struct {
+			holmesTokenCounts
+			TotalCost *float64 `json:"total_cost"`
+		} `json:"costs"`
+		Model string `json:"model"`
 	}
 	if json.Unmarshal(raw, &meta) != nil {
 		return out
 	}
 	out.Model = meta.Model
-	if len(meta.Usage) > 0 {
-		var u struct {
-			PromptTokens     *int32 `json:"prompt_tokens"`
-			CompletionTokens *int32 `json:"completion_tokens"`
-			TotalTokens      *int32 `json:"total_tokens"`
-			CachedTokens     *int32 `json:"cached_tokens"`
-		}
-		if json.Unmarshal(meta.Usage, &u) == nil {
-			out.PromptTokens = u.PromptTokens
-			out.CompletionTokens = u.CompletionTokens
-			out.TotalTokens = u.TotalTokens
-			out.CachedTokens = u.CachedTokens
-		}
+	var last, all holmesTokenCounts
+	if meta.Usage != nil {
+		last = *meta.Usage
 	}
-	if len(meta.Costs) > 0 {
-		var c struct {
-			TotalCost        *float64 `json:"total_cost"`
-			PromptTokens     *float64 `json:"prompt_tokens"`
-			CompletionTokens *float64 `json:"completion_tokens"`
-			CachedTokens     *float64 `json:"cached_tokens"`
-		}
-		if json.Unmarshal(meta.Costs, &c) == nil {
-			out.TotalCost = c.TotalCost
-			out.CostPrompt = c.PromptTokens
-			out.CostCompletion = c.CompletionTokens
-			out.CostCached = c.CachedTokens
-		}
+	if meta.Costs != nil {
+		all = meta.Costs.holmesTokenCounts
+		out.TotalCost = meta.Costs.TotalCost
 	}
+	out.PromptTokens = tokenCount(cmp.Or(all.PromptTokens, last.PromptTokens))
+	out.CompletionTokens = tokenCount(cmp.Or(all.CompletionTokens, last.CompletionTokens))
+	out.TotalTokens = tokenCount(cmp.Or(all.TotalTokens, last.TotalTokens))
+	out.CachedTokens = tokenCount(cmp.Or(all.CachedTokens, last.CachedTokens))
 	return out
 }
 
