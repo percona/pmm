@@ -2024,6 +2024,52 @@ $y$,
 		// of shipped skills leaves them alone.
 		`UPDATE adre_skills SET source = 'user' WHERE source = 'builtin' AND updated_by <> 'system'`,
 	},
+	148: {
+		// postgres: only a line with a top-level level starts an entry, so DETAIL/HINT/STATEMENT/CONTEXT lines join it.
+		`UPDATE log_parser_presets SET
+			line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\] (LOG|ERROR|WARNING|FATAL|PANIC|NOTICE|INFO|DEBUG\d?):$p$,
+			updated_at = NOW()
+		WHERE name = 'postgres' AND built_in AND line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\]$p$`,
+		// Go accepts fractional seconds the layout omits, so vmproxy.log lines without milliseconds parse too.
+		`UPDATE log_parser_presets SET
+			operator_yaml = replace(operator_yaml, $o$layout: '2006-01-02T15:04:05.000Z07:00'$o$, $n$layout: '2006-01-02T15:04:05Z07:00'$n$),
+			updated_at = NOW()
+		WHERE name = 'pmm_agent' AND built_in`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'victoriametrics',
+			'victoriametrics',
+			'VictoriaMetrics / vmalert log (time, level, caller, message separated by tabs)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\S+)\t(?P<level>\w+)\t(?P<caller>\S+)\t(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05Z07:00'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    info: info
+    warn: warn
+    error: error
+    fatal: [fatal, panic]
+- type: move
+  from: attributes.message
+  to: body
+- type: remove
+  field: attributes.timestamp
+  on_error: send_quiet
+- type: remove
+  field: attributes.level
+  on_error: send_quiet
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		) ON CONFLICT DO NOTHING`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
