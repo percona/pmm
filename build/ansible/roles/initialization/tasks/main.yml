@@ -64,7 +64,8 @@
       - name: Create grafana user in postgres
         postgresql_user:
           name: grafana
-          password: grafana
+          # The password Grafana connects with; postgres-migration applies a changed one at every start.
+          password: "{{ lookup('env', 'GF_DATABASE_PASSWORD') | default('grafana', true) }}"
           expires: infinity
           login_user: postgres
           state: present

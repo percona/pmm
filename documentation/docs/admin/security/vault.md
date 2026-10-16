@@ -219,6 +219,7 @@ PMM Server keeps some keys in files. The following variables give them from Vaul
 | `PMM_ENCRYPTION_KEY` | The [encryption key](data_encryption.md) of the secrets PMM Server stores in its database, instead of `/srv/pmm-encryption.key` |
 | `PMM_CLICKHOUSE_PASSWORD` | The password of the `default` user of the built-in ClickHouse |
 | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | The password of the `grafana` user of the built-in ClickHouse, which the ClickHouse data source of Grafana connects with |
+| `GF_DATABASE_PASSWORD` | The password of the `grafana` user of the built-in PostgreSQL, which Grafana connects to its database with |
 | `PMM_TLS_CERTIFICATE`, `PMM_TLS_CERTIFICATE_KEY` | The certificate of the PMM Server web interface and API, and its key, in PEM format |
 | `PMM_TLS_CA_CERTIFICATE` | The certificates of the CA that issued it, optional |
 | `GF_SECURITY_SECRET_KEY` | The key that Grafana encrypts the secrets it stores with, such as the passwords of alert contact points and data sources |
@@ -252,7 +253,7 @@ The encryption key protects most of the secrets that PMM Server stores in its da
 
 In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path. If the rotation fails, it puts the old key back in Vault.
 
-PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key.
+PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. It applies the passwords of the built-in ClickHouse and PostgreSQL at every start, so restart PMM Server to apply rotated ones; without the variables, the default passwords apply again. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key.
 
 !!! note
     The token and secret ID that you give to PMM Server and to its own PMM Client, with `PMM_VAULT_TOKEN`, `PMM_VAULT_SECRET_ID`, `PMM_AGENT_VAULT_TOKEN`, and `PMM_AGENT_VAULT_SECRET_ID`, are handed over to them in files, and are not in the environment of PMM Server's components.
@@ -288,7 +289,7 @@ The password of a monitored database can be a reference too, as an alternative t
 
 Vault support has the following limitations:
 
-- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the password of the PostgreSQL superuser, the secret key of PMM Extensions, and the certificates of Nomad. `GF_DATABASE_PASSWORD` applies to an [external Grafana database](../../reference/third-party/postgresql.md#grafana-database-configuration) only.
+- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the password of the PostgreSQL superuser, the secret key of PMM Extensions, and the certificates of Nomad.
 - Credentials in `PMM_VM_URL` are written to the configuration files of vmalert and vmproxy.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.

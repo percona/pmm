@@ -931,6 +931,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	pmmdb.DSN.Params = q.Encode()
 
 	grafanadb := ds.GrafanaDBSelect
+	// The bundled Grafana database takes the password Grafana connects with, which may be read from Vault.
+	grafanadb.SeparateCredentials.Password = envvars.GetEnv("GF_DATABASE_PASSWORD", grafanadb.SeparateCredentials.Password)
 	grafanadb.DSN.Scheme = "postgres"
 	grafanadb.DSN.Host = *postgresAddrF
 	grafanadb.DSN.DB = "grafana"

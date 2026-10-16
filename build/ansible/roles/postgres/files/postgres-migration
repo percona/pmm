@@ -205,6 +205,51 @@ ensure_postgres_password() {
     fi
 }
 
+# ── Grafana database password ─────────────────────────────────────────────────
+# Gives the grafana role the password Grafana connects with, GF_DATABASE_PASSWORD, which may have been
+# read from Vault, at every start, so that rotating it takes effect. The marker records that the
+# password is not the default one, which is put back once the variable is gone. A Grafana database
+# elsewhere, given by GF_DATABASE_URL or GF_DATABASE_HOST, is left alone.
+ensure_grafana_password() {
+    local marker=/srv/.grafana_password_from_env password started=0 role_exists
+
+    if [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ] || [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
+        return
+    fi
+    if [ -n "$GF_DATABASE_PASSWORD" ]; then
+        password=$GF_DATABASE_PASSWORD
+    elif [ -f "$marker" ]; then
+        password=grafana
+    else
+        return 0
+    fi
+
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses=" -w
+        started=1
+    fi
+
+    role_exists=$("$POSTGRES_BIN_DIR/psql" -X -q -U postgres -h /run/postgresql -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'grafana'")
+    if [ -n "$role_exists" ]; then
+        # Fed via stdin, not -c: psql only interpolates :'grafana_password' when reading a script.
+        "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d postgres \
+            -v grafana_password="$password" <<'SQL'
+ALTER ROLE grafana WITH PASSWORD :'grafana_password';
+SQL
+    fi
+
+    if [ -n "$GF_DATABASE_PASSWORD" ]; then
+        touch "$marker"
+    else
+        rm -f "$marker"
+    fi
+
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    fi
+}
+
 upgrade_pg14_to_pg18
 init_postgres_cluster
 ensure_postgres_password
+ensure_grafana_password
