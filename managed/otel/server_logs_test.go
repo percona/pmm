@@ -25,7 +25,10 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-const nginxStatusFilter = `attributes.status != nil and int(attributes.status) < 400`
+const (
+	nginxStatusFilter   = `attributes.status != nil and int(attributes.status) < 400`
+	vmproxyAccessFilter = `attributes.level == "info" and attributes.msg != nil and attributes.msg matches "^[A-Z]+: /"`
+)
 
 func parseServerReceivers(t *testing.T, logs ServerLogs) map[string]map[string]any {
 	t.Helper()
@@ -43,6 +46,7 @@ func TestBuildServerLogs(t *testing.T) {
 		{Name: "pmm_managed", OperatorYAML: "- type: key_value_parser\n  parse_from: body\n"},
 		{Name: "postgres", LineStartPattern: `^\d{4}-\d{2}-\d{2} \S+ \[\d+\] (LOG|ERROR):`, OperatorYAML: "- type: regex_parser\n  regex: '^(?P<message>.*)$'\n"},
 		{Name: "nginx_access", OperatorYAML: "- type: key_value_parser\n  parse_from: body\n"},
+		{Name: "pmm_agent", OperatorYAML: "- type: key_value_parser\n  parse_from: body\n"},
 	}
 	logs := BuildServerLogs(presets, ServerNode{NodeID: "pmm-server", NodeName: "pmm-server"})
 
@@ -70,6 +74,15 @@ func TestBuildServerLogs(t *testing.T) {
 	require.True(t, ok)
 	require.Len(t, ops, 2)
 	assert.Equal(t, map[string]any{"type": "filter", "expr": nginxStatusFilter, "on_error": "send_quiet"}, ops[1])
+
+	// vmproxy logs every request nginx already logged; keep only its other lines.
+	ops, ok = receivers["filelog/srv_vmproxy"]["operators"].([]any)
+	require.True(t, ok)
+	require.Len(t, ops, 2)
+	assert.Equal(t, map[string]any{"type": "filter", "expr": vmproxyAccessFilter, "on_error": "send_quiet"}, ops[1])
+	ops, ok = receivers["filelog/srv_qan_api2"]["operators"].([]any)
+	require.True(t, ok)
+	assert.Len(t, ops, 1, "same preset, no filter")
 
 	assert.Equal(t, "clickhouse-server", receivers["filelog/srv_clickhouse_server"]["resource"].(map[string]any)["service.name"])
 	assert.NotContains(t, receivers["filelog/srv_pmm_init"], "operators")

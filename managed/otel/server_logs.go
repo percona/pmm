@@ -59,7 +59,8 @@ var serverLogFiles = []serverLogFile{
 	{name: "pmm-managed.log", preset: "pmm_managed"},
 	{name: "pmm-agent.log", preset: "pmm_agent"},
 	{name: "qan-api2.log", preset: "pmm_agent"},
-	{name: "vmproxy.log", preset: "pmm_agent"},
+	// vmproxy logs every request nginx already logged; keep its other lines.
+	{name: "vmproxy.log", preset: "pmm_agent", dropExpr: `attributes.level == "info" and attributes.msg != nil and attributes.msg matches "^[A-Z]+: /"`},
 	// nginx logs every API call; keep 4xx, 5xx and error-log lines (no status).
 	{name: "nginx.log", preset: "nginx_access", dropExpr: `attributes.status != nil and int(attributes.status) < 400`},
 	{name: "grafana.log", preset: "grafana"},
