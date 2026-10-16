@@ -4,7 +4,7 @@ Starting with PMM 3.10.0, you can change an alert rule's threshold for individua
 
 ## How dynamic thresholds work
 
-A template can mark a threshold parameter as overridable. On the **Alerts &gt; Templates** page, these templates carry a **Dynamic** badge. Among the built-in templates, only `pmm_node_high_cpu_load` carries this badge. You can also [make a parameter overridable in a custom template](#make-a-parameter-overridable-in-a-custom-template).
+A template can mark a threshold parameter as overridable. On the **Alerts &gt; Templates** page, these templates carry a **Dynamic** badge. Among the built-in templates, `pmm_node_high_cpu_load` and `pmm_qan_slow_queries` carry this badge. You can also [make a parameter overridable in a custom template](#make-a-parameter-overridable-in-a-custom-template).
 
 When you create an alert rule from such a template:
 
@@ -63,7 +63,8 @@ To enable overrides for a parameter in a [custom template](alert_rules.md#create
 - marks the parameter with `type: float` and `overridable: true`
 - uses the parameter as the whole right-hand side of a comparison, for example `$A > [[ .threshold ]]`; expressions like `$A > [[ .threshold ]] * 100` are rejected
 - compares the parameter against the same query in every expression that uses it
-- keeps the `node_name` label in query results, so PMM can match each node to its override
+- keeps the `node_name` label (for a ClickHouse query, a `node_name` column) in query results, so PMM can match each node to its override
+- reduces a [ClickHouse query](alert_rules.md#alert-on-query-analytics-data) before the comparison, for example `$B > [[ .threshold ]]` where `B` is a `reduce` expression over the query
 
 For the full list of template fields, see [Template format](alert_rules.md#template-format).
 
@@ -105,7 +106,8 @@ For the full list of template fields, see [Template format](alert_rules.md#templ
 Dynamic thresholds have the following limitations:
 
 - Overrides apply to individual nodes only.
-- Currently, only the built-in `pmm_node_high_cpu_load` template supports overrides.
+- Among the built-in templates, only `pmm_node_high_cpu_load` and `pmm_qan_slow_queries` support overrides.
+- Starting with PMM 3.11.0, a rule can compare a ClickHouse query. PMM applies its default threshold only to nodes that have metrics in VictoriaMetrics. A node that sends only Query Analytics data gets no default threshold, so its alerts fire only if you set an override for it.
 - Rules created before PMM 3.10.0 don't support overrides. To enable them, make sure your template is Dynamic, then delete the rule and recreate it. If your template uses `expr`, [make it Dynamic first](#make-a-parameter-overridable-in-a-custom-template).
 
 
