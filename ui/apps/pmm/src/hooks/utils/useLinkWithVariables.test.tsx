@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import type { ReactElement } from 'react';
 import messenger from 'lib/messenger';
 import { wrapWithGrafana, wrapWithRouter } from 'utils/testUtils';
 import { useLinkWithVariables } from './useLinkWithVariables';
