@@ -29,14 +29,13 @@ export const isAgentRunning = (agent: ManagedAgent) =>
   agent.status === AgentStatus.starting ||
   agent.isConnected;
 
-export const getAgentsMonitoringStatus = (agents: ManagedAgent[]) => {
-  const allAgentsOk = agents.every(
-    (agent) =>
-      isAgentRunning(agent) ||
-      (agent.disabled && agent.status === AgentStatus.done)
-  );
+// A disabled agent is expected to be done rather than running
+export const isAgentFailed = (agent: ManagedAgent) =>
+  !isAgentRunning(agent) &&
+  !(agent.disabled && agent.status === AgentStatus.done);
 
-  if (!allAgentsOk) {
+export const getAgentsMonitoringStatus = (agents: ManagedAgent[]) => {
+  if (agents.some(isAgentFailed)) {
     return MonitoringStatus.failed;
   }
 

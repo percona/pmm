@@ -1,3 +1,4 @@
+import type { MRT_TableInstance } from 'material-react-table';
 import type { ManagedService } from 'types/services.types';
 import { getAgentsMonitoringStatus } from '../Inventory.utils';
 import { Messages } from './Services.messages';
@@ -12,6 +13,16 @@ export const isClusterRow = (row: ServicesTableRow): row is ClusterRow =>
 
 export const getServicesRowId = (row: ServicesTableRow) =>
   isClusterRow(row) ? row.clusterId : row.serviceId;
+
+// The services matching the filters in the table's order, across every page
+// and including the ones in collapsed clusters
+export const getFilteredServices = (
+  table: MRT_TableInstance<ServicesTableRow>
+): ServiceRow[] =>
+  table
+    .getSortedRowModel()
+    .flatRows.map(({ original }) => original)
+    .filter((row): row is ServiceRow => !isClusterRow(row));
 
 export const toServiceRows = (services: ManagedService[]): ServiceRow[] =>
   services

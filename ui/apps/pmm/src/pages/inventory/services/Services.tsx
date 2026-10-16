@@ -15,6 +15,7 @@ import {
   type MRT_RowSelectionState,
 } from '@percona/peak-ui';
 import { type MRT_ExpandedState } from 'material-react-table';
+import { ExportButton } from 'components/export-button';
 import { useManagedServices, useRemoveServices } from 'hooks/api/useServices';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
@@ -36,11 +37,13 @@ import {
   getServiceQanUrl,
 } from '../Inventory.utils';
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
+import { exportServicesToCsv } from './export/exportServicesToCsv';
 import { ServiceDetails } from './service-details';
 import { SERVICES_COLUMNS } from './Services.constants';
 import { Messages } from './Services.messages';
 import type { ServiceRow } from './Services.types';
 import {
+  getFilteredServices,
   getServicesRowId,
   isClusterRow,
   toClusterRows,
@@ -186,52 +189,64 @@ export const Services: FC = () => {
               : []),
           ];
         }}
-        renderTopToolbarCustomActions={() => (
-          <Stack
-            direction="row"
-            alignItems="center"
-            flexWrap="wrap"
-            columnGap={2}
-            rowGap={1}
-          >
-            {!!selectedServices.length && (
-              <Typography variant="body2">
-                {InventoryMessages.selected(selectedServices.length)}
-              </Typography>
-            )}
-            <Button
-              color="error"
-              startIcon={<DeleteOutlineIcon />}
-              disabled={!selectedServices.length}
-              onClick={() => setServicesToDelete(selectedServices)}
-              data-testid="delete-services-button"
+        renderTopToolbarCustomActions={({ table }) => {
+          // A selection narrows the export, as it does the delete
+          const exportedServices = selectedServices.length
+            ? selectedServices
+            : getFilteredServices(table);
+
+          return (
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              columnGap={2}
+              rowGap={1}
             >
-              {InventoryMessages.actions.delete}
-            </Button>
-            <Stack direction="row" alignItems="center">
-              <FormControlLabel
-                label={Messages.organizeByClusters}
-                sx={{ mr: 1 }}
-                control={
-                  <Switch
-                    size="small"
-                    checked={showClusters}
-                    onChange={() => setShowClusters(!showClusters)}
-                    data-testid="organize-by-clusters-switch"
-                  />
-                }
+              {!!selectedServices.length && (
+                <Typography variant="body2">
+                  {InventoryMessages.selected(selectedServices.length)}
+                </Typography>
+              )}
+              <Button
+                color="error"
+                startIcon={<DeleteOutlineIcon />}
+                disabled={!selectedServices.length}
+                onClick={() => setServicesToDelete(selectedServices)}
+                data-testid="delete-services-button"
+              >
+                {InventoryMessages.actions.delete}
+              </Button>
+              <Stack direction="row" alignItems="center">
+                <FormControlLabel
+                  label={Messages.organizeByClusters}
+                  sx={{ mr: 1 }}
+                  control={
+                    <Switch
+                      size="small"
+                      checked={showClusters}
+                      onChange={() => setShowClusters(!showClusters)}
+                      data-testid="organize-by-clusters-switch"
+                    />
+                  }
+                />
+              </Stack>
+              <ExportButton
+                disabled={!exportedServices.length}
+                onClick={() => exportServicesToCsv(exportedServices)}
+                data-testid="export-services-button"
               />
+              <Button
+                startIcon={<AddOutlinedIcon />}
+                component={RouterLink}
+                to={PMM_ADD_SERVICE_URL}
+                data-testid="add-service-button"
+              >
+                {Messages.actions.add}
+              </Button>
             </Stack>
-            <Button
-              startIcon={<AddOutlinedIcon />}
-              component={RouterLink}
-              to={PMM_ADD_SERVICE_URL}
-              data-testid="add-service-button"
-            >
-              {Messages.actions.add}
-            </Button>
-          </Stack>
-        )}
+          );
+        }}
       />
       <DeleteModal
         open={!!servicesToDelete.length}
