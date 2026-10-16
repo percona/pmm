@@ -88,7 +88,7 @@ func Resolve(ctx context.Context, s string) (string, []string, error) {
 	}
 
 	res, values, err := vault.ReplaceTokens(s, func(path, key string) (string, error) {
-		return h.store.Get(ctx, path, key)
+		return h.get(ctx, path, key)
 	})
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrUnavailable, err)
@@ -118,11 +118,19 @@ func ResolveRef(ctx context.Context, s string) (string, error) {
 		return "", fmt.Errorf("%w: %w", ErrUnavailable, err)
 	}
 
-	v, err := h.store.Get(ctx, ref.Path, ref.Key)
+	v, err := h.get(ctx, ref.Path, ref.Key)
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrUnavailable, err)
 	}
 	return v, nil
+}
+
+// get returns the value of key in the secret at path, staged in pmm-agent or stored in Vault.
+func (h *holder) get(ctx context.Context, path, key string) (string, error) {
+	if v, ok, err := stagedValue(path, key); ok {
+		return v, err
+	}
+	return h.store.Get(ctx, path, key)
 }
 
 // Fingerprint returns a digest of strs with their Vault tokens resolved, or an empty string if they
@@ -150,9 +158,14 @@ func Fingerprint(ctx context.Context, strs ...string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// Write stores data in the Vault secret at path, keeping the keys of the secret that data does not have.
+// Write stores data in the Vault secret at path, keeping the keys of the secret that data does not have. A value
+// that is a reference to a secret staged in pmm-agent is replaced with the secret, which is dropped once stored.
 func Write(ctx context.Context, path string, data map[string]string) error {
 	h, err := loadHolder()
+	if err != nil {
+		return err
+	}
+	data, handles, err := unstage(data)
 	if err != nil {
 		return err
 	}
@@ -160,6 +173,7 @@ func Write(ctx context.Context, path string, data map[string]string) error {
 	if err != nil {
 		return err
 	}
+	dropStaged(handles)
 
 	select {
 	case written <- struct{}{}:

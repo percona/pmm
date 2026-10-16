@@ -38,6 +38,23 @@ func IsRef(s string) bool {
 	return strings.HasPrefix(s, RefPrefix)
 }
 
+// StagedPathPrefix is the path prefix of the references to the secrets that pmm-agent holds until PMM Server asks it
+// to store them in Vault. The secrets to store are staged there by pmm-admin, so that they reach Vault through
+// pmm-agent alone, and PMM Server gets these references instead. They are not in Vault: only that pmm-agent
+// resolves them.
+const StagedPathPrefix = "pmm-agent-staged/"
+
+// IsStagedRef reports whether s is a reference to a secret staged in pmm-agent, see StagedPathPrefix.
+func IsStagedRef(s string) bool {
+	return strings.HasPrefix(s, RefPrefix+StagedPathPrefix)
+}
+
+// ToStore reports whether s is a secret to store in Vault: one given as is, or staged in pmm-agent, rather than a
+// reference to one that is in Vault already.
+func ToStore(s string) bool {
+	return s != "" && (!IsRef(s) || IsStagedRef(s))
+}
+
 // ParseRef parses a vault:<path>#<key> reference.
 func ParseRef(s string) (Ref, error) {
 	rest, ok := strings.CutPrefix(s, RefPrefix)

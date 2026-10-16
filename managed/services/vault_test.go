@@ -118,6 +118,12 @@ func TestWithCheckSecrets(t *testing.T) {
 	assert.Equal(t, "KEY", files["tlsKey"])
 	assert.Equal(t, vault.Token("secret/data/other", "tls_ca", vault.EncodingRaw), files["tlsCa"])
 
+	// A password and a TLS key staged in pmm-agent are checked as pmm-agent resolves them.
+	_, password = agent.WithCheckSecrets(map[string]string{"password": "vault:pmm-agent-staged/abc#password"}).DBCredentials(vault.EncodingUserinfo)
+	assert.Equal(t, vault.Token("pmm-agent-staged/abc", "password", vault.EncodingUserinfo), password)
+	files = agent.WithCheckSecrets(map[string]string{"tls_key": "vault:pmm-agent-staged/abc#tls_key"}).Files()
+	assert.Equal(t, vault.Token("pmm-agent-staged/abc", "tls_key", vault.EncodingRaw), files["tlsKey"])
+
 	// The Agent itself is not changed.
 	username, password = agent.DBCredentials(vault.EncodingRaw)
 	assert.True(t, vault.HasTokens(username))

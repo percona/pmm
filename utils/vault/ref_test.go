@@ -163,3 +163,16 @@ func TestTokenForRef(t *testing.T) {
 	assert.Equal(t, "-----BEGIN PRIVATE KEY-----", TokenForRef("-----BEGIN PRIVATE KEY-----", EncodingRaw))
 	assert.Equal(t, "vault:no-key", TokenForRef("vault:no-key", EncodingRaw))
 }
+
+func TestStagedRefs(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, IsStagedRef("vault:pmm-agent-staged/abc#password"))
+	assert.False(t, IsStagedRef("vault:secret/data/pmm-agent-staged/abc#password"))
+	assert.False(t, IsStagedRef("pmm-agent-staged/abc#password"))
+
+	assert.True(t, ToStore("s3cr3t"))
+	assert.True(t, ToStore("vault:pmm-agent-staged/abc#password"))
+	assert.False(t, ToStore("vault:secret/data/pmm#password"), "in Vault already")
+	assert.False(t, ToStore(""))
+}

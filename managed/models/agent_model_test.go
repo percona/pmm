@@ -1145,6 +1145,18 @@ func TestTLSFromVault(t *testing.T) {
 			TLSCert: "vault:secret/data/other#cert",
 		}, params.MySQLOptions)
 
+		// Secrets staged in pmm-agent are taken as well: pmm-agent stores them.
+		staged := &models.CreateAgentParams{
+			Password: "vault:pmm-agent-staged/abc#password", VaultPath: "secret/data/pmm",
+			MySQLOptions: models.MySQLOptions{TLSKey: "vault:pmm-agent-staged/abc#tls_key"},
+		}
+		assert.Equal(t, map[string]string{
+			"password": "vault:pmm-agent-staged/abc#password",
+			"tls_key":  "vault:pmm-agent-staged/abc#tls_key",
+		}, staged.TakeVaultSecrets())
+		assert.Empty(t, staged.Password)
+		assert.Equal(t, "vault:secret/data/pmm#tls_key", staged.MySQLOptions.TLSKey)
+
 		// Nothing to take, or no Vault path.
 		assert.Nil(t, (&models.CreateAgentParams{VaultPath: "secret/data/pmm", Username: "pmm"}).TakeVaultSecrets())
 		plain := &models.CreateAgentParams{Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: "KEY"}}

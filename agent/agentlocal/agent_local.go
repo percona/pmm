@@ -340,6 +340,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/debug", debugPageHandler)
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
+	mux.HandleFunc("POST "+StageSecretsPath, StageSecrets)
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     address,

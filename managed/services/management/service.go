@@ -554,7 +554,7 @@ func takeVaultSecrets(vaultPath, username string, password *string, tls map[stri
 	}
 
 	secrets := make(map[string]string)
-	if *password != "" && !vault.IsRef(*password) {
+	if vault.ToStore(*password) {
 		secrets[models.VaultPasswordKey] = *password
 		if username != "" {
 			secrets[models.VaultUsernameKey] = username
@@ -563,7 +563,7 @@ func takeVaultSecrets(vaultPath, username string, password *string, tls map[stri
 	}
 
 	for key, value := range tls {
-		if *value != "" && !vault.IsRef(*value) {
+		if vault.ToStore(*value) {
 			secrets[key] = *value
 			*value = models.VaultRef(vaultPath, key)
 		}

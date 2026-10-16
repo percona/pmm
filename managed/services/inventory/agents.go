@@ -2202,7 +2202,7 @@ func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*mode
 		secrets[models.VaultUsernameKey] = username
 	}
 	// A reference to another secret replaces the Vault path rather than goes to it.
-	if password := pointer.GetString(params.Password); password != "" && !vault.IsRef(password) {
+	if password := pointer.GetString(params.Password); vault.ToStore(password) {
 		secrets[models.VaultPasswordKey] = password
 		changed.Password = nil
 	}

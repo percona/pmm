@@ -1195,7 +1195,7 @@ func (p *CreateAgentParams) TakeVaultSecrets() map[string]string {
 	}
 
 	secrets := make(map[string]string)
-	if p.Password != "" && !vault.IsRef(p.Password) {
+	if vault.ToStore(p.Password) {
 		secrets[VaultPasswordKey] = p.Password
 		if p.Username != "" {
 			secrets[VaultUsernameKey] = p.Username
@@ -1204,7 +1204,7 @@ func (p *CreateAgentParams) TakeVaultSecrets() map[string]string {
 	}
 
 	for _, f := range tlsFields(&p.MySQLOptions, &p.MongoDBOptions, &p.PostgreSQLOptions, &p.ValkeyOptions) {
-		if *f.value != "" && !vault.IsRef(*f.value) {
+		if vault.ToStore(*f.value) {
 			secrets[f.key] = *f.value
 			*f.value = VaultRef(p.VaultPath, f.key)
 		}
@@ -1275,7 +1275,7 @@ func (p *ChangeAgentParams) TakeVaultTLSSecrets(path string, secrets map[string]
 	}
 
 	for _, f := range p.changeTLSFields() {
-		if v := **f.value; v != "" && !vault.IsRef(v) {
+		if v := **f.value; vault.ToStore(v) {
 			secrets[f.key] = v
 			*f.value = new(VaultRef(path, f.key))
 		}

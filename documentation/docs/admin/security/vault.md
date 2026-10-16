@@ -112,6 +112,8 @@ pmm-admin inventory change agent mysqld-exporter <agent-id> --password='...'
 
 A password that the database refuses is not stored, so the secret keeps working credentials. Other PMM Clients that read the same secret pick up the change at their next check.
 
+When the exporter or agent runs on the PMM Client of the host where you run `pmm-admin`, the password and the TLS files never reach PMM Server: `pmm-admin` hands them to that PMM Client, which holds them until PMM Server asks it to store them in Vault, and PMM Server gets references to them instead. It checks the connection with those, which PMM Client resolves. For an exporter or agent of another PMM Client, or for credentials given in the PMM web interface or the API, the credentials pass through PMM Server on their way to PMM Client, although PMM Server does not store them.
+
 PMM Client stores the credentials with its own Vault identity, so its policy needs `create` and `update` on the path. Only secrets in a KV secrets engine can be written. For credentials issued by the database secrets engine, Vault manages the password, and PMM refuses to store one.
 
 The `--vault-path` flag is available for `pmm-admin add mysql`, `mongodb`, `postgresql`, `proxysql`, and `valkey`, and for the `pmm-admin inventory add agent` and `pmm-admin inventory change agent` commands of the agents that connect to a database. In the API, set the `vault_path` field instead of `password`. In the PMM web interface, set **Vault path** in the **Main details** of the service when you add it in **Inventory > Add Service**; the **Username** and **Password** can then stay empty.
@@ -322,4 +324,4 @@ Vault support has the following limitations:
 - PMM Server keeps the certificates of Nomad in `/srv` unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault). It publishes the secret key and the database password of PMM Extensions to `/srv/extensions`, where the side-car reads them.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
-- A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.
+- A password given with a Vault path in the PMM web interface, in the API, or with `pmm-admin` for another PMM Client passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, run `pmm-admin` on the host of the PMM Client, or store it in Vault yourself.

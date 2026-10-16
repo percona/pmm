@@ -812,7 +812,8 @@ func (a *Agent) DBCredentials(enc vault.Encoding) (string, string) {
 	}
 	vaultPassword := vault.Token(path, VaultPasswordKey, enc)
 	if a.checkPassword != nil {
-		vaultPassword = *a.checkPassword
+		// A password staged in pmm-agent is checked as pmm-agent resolves it.
+		vaultPassword = vault.TokenForRef(*a.checkPassword, enc)
 	}
 	return vaultUsername, vaultPassword
 }
