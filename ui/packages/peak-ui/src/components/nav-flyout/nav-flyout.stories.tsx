@@ -133,7 +133,7 @@ const meta: Meta<typeof NavFlyout> = {
         component: [
           "A navigation group's entries in a panel beside its item, for a sidebar collapsed to a rail of icons where the group cannot open in place. The panel is a navigation landmark of links, not a menu: screen readers keep announcing its entries as links.",
           '',
-          "It sits on the theme's popover surface, the Figma Menu's, and stays inside the viewport: it moves up when the group sits low on the screen and scrolls when the entries outgrow it. The group's name heads it in `sectionHeading` and stays in view as it scrolls. `NavItem` entries run edge to edge, with labels 16 px in.",
+          "It sits on the theme's popover surface, the Figma Menu's, and stays inside the viewport: it moves up when the group sits low on the screen and scrolls when the entries outgrow it. The group's name heads it in `sectionHeading` above a divider and stays in view as it scrolls. `NavItem` entries run edge to edge, with labels, or the icons of entries that have one, 16 px in.",
           '',
           'Opening moves focus to the current page, or else the first entry. Up and Down move between entries and wrap round, Home and End go to the ends, Tab reaches any actions, and Escape closes the panel and returns focus to the trigger.',
           '',
