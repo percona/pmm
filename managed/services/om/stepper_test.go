@@ -54,6 +54,53 @@ func TestStepBootstrapTick(t *testing.T) {
 	})
 }
 
+func TestAdminUserCredentials(t *testing.T) {
+	t.Run("supplies the administrator's credentials until the step has used them", func(t *testing.T) {
+		db := storeTestDB(t)
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: bootstrapMongoDBUsername,
+			MongoDBPassword: "monitoring-secret",
+			KeyFile:         "keyfile-content",
+			AdminUsername:   "dba",
+			AdminPassword:   "chosen-secret",
+		}))
+		run := `{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
+		  "mongodb_version": "7.0.8", "replica_set_name": "rs-test", "started_at": "2026-01-01T00:00:00Z", "hosts": [],
+		  "run_steps": [{"name": "create_admin_user", "status": "succeeded", "attempt_count": 1},
+		                {"name": "create_pmm_monitoring_user", "status": "running", "attempt_count": 1}]}`
+		stub := newSEPStub(t, http.StatusOK, run)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		params, err := svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"username": "dba", "password": "chosen-secret"}, params)
+
+		svc.stepBootstrapRun(t.Context(), "run-abc")
+
+		secret, err := models.FindOmBootstrapSecretByRunID(db.Querier, "run-abc")
+		require.NoError(t, err)
+		assert.Empty(t, secret.AdminPassword)
+		assert.Equal(t, "monitoring-secret", secret.MongoDBPassword, "the exporter still needs its own password")
+		_, err = svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
+		require.ErrorIs(t, err, errAdminPasswordGone)
+	})
+
+	t.Run("cancels a run whose administrator password is not stored", func(t *testing.T) {
+		stub := newSEPStub(t, http.StatusOK, `{"id": "run-abc", "status": "running", "cancel_requested": true,
+		  "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-test",
+		  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`)
+		svc := (&Service{db: storeTestDB(t), l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		svc.dispatchRunStep(t.Context(), &extensionsBootstrapRun{ID: "run-abc"}, createAdminUserStep)
+
+		require.Len(t, stub.calls, 1)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[0].path)
+	})
+}
+
 func TestCompleteSucceededRun(t *testing.T) {
 	t.Run("triggers a scoped inventory refresh only for hosts the inventory app has not confirmed yet", func(t *testing.T) {
 		db := storeTestDB(t)

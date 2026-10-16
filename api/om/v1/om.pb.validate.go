@@ -6791,6 +6791,41 @@ func (m *TriggerHostBootstrapRequest) validate(all bool) error {
 		}
 	}
 
+	if utf8.RuneCountInString(m.GetAdminUsername()) > 64 {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "AdminUsername",
+			reason: "value length must be at most 64 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_TriggerHostBootstrapRequest_AdminUsername_Pattern.MatchString(m.GetAdminUsername()) {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "AdminUsername",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9._@-]*$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetAdminPassword() != "" {
+		if l := utf8.RuneCountInString(m.GetAdminPassword()); l < 8 || l > 128 {
+			err := TriggerHostBootstrapRequestValidationError{
+				field:  "AdminPassword",
+				reason: "value length must be between 8 and 128 runes, inclusive",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if m.Environment != nil {
 		// no validation rules for Environment
 	}
@@ -6882,6 +6917,8 @@ var _ interface {
 } = TriggerHostBootstrapRequestValidationError{}
 
 var _TriggerHostBootstrapRequest_ReplicaSetName_Pattern = regexp.MustCompile("^[A-Za-z0-9_-]+$")
+
+var _TriggerHostBootstrapRequest_AdminUsername_Pattern = regexp.MustCompile("^[A-Za-z0-9._@-]*$")
 
 // Validate checks the field values on BootstrapMemberConfig with the rules
 // defined in the proto definition for this message. If any rules are
@@ -7034,6 +7071,8 @@ func (m *TriggerHostBootstrapResponse) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for RunId
+
+	// no validation rules for GeneratedAdminPassword
 
 	if len(errors) > 0 {
 		return TriggerHostBootstrapResponseMultiError(errors)
