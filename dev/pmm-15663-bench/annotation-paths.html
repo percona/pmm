@@ -1,0 +1,479 @@
+<title>PMM Annotation Paths</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column for prose, full-width (max 1120px) figures; three stages of the same pipeline drawn on the same grid, then the ID mechanism, delete paths and a recap table. */
+:root {
+  --bg: #f2f4f6;
+  --surface: #ffffff;
+  --ink: #17212c;
+  --muted: #5a6673;
+  --line: #c6cfd8;
+  --grafana: #b4540a;
+  --grafana-soft: #fcefe3;
+  --vm: #1d58b4;
+  --vm-soft: #e7eefb;
+  --ok: #2a7636;
+  --ok-soft: #e6f3e8;
+  --bad: #bd2a30;
+  --bad-soft: #fbe8e8;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --surface: #172029; --ink: #e3e9ef; --muted: #98a4b0; --line: #2f3c49;
+    --grafana: #f2934d; --grafana-soft: #36230f; --vm: #7eb0ff; --vm-soft: #13233b;
+    --ok: #6cc97b; --ok-soft: #142d19; --bad: #ff7d7d; --bad-soft: #3a1717;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #172029; --ink: #e3e9ef; --muted: #98a4b0; --line: #2f3c49;
+  --grafana: #f2934d; --grafana-soft: #36230f; --vm: #7eb0ff; --vm-soft: #13233b;
+  --ok: #6cc97b; --ok-soft: #142d19; --bad: #ff7d7d; --bad-soft: #3a1717;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+section, header { display: grid; gap: 16px; min-width: 0; }
+h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(28px, 4.2vw, 40px); line-height: 1.1; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 24px; line-height: 1.2; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.answer { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: grid; gap: 8px; max-width: 80ch; }
+.answer strong { font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 14px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid; flex: none; }
+.sw-g { background: var(--grafana-soft); border-color: var(--grafana); }
+.sw-vm { background: var(--vm-soft); border-color: var(--vm); }
+.sw-ok { background: var(--ok-soft); border-color: var(--ok); }
+.sw-bad { background: var(--bad-soft); border-color: var(--bad); }
+.stage-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+.chip { font-family: var(--font-mono); font-size: 12px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.chip-bad { border-color: var(--bad); color: var(--bad); }
+.chip-ok { border-color: var(--ok); color: var(--ok); }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.fig { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.fig svg { display: block; width: 100%; min-width: 960px; height: auto; }
+figcaption { color: var(--muted); font-size: 14px; max-width: 80ch; }
+ul.points { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; }
+.src { font-size: 13px; color: var(--muted); }
+code { font-family: var(--font-mono); font-size: 0.86em; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+th, td { padding: 10px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+thead th { font-weight: 600; font-size: 13px; color: var(--muted); }
+tbody th { font-weight: 600; width: 22%; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.ok { color: var(--ok); font-weight: 600; }
+.bad { color: var(--bad); font-weight: 600; }
+footer { font-size: 13px; color: var(--muted); max-width: 80ch; }
+
+/* SVG */
+.bx { fill: var(--surface); stroke: var(--line); stroke-width: 1.25; }
+.bx-g { fill: var(--grafana-soft); stroke: var(--grafana); stroke-width: 1.5; }
+.bx-vm { fill: var(--vm-soft); stroke: var(--vm); stroke-width: 1.5; }
+.bx-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.5; }
+.bx-bad { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.5; }
+.bx-qg { fill: var(--surface); stroke: var(--grafana); stroke-width: 1.5; }
+.bx-qvm { fill: var(--surface); stroke: var(--vm); stroke-width: 1.5; }
+.faded { opacity: 0.45; }
+.hd { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; }
+.t { fill: var(--ink); font-family: var(--font-body); font-size: 13px; font-weight: 600; }
+.t2 { fill: var(--muted); font-family: var(--font-body); font-size: 12px; }
+.m { fill: var(--ink); font-family: var(--font-mono); font-size: 11.5px; }
+.ms { fill: var(--ink); font-family: var(--font-mono); font-size: 10.5px; }
+.lbl { fill: var(--muted); font-family: var(--font-body); font-size: 11.5px; font-weight: 500; }
+.tok { fill: var(--ok); font-family: var(--font-body); font-size: 12px; font-weight: 600; }
+.tbad { fill: var(--bad); font-family: var(--font-body); font-size: 12px; font-weight: 600; }
+.note { fill: var(--bad); font-family: var(--font-body); font-size: 11.5px; }
+.ln { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.ln-g { stroke: var(--grafana); }
+.ln-vm { stroke: var(--vm); }
+.ln-bad { stroke: var(--bad); }
+.dash { stroke-dasharray: 5 4; }
+.mk-n { fill: var(--muted); }
+.mk-g { fill: var(--grafana); }
+.mk-vm { fill: var(--vm); }
+.mk-bad { fill: var(--bad); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PMM-15663 · node and service annotations</div>
+  <h1>How an annotation reaches a dashboard: before, after PMM-15609, and with PMM-15663</h1>
+  <div class="answer">
+    <p><strong>Are these annotations coming from Grafana?</strong> They are stored in Grafana, the same as always. With PMM-15663, the <em>markers</em> for node and service annotations are drawn from a copy that pmm-managed writes to VictoriaMetrics. Only global markers are still drawn straight from Grafana.</p>
+    <p>That copy is why the markers work on All and respect LBAC, and also why Grafana doesn't know their ID.</p>
+  </div>
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw sw-g"></i>Grafana annotation store</span>
+    <span><i class="sw sw-vm"></i>VictoriaMetrics</span>
+    <span><i class="sw sw-ok"></i>Works</span>
+    <span><i class="sw sw-bad"></i>Broken or missing</span>
+  </div>
+</header>
+
+<section aria-labelledby="s1">
+  <div class="stage-head"><h2 id="s1">1. Before PMM-15609</h2><span class="chip">main today</span></div>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 1120 310" role="img" aria-label="Before PMM-15609: pmm-managed creates a Grafana annotation tagged with the service name; the dashboard asks Grafana for annotations tagged pmm_annotation or the selected names; the marker is shown with its ID.">
+        <defs>
+          <marker id="f1-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-n"/></marker>
+          <marker id="f1-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-g"/></marker>
+        </defs>
+        <text class="hd" x="86" y="26" text-anchor="middle">ADDED BY</text>
+        <text class="hd" x="286" y="26" text-anchor="middle">SERVER</text>
+        <text class="hd" x="542" y="26" text-anchor="middle">STORED IN</text>
+        <text class="hd" x="838" y="26" text-anchor="middle">DASHBOARD QUERY</text>
+        <text class="hd" x="1044" y="26" text-anchor="middle">MARKER</text>
+
+        <rect class="bx" x="16" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="86" y="171" text-anchor="middle">pmm-admin annotate</text>
+        <text class="m" x="86" y="191" text-anchor="middle">--service-name ps-1</text>
+
+        <rect class="bx" x="216" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="286" y="171" text-anchor="middle">pmm-managed</text>
+        <text class="m" x="286" y="191" text-anchor="middle">AddAnnotation</text>
+
+        <line class="ln" x1="156" y1="176" x2="214" y2="176" marker-end="url(#f1-n)"/>
+        <text class="lbl" x="186" y="168" text-anchor="middle">add</text>
+
+        <path class="ln ln-g" d="M356 166 H394 V96 H430" marker-end="url(#f1-g)"/>
+        <text class="lbl" x="388" y="134" text-anchor="end">create</text>
+
+        <rect class="bx-g" x="432" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="446" y="78">Grafana annotations</text>
+        <text class="m" x="446" y="100">id 12</text>
+        <text class="m" x="446" y="120">tags: ps-1</text>
+
+        <g class="faded">
+          <rect class="bx" x="432" y="212" width="220" height="88" rx="6"/>
+          <text class="t" x="446" y="238">VictoriaMetrics</text>
+          <text class="t2" x="446" y="260">metrics only, no annotations</text>
+        </g>
+
+        <line class="ln ln-g" x1="652" y1="96" x2="726" y2="96" marker-end="url(#f1-g)"/>
+        <text class="lbl" x="690" y="88" text-anchor="middle">tag match</text>
+
+        <rect class="bx-qg" x="728" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="742" y="76">PMM Annotations</text>
+        <text class="t2" x="742" y="96">from Grafana, by tag</text>
+        <text class="m" x="742" y="114">pmm_annotation</text>
+        <text class="m" x="742" y="131">+ $service_name</text>
+
+        <text class="note" x="728" y="232">On All, $service_name expands to</text>
+        <text class="note" x="728" y="248">every service name. The request</text>
+        <text class="note" x="728" y="264">grows with the fleet and broke at</text>
+        <text class="note" x="728" y="280">thousands of services (PR #6045).</text>
+
+        <line class="ln" x1="948" y1="96" x2="978" y2="96" marker-end="url(#f1-n)"/>
+
+        <rect class="bx-ok" x="980" y="52" width="128" height="88" rx="6"/>
+        <text class="t" x="990" y="76">Node, service</text>
+        <text class="tok" x="990" y="96">shown</text>
+        <text class="t2" x="990" y="114">has id 12:</text>
+        <text class="t2" x="990" y="131">Edit/Delete work</text>
+      </svg>
+    </div>
+    <figcaption>One store, one lookup: the dashboard asks Grafana for annotations by tag, and the tag is the node or service name.</figcaption>
+  </figure>
+  <ul class="points">
+    <li><code>AddAnnotation</code> creates one Grafana annotation tagged with the node name or the service names. A global annotation gets the tag <code>pmm_annotation</code>.</li>
+    <li>Each dashboard asks Grafana for annotations tagged <code>pmm_annotation</code> or the selected node or service. On All, every name is sent as a tag.</li>
+    <li>The markers come from Grafana, so they carry their ID and Edit and Delete work. But the request grows with the fleet, which is what PMM-15609 set out to fix.</li>
+  </ul>
+  <p class="src">Source: the dashboard definitions on main and the description of PR #6045. I didn't re-run this stage live.</p>
+</section>
+
+<section aria-labelledby="s2">
+  <div class="stage-head"><h2 id="s2">2. After PMM-15609</h2><span class="chip chip-bad">PR #6045, open: the bug in PMM-15663</span></div>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 1120 310" role="img" aria-label="After PMM-15609: on All the dashboard asks Grafana for the literal tag .+, which no annotation has, so node and service markers are missing.">
+        <defs>
+          <marker id="f2-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-n"/></marker>
+          <marker id="f2-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-g"/></marker>
+          <marker id="f2-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-bad"/></marker>
+        </defs>
+        <text class="hd" x="86" y="26" text-anchor="middle">ADDED BY</text>
+        <text class="hd" x="286" y="26" text-anchor="middle">SERVER</text>
+        <text class="hd" x="542" y="26" text-anchor="middle">STORED IN</text>
+        <text class="hd" x="838" y="26" text-anchor="middle">DASHBOARD QUERY</text>
+        <text class="hd" x="1044" y="26" text-anchor="middle">MARKER</text>
+
+        <rect class="bx" x="16" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="86" y="171" text-anchor="middle">pmm-admin annotate</text>
+        <text class="m" x="86" y="191" text-anchor="middle">--service-name ps-1</text>
+
+        <rect class="bx" x="216" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="286" y="171" text-anchor="middle">pmm-managed</text>
+        <text class="m" x="286" y="191" text-anchor="middle">AddAnnotation</text>
+
+        <line class="ln" x1="156" y1="176" x2="214" y2="176" marker-end="url(#f2-n)"/>
+        <text class="lbl" x="186" y="168" text-anchor="middle">add</text>
+
+        <path class="ln ln-g" d="M356 166 H394 V96 H430" marker-end="url(#f2-g)"/>
+        <text class="lbl" x="388" y="134" text-anchor="end">create</text>
+
+        <rect class="bx-g" x="432" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="446" y="78">Grafana annotations</text>
+        <text class="m" x="446" y="100">id 12</text>
+        <text class="m" x="446" y="120">tags: ps-1</text>
+
+        <g class="faded">
+          <rect class="bx" x="432" y="212" width="220" height="88" rx="6"/>
+          <text class="t" x="446" y="238">VictoriaMetrics</text>
+          <text class="t2" x="446" y="260">metrics only, no annotations</text>
+        </g>
+
+        <line class="ln ln-bad dash" x1="652" y1="96" x2="726" y2="96" marker-end="url(#f2-bad)"/>
+        <text class="tbad" x="690" y="88" text-anchor="middle">no tag “.+”</text>
+
+        <rect class="bx-qg" x="728" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="742" y="76">PMM Annotations</text>
+        <text class="t2" x="742" y="96">from Grafana, by tag</text>
+        <text class="m" x="742" y="114">pmm_annotation</text>
+        <text class="m" x="742" y="131">+ <tspan class="tbad">.+</tspan></text>
+
+        <text class="note" x="728" y="232">All is now the fixed value .+ and</text>
+        <text class="note" x="728" y="248">Grafana matches tags exactly, so it</text>
+        <text class="note" x="728" y="264">looks for an annotation tagged “.+”.</text>
+        <text class="note" x="728" y="280">None exists.</text>
+
+        <line class="ln" x1="948" y1="96" x2="978" y2="96" marker-end="url(#f2-n)"/>
+
+        <rect class="bx-bad" x="980" y="52" width="128" height="88" rx="6"/>
+        <text class="t" x="990" y="76">Node, service</text>
+        <text class="tbad" x="990" y="96">missing on All</text>
+        <text class="t2" x="990" y="114">shown only when</text>
+        <text class="t2" x="990" y="131">one is selected</text>
+      </svg>
+    </div>
+    <figcaption>Same store, same lookup. Only the value sent for All changed, and the tag lookup can't match it.</figcaption>
+  </figure>
+  <ul class="points">
+    <li>PMM-15609 sets All to <code>.+</code> on fleet-sized variables so every request stays small.</li>
+    <li>On All, the dashboard asks Grafana for the tags <code>pmm_annotation</code> and <code>.+</code>. Only global annotations match, so node and service markers disappear.</li>
+    <li>A selected node or service still works, because then its real name is sent.</li>
+  </ul>
+  <p class="src">Reproduced live on the test VM: on All, Home, Nodes Overview and MySQL Instances Overview returned only the global annotation.</p>
+</section>
+
+<section aria-labelledby="s3">
+  <div class="stage-head"><h2 id="s3">3. With PMM-15663</h2><span class="chip chip-ok">PMM-15663-scoped-annotations</span></div>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 1120 320" role="img" aria-label="With PMM-15663: pmm-managed creates the Grafana annotation, then writes a pmm_annotation_event series to VictoriaMetrics; a sync job keeps them aligned; global markers come from Grafana with their ID, node and service markers come from VictoriaMetrics through vmproxy with LBAC and have no ID.">
+        <defs>
+          <marker id="f3-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-n"/></marker>
+          <marker id="f3-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-g"/></marker>
+          <marker id="f3-vm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-vm"/></marker>
+        </defs>
+        <text class="hd" x="86" y="26" text-anchor="middle">ADDED BY</text>
+        <text class="hd" x="286" y="26" text-anchor="middle">SERVER</text>
+        <text class="hd" x="542" y="26" text-anchor="middle">STORED IN</text>
+        <text class="hd" x="838" y="26" text-anchor="middle">DASHBOARD QUERY</text>
+        <text class="hd" x="1044" y="26" text-anchor="middle">MARKER</text>
+
+        <rect class="bx" x="16" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="86" y="171" text-anchor="middle">pmm-admin annotate</text>
+        <text class="m" x="86" y="191" text-anchor="middle">--service-name ps-1</text>
+
+        <rect class="bx" x="216" y="146" width="140" height="60" rx="6"/>
+        <text class="t" x="286" y="171" text-anchor="middle">pmm-managed</text>
+        <text class="m" x="286" y="191" text-anchor="middle">AddAnnotation</text>
+
+        <line class="ln" x1="156" y1="176" x2="214" y2="176" marker-end="url(#f3-n)"/>
+        <text class="lbl" x="186" y="168" text-anchor="middle">add</text>
+
+        <path class="ln ln-g" d="M356 164 H394 V96 H430" marker-end="url(#f3-g)"/>
+        <text class="lbl" x="388" y="134" text-anchor="end">1 create</text>
+        <path class="ln ln-vm" d="M356 188 H394 V256 H430" marker-end="url(#f3-vm)"/>
+        <text class="lbl" x="388" y="226" text-anchor="end">2 write</text>
+
+        <rect class="bx-g" x="432" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="446" y="78">Grafana annotations</text>
+        <text class="m" x="446" y="100">id 12 · tags: ps-1</text>
+        <text class="t2" x="446" y="120">the record of each annotation</text>
+
+        <line class="ln dash" x1="604" y1="144" x2="604" y2="208" marker-start="url(#f3-n)" marker-end="url(#f3-n)"/>
+        <text class="lbl" x="612" y="172">sync job</text>
+        <text class="lbl" x="612" y="187">every 5 min</text>
+
+        <rect class="bx-vm" x="432" y="212" width="220" height="88" rx="6"/>
+        <text class="t" x="446" y="236">VictoriaMetrics</text>
+        <text class="m" x="446" y="255">pmm_annotation_event</text>
+        <text class="m" x="446" y="273">pmm_annotation_id="12"</text>
+        <text class="t2" x="446" y="291">+ node and service labels</text>
+
+        <line class="ln ln-g" x1="652" y1="96" x2="726" y2="96" marker-end="url(#f3-g)"/>
+        <text class="lbl" x="690" y="88" text-anchor="middle">tag match</text>
+        <line class="ln ln-vm" x1="652" y1="256" x2="726" y2="256" marker-end="url(#f3-vm)"/>
+        <text class="lbl" x="690" y="248" text-anchor="middle">vmproxy</text>
+        <text class="lbl" x="690" y="272" text-anchor="middle">+ LBAC</text>
+
+        <rect class="bx-qg" x="728" y="52" width="220" height="88" rx="6"/>
+        <text class="t" x="742" y="76">PMM Annotations</text>
+        <text class="t2" x="742" y="96">from Grafana, by tag</text>
+        <text class="m" x="742" y="114">pmm_annotation</text>
+        <text class="t2" x="742" y="131">global ones only</text>
+
+        <rect class="bx-qvm" x="728" y="212" width="220" height="88" rx="6"/>
+        <text class="t" x="742" y="236">PMM Annotations:</text>
+        <text class="t" x="742" y="253">nodes and services</text>
+        <text class="t2" x="742" y="272">from VictoriaMetrics, PromQL</text>
+        <text class="t2" x="742" y="290">with the panels’ own filters</text>
+
+        <line class="ln" x1="948" y1="96" x2="978" y2="96" marker-end="url(#f3-n)"/>
+        <line class="ln" x1="948" y1="256" x2="978" y2="256" marker-end="url(#f3-n)"/>
+
+        <rect class="bx-ok" x="980" y="52" width="128" height="88" rx="6"/>
+        <text class="t" x="990" y="76">Global</text>
+        <text class="tok" x="990" y="96">shown</text>
+        <text class="t2" x="990" y="114">has id:</text>
+        <text class="t2" x="990" y="131">Edit/Delete work</text>
+
+        <rect class="bx" x="980" y="212" width="128" height="88" rx="6"/>
+        <text class="t" x="990" y="236">Node, service</text>
+        <text class="tok" x="990" y="256">shown on All</text>
+        <text class="tbad" x="990" y="274">no id:</text>
+        <text class="tbad" x="990" y="292">Edit/Delete fail</text>
+      </svg>
+    </div>
+    <figcaption>Two stores, two lookups. Grafana keeps every annotation; node and service markers are read from a copy in VictoriaMetrics, which works on All and goes through LBAC like any metric.</figcaption>
+  </figure>
+  <ul class="points">
+    <li><code>AddAnnotation</code> still creates the Grafana annotation first (step 1). It then writes one <code>pmm_annotation_event</code> series per node or service to VictoriaMetrics, carrying the annotation’s ID, text, tags and that object’s labels (step 2).</li>
+    <li>The sync job runs on the leader at start-up and every 5 minutes. It writes series that are missing (after an upgrade, or when VictoriaMetrics was down) and deletes series whose Grafana annotation is gone.</li>
+    <li>Dashboards now have two annotation queries: global ones from Grafana as before, and node and service ones from VictoriaMetrics through vmproxy, so a restricted role sees only the annotations of what it may see.</li>
+  </ul>
+  <p class="src">Verified live on the test VM: shown on All, scoped when one object is selected, LBAC with an environment role and a custom-label role, backfill of annotations made before the upgrade, and all three delete paths below.</p>
+</section>
+
+<section aria-labelledby="s4">
+  <h2 id="s4">Why the node and service marker has no ID</h2>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 1120 250" role="img" aria-label="A Grafana annotation reaches the marker with its id, so Delete targets annotation 12. A VictoriaMetrics series goes through Grafana's Prometheus annotation code, which copies only time, title, text and tags, so the marker has no id and Delete sends undefined, which Grafana answers with 403.">
+        <defs>
+          <marker id="f4-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-n"/></marker>
+          <marker id="f4-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-g"/></marker>
+          <marker id="f4-vm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-vm"/></marker>
+        </defs>
+        <text class="hd" x="156" y="24" text-anchor="middle">WHERE THE MARKER COMES FROM</text>
+        <text class="hd" x="464" y="24" text-anchor="middle">GRAFANA CODE THAT READS IT</text>
+        <text class="hd" x="752" y="24" text-anchor="middle">THE MARKER GETS</text>
+        <text class="hd" x="1012" y="24" text-anchor="middle">DELETE BUTTON SENDS</text>
+
+        <rect class="bx-g" x="16" y="40" width="280" height="80" rx="6"/>
+        <text class="t" x="30" y="66">Grafana annotation (global)</text>
+        <text class="m" x="30" y="88">{ id: 12, text, tags }</text>
+        <text class="t2" x="30" y="107">Grafana’s own record</text>
+
+        <rect class="bx" x="344" y="40" width="240" height="80" rx="6"/>
+        <text class="t" x="358" y="66">Grafana’s annotation reader</text>
+        <text class="t2" x="358" y="88">reads Grafana’s own store</text>
+        <text class="t2" x="358" y="107">and keeps the id</text>
+
+        <rect class="bx-ok" x="632" y="40" width="240" height="80" rx="6"/>
+        <text class="m" x="646" y="66">{ id: 12, time, text, tags }</text>
+        <text class="tok" x="646" y="88">id present</text>
+
+        <rect class="bx-ok" x="920" y="40" width="184" height="80" rx="6"/>
+        <text class="m" x="932" y="64">DELETE</text>
+        <text class="m" x="932" y="82">/api/annotations/12</text>
+        <text class="tok" x="932" y="104">deleted</text>
+
+        <line class="ln ln-g" x1="296" y1="80" x2="342" y2="80" marker-end="url(#f4-g)"/>
+        <line class="ln ln-g" x1="584" y1="80" x2="630" y2="80" marker-end="url(#f4-g)"/>
+        <line class="ln" x1="872" y1="80" x2="918" y2="80" marker-end="url(#f4-n)"/>
+
+        <rect class="bx-vm" x="16" y="152" width="280" height="84" rx="6"/>
+        <text class="t" x="30" y="177">VictoriaMetrics series</text>
+        <text class="m" x="30" y="197">pmm_annotation_event{</text>
+        <text class="m" x="30" y="215">  pmm_annotation_id="12", …}</text>
+
+        <rect class="bx" x="344" y="152" width="240" height="84" rx="6"/>
+        <text class="t" x="358" y="177">Prometheus annotation code</text>
+        <text class="m" x="358" y="197">annotations.ts:113-120</text>
+        <text class="t2" x="358" y="217">copies time, title, text, tags</text>
+
+        <rect class="bx-bad" x="632" y="152" width="240" height="84" rx="6"/>
+        <text class="m" x="646" y="177">{ time, title, text, tags }</text>
+        <text class="tbad" x="646" y="199">no id</text>
+
+        <rect class="bx-bad" x="920" y="152" width="184" height="84" rx="6"/>
+        <text class="m" x="932" y="176">DELETE</text>
+        <text class="ms" x="932" y="194">/api/annotations/undefined</text>
+        <text class="tbad" x="932" y="216">403, nothing deleted</text>
+
+        <line class="ln ln-vm" x1="296" y1="194" x2="342" y2="194" marker-end="url(#f4-vm)"/>
+        <line class="ln ln-vm" x1="584" y1="194" x2="630" y2="194" marker-end="url(#f4-vm)"/>
+        <line class="ln" x1="872" y1="194" x2="918" y2="194" marker-end="url(#f4-n)"/>
+      </svg>
+    </div>
+    <figcaption>The ID is in the series as the label <code>pmm_annotation_id</code>, and the marker title shows it (“Annotation 12”). Grafana’s Prometheus annotation code builds each marker from time, title, text and tags only, so the ID never reaches the Delete button.</figcaption>
+  </figure>
+  <ul class="points">
+    <li>Grafana resolves <code>DELETE /api/annotations/undefined</code> by looking up annotation “undefined”. The lookup fails, and Grafana reports every failed lookup as “You'll need additional permissions… annotations:delete”. No permission changes that; Admin already has them all.</li>
+    <li>No dashboard or query setting can pass the ID through. Hiding or fixing these buttons needs a change in Grafana’s code, which we don’t want to make.</li>
+    <li>Tested on the test VM only: a short rule in PMM’s nginx can answer that request with a message saying how to delete the annotation, instead of the permissions error.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="s5">
+  <h2 id="s5">Ways to delete a node or service annotation now</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>How</th><th>What happens</th><th>Marker gone</th></tr></thead>
+      <tbody>
+        <tr><th>PMM API<br><code>DELETE /v1/management/annotations/12</code> (Admin)</th><td>pmm-managed deletes Grafana annotation 12, then its series in VictoriaMetrics.</td><td class="ok">At once</td></tr>
+        <tr><th>Grafana API<br><code>DELETE /graph/api/annotations/12</code></th><td>Grafana deletes the annotation. The sync job sees it is gone and deletes the series.</td><td class="ok">Within 5 min (1.7 min in the test)</td></tr>
+        <tr><th>Delete button on the marker</th><td>Sends <code>DELETE /api/annotations/undefined</code>. Grafana answers 403 with the permissions message.</td><td class="bad">Never; nothing is deleted</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="s6">
+  <h2 id="s6">At a glance</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th>1. Before PMM-15609</th><th>2. After PMM-15609</th><th>3. With PMM-15663</th></tr></thead>
+      <tbody>
+        <tr><th>Where the annotation is stored</th><td>Grafana</td><td>Grafana</td><td>Grafana, plus a copy per node or service in VictoriaMetrics</td></tr>
+        <tr><th>Where node and service markers come from</th><td>Grafana, by tag</td><td>Grafana, by tag</td><td>VictoriaMetrics series</td></tr>
+        <tr><th>Node and service markers on All</th><td class="ok">Shown</td><td class="bad">Missing</td><td class="ok">Shown</td></tr>
+        <tr><th>One node or service selected</th><td>Shown</td><td>Shown</td><td>Its own and global ones only</td></tr>
+        <tr><th>LBAC on markers</th><td>Only indirectly: the names sent as tags come from LBAC-filtered variables</td><td>Same as before</td><td class="ok">Yes: the query goes through vmproxy with the role’s filters</td></tr>
+        <tr><th>Request size at fleet scale</th><td class="bad">Grows with every name</td><td class="ok">Small</td><td class="ok">Small; the node list travels in the request body</td></tr>
+        <tr><th>Edit and Delete on the marker</th><td class="ok">Work</td><td>Work when shown</td><td>Global: <span class="ok">work</span>. Node and service: <span class="bad">fail</span></td></tr>
+        <tr><th>Global markers</th><td>Grafana</td><td>Grafana</td><td>Grafana, unchanged</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Evidence: <code>dev/pmm-15663-bench/live-verify.md</code> and <code>live/</code> on branch <code>PMM-15663-annotation-bench</code>. Code: branch <code>PMM-15663-scoped-annotations</code>. Example ID 12 and service <code>ps-1</code> are illustrative; the test VM used <code>ps_pmm_8_4_1_97709</code>.
+</footer>
+
+</div>
