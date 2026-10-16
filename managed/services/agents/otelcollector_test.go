@@ -26,7 +26,7 @@ import (
 )
 
 // TestOtelCollectorOperatorsYAMLIndent verifies filelog operators are indented under
-// "operators:" the same way as managed/otel.BuildServerOtelConfigYAML (flush-left DB YAML).
+// "operators:" the same way as managed/otel.BuildServerLogs (flush-left DB YAML).
 func TestOtelCollectorOperatorsYAMLIndent(t *testing.T) {
 	raw := "- type: regex_parser\n  regex: '.*'\n  parse_from: body"
 	merged := "    operators:\n" + otel.IndentYAML(raw, "      ")
