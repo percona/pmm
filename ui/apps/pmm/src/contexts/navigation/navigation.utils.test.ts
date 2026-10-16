@@ -1,4 +1,4 @@
-import { addHighAvailability, addHomePage } from './navigation.utils';
+import { addHighAvailability, addHomePage, addOm } from './navigation.utils';
 
 describe('addHighAvailability', () => {
   it('is a single entry carrying the status badge and the namespace', () => {
@@ -42,5 +42,15 @@ describe('addHomePage', () => {
 
   it('keeps the default entry without preferences', () => {
     expect(addHomePage().id).toBe('home-page');
+  });
+});
+
+describe('addOm', () => {
+  it('is the Operations item, marked as a Preview', () => {
+    const om = addOm();
+
+    expect(om.text).toBe('Operations');
+    expect(om.badge).toMatchObject({ label: 'Preview' });
+    expect(om.badgeAlwaysVisible).toBe(true);
   });
 });

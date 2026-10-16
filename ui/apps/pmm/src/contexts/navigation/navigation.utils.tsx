@@ -1,8 +1,9 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import Tune from '@mui/icons-material/Tune';
 import { NavItem } from 'types/navigation.types';
 import { User, UserPreferences } from 'types/user.types';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_NEW_NAV_GRAFANA_PATH, OM_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
@@ -116,3 +117,54 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+/**
+ * OM's navigation: Operations for MongoDB and its four pages, which OM's own header
+ * leaves to the sidebar. It has no place in the proposed sidebar yet.
+ */
+export const addOm = (): NavItem => ({
+  id: 'om',
+  text: 'Operations',
+  icon: Tune,
+  url: OM_PATH,
+  matches: [OM_PATH],
+  // "Preview" rather than "Dev Preview": the longer label overlaps "Operations" at
+  // this nesting level. The banner and Settings say which preview it is.
+  badge: {
+    label: 'Preview',
+    sx: {
+      ml: 1,
+      height: 18,
+      flexShrink: 0,
+      '& .MuiChip-label': { px: 0.75, fontSize: 10, lineHeight: 1 },
+    },
+  },
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'om-fleet',
+      text: 'Fleet',
+      url: OM_PATH,
+    },
+    {
+      // The machines, including the ones with no database on them -- which no fleet
+      // reading can show, and which is where an install goes.
+      id: 'om-nodes',
+      text: 'Nodes',
+      url: `${OM_PATH}/nodes`,
+      matches: [`${OM_PATH}/nodes`],
+    },
+    {
+      id: 'om-automations',
+      text: 'Automations',
+      url: `${OM_PATH}/automations`,
+      matches: [`${OM_PATH}/automations`],
+    },
+    {
+      id: 'om-settings',
+      text: 'Settings',
+      url: `${OM_PATH}/settings`,
+      matches: [`${OM_PATH}/settings`],
+    },
+  ],
+});
