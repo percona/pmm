@@ -15,7 +15,7 @@ const TARGET = '/graph/d/node-cpu/cpu-utilization';
 
 const render = (grafanaReady: boolean) =>
   renderHook(() => useLinkWithVariables(TARGET), {
-    wrapper: ({ children }: { children: ReactElement }) =>
+    wrapper: ({ children }) =>
       wrapWithRouter(wrapWithGrafana(children, { grafanaReady }), {
         initialEntries: [CURRENT],
       }),

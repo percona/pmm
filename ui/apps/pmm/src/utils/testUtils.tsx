@@ -144,7 +144,7 @@ export const wrapWithSettings = (
 );
 
 export const wrapWithGrafana = (
-  children: ReactElement,
+  children: ReactNode,
   props: Partial<GrafanaContextProps> = {}
 ) => (
   <GrafanaContext.Provider
