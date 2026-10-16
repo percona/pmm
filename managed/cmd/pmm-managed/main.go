@@ -1042,6 +1042,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			},
 			HAParams: haParams,
 		},
+		db,
 	)
 
 	// Keep the agent always running, even on follower nodes.

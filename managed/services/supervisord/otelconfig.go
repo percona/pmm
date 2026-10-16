@@ -18,12 +18,15 @@ package supervisord
 import (
 	"fmt"
 	"strings"
+
+	"github.com/percona/pmm/managed/otel"
 )
 
 // buildOtelCollectorConfigYAML returns the server-side otel-collector config YAML.
-// OTLP receives logs, traces, and metrics; separate ClickHouse exporter instances apply TTL per signal.
+// OTLP receives logs, traces, and metrics; serverLogs adds filelog receivers for PMM Server's own logs to the logs
+// pipeline. Separate ClickHouse exporter instances apply TTL per signal.
 // LogRetentionDays, spanRetentionDays, metricsRetentionDays control exporter TTL (table-level TTL also set in PMM DDL).
-func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetentionDays, spanRetentionDays, metricsRetentionDays int) string {
+func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetentionDays, spanRetentionDays, metricsRetentionDays int, serverLogs otel.ServerLogs) string {
 	if endpoint == "" {
 		endpoint = "127.0.0.1:9000"
 	}
@@ -96,7 +99,14 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetent
 		chEndpoint, quoteYAMLString(username), quoteYAMLString(password), tracesTTL,
 		chEndpoint, quoteYAMLString(username), quoteYAMLString(password), metricsTTL)
 
+	logsReceivers := "[" + strings.Join(append([]string{"otlp"}, serverLogs.ReceiverIDs...), ", ") + "]"
+
+	// OTTL statements cannot be wrapped.
+	//nolint:lll
 	return `# Managed by pmm-managed. DO NOT EDIT.
+extensions:
+  ` + otel.ServerLogStorage + `:
+    directory: ` + otelCollectorStorageDir + `
 receivers:
   otlp:
     protocols:
@@ -104,7 +114,7 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-processors:
+` + serverLogs.ReceiversYAML + `processors:
   memory_limiter:
     check_interval: 1s
     limit_mib: 512
@@ -120,9 +130,10 @@ processors:
     send_batch_max_size: 2048
 ` + exporters + `
 service:
+  extensions: [` + otel.ServerLogStorage + `]
   pipelines:
     logs:
-      receivers: [otlp]
+      receivers: ` + logsReceivers + `
       processors: [memory_limiter, transform, batch]
       exporters: [clickhouse/logs]
     traces:

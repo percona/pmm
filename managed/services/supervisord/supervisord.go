@@ -31,9 +31,13 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/otel"
@@ -43,6 +47,9 @@ import (
 
 const (
 	otelCollectorConfigPath             = "/srv/otelcol/config.yaml"
+	otelCollectorStorageDir             = "/srv/otelcol/storage"
+	otelCollectorBinary                 = "/usr/local/percona/pmm/tools/otelcol-contrib"
+	otelCollectorValidateTimeout        = 30 * time.Second
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
@@ -74,6 +81,11 @@ type Service struct {
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
 	haParams *models.HAParams
+
+	// db is nil in tests; the collector config then has no PMM Server log receivers.
+	db *reform.DB
+	// otelRestartPending is set when a new collector config is on disk but the collector has not restarted with it.
+	otelRestartPending bool
 }
 
 // values from supervisord configuration.
@@ -82,7 +94,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, params *models.Params) *Service {
+func New(configDir string, params *models.Params, db *reform.DB) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:         configDir,
@@ -91,6 +103,7 @@ func New(configDir string, params *models.Params) *Service {
 		vmParams:          params.VMParams,
 		pgParams:          params.PGParams,
 		haParams:          params.HAParams,
+		db:                db,
 	}
 }
 
@@ -105,9 +118,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	defer s.supervisordConfigsM.Unlock()
 
 	s.ensureOtelClickHouseSchemas(settings)
-	werr := s.writeOtelCollectorConfigFile(settings)
+	written, werr := s.writeOtelCollectorConfigFile(settings)
 	if werr != nil {
 		s.l.Warnf("Failed to write OTEL collector YAML: %s.", werr)
+	}
+	if written {
+		s.otelRestartPending = true
 	}
 
 	var err error
@@ -151,7 +167,24 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 			continue
 		}
 	}
+
+	// After the templates, so a fresh install has the otel-collector program defined by now.
+	s.restartOtelCollectorIfPending(settings.IsOtelCollectorEnabled())
 	return err
+}
+
+// restartOtelCollectorIfPending restarts an enabled collector onto a new config; a failed restart is retried on the
+// next update.
+func (s *Service) restartOtelCollectorIfPending(enabled bool) {
+	if !s.otelRestartPending || !enabled {
+		return
+	}
+	err := s.supervisorctl("restart", "otel-collector")
+	if err != nil {
+		s.l.Warnf("Failed to restart otel-collector: %s.", err)
+		return
+	}
+	s.otelRestartPending = false
 }
 
 // StartSupervisedService starts given service.
@@ -186,16 +219,84 @@ func (s *Service) ensureOtelClickHouseSchemas(settings *models.Settings) {
 	}
 }
 
-func (s *Service) writeOtelCollectorConfigFile(settings *models.Settings) error {
+// writeOtelCollectorConfigFile renders the collector config and writes it if it changed and the collector accepts it.
+func (s *Service) writeOtelCollectorConfigFile(settings *models.Settings) (bool, error) {
 	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()) //nolint:lll
-	err := os.MkdirAll(filepath.Dir(otelCollectorConfigPath), 0o755)                                                                                                                   //nolint:gosec,lll,mnd
+	serverLogs, err := s.serverLogs()
 	if err != nil {
-		return fmt.Errorf("mkdir otelcol: %w", err)
+		return false, err
 	}
-	return os.WriteFile(otelCollectorConfigPath, []byte(yaml), 0o644) //nolint:gosec,mnd
+	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays(), serverLogs) //nolint:lll
+	// file_storage refuses to start without its directory.
+	err = os.MkdirAll(otelCollectorStorageDir, 0o755) //nolint:gosec,mnd
+	if err != nil {
+		return false, fmt.Errorf("mkdir otelcol storage: %w", err)
+	}
+	return writeOtelCollectorConfig(otelCollectorConfigPath, []byte(yaml), validateOtelCollectorConfig)
+}
+
+// serverLogs returns the filelog receivers for PMM Server's own logs.
+func (s *Service) serverLogs() (otel.ServerLogs, error) {
+	if s.db == nil {
+		return otel.ServerLogs{}, nil
+	}
+	presets, err := models.FindAllLogParserPresets(s.db.Querier)
+	if err != nil {
+		return otel.ServerLogs{}, fmt.Errorf("load log parser presets: %w", err)
+	}
+	node := otel.ServerNode{NodeID: models.PMMServerNodeID, NodeName: "pmm-server"}
+	n, err := models.FindNodeByID(s.db.Querier, models.PMMServerNodeID)
+	switch {
+	case err == nil:
+		node.NodeName = n.NodeName
+	case status.Code(err) != codes.NotFound:
+		return otel.ServerLogs{}, fmt.Errorf("load PMM Server node: %w", err)
+	}
+	if s.haParams.Enabled {
+		node.HANodeID = s.haParams.NodeID
+	}
+	return otel.BuildServerLogs(presets, node), nil
+}
+
+// writeOtelCollectorConfig writes the config when it changed and the validator accepts it; it reports whether it wrote.
+func writeOtelCollectorConfig(path string, data []byte, validate func(path string) error) (bool, error) {
+	current, err := os.ReadFile(path) //nolint:gosec
+	if err == nil && bytes.Equal(current, data) {
+		return false, nil
+	}
+
+	tmp := path + ".new"
+	err = os.WriteFile(tmp, data, 0o644) //nolint:gosec,mnd
+	if err != nil {
+		return false, err
+	}
+	err = validate(tmp)
+	if err != nil {
+		_ = os.Remove(tmp)
+		return false, fmt.Errorf("collector rejected the new config, keeping the old one: %w", err)
+	}
+	err = os.Rename(tmp, path)
+	if err != nil {
+		_ = os.Remove(tmp)
+		return false, err
+	}
+	return true, nil
+}
+
+// validateOtelCollectorConfig runs the collector's own config validation on the file at path.
+func validateOtelCollectorConfig(path string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), otelCollectorValidateTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, otelCollectorBinary, "validate", "--config="+path) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%s: %w", strings.TrimSpace(string(out)), err)
+	}
+	return nil
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
