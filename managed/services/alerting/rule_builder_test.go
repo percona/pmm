@@ -208,6 +208,34 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType(999), Label: "l", Regexp: "r"}},
 			wantErr: "unknown filter type",
 		},
+		{
+			name: "unfillable ClickHouse query param",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT [[ .missing ]]", Datasource: alert.ClickHouse}},
+				Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"}},
+				Condition:   "B",
+			},
+			wantErr: "failed to fill query A",
+		},
+		{
+			name: "unknown filter type on a ClickHouse query",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
+				Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"}},
+				Condition:   "B",
+			},
+			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType(999), Label: "l", Regexp: "r"}},
+			wantErr: "failed to filter query A: unknown filter type",
+		},
+		{
+			name: "unhandled datasource",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up", Datasource: "loki"}},
+				Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
+				Condition:   "C",
+			},
+			wantErr: "query A: unhandled datasource 'loki'",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -275,18 +303,58 @@ func TestBuildClickHouseRuleData(t *testing.T) {
 	assert.NotContains(t, string(byRef["C"].Model), "settings")
 }
 
-func TestBuildClickHouseRuleDataRequiresItsUID(t *testing.T) {
+func TestBuildGrafanaRuleDataRequiresDatasourceUIDs(t *testing.T) {
 	t.Parallel()
 
-	template := &alert.Template{
-		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
-		Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"}},
-		Condition:   "B",
+	// The threshold step queries VictoriaMetrics even when every template query is SQL.
+	clickhouseThreshold := overridableRuleTemplate()
+	clickhouseThreshold.Queries = []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}}
+	clickhouseThreshold.Expressions = []alert.TemplateExpression{
+		{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"},
+		{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
 	}
 
-	_, err := buildGrafanaRuleData(template, map[alert.Datasource]string{alert.Metrics: "metrics-uid"}, "", nil, nil)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "the clickhouse datasource UID is not resolved")
+	for _, tc := range []struct {
+		name    string
+		tmpl    *alert.Template
+		uids    map[alert.Datasource]string
+		wantErr string
+	}{
+		{
+			name: "MetricsQL query",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
+				Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
+				Condition:   "C",
+			},
+			uids:    map[alert.Datasource]string{alert.ClickHouse: "clickhouse-uid"},
+			wantErr: "the metrics datasource UID is not resolved",
+		},
+		{
+			name: "ClickHouse query",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "SELECT 1", Datasource: alert.ClickHouse}},
+				Expressions: []alert.TemplateExpression{{RefID: "B", Type: "reduce", Reducer: "last", Expression: "$A"}},
+				Condition:   "B",
+			},
+			uids:    map[alert.Datasource]string{alert.Metrics: "metrics-uid"},
+			wantErr: "the clickhouse datasource UID is not resolved",
+		},
+		{
+			name:    "threshold step of a ClickHouse template",
+			tmpl:    clickhouseThreshold,
+			uids:    map[alert.Datasource]string{alert.ClickHouse: "clickhouse-uid"},
+			wantErr: "the metrics datasource UID is not resolved",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := buildGrafanaRuleData(tc.tmpl, tc.uids, "rule-1", map[string]string{"threshold": "80"}, nil)
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tc.wantErr)
+		})
+	}
 }
 
 func matchFilter(label, re string) *alertingv1.Filter {

@@ -449,6 +449,17 @@ func TestBuildRuleDataInjectsThresholdForClickHouse(t *testing.T) {
 	assert.Equal(t, "$B > $T_threshold", expressionOf(t, byRef["C"]))
 }
 
+func TestBuildRuleDataRejectsUnhandledObservedDatasource(t *testing.T) {
+	t.Parallel()
+
+	template := overridableRuleTemplate()
+	template.Queries[0].Datasource = "loki"
+
+	_, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "for parameter 'threshold': unhandled datasource 'loki'")
+}
+
 func TestBuildRuleDataForQANSlowQueries(t *testing.T) {
 	t.Parallel()
 

@@ -17,6 +17,7 @@ package alerting
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -621,6 +622,37 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 		assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
 		assert.Equal(t, "$B > 80", expressionOf(t, byRef["C"]))
 		assert.Equal(t, buildRuleLabelTemplate("service_name", "C"), captured.Labels["service_name"])
+	})
+
+	t.Run("a failed datasource lookup creates no rule", func(t *testing.T) {
+		lookupErr := errors.New("grafana unavailable")
+
+		for _, tc := range []struct {
+			template   string
+			resolved   []string
+			datasource string
+		}{
+			{template: tm.Name, datasource: "Metrics"},
+			{template: clickhouse.Name, resolved: []string{"Metrics"}, datasource: "ClickHouse"},
+		} {
+			t.Run(tc.datasource, func(t *testing.T) {
+				svc, m := setup(t)
+				for _, name := range tc.resolved {
+					m.On("GetDatasourceUIDByName", mock.Anything, name).Return(name+"-uid", nil)
+				}
+				m.On("GetDatasourceUIDByName", mock.Anything, tc.datasource).Return("", lookupErr)
+
+				_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+					TemplateName: tc.template,
+					Name:         "test-rule",
+					FolderUid:    "folder-uid",
+					Group:        "test-group",
+					Severity:     managementv1.Severity_SEVERITY_WARNING,
+					Params:       thresholdParam,
+				})
+				require.ErrorIs(t, err, lookupErr)
+			})
+		}
 	})
 
 	t.Run("invalid filter returns InvalidArgument", func(t *testing.T) {

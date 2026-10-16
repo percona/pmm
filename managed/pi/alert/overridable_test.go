@@ -134,6 +134,17 @@ func TestValidateOverridableRejectsUnreferencedParam(t *testing.T) {
 	assert.Contains(t, err.Error(), "not referenced by any expression")
 }
 
+func TestValidateOverridableRejectsParamComparedAgainstNoStep(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Expressions[0].Expression = "1 < [[ .threshold ]] && $A > 0"
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "overridable parameter 'threshold' is not compared against any query in expression C")
+}
+
 // A math expression has no query for the default threshold to fan out over.
 func TestValidateOverridableRejectsParamComparedAgainstAnExpression(t *testing.T) {
 	t.Parallel()
