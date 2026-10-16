@@ -763,7 +763,7 @@ start_mongo_stepdown() {
   shard=$(mongo_shop_shard)
   prim=$(mongo_primary "$shard")
   log "stepping down $prim (primary of $shard)"
-  mg "$prim" --eval 'try { rs.stepDown(120); } catch (e) { print(e.message); }' </dev/null
+  mg "$prim" --eval 'try { rs.stepDown(120); } catch (e) { print(e.message); }' </dev/null >/dev/null
 }
 stop_mongo_stepdown() { :; }
 
