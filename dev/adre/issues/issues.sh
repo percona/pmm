@@ -521,7 +521,7 @@ SELECT pg_sleep(0.05);
 UPDATE accounts SET balance = balance + 1 WHERE id = :b;
 COMMIT;
 SQL
-  pgb pg_deadlocks shop_app -c 8 -j 8 -R 10 -T "$1" --max-tries=1 -f pg_deadlocks.sql
+  pgb pg_deadlocks shop_app -c 8 -j 8 -R 30 -T "$1" --max-tries=1 -f pg_deadlocks.sql
 }
 stop_pg_deadlocks() {
   stop_jobs "$PG" pg_deadlocks
