@@ -545,9 +545,12 @@ func TestServer(t *testing.T) {
 
 		ctx := t.Context()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisorNotifications:           new(true),
-			AdvisorNotificationSeverityThreshold: managementv1.Severity_SEVERITY_WARNING,
-			AdvisorHistoryRetention:              durationpb.New(48 * time.Hour),
+			EnableAdvisorNotifications: new(true),
+			AdvisorNotificationSeverities: []managementv1.Severity{
+				managementv1.Severity_SEVERITY_WARNING,
+				managementv1.Severity_SEVERITY_CRITICAL,
+			},
+			AdvisorHistoryRetention: durationpb.New(48 * time.Hour),
 			// enabling the notifications requires at least one recipient
 			AdvisorNotificationEmailAddresses: &common.StringArray{
 				Values: []string{"dba@percona.com"},
@@ -559,7 +562,10 @@ func TestServer(t *testing.T) {
 		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.AdvisorNotificationsEnabled)
-		assert.Equal(t, managementv1.Severity_SEVERITY_WARNING, settings.Settings.AdvisorNotificationSeverityThreshold)
+		assert.Equal(t, []managementv1.Severity{
+			managementv1.Severity_SEVERITY_CRITICAL,
+			managementv1.Severity_SEVERITY_WARNING,
+		}, settings.Settings.AdvisorNotificationSeverities)
 		assert.Equal(t, durationpb.New(48*time.Hour), settings.Settings.AdvisorHistoryRetention)
 		assert.Equal(t, []string{"dba@percona.com"}, settings.Settings.AdvisorNotificationEmailAddresses)
 	})

@@ -9,7 +9,7 @@ const valid: AdvisorsFormValues = {
   frequentInterval: '4',
   advisorRetention: '30',
   advisorNotifications: false,
-  advisorSeverityThreshold: Severity.error,
+  advisorSeverities: [Severity.error],
   advisorNotificationEmails: '',
 };
 
@@ -45,6 +45,26 @@ describe('advisorsSchema check run intervals', () => {
         stt: false,
         standardInterval: '24.5',
       }).success
+    ).toBe(true);
+  });
+});
+
+describe('advisorsSchema notification severities', () => {
+  const notifying = {
+    ...valid,
+    advisorNotifications: true,
+    advisorNotificationEmails: 'dba@example.com',
+  };
+
+  it('requires at least one severity while notifications are on', () => {
+    expect(
+      errorFor({ ...notifying, advisorSeverities: [] }, 'advisorSeverities')
+    ).toBe('Select at least one severity, or turn Advisor notifications off');
+  });
+
+  it('allows no severity when notifications are off', () => {
+    expect(
+      advisorsSchema.safeParse({ ...valid, advisorSeverities: [] }).success
     ).toBe(true);
   });
 });

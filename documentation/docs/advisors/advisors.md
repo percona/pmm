@@ -133,20 +133,20 @@ To turn on Advisor notifications:
 1. Go to **Configuration > Settings > Advisors**. The notification settings appear only when the **Advisors** option is enabled.
 2. Turn on **Advisor notifications**.
 3. In **Notification recipients**, enter up to 20 email addresses, separated by commas. Enter plain addresses, such as `dba@example.com`, without display names.
-4. In **Notification severity threshold**, select the least severe level that triggers a notification: **Critical**, **Error**, **Warning** or **Info**. The default is **Error**.
+4. In **Notification severities**, select the severities of the findings that PMM emails: **Critical**, **Error**, **Warning** or **Info**. You must select at least one. By default, **Critical** and **Error** are selected.
 5. Optional: To check that the emails arrive, click **Send test email**.
 6. Click **Apply changes**.
 
-The test email goes to the addresses that are currently in **Notification recipients**, so you can test them before you apply the changes. It contains sample findings at or above the severity threshold that is currently applied. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
+The test email goes to the addresses that are currently in **Notification recipients**, so you can test them before you apply the changes. It contains sample findings only for the notification severities that are currently applied. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
 
 If PMM Server runs with the [`PMM_ENABLE_ADVISOR_NOTIFICATIONS`](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#feature-controls) environment variable, the variable controls whether notifications are on, and you can't change **Advisor notifications** in the UI. You must still set **Notification recipients**, because PMM sends no email without them.
 
 ### Email contents
-When a run completes with findings at or above the severity threshold, PMM sends one email about that run. Runs without such findings send no email, and neither do runs that are interrupted or aborted. The email lists only failed checks, not checks that passed or couldn't run.
+When a run completes with findings of the selected severities, PMM sends one email about that run. Runs without such findings send no email, and neither do runs that are interrupted or aborted. The email lists only failed checks, not checks that passed or couldn't run.
 
 The email contains the following:
 
-- A count of the findings by severity and by technology: MySQL, PostgreSQL and MongoDB
+- A count of the findings for each selected severity and for each technology: MySQL, PostgreSQL and MongoDB
 - Suggested next steps
 - The details of each finding, in the same format as **Copy as text** on the **Advisors > Insights** page
 

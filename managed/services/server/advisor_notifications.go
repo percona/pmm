@@ -19,7 +19,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // validateAdvisorNotificationRecipients rejects a settings change that would leave Advisor
@@ -49,4 +51,23 @@ func validateAdvisorNotificationRecipients(oldSettings *models.Settings, params 
 	}
 
 	return nil
+}
+
+// advisorSeveritiesToAPI converts the stored notification severities to their API values.
+func advisorSeveritiesToAPI(severities []common.Severity) []managementv1.Severity {
+	res := make([]managementv1.Severity, 0, len(severities))
+	for _, severity := range severities {
+		// severity is a small bounded enum value
+		res = append(res, managementv1.Severity(severity)) //nolint:gosec
+	}
+	return res
+}
+
+// advisorSeveritiesFromAPI converts the requested notification severities to their stored values.
+func advisorSeveritiesFromAPI(severities []managementv1.Severity) []common.Severity {
+	res := make([]common.Severity, 0, len(severities))
+	for _, severity := range severities {
+		res = append(res, common.Severity(severity))
+	}
+	return res
 }

@@ -14,6 +14,12 @@ export const ADVISOR_SEVERITY_OPTIONS = [
   Severity.info,
 ];
 
+// mirrors DefaultAdvisorNotificationSeverities in managed/models/settings.go
+export const DEFAULT_ADVISOR_NOTIFICATION_SEVERITIES = [
+  Severity.critical,
+  Severity.error,
+];
+
 export const STT_CHECK_INTERVALS = [
   {
     label: Messages.advisors.rareIntervalLabel,

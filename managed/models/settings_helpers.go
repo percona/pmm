@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
+	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -66,8 +67,8 @@ type ChangeSettingsParams struct {
 
 	// Enable Advisor email notifications.
 	EnableAdvisorNotifications *bool
-	// Least-severe level that triggers an Advisor notification. Unknown means "do not change".
-	AdvisorNotificationSeverityThreshold common.Severity
+	// Severities of the Advisor insights that are emailed. Empty means "do not change".
+	AdvisorNotificationSeverities []common.Severity
 	// Recipients of Advisor notifications. Nil means "do not change"; an empty non-nil slice clears them.
 	AdvisorNotificationEmailAddresses []string
 
@@ -187,8 +188,11 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.AdvisorNotifications.Enabled = params.EnableAdvisorNotifications
 	}
 
-	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
-		settings.AdvisorNotifications.SeverityThreshold = params.AdvisorNotificationSeverityThreshold
+	if len(params.AdvisorNotificationSeverities) != 0 {
+		// a smaller value is more severe, so sorting puts the most severe first
+		severities := slices.Clone(params.AdvisorNotificationSeverities)
+		slices.Sort(severities)
+		settings.AdvisorNotifications.Severities = slices.Compact(severities)
 	}
 
 	if params.AdvisorNotificationEmailAddresses != nil {
@@ -351,8 +355,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
-		err := validateAdvisorSeverityThreshold(params.AdvisorNotificationSeverityThreshold)
+	for _, severity := range params.AdvisorNotificationSeverities {
+		err := validateAdvisorNotificationSeverity(severity)
 		if err != nil {
 			return err
 		}
@@ -371,14 +375,14 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	return nil
 }
 
-// validateAdvisorSeverityThreshold accepts only the severities advisors use;
+// validateAdvisorNotificationSeverity accepts only the severities advisors use;
 // the remaining common.Severity levels are retired for advisors.
-func validateAdvisorSeverityThreshold(s common.Severity) error {
+func validateAdvisorNotificationSeverity(s common.Severity) error {
 	switch s {
 	case common.Critical, common.Error, common.Warning, common.Info:
 		return nil
 	default:
-		return fmt.Errorf("advisor_notification_severity_threshold: unsupported severity level: %s", s)
+		return fmt.Errorf("advisor_notification_severities: unsupported severity level: %s", s)
 	}
 }
 

@@ -184,8 +184,8 @@ message Settings {
   bool om_enabled = 22;
   // True if Advisor email notifications are enabled.
   bool advisor_notifications_enabled = 23;
-  // Least-severe level that triggers an Advisor notification.
-  management.v1.Severity advisor_notification_severity_threshold = 24;
+  // Severities of the Advisor insights that are emailed.
+  repeated management.v1.Severity advisor_notification_severities = 24;
   // Email addresses Advisor notifications are sent to.
   repeated string advisor_notification_email_addresses = 25;
   // Advisor check results history retention.
@@ -261,8 +261,8 @@ message ChangeSettingsRequest {
   google.protobuf.Duration advisor_history_retention = 17;
   // Enable Advisor email notifications.
   optional bool enable_advisor_notifications = 18;
-  // Least-severe level that triggers an Advisor notification.
-  management.v1.Severity advisor_notification_severity_threshold = 19;
+  // Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
+  repeated management.v1.Severity advisor_notification_severities = 19;
   // Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
   // array clears the list.
   optional common.StringArray advisor_notification_email_addresses = 20;

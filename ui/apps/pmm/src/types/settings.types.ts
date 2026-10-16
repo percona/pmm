@@ -42,7 +42,7 @@ export interface Settings extends ReadonlySettings {
   advisorRunIntervals?: AdvisorRunIntervals;
   advisorHistoryRetention?: string;
   advisorNotificationsEnabled?: boolean;
-  advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationSeverities?: Severity[];
   advisorNotificationEmailAddresses?: string[];
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
@@ -61,7 +61,7 @@ export interface UpdateSettingsPayload {
   advisorRunIntervals?: AdvisorRunIntervals;
   advisorHistoryRetention?: string;
   enableAdvisorNotifications?: boolean;
-  advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationSeverities?: Severity[];
   advisorNotificationEmailAddresses?: StringArray;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;

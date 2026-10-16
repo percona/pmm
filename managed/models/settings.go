@@ -36,10 +36,14 @@ const (
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
 	AdvisorNotificationsEnabledDefault = false
-	AdvisorNotificationSeverityDefault = common.Error
 	OMEnabledDefault                   = false
 	awsPartitionID                     = "aws"
 )
+
+// DefaultAdvisorNotificationSeverities returns the insight severities emailed when none are configured.
+func DefaultAdvisorNotificationSeverities() []common.Severity {
+	return []common.Severity{common.Critical, common.Error}
+}
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
 type MetricsResolutions struct {
@@ -104,8 +108,8 @@ type Settings struct {
 	// AdvisorNotifications controls emailing Advisor check results to the configured recipients.
 	AdvisorNotifications struct {
 		Enabled *bool `json:"enabled"`
-		// SeverityThreshold is the least-severe level that triggers a notification.
-		SeverityThreshold common.Severity `json:"severity_threshold"`
+		// Severities lists the insight severities that are emailed, most severe first.
+		Severities []common.Severity `json:"severities"`
 		// EmailAddresses is the recipient list the run summaries are sent to.
 		EmailAddresses []string `json:"email_addresses"`
 	} `json:"advisor_notifications"`
@@ -273,8 +277,8 @@ func (s *Settings) fillDefaults() {
 		s.AdvisorHistoryRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
-	if s.AdvisorNotifications.SeverityThreshold == common.Unknown {
-		s.AdvisorNotifications.SeverityThreshold = AdvisorNotificationSeverityDefault
+	if len(s.AdvisorNotifications.Severities) == 0 {
+		s.AdvisorNotifications.Severities = DefaultAdvisorNotificationSeverities()
 	}
 
 	if len(s.AWSPartitions) == 0 {

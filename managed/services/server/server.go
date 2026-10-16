@@ -38,11 +38,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	managementv1 "github.com/percona/pmm/api/management/v1"
 	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
@@ -441,18 +439,17 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
-		DataRetention:           durationpb.New(settings.DataRetention),
-		AdvisorHistoryRetention: durationpb.New(settings.AdvisorHistoryRetention),
-		//nolint:gosec // severity is a small bounded enum value
-		AdvisorNotificationSeverityThreshold: managementv1.Severity(settings.AdvisorNotifications.SeverityThreshold),
-		AdvisorNotificationsEnabled:          settings.IsAdvisorNotificationsEnabled(),
-		AdvisorNotificationEmailAddresses:    settings.AdvisorNotifications.EmailAddresses,
-		SshKey:                               settings.SSHKey,
-		AwsPartitions:                        settings.AWSPartitions,
-		AdvisorEnabled:                       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled:                 settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:                     settings.PMMPublicAddress,
-		EnableInternalPgQan:                  !disableInternalPgQan,
+		DataRetention:                     durationpb.New(settings.DataRetention),
+		AdvisorHistoryRetention:           durationpb.New(settings.AdvisorHistoryRetention),
+		AdvisorNotificationSeverities:     advisorSeveritiesToAPI(settings.AdvisorNotifications.Severities),
+		AdvisorNotificationsEnabled:       settings.IsAdvisorNotificationsEnabled(),
+		AdvisorNotificationEmailAddresses: settings.AdvisorNotifications.EmailAddresses,
+		SshKey:                            settings.SSHKey,
+		AwsPartitions:                     settings.AWSPartitions,
+		AdvisorEnabled:                    settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled:              settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:                  settings.PMMPublicAddress,
+		EnableInternalPgQan:               !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -683,11 +680,11 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention:                        req.DataRetention.AsDuration(),
-			AdvisorHistoryRetention:              req.AdvisorHistoryRetention.AsDuration(),
-			EnableAdvisorNotifications:           req.EnableAdvisorNotifications,
-			AdvisorNotificationSeverityThreshold: common.Severity(req.AdvisorNotificationSeverityThreshold),
-			SSHKey:                               req.SshKey,
+			DataRetention:                 req.DataRetention.AsDuration(),
+			AdvisorHistoryRetention:       req.AdvisorHistoryRetention.AsDuration(),
+			EnableAdvisorNotifications:    req.EnableAdvisorNotifications,
+			AdvisorNotificationSeverities: advisorSeveritiesFromAPI(req.AdvisorNotificationSeverities),
+			SSHKey:                        req.SshKey,
 		}
 
 		if req.AwsPartitions != nil {

@@ -1,9 +1,11 @@
 import { Settings, UpdateSettingsPayload } from 'types/settings.types';
-import { Severity } from 'types/severity.types';
 import { AdvisorsFormValues } from './AdvisorsForm.schema';
 import { SECONDS_IN_DAY } from '../advanced/Advanced.constants';
 import { convertSecondsToDays } from '../advanced/Advanced.utils';
-import { DEFAULT_ADVISOR_RETENTION } from './Advisors.constants';
+import {
+  DEFAULT_ADVISOR_NOTIFICATION_SEVERITIES,
+  DEFAULT_ADVISOR_RETENTION,
+} from './Advisors.constants';
 import {
   convertCheckIntervalsToHours,
   convertHoursStringToSeconds,
@@ -19,11 +21,9 @@ export const toFormValues = (settings: Settings): AdvisorsFormValues => ({
     ) || '1'
   ),
   advisorNotifications: settings.advisorNotificationsEnabled ?? false,
-  advisorSeverityThreshold:
-    settings.advisorNotificationSeverityThreshold &&
-    settings.advisorNotificationSeverityThreshold !== Severity.unspecified
-      ? settings.advisorNotificationSeverityThreshold
-      : Severity.error,
+  advisorSeverities: settings.advisorNotificationSeverities?.length
+    ? settings.advisorNotificationSeverities
+    : DEFAULT_ADVISOR_NOTIFICATION_SEVERITIES,
   advisorNotificationEmails: (
     settings.advisorNotificationEmailAddresses ?? []
   ).join(', '),
@@ -45,7 +45,7 @@ export const toPayload = (
     advisorRunIntervals,
     advisorHistoryRetention: `${Math.round(parseFloat(values.advisorRetention)) * SECONDS_IN_DAY}s`,
     enableAdvisorNotifications: values.advisorNotifications,
-    advisorNotificationSeverityThreshold: values.advisorSeverityThreshold,
+    advisorNotificationSeverities: values.advisorSeverities,
     advisorNotificationEmailAddresses: {
       values: splitEmailAddresses(values.advisorNotificationEmails),
     },

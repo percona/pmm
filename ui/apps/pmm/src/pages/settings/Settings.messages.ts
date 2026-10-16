@@ -93,6 +93,8 @@ export const Messages = {
       intervalWholeHours: 'Use whole hours',
       emailsRequired:
         'Add at least one recipient, or turn Advisor notifications off',
+      severitiesRequired:
+        'Select at least one severity, or turn Advisor notifications off',
       emailInvalid: (email: string) =>
         `"${email}" is not a valid email address`,
       emailsMax: (max: number) => `At most ${max} recipients are allowed`,
@@ -114,9 +116,9 @@ export const Messages = {
     advisorNotificationsLabel: 'Advisor notifications',
     advisorNotificationsTooltip:
       'Email a summary of completed Advisor checks to the recipients below.',
-    advisorSeverityThresholdLabel: 'Notification severity threshold',
-    advisorSeverityThresholdTooltip:
-      'Least-severe level that triggers a notification.',
+    advisorSeveritiesLabel: 'Notification severities',
+    advisorSeveritiesTooltip:
+      'Only insights with the selected severities are emailed.',
     advisorEmailsLabel: 'Notification recipients',
     advisorEmailsTooltip:
       'Email addresses the summaries are sent to, separated by commas.',

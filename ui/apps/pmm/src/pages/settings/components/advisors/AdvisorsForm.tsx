@@ -1,12 +1,17 @@
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControl, { formControlClasses } from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormLabel from '@mui/material/FormLabel';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import MenuItem from '@mui/material/MenuItem';
-import { TextInput, SwitchInput, SelectInput } from '@percona/peak-ui';
+import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { SEVERITY } from 'lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { useSendTestAdvisorNotification } from 'hooks/api/useAdvisors';
@@ -23,7 +28,6 @@ import { AdvisorsFormValues, advisorsSchema } from './AdvisorsForm.schema';
 import { toFormValues, toPayload } from './AdvisorsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
-import { formControlClasses } from '@mui/material/FormControl';
 
 export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
@@ -37,6 +41,7 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   });
 
   const {
+    control,
     handleSubmit,
     reset,
     watch,
@@ -181,25 +186,57 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                   // wider gap than the enclosing Stack: both fields carry helper
                   // text, which otherwise sits flush against the next field
                   <Stack gap={2}>
-                    <SelectInput
-                      name="advisorSeverityThreshold"
-                      label={m.advisorSeverityThresholdLabel}
-                      helperText={m.advisorSeverityThresholdTooltip}
-                      formControlProps={{
-                        sx: { minWidth: 240, maxWidth: 320 },
-                        size: 'small',
-                      }}
-                      selectFieldProps={{
-                        // @ts-expect-error data-testid is passed through to the DOM
-                        'data-testid': 'advisorSeverityThreshold-select-input',
-                      }}
+                    <FormControl
+                      component="fieldset"
+                      error={!!errors.advisorSeverities}
+                      data-testid="advisorSeverities"
                     >
-                      {ADVISOR_SEVERITY_OPTIONS.map((severity) => (
-                        <MenuItem key={severity} value={severity}>
-                          {SEVERITY[severity]}
-                        </MenuItem>
-                      ))}
-                    </SelectInput>
+                      <FormLabel component="legend">
+                        {m.advisorSeveritiesLabel}
+                      </FormLabel>
+                      <Controller
+                        name="advisorSeverities"
+                        control={control}
+                        render={({ field }) => (
+                          <FormGroup row>
+                            {ADVISOR_SEVERITY_OPTIONS.map((severity) => (
+                              <FormControlLabel
+                                key={severity}
+                                label={SEVERITY[severity]}
+                                control={
+                                  <Checkbox
+                                    checked={field.value.includes(severity)}
+                                    onBlur={field.onBlur}
+                                    // rebuilt from the options, so the list
+                                    // stays ordered most severe first
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        ADVISOR_SEVERITY_OPTIONS.filter(
+                                          (option) =>
+                                            option === severity
+                                              ? e.target.checked
+                                              : field.value.includes(option)
+                                        )
+                                      )
+                                    }
+                                    slotProps={{
+                                      input: {
+                                        // @ts-expect-error data-testid is passed through to the DOM
+                                        'data-testid': `advisorSeverities-${SEVERITY[severity].toLowerCase()}-checkbox-input`,
+                                      },
+                                    }}
+                                  />
+                                }
+                              />
+                            ))}
+                          </FormGroup>
+                        )}
+                      />
+                      <FormHelperText>
+                        {errors.advisorSeverities?.message ??
+                          m.advisorSeveritiesTooltip}
+                      </FormHelperText>
+                    </FormControl>
                     <TextInput
                       name="advisorNotificationEmails"
                       label={m.advisorEmailsLabel}

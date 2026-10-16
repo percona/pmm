@@ -2293,8 +2293,6 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for AdvisorNotificationsEnabled
 
-	// no validation rules for AdvisorNotificationSeverityThreshold
-
 	if all {
 		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
 		case interface{ ValidateAll() error }:
@@ -3131,8 +3129,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 			}
 		}
 	}
-
-	// no validation rules for AdvisorNotificationSeverityThreshold
 
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates

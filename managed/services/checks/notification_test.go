@@ -37,10 +37,9 @@ func TestBuildAdvisorEmailReport(t *testing.T) {
 	}
 	insights := []string{"Insight A", "Insight B"}
 
-	want := `Percona Monitoring and Management runs Advisor checks against your monitored databases to surface potential issues. This report covers run 7394c7d1-53ae-4094-98b3-b7fe561dbac1, which was triggered manually by an operator. It found 2 insight(s) at or above the "Warning" severity level that may need your attention.
+	want := `Percona Monitoring and Management runs Advisor checks against your monitored databases to surface potential issues. This report covers run 7394c7d1-53ae-4094-98b3-b7fe561dbac1, which was triggered manually by an operator. It found 2 insight(s) with the selected severities (Error, Warning) that may need your attention.
 
 Findings by severity:
-  Critical: 0
   Error: 1
   Warning: 1
 
@@ -61,7 +60,7 @@ Insight A
 
 Insight B`
 
-	got := buildAdvisorEmailReport("7394c7d1-53ae-4094-98b3-b7fe561dbac1", models.CheckTriggeredByUser, common.Warning, sCounts,
-		tCounts, insights)
+	got := buildAdvisorEmailReport("7394c7d1-53ae-4094-98b3-b7fe561dbac1", models.CheckTriggeredByUser,
+		[]common.Severity{common.Error, common.Warning}, sCounts, tCounts, insights)
 	require.Equal(t, want, got)
 }

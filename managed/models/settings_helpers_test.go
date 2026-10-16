@@ -58,7 +58,7 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
-		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
+		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, actual)
 	})
 
@@ -83,26 +83,32 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
-		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
+		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, s)
 	})
 
 	t.Run("AdvisorNotifications", func(t *testing.T) {
+		// Severities are deduplicated and stored most severe first.
 		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-			EnableAdvisorNotifications:           new(true),
-			AdvisorNotificationSeverityThreshold: common.Warning,
-			AdvisorHistoryRetention:              48 * time.Hour,
+			EnableAdvisorNotifications:    new(true),
+			AdvisorNotificationSeverities: []common.Severity{common.Info, common.Critical, common.Info},
+			AdvisorHistoryRetention:       48 * time.Hour,
 		})
 		require.NoError(t, err)
 		assert.True(t, settings.IsAdvisorNotificationsEnabled())
-		assert.Equal(t, common.Warning, settings.AdvisorNotifications.SeverityThreshold)
+		assert.Equal(t, []common.Severity{common.Critical, common.Info}, settings.AdvisorNotifications.Severities)
 		assert.Equal(t, 48*time.Hour, settings.AdvisorHistoryRetention)
 
-		// An out-of-range severity threshold is rejected.
+		// Empty leaves the stored severities alone.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+		require.NoError(t, err)
+		assert.Equal(t, []common.Severity{common.Critical, common.Info}, settings.AdvisorNotifications.Severities)
+
+		// A severity advisors don't use is rejected.
 		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-			AdvisorNotificationSeverityThreshold: common.Severity(42),
+			AdvisorNotificationSeverities: []common.Severity{common.Error, common.Notice},
 		})
-		require.ErrorContains(t, err, "advisor_notification_severity_threshold")
+		require.ErrorContains(t, err, "advisor_notification_severities")
 	})
 
 	t.Run("AdvisorNotificationEmailAddresses", func(t *testing.T) {

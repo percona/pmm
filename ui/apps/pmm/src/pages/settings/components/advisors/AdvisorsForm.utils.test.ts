@@ -17,7 +17,7 @@ const TEST_SETTINGS: Settings = {
   dataRetention: '2592000s',
   advisorHistoryRetention: '1209600s',
   advisorNotificationsEnabled: true,
-  advisorNotificationSeverityThreshold: Severity.warning,
+  advisorNotificationSeverities: [Severity.critical, Severity.warning],
   advisorNotificationEmailAddresses: ['dba@example.com', 'oncall@example.com'],
 };
 
@@ -27,7 +27,10 @@ describe('toFormValues', () => {
 
     expect(values.advisorRetention).toBe('14');
     expect(values.advisorNotifications).toBe(true);
-    expect(values.advisorSeverityThreshold).toBe(Severity.warning);
+    expect(values.advisorSeverities).toEqual([
+      Severity.critical,
+      Severity.warning,
+    ]);
     expect(values.advisorNotificationEmails).toBe(
       'dba@example.com, oncall@example.com'
     );
@@ -38,23 +41,29 @@ describe('toFormValues', () => {
       ...TEST_SETTINGS,
       advisorHistoryRetention: undefined,
       advisorNotificationsEnabled: undefined,
-      advisorNotificationSeverityThreshold: undefined,
+      advisorNotificationSeverities: undefined,
       advisorNotificationEmailAddresses: undefined,
     });
 
     expect(values.advisorRetention).toBe('30');
     expect(values.advisorNotifications).toBe(false);
-    expect(values.advisorSeverityThreshold).toBe(Severity.error);
+    expect(values.advisorSeverities).toEqual([
+      Severity.critical,
+      Severity.error,
+    ]);
     expect(values.advisorNotificationEmails).toBe('');
   });
 
-  it('treats unspecified severity threshold as the default', () => {
+  it('treats an empty severity list as the default', () => {
     const values = toFormValues({
       ...TEST_SETTINGS,
-      advisorNotificationSeverityThreshold: Severity.unspecified,
+      advisorNotificationSeverities: [],
     });
 
-    expect(values.advisorSeverityThreshold).toBe(Severity.error);
+    expect(values.advisorSeverities).toEqual([
+      Severity.critical,
+      Severity.error,
+    ]);
   });
 });
 
@@ -64,7 +73,10 @@ describe('toPayload', () => {
 
     expect(payload.advisorHistoryRetention).toBe('1209600s');
     expect(payload.enableAdvisorNotifications).toBe(true);
-    expect(payload.advisorNotificationSeverityThreshold).toBe(Severity.warning);
+    expect(payload.advisorNotificationSeverities).toEqual([
+      Severity.critical,
+      Severity.warning,
+    ]);
     expect(payload.advisorNotificationEmailAddresses).toEqual({
       values: ['dba@example.com', 'oncall@example.com'],
     });

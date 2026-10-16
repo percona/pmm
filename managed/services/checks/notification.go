@@ -18,6 +18,7 @@ package checks
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -48,7 +49,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 		return
 	}
 
-	// only findings: passed and errored checks are stamped Info, which is a valid threshold
+	// only findings: passed and errored checks are stamped Info, which is a selectable severity
 	failed := models.CheckResultFailed
 	results, _, err := s.GetInsights(ctx, models.InsightFilters{RunID: runID, Status: &failed}, 0, 0)
 	if err != nil {
@@ -56,18 +57,12 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 		return
 	}
 
-	threshold := an.SeverityThreshold
-	if threshold == common.Unknown {
-		threshold = common.Error
-	}
-
 	sCounts := make(map[common.Severity]int)
 	tCounts := make(map[models.ServiceType]int)
 	texts := make([]string, 0, len(results))
 	for _, r := range results {
 		severity := common.Severity(pointer.Get(r.Severity))
-		// Keep only insights at least as severe as the threshold (a smaller value is more severe).
-		if severity < common.Critical || severity > threshold {
+		if !slices.Contains(an.Severities, severity) {
 			continue
 		}
 		text, err := insightToText(r)
@@ -85,7 +80,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 	}
 
 	subject := fmt.Sprintf("PMM Advisor Insights: %d finding(s) for run %s", len(texts), runID)
-	body := buildAdvisorEmailReport(runID, triggeredBy, threshold, sCounts, tCounts, texts)
+	body := buildAdvisorEmailReport(runID, triggeredBy, an.Severities, sCounts, tCounts, texts)
 
 	err = s.sendAdvisorEmail(an.EmailAddresses, subject, body)
 	if err != nil {
@@ -99,14 +94,14 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 // delivery can be verified without waiting for a run to produce findings. It executes no checks
 // and persists nothing; the findings in the report are made up.
 func (s *Service) SendTestNotification(recipients []string) error {
-	threshold := models.AdvisorNotificationSeverityDefault
+	severities := models.DefaultAdvisorNotificationSeverities()
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
-		// the report only needs the threshold to describe itself, so a settings
+		// the report only needs the severities to describe itself, so a settings
 		// failure must not stand between the operator and a delivery test
-		s.l.Warnf("Advisor test notification: failed to load settings, reporting the default threshold: %v", err)
-	} else if settings.AdvisorNotifications.SeverityThreshold != common.Unknown {
-		threshold = settings.AdvisorNotifications.SeverityThreshold
+		s.l.Warnf("Advisor test notification: failed to load settings, reporting the default severities: %v", err)
+	} else {
+		severities = settings.AdvisorNotifications.Severities
 	}
 
 	runID := uuid.New().String()
@@ -116,9 +111,9 @@ func (s *Service) SendTestNotification(recipients []string) error {
 	for _, sample := range sampleInsights {
 		r := sample(runID)
 		severity := common.Severity(pointer.Get(r.Severity))
-		// mirror the real report's filter, so the sample shows what this
-		// threshold would actually deliver
-		if severity > threshold {
+		// mirror the real report's filter, so the sample shows what these
+		// severities would actually deliver
+		if !slices.Contains(severities, severity) {
 			continue
 		}
 		text, err := insightToText(r)
@@ -132,7 +127,7 @@ func (s *Service) SendTestNotification(recipients []string) error {
 
 	subject := fmt.Sprintf("[Test] PMM Advisor Insights: %d sample finding(s)", len(texts))
 	body := testReportPreamble + buildAdvisorEmailReport(
-		runID, models.CheckTriggeredByUser, threshold, sCounts, tCounts, texts,
+		runID, models.CheckTriggeredByUser, severities, sCounts, tCounts, texts,
 	)
 
 	return s.sendAdvisorEmail(recipients, subject, body)
@@ -230,26 +225,25 @@ var advisorTechnologies = []struct {
 func buildAdvisorEmailReport(
 	runID string,
 	triggeredBy models.CheckTriggeredBy,
-	threshold common.Severity,
+	severities []common.Severity,
 	sCounts map[common.Severity]int,
 	tCounts map[models.ServiceType]int,
 	insights []string,
 ) string {
 	var b strings.Builder
 
+	labels := make([]string, 0, len(severities))
+	for _, sev := range severities {
+		labels = append(labels, capitalize(sev.String()))
+	}
 	fmt.Fprintf(&b, "Percona Monitoring and Management runs Advisor checks against your monitored "+
 		"databases to surface potential issues. This report covers run %s, which was %s. It found %d "+
-		"insight(s) at or above the %q severity level that may need your attention.\n\n",
-		runID, triggerPhrase(triggeredBy), len(insights), capitalize(threshold.String()))
+		"insight(s) with the selected severities (%s) that may need your attention.\n\n",
+		runID, triggerPhrase(triggeredBy), len(insights), strings.Join(labels, ", "))
 
 	b.WriteString("Findings by severity:\n")
-	// Iterate from the most severe advisor level down to the configured threshold
-	// (Critical=3 .. threshold), skipping the retired Notice level.
-	for sev := common.Critical; sev <= threshold; sev++ {
-		if sev == common.Notice {
-			continue
-		}
-		fmt.Fprintf(&b, "  %s: %d\n", capitalize(sev.String()), sCounts[sev])
+	for i, sev := range severities {
+		fmt.Fprintf(&b, "  %s: %d\n", labels[i], sCounts[sev])
 	}
 
 	// Every technology is listed, zero included, so the reader can tell "no findings" apart from

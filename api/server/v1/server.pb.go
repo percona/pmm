@@ -1021,8 +1021,8 @@ type Settings struct {
 	OmEnabled bool `protobuf:"varint,22,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
 	// True if Advisor email notifications are enabled.
 	AdvisorNotificationsEnabled bool `protobuf:"varint,23,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
-	// Least-severe level that triggers an Advisor notification.
-	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,24,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
+	// Severities of the Advisor insights that are emailed.
+	AdvisorNotificationSeverities []v1.Severity `protobuf:"varint,24,rep,packed,name=advisor_notification_severities,json=advisorNotificationSeverities,proto3,enum=management.v1.Severity" json:"advisor_notification_severities,omitempty"`
 	// Email addresses Advisor notifications are sent to.
 	AdvisorNotificationEmailAddresses []string `protobuf:"bytes,25,rep,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3" json:"advisor_notification_email_addresses,omitempty"`
 	// Advisor check results history retention.
@@ -1210,11 +1210,11 @@ func (x *Settings) GetAdvisorNotificationsEnabled() bool {
 	return false
 }
 
-func (x *Settings) GetAdvisorNotificationSeverityThreshold() v1.Severity {
+func (x *Settings) GetAdvisorNotificationSeverities() []v1.Severity {
 	if x != nil {
-		return x.AdvisorNotificationSeverityThreshold
+		return x.AdvisorNotificationSeverities
 	}
-	return v1.Severity(0)
+	return nil
 }
 
 func (x *Settings) GetAdvisorNotificationEmailAddresses() []string {
@@ -1549,8 +1549,8 @@ type ChangeSettingsRequest struct {
 	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,17,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
 	// Enable Advisor email notifications.
 	EnableAdvisorNotifications *bool `protobuf:"varint,18,opt,name=enable_advisor_notifications,json=enableAdvisorNotifications,proto3,oneof" json:"enable_advisor_notifications,omitempty"`
-	// Least-severe level that triggers an Advisor notification.
-	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,19,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
+	// Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
+	AdvisorNotificationSeverities []v1.Severity `protobuf:"varint,19,rep,packed,name=advisor_notification_severities,json=advisorNotificationSeverities,proto3,enum=management.v1.Severity" json:"advisor_notification_severities,omitempty"`
 	// Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
 	// array clears the list.
 	AdvisorNotificationEmailAddresses *common.StringArray `protobuf:"bytes,20,opt,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3,oneof" json:"advisor_notification_email_addresses,omitempty"`
@@ -1707,11 +1707,11 @@ func (x *ChangeSettingsRequest) GetEnableAdvisorNotifications() bool {
 	return false
 }
 
-func (x *ChangeSettingsRequest) GetAdvisorNotificationSeverityThreshold() v1.Severity {
+func (x *ChangeSettingsRequest) GetAdvisorNotificationSeverities() []v1.Severity {
 	if x != nil {
-		return x.AdvisorNotificationSeverityThreshold
+		return x.AdvisorNotificationSeverities
 	}
-	return v1.Severity(0)
+	return nil
 }
 
 func (x *ChangeSettingsRequest) GetAdvisorNotificationEmailAddresses() *common.StringArray {
@@ -1823,7 +1823,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xe6\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xd7\n" +
 	"\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
@@ -1848,8 +1848,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12extensions_enabled\x18\x15 \x01(\bR\x11extensionsEnabled\x12\x1d\n" +
 	"\n" +
 	"om_enabled\x18\x16 \x01(\bR\tomEnabled\x12B\n" +
-	"\x1dadvisor_notifications_enabled\x18\x17 \x01(\bR\x1badvisorNotificationsEnabled\x12n\n" +
-	"'advisor_notification_severity_threshold\x18\x18 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12O\n" +
+	"\x1dadvisor_notifications_enabled\x18\x17 \x01(\bR\x1badvisorNotificationsEnabled\x12_\n" +
+	"\x1fadvisor_notification_severities\x18\x18 \x03(\x0e2\x17.management.v1.SeverityR\x1dadvisorNotificationSeverities\x12O\n" +
 	"$advisor_notification_email_addresses\x18\x19 \x03(\tR!advisorNotificationEmailAddresses\x12U\n" +
 	"\x19advisor_history_retention\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetentionJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\xdd\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
@@ -1870,7 +1870,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xb0\f\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xa1\f\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1890,8 +1890,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"R\x13enableInternalPgQan\x88\x01\x01\x12 \n" +
 	"\tenable_om\x18\x10 \x01(\bH\vR\benableOm\x88\x01\x01\x12U\n" +
 	"\x19advisor_history_retention\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12E\n" +
-	"\x1cenable_advisor_notifications\x18\x12 \x01(\bH\fR\x1aenableAdvisorNotifications\x88\x01\x01\x12n\n" +
-	"'advisor_notification_severity_threshold\x18\x13 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12i\n" +
+	"\x1cenable_advisor_notifications\x18\x12 \x01(\bH\fR\x1aenableAdvisorNotifications\x88\x01\x01\x12_\n" +
+	"\x1fadvisor_notification_severities\x18\x13 \x03(\x0e2\x17.management.v1.SeverityR\x1dadvisorNotificationSeverities\x12i\n" +
 	"$advisor_notification_email_addresses\x18\x14 \x01(\v2\x13.common.StringArrayH\rR!advisorNotificationEmailAddresses\x88\x01\x01B\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
@@ -1999,7 +1999,7 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	15, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
 	26, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
 	16, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	27, // 19: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	27, // 19: server.v1.Settings.advisor_notification_severities:type_name -> management.v1.Severity
 	26, // 20: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
 	17, // 21: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
 	18, // 22: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
@@ -2008,7 +2008,7 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	28, // 25: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
 	16, // 26: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
 	26, // 27: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
-	27, // 28: server.v1.ChangeSettingsRequest.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	27, // 28: server.v1.ChangeSettingsRequest.advisor_notification_severities:type_name -> management.v1.Severity
 	28, // 29: server.v1.ChangeSettingsRequest.advisor_notification_email_addresses:type_name -> common.StringArray
 	17, // 30: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
 	2,  // 31: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest

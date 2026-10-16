@@ -743,9 +743,8 @@ type GetSettingsOKBodySettings struct {
 	// True if Advisor email notifications are enabled.
 	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
 
-	// Severity represents severity level of the check result or alert.
-	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
-	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+	// Severities of the Advisor insights that are emailed.
+	AdvisorNotificationSeverities []*string `json:"advisor_notification_severities"`
 
 	// Email addresses Advisor notifications are sent to.
 	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
@@ -764,7 +763,7 @@ type GetSettingsOKBodySettings struct {
 func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+	if err := o.validateAdvisorNotificationSeverities(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -782,7 +781,7 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum []any
+var getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum []any
 
 func init() {
 	var res []string
@@ -790,56 +789,32 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum = append(getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+		getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum = append(getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, v)
 	}
 }
 
-const (
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
-
-	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
-)
-
-// prop value enum
-func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeveritiesItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
-	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverities(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverities) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateAdvisorNotificationSeverityThresholdEnum("getSettingsOk"+"."+"settings"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
-		return err
+	for i := 0; i < len(o.AdvisorNotificationSeverities); i++ {
+		if swag.IsZero(o.AdvisorNotificationSeverities[i]) { // not required
+			continue
+		}
+
+		// value enum
+		if err := o.validateAdvisorNotificationSeveritiesItemsEnum("getSettingsOk"+"."+"settings"+"."+"advisor_notification_severities"+"."+strconv.Itoa(i), "body", *o.AdvisorNotificationSeverities[i]); err != nil {
+			return err
+		}
+
 	}
 
 	return nil

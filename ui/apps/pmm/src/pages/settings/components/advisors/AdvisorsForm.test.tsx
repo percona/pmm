@@ -5,6 +5,7 @@ import {
   wrapWithSnackbarProvider,
 } from 'utils/testUtils';
 import * as advisorsApi from 'api/advisors';
+import * as settingsApi from 'api/settings';
 import type { Settings } from 'types/settings.types';
 import { Severity } from 'types/severity.types';
 import { AdvisorsForm } from './AdvisorsForm';
@@ -23,9 +24,12 @@ const settings = {
   },
   advisorHistoryRetention: '2592000s',
   advisorNotificationsEnabled: true,
-  advisorNotificationSeverityThreshold: Severity.warning,
+  advisorNotificationSeverities: [Severity.critical, Severity.warning],
   advisorNotificationEmailAddresses: ['dba@example.com'],
 } as Settings;
+
+const severityCheckbox = (label: string) =>
+  screen.getByTestId(`advisorSeverities-${label}-checkbox-input`);
 
 const renderForm = () =>
   render(
@@ -74,5 +78,47 @@ describe('AdvisorsForm', () => {
       expect(screen.getByTestId('advisor-test-email-button')).toBeDisabled()
     );
     expect(sendTestMock).not.toHaveBeenCalled();
+  });
+
+  it('checks the saved severities', () => {
+    renderForm();
+
+    expect(severityCheckbox('critical')).toBeChecked();
+    expect(severityCheckbox('error')).not.toBeChecked();
+    expect(severityCheckbox('warning')).toBeChecked();
+    expect(severityCheckbox('info')).not.toBeChecked();
+  });
+
+  it('saves the selected severities, most severe first', async () => {
+    renderForm();
+
+    fireEvent.click(severityCheckbox('info'));
+    fireEvent.click(severityCheckbox('critical'));
+    fireEvent.click(severityCheckbox('error'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('advisors-button')).toBeEnabled()
+    );
+    fireEvent.click(screen.getByTestId('advisors-button'));
+
+    await waitFor(() => expect(settingsApi.updateSettings).toHaveBeenCalled());
+    expect(
+      vi.mocked(settingsApi.updateSettings).mock.calls[0][0]
+        .advisorNotificationSeverities
+    ).toEqual([Severity.error, Severity.warning, Severity.info]);
+  });
+
+  it('requires at least one severity while notifications are on', async () => {
+    renderForm();
+
+    fireEvent.click(severityCheckbox('critical'));
+    fireEvent.click(severityCheckbox('warning'));
+
+    expect(
+      await screen.findByText(
+        'Select at least one severity, or turn Advisor notifications off'
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('advisors-button')).toBeDisabled();
   });
 });

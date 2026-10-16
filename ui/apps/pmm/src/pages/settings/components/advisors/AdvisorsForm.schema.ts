@@ -11,6 +11,7 @@ const {
   intervalMin,
   intervalWholeHours,
   emailsRequired,
+  severitiesRequired,
   emailInvalid,
   emailsMax,
 } = Messages.advisors.validation;
@@ -32,7 +33,7 @@ export const advisorsSchema = z
     frequentInterval: z.string(),
     advisorRetention: z.string(),
     advisorNotifications: z.boolean(),
-    advisorSeverityThreshold: z.nativeEnum(Severity),
+    advisorSeverities: z.array(z.nativeEnum(Severity)),
     advisorNotificationEmails: z.string(),
   })
   .superRefine((data, ctx) => {
@@ -81,6 +82,14 @@ export const advisorsSchema = z
     }
 
     if (!data.advisorNotifications) return;
+
+    if (data.advisorSeverities.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: severitiesRequired,
+        path: ['advisorSeverities'],
+      });
+    }
 
     // the API rejects notifications with no recipients, so catch it before submitting
     const emails = splitEmailAddresses(data.advisorNotificationEmails);
