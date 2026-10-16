@@ -1322,16 +1322,25 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		q.Set("sslkey", params.SSLKeyPath)
 	}
 
+	host := params.Address
+	if strings.HasPrefix(host, "/") {
+		// The directory of a Unix socket, which libpq takes as the host parameter.
+		q.Set("host", host)
+		host = ""
+	}
+
 	uri := url.URL{
 		Scheme:   "postgres",
 		User:     url.UserPassword(params.Username, params.Password),
-		Host:     params.Address,
+		Host:     host,
 		Path:     params.Name,
 		RawQuery: q.Encode(),
 	}
 	if uri.Path == "" {
 		uri.Path = "postgres"
 	}
+	// Without a host, the path is not separated from the authority otherwise.
+	uri.Path = "/" + strings.TrimPrefix(uri.Path, "/")
 	dsn := uri.String()
 
 	db, err := sql.Open("postgres", dsn)
@@ -1396,7 +1405,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
 		//
 		// In HA mode the external PostgreSQL must be pre-provisioned; auto-provisioning via the
-		// embedded superuser password file is not available and must not be attempted.
+		// superuser of the embedded PostgreSQL is not available and must not be attempted.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
@@ -1526,21 +1535,18 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 	return nil
 }
 
+// embeddedPostgreSQLSocketDir is the directory of the Unix socket of the embedded PostgreSQL.
+const embeddedPostgreSQLSocketDir = "/run/postgresql"
+
 // initWithRoot tries to create the user and the database.
 func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
 
-	// Read postgres password from the secure file
-	passwordFile := "/srv/.postgres_password" //nolint:gosec
-	passwordBytes, err := os.ReadFile(passwordFile)
-	if err != nil {
-		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
-	}
-
-	// we use postgres user for creating database
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres", Password: string(passwordBytes)})
+	// The postgres superuser has no password: it connects over the Unix socket of the embedded
+	// PostgreSQL, which pg_hba trusts, so that no superuser password has to be kept anywhere.
+	db, err := OpenDB(SetupDBParams{Address: embeddedPostgreSQLSocketDir, Username: "postgres"})
 	if err != nil {
 		return fmt.Errorf("failed to open the database: %w", err)
 	}

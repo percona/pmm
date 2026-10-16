@@ -8,6 +8,7 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare POSTGRES_OLD_DATA_DIR="/srv/postgres14"
+# The postgres superuser password file of earlier versions, which postgres-migration removes.
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
 declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 

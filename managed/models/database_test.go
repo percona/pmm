@@ -588,3 +588,16 @@ func TestPMMServerAgentsFollowTheDatabaseCredentials(t *testing.T) {
 		assert.Equal(t, "rotated", pointer.GetString(agent.Password), agent.AgentType)
 	}
 }
+
+func TestOpenDBOverUnixSocket(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	db, err := models.OpenDB(models.SetupDBParams{Address: dir, Username: "postgres"})
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, db.Close()) })
+
+	// No server listens there: the error shows the socket that was dialed.
+	err = db.PingContext(t.Context())
+	require.ErrorContains(t, err, "dial unix "+dir+"/.s.PGSQL.5432")
+}
