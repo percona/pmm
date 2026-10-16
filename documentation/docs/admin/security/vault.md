@@ -250,7 +250,7 @@ The encryption key protects most of the secrets that PMM Server stores in its da
 
 3. For an existing installation, remove `/srv/pmm-encryption.key` once PMM Server is running.
 
-In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path.
+In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path. If the rotation fails, it puts the old key back in Vault.
 
 PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key.
 
