@@ -1644,9 +1644,11 @@ type LogParserPreset struct {
 	CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// Number of OTEL collector agents referencing this preset name (list API only).
-	UsageCount    int32 `protobuf:"varint,8,opt,name=usage_count,json=usageCount,proto3" json:"usage_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UsageCount int32 `protobuf:"varint,8,opt,name=usage_count,json=usageCount,proto3" json:"usage_count,omitempty"`
+	// Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.
+	LineStartPattern string `protobuf:"bytes,9,opt,name=line_start_pattern,json=lineStartPattern,proto3" json:"line_start_pattern,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LogParserPreset) Reset() {
@@ -1733,6 +1735,13 @@ func (x *LogParserPreset) GetUsageCount() int32 {
 		return x.UsageCount
 	}
 	return 0
+}
+
+func (x *LogParserPreset) GetLineStartPattern() string {
+	if x != nil {
+		return x.LineStartPattern
+	}
+	return ""
 }
 
 type ListLogParserPresetsRequest struct {
@@ -1904,12 +1913,13 @@ func (x *GetLogParserPresetResponse) GetPreset() *LogParserPreset {
 }
 
 type AddLogParserPresetRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	OperatorYaml  string                 `protobuf:"bytes,3,opt,name=operator_yaml,json=operatorYaml,proto3" json:"operator_yaml,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description      string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	OperatorYaml     string                 `protobuf:"bytes,3,opt,name=operator_yaml,json=operatorYaml,proto3" json:"operator_yaml,omitempty"`
+	LineStartPattern string                 `protobuf:"bytes,4,opt,name=line_start_pattern,json=lineStartPattern,proto3" json:"line_start_pattern,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *AddLogParserPresetRequest) Reset() {
@@ -1963,6 +1973,13 @@ func (x *AddLogParserPresetRequest) GetOperatorYaml() string {
 	return ""
 }
 
+func (x *AddLogParserPresetRequest) GetLineStartPattern() string {
+	if x != nil {
+		return x.LineStartPattern
+	}
+	return ""
+}
+
 type AddLogParserPresetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Preset        *LogParserPreset       `protobuf:"bytes,1,opt,name=preset,proto3" json:"preset,omitempty"`
@@ -2008,12 +2025,13 @@ func (x *AddLogParserPresetResponse) GetPreset() *LogParserPreset {
 }
 
 type ChangeLogParserPresetRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Description   *string                `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	OperatorYaml  *string                `protobuf:"bytes,3,opt,name=operator_yaml,json=operatorYaml,proto3,oneof" json:"operator_yaml,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Description      *string                `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	OperatorYaml     *string                `protobuf:"bytes,3,opt,name=operator_yaml,json=operatorYaml,proto3,oneof" json:"operator_yaml,omitempty"`
+	LineStartPattern *string                `protobuf:"bytes,4,opt,name=line_start_pattern,json=lineStartPattern,proto3,oneof" json:"line_start_pattern,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ChangeLogParserPresetRequest) Reset() {
@@ -2063,6 +2081,13 @@ func (x *ChangeLogParserPresetRequest) GetDescription() string {
 func (x *ChangeLogParserPresetRequest) GetOperatorYaml() string {
 	if x != nil && x.OperatorYaml != nil {
 		return *x.OperatorYaml
+	}
+	return ""
+}
+
+func (x *ChangeLogParserPresetRequest) GetLineStartPattern() string {
+	if x != nil && x.LineStartPattern != nil {
+		return *x.LineStartPattern
 	}
 	return ""
 }
@@ -2317,7 +2342,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x05_otelB\x14\n" +
 	"\x12_enable_native_qanJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
-	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"\xae\x02\n" +
+	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"\xdc\x02\n" +
 	"\x0fLogParserPreset\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -2329,26 +2354,30 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1f\n" +
 	"\vusage_count\x18\b \x01(\x05R\n" +
-	"usageCount\"\x1d\n" +
+	"usageCount\x12,\n" +
+	"\x12line_start_pattern\x18\t \x01(\tR\x10lineStartPattern\"\x1d\n" +
 	"\x1bListLogParserPresetsRequest\"T\n" +
 	"\x1cListLogParserPresetsResponse\x124\n" +
 	"\apresets\x18\x01 \x03(\v2\x1a.server.v1.LogParserPresetR\apresets\"+\n" +
 	"\x19GetLogParserPresetRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"P\n" +
 	"\x1aGetLogParserPresetResponse\x122\n" +
-	"\x06preset\x18\x01 \x01(\v2\x1a.server.v1.LogParserPresetR\x06preset\"v\n" +
+	"\x06preset\x18\x01 \x01(\v2\x1a.server.v1.LogParserPresetR\x06preset\"\xa4\x01\n" +
 	"\x19AddLogParserPresetRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12#\n" +
-	"\roperator_yaml\x18\x03 \x01(\tR\foperatorYaml\"P\n" +
+	"\roperator_yaml\x18\x03 \x01(\tR\foperatorYaml\x12,\n" +
+	"\x12line_start_pattern\x18\x04 \x01(\tR\x10lineStartPattern\"P\n" +
 	"\x1aAddLogParserPresetResponse\x122\n" +
-	"\x06preset\x18\x01 \x01(\v2\x1a.server.v1.LogParserPresetR\x06preset\"\xa1\x01\n" +
+	"\x06preset\x18\x01 \x01(\v2\x1a.server.v1.LogParserPresetR\x06preset\"\xeb\x01\n" +
 	"\x1cChangeLogParserPresetRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\vdescription\x18\x02 \x01(\tH\x00R\vdescription\x88\x01\x01\x12(\n" +
-	"\roperator_yaml\x18\x03 \x01(\tH\x01R\foperatorYaml\x88\x01\x01B\x0e\n" +
+	"\roperator_yaml\x18\x03 \x01(\tH\x01R\foperatorYaml\x88\x01\x01\x121\n" +
+	"\x12line_start_pattern\x18\x04 \x01(\tH\x02R\x10lineStartPattern\x88\x01\x01B\x0e\n" +
 	"\f_descriptionB\x10\n" +
-	"\x0e_operator_yaml\"S\n" +
+	"\x0e_operator_yamlB\x15\n" +
+	"\x13_line_start_pattern\"S\n" +
 	"\x1dChangeLogParserPresetResponse\x122\n" +
 	"\x06preset\x18\x01 \x01(\v2\x1a.server.v1.LogParserPresetR\x06preset\".\n" +
 	"\x1cRemoveLogParserPresetRequest\x12\x0e\n" +

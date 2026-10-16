@@ -1981,6 +1981,37 @@ $old$, $new$  layout: '2006-01-02 15:04:05.000'
   location: UTC
 $new$), updated_at = NOW() WHERE name = 'postgres' AND built_in`,
 	},
+	145: {
+		// Lines that don't match a preset's line_start_pattern join the previous entry (multi-line SQL statements, InnoDB
+		// errors). postgres and mysql_error get a timezone-agnostic start pattern, (?s) so their regex spans the joined
+		// lines, and drop the raw timestamp/level attributes already stored as Timestamp/SeverityText. Only built-ins whose
+		// regex is unchanged are touched.
+		`ALTER TABLE log_parser_presets ADD COLUMN IF NOT EXISTS line_start_pattern VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE log_parser_presets SET
+			line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\]$p$,
+			operator_yaml = rtrim(replace(operator_yaml, $o$regex: '^(?P<timestamp>$o$, $n$regex: '(?s)^(?P<timestamp>$n$), E'\n') || $y$
+- type: remove
+  field: attributes.timestamp
+  on_error: send_quiet
+- type: remove
+  field: attributes.level
+  on_error: send_quiet
+$y$,
+			updated_at = NOW()
+		WHERE name = 'postgres' AND built_in AND position($o$regex: '^(?P<timestamp>$o$ in operator_yaml) > 0`,
+		`UPDATE log_parser_presets SET
+			line_start_pattern = $p$^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}) $p$,
+			operator_yaml = rtrim(replace(operator_yaml, $o$regex: '^(?P<timestamp>$o$, $n$regex: '(?s)^(?P<timestamp>$n$), E'\n') || $y$
+- type: remove
+  field: attributes.timestamp
+  on_error: send_quiet
+- type: remove
+  field: attributes.subsystem
+  on_error: send_quiet
+$y$,
+			updated_at = NOW()
+		WHERE name = 'mysql_error' AND built_in AND position($o$regex: '^(?P<timestamp>$o$ in operator_yaml) > 0`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

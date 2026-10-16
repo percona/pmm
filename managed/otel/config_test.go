@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -88,4 +89,20 @@ func TestBuildServerOtelConfigYAML(t *testing.T) {
 		assert.Contains(t, yaml, "receivers: [")
 		assert.Contains(t, yaml, ", otlp]")
 	})
+}
+
+func TestFilelogMultilineYAML(t *testing.T) {
+	t.Parallel()
+	assert.Empty(t, FilelogMultilineYAML("", "    "))
+
+	pattern := `^\d{4}-\d{2}-\d{2} \S+ \[\d+\] it's`
+	block := FilelogMultilineYAML(pattern, "    ")
+	assert.True(t, strings.HasPrefix(block, "    multiline:\n      line_start_pattern: '"), block)
+	var parsed struct {
+		Multiline struct {
+			LineStartPattern string `yaml:"line_start_pattern"`
+		} `yaml:"multiline"`
+	}
+	require.NoError(t, yaml.Unmarshal([]byte(block), &parsed))
+	assert.Equal(t, pattern, parsed.Multiline.LineStartPattern)
 }

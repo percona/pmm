@@ -256,6 +256,8 @@ message LogParserPreset {
   google.protobuf.Timestamp updated_at = 7;
   // Number of OTEL collector agents referencing this preset name (list API only).
   int32 usage_count = 8;
+  // Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.
+  string line_start_pattern = 9;
 }
 
 message ListLogParserPresetsRequest {}
@@ -276,6 +278,7 @@ message AddLogParserPresetRequest {
   string name = 1;
   string description = 2;
   string operator_yaml = 3;
+  string line_start_pattern = 4;
 }
 
 message AddLogParserPresetResponse {
@@ -286,6 +289,7 @@ message ChangeLogParserPresetRequest {
   string id = 1;
   optional string description = 2;
   optional string operator_yaml = 3;
+  optional string line_start_pattern = 4;
 }
 
 message ChangeLogParserPresetResponse {

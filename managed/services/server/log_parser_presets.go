@@ -38,13 +38,14 @@ func convertLogParserPreset(p *models.LogParserPreset) *serverv1.LogParserPreset
 		desc = *p.Description
 	}
 	return &serverv1.LogParserPreset{
-		Id:           p.ID,
-		Name:         p.Name,
-		Description:  desc,
-		OperatorYaml: p.OperatorYAML,
-		BuiltIn:      p.BuiltIn,
-		CreatedAt:    timestamppb.New(p.CreatedAt),
-		UpdatedAt:    timestamppb.New(p.UpdatedAt),
+		Id:               p.ID,
+		Name:             p.Name,
+		Description:      desc,
+		OperatorYaml:     p.OperatorYAML,
+		BuiltIn:          p.BuiltIn,
+		CreatedAt:        timestamppb.New(p.CreatedAt),
+		UpdatedAt:        timestamppb.New(p.UpdatedAt),
+		LineStartPattern: p.LineStartPattern,
 	}
 }
 
@@ -61,7 +62,7 @@ func mapLogParserPresetErr(err error) error {
 	case strings.Contains(msg, "already exists"):
 		return status.Errorf(codes.AlreadyExists, "%s", msg)
 	case strings.Contains(msg, "preset name"), strings.Contains(msg, "operator_yaml"),
-		strings.Contains(msg, "operator "), strings.Contains(msg, "empty preset"):
+		strings.Contains(msg, "operator "), strings.Contains(msg, "empty preset"), strings.Contains(msg, "line_start_pattern"):
 		return status.Errorf(codes.InvalidArgument, "%s", msg)
 	case strings.Contains(msg, "cannot delete built-in"):
 		return status.Errorf(codes.FailedPrecondition, "%s", msg)
@@ -106,7 +107,7 @@ func (s *Server) GetLogParserPreset(_ context.Context, req *serverv1.GetLogParse
 
 // AddLogParserPreset creates a custom preset.
 func (s *Server) AddLogParserPreset(ctx context.Context, req *serverv1.AddLogParserPresetRequest) (*serverv1.AddLogParserPresetResponse, error) {
-	row, err := models.CreateLogParserPreset(s.db.Querier, req.GetName(), req.GetDescription(), req.GetOperatorYaml())
+	row, err := models.CreateLogParserPreset(s.db.Querier, req.GetName(), req.GetDescription(), req.GetOperatorYaml(), req.GetLineStartPattern())
 	if err != nil {
 		return nil, mapLogParserPresetErr(err)
 	}
@@ -117,13 +118,13 @@ func (s *Server) AddLogParserPreset(ctx context.Context, req *serverv1.AddLogPar
 	return &serverv1.AddLogParserPresetResponse{Preset: convertLogParserPreset(row)}, nil
 }
 
-// ChangeLogParserPreset updates description and/or operator YAML.
+// ChangeLogParserPreset updates description, operator YAML and/or line start pattern.
 func (s *Server) ChangeLogParserPreset(ctx context.Context, req *serverv1.ChangeLogParserPresetRequest) (*serverv1.ChangeLogParserPresetResponse, error) {
 	if strings.TrimSpace(req.GetId()) == "" {
 		return nil, status.Error(codes.InvalidArgument, "id is required.")
 	}
-	if req.Description == nil && req.OperatorYaml == nil {
-		return nil, status.Error(codes.InvalidArgument, "At least one of description or operator_yaml must be set.")
+	if req.Description == nil && req.OperatorYaml == nil && req.LineStartPattern == nil {
+		return nil, status.Error(codes.InvalidArgument, "At least one of description, operator_yaml or line_start_pattern must be set.")
 	}
 	var descPtr *string
 	if req.Description != nil {
@@ -134,7 +135,7 @@ func (s *Server) ChangeLogParserPreset(ctx context.Context, req *serverv1.Change
 		y := strings.TrimSpace(*req.OperatorYaml)
 		yamlPtr = &y
 	}
-	row, err := models.UpdateLogParserPreset(s.db.Querier, req.GetId(), descPtr, yamlPtr)
+	row, err := models.UpdateLogParserPreset(s.db.Querier, req.GetId(), descPtr, yamlPtr, req.LineStartPattern)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "Log parser preset not found.")

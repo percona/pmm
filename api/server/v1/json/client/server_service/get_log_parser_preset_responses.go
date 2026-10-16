@@ -710,6 +710,9 @@ type GetLogParserPresetOKBodyPreset struct {
 
 	// Number of OTEL collector agents referencing this preset name (list API only).
 	UsageCount int32 `json:"usage_count,omitempty"`
+
+	// Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.
+	LineStartPattern string `json:"line_start_pattern,omitempty"`
 }
 
 // Validate validates this get log parser preset OK body preset

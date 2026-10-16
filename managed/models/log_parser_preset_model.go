@@ -32,4 +32,6 @@ type LogParserPreset struct {
 	BuiltIn      bool      `reform:"built_in"`
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
+	// LineStartPattern is a regex for the first line of an entry; lines that don't match join the previous one.
+	LineStartPattern string `reform:"line_start_pattern"`
 }

@@ -121,3 +121,12 @@ func TestNormalizeLogParserOperatorYAML(t *testing.T) {
 		assert.Contains(t, normalized, "regex: '^(?P<timestamp>")
 	})
 }
+
+func TestValidateLogParserLineStartPattern(t *testing.T) {
+	t.Parallel()
+	require.NoError(t, ValidateLogParserLineStartPattern(""))
+	require.NoError(t, ValidateLogParserLineStartPattern(`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\]`))
+	err := ValidateLogParserLineStartPattern(`^(\d{4}`)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "line_start_pattern")
+}

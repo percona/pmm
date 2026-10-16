@@ -45,6 +45,15 @@ func sanitizePresetName(name string) string {
 	return regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(name, "_")
 }
 
+// FilelogMultilineYAML returns a filelog receiver multiline block that starts a new entry at lines matching
+// lineStartPattern (so continuation lines join the entry), or "" when the pattern is empty.
+func FilelogMultilineYAML(lineStartPattern, indent string) string {
+	if lineStartPattern == "" {
+		return ""
+	}
+	return indent + "multiline:\n" + indent + "  line_start_pattern: " + quoteYAMLString(lineStartPattern) + "\n"
+}
+
 func quoteYAMLString(s string) string {
 	if s == "" || (!strings.Contains(s, "'") && !strings.Contains(s, "\n")) {
 		return "'" + s + "'"
@@ -128,6 +137,7 @@ func BuildServerOtelConfigYAML(q *reform.Querier, endpoint, username, password s
 		receiversYaml.WriteString("  " + receiverID + ":\n")
 		receiversYaml.WriteString("    include: [" + fmt.Sprintf("%q", src.Path) + "]\n")
 		receiversYaml.WriteString("    start_at: beginning\n")
+		receiversYaml.WriteString(FilelogMultilineYAML(preset.LineStartPattern, "    "))
 		if preset.OperatorYAML != "" {
 			receiversYaml.WriteString("    operators:\n")
 			receiversYaml.WriteString(IndentYAML(preset.OperatorYAML, "      "))

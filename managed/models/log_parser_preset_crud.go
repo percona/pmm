@@ -146,6 +146,18 @@ func normalizeAndValidateLogParserOperatorYAML(operatorYAML string) (string, err
 }
 
 // ValidateLogParserOperatorYAML ensures operator_yaml is a non-empty YAML sequence of objects with a type field.
+// ValidateLogParserLineStartPattern checks that a non-empty line_start_pattern is a valid regular expression.
+func ValidateLogParserLineStartPattern(pattern string) error {
+	if pattern == "" {
+		return nil
+	}
+	_, err := regexp.Compile(pattern)
+	if err != nil {
+		return fmt.Errorf("line_start_pattern is not a valid regular expression: %w", err)
+	}
+	return nil
+}
+
 func ValidateLogParserOperatorYAML(operatorYAML string) error {
 	_, err := normalizeAndValidateLogParserOperatorYAML(operatorYAML)
 	return err
@@ -202,11 +214,16 @@ func ListOtelCollectorAgentIDsReferencingLogParserPreset(q *reform.Querier, pres
 }
 
 // CreateLogParserPreset inserts a custom preset (built_in=false).
-func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML string) (*LogParserPreset, error) {
+func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML, lineStartPattern string) (*LogParserPreset, error) {
 	if err := ValidateLogParserPresetName(name); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	operatorYAML, err := normalizeAndValidateLogParserOperatorYAML(operatorYAML)
+	if err != nil {
+		return nil, err
+	}
+	lineStartPattern = strings.TrimSpace(lineStartPattern)
+	err = ValidateLogParserLineStartPattern(lineStartPattern)
 	if err != nil {
 		return nil, err
 	}
@@ -224,13 +241,14 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 		descPtr = &d
 	}
 	row := &LogParserPreset{
-		ID:           uuid.NewString(),
-		Name:         name,
-		Description:  descPtr,
-		OperatorYAML: operatorYAML,
-		BuiltIn:      false,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		ID:               uuid.NewString(),
+		Name:             name,
+		Description:      descPtr,
+		OperatorYAML:     operatorYAML,
+		BuiltIn:          false,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+		LineStartPattern: lineStartPattern,
 	}
 	if err := q.Insert(row); err != nil { //nolint:noinlineerr
 		return nil, err
@@ -238,8 +256,8 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 	return row, nil
 }
 
-// UpdateLogParserPreset updates description and/or operator_yaml. Name and built_in are not changed.
-func UpdateLogParserPreset(q *reform.Querier, id string, description *string, operatorYAML *string) (*LogParserPreset, error) {
+// UpdateLogParserPreset updates description, operator_yaml and/or line_start_pattern. Name and built_in are not changed.
+func UpdateLogParserPreset(q *reform.Querier, id string, description, operatorYAML, lineStartPattern *string) (*LogParserPreset, error) {
 	if id == "" {
 		return nil, errors.New("empty preset id")
 	}
@@ -256,6 +274,14 @@ func UpdateLogParserPreset(q *reform.Querier, id string, description *string, op
 			return nil, err
 		}
 		row.OperatorYAML = normalized
+	}
+	if lineStartPattern != nil {
+		pattern := strings.TrimSpace(*lineStartPattern)
+		err := ValidateLogParserLineStartPattern(pattern)
+		if err != nil {
+			return nil, err
+		}
+		row.LineStartPattern = pattern
 	}
 	if description != nil {
 		d := strings.TrimSpace(*description)

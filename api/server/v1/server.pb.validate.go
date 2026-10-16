@@ -3396,6 +3396,8 @@ func (m *LogParserPreset) validate(all bool) error {
 
 	// no validation rules for UsageCount
 
+	// no validation rules for LineStartPattern
+
 	if len(errors) > 0 {
 		return LogParserPresetMultiError(errors)
 	}
@@ -3982,6 +3984,8 @@ func (m *AddLogParserPresetRequest) validate(all bool) error {
 
 	// no validation rules for OperatorYaml
 
+	// no validation rules for LineStartPattern
+
 	if len(errors) > 0 {
 		return AddLogParserPresetRequestMultiError(errors)
 	}
@@ -4225,6 +4229,10 @@ func (m *ChangeLogParserPresetRequest) validate(all bool) error {
 
 	if m.OperatorYaml != nil {
 		// no validation rules for OperatorYaml
+	}
+
+	if m.LineStartPattern != nil {
+		// no validation rules for LineStartPattern
 	}
 
 	if len(errors) > 0 {

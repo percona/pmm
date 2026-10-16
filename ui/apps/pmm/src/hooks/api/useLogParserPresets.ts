@@ -49,7 +49,12 @@ export const useChangeLogParserPreset = (
     UseMutationOptions<
       LogParserPreset,
       Error,
-      { id: string; description?: string; operatorYaml?: string }
+      {
+        id: string;
+        description?: string;
+        operatorYaml?: string;
+        lineStartPattern?: string;
+      }
     >
   >
 ) => {

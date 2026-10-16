@@ -10,6 +10,8 @@ export interface LogParserPreset {
   built_in?: boolean;
   usageCount?: number;
   usage_count?: number;
+  lineStartPattern?: string;
+  line_start_pattern?: string;
   createdAt?: string;
   created_at?: string;
   updatedAt?: string;
@@ -18,6 +20,10 @@ export interface LogParserPreset {
 
 export function presetOperatorYaml(p: LogParserPreset): string {
   return (p.operatorYaml ?? p.operator_yaml ?? '').trim();
+}
+
+export function presetLineStartPattern(p: LogParserPreset): string {
+  return (p.lineStartPattern ?? p.line_start_pattern ?? '').trim();
 }
 
 export function presetBuiltIn(p: LogParserPreset): boolean {
@@ -91,6 +97,7 @@ export async function addLogParserPreset(body: {
   name: string;
   description?: string;
   operatorYaml: string;
+  lineStartPattern?: string;
 }): Promise<LogParserPreset> {
   const res = await api.post<{ preset: LogParserPreset }>(
     '/server/log-parser-presets',
@@ -98,6 +105,7 @@ export async function addLogParserPreset(body: {
       name: body.name,
       description: body.description ?? '',
       operatorYaml: normalizeOperatorYaml(body.operatorYaml),
+      lineStartPattern: (body.lineStartPattern ?? '').trim(),
     },
     { disableNotifications: true }
   );
@@ -106,12 +114,18 @@ export async function addLogParserPreset(body: {
 
 export async function changeLogParserPreset(
   id: string,
-  body: { description?: string; operatorYaml?: string }
+  body: {
+    description?: string;
+    operatorYaml?: string;
+    lineStartPattern?: string;
+  }
 ): Promise<LogParserPreset> {
   const payload: Record<string, string> = {};
   if (body.description !== undefined) payload.description = body.description;
   if (body.operatorYaml !== undefined)
     payload.operatorYaml = normalizeOperatorYaml(body.operatorYaml);
+  if (body.lineStartPattern !== undefined)
+    payload.lineStartPattern = body.lineStartPattern.trim();
   const res = await api.put<{ preset: LogParserPreset }>(
     `/server/log-parser-presets/${id}`,
     payload,

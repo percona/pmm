@@ -31576,6 +31576,11 @@
                         "type": "integer",
                         "format": "int32",
                         "x-order": 7
+                      },
+                      "line_start_pattern": {
+                        "description": "Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.",
+                        "type": "string",
+                        "x-order": 8
                       }
                     }
                   },
@@ -31645,6 +31650,10 @@
                 "operator_yaml": {
                   "type": "string",
                   "x-order": 2
+                },
+                "line_start_pattern": {
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -31695,6 +31704,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
+                    },
+                    "line_start_pattern": {
+                      "description": "Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -31799,6 +31813,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
+                    },
+                    "line_start_pattern": {
+                      "description": "Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -31871,6 +31890,11 @@
                   "type": "string",
                   "x-nullable": true,
                   "x-order": 1
+                },
+                "line_start_pattern": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 2
                 }
               }
             }
@@ -31921,6 +31945,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
+                    },
+                    "line_start_pattern": {
+                      "description": "Regex matching the first line of a log entry; lines that don't match join the previous entry. Empty: one line per entry.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0

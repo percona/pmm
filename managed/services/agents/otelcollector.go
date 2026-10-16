@@ -155,8 +155,9 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		byPreset[preset] = append(byPreset[preset], e.Path)
 	}
 
-	// Load preset operator YAML from DB for non-raw presets.
+	// Load preset operator YAML and line-start pattern from DB for non-raw presets.
 	presetYAML := make(map[string]string)
+	presetLineStart := make(map[string]string)
 	for name := range byPreset {
 		if name == presetRaw {
 			continue
@@ -166,6 +167,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 			continue
 		}
 		presetYAML[name] = p.OperatorYAML
+		presetLineStart[name] = p.LineStartPattern
 	}
 
 	var receivers []string
@@ -194,6 +196,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 			continue
 		}
 		fmt.Fprintf(&configYamlSb179, "  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
+		configYamlSb179.WriteString(otel.FilelogMultilineYAML(presetLineStart[preset], "    "))
 		if preset != presetRaw {
 			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
 				configYamlSb179.WriteString("    operators:\n" + otel.IndentYAML(yaml, "      "))

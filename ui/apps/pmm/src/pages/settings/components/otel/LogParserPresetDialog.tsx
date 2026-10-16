@@ -9,7 +9,11 @@ import {
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
-import { LogParserPreset, presetOperatorYaml } from 'api/logParserPresets';
+import {
+  LogParserPreset,
+  presetLineStartPattern,
+  presetOperatorYaml,
+} from 'api/logParserPresets';
 import {
   useAddLogParserPreset,
   useChangeLogParserPreset,
@@ -37,6 +41,7 @@ export const LogParserPresetDialog: FC<{
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [operatorYaml, setOperatorYaml] = useState(DEFAULT_OPERATOR_YAML);
+  const [lineStartPattern, setLineStartPattern] = useState('');
 
   const addPreset = useAddLogParserPreset();
   const changePreset = useChangeLogParserPreset();
@@ -48,12 +53,14 @@ export const LogParserPresetDialog: FC<{
       setName('');
       setDescription('');
       setOperatorYaml(DEFAULT_OPERATOR_YAML);
+      setLineStartPattern('');
     } else {
       setName(state.preset.name);
       setDescription(state.preset.description ?? '');
       setOperatorYaml(
         presetOperatorYaml(state.preset) || DEFAULT_OPERATOR_YAML
       );
+      setLineStartPattern(presetLineStartPattern(state.preset));
     }
   }, [state]);
 
@@ -68,12 +75,14 @@ export const LogParserPresetDialog: FC<{
           name: name.trim(),
           description: description.trim(),
           operatorYaml: operatorYaml.trim(),
+          lineStartPattern: lineStartPattern.trim(),
         });
       } else if (preset) {
         await changePreset.mutateAsync({
           id: preset.id,
           description: description.trim(),
           operatorYaml: operatorYaml.trim(),
+          lineStartPattern: lineStartPattern.trim(),
         });
       }
       enqueueSnackbar(m.saved, { variant: 'success' });
@@ -129,6 +138,22 @@ export const LogParserPresetDialog: FC<{
               },
             }}
             helperText={m.yamlHelp}
+          />
+          <TextField
+            label={m.lineStartLabel}
+            value={lineStartPattern}
+            onChange={(e) => setLineStartPattern(e.target.value)}
+            size="small"
+            fullWidth
+            slotProps={{
+              input: {
+                sx: {
+                  fontFamily: 'Roboto Mono, monospace',
+                  fontSize: '0.85rem',
+                },
+              },
+            }}
+            helperText={m.lineStartHelp}
           />
         </Stack>
       </DialogContent>

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeOperatorYaml } from './logParserPresets';
+import {
+  normalizeOperatorYaml,
+  presetLineStartPattern,
+} from './logParserPresets';
 
 describe('normalizeOperatorYaml', () => {
   it('splits parse_from onto its own line after a single-quoted regex', () => {
@@ -63,5 +66,17 @@ describe('normalizeOperatorYaml', () => {
         '  parse_from: body',
       ].join('\n')
     );
+  });
+});
+
+describe('presetLineStartPattern', () => {
+  it('reads camelCase and snake_case fields and trims', () => {
+    expect(
+      presetLineStartPattern({ id: '1', name: 'a', lineStartPattern: ' ^x ' })
+    ).toBe('^x');
+    expect(
+      presetLineStartPattern({ id: '1', name: 'a', line_start_pattern: '^y' })
+    ).toBe('^y');
+    expect(presetLineStartPattern({ id: '1', name: 'a' })).toBe('');
   });
 });

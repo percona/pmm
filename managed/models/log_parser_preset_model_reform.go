@@ -35,6 +35,7 @@ func (v *logParserPresetTableType) Columns() []string {
 		"built_in",
 		"created_at",
 		"updated_at",
+		"line_start_pattern",
 	}
 }
 
@@ -66,6 +67,7 @@ var LogParserPresetTable = &logParserPresetTableType{
 			{Name: "BuiltIn", Type: "bool", Column: "built_in"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "LineStartPattern", Type: "string", Column: "line_start_pattern"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -74,7 +76,7 @@ var LogParserPresetTable = &logParserPresetTableType{
 
 // String returns a string representation of this struct or record.
 func (s LogParserPreset) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Description: " + reform.Inspect(s.Description, true)
@@ -82,6 +84,7 @@ func (s LogParserPreset) String() string {
 	res[4] = "BuiltIn: " + reform.Inspect(s.BuiltIn, true)
 	res[5] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[6] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[7] = "LineStartPattern: " + reform.Inspect(s.LineStartPattern, true)
 	return strings.Join(res, ", ")
 }
 
@@ -96,6 +99,7 @@ func (s *LogParserPreset) Values() []interface{} {
 		s.BuiltIn,
 		s.CreatedAt,
 		s.UpdatedAt,
+		s.LineStartPattern,
 	}
 }
 
@@ -110,6 +114,7 @@ func (s *LogParserPreset) Pointers() []interface{} {
 		&s.BuiltIn,
 		&s.CreatedAt,
 		&s.UpdatedAt,
+		&s.LineStartPattern,
 	}
 }
 

@@ -151,6 +151,9 @@ export const Messages = {
         'Letters, digits, underscore; must start with a letter (used in pmm-admin and log_sources).',
       descriptionLabel: 'Description',
       yamlLabel: 'Operator YAML',
+      lineStartLabel: 'Line start pattern (multi-line entries)',
+      lineStartHelp:
+        "Optional regex matching the first line of each log entry. Lines that don't match are joined to the previous entry (e.g. multi-line SQL statements). Leave empty for one entry per line.",
       yamlHelp:
         'YAML array of OTEL filelog operator objects (must include type on each item). Quote regex values and put each field on its own line.',
       invalidName: 'Invalid preset name',
