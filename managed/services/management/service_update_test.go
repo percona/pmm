@@ -343,6 +343,11 @@ func TestUpdateService(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestMongoDB(ctx, t, s, m)
 
+		// The cluster changes, so the dry run checks the lock; it removes no scheduled tasks.
+		m.stm.On("CheckClusterUnlocked", ctx, s.db, &models.ChangeStandardLabelsParams{
+			ServiceID: serviceID,
+			Cluster:   new("rs-cluster"),
+		}).Return(nil).Once()
 		resp, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
 			ServiceId: serviceID,
 			DryRun:    true,
