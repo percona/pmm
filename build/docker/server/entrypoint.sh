@@ -76,28 +76,31 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
 fi
 
 # Replace the PMM_*, GF_*, VM_* and VMAGENT_* variables given as vault:<path>#<key> references with the
-# secrets they point to, before anything reads them. pmm-managed reads the secrets of the settings that refer
-# to Vault while it runs, so it gets the credentials of Vault too, in files rather than in the environment
-# that every component of PMM Server inherits.
+# secrets they point to, before anything reads them.
 if [ -n "$PMM_VAULT_ADDRESS" ]; then
-    declare VAULT_EXPORTS VAULT_CREDENTIALS_DIR
+    declare VAULT_EXPORTS
     if ! VAULT_EXPORTS=$(pmm-managed-init vault-env); then
         echo "FATAL: failed to read the PMM Server secrets from Vault." >&2
         exit 1
     fi
     eval "$VAULT_EXPORTS"
-
-    VAULT_CREDENTIALS_DIR=$(mktemp -d)
-    if [ -n "$PMM_VAULT_TOKEN" ] && [ -z "$PMM_VAULT_TOKEN_FILE" ]; then
-        (umask 077 && printf '%s' "$PMM_VAULT_TOKEN" > "$VAULT_CREDENTIALS_DIR/token")
-        export PMM_VAULT_TOKEN_FILE="$VAULT_CREDENTIALS_DIR/token"
-    fi
-    if [ -n "$PMM_VAULT_SECRET_ID" ] && [ -z "$PMM_VAULT_SECRET_ID_FILE" ]; then
-        (umask 077 && printf '%s' "$PMM_VAULT_SECRET_ID" > "$VAULT_CREDENTIALS_DIR/secret-id")
-        export PMM_VAULT_SECRET_ID_FILE="$VAULT_CREDENTIALS_DIR/secret-id"
-    fi
-    unset VAULT_EXPORTS VAULT_CREDENTIALS_DIR PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID
+    unset VAULT_EXPORTS
 fi
+
+# pmm-managed and the pmm-agent of PMM Server read from Vault while they run, so they get their credentials
+# of Vault too, in files rather than in the environment that every component of PMM Server inherits. The
+# directory is the same at every start: pmm-agent setup saves the paths to the configuration file.
+declare VAULT_CREDENTIALS_DIR=/tmp/pmm-vault-credentials VAULT_CREDENTIAL
+rm -rf "$VAULT_CREDENTIALS_DIR"
+install -d -m 700 "$VAULT_CREDENTIALS_DIR"
+for VAULT_CREDENTIAL in PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID PMM_AGENT_VAULT_TOKEN PMM_AGENT_VAULT_SECRET_ID; do
+    if [ -n "${!VAULT_CREDENTIAL}" ] && [ -z "$(printenv "${VAULT_CREDENTIAL}_FILE")" ]; then
+        (umask 077 && printf '%s' "${!VAULT_CREDENTIAL}" > "$VAULT_CREDENTIALS_DIR/$VAULT_CREDENTIAL")
+        export "${VAULT_CREDENTIAL}_FILE=$VAULT_CREDENTIALS_DIR/$VAULT_CREDENTIAL"
+    fi
+    unset "$VAULT_CREDENTIAL"
+done
+unset VAULT_CREDENTIALS_DIR VAULT_CREDENTIAL
 
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution

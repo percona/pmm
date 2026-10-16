@@ -200,7 +200,7 @@ Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be
 
 The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at startup: PMM Client reads the references it is given itself, such as `PMM_AGENT_SERVER_PASSWORD`, so that their values are not saved to its configuration file.
 
-If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs, so `PMM_VAULT_TOKEN` and `PMM_VAULT_SECRET_ID` are handed over to it in files and removed from the environment of its components. The passwords that you set in the environment are not written to the configuration files of PMM Server's components.
+If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs. The passwords that you set in the environment are not written to the configuration files of PMM Server's components.
 
 PMM Server reads these secrets only when it starts. To apply a changed secret, restart the container.
 
@@ -255,7 +255,7 @@ In High Availability mode, give every node the same reference. To rotate the key
 PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key.
 
 !!! note
-    The `PMM_AGENT_VAULT_*` variables of PMM Server's own PMM Client reach all PMM Server components, as every variable of the container does. To keep the secret ID out of their environment, use `PMM_AGENT_VAULT_SECRET_ID_FILE` with a mounted file instead of `PMM_AGENT_VAULT_SECRET_ID`.
+    The token and secret ID that you give to PMM Server and to its own PMM Client, with `PMM_VAULT_TOKEN`, `PMM_VAULT_SECRET_ID`, `PMM_AGENT_VAULT_TOKEN`, and `PMM_AGENT_VAULT_SECRET_ID`, are handed over to them in files, and are not in the environment of PMM Server's components.
 
 ## Read the other secrets PMM Server stores from Vault
 
