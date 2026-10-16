@@ -10,5 +10,7 @@ export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'di
   badge?: ReactNode;
   showDot?: boolean;
   dotColor?: NavItemDotColor;
+  hasSelectedChild?: boolean;
   component?: ElementType;
+  href?: string;
 }

@@ -95,7 +95,8 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 
 ## Navigation
 
-- [NavItem](https://percona.github.io/peak-ui/?path=/docs/navigation-navigation-item--docs): Sidebar navigation row (MUI `ListItemButton`) with `icon`, `text`, `secondaryText`, a `badge` slot, and a status dot (`showDot`, `dotColor`); pass `component={RouterLink}` and `selected` for routing. Types `NavItemProps`, `NavItemDotColor`.
+- [NavItem](https://percona.github.io/peak-ui/?path=/docs/navigation-navigation-item--docs): Sidebar navigation row (MUI `ListItemButton`) with `icon`, `text`, `secondaryText`, a `badge` slot, and a status dot (`showDot`, `dotColor`); pass `component={RouterLink}` (or `href` for a plain link) and `selected` for routing (it sets `aria-current="page"`), and `hasSelectedChild` on a group whose nested item is the current page. With `aria-expanded` set, it keeps its hover look while the panel it opens is showing. Types `NavItemProps`, `NavItemDotColor`.
+- [NavFlyout](https://percona.github.io/peak-ui/?path=/docs/navigation-navigation-flyout--docs): A navigation group's `NavItem` entries in a panel beside its item, for a sidebar collapsed to a rail; a navigation landmark headed by the group's `label`, on the theme's popover surface, kept inside the viewport. Opening focuses the current page; Up, Down, Home and End move between entries and Escape closes it. Pass the trigger as `anchorEl` and give the trigger `aria-expanded` and `aria-controls` set to `id`. Use instead of MUI `Menu` for page links. Type `NavFlyoutProps`.
 - [Stepper](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-stepper--docs): MUI `Stepper` with Percona active and completed step colors, plus `noConnector` to drop the lines between steps for compact wizards. Type `StepperProps`.
 
 ## Icons
