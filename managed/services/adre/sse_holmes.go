@@ -40,13 +40,17 @@ type holmesStreamOutcome struct {
 	PromptTokens       *int32
 	CompletionTokens   *int32
 	TotalTokens        *int32
+	// ConversationHistory is the history Holmes returned, to be sent back verbatim on the next turn.
+	ConversationHistory json.RawMessage
+	// Paused is set when the stream ended waiting for frontend tool results (approval_required).
+	Paused bool
 }
 
 // parseHolmesSSEStream tees every line to forward (if non-nil), then parses events for persistence.
 func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmesStreamOutcome, sawErrorEvent bool, err error) { //nolint:gocognit,nonamedreturns
 	sc := bufio.NewScanner(src)
-	// Large Holmes payloads in a single data: line.
-	sc.Buffer(make([]byte, 64*1024), 1024*1024) //nolint:mnd
+	// Large Holmes payloads in a single data: line (ai_answer_end carries the whole conversation_history).
+	sc.Buffer(make([]byte, 64*1024), 64<<20) //nolint:mnd
 
 	var eventName string
 	var dataLines []string
@@ -70,14 +74,19 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 			out.ToolResultJSONRows = append(out.ToolResultJSONRows, append([]byte(nil), raw...))
 		case holmesSSEEventAnswerEnd, holmesSSEEventApprovalRequired:
 			var d struct {
-				Analysis string          `json:"analysis"`
-				Metadata json.RawMessage `json:"metadata"`
+				Analysis            string          `json:"analysis"`
+				Metadata            json.RawMessage `json:"metadata"`
+				ConversationHistory json.RawMessage `json:"conversation_history"`
 			}
 			err := json.Unmarshal(raw, &d)
 			if err != nil {
 				return
 			}
 			out.Analysis = d.Analysis
+			out.Paused = ev == holmesSSEEventApprovalRequired
+			if len(d.ConversationHistory) > 0 && string(d.ConversationHistory) != "null" {
+				out.ConversationHistory = append(json.RawMessage(nil), d.ConversationHistory...)
+			}
 			if len(d.Metadata) > 0 {
 				out.Metadata = append(json.RawMessage(nil), d.Metadata...)
 				usage := ParseHolmesMetadata(d.Metadata)

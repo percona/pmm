@@ -123,30 +123,34 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	}
 
 	ask := strings.TrimSpace(body.Ask)
-	userMsg := &models.AdreMessage{
-		ConversationID: convID,
-		Role:           "user",
-		Content:        ask,
+	// A follow-up that only carries frontend tool results resumes the paused turn: the question is already saved.
+	resuming := len(body.FrontendToolResults) > 0
+	var hist []any
+	if resuming {
+		hist, err = h.pausedHolmesHistory(convID, body.ConversationHistory)
+	} else {
+		userMsg := &models.AdreMessage{
+			ConversationID: convID,
+			Role:           "user",
+			Content:        ask,
+		}
+		err = models.CreateAdreMessage(h.db, userMsg)
+		if err != nil {
+			h.l.Errorf("CreateAdreMessage user: %v", err)
+			writeJSONError(w, http.StatusInternalServerError, "Failed to save message")
+			return
+		}
+		err = models.TouchAdreConversationLastMessage(h.db, convID, userMsg.CreatedAt)
+		if err != nil {
+			h.l.Warnf("TouchAdreConversationLastMessage: %v", err)
+		}
+		hist, err = h.holmesHistoryForTurn(convID, userMsg.ID, settings)
 	}
-	if err := models.CreateAdreMessage(h.db, userMsg); err != nil { //nolint:noinlineerr
-		h.l.Errorf("CreateAdreMessage user: %v", err)
-		writeJSONError(w, http.StatusInternalServerError, "Failed to save message")
-		return
-	}
-	if err := models.TouchAdreConversationLastMessage(h.db, convID, userMsg.CreatedAt); err != nil { //nolint:noinlineerr
-		h.l.Warnf("TouchAdreConversationLastMessage: %v", err)
-	}
-
-	prior, err := models.LoadAdreMessagesForHolmesHistory(h.db, convID, userMsg.ID)
 	if err != nil {
-		h.l.Errorf("LoadAdreMessagesForHolmesHistory: %v", err)
+		h.l.Errorf("Load Holmes history: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load history")
 		return
 	}
-	hist := MessagesToHolmesHistory(prior)
-	maxMsgs := MaxConversationMessages(settings)
-	hist = TrimConversationHistory(hist, maxMsgs)
-	hist = EnsureHolmesLeadingSystemMessage(hist)
 
 	mode := "fast" //nolint:goconst
 	if body.Mode != nil {
@@ -165,16 +169,20 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
 	req.AdditionalSystemPrompt = ResolveChatSystemPrompt(settings, mode)
-	if dc := strings.TrimSpace(body.DashboardContext); dc != "" {
+	// The page context rides on the question, not the system prompt, so the system prompt stays byte-identical
+	// across turns and pages and the provider's prompt cache keeps hitting.
+	if resuming {
+		req.Ask = ""
+	} else if dc := strings.TrimSpace(body.DashboardContext); dc != "" {
 		if len(dc) > maxDashboardContextBytes {
 			dc = dc[:maxDashboardContextBytes] + "\n... (truncated)"
 		}
-		req.AdditionalSystemPrompt = strings.TrimRight(req.AdditionalSystemPrompt, "\n") + "\n\n" + dc
+		req.Ask = ask + "\n\n" + dc
 	}
 
 	client := h.holmesClient(settings)
 	if req.Stream {
-		h.postChatStream(w, r, settings, client, req, conv, login, ask, userMsg.ID)
+		h.postChatStream(w, r, settings, client, req, conv, login, ask)
 		return
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
@@ -185,6 +193,12 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 		h.l.Warnf("HolmesGPT Chat: %v", err)
 		writeJSONError(w, http.StatusBadGateway, err.Error())
 		return
+	}
+	if len(resp.ConversationHistory) > 0 {
+		raw, err := json.Marshal(resp.ConversationHistory)
+		if err == nil {
+			h.saveHolmesHistory(convID, raw)
+		}
 	}
 	asst := &models.AdreMessage{
 		ConversationID: convID,
@@ -222,6 +236,45 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// holmesHistoryForTurn returns the conversation_history for a new question: the history Holmes returned last turn,
+// sent back verbatim so the provider's prompt cache and earlier tool results carry over; otherwise (older
+// conversations) one rebuilt from the persisted messages before beforeMsgID.
+func (h *Handlers) holmesHistoryForTurn(convID, beforeMsgID int64, settings *models.Settings) ([]any, error) {
+	raw, err := models.GetAdreHolmesHistory(h.db, convID)
+	if err != nil {
+		return nil, err
+	}
+	maxMsgs := MaxConversationMessages(settings)
+	if hist := decodeHolmesHistory(raw); hist != nil {
+		return TrimHolmesHistory(hist, maxMsgs, holmesHistoryMaxBytes), nil
+	}
+	prior, err := models.LoadAdreMessagesForHolmesHistory(h.db, convID, beforeMsgID)
+	if err != nil {
+		return nil, err
+	}
+	hist := TrimConversationHistory(MessagesToHolmesHistory(prior), maxMsgs)
+	return EnsureHolmesLeadingSystemMessage(hist), nil
+}
+
+// pausedHolmesHistory returns the history saved when Holmes paused for frontend tools, else the one the browser sent.
+func (h *Handlers) pausedHolmesHistory(convID int64, fromClient []any) ([]any, error) {
+	raw, err := models.GetAdreHolmesHistory(h.db, convID)
+	if err != nil {
+		return nil, err
+	}
+	if hist := decodeHolmesHistory(raw); hist != nil {
+		return hist, nil
+	}
+	return fromClient, nil
+}
+
+func (h *Handlers) saveHolmesHistory(convID int64, raw json.RawMessage) {
+	err := models.SaveAdreHolmesHistory(h.db, convID, raw)
+	if err != nil {
+		h.l.Warnf("SaveAdreHolmesHistory: %v", err)
+	}
+}
+
 func (h *Handlers) maybeAutotitleConversation(convID int64, login, ask string) {
 	conv, err := models.GetAdreConversationOwned(h.db, convID, login)
 	if err != nil || conv == nil {
@@ -240,7 +293,7 @@ func (h *Handlers) maybeAutotitleConversation(convID int64, login, ask string) {
 	}
 }
 
-func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string, _ int64) { //nolint:lll
+func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string) { //nolint:lll
 	convID := conv.ID
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
@@ -303,6 +356,13 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 	}
 	if copyErr != nil && !errors.Is(copyErr, io.EOF) {
 		h.l.Warnf("ChatStream client write: %v", copyErr)
+	}
+	if len(out.ConversationHistory) > 0 {
+		h.saveHolmesHistory(convID, out.ConversationHistory)
+	}
+	if out.Paused && strings.TrimSpace(out.Analysis) == "" {
+		// Waiting for frontend tool results; Holmes reports no usage on approval_required, the resumed turn does.
+		return
 	}
 	asst := &models.AdreMessage{
 		ConversationID: convID,

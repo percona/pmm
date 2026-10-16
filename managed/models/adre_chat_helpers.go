@@ -318,6 +318,29 @@ func PurgeAdreConversationsOlderThan(q reform.DBTX, cutoff time.Time) (int64, er
 	return n, err
 }
 
+// GetAdreHolmesHistory returns the conversation_history Holmes returned on the conversation's last turn (nil if none).
+func GetAdreHolmesHistory(q reform.DBTX, conversationID int64) (json.RawMessage, error) {
+	var raw []byte
+	err := q.QueryRow(`SELECT history_json FROM adre_holmes_histories WHERE conversation_id = $1`, conversationID).Scan(&raw)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
+}
+
+// SaveAdreHolmesHistory stores the conversation_history Holmes returned, replacing the previous one.
+func SaveAdreHolmesHistory(q reform.DBTX, conversationID int64, history json.RawMessage) error {
+	_, err := q.Exec(
+		`INSERT INTO adre_holmes_histories (conversation_id, history_json, updated_at) VALUES ($1, $2, $3)
+		 ON CONFLICT (conversation_id) DO UPDATE SET history_json = EXCLUDED.history_json, updated_at = EXCLUDED.updated_at`,
+		conversationID, []byte(history), time.Now().UTC(),
+	)
+	return err
+}
+
 // CreateAdreMessage inserts a message row (identity id assigned by DB).
 func CreateAdreMessage(q *reform.DB, m *AdreMessage) error {
 	m.CreatedAt = time.Now().UTC()

@@ -15,6 +15,11 @@
 
 package adre
 
+import "encoding/json"
+
+// holmesHistoryMaxBytes caps the replayed Holmes history (system message excluded).
+const holmesHistoryMaxBytes = 400 << 10
+
 // HolmesChatLeadingStub is prepended when conversation_history is non-empty but does not start with role=system (Holmes ChatRequest requires it).
 const HolmesChatLeadingStub = "PMM session. Full system instructions and Grafana context (if any) are provided via additional_system_prompt."
 
@@ -31,4 +36,51 @@ func EnsureHolmesLeadingSystemMessage(hist []any) []any {
 		return hist
 	}
 	return append([]any{map[string]any{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
+}
+
+// decodeHolmesHistory parses a stored Holmes conversation_history; nil unless it starts with the system message.
+func decodeHolmesHistory(raw json.RawMessage) []any {
+	if len(raw) == 0 {
+		return nil
+	}
+	var hist []any
+	err := json.Unmarshal(raw, &hist)
+	if err != nil || len(hist) < 2 || holmesMessageRole(hist[0]) != "system" {
+		return nil
+	}
+	return hist
+}
+
+func holmesMessageRole(m any) string {
+	mm, _ := m.(map[string]any)
+	role, _ := mm["role"].(string)
+	return role
+}
+
+// TrimHolmesHistory drops the oldest whole turns (a turn starts at a user message, so tool calls keep their results)
+// once the history exceeds maxMsgs messages or maxBytes, down to half of both caps. Trimming in steps instead of a
+// sliding window keeps the prompt prefix, and so the provider's prompt cache, stable between trims.
+func TrimHolmesHistory(hist []any, maxMsgs, maxBytes int) []any {
+	suffix := make([]int, len(hist)+1)
+	for i := len(hist) - 1; i >= 1; i-- {
+		b, _ := json.Marshal(hist[i])
+		suffix[i] = suffix[i+1] + len(b)
+	}
+	if len(hist) <= maxMsgs && suffix[1] <= maxBytes {
+		return hist
+	}
+	cut := 0
+	for i := 1; i < len(hist); i++ {
+		if holmesMessageRole(hist[i]) != "user" {
+			continue
+		}
+		cut = i
+		if len(hist)-i <= maxMsgs/2 && suffix[i] <= maxBytes/2 {
+			break
+		}
+	}
+	if cut <= 1 {
+		return hist
+	}
+	return append([]any{hist[0]}, hist[cut:]...)
 }

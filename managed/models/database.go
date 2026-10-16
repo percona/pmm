@@ -2012,6 +2012,13 @@ $y$,
 			updated_at = NOW()
 		WHERE name = 'mysql_error' AND built_in AND position($o$regex: '^(?P<timestamp>$o$ in operator_yaml) > 0`,
 	},
+	146: {
+		`CREATE TABLE adre_holmes_histories (
+			conversation_id BIGINT PRIMARY KEY REFERENCES adre_conversations(id) ON DELETE CASCADE,
+			history_json JSONB NOT NULL,
+			updated_at TIMESTAMPTZ NOT NULL
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
