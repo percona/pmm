@@ -55,7 +55,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/updates`         | PMM Server updates                                                      |
 | `/updates/clients` | Client updates                                                          |
 | `/help`            | Help center                                                             |
-| `/rta`             | Real-Time Analytics tab                                                 |
+| `/rta`             | Real-time queries (RTA) entry, redirects to selection or sessions       |
 | `/rta/selection`   | RTA service selection                                                   |
 | `/rta/sessions`    | RTA sessions list                                                       |
 | `/rta/overview`    | RTA overview                                                            |

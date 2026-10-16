@@ -1,15 +1,17 @@
 import AppsRounded from '@mui/icons-material/AppsRounded';
-import DesignServicesOutlined from '@mui/icons-material/DesignServicesOutlined';
-import StarBorderRounded from '@mui/icons-material/StarBorderRounded';
-import { SupportDiagnosticsIcon } from '@percona/peak-ui';
+import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
+import TrackChanges from '@mui/icons-material/TrackChanges';
+import { HomeIcon, SupportDiagnosticsIcon } from '@percona/peak-ui';
 import { ColorMode } from '@pmm/shared';
 import { CombinedSettings } from 'contexts/settings';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
   PROTOTYPE_PLACEHOLDER_PATH,
 } from 'lib/constants';
+import { ExtensionIcon } from 'lib/peak-ui-pending-icons';
 import { HAInfo } from 'types/ha.types';
 import { NavItem } from 'types/navigation.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
@@ -52,19 +54,14 @@ import {
 // user so the structure can be reviewed whole; role and feature gating is a
 // later step.
 
-const section = (id: string, text: string, action?: NavItem['action']) => ({
+const section = (id: string, text: string) => ({
   id: `section-${id}`,
   type: 'menu-section' as const,
   text,
-  action,
 });
 
 export const NAV_SECTIONS = {
-  myNavigation: section('my-navigation', 'My navigation', {
-    label: 'Customize navigation',
-    url: `${PROTOTYPE_PLACEHOLDER_PATH}/customize-navigation`,
-    icon: DesignServicesOutlined,
-  }),
+  starred: section('starred', 'Starred'),
   technologies: section('technologies', 'Technologies'),
   analysis: section('analysis', 'Analysis and alerting'),
   browse: section('browse', 'Browse'),
@@ -73,12 +70,12 @@ export const NAV_SECTIONS = {
 
 // Sample pinned entries: pinning itself is a later iteration, so these stand in
 // for what a user would star and let the zone be reviewed with content in it.
-// A pinned app leaves the Apps list, as the whiteboard's placement rule shows
-// for MongoDB backups.
-export const NAV_MY_NAVIGATION: NavItem[] = [
+// Each entry carries the icon of the kind of thing it is, an app or a
+// dashboard, and a pinned app leaves the Apps list.
+export const NAV_STARRED: NavItem[] = [
   {
     id: 'pinned-mongodb-backups',
-    icon: StarBorderRounded,
+    icon: ExtensionIcon,
     text: 'MongoDB backups',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
     matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
@@ -86,16 +83,17 @@ export const NAV_MY_NAVIGATION: NavItem[] = [
   },
   {
     id: 'pinned-mysql-innodb-details',
-    icon: StarBorderRounded,
+    icon: DashboardOutlined,
     text: 'MySQL InnoDB details',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-innodb/mysql-innodb-details`,
     pinned: true,
   },
   {
-    id: 'pinned-postgresql-query-analytics',
-    icon: StarBorderRounded,
-    text: 'PostgreSQL query analytics',
-    url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics?var-service_type=postgresql`,
+    id: 'pinned-mysql-backups',
+    icon: ExtensionIcon,
+    text: 'MySQL backups',
+    url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+    matches: ['*'],
     pinned: true,
   },
 ];
@@ -148,9 +146,20 @@ export const NAV_EXPLORE_DATA: NavItem = {
   ],
 };
 
+// Stored query metrics and live query sessions are separate jobs, so each is
+// its own entry rather than a tab inside one Query analytics page.
 export const NAV_QUERY_ANALYTICS: NavItem = {
   ...NAV_QAN,
   text: 'Query analytics',
+  matches: ['*'],
+};
+
+export const NAV_REALTIME_QUERIES: NavItem = {
+  id: 'realtime-queries',
+  icon: TrackChanges,
+  text: 'Real-time queries',
+  url: `${PMM_NEW_NAV_PATH}/rta`,
+  matches: ['*'],
 };
 
 const plannedApp = (slug: string, text: string): NavItem => ({
@@ -159,22 +168,15 @@ const plannedApp = (slug: string, text: string): NavItem => ({
   url: `${PROTOTYPE_PLACEHOLDER_PATH}/${slug}`,
 });
 
-// The app catalog as the IA projects it. MySQL backups exists today and opens
-// for real; the rest open the placeholder page so the list can be reviewed in
-// full. Diagnostics is promoted to Analysis and alerting and, like a pinned
-// app, leaves this list.
+// The app catalog as the IA projects it. Every entry opens the placeholder page
+// so the list can be reviewed in full. Diagnostics is promoted to Analysis and
+// alerting and, like the pinned MongoDB and MySQL backups, leaves this list.
 export const NAV_APPS: NavItem = {
   id: 'apps',
   icon: AppsRounded,
   text: 'Apps',
   children: [
     plannedApp('data-archiving', 'Data archiving'),
-    {
-      id: 'extensions-mysql-backups',
-      text: 'MySQL backups',
-      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-      matches: ['*'],
-    },
     plannedApp('postgresql-backups', 'PostgreSQL backups'),
     plannedApp('proxysql-manager', 'ProxySQL manager'),
     plannedApp('replication-checksums', 'Replication checksums'),
@@ -242,9 +244,9 @@ export const buildProposedNavTree = (
   const { user, isLoggedIn, haInfo, settings, colorMode, toggleColorMode } =
     input;
   const items: NavItem[] = [
-    addHomePage(user?.preferences),
-    NAV_SECTIONS.myNavigation,
-    ...NAV_MY_NAVIGATION,
+    { ...addHomePage(user?.preferences), icon: HomeIcon },
+    NAV_SECTIONS.starred,
+    ...NAV_STARRED,
     NAV_SECTIONS.technologies,
     ...NAV_TECHNOLOGIES,
     NAV_SECTIONS.analysis,
@@ -253,6 +255,7 @@ export const buildProposedNavTree = (
     NAV_DIAGNOSTICS,
     NAV_EXPLORE_DATA,
     NAV_QUERY_ANALYTICS,
+    NAV_REALTIME_QUERIES,
     NAV_SECTIONS.browse,
     NAV_DASHBOARDS,
     NAV_APPS,

@@ -26,6 +26,6 @@ export interface NavItem {
   matches?: string[];
   type?: 'menu-item' | 'menu-text' | 'menu-divider' | 'menu-section';
   action?: NavItemAction;
-  // A pinned entry shows a reorder handle.
+  // A pinned entry is listed under Starred, where it can be reordered.
   pinned?: boolean;
 }

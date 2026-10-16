@@ -517,7 +517,7 @@ export const NAV_INVENTORY: NavItem = {
         `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
       ],
       action: {
-        label: 'Add service',
+        label: 'Add a service',
         url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
       },
     },
@@ -527,7 +527,7 @@ export const NAV_INVENTORY: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
       matches: ['*'],
       action: {
-        label: 'Add node',
+        label: 'Add a node',
         url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
       },
     },

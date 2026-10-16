@@ -39,10 +39,10 @@ describe('buildProposedNavTree', () => {
   it('lays the sidebar out as the proposed flat, sectioned list', () => {
     expect(ids(build())).toEqual([
       'home-page',
-      'section-my-navigation',
+      'section-starred',
       'pinned-mongodb-backups',
       'pinned-mysql-innodb-details',
-      'pinned-postgresql-query-analytics',
+      'pinned-mysql-backups',
       'section-technologies',
       'mongo',
       'mysql',
@@ -55,6 +55,7 @@ describe('buildProposedNavTree', () => {
       'extensions-atw',
       'explore',
       'qan',
+      'realtime-queries',
       'section-browse',
       'dashboards',
       'apps',
@@ -71,13 +72,9 @@ describe('buildProposedNavTree', () => {
     expect(build()[0]).toMatchObject({ id: 'home-page', text: 'Overview' });
   });
 
-  it('marks the sample entries as pinned under a customizable heading', () => {
-    const tree = build();
-    const pinned = tree.filter((item) => item.id.startsWith('pinned-'));
+  it('marks the sample entries as pinned', () => {
+    const pinned = build().filter((item) => item.id.startsWith('pinned-'));
 
-    expect(findById(tree, 'section-my-navigation')?.action?.url).toBe(
-      `${PROTOTYPE_PLACEHOLDER_PATH}/customize-navigation`
-    );
     expect(pinned).toHaveLength(3);
     expect(pinned.every((item) => item.pinned)).toBe(true);
   });
@@ -109,14 +106,16 @@ describe('buildProposedNavTree', () => {
     ).toBe('pinned-mysql-innodb-details');
   });
 
-  it('gives the pinned query analytics view only to its filter', () => {
+  it('splits stored metrics and real-time queries into two entries', () => {
     const tree = build();
-    const qan = '/graph/d/pmm-qan/pmm-query-analytics';
 
-    expect(findActiveNavItem(tree, qan)?.id).toBe('qan');
     expect(
-      findActiveNavItem(tree, qan, '?var-service_type=postgresql')?.id
-    ).toBe('pinned-postgresql-query-analytics');
+      findActiveNavItem(tree, '/graph/d/pmm-qan/pmm-query-analytics')?.id
+    ).toBe('qan');
+    expect(findActiveNavItem(tree, '/rta')?.id).toBe('realtime-queries');
+    expect(findActiveNavItem(tree, '/rta/overview')?.id).toBe(
+      'realtime-queries'
+    );
   });
 
   it('lists the alert pages under one Alerts entry', () => {
@@ -132,12 +131,11 @@ describe('buildProposedNavTree', () => {
     ]);
   });
 
-  it('lists the projected app catalog, with MySQL backups opening its route', () => {
+  it('lists the projected app catalog without the pinned apps', () => {
     const apps = findById(build(), 'apps')?.children;
 
     expect(apps?.map((app) => app.text)).toEqual([
       'Data archiving',
-      'MySQL backups',
       'PostgreSQL backups',
       'ProxySQL manager',
       'Replication checksums',
@@ -145,9 +143,6 @@ describe('buildProposedNavTree', () => {
       'Valkey backups',
       'Get more apps',
     ]);
-    expect(findById(apps, 'extensions-mysql-backups')?.url).toBe(
-      EXTENSIONS_MYSQL_BACKUPS_PATH
-    );
     expect(findById(apps, 'app-schema-changes')?.url).toBe(
       `${PROTOTYPE_PLACEHOLDER_PATH}/schema-changes`
     );
@@ -157,22 +152,21 @@ describe('buildProposedNavTree', () => {
     const rows = findById(build(), 'inventory')?.children;
 
     expect(rows?.map((row) => row.action?.label)).toEqual([
-      'Add service',
-      'Add node',
+      'Add a service',
+      'Add a node',
     ]);
   });
 
-  it('keeps a deep link into an app active and inside its group', () => {
+  it('keeps a deep link into a pinned app active on its starred entry', () => {
     const tree = build();
     const backups = findActiveNavItem(
       tree,
       `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`
     );
 
-    expect(backups?.id).toBe('extensions-mysql-backups');
-    // The sidebar expands a group when its active child is the very object
-    // held in `children`, so identity has to match, not just the id.
-    expect(findById(tree, 'apps')?.children).toContain(backups);
+    expect(backups?.id).toBe('pinned-mysql-backups');
+    expect(backups?.url).toBe(EXTENSIONS_MYSQL_BACKUPS_PATH);
+    expect(tree).toContain(backups);
   });
 
   it('lists Diagnostics with the analysis tools and leaves Help a single entry', () => {
