@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"database/sql"
 	"errors"
@@ -397,6 +398,7 @@ type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
+	adminPassword      *grafana.AdminPassword
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -478,6 +480,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
+	// nginx passes the password changes of Grafana here, see grafana.AdminPassword.
+	mux.Handle("/graph/api/user/password", deps.adminPassword)
+	mux.Handle("/graph/api/admin/users/{id}/password", deps.adminPassword)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1377,11 +1382,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			})
 	})
 
+	// Kept the one in Vault while GF_SECURITY_ADMIN_PASSWORD is a reference, which vault-env keeps.
+	adminPassword := grafana.NewAdminPassword(os.Getenv("PMM_VAULT_REF_GF_SECURITY_ADMIN_PASSWORD"),
+		cmp.Or(os.Getenv("GF_SECURITY_ADMIN_USER"), "admin"), *grafanaAddrF)
+	wg.Go(func() {
+		adminPassword.Run(ctx, secrets.CacheTTL())
+	})
+
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:               logs,
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			adminPassword:      adminPassword,
 		})
 	})
 

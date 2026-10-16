@@ -42,8 +42,13 @@ var envNameRE = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 // Grafana, and the VictoriaMetrics components, whose credentials an HA deployment sets.
 var vaultEnvPrefixes = []string{"PMM_", "GF_", "VM_", "VMAGENT_"} //nolint:gochecknoglobals
 
+// VaultRefEnvPrefix is the prefix of the variables that keep the references of the variables that vault-env
+// resolved, so that pmm-managed can read them from Vault again: PMM_VAULT_REF_<name of the variable>.
+const VaultRefEnvPrefix = "PMM_VAULT_REF_"
+
 // vaultEnv writes to out a shell `export` command for every variable of environ with one of
-// vaultEnvPrefixes whose value is a vault:<path>#<key> reference, with the value read from Vault. The
+// vaultEnvPrefixes whose value is a vault:<path>#<key> reference, with the value read from Vault, and
+// another that keeps the reference in VaultRefEnvPrefix<name>. The
 // entrypoint of PMM Server evaluates them before anything reads those variables. The PMM_VAULT_*
 // variables configure Vault itself and are never resolved, and neither are the PMM_AGENT_* ones of
 // PMM Server's pmm-agent, which reads its references itself and would save the values to its
@@ -82,7 +87,7 @@ func vaultEnv(ctx context.Context, cfg vault.Config, environ []string, out io.Wr
 			return fmt.Errorf("failed to read %s from Vault: %w", ref[0], err)
 		}
 
-		_, err = fmt.Fprintf(out, "export %s=%s\n", ref[0], shellQuote(value))
+		_, err = fmt.Fprintf(out, "export %s=%s\nexport %s%s=%s\n", ref[0], shellQuote(value), VaultRefEnvPrefix, ref[0], shellQuote(ref[1]))
 		if err != nil {
 			return err
 		}

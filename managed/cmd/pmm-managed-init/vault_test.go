@@ -69,12 +69,14 @@ func TestVaultEnv(t *testing.T) {
 		}, &out)
 		require.NoError(t, err)
 
-		script := out.String() + `printf '%s|%s' "$PMM_ADMIN_PASSWORD" "$GF_DATABASE_PASSWORD"`
+		script := out.String() + `printf '%s|%s|%s' "$PMM_ADMIN_PASSWORD" "$GF_DATABASE_PASSWORD" "$PMM_VAULT_REF_PMM_ADMIN_PASSWORD"`
 		b, err := exec.CommandContext(t.Context(), "bash", "-c", script).Output()
 		require.NoError(t, err)
-		assert.Equal(t, tricky+"|ch", string(b))
-		assert.Equal(t, 3, strings.Count(out.String(), "export "))
+		assert.Equal(t, tricky+"|ch|vault:secret/data/pmm-server#admin_password", string(b))
+		assert.Equal(t, 6, strings.Count(out.String(), "export "))
 		assert.Contains(t, out.String(), "export VMAGENT_remoteWrite_basicAuth_password='ch'\n")
+		assert.Contains(t, out.String(),
+			"export PMM_VAULT_REF_VMAGENT_remoteWrite_basicAuth_password='vault:secret/data/pmm-server#clickhouse_password'\n")
 	})
 
 	t.Run("NoReferences", func(t *testing.T) {

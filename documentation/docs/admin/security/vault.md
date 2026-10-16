@@ -204,9 +204,15 @@ The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at start
 
 If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs. The passwords that you set in the environment are not written to the configuration files of PMM Server's components. The username and password that `PMM_VM_URL` may carry reach vmalert and vmproxy in files outside `/srv` that only PMM Server can read, and are neither in their configuration nor on their command line.
 
-PMM Server reads these secrets only when it starts. To apply a changed secret, restart the container.
+PMM Server reads these secrets only when it starts, except for the admin password, see below. To apply another changed secret, restart the container.
 
-When you change the admin password with `change-admin-password` and `GF_SECURITY_ADMIN_PASSWORD` is a reference, the new password is also stored in Vault, so that the reference stays up to date:
+When `GF_SECURITY_ADMIN_PASSWORD` is a reference, PMM Server keeps the password of the admin user the one in Vault:
+
+- A password changed in Vault is applied at the next check, within `PMM_VAULT_CACHE_TTL`, without a restart.
+- A password changed in the PMM web interface, by the admin user or by another server admin, is stored in Vault before it takes effect. If it cannot be stored, the change fails, and the password stays the one in Vault.
+- At start, PMM Server checks whether the admin user has the password in Vault, and sets it if not. A password changed by other means than these, such as with the Grafana command-line tool, is replaced with the one in Vault at the next start.
+
+The `change-admin-password` command stores the new password in Vault too:
 
 ```sh
 docker exec -t pmm-server change-admin-password <new_password>
@@ -317,4 +323,3 @@ Vault support has the following limitations:
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.
-- An admin password changed in the PMM web interface is not stored in Vault. Use `change-admin-password` instead.
