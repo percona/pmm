@@ -5762,7 +5762,6 @@ var (
 		(*structpb.Value)(nil),        // 76: google.protobuf.Value
 	}
 )
-
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,  // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,  // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole

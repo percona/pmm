@@ -368,7 +368,6 @@ var (
 		(*StatusResponse)(nil),    // 5: ha.v1.StatusResponse
 	}
 )
-
 var file_ha_v1_ha_proto_depIdxs = []int32{
 	0, // 0: ha.v1.HANode.role:type_name -> ha.v1.NodeRole
 	2, // 1: ha.v1.ListNodesResponse.nodes:type_name -> ha.v1.HANode

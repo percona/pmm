@@ -833,7 +833,6 @@ var (
 		(*TestLocationConfigResponse)(nil), // 12: backup.v1.TestLocationConfigResponse
 	}
 )
-
 var file_backup_v1_locations_proto_depIdxs = []int32{
 	0,  // 0: backup.v1.Location.filesystem_config:type_name -> backup.v1.FilesystemLocationConfig
 	1,  // 1: backup.v1.Location.s3_config:type_name -> backup.v1.S3LocationConfig

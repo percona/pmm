@@ -1387,7 +1387,6 @@ var (
 		v1.Severity(0),                      // 22: management.v1.Severity
 	}
 )
-
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	22, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
 	20, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry

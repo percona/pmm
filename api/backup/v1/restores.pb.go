@@ -625,7 +625,6 @@ var (
 		(*LogChunk)(nil),                      // 10: backup.v1.LogChunk
 	}
 )
-
 var file_backup_v1_restores_proto_depIdxs = []int32{
 	8,  // 0: backup.v1.RestoreHistoryItem.data_model:type_name -> backup.v1.DataModel
 	0,  // 1: backup.v1.RestoreHistoryItem.status:type_name -> backup.v1.RestoreStatus
