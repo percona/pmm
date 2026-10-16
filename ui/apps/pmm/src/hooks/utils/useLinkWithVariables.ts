@@ -8,7 +8,7 @@ import {
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import messenger from 'lib/messenger';
-import { constructUrl } from 'utils/link.utils';
+import { constructUrl, keepTimeRange } from 'utils/link.utils';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGrafana } from 'contexts/grafana';
@@ -49,5 +49,6 @@ export const useLinkWithVariables = (url?: string) => {
     }
   }, [url, location, grafanaReady]);
 
-  return link;
+  // Grafana expands the link only once the dashboard has loaded, so a click before that keeps the time range
+  return link && keepTimeRange(link, location);
 };
