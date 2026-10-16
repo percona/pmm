@@ -27,9 +27,6 @@ services:
     container_name: pmm-server
     hostname: pmm-server
     restart: always
-    # A cold first start outlasts the image's start period; pmm-extensions waits on service_healthy.
-    healthcheck:
-      start_period: 300s
     environment:
       - GF_SECURITY_ADMIN_USER
       - GF_SECURITY_ADMIN_PASSWORD
@@ -72,7 +69,7 @@ services:
   pmm-client:
     profiles:
       - pmm
-    image: percona/pmm-client:3
+    image: percona/pmm-client:${PMM_IMAGE_TAG:-3}
     container_name: pmm-client
     depends_on:
       pmm-server:
@@ -178,7 +175,7 @@ services:
     platform: linux/amd64
     container_name: pmm-extensions
     restart: always
-    # PMM Extensions reads the secrets PMM writes at startup, so it must not start before PMM is healthy.
+    # PMM Extensions needs PMM's Grafana API and PostgreSQL, which are up only once PMM is healthy.
     depends_on:
       pmm-server:
         condition: service_healthy
