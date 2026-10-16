@@ -246,7 +246,7 @@ func (h *Handlers) holmesHistoryForTurn(convID, beforeMsgID int64, settings *mod
 	}
 	maxMsgs := MaxConversationMessages(settings)
 	if hist := decodeHolmesHistory(raw); hist != nil {
-		return TrimHolmesHistory(hist, maxMsgs, holmesHistoryMaxBytes), nil
+		return TrimHolmesHistory(stripThinking(hist), maxMsgs, holmesHistoryMaxBytes), nil
 	}
 	prior, err := models.LoadAdreMessagesForHolmesHistory(h.db, convID, beforeMsgID)
 	if err != nil {

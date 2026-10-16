@@ -15,7 +15,10 @@
 
 package adre
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"slices"
+)
 
 // holmesHistoryMaxBytes caps the replayed Holmes history (system message excluded).
 const holmesHistoryMaxBytes = 400 << 10
@@ -86,4 +89,28 @@ func TrimHolmesHistory(hist []any, maxMsgs, maxBytes int) []any {
 		return hist
 	}
 	return append([]any{hist[0]}, hist[cut:]...)
+}
+
+// stripThinking drops assistant reasoning from earlier turns. Anthropic binds a thinking block's signature to the tool
+// list it was created with and rejects the whole request when a replayed block meets a different one (mode switch,
+// frontend tools, config reload). The paused turn of a frontend-tool resume must keep its blocks, so only new
+// questions strip.
+func stripThinking(hist []any) []any {
+	for _, m := range hist {
+		mm, ok := m.(map[string]any)
+		if !ok || holmesMessageRole(mm) != "assistant" {
+			continue
+		}
+		delete(mm, "thinking_blocks")
+		delete(mm, "reasoning_content")
+		delete(mm, "provider_specific_fields")
+		if blocks, ok := mm["content"].([]any); ok {
+			mm["content"] = slices.DeleteFunc(blocks, func(b any) bool {
+				bm, _ := b.(map[string]any)
+				t, _ := bm["type"].(string)
+				return t == "thinking" || t == "redacted_thinking"
+			})
+		}
+	}
+	return hist
 }

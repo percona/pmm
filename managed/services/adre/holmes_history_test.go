@@ -125,3 +125,19 @@ func TestParseHolmesSSEStreamHistory(t *testing.T) {
 		assert.Greater(t, len(out.ConversationHistory), 3<<20)
 	})
 }
+
+func TestStripThinking(t *testing.T) {
+	t.Parallel()
+	hist := decodeHolmesHistory([]byte(`[
+		{"role":"system","content":"s"},
+		{"role":"user","content":"q","thinking_blocks":"kept on user"},
+		{"role":"assistant","content":"a","reasoning_content":"r","thinking_blocks":[{"type":"thinking","signature":"x"}],
+		 "provider_specific_fields":{"thinking_blocks":[{"type":"thinking","signature":"x"}]}},
+		{"role":"assistant","content":[{"type":"thinking","signature":"x"},{"type":"redacted_thinking"},{"type":"text","text":"t"}]}
+	]`))
+	got := stripThinking(hist)
+	require.Len(t, got, 4)
+	assert.Equal(t, map[string]any{"role": "assistant", "content": "a"}, got[2])
+	assert.Equal(t, []any{map[string]any{"type": "text", "text": "t"}}, got[3].(map[string]any)["content"])
+	assert.Equal(t, "kept on user", got[1].(map[string]any)["thinking_blocks"])
+}
