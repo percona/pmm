@@ -75,6 +75,7 @@ type AddAgentMongodbExporterCommand struct {
 	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit               int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	DisableDirectConnection        bool              `help:"Disable direct connection to the MongoDB node so the exporter discovers the topology (e.g., for MongoDB Atlas)"`
 	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from pmm-agent's environment), e.g. 'VAR1,VAR2'"`
 }
@@ -118,6 +119,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				StatsCollections:               commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:               cmd.CollectionsLimit,
 				EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+				DisableDirectConnection:        cmd.DisableDirectConnection,
 				LogLevel:                       cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
 				EnvironmentVariableNames:       agentEnvVars,

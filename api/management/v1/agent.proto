@@ -47,6 +47,8 @@ message UniversalAgent {
     bool enable_all_collectors = 7;
     // True if diagnostic data histograms are enabled.
     bool enable_diagnostic_data_histograms = 8;
+    // True if direct connection to the MongoDB node is disabled.
+    bool disable_direct_connection = 9;
   }
 
   message PostgreSQLOptions {

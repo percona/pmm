@@ -243,6 +243,8 @@ message MongoDBExporter {
   google.protobuf.Duration connection_timeout = 30;
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 31;
+  // True if direct connection to the MongoDB node is disabled.
+  bool disable_direct_connection = 32;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1145,6 +1147,8 @@ message AddMongoDBExporterParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 24;
+  // Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.
+  bool disable_direct_connection = 25;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1200,6 +1204,8 @@ message ChangeMongoDBExporterParams {
   // Values will be resolved from pmm-agent's environment when starting the exporter.
   // An empty list removes all previously set environment variable names.
   optional common.StringArray environment_variable_names = 24;
+  // Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.
+  optional bool disable_direct_connection = 25;
 }
 
 // Add/Change PostgresExporter

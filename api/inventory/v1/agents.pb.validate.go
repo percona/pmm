@@ -833,6 +833,8 @@ func (m *MongoDBExporter) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for DisableDirectConnection
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -9468,6 +9470,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for DisableDirectConnection
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9762,6 +9766,10 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				}
 			}
 		}
+	}
+
+	if m.DisableDirectConnection != nil {
+		// no validation rules for DisableDirectConnection
 	}
 
 	if len(errors) > 0 {

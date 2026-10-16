@@ -24,3 +24,15 @@ func convertLogLevelPtr(level *flags.LogLevel) *string {
 
 	return level.EnumValue()
 }
+
+// appendToggleChange appends onMsg or offMsg to changes when the boolean flag was provided.
+func appendToggleChange(changes []string, flag *bool, onMsg, offMsg string) []string {
+	if flag == nil {
+		return changes
+	}
+	if *flag {
+		return append(changes, onMsg)
+	}
+
+	return append(changes, offMsg)
+}

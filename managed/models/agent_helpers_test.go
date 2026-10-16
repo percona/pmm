@@ -1308,6 +1308,7 @@ func TestAgentHelpers(t *testing.T) {
 					CollectionsLimit:               new(int32(500)),
 					EnableAllCollectors:            new(false),
 					EnableDiagnosticDataHistograms: new(true),
+					DisableDirectConnection:        new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -1320,6 +1321,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, int32(500), agent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, agent.MongoDBOptions.EnableAllCollectors)
 			assert.True(t, agent.MongoDBOptions.EnableDiagnosticDataHistograms)
+			assert.True(t, agent.MongoDBOptions.DisableDirectConnection)
 
 			// Verify persistence in database
 			persistedAgent, err := models.FindAgentByID(q, "A8")
@@ -1333,6 +1335,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, int32(500), persistedAgent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, persistedAgent.MongoDBOptions.EnableAllCollectors)
 			assert.True(t, persistedAgent.MongoDBOptions.EnableDiagnosticDataHistograms)
+			assert.True(t, persistedAgent.MongoDBOptions.DisableDirectConnection)
 		})
 
 		t.Run("ChangeQANOptions", func(t *testing.T) {
@@ -2109,6 +2112,10 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 		},
 		"mongodb auth database": {
 			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationDatabase: new("admin")}},
+			true,
+		},
+		"mongodb disable direct connection": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{DisableDirectConnection: new(true)}},
 			true,
 		},
 		"valkey ssl cert": {models.ChangeAgentParams{ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new("cert")}}, true},

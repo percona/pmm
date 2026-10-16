@@ -2797,6 +2797,9 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// True if direct connection to the MongoDB node is disabled.
+	DisableDirectConnection bool `json:"disable_direct_connection,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -10139,6 +10142,9 @@ type AddServiceParamsBodyMongodb struct {
 
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
+	// Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.
+	DisableDirectConnection bool `json:"disable_direct_connection,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`

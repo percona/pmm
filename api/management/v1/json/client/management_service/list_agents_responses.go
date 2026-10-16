@@ -1149,6 +1149,9 @@ type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
 
 	// True if diagnostic data histograms are enabled.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
+	// True if direct connection to the MongoDB node is disabled.
+	DisableDirectConnection bool `json:"disable_direct_connection,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 mongo DB options
