@@ -5,7 +5,12 @@ import { NavigationHeadingProps } from './NavigationHeading.types';
 import { Icon } from 'components/icon';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import { logoMixin } from '../drawer/Drawer.styles';
+import {
+  appearOnOpenMixin,
+  drawerTransition,
+  logoMixin,
+} from '../drawer/Drawer.styles';
+import { DRAWER_CLOSED_WIDTH } from '../drawer/Drawer.constants';
 
 const NavigationHeading: FC<NavigationHeadingProps> = memo(
   ({ sidebarOpen, onToggleSidebar }) => (
@@ -14,20 +19,27 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
       justifyContent={sidebarOpen ? 'space-between' : 'flex-start'}
       alignItems="center"
       sx={[
-        {
+        (theme) => ({
           position: 'relative',
-        },
+          // The header's height follows the drawer, so the list below glides
+          // into place rather than jumping.
+          transition: theme.transitions.create(
+            'padding',
+            drawerTransition(theme, sidebarOpen)
+          ),
+        }),
         sidebarOpen
           ? {
               pt: 1.5,
-              pr: 0.875,
-              pb: 0.5,
+              // Lines the close button up with the group chevrons below.
+              pr: 0.5,
+              pb: 1.5,
               pl: 1.75,
             }
           : {
-              pt: 1.5,
-              px: 1,
-              pb: 0.5,
+              pt: 0,
+              px: 0,
+              pb: 0,
             },
       ]}
     >
@@ -39,35 +51,37 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
 
             '.shown-on-hover': {
               position: 'absolute',
-              top: 16,
+              top: 8,
               left: -999,
             },
           },
           !sidebarOpen && {
-            width: '40px',
+            width: DRAWER_CLOSED_WIDTH,
 
             '&:hover, &:focus-within': {
               '.hidden-on-hover': {
                 visibility: 'hidden',
               },
               '.shown-on-hover': {
-                left: 8,
+                left: 4,
               },
             },
           },
         ]}
       >
+        {/* Collapsed, only the triangle shows: sized to keep ~9px either side
+            in the rail, with its centroid on the expand button's centre. */}
         <Icon
           name="pmm-titled"
           className="hidden-on-hover"
           sx={(theme) => ({
-            left: sidebarOpen ? 14 : 8,
-            top: sidebarOpen ? 12 : 16,
-            height: sidebarOpen ? '48px' : '40px',
+            left: sidebarOpen ? 14 : 5,
+            top: sidebarOpen ? 12 : 9,
+            height: sidebarOpen ? '48px' : '38px',
             width: 'auto',
             color: sidebarOpen ? undefined : 'transparent',
             position: 'absolute',
-            ...logoMixin(theme),
+            ...logoMixin(theme, sidebarOpen),
           })}
         />
         {!sidebarOpen && (
@@ -78,6 +92,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           >
             <IconButton
               onClick={onToggleSidebar}
+              aria-label="Expand sidebar"
               data-testid="sidebar-open-button"
             >
               <KeyboardDoubleArrowRightIcon />
@@ -88,7 +103,9 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
       {sidebarOpen && (
         <IconButton
           onClick={onToggleSidebar}
+          aria-label="Collapse sidebar"
           data-testid="sidebar-close-button"
+          sx={appearOnOpenMixin}
         >
           <KeyboardDoubleArrowLeftIcon />
         </IconButton>

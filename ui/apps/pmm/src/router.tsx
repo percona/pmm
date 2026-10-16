@@ -14,6 +14,7 @@ import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   OM_PATH,
+  PROTOTYPE_PLACEHOLDER_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
@@ -29,6 +30,7 @@ import {
   isMysqlRestorePluginName,
 } from './extensions/mysql-backups/restoreExecuteConfirm';
 import { ExtensionsPage } from './extensions/ExtensionsPage';
+import { PrototypePlaceholderPage } from 'pages/prototype';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
 // shared PMM Extensions constants are absolute (the nav and each plugin's `routeBase` need
@@ -94,6 +96,10 @@ const router = createBrowserRouter(
                   element: <RealtimeOverviewPage />,
                 },
               ],
+            },
+            {
+              path: `${relativeToNav(PROTOTYPE_PLACEHOLDER_PATH)}/:slug`,
+              element: <PrototypePlaceholderPage />,
             },
             // PMM Extensions apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
