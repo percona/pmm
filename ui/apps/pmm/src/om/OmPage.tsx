@@ -26,6 +26,7 @@ import { useUser } from 'contexts/user';
 import { useReadonlySettings } from 'hooks/api/useSettings';
 import { OrgRole } from 'types/user.types';
 import { Messages } from './OmPage.messages';
+import { OmSectionTabs } from './OmSectionTabs';
 
 /**
  * Host chrome for the OM page.
@@ -61,6 +62,7 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
     <Page
       maxWidth="full"
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
+      topBar={settings?.omEnabled ? <OmSectionTabs /> : undefined}
     >
       <Stack gap={3} sx={{ flex: 1 }}>
         {isLoading ? (

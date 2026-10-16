@@ -4,4 +4,9 @@ export const Messages = {
   developerPreview: 'Developer preview:',
   developerPreviewBody:
     'Operations for MongoDB is still under development and not recommended for production environments.',
+  sections: 'Operations for MongoDB',
+  fleet: 'Fleet',
+  nodes: 'Nodes',
+  automations: 'Automations',
+  settings: 'Settings',
 };

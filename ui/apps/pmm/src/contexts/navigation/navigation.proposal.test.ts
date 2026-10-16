@@ -136,6 +136,7 @@ describe('buildProposedNavTree', () => {
 
     expect(apps?.map((app) => app.text)).toEqual([
       'Data archiving',
+      'Operations for MongoDB',
       'PostgreSQL backups',
       'ProxySQL manager',
       'Replication checksums',

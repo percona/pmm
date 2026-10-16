@@ -1,12 +1,16 @@
+import Add from '@mui/icons-material/Add';
 import AppsRounded from '@mui/icons-material/AppsRounded';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import TrackChanges from '@mui/icons-material/TrackChanges';
 import { HomeIcon, SupportDiagnosticsIcon } from '@percona/peak-ui';
 import { ColorMode } from '@pmm/shared';
+import { PreviewChip } from 'components/preview-chip';
+import { createElement } from 'react';
 import { CombinedSettings } from 'contexts/settings';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
   PROTOTYPE_PLACEHOLDER_PATH,
@@ -177,12 +181,32 @@ export const NAV_APPS: NavItem = {
   text: 'Apps',
   children: [
     plannedApp('data-archiving', 'Data archiving'),
+    // A real app, listed here rather than under MongoDB. Its own tabs carry
+    // Fleet, Nodes, Automations and Settings, so it needs one entry,
+    // highlighted on all of them.
+    {
+      id: 'app-operations-for-mongodb',
+      text: 'Operations for MongoDB',
+      url: OM_PATH,
+      matches: ['*'],
+      badge: createElement(PreviewChip, { level: 'developer' }),
+      badgeAlwaysVisible: true,
+    },
     plannedApp('postgresql-backups', 'PostgreSQL backups'),
     plannedApp('proxysql-manager', 'ProxySQL manager'),
     plannedApp('replication-checksums', 'Replication checksums'),
     plannedApp('schema-changes', 'Schema changes'),
-    plannedApp('valkey-backups', 'Valkey backups'),
-    plannedApp('get-more-apps', 'Get more apps'),
+    // A fictional Technical Preview: still maturing and not production-ready.
+    // The chip is a label rather than news, so it puts no dot on the closed
+    // group.
+    {
+      ...plannedApp('valkey-backups', 'Valkey backups'),
+      badge: createElement(PreviewChip, { level: 'tech' }),
+      badgeAlwaysVisible: true,
+    },
+    // Not an app but the way to find and add one, so it carries the plus that
+    // stands for adding throughout the sidebar.
+    { ...plannedApp('get-more-apps', 'Get more apps'), icon: Add },
   ],
 };
 

@@ -92,6 +92,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           >
             <IconButton
               onClick={onToggleSidebar}
+              aria-label="Expand sidebar"
               data-testid="sidebar-open-button"
             >
               <KeyboardDoubleArrowRightIcon />
@@ -102,6 +103,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
       {sidebarOpen && (
         <IconButton
           onClick={onToggleSidebar}
+          aria-label="Collapse sidebar"
           data-testid="sidebar-close-button"
           sx={appearOnOpenMixin}
         >

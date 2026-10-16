@@ -120,7 +120,8 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
 /**
  * OM's navigation: Operations for MongoDB and its four pages, which OM's own header
- * leaves to the sidebar. It has no place in the proposed sidebar yet.
+ * leaves to the sidebar. The proposed sidebar lists OM as a single Apps entry
+ * instead (`NAV_APPS` in navigation.proposal.ts), with its pages as tabs.
  */
 export const addOm = (): NavItem => ({
   id: 'om',
