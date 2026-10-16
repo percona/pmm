@@ -142,9 +142,10 @@ func (s *Server) ChangeLogParserPreset(ctx context.Context, req *serverv1.Change
 		}
 		return nil, mapLogParserPresetErr(err)
 	}
-	err = s.agentsState.UpdateAgentsState(ctx)
+	// The server collector parses PMM Server's own logs with the presets too.
+	err = s.UpdateConfigurations(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed to refresh agents state: %s.", err.Error())
+		return nil, status.Errorf(codes.Internal, "Failed to apply the preset: %s.", err.Error())
 	}
 	return &serverv1.ChangeLogParserPresetResponse{Preset: convertLogParserPreset(row)}, nil
 }
