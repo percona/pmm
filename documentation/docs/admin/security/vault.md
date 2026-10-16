@@ -13,7 +13,7 @@ PMM reads four kinds of secrets from Vault:
 
 PMM Client caches each secret. Secrets with a lease, such as dynamic database credentials, are reused until two thirds of the lease have passed. Every other secret is reused for the cache time to live (TTL), one minute by default. At the same interval, PMM Client checks whether the secrets changed, and restarts the exporters and agents whose credentials did. Rotated passwords and renewed dynamic credentials therefore reach them without any action on your part. Credentials that you change through PMM reach them at once.
 
-If Vault is unreachable, running exporters and agents keep the credentials they have. Those that cannot start are retried at every check until Vault is back.
+If Vault is unreachable, or answers with an error such as when it is sealed, PMM Client and PMM Server keep using the secrets they read last, and log that they do, so that the exporters and agents that use them keep working, including those that restart. A secret with a lease is used only until the lease ends, when its credentials stop working. A secret that PMM has not read before cannot be used until Vault is back, so the exporters and agents that use it are retried at every check. If Vault refuses a secret, such as after its policy is revoked or the secret is deleted, the refusal takes effect.
 
 ## Prerequisites
 
@@ -305,7 +305,7 @@ pmm-admin add external --service-name=app --listen-port=9100 \
 
 PMM Server reads these secrets with the Vault access of the `PMM_VAULT_*` variables, see [Read PMM Server secrets from Vault](#read-pmm-server-secrets-from-vault), so its Vault policy needs `read` on their paths. A reference that PMM Server cannot read is refused when you add or change the setting.
 
-PMM Server checks these secrets at the interval of the `PMM_VAULT_CACHE_TTL` variable, one minute by default. When one of them changes in Vault, PMM Server sends the new one to the exporters and agents that use it, and scrapes them with it. A scrape that falls into the second an exporter takes to restart with a rotated password can fail. It reads the keys of a backup location each time it uses them. If PMM Server cannot read a secret, the exporter or agent that uses it is left out of the configuration, and the PMM Server log says why. The configuration files that the PMM Server logs archive (`logs.zip`) includes have their credentials masked.
+PMM Server checks these secrets at the interval of the `PMM_VAULT_CACHE_TTL` variable, one minute by default. When one of them changes in Vault, PMM Server sends the new one to the exporters and agents that use it, and scrapes them with it. A scrape that falls into the second an exporter takes to restart with a rotated password can fail. It reads the keys of a backup location each time it uses them. If PMM Server cannot read a secret, and has not read it before, the exporter or agent that uses it is left out of the configuration, and the PMM Server log says why. The configuration files that the PMM Server logs archive (`logs.zip`) includes have their credentials masked.
 
 The password of a monitored database can be a reference too, as an alternative to the Vault path: `--password='vault:secret/data/pmm/mysql-prod#password'`. Unlike the settings above, it is read by PMM Client, as for a Vault path.
 

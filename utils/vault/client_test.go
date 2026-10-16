@@ -15,6 +15,7 @@
 package vault
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -22,6 +23,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -53,6 +55,12 @@ type fakeVault struct {
 
 	// issue answers a request to the issue endpoint of a PKI secrets engine, <mount>/issue/<role>.
 	issue func(body map[string]any) map[string]any
+
+	// status, if set, answers every read with it and no data, as a sealed Vault does with 503.
+	status int
+	// requests counts the requests, and intercept, if set, answers those it returns true for.
+	requests  int
+	intercept func(w http.ResponseWriter, r *http.Request) bool
 }
 
 type fakeWrite struct {
@@ -74,6 +82,15 @@ func newFakeVault(t *testing.T) (*fakeVault, *httptest.Server) {
 }
 
 func (fv *fakeVault) serve(w http.ResponseWriter, r *http.Request) {
+	// Called without the lock held, so that an intercept may block without blocking the test.
+	fv.m.Lock()
+	fv.requests++
+	intercept := fv.intercept
+	fv.m.Unlock()
+	if intercept != nil && intercept(w, r) {
+		return
+	}
+
 	fv.m.Lock()
 	defer fv.m.Unlock()
 
@@ -143,6 +160,11 @@ func (fv *fakeVault) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		fv.secrets[path] = func() map[string]any { return map[string]any{"data": body} }
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	if fv.status != 0 {
+		writeJSON(fv.t, w, fv.status, map[string]any{"errors": []string{http.StatusText(fv.status)}})
 		return
 	}
 
@@ -623,5 +645,262 @@ func TestClientWrite(t *testing.T) {
 		require.ErrorContains(t, err, "cannot tell the secrets engine of vault path database/creds/pmm")
 		assert.Zero(t, fv.reads)
 		assert.Len(t, fv.writes, 1)
+	})
+}
+
+// testLogger records what the client logs.
+type testLogger struct {
+	m     sync.Mutex
+	infos []string
+	warns []string
+}
+
+func (l *testLogger) Infof(format string, args ...any) {
+	l.m.Lock()
+	defer l.m.Unlock()
+	l.infos = append(l.infos, fmt.Sprintf(format, args...))
+}
+
+func (l *testLogger) Warnf(format string, args ...any) {
+	l.m.Lock()
+	defer l.m.Unlock()
+	l.warns = append(l.warns, fmt.Sprintf(format, args...))
+}
+
+func TestClientLastReadWhileUnreachable(t *testing.T) {
+	t.Parallel()
+
+	newClient := func(t *testing.T, srv *httptest.Server) (*Client, *time.Time, *testLogger) {
+		t.Helper()
+		c, err := New(Config{Address: srv.URL, Token: "static-token", CacheTTL: time.Minute})
+		require.NoError(t, err)
+		now := time.Now()
+		c.now = func() time.Time { return now }
+		l := &testLogger{}
+		c.SetLogger(l)
+		return c, &now, l
+	}
+	setStatus := func(fv *fakeVault, status int) {
+		fv.m.Lock()
+		defer fv.m.Unlock()
+		fv.status = status
+	}
+	requests := func(fv *fakeVault) int {
+		fv.m.Lock()
+		defer fv.m.Unlock()
+		return fv.requests
+	}
+	intercept := func(fv *fakeVault, f func(w http.ResponseWriter, r *http.Request) bool) {
+		fv.m.Lock()
+		defer fv.m.Unlock()
+		fv.intercept = f
+	}
+
+	t.Run("sealed, then unsealed", func(t *testing.T) {
+		t.Parallel()
+
+		fv, srv := newFakeVault(t)
+		password := "first"
+		fv.secrets["secret/data/db"] = func() map[string]any { return kv2(map[string]any{"password": password})() }
+		fv.secrets["secret/data/other"] = kv2(map[string]any{"password": "other"})
+		c, now, l := newClient(t, srv)
+
+		for _, path := range []string{"secret/data/db", "secret/data/other"} {
+			_, err := c.Get(t.Context(), path, "password")
+			require.NoError(t, err)
+		}
+
+		setStatus(fv, http.StatusServiceUnavailable)
+		*now = now.Add(time.Hour)
+		before := requests(fv)
+		for range 3 {
+			v, err := c.Get(t.Context(), "secret/data/db", "password")
+			require.NoError(t, err)
+			assert.Equal(t, "first", v)
+			*now = now.Add(errorCacheTTL)
+		}
+		// The other secret, and checks for changes, are answered the same way, without asking Vault again.
+		v, err := c.Get(ReadSince(t.Context(), *now), "secret/data/other", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "other", v)
+		assert.Equal(t, before+1, requests(fv), "asked once")
+
+		require.Len(t, l.warns, 1, "logged once, not for every secret or read")
+		assert.Contains(t, l.warns[0], "Vault cannot be reached, using the secrets read before until it can")
+		assert.Contains(t, l.warns[0], "503 Service Unavailable")
+		assert.Empty(t, l.infos)
+
+		// Vault is asked again after the cache TTL.
+		setStatus(fv, 0)
+		password = "second"
+		*now = now.Add(time.Minute)
+		v, err = c.Get(t.Context(), "secret/data/db", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "second", v)
+		assert.Equal(t, []string{"Vault can be reached again."}, l.infos)
+	})
+
+	t.Run("hung: one read waits for it, not every read", func(t *testing.T) {
+		t.Parallel()
+
+		fv, srv := newFakeVault(t)
+		fv.secrets["secret/data/a"] = kv2(map[string]any{"password": "a"})
+		fv.secrets["secret/data/b"] = kv2(map[string]any{"password": "b"})
+		c, now, _ := newClient(t, srv)
+		for _, path := range []string{"secret/data/a", "secret/data/b"} {
+			_, err := c.Get(t.Context(), path, "password")
+			require.NoError(t, err)
+		}
+
+		hang := make(chan struct{})
+		t.Cleanup(func() { close(hang) })
+		intercept(fv, func(http.ResponseWriter, *http.Request) bool {
+			<-hang
+			return true
+		})
+		before := requests(fv)
+
+		*now = now.Add(time.Hour)
+		ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+		defer cancel()
+		v, err := c.Get(ctx, "secret/data/a", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "a", v)
+
+		start := time.Now()
+		v, err = c.Get(t.Context(), "secret/data/b", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "b", v)
+		assert.Less(t, time.Since(start), time.Second)
+
+		// A secret not read before cannot be answered for, at once as well.
+		_, err = c.Get(t.Context(), "secret/data/c", "password")
+		require.ErrorContains(t, err, "since it could not be reached")
+		assert.Equal(t, before+1, requests(fv), "asked once")
+	})
+
+	t.Run("not reachable", func(t *testing.T) {
+		t.Parallel()
+
+		fv, srv := newFakeVault(t)
+		fv.secrets["secret/data/db"] = kv2(map[string]any{"password": "first"})
+		c, now, _ := newClient(t, srv)
+
+		_, err := c.Get(t.Context(), "secret/data/db", "password")
+		require.NoError(t, err)
+
+		srv.Close()
+		*now = now.Add(time.Hour)
+		v, err := c.Get(t.Context(), "secret/data/db", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "first", v)
+
+		// A canceled read is not one that Vault could not answer.
+		*now = now.Add(errorCacheTTL)
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+		_, err = c.Get(ctx, "secret/data/db", "password")
+		require.Error(t, err)
+	})
+
+	t.Run("an error for one secret", func(t *testing.T) {
+		t.Parallel()
+
+		fv, srv := newFakeVault(t)
+		calls := 0
+		fv.secrets["database/creds/pmm"] = func() map[string]any {
+			calls++
+			return map[string]any{
+				"lease_id":       "database/creds/pmm/abc",
+				"lease_duration": 3600,
+				"data":           map[string]any{"username": "v-pmm", "password": "p"},
+			}
+		}
+		fv.secrets["secret/data/db"] = kv2(map[string]any{"password": "kv"})
+		c, now, l := newClient(t, srv)
+		_, err := c.Get(t.Context(), "database/creds/pmm", "username")
+		require.NoError(t, err)
+
+		// The database secrets engine fails, while Vault itself answers.
+		intercept(fv, func(w http.ResponseWriter, r *http.Request) bool {
+			if !strings.HasSuffix(r.URL.Path, "database/creds/pmm") {
+				return false
+			}
+			writeJSON(t, w, http.StatusInternalServerError, map[string]any{"errors": []string{"connection refused"}})
+			return true
+		})
+
+		*now = now.Add(50 * time.Minute)
+		u, err := c.Get(t.Context(), "database/creds/pmm", "username")
+		require.NoError(t, err)
+		assert.Equal(t, "v-pmm", u)
+		require.Len(t, l.warns, 1)
+		assert.Contains(t, l.warns[0], "Vault cannot answer for the secret database/creds/pmm, using the one read at")
+
+		// Other secrets are read from Vault as usual.
+		v, err := c.Get(t.Context(), "secret/data/db", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "kv", v)
+
+		// Not past the end of the lease, when the credentials stop working.
+		*now = now.Add(10 * time.Minute)
+		_, err = c.Get(t.Context(), "database/creds/pmm", "username")
+		require.ErrorContains(t, err, "500", "the lease has ended, so have the credentials")
+
+		intercept(fv, nil)
+		*now = now.Add(errorCacheTTL)
+		_, err = c.Get(t.Context(), "database/creds/pmm", "username")
+		require.NoError(t, err)
+		assert.Equal(t, 2, calls)
+	})
+
+	t.Run("across writes", func(t *testing.T) {
+		t.Parallel()
+
+		fv, srv := newFakeVault(t)
+		fv.mounts = map[string][2]string{"secret/": {"kv", "2"}}
+		fv.secrets["secret/data/pmm"] = kv2(map[string]any{"admin_password": "p1", "other": "o"})
+		c, now, _ := newClient(t, srv)
+
+		_, err := c.Get(t.Context(), "secret/data/pmm", "admin_password")
+		require.NoError(t, err)
+
+		// A write that fails keeps what was read last.
+		setStatus(fv, http.StatusServiceUnavailable)
+		require.Error(t, c.WriteRef(t.Context(), "vault:secret/data/pmm#admin_password", "p2"))
+		v, err := c.Get(t.Context(), "secret/data/pmm", "admin_password")
+		require.NoError(t, err)
+		assert.Equal(t, "p1", v)
+
+		// A write that succeeds is what Vault has.
+		setStatus(fv, 0)
+		*now = now.Add(time.Hour)
+		require.NoError(t, c.WriteRef(t.Context(), "vault:secret/data/pmm#admin_password", "p3"))
+		setStatus(fv, http.StatusServiceUnavailable)
+		*now = now.Add(time.Hour)
+		for _, key := range []string{"admin_password", "other"} {
+			v, err = c.Get(t.Context(), "secret/data/pmm", key)
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"admin_password": "p3", "other": "o"}[key], v)
+		}
+	})
+
+	t.Run("refusals take effect", func(t *testing.T) {
+		t.Parallel()
+
+		for _, status := range []int{http.StatusForbidden, http.StatusNotFound} {
+			fv, srv := newFakeVault(t)
+			fv.secrets["secret/data/db"] = kv2(map[string]any{"password": "first"})
+			c, now, l := newClient(t, srv)
+
+			_, err := c.Get(t.Context(), "secret/data/db", "password")
+			require.NoError(t, err)
+
+			setStatus(fv, status)
+			*now = now.Add(time.Hour)
+			_, err = c.Get(t.Context(), "secret/data/db", "password")
+			require.ErrorContains(t, err, strconv.Itoa(status), "a revoked policy or a deleted secret")
+			assert.Empty(t, l.warns)
+		}
 	})
 }

@@ -182,6 +182,8 @@ func configureVault(cfg *config.Config, l *logrus.Entry) {
 		return
 	}
 
+	client.SetLogger(l)
+
 	l.Infof("Reading credentials stored in Vault from %s.", cfg.Vault.Address)
 	secrets.Configure(client)
 }

@@ -50,15 +50,23 @@ type Client struct {
 	http *http.Client
 	now  func() time.Time
 
-	// m serializes reads, so that concurrent readers of a dynamic secret share one set of credentials.
 	// azureMetadataURL and gcpMetadataURL are where the azure and gcp methods get the identity to log in with.
 	azureMetadataURL string
 	gcpMetadataURL   string
 
+	// l logs that a secret read before stands in for one Vault cannot be read from, see SetLogger.
+	l Logger
+
+	// m serializes reads, so that concurrent readers of a dynamic secret share one set of credentials.
 	m           sync.Mutex
 	token       string
 	tokenExpiry time.Time
 	cache       map[string]cachedSecret
+
+	// down is the error with which Vault could not be reached at all, and retryAt when it is asked again: until
+	// then, reads answer at once with the data read last, or with that error, rather than each waiting for Vault.
+	down    error
+	retryAt time.Time
 }
 
 type cachedSecret struct {
@@ -67,6 +75,80 @@ type cachedSecret struct {
 	read    time.Time
 	expires time.Time
 	leased  bool
+
+	// last is the data read last, which stands in for the secret while Vault cannot be reached: read at
+	// lastRead, and, for a secret with a lease, until lastUntil, when its credentials stop working.
+	last      map[string]string
+	lastRead  time.Time
+	lastUntil time.Time
+	// stale reports that data is last, standing in for the secret; staleLogged that this was logged for the secret
+	// alone, rather than for all of them as Vault could not be reached at all.
+	stale       bool
+	staleLogged bool
+}
+
+// Logger logs what the client does without being asked, see SetLogger.
+type Logger interface {
+	Infof(format string, args ...any)
+	Warnf(format string, args ...any)
+}
+
+// SetLogger sets where the client logs that the secrets read before stand in for those that Vault cannot be read
+// from, and that Vault answers again. It must be called before the client is used.
+func (c *Client) SetLogger(l Logger) {
+	c.l = l
+}
+
+// unanswered reports whether err means that Vault could not be reached, or could not answer, rather than that it
+// refused to: the data read last stands in for the secret then. A refusal, such as for a revoked policy or a
+// deleted secret, takes effect. A read that its caller canceled is neither.
+func unanswered(ctx context.Context, err error) bool {
+	if errors.Is(ctx.Err(), context.Canceled) {
+		return false
+	}
+	if re, ok := errors.AsType[*responseError](err); ok {
+		return re.status >= http.StatusInternalServerError || re.status == http.StatusTooManyRequests
+	}
+	return unreachable(ctx, err)
+}
+
+// unreachable reports whether err means that Vault could not be reached at all, or is sealed, so that it cannot
+// answer for any secret, rather than for the one read. Waiting for the caller's deadline counts.
+func unreachable(ctx context.Context, err error) bool {
+	if errors.Is(ctx.Err(), context.Canceled) {
+		return false
+	}
+	if re, ok := errors.AsType[*responseError](err); ok {
+		return re.status == http.StatusServiceUnavailable
+	}
+	_, ok := errors.AsType[*url.Error](err)
+	return ok || errors.Is(err, context.DeadlineExceeded)
+}
+
+// readThrough reads the secret from Vault, unless Vault could not be reached at all a moment ago. It is asked again
+// only after the cache TTL then, so that one read waits for it rather than every read, one after another.
+// Must be called with c.m held.
+func (c *Client) readThrough(ctx context.Context, path string, now time.Time) (map[string]string, *secretResponse, error) {
+	if c.down != nil && now.Before(c.retryAt) {
+		return nil, nil, fmt.Errorf("vault GET %s: not asked until %s, since it could not be reached: %w",
+			path, c.retryAt.Format(time.RFC3339), c.down)
+	}
+
+	data, resp, err := c.read(ctx, path)
+	_, answered := errors.AsType[*responseError](err)
+	switch {
+	case err != nil && unreachable(ctx, err):
+		if c.down == nil && c.l != nil {
+			c.l.Warnf("Vault cannot be reached, using the secrets read before until it can: %s.", err)
+		}
+		c.down, c.retryAt = err, now.Add(c.cfg.EffectiveCacheTTL())
+	case c.down != nil && (err == nil || answered):
+		c.down = nil
+		if c.l != nil {
+			c.l.Infof("Vault can be reached again.")
+		}
+	}
+	return data, resp, err
 }
 
 type readSinceKey struct{}
@@ -145,18 +227,40 @@ func (c *Client) Read(ctx context.Context, path string) (map[string]string, erro
 		return s.data, s.err
 	}
 
-	data, resp, err := c.read(ctx, path)
+	prev := c.cache[path]
+	data, resp, err := c.readThrough(ctx, path, now)
 	if err != nil {
+		if prev.last != nil && unanswered(ctx, err) && (prev.lastUntil.IsZero() || now.Before(prev.lastUntil)) {
+			// Vault is asked again after errorCacheTTL, as after any other error.
+			stale := prev
+			stale.data, stale.err, stale.expires, stale.stale = prev.last, nil, now.Add(errorCacheTTL), true
+			// Logged for this secret only if Vault can be reached, but cannot answer for it.
+			if !prev.stale && c.down == nil && c.l != nil {
+				c.l.Warnf("Vault cannot answer for the secret %s, using the one read at %s until it can: %s.",
+					path, prev.lastRead.Format(time.RFC3339), err)
+				stale.staleLogged = true
+			}
+			c.cache[path] = stale
+			return prev.last, nil
+		}
+
 		c.cache[path] = cachedSecret{err: err, read: now, expires: now.Add(errorCacheTTL)}
 		return nil, err
+	}
+	if prev.staleLogged && c.l != nil {
+		c.l.Infof("Vault answers for the secret %s again.", path)
 	}
 
 	ttl := c.cfg.EffectiveCacheTTL()
 	leased := resp.LeaseID != "" && resp.LeaseDuration > 0
+	entry := cachedSecret{data: data, read: now, leased: leased, last: data, lastRead: now}
 	if leased {
-		ttl = time.Duration(resp.LeaseDuration) * time.Second * 2 / 3 //nolint:mnd
+		lease := time.Duration(resp.LeaseDuration) * time.Second
+		ttl = lease * 2 / 3 //nolint:mnd
+		entry.lastUntil = now.Add(lease)
 	}
-	c.cache[path] = cachedSecret{data: data, read: now, expires: now.Add(ttl), leased: leased}
+	entry.expires = now.Add(ttl)
+	c.cache[path] = entry
 
 	return data, nil
 }
@@ -230,8 +334,12 @@ func (c *Client) Write(ctx context.Context, path string, data map[string]string)
 	c.m.Lock()
 	defer c.m.Unlock()
 
-	// Whatever happens below, a cached value may no longer be what Vault has.
-	delete(c.cache, path)
+	// Whatever happens below, a cached value may no longer be what Vault has, so it is read again. The data read
+	// last is kept to stand in for it while Vault cannot be reached, unless the write below replaces it.
+	cached := c.cache[path]
+	c.cache[path] = cachedSecret{
+		expires: time.Time{}, last: cached.last, lastRead: cached.lastRead, lastUntil: cached.lastUntil,
+	}
 
 	// Checked before reading: reading the path of another engine may have side effects, such as the
 	// database engine creating a user.
@@ -260,9 +368,16 @@ func (c *Client) Write(ctx context.Context, path string, data map[string]string)
 		body = map[string]any{"data": merged}
 	}
 
-	return c.withToken(ctx, func(token string) error {
+	err = c.withToken(ctx, func(token string) error {
 		return c.do(ctx, http.MethodPost, path, token, body, nil)
 	})
+	if err != nil {
+		return err
+	}
+
+	// What Vault has now, should it not be reachable to read it again.
+	c.cache[path] = cachedSecret{last: merged, lastRead: c.now()}
+	return nil
 }
 
 // WriteRef stores value under the key a vault:<path>#<key> reference points to.

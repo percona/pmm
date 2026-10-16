@@ -1466,6 +1466,7 @@ func configureVault(l *logrus.Entry) {
 	if err != nil {
 		l.Fatalf("Invalid Vault configuration: %s.", err)
 	}
+	client.SetLogger(l)
 
 	secrets.Configure(client, cfg.EffectiveCacheTTL())
 	l.Infof("Reading the secrets stored in Vault from %s.", cfg.Address)
