@@ -30,6 +30,7 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
@@ -587,6 +588,35 @@ func ResolveChatSystemPrompt(settings *models.Settings, mode string) string {
 		base = settings.Adre.ChatPrompt
 	}
 	return appendScopeGuardrail(base)
+}
+
+// WithKubernetesGuidance appends KubernetesGuidance to prompt when the stored Holmes config.yaml enables a
+// kubernetes/* or openshift/* toolset.
+func WithKubernetesGuidance(q reform.DBTX, prompt string) string {
+	cfg, err := models.GetAdreHolmesConfig(q)
+	if err != nil || !kubernetesToolsetsEnabled(cfg.ConfigYAML) {
+		return prompt
+	}
+	return strings.TrimRight(prompt, "\n") + "\n\n" + KubernetesGuidance
+}
+
+func kubernetesToolsetsEnabled(configYAML string) bool {
+	var c struct {
+		Toolsets map[string]struct {
+			Enabled *bool `yaml:"enabled"`
+		} `yaml:"toolsets"`
+	}
+	err := yaml.Unmarshal([]byte(configYAML), &c)
+	if err != nil {
+		return false
+	}
+	for name, ts := range c.Toolsets {
+		k8s := strings.HasPrefix(name, "kubernetes/") || strings.HasPrefix(name, "openshift/")
+		if k8s && ts.Enabled != nil && *ts.Enabled {
+			return true
+		}
+	}
+	return false
 }
 
 // ResolveQanInsightsSystemPrompt returns the system prompt for QAN AI Insights with ScopeGuardrail appended.

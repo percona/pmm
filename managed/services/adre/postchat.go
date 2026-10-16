@@ -168,7 +168,7 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	req.ConversationHistory = hist
 	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
-	req.AdditionalSystemPrompt = ResolveChatSystemPrompt(settings, mode)
+	req.AdditionalSystemPrompt = WithKubernetesGuidance(h.db, ResolveChatSystemPrompt(settings, mode))
 	// The page context rides on the question, not the system prompt, so the system prompt stays byte-identical
 	// across turns and pages and the provider's prompt cache keeps hitting.
 	if resuming {

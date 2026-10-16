@@ -447,7 +447,7 @@ func handleTurn(
 		}
 		defer releaseAdreChatSlot()
 		start := time.Now()
-		req := adre.BuildSlackChatRequest(settings, userText, history, extra)
+		req := adre.BuildSlackChatRequest(settings, userText, history, adre.WithKubernetesGuidance(db, extra))
 		resp, err := client.Chat(ctx, req)
 		latencyMs := int(time.Since(start).Milliseconds())
 		adreChatSeconds.Observe(time.Since(start).Seconds())

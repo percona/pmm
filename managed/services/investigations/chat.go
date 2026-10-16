@@ -110,7 +110,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 
 	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(h.db, h.l))
 	ctxStr := buildInvestigationContext(inv)
-	investigationPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
+	investigationPrompt := adre.WithKubernetesGuidance(h.db, adre.ResolveChatSystemPrompt(settings, "investigation"))
 	systemWithContext := investigationPrompt + "\n\nCurrent investigation context:\n" + ctxStr
 
 	// Build history from existing messages only (oldest first); new user message is sent as Ask.
@@ -274,7 +274,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	}
 
 	ctxStr := buildInvestigationContext(inv)
-	invPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
+	invPrompt := adre.WithKubernetesGuidance(h.db, adre.ResolveChatSystemPrompt(settings, "investigation"))
 	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(h.db, h.l))
 	ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
 	chatReq := &adre.ChatRequest{

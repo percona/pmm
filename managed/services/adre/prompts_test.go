@@ -142,3 +142,13 @@ func TestSubstantiveResponseFormatPresentInDefaults(t *testing.T) {
 	assert.NotContains(t, InvestigationFormatPrompt, substantiveResponseFormatMarker,
 		"SubstantiveResponseFormat must not be applied to InvestigationFormatPrompt (strict JSON contract)")
 }
+
+func TestKubernetesToolsetsEnabled(t *testing.T) {
+	t.Parallel()
+	assert.False(t, kubernetesToolsetsEnabled(""))
+	assert.False(t, kubernetesToolsetsEnabled("toolsets:\n  kubernetes/core:\n    enabled: false\n  pmm-inventory: {}\n"))
+	assert.False(t, kubernetesToolsetsEnabled("toolsets:\n  kubernetes/core:\n"), "no explicit enabled: true")
+	assert.True(t, kubernetesToolsetsEnabled("toolsets:\n  kubernetes/core:\n    enabled: true\n"))
+	assert.True(t, kubernetesToolsetsEnabled("toolsets:\n  openshift/logs:\n    enabled: true\n"))
+	assert.False(t, kubernetesToolsetsEnabled("not: [valid"))
+}
