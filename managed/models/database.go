@@ -1869,6 +1869,118 @@ $yaml$,
 			NOW()
 		) ON CONFLICT DO NOTHING`,
 	},
+	144: {
+		// Stanza severity_parser mappings are severity: raw-value(s); the built-ins above were written raw: severity,
+		// so every level whose text is not a severity name got no severity. postgres' time_parser layout also
+		// carried a " UTC" suffix the regex does not capture, so no line got its event time. Only unmodified
+		// built-ins change: replace() is a no-op on edited YAML.
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    System: info
+    Warning: warn
+    Error: error
+$old$, $new$  mapping:
+    info: [System, Note]
+    warn: Warning
+    error: [Error, ERROR]
+$new$), updated_at = NOW() WHERE name = 'mysql_error' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+    LOG: info
+    STATEMENT: info
+$old$, $new$  mapping:
+    debug: [DEBUG1, DEBUG2, DEBUG3, DEBUG4, DEBUG5]
+    info: [INFO, NOTICE, LOG, DETAIL, HINT, CONTEXT, STATEMENT, QUERY, LOCATION]
+    warn: WARNING
+    error: ERROR
+    fatal: [FATAL, PANIC]
+$new$), updated_at = NOW() WHERE name = 'postgres' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warn: warn
+    error: error
+    crit: fatal
+    alert: fatal
+    emerg: fatal
+$old$, $new$  mapping:
+    debug: debug
+    info: [info, notice]
+    warn: warn
+    error: error
+    fatal: [crit, alert, emerg]
+$new$), updated_at = NOW() WHERE name = 'nginx_error' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$old$, $new$  mapping:
+    trace: trace
+    debug: debug
+    info: info
+    warn: [warning, warn]
+    error: error
+    fatal: [fatal, panic]
+$new$), updated_at = NOW() WHERE name = 'pmm_managed' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$old$, $new$  mapping:
+    trace: trace
+    debug: debug
+    info: info
+    warn: [warning, warn]
+    error: error
+    fatal: [fatal, panic]
+$new$), updated_at = NOW() WHERE name = 'pmm_agent' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    Trace: debug
+    Debug: debug
+    Information: info
+    Warning: warn
+    Error: error
+$old$, $new$  mapping:
+    trace: [Trace, Test]
+    debug: Debug
+    info: [Information, Notice]
+    warn: Warning
+    error: [Error, Critical]
+    fatal: Fatal
+$new$), updated_at = NOW() WHERE name = 'clickhouse_server' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  mapping:
+    INFO: info
+    WARN: warn
+    ERROR: error
+    CRIT: fatal
+$old$, $new$  mapping:
+    trace: [TRAC, BLAT]
+    debug: DEBG
+    info: INFO
+    warn: WARN
+    error: [ERRO, ERROR]
+    fatal: CRIT
+$new$), updated_at = NOW() WHERE name = 'supervisord' AND built_in`,
+		`UPDATE log_parser_presets SET operator_yaml = replace(operator_yaml, $old$  layout: '2006-01-02 15:04:05.000 UTC'
+$old$, $new$  layout: '2006-01-02 15:04:05.000'
+  location: UTC
+$new$), updated_at = NOW() WHERE name = 'postgres' AND built_in`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
