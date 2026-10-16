@@ -2476,6 +2476,7 @@ var (
 		(*timestamppb.Timestamp)(nil),         // 40: google.protobuf.Timestamp
 	}
 )
+
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
 	36, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
 	37, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
