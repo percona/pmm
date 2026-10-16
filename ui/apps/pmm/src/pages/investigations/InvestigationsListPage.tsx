@@ -7,10 +7,12 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
+  Link,
   Stack,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   ToggleButton,
@@ -21,7 +23,11 @@ import AddIcon from '@mui/icons-material/Add';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { FC, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useInvestigationsList,
@@ -40,6 +46,9 @@ import { useSnackbar } from 'notistack';
 type SortColumn = 'title' | 'status' | 'created_at' | 'updated_at';
 type SortOrder = 'asc' | 'desc';
 type TriggerFilter = 'all' | 'auto' | 'manual';
+
+const investigationPath = (id: string) =>
+  `${PMM_NEW_NAV_PATH}/investigations/${id}`;
 
 const InvestigationsListPage: FC = () => {
   const navigate = useNavigate();
@@ -111,7 +120,7 @@ const InvestigationsListPage: FC = () => {
     createMutation.mutate(body, {
       onSuccess: (inv: Investigation) => {
         setModalOpen(false);
-        navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);
+        navigate(investigationPath(inv.id));
       },
       onError: (err: Error) => {
         enqueueSnackbar(err?.message ?? 'Failed to create investigation', {
@@ -239,112 +248,119 @@ const InvestigationsListPage: FC = () => {
                 No investigations yet. Create one to get started.
               </Typography>
             ) : (
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        indeterminate={
-                          selectedIds.size > 0 &&
-                          selectedIds.size < investigations.length
-                        }
-                        checked={
-                          investigations.length > 0 &&
-                          selectedIds.size === investigations.length
-                        }
-                        onChange={handleSelectAll}
-                        aria-label="Select all"
-                      />
-                    </TableCell>
-                    <TableCell
-                      onClick={() => handleSort('title')}
-                      sx={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
-                      Title <SortIcon column="title" />
-                    </TableCell>
-                    <TableCell>Source</TableCell>
-                    <TableCell>Node</TableCell>
-                    <TableCell>Service</TableCell>
-                    <TableCell
-                      onClick={() => handleSort('status')}
-                      sx={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
-                      Status <SortIcon column="status" />
-                    </TableCell>
-                    <TableCell
-                      onClick={() => handleSort('created_at')}
-                      sx={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
-                      Created <SortIcon column="created_at" />
-                    </TableCell>
-                    <TableCell
-                      onClick={() => handleSort('updated_at')}
-                      sx={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
-                      Updated <SortIcon column="updated_at" />
-                    </TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {investigations.map((inv: InvestigationListItem) => (
-                    <TableRow key={inv.id} hover>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
                       <TableCell padding="checkbox">
                         <Checkbox
-                          checked={selectedIds.has(inv.id)}
-                          onChange={() => handleToggleRow(inv.id)}
-                          aria-label={`Select ${inv.title || inv.id}`}
-                        />
-                      </TableCell>
-                      <TableCell>{inv.title || inv.id}</TableCell>
-                      <TableCell>
-                        {(inv.sourceType ?? inv.source_type) === 'alert'
-                          ? 'Alert'
-                          : 'User request'}
-                      </TableCell>
-                      <TableCell>
-                        {inv.nodeName ?? inv.node_name ?? '—'}
-                      </TableCell>
-                      <TableCell>
-                        {inv.serviceName ?? inv.service_name ?? '—'}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={inv.status}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {(inv.created_at ?? inv.createdAt)
-                          ? new Date(
-                              inv.created_at ?? inv.createdAt
-                            ).toLocaleString()
-                          : '—'}
-                      </TableCell>
-                      <TableCell>
-                        {(inv.updated_at ?? inv.updatedAt)
-                          ? new Date(
-                              inv.updated_at ?? inv.updatedAt
-                            ).toLocaleString()
-                          : '—'}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          onClick={() =>
-                            navigate(
-                              `${PMM_NEW_NAV_PATH}/investigations/${inv.id}`
-                            )
+                          indeterminate={
+                            selectedIds.size > 0 &&
+                            selectedIds.size < investigations.length
                           }
-                        >
-                          Open
-                        </Button>
+                          checked={
+                            investigations.length > 0 &&
+                            selectedIds.size === investigations.length
+                          }
+                          onChange={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                      </TableCell>
+                      <TableCell
+                        onClick={() => handleSort('title')}
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        Title <SortIcon column="title" />
+                      </TableCell>
+                      <TableCell>Source</TableCell>
+                      <TableCell>Node</TableCell>
+                      <TableCell>Service</TableCell>
+                      <TableCell
+                        onClick={() => handleSort('status')}
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        Status <SortIcon column="status" />
+                      </TableCell>
+                      <TableCell
+                        onClick={() => handleSort('created_at')}
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        Created <SortIcon column="created_at" />
+                      </TableCell>
+                      <TableCell
+                        onClick={() => handleSort('updated_at')}
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        Updated <SortIcon column="updated_at" />
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {investigations.map((inv: InvestigationListItem) => (
+                      <TableRow
+                        key={inv.id}
+                        hover
+                        onClick={() => navigate(investigationPath(inv.id))}
+                        sx={{ cursor: 'pointer' }}
+                      >
+                        <TableCell
+                          padding="checkbox"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={selectedIds.has(inv.id)}
+                            onChange={() => handleToggleRow(inv.id)}
+                            aria-label={`Select ${inv.title || inv.id}`}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ minWidth: 220 }}>
+                          <Link
+                            component={RouterLink}
+                            to={investigationPath(inv.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            underline="hover"
+                            color="inherit"
+                          >
+                            {inv.title || inv.id}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          {(inv.sourceType ?? inv.source_type) === 'alert'
+                            ? 'Alert'
+                            : 'User request'}
+                        </TableCell>
+                        <TableCell>
+                          {inv.nodeName ?? inv.node_name ?? '—'}
+                        </TableCell>
+                        <TableCell>
+                          {inv.serviceName ?? inv.service_name ?? '—'}
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Chip
+                            label={inv.status}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          {(inv.created_at ?? inv.createdAt)
+                            ? new Date(
+                                inv.created_at ?? inv.createdAt
+                              ).toLocaleString()
+                            : '—'}
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          {(inv.updated_at ?? inv.updatedAt)
+                            ? new Date(
+                                inv.updated_at ?? inv.updatedAt
+                              ).toLocaleString()
+                            : '—'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             )}
           </CardContent>
         </Card>

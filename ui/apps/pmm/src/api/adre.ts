@@ -598,9 +598,13 @@ export interface AlertMetadataFromLabels {
 
 /** Extract node/service/cluster/severity from alert labels (PMM/VictoriaMetrics conventions). Supports both camelCase and snake_case (axios-case-converter). */
 export function getAlertMetadataFromLabels(
-  labels?: Record<string, string>
+  alertLabels?: Record<string, string>
 ): AlertMetadataFromLabels {
-  if (!labels) return {};
+  if (!alertLabels) return {};
+  // Grafana sets a label the alert's series lack to "[no value]".
+  const labels: Record<string, string | undefined> = Object.fromEntries(
+    Object.entries(alertLabels).filter(([, v]) => v && v !== '[no value]')
+  );
   const instanceRaw = labels.instance;
   const nodeFromInstance =
     instanceRaw != null && instanceRaw.includes(':')
