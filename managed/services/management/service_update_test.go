@@ -733,8 +733,9 @@ func TestUpdateService(t *testing.T) {
 	t.Run("ExternalListenPort", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 
-		// The exporter is scraped by the Server, so no pmm-agent gets a new state.
-		m.vmdb.On("RequestConfigurationUpdate").Twice()
+		// The exporter is scraped by the Server, so no pmm-agent gets a new state. The add and both
+		// updates each refresh the scrape configuration.
+		m.vmdb.On("RequestConfigurationUpdate").Times(3)
 		resp, err := s.AddService(ctx, &managementv1.AddServiceRequest{
 			Service: &managementv1.AddServiceRequest_External{
 				External: &managementv1.AddExternalServiceParams{
