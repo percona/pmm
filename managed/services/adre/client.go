@@ -265,10 +265,11 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
+	out.Analysis = stripHolmesEmbeds(out.Analysis)
 	return &out, nil
 }
 
-// ChatStream sends a chat request and returns the response body for streaming (SSE).
+// ChatStream sends a chat request and returns the response body for streaming (SSE), without Holmes graph embeds.
 // Caller must close the returned ReadCloser.
 func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadCloser, error) {
 	// Copy request so we can set Stream=true without mutating the caller's req
@@ -299,7 +300,7 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("HolmesGPT /api/chat (stream): %s: %s", resp.Status, string(respBody))
 	}
-	return resp.Body, nil
+	return newEmbedStripReader(resp.Body), nil
 }
 
 // ReloadResult is the response body from HolmesGPT's POST /api/admin/reload.

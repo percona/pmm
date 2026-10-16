@@ -21,8 +21,55 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"regexp"
 	"strings"
 )
+
+// holmesEmbedRe matches the graph embeds Holmes' Prometheus instructions ask for, such as
+// << {"type": "promql", "tool_name": "...", "tool_call_id": "..."} >>, plain or JSON-escaped inside SSE payloads.
+// Only Holmes' own UI renders them.
+var holmesEmbedRe = regexp.MustCompile(`<<\s*\{[^{}<>]*\\?"type\\?"\s*:[^{}<>]*\}\s*>>`)
+
+func stripHolmesEmbeds(s string) string {
+	if !strings.Contains(s, "<<") {
+		return s
+	}
+	return holmesEmbedRe.ReplaceAllString(s, "")
+}
+
+// embedStripReader removes Holmes embeds from a streamed response line by line, so an embed split across
+// network reads is still removed.
+type embedStripReader struct {
+	src  *bufio.Reader
+	body io.Closer
+	buf  []byte
+	err  error
+}
+
+func newEmbedStripReader(body io.ReadCloser) *embedStripReader {
+	return &embedStripReader{src: bufio.NewReader(body), body: body}
+}
+
+func (r *embedStripReader) Read(p []byte) (int, error) {
+	if len(r.buf) == 0 {
+		if r.err != nil {
+			return 0, r.err
+		}
+		line, err := r.src.ReadBytes('\n')
+		r.err = err
+		r.buf = []byte(stripHolmesEmbeds(string(line)))
+		if len(r.buf) == 0 {
+			return 0, r.err
+		}
+	}
+	n := copy(p, r.buf)
+	r.buf = r.buf[n:]
+	return n, nil
+}
+
+func (r *embedStripReader) Close() error {
+	return r.body.Close()
+}
 
 // Holmes SSE event names (holmes/utils/stream.py).
 const (

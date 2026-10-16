@@ -300,6 +300,8 @@ toolsets:
       - execute_prometheus_range_query start/end: negative seconds (e.g. -43200 for 12h), RFC3339 or Unix epoch — never a `now…` string. Omit end for now.
       - Oversized results come back as data_summary: filter by service_id/node_name first, use topk(5, …) or sum by (…), max_points <= 60.
       - Service up checks: mysql_up, pg_up, mongodb_up, redis_up (node: up{job=~"node.*"}).
+      - Query results come back to you; read them before answering.
+      - Never write `<< {"type": "promql", ...} >>` graph embeds: PMM cannot show them. For a graph, embed a rendered panel (pmm_render_grafana_panel).
 
       Engines: mysql, postgresql, mongodb, valkey, node. Intents: workload, connections, slow_queries, replication, group_replication, innodb, wal, locks, latency, memory, cpu_memory, disk_io, network, overview, availability.
       pmm_metrics_snapshot: start/end = RFC3339 or Unix; end omitted = now; max_series default 5.

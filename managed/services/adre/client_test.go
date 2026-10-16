@@ -73,6 +73,18 @@ func TestClient_Chat(t *testing.T) {
 	assert.Equal(t, "Hello!", resp.Analysis)
 }
 
+func TestClient_Chat_StripsEmbeds(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"analysis": "Graph: << {\"type\": \"promql\", \"tool_call_id\": \"t1\"} >>end"}`))
+	}))
+	defer server.Close()
+
+	resp, err := NewClient(server.URL).Chat(t.Context(), &ChatRequest{Ask: "Hi"})
+	require.NoError(t, err)
+	assert.Equal(t, "Graph: end", resp.Analysis)
+}
+
 func TestClient_Reload(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/admin/reload", r.URL.Path)
