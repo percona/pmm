@@ -1,17 +1,17 @@
-# Autonomous Database Reliability Engineer (ADRE) / HolmesGPT Integration
+# PMM Assistant / HolmesGPT Integration
 
-ADRE integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assisted database reliability analysis, chat, and alert investigation.
+The PMM Assistant integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assisted database reliability analysis, chat, and alert investigation.
 
 This branch targets **HolmesGPT 0.22+**: PMM uses **`POST /api/chat` only** (no `/api/investigate`), and tunes behaviour via **`behavior_controls`** in settings.
 
 ## Prerequisites
 
 - HolmesGPT running in a container (or elsewhere) and reachable from the PMM server
-- Optional: ADRE ClickHouse proxy (`POST /v1/adre/clickhouse/query`) for QAN/logs — preferred over direct ClickHouse or mcp-clickhouse
+- Optional: Assistant ClickHouse proxy (`POST /v1/adre/clickhouse/query`) for QAN/logs — preferred over direct ClickHouse or mcp-clickhouse
 
 ## Configuration
 
-1. Enable ADRE in **PMM Settings** (Configuration → Settings → Advanced) or on the ADRE / AI Assistant page (admin only).
+1. Enable the Assistant in **Configuration → Assistant → Configuration** (admin only).
 2. Set the **HolmesGPT base URL** to a reachable HTTPS (or HTTP in lab) origin, for example `https://holmes.example.internal` — **do not** commit real hosts or secrets to documentation.
 3. If HolmesGPT requires authentication, configure it through **PMM settings** (preferred) or follow HolmesGPT’s documented URL/header patterns. **Never** paste API keys, Grafana tokens, or passwords into public docs or chat logs.
 
@@ -19,13 +19,13 @@ HolmesGPT and PMM must be able to communicate. If using Docker or Kubernetes, en
 
 ### Fast vs Investigation (`default_chat_mode`, `mode` on chat)
 
-The ADRE panel and `POST /v1/adre/chat` use **Fast** (quick answers, minimal Holmes skills / TodoWrite by default) vs **Investigation** (full investigation behaviour). Differences are driven by Holmes **`behavior_controls`** maps stored in PMM settings (`behavior_controls_fast`, `behavior_controls_investigation`) plus separate **`additional_system_prompt`** texts (`chat_prompt`, `investigation_prompt`). See [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
+The Assistant panel and `POST /v1/adre/chat` use **Fast** (quick answers, minimal Holmes skills / TodoWrite by default) vs **Investigation** (full investigation behaviour). Differences are driven by Holmes **`behavior_controls`** maps stored in PMM settings (`behavior_controls_fast`, `behavior_controls_investigation`) plus separate **`additional_system_prompt`** texts (`chat_prompt`, `investigation_prompt`). See [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
 
 A third map, **`behavior_controls_format_report`**, applies only to the investigation report formatting pass.
 
 **`adre_max_conversation_messages`** caps how many messages PMM sends as `conversation_history` to Holmes (mitigates context overflow when Holmes fails fast on oversized prompts).
 
-**`ENABLED_PROMPTS` on the Holmes container** can override what the HTTP API is allowed to enable; if operators set it restrictively, PMM behaviour-control toggles may appear ineffective — document this next to AI Assistant settings for your environment.
+**`ENABLED_PROMPTS` on the Holmes container** can override what the HTTP API is allowed to enable; if operators set it restrictively, PMM behaviour-control toggles may appear ineffective — document this next to Assistant settings for your environment.
 
 Investigations and QAN insights call the Holmes client against **`Adre.URL`** only (no separate PMM Agent path).
 
@@ -40,7 +40,7 @@ Configure HolmesGPT to use PMM data sources:
 
 Holmes should **not** connect to ClickHouse directly. PMM exposes a read-only proxy:
 
-**`POST /v1/adre/clickhouse/query`** — same Grafana viewer auth as other ADRE routes (Bearer service account token from Holmes).
+**`POST /v1/adre/clickhouse/query`** — same Grafana viewer auth as other Assistant routes (Bearer service account token from Holmes).
 
 Request body:
 
@@ -60,7 +60,7 @@ In Holmes config, use the **`pmm-clickhouse`** custom toolset (`pmm_clickhouse_q
 
 ### Legacy: external mcp-clickhouse
 
-Optional alternative (not required when ADRE proxy is deployed):
+Optional alternative (not required when Assistant proxy is deployed):
 
 1. Run [mcp-clickhouse](https://github.com/ClickHouse/mcp-clickhouse) on the PMM Docker network (ClickHouse remains localhost-only)
 2. Add as MCP server in HolmesGPT config
@@ -103,7 +103,7 @@ If your MCP server runs inside or alongside PMM, ensure HolmesGPT can reach it (
 
 See [HolmesGPT MCP Servers](https://holmesgpt.dev/data-sources/remote-mcp-servers/).
 
-## Grafana context in ADRE Chat (PMM UI)
+## Grafana context in Assistant Chat (PMM UI)
 
 The PMM shell builds **structured Grafana context** when the user is on Grafana routes (`/graph/d/...`, `d-solo`, `explore`, etc.): normalized path, dashboard UID, `viewPanel` when present, `from`/`to`, `var-*` parameters, optional **document title** from the iframe. Implementation: `ui/apps/pmm/src/components/adre/grafana-context.ts` (fragment; `GrafanaProvider` supplies `grafanaDocumentTitle`).
 
@@ -113,7 +113,7 @@ The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-manage
 
 PMM **does not** ship `holmes_config.yaml` or Holmes **skills** (`SKILL.md` trees) in the repository. Operators maintain them on the **HolmesGPT** deployment:
 
-- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, and **`pmm_clickhouse_query`** (ADRE proxy for QAN/logs — not direct ClickHouse) at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
+- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, and **`pmm_clickhouse_query`** (Assistant proxy for QAN/logs — not direct ClickHouse) at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
 - **Skills** — Directories of `SKILL.md` files plus Holmes **`custom_skill_paths`** so the `fetch_skill` tool can load methodology. Paths are configured in Holmes, not in PMM.
 - **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render/blob/...` or `/graph/...`.
 
@@ -147,17 +147,17 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /v1/adre/settings | Get ADRE settings (Holmes URL, `behavior_controls_*`, prompts, `adre_max_conversation_messages`, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
-| POST | /v1/adre/settings | Update ADRE settings (admin); may set `servicenow_url`, `servicenow_api_key`, `servicenow_client_token` — store securely |
-| GET | /v1/adre/models | List available models from HolmesGPT when ADRE enabled |
+| GET | /v1/adre/settings | Get Assistant settings (Holmes URL, `behavior_controls_*`, prompts, `adre_max_conversation_messages`, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
+| POST | /v1/adre/settings | Update Assistant settings (admin); may set `servicenow_url`, `servicenow_api_key`, `servicenow_client_token` — store securely |
+| GET | /v1/adre/models | List available models from HolmesGPT when Assistant enabled |
 | POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode`: `fast` or `investigation` (legacy `chat` treated as `fast`); optional `dashboard_context` merged into Holmes `additional_system_prompt` |
-| GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (ADRE enabled) |
+| GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (Assistant enabled) |
 | POST | /v1/adre/qan-insights | Body: `service_id`, `query_text` (required); optional `query_id`, `fingerprint`, `time_from`, `time_to`, `force`. Returns analysis JSON; caches by `(query_id, service_id)` when `query_id` set |
 | GET | /v1/adre/qan-insights | Query params: `query_id`, `service_id` — returns cached analysis or 404 |
 | POST | /v1/grafana/render/resolve | Resolve vars server-side, return `image_url` (blob) + `dashboard_url`; see section above |
 | GET | /v1/grafana/render/blob/{hash}.png | Cached panel PNG |
 | GET | /v1/grafana/render | **410 Gone** — use `POST /v1/grafana/render/resolve` |
-| GET | /v1/grafana/observability-map | Intent-based dashboard/panel routing for ADRE/Holmes (see below) |
+| GET | /v1/grafana/observability-map | Intent-based dashboard/panel routing for Assistant/Holmes (see below) |
 | POST | /v1/adre/metrics/snapshot | Tier-1 compressed metrics stats for a PromQL range query (see below) |
 | POST | /v1/adre/clickhouse/query | Read-only ClickHouse SQL for QAN (`database=pmm`) and logs (`database=otel`) — see below |
 
@@ -165,7 +165,7 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 
 ### Observability map (`GET /v1/grafana/observability-map`)
 
-Returns a compact routing payload for Holmes/ADRE: primary dashboard UID, optional panel PromQL `expr` values extracted from Grafana JSON, secondary dashboards, and scoped fallback hints. **Does not require ADRE to be enabled** — only PMM authentication (viewer role).
+Returns a compact routing payload for Holmes/Assistant: primary dashboard UID, optional panel PromQL `expr` values extracted from Grafana JSON, secondary dashboards, and scoped fallback hints. **Does not require Assistant to be enabled** — only PMM authentication (viewer role).
 
 Query parameters:
 
@@ -182,7 +182,7 @@ Panels without a PromQL target are omitted from `panels` and listed in `warnings
 
 ### Metrics snapshot (`POST /v1/adre/metrics/snapshot`)
 
-Runs a PromQL **range** query against VictoriaMetrics and returns **server-computed** summaries per series — not raw matrices. **Requires ADRE enabled** and a configured Holmes URL (same gate as other `/v1/adre/*` endpoints).
+Runs a PromQL **range** query against VictoriaMetrics and returns **server-computed** summaries per series — not raw matrices. **Requires Assistant enabled** and a configured Holmes URL (same gate as other `/v1/adre/*` endpoints).
 
 **Request body (JSON):**
 
@@ -208,7 +208,7 @@ Runs a PromQL **range** query against VictoriaMetrics and returns **server-compu
 
 ### ClickHouse query proxy (`POST /v1/adre/clickhouse/query`)
 
-Executes a **single read-only SELECT** against PMM’s local ClickHouse (`pmm.metrics` or `otel.logs`). **Requires ADRE enabled.** Auth: Grafana viewer (Bearer service account for Holmes).
+Executes a **single read-only SELECT** against PMM’s local ClickHouse (`pmm.metrics` or `otel.logs`). **Requires Assistant enabled.** Auth: Grafana viewer (Bearer service account for Holmes).
 
 **Request body (JSON):**
 

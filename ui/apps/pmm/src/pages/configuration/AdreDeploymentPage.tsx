@@ -44,7 +44,7 @@ import type {
 } from 'api/adre';
 
 const pageProps = {
-  title: 'AI Assistant Deployment',
+  title: 'Assistant deployment',
   fullWidth: true as const,
   surface: 'paper' as const,
   footer: null,
@@ -92,8 +92,7 @@ const AdreDeploymentPage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
-              The AI Assistant deployment configuration is available to PMM
-              administrators only.
+              The Assistant deployment is available to PMM administrators only.
             </Alert>
           </CardContent>
         </Card>

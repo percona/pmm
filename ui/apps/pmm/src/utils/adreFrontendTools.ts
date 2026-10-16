@@ -97,7 +97,7 @@ export const PMM_ADRE_FRONTEND_TOOLS: Array<Record<string, unknown>> = [
   {
     name: 'pmm_ui_check_alerts',
     description:
-      'Fetch current firing ADRE/PMM alerts for the user’s session. The client may truncate large lists for model context.',
+      'Fetch current firing PMM alerts for the user’s session. The client may truncate large lists for model context.',
     mode: 'pause',
     parameters: { type: 'object', properties: {}, required: [] },
   },

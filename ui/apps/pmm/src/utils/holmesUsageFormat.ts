@@ -60,7 +60,7 @@ export function holmesUsageTooltip(usage: HolmesUsageDisplay): string {
 }
 
 export const HOLMES_FEATURE_LABELS: Record<string, string> = {
-  adre_chat: 'ADRE chat',
+  adre_chat: 'Assistant chat',
   investigation_chat: 'Investigation chat',
   investigation_run: 'Full report',
   investigation_format: 'Format report',

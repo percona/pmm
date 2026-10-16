@@ -149,7 +149,7 @@ func TestHandlers_GetModels_AdreDisabled(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	var errBody map[string]string
 	require.NoError(t, json.NewDecoder(rec.Body).Decode(&errBody))
-	assert.Contains(t, errBody["error"], "ADRE is disabled")
+	assert.Contains(t, errBody["error"], "The Assistant is disabled")
 }
 
 func TestHandlers_GetModels_AdreEnabled_NoURL(t *testing.T) {

@@ -63,20 +63,41 @@ const router = createBrowserRouter(
               element: <Settings />,
             },
             {
-              path: 'adre',
+              path: 'assistant',
               element: <AdrePage />,
             },
             {
-              path: 'adre/usage',
-              element: <AdreUsagePage />,
-            },
-            {
-              path: 'configuration/ai-assistant',
+              path: 'configuration/assistant/configuration',
               element: <AdreSettingsPage />,
             },
             {
-              path: 'configuration/ai-deployment',
+              path: 'configuration/assistant/deployment',
               element: <AdreDeploymentPage />,
+            },
+            {
+              path: 'configuration/assistant/usage',
+              element: <AdreUsagePage />,
+            },
+            // Earlier paths, kept so bookmarks and links keep working.
+            {
+              path: 'adre',
+              element: <Navigate to="/assistant" replace />,
+            },
+            {
+              path: 'adre/usage',
+              element: <Navigate to="/configuration/assistant/usage" replace />,
+            },
+            {
+              path: 'configuration/ai-assistant',
+              element: (
+                <Navigate to="/configuration/assistant/configuration" replace />
+              ),
+            },
+            {
+              path: 'configuration/ai-deployment',
+              element: (
+                <Navigate to="/configuration/assistant/deployment" replace />
+              ),
             },
             {
               path: 'investigations',

@@ -69,8 +69,8 @@ func sanitizeQanInsightsAnalysis(raw string) string {
 }
 
 const (
-	adreDisabledMsg  = "ADRE is disabled. Enable it in Settings."
-	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Settings."
+	adreDisabledMsg  = "The Assistant is disabled. Enable it in Configuration → Assistant → Configuration."
+	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Configuration → Assistant → Configuration."
 )
 
 // Handlers provides HTTP handlers for the ADRE proxy API.

@@ -19,7 +19,7 @@ import {
   useUpdateAdreSettings,
 } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
-import { PMM_SETTINGS_URL } from 'lib/constants';
+import { PMM_ASSISTANT_CONFIG_URL } from 'lib/constants';
 import { AdreChatPanel } from './components/AdreChatPanel';
 import { AdreAlertsPanel, type AlertItem } from './components/AdreAlertsPanel';
 
@@ -68,7 +68,7 @@ const AdrePage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
-              Failed to load ADRE settings. Please try again later.
+              Failed to load Assistant settings. Please try again later.
             </Alert>
           </CardContent>
         </Card>
@@ -82,14 +82,13 @@ const AdrePage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
-              Contact an administrator to configure the Autonomous Database
-              Reliability Engineer (ADRE) in PMM Settings.
+              Contact an administrator to configure the PMM Assistant.
             </Alert>
             <Link
-              href={PMM_SETTINGS_URL}
+              href={PMM_ASSISTANT_CONFIG_URL}
               sx={{ mt: 1, display: 'inline-block' }}
             >
-              Open PMM Settings
+              Open Assistant configuration
             </Link>
           </CardContent>
         </Card>
@@ -104,14 +103,13 @@ const AdrePage: FC = () => {
           <CardContent>
             <Stack gap={2}>
               <Alert severity="info">
-                Configure the AI backend in Settings to enable the Autonomous
-                Database Reliability Engineer (ADRE). Set the service URL and
-                enable the feature.
+                Configure the AI backend to enable the PMM Assistant. Set the
+                service URL and enable the feature.
               </Alert>
               {isAdmin && (
                 <Stack gap={2} maxWidth={480}>
                   <Typography variant="subtitle2">
-                    ADRE Settings (admin only)
+                    Assistant settings (admin only)
                   </Typography>
                   <FormControlLabel
                     control={
@@ -120,7 +118,7 @@ const AdrePage: FC = () => {
                         onChange={(_, v) => setLocalEnabled(v)}
                       />
                     }
-                    label="Enable ADRE"
+                    label="Enable the Assistant"
                   />
                   <TextField
                     label="AI service URL"
@@ -145,8 +143,8 @@ const AdrePage: FC = () => {
                 </Stack>
               )}
               {!isAdmin && (
-                <Link href={PMM_SETTINGS_URL}>
-                  Open PMM Settings to configure ADRE
+                <Link href={PMM_ASSISTANT_CONFIG_URL}>
+                  Open Assistant configuration
                 </Link>
               )}
             </Stack>

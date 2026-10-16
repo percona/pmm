@@ -22,11 +22,11 @@ import (
 var (
 	slackEventsTotal = prom.NewCounter(prom.CounterOpts{
 		Name: "pmm_slack_adre_events_total",
-		Help: "Slack events handled by the ADRE Slack integration.",
+		Help: "Slack events handled by the PMM Assistant Slack integration.",
 	})
 	adreChatSeconds = prom.NewHistogram(prom.HistogramOpts{
 		Name:    "pmm_slack_adre_chat_seconds",
-		Help:    "Latency of ADRE chat requests initiated from the Slack integration.",
+		Help:    "Latency of PMM Assistant chat requests initiated from the Slack integration.",
 		Buckets: prom.ExponentialBuckets(0.5, 2, 14), //nolint:mnd
 	})
 	slackUploadsTotal = prom.NewCounter(prom.CounterOpts{
@@ -35,7 +35,7 @@ var (
 	})
 	adreChatErrorsTotal = prom.NewCounter(prom.CounterOpts{
 		Name: "pmm_slack_adre_chat_errors_total",
-		Help: "Failures of ADRE chat requests from the Slack integration.",
+		Help: "Failures of PMM Assistant chat requests from the Slack integration.",
 	})
 	slackConnected = prom.NewGauge(prom.GaugeOpts{
 		Name: "pmm_slack_adre_socket_connected",

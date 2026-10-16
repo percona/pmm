@@ -45,22 +45,23 @@ PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameM
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                                                              |
-| ------------------ | ----------------------------------------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana)                                   |
-| `/updates`         | PMM Server updates                                                |
-| `/updates/clients` | Client updates                                                    |
-| `/help`            | Help center                                                       |
-| `/rta`             | Real-Time Analytics tab                                           |
-| `/rta/selection`   | RTA service selection                                             |
-| `/rta/sessions`    | RTA sessions list                                                 |
-| `/rta/overview`    | RTA overview                                                      |
-| `/qan`             | Native Query Analytics (when `nativeQanEnabled`)                  |
-| `/qan/ai-insights` | QAN AI Insights (redirects to `/qan?tab=aiInsights` when flag on) |
-| `/adre`            | ADRE chat                                                         |
-| `/investigations`  | Investigations list                                               |
-| `/graph/*`         | Grafana iframe                                                    |
-| `*`                | 404 fallback                                                      |
+| Route                                                       | Page                                                              |
+| ----------------------------------------------------------- | ----------------------------------------------------------------- |
+| `/`                                                         | Redirects to `/graph` (Grafana)                                   |
+| `/updates`                                                  | PMM Server updates                                                |
+| `/updates/clients`                                          | Client updates                                                    |
+| `/help`                                                     | Help center                                                       |
+| `/rta`                                                      | Real-Time Analytics tab                                           |
+| `/rta/selection`                                            | RTA service selection                                             |
+| `/rta/sessions`                                             | RTA sessions list                                                 |
+| `/rta/overview`                                             | RTA overview                                                      |
+| `/qan`                                                      | Native Query Analytics (when `nativeQanEnabled`)                  |
+| `/qan/ai-insights`                                          | QAN AI Insights (redirects to `/qan?tab=aiInsights` when flag on) |
+| `/assistant`                                                | PMM Assistant chat (`/adre` redirects here)                       |
+| `/configuration/assistant/{configuration,deployment,usage}` | Assistant configuration, Holmes deployment, AI usage              |
+| `/investigations`                                           | Investigations list                                               |
+| `/graph/*`                                                  | Grafana iframe                                                    |
+| `*`                                                         | 404 fallback                                                      |
 
 ## State Management
 

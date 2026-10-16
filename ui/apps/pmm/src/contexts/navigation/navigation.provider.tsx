@@ -23,8 +23,7 @@ import {
   NAV_DIVIDERS,
   NAV_HELP,
   NAV_INVESTIGATIONS,
-  NAV_ADRE,
-  NAV_ADRE_USAGE,
+  NAV_ASSISTANT,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_QAN_NATIVE,
@@ -75,8 +74,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     if (user && settings) {
       items.push(NAV_INVESTIGATIONS);
-      items.push(NAV_ADRE);
-      items.push(NAV_ADRE_USAGE);
+      items.push(NAV_ASSISTANT);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(

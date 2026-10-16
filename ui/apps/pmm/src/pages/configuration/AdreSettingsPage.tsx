@@ -59,7 +59,7 @@ function behaviorFromSettings(
 }
 
 const pageProps = {
-  title: 'AI Assistant Settings',
+  title: 'Assistant configuration',
   fullWidth: true as const,
   surface: 'paper' as const,
   footer: null,
@@ -70,7 +70,7 @@ const AdreSettingsPage: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   // Models come from the Holmes backend, which is only reachable when ADRE is enabled; fetching while
-  // disabled returns 400 "ADRE is disabled" and would surface a spurious error toast on this page.
+  // disabled returns 400 "The Assistant is disabled" and would surface a spurious error toast on this page.
   const adreEnabled = settings?.enabled ?? false;
   const { data: models = [] } = useAdreModels({ enabled: adreEnabled });
   const updateSettings = useUpdateAdreSettings();
@@ -400,7 +400,8 @@ const AdreSettingsPage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
-              Failed to load AI Assistant settings. Please try again later.
+              Failed to load the Assistant configuration. Please try again
+              later.
             </Alert>
           </CardContent>
         </Card>
@@ -414,8 +415,7 @@ const AdreSettingsPage: FC = () => {
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
-              Contact an administrator to configure the AI Assistant (ADRE) in
-              PMM Settings.
+              Contact an administrator to configure the PMM Assistant.
             </Alert>
             <Link
               href={PMM_SETTINGS_URL}
@@ -438,8 +438,8 @@ const AdreSettingsPage: FC = () => {
         >
           <CardContent>
             <Alert severity="info">
-              Admin access is required to modify AI Assistant settings. Contact
-              your administrator or open PMM Settings.
+              Admin access is required to change the Assistant configuration.
+              Contact your administrator.
             </Alert>
           </CardContent>
         </Card>
@@ -462,8 +462,8 @@ const AdreSettingsPage: FC = () => {
       >
         <Box sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Configure the Autonomous Database Reliability Engineer (ADRE) and AI
-            backend for AI-assisted investigations.
+            Configure the PMM Assistant and its AI backend for AI-assisted chat
+            and investigations.
           </Typography>
 
           <Tabs
@@ -497,7 +497,7 @@ const AdreSettingsPage: FC = () => {
                           }
                         />
                       }
-                      label="Enable ADRE"
+                      label="Enable the Assistant"
                     />
                     <TextField
                       label="AI service URL"
@@ -545,13 +545,13 @@ const AdreSettingsPage: FC = () => {
                   <Divider />
                   <Stack gap={2}>
                     <Typography variant="subtitle1" fontWeight={600}>
-                      ADRE panel
+                      Chat panel
                     </Typography>
                     <FormControl size="small" fullWidth>
-                      <InputLabel>Default mode in ADRE panel</InputLabel>
+                      <InputLabel>Default chat mode</InputLabel>
                       <Select
                         value={localDefaultChatMode}
-                        label="Default mode in ADRE panel"
+                        label="Default chat mode"
                         onChange={(
                           e: SelectChangeEvent<'fast' | 'investigation'>
                         ) =>
@@ -705,7 +705,7 @@ const AdreSettingsPage: FC = () => {
               <AdreBehaviorControlsBlock
                 variant="fast"
                 title="Fast mode — behavior controls"
-                description="Tuning for the Fast path in the ADRE chat panel (tools / TodoWrite, etc.)."
+                description="Tuning for the Fast path in the Assistant chat panel (tools / TodoWrite, etc.)."
                 value={localBehaviorFast}
                 onChange={setLocalBehaviorFast}
                 onJsonError={(msg) =>
@@ -795,8 +795,8 @@ const AdreSettingsPage: FC = () => {
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
-                      Enable ADRE and set the AI service URL first (General
-                      tab).
+                      Enable the Assistant and set the AI service URL first
+                      (General tab).
                     </Typography>
                   ) : null}
                   <Typography variant="body2" color="text.secondary">

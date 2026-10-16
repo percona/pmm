@@ -1,4 +1,4 @@
-# PMM + HolmesGPT (ADRE) — one-command deployment
+# PMM + HolmesGPT (PMM Assistant) — one-command deployment
 
 `install.sh` brings up PMM + HolmesGPT with HTTPS and wires them together. Nothing has to be prepared or
 edited first.
@@ -17,7 +17,7 @@ bash install.sh
 ```
 
 It prints the PMM URL and the generated `admin` password (kept in `./.env`). Then open
-**AI Assistant Deployment → Models & Keys**, add your model (name, LiteLLM model, API key) and **Save** —
+**Configuration → Assistant → Deployment → Models & Keys**, add your model (name, LiteLLM model, API key) and **Save** —
 HolmesGPT picks it up without a restart.
 
 To add the model during install instead, pass it on the command line:
@@ -28,7 +28,7 @@ MODEL_NAME=claude-opus LITELLM_MODEL=anthropic/claude-opus-5-5 LLM_API_KEY=sk-an
 
 `install.sh`, in order: generates a self-signed TLS cert for HolmesGPT; starts `pmm-server` and
 `grafana-image-renderer` and sets the admin password; picks the PMM URL HolmesGPT calls back on
-(`https://<host IP>` when containers can reach it, else `https://pmm-server:8443`); enables ADRE and mints
+(`https://<host IP>` when containers can reach it, else `https://pmm-server:8443`); enables the Assistant and mints
 `PMM_API_TOKEN` + `HOLMES_API_KEY` through the PMM API; starts `holmesgpt` (HTTPS on 5050) and checks that
 PMM can reach it. Re-running it is safe: the cert, password and tokens are kept and models are upserted.
 
@@ -40,8 +40,8 @@ PMM can reach it. Re-running it is safe: the cert, password and tokens are kept 
 
 Defaults are in [`.env.example`](.env.example); override them in `./.env` or on the command line.
 
-- **`PMM_IMAGE`** — an ADRE-capable PMM Server image (a Feature Build of `tibi-holmes`); **the official
-  `percona/pmm-server:3` does not have ADRE** (`/v1/adre/*` → 404).
+- **`PMM_IMAGE`** — a PMM Server image with the Assistant (a Feature Build of `tibi-holmes`); **the official
+  `percona/pmm-server:3` does not have it** (`/v1/adre/*` → 404).
 - **`HOLMES_IMAGE`** — `>= 0.36.0` (native HTTPS + `/api/admin/reload`); defaults to
   `robustadev/holmes:0.45.0` ([release](https://github.com/HolmesGPT/holmesgpt/releases/tag/0.45.0)). Pin a digest
   for prod. Since 0.43.0 Holmes turns TodoWrite planning off by default; PMM opts Investigation mode back in via
@@ -73,7 +73,7 @@ themselves stay `0600`. PMM's `/srv` data volume is never shared with Holmes.
 
 ## Applying changes
 
-Edit in **PMM UI → AI Assistant Deployment** and **Save**. PMM renders to the shared dir and hot-reloads Holmes via
+Edit in **PMM UI → Configuration → Assistant → Deployment** and **Save**. PMM renders to the shared dir and hot-reloads Holmes via
 `POST /api/admin/reload` (`ENABLE_ADMIN_API=true` is set), so **config.yaml / model_list.yaml / skills changes
 apply with no restart**. Only bootstrap `.env` changes (PMM URL / secrets — the Provisioning tab) need a
 recreate:
@@ -93,15 +93,15 @@ docker compose up -d --force-recreate holmesgpt
   schemas itself (leave `TOOL_SCHEMA_NO_PARAM_OBJECT_IF_NO_PARAMS` unset), and the ClickHouse-HTTP one is an
   opt-in config flag. Do not mount old copies of those files into a newer image.
 - **First PMM start can take a few minutes** (fresh `/srv` init); `install.sh` waits up to ~10 minutes.
-- **Updates are disabled** (`PMM_ENABLE_UPDATES=false`): the in-app updater would replace this ADRE build with a
-  stock PMM release, which has no ADRE. Move to a newer build by changing `PMM_IMAGE` and re-running `install.sh`.
+- **Updates are disabled** (`PMM_ENABLE_UPDATES=false`): the in-app updater would replace this build with a
+  stock PMM release, which has no Assistant. Move to a newer build by changing `PMM_IMAGE` and re-running `install.sh`.
 - **k8s toolset:** if you need it, add `- /path/to/kube_config:/root/.kube/config` to the `holmesgpt` volumes
   (omitted by default).
 - **Single-host lab bundle — not hardened for shared hosts.** The admin password is generated and stored in `./.env` (0600), and note that `install.sh` makes the shared config dir `0777` and that secrets (the minted PMM/Holmes tokens, the self-signed TLS key, and `model_list.yaml` with your LLM key) live in it. That's fine on a single-admin host; on a multi-user host, tighten those perms. `install.sh` sends secrets to the PMM API on stdin, never as command-line arguments.
 
 ## Slack auto-investigate
 
-The AI Assistant chat works after install. To also get **auto-investigation of firing alerts posted into the
+The Assistant chat works after install. To also get **auto-investigation of firing alerts posted into the
 alert's Slack thread**, configure the Slack bot + Grafana contact point — see
 [../../../documentation/docs/use/ai-features/adre-slack-bot.md](../../../documentation/docs/use/ai-features/adre-slack-bot.md).
 The key point: auto-investigate is triggered by the Slack **alert scrape**, which only acts on messages that

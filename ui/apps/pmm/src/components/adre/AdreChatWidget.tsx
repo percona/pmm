@@ -353,7 +353,7 @@ export const AdreChatWidget: FC = () => {
   const copyResetTimerRef = useRef<number | null>(null);
 
   const isConfigured = settings?.enabled && !!settings?.url;
-  const chatViaLabel = isConfigured ? 'ADRE chat' : 'ADRE';
+  const chatViaLabel = isConfigured ? 'PMM Assistant' : 'Not configured';
   const hideOnNativeQan =
     location.pathname.includes('/qan') &&
     !location.pathname.includes('/qan/ai-insights');
@@ -448,7 +448,7 @@ export const AdreChatWidget: FC = () => {
           '&:hover': { bgcolor: 'primary.dark' },
           zIndex: 1300,
         }}
-        aria-label="Open ADRE chat"
+        aria-label="Open Assistant chat"
       >
         {open ? <CloseIcon /> : <ChatIcon />}
       </IconButton>
@@ -475,7 +475,7 @@ export const AdreChatWidget: FC = () => {
             sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}
           >
             <Stack>
-              <Typography variant="subtitle1">ADRE Chat</Typography>
+              <Typography variant="subtitle1">Assistant</Typography>
               <Typography variant="caption" color="text.secondary">
                 {chatViaLabel}
               </Typography>
@@ -545,7 +545,7 @@ export const AdreChatWidget: FC = () => {
           <Stack direction="row" gap={0.5} sx={{ p: 1 }}>
             <TextField
               size="small"
-              placeholder="Message ADRE..."
+              placeholder="Message the Assistant..."
               value={ask}
               onChange={(e) => setAsk(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}

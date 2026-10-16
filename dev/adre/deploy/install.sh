@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# One-command PMM + HolmesGPT (ADRE) install on a single Docker host.
+# One-command PMM + HolmesGPT (PMM Assistant) install on a single Docker host.
 #
 #   mkdir pmm-adre && cd pmm-adre
 #   curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-holmes/dev/adre/deploy/{compose.yaml,install.sh}
@@ -8,7 +8,7 @@
 #
 # Nothing is required up front. Optional settings come from the environment or ./.env (see .env.example);
 # the environment wins. Set MODEL_NAME + LITELLM_MODEL + LLM_API_KEY to add a model now, or add it later in
-# PMM → AI Assistant Deployment → Models & Keys. Re-runnable: the cert, admin password and provisioning are kept,
+# PMM → Configuration → Assistant → Deployment → Models & Keys. Re-runnable: the cert, admin password and provisioning are kept,
 # and models are upserted, never removed.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -99,7 +99,7 @@ if ! curl -ksf -o /dev/null -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/server
   echo "         admin password set"
 fi
 curl -ksf -o /dev/null -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/adre/settings" \
-  || { echo "ERROR: /v1/adre/settings is unavailable — PMM_IMAGE is not an ADRE build."; exit 1; }
+  || { echo "ERROR: /v1/adre/settings is unavailable — PMM_IMAGE is not a build with the PMM Assistant."; exit 1; }
 
 echo "==> 3/5  pick the PMM URL HolmesGPT calls back on"
 # It must work from the Holmes container AND from browsers (answers embed panel image links), so prefer this
@@ -120,11 +120,11 @@ fi
 keep PMM_CALLBACK_URL "$PMM_CALLBACK_URL"
 echo "         $PMM_CALLBACK_URL"
 
-echo "==> 4/5  provision ADRE"
+echo "==> 4/5  provision the PMM Assistant"
 settings="{\"enabled\":true,\"url\":$(json_str "$HOLMES_URL"),\"tls_skip_verify\":true"
 [ -n "$MODEL_NAME" ] && settings+=",\"chat_model\":$(json_str "${FAST_MODEL_NAME:-$MODEL_NAME}"),\"investigation_model\":$(json_str "$MODEL_NAME")"
 api POST /v1/adre/settings "$settings}" >/dev/null
-echo "         + ADRE enabled, Holmes at $HOLMES_URL (self-signed cert, TLS verify skipped)"
+echo "         + Assistant enabled, Holmes at $HOLMES_URL (self-signed cert, TLS verify skipped)"
 if [ -n "$MODEL_NAME" ]; then
   mdls="{\"name\":$(json_str "$MODEL_NAME"),\"litellm_model\":$(json_str "$LITELLM_MODEL"),\"api_key\":$(json_str "$LLM_API_KEY")}"
   [ -n "$FAST_MODEL_NAME" ] && mdls+=",{\"name\":$(json_str "$FAST_MODEL_NAME"),\"litellm_model\":$(json_str "$FAST_LITELLM_MODEL"),\"api_key\":$(json_str "$FAST_LLM_API_KEY")}"
@@ -154,5 +154,5 @@ esac
 echo
 echo "==> done.  PMM: ${PMM_CALLBACK_URL/pmm-server:8443/<this-host>}   login: admin / $PMM_ADMIN_PASSWORD  (saved in .env)"
 if curl -ksf -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/adre/deployment" | grep -q '"models":\[\]'; then
-  echo "    Next: add an LLM in PMM → AI Assistant Deployment → Models & Keys, then open AI Assistant."
+  echo "    Next: add an LLM in PMM → Configuration → Assistant → Deployment → Models & Keys, then open Assistant."
 fi

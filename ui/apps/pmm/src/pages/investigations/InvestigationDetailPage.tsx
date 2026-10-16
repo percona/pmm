@@ -523,7 +523,7 @@ const InvestigationDetailPage: FC = () => {
                 title={
                   snConfigured
                     ? ''
-                    : 'Configure ServiceNow in AI Assistant settings'
+                    : 'Configure ServiceNow in the Assistant configuration'
                 }
               >
                 <span>

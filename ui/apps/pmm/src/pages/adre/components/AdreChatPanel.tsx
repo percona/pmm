@@ -628,7 +628,7 @@ export const AdreChatPanel: FC = () => {
         <Stack sx={{ minWidth: 0, flexShrink: 0 }}>
           <TextField
             size="small"
-            placeholder="Message ADRE..."
+            placeholder="Message the Assistant..."
             value={ask}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setAsk(e.target.value)

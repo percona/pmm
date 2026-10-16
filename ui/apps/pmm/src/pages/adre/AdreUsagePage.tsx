@@ -25,7 +25,7 @@ import {
   useAdreUsageEvents,
   useAdreUsageSummary,
 } from 'hooks/api/useAdreUsage';
-import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import { PMM_ASSISTANT_PATH } from 'lib/constants';
 import {
   formatTokenCount,
   formatTokensWithCached,
@@ -112,7 +112,7 @@ const AdreUsagePage: FC = () => {
   };
 
   return (
-    <Page title="AI Usage">
+    <Page title="AI usage">
       <Stack spacing={2} sx={{ mb: 2, overflow: 'visible' }}>
         <Typography variant="body2" color="text.secondary">
           Token and cost usage across PMM AI features
@@ -237,8 +237,8 @@ const AdreUsagePage: FC = () => {
               {!showCostChart ? (
                 <Typography variant="body2" color="text.secondary">
                   No daily breakdown yet for this range.{' '}
-                  <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>
-                    Open AI Assistant
+                  <RouterLink to={PMM_ASSISTANT_PATH}>
+                    Open Assistant
                   </RouterLink>
                 </Typography>
               ) : (

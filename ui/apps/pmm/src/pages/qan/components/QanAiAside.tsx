@@ -98,7 +98,7 @@ export const QanAiAside: FC = () => {
               variant="subtitle1"
               sx={{ fontWeight: 600, lineHeight: 1.2 }}
             >
-              AI Assistant
+              Assistant
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Query context · advisory only
@@ -108,7 +108,8 @@ export const QanAiAside: FC = () => {
       </Box>
       {!configured ? (
         <Alert severity="info" sx={{ m: 2 }}>
-          Configure ADRE in Settings → AI Assistant to use chat.
+          Configure the Assistant in Configuration → Assistant → Configuration
+          to use chat.
         </Alert>
       ) : (
         <>

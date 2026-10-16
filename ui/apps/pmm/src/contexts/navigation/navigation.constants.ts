@@ -1,4 +1,9 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_ASSISTANT_CONFIG_PATH,
+  PMM_ASSISTANT_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -454,18 +459,11 @@ export const NAV_RTA: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
 };
 
-export const NAV_ADRE: NavItem = {
-  id: 'adre',
+export const NAV_ASSISTANT: NavItem = {
+  id: 'assistant',
   icon: NetworkIntelligenceIcon,
-  text: 'AI Assistant',
-  url: `${PMM_NEW_NAV_PATH}/adre`,
-};
-
-export const NAV_ADRE_USAGE: NavItem = {
-  id: 'adre-usage',
-  icon: NetworkIntelligenceIcon,
-  text: 'AI Usage',
-  url: `${PMM_NEW_NAV_PATH}/adre/usage`,
+  text: 'Assistant',
+  url: PMM_ASSISTANT_PATH,
 };
 
 export const NAV_INVESTIGATIONS: NavItem = {
@@ -709,8 +707,7 @@ export const NAV_CONFIGURATION: NavItem = {
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/datasources/correlations`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/extensions`,
-    `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
-    `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
+    `${PMM_ASSISTANT_CONFIG_PATH}/*`,
   ],
   children: [
     {
@@ -728,14 +725,26 @@ export const NAV_CONFIGURATION: NavItem = {
       url: `${PMM_NEW_NAV_PATH}/updates`,
     },
     {
-      id: 'ai-assistant',
-      text: 'AI Assistant',
-      url: `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
-    },
-    {
-      id: 'ai-deployment',
-      text: 'AI Deployment',
-      url: `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
+      id: 'assistant-config',
+      text: 'Assistant',
+      url: `${PMM_ASSISTANT_CONFIG_PATH}/configuration`,
+      children: [
+        {
+          id: 'assistant-configuration',
+          text: 'Configuration',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/configuration`,
+        },
+        {
+          id: 'assistant-deployment',
+          text: 'Deployment',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/deployment`,
+        },
+        {
+          id: 'assistant-usage',
+          text: 'AI usage',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/usage`,
+        },
+      ],
     },
     {
       id: 'org-management',

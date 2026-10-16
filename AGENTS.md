@@ -239,7 +239,7 @@ Some areas span multiple directories. When working on them, read **both** the co
 
 | Area | Backend | UI | Notes |
 |------|---------|-----|-------|
-| **ADRE / AI Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage |
+| **PMM Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage. User-facing name is "PMM Assistant" / "Assistant"; `adre` stays only in code, API paths and env vars |
 | **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
 | **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
 | **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |

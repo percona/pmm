@@ -48,7 +48,7 @@ toolsets:
     # No llm_instructions: Holmes replaces them with its built-in Prometheus text; PMM's rules live in pmm-observability.
 
   pmm-clickhouse:
-    description: "Read-only ClickHouse SQL via PMM ADRE proxy (QAN pmm.metrics and otel.logs)."
+    description: "Read-only ClickHouse SQL through PMM (QAN pmm.metrics and otel.logs)."
     tags:
       - core
     llm_instructions: |
@@ -83,7 +83,7 @@ toolsets:
       Paste actual Timestamp + Body rows in replies. EXPLAIN/queryid rules: see **pmm-db-actions** toolset.
     tools:
       - name: pmm_clickhouse_query
-        description: "Run read-only ClickHouse SQL via POST /v1/adre/clickhouse/query. database=pmm for QAN (metrics); database=otel for logs (otel.logs)."
+        description: "Run read-only ClickHouse SQL. database=pmm for QAN (pmm.metrics); database=otel for logs (otel.logs)."
         command: |
           set -euo pipefail
           PMM_URL="${PMM_URL%/}"
@@ -230,14 +230,14 @@ toolsets:
           set -e
           curl -s -k "$PMM_URL/v1/adre/alerts" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
         parameters: {}
-  pmm-adre-chat:
+  pmm-assistant-chat:
     description: |
-      List and full-text search the current Grafana user's ADRE (Holmes) chat history stored in PMM. Same auth as pmm-inventory (PMM_URL, PMM_API_TOKEN Bearer). Use when the user asks about past ADRE conversations, prior analysis, or to find messages by keyword. Results are scoped to the token's user — not other PMM users.
+      List and full-text search the current Grafana user's Assistant chat history stored in PMM. Same auth as pmm-inventory (PMM_URL, PMM_API_TOKEN Bearer). Use when the user asks about past Assistant conversations, prior analysis, or to find messages by keyword. Results are scoped to the token's user — not other PMM users.
     tags:
       - core
     tools:
-      - name: pmm_adre_list_conversations
-        description: "List recent ADRE chat conversations for the authenticated user. Returns id, title, last_message_at, updated_at. Optional limit (default 50)."
+      - name: pmm_assistant_list_conversations
+        description: "List recent Assistant chat conversations for the authenticated user. Returns id, title, last_message_at, updated_at. Optional limit (default 50)."
         command: |
           set -e
           LIM={{ limit | default('') }}
@@ -252,10 +252,10 @@ toolsets:
             config:
               input_threshold: 8000
               prompt: |
-                Summarize this PMM ADRE conversation list. Preserve conversation ids and titles; note recency (last_message_at). Be concise.
+                Summarize this PMM Assistant conversation list. Preserve conversation ids and titles; note recency (last_message_at). Be concise.
 
-      - name: pmm_adre_search_messages
-        description: "Full-text search ADRE chat messages for the authenticated user. Pass q as plain text (special characters are URL-encoded). Returns hits with conversation_id, message_id, snippet, role, created_at."
+      - name: pmm_assistant_search_messages
+        description: "Full-text search Assistant chat messages for the authenticated user. Pass q as plain text (special characters are URL-encoded). Returns hits with conversation_id, message_id, snippet, role, created_at."
         command: |
           set -e
           LIM={{ limit | default('') }}
@@ -275,7 +275,7 @@ toolsets:
             config:
               input_threshold: 8000
               prompt: |
-                Summarize ADRE search hits. Preserve conversation_id and message_id; quote short snippets when useful. Be concise.
+                Summarize Assistant chat search hits. Preserve conversation_id and message_id; quote short snippets when useful. Be concise.
 
   pmm-observability:
     description: |
@@ -342,7 +342,7 @@ toolsets:
                 Summarize observability-map output for an on-call engineer. Preserve dashboard_uid, panel id/title/expr pairs, fallback metric_prefix and scoped_series_match, and any warnings. Be concise.
 
       - name: pmm_metrics_snapshot
-        description: "Tier-1 metrics summary via POST /v1/adre/metrics/snapshot. Returns per-series stats (min, max, mean, median, p25, p75, p95, p99), top change_points, and z-score anomalies — NOT raw sample matrices. Use panel expr from pmm_observability_map. Requires ADRE enabled."
+        description: "Tier-1 metrics summary. Returns per-series stats (min, max, mean, median, p25, p75, p95, p99), top change_points, and z-score anomalies — NOT raw sample matrices. Use panel expr from pmm_observability_map."
         command: |
           set -euo pipefail
           PMM_URL="${PMM_URL%/}"
