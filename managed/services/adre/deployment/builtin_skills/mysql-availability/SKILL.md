@@ -1,202 +1,68 @@
 ---
 name: mysql-availability
-description: Percona_MS_MySQLInstanceNotAvailableOrRestarted, Percona_MS_MySQLTooManyConnections,
-  Percona_MS_MySQLThreadCreate, Percona_MS_MySQLTooManyThreadsRunning, Percona_MS_MySQLDeadlock,
-  Percona_MS_MySQLAutoIncrementExhaustion, Percona_MS_MySQLPrimaryReadOnly, Percona_MS_MySQLHistoryLength,
-  Percona_MS_MySQLInnoDBCheckpointAge, Percona_MS_MySQLScrapingIssues, Percona_MS_IPController
-  — mysqld up/down, connections, threads, deadlocks, InnoDB, autoincrement, VIP (non-ProxySQL)
+description: pmm_mysql_down, pmm_mysql_restarted, pmm_mysql_too_many_connections, and pmm_agent_down on a node running MySQL. MySQL down, crashed or restarted, exporter cannot connect, connections near max_connections.
 ---
 
-# MySQL availability, connections, and InnoDB (non-replication, non-PXC)
+# MySQL availability, restarts and connection saturation
 
-## Goal
+## When to use
+The alerts above, or "MySQL is down / restarted / refuses connections". For pmm_agent_down, first run `pmm_list_services(node_id=<node_id>)`: no MySQL on that node → **exporter-scrape-failures**. Replication thread alerts → **mysql-replication-topology**; PXC non-Primary or desync → **mysql-pxc-galera**.
 
-Diagnose MySQL instance down/restart, connection/thread pressure, deadlocks, InnoDB history/checkpoint pressure, autoincrement limits, unexpected primary read-only, exporter scrape failures, and MySQL-side IP controller signals—using PMM first, then exact SQL and shell for operators.
-
-## Workflow
-
-### Alert routing
-
-| Alert | Focus |
-|--------|--------|
-| **Percona_MS_MySQLInstanceNotAvailableOrRestarted** | `mysql_up`, low uptime — crash vs maintenance |
-| **Percona_MS_MySQLTooManyConnections** | Near `max_connections` |
-| **Percona_MS_MySQLThreadCreate** | High `Threads_created` rate vs `thread_cache_size` |
-| **Percona_MS_MySQLTooManyThreadsRunning** | High `Threads_running` — locks, slow IO, hot queries |
-| **Percona_MS_MySQLDeadlock** | InnoDB deadlock rate |
-| **Percona_MS_MySQLAutoIncrementExhaustion** | AUTO_INCREMENT nearing type max |
-| **Percona_MS_MySQLPrimaryReadOnly** | Primary should be writable |
-| **Percona_MS_MySQLHistoryLength** | InnoDB undo history length — long transactions / purge |
-| **Percona_MS_MySQLInnoDBCheckpointAge** | Checkpoint age vs max — IO/redo pressure |
-| **Percona_MS_MySQLScrapingIssues** | Exporter cannot scrape mysqld |
-| **Percona_MS_IPController** | GAS ip_controller / VIP failover script errors (MySQL cluster VIP) |
-
-1. **Scope**
-   * **pmm-inventory** → **service_id**, **node_id**, **agent_id** from alert labels.
-
-2. **PMM metrics and panels**
-   * **pmm_observability_map**: `engine=mysql`, `service_id` from step 1. Pick **intent** by alert:
-     | Alert cluster | intent |
-     |---|---|
-     | InstanceNotAvailableOrRestarted, ScrapingIssues | availability |
-     | TooManyConnections, ThreadCreate, TooManyThreadsRunning | connections |
-     | Deadlock, HistoryLength, InnoDBCheckpointAge | innodb |
-     | PrimaryReadOnly | availability or workload |
-   * Render **2–4** panels from map; **embed every `image_url`**. **`pmm_metrics_snapshot`** on panel `expr`.
-   * For connection/thread pressure with slow queries: **`pmm.metrics`** top patterns + **`general`** skill Step 3b if MySQL.
-
-3. **Logs**
-   * **otel.logs** for mysqld error log lines in window (crash, OOM, corruption).
-
-4. **Branch: instance down / restarted**
-   * Operator:
-   ```bash
-   sudo systemctl status mysqld || sudo systemctl status mysql
-   sudo systemctl start mysqld   # only if logs permit
-   ```
-   * Error log (path from `my.cnf` `log_error`):
-   ```bash
-   sudo less <error_log_path>
-   sudo dmesg -T
-   sudo less /var/log/syslog
-   ```
-   * If primary and HA exists, coordinate failover with customer before long restarts.
-
-5. **Branch: too many connections**
+## Steps
+1. **Scope.** `pmm_list_firing_alerts()` (note other alerts on the same node). `pmm_list_services(service_type=mysql)` → service_id, node_id, address, port. `pmm_list_agents(service_id=<id>)` → mysqld_exporter `status`; `pmm_list_agents(node_id=<node_id>)` → pmm-agent `connected`.
+2. **Classify the outage** (`execute_prometheus_instant_query`):
+   - `mysql_up{service_name="<svc>"}`: 1 up; 0 = exporter runs but cannot connect to mysqld; no series = nothing scraped.
+   - `up{service_name="<svc>"}`: 0 = exporter not answering scrapes; no series at all = pmm-agent/vmagent or the host is gone (expect pmm_agent_down).
+   - pmm-agent `connected=false` → `tcp_check` the MySQL address:port. Port open = MySQL alive, only monitoring is broken (→ **exporter-scrape-failures**); closed = host or mysqld down.
+3. **Timeline.** `pmm_observability_map(engine=mysql, intent=availability, service_id=<id>)`, then `pmm_metrics_snapshot` over the alert window ±1h on:
+   - `mysql_global_status_uptime{service_name="<svc>"}`: a drop to ~0 marks each restart (count them).
+   - `node_memory_MemAvailable_bytes{node_name="<node>"}`: collapse right before the restart → OOM kill.
+   - `node_filesystem_avail_bytes{node_name="<node>"}`: datadir/binlog mount near 0 → disk full.
+   - `node_time_seconds{node_name="<node>"} - node_boot_time_seconds{node_name="<node>"}`: small = host reboot, not a mysqld crash.
+4. **Error log** (`pmm_clickhouse_query`, database=otel; widen/narrow to the outage):
    ```sql
-   SELECT * FROM information_schema.processlist WHERE command != 'Sleep' ORDER BY time DESC;
-   SHOW ENGINE INNODB STATUS\G
+   SELECT Timestamp, SeverityText, Body FROM logs
+   WHERE ResourceAttributes['node_name'] = '<node_name>'
+     AND (LogAttributes['log.file.name'] LIKE '%error%' OR LogAttributes['log.file.name'] LIKE '%mysqld%'
+          OR LogAttributes['log.file.name'] LIKE '%.err')
+     AND Timestamp >= now() - INTERVAL 6 HOUR
+   ORDER BY Timestamp DESC LIMIT 100
    ```
-   * Kill after approval:
-   ```sql
-   KILL <thread_id>;
-   ```
-   * Temporary relief:
-   ```sql
-   SET GLOBAL max_connections = <n>;
-   ```
-   * Check ProxySQL multiplexing if used; the **general** skill (workload / time-window analysis) for sustained slow-query-driven pileups.
+   0 rows → list the node's file names (`GROUP BY LogAttributes['log.file.name']`). Kernel OOM, if syslog is collected: `Body ILIKE '%out of memory%' OR Body ILIKE '%killed process%'`. Report every ERROR line around the stop **and** the next start attempt (a clean shutdown can precede a failed start).
+5. **Connections branch** (pmm_mysql_too_many_connections, or mysql_up=0 with "Too many connections" in logs): `pmm_observability_map(engine=mysql, intent=connections, service_id=<id>)`; snapshot `mysql_global_status_threads_connected`, `mysql_global_status_threads_running`, `mysql_global_status_max_used_connections`, `mysql_global_variables_max_connections`, `rate(mysql_global_status_aborted_connects[5m])` (all `{service_name="<svc>"}`). If threads_running climbs too, pull top QAN queries for the window (**mysql-query-analysis**) and check `intent=locks`.
 
-6. **Branch: thread create / thread cache**
-   ```sql
-   SHOW GLOBAL STATUS LIKE 'Threads_created';
-   SHOW GLOBAL STATUS LIKE 'Connections';
-   SHOW GLOBAL VARIABLES LIKE 'thread_cache_size';
-   SHOW GLOBAL STATUS LIKE 'Threads_cached';
-   SHOW GLOBAL STATUS LIKE 'Aborted_clients';
-   ```
-   ```sql
-   SET GLOBAL thread_cache_size = 128;
-   ```
+## Interpretation
+- pmm_mysql_down fires when an enabled mysqld_exporter has no `mysql_up == 1` for 1m: mysqld down **or** monitoring broken. pmm_mysql_restarted: uptime < 300 s (default threshold). pmm_mysql_too_many_connections: 5-min max of Threads_connected > 80 % of max_connections for 5m. pmm_agent_down: pmm-agent not connected to PMM Server for 1m.
+- `mysql_up=0` with the port open: exporter credentials (password rotated, account locked, the `pmm` user's MAX_USER_CONNECTIONS), or max_connections exhausted so the exporter gets no slot.
+- Error log evidence → cause:
+  | Evidence | Cause |
+  |---|---|
+  | log stops with no "Shutdown complete"; next start says "not shut down normally"/crash recovery; MemAvailable ~0 before | OOM kill |
+  | `errno: 28`, "No space left on device", "Disk is full" | disk full |
+  | `OS errno 13 - Permission denied`, "Can't create/write to file", binlog.index not found | datadir/binlog ownership, SELinux/AppArmor |
+  | "unknown variable", "[ERROR] Aborting" right after start | bad my.cnf / startup option |
+  | "Starting crash recovery", "Apply batch completed" | recovery in progress, wait |
+  | "signal 11", "Assertion failure", stack trace, page corrupted | mysqld bug or corruption |
+  | "Normal shutdown" … "Shutdown complete" | planned stop; find who/what restarted it |
+- Connections: high connected + low running = idle or leaked connections, oversized pools, no wait_timeout; high connected + high running = pileup behind slow queries or locks; a step change = deploy, failover moving traffic, proxy multiplexing lost. Rising aborted_connects = auth failures or client timeouts.
 
-7. **Branch: too many threads running**
-   ```sql
-   SHOW GLOBAL STATUS LIKE 'Threads_%';
-   SELECT * FROM information_schema.processlist WHERE command != 'Sleep' ORDER BY time DESC;
-   SHOW ENGINE INNODB STATUS\G
-   ```
-   * `KILL` hot sessions with approval; correlate CPU/disk via **node-capacity-saturation** skill.
-   * Last resort (customer approval):
-   ```bash
-   sudo systemctl restart mysql
-   ```
+## Remediation
+- **OOM** — self-managed: confirm with `sudo dmesg -T | grep -iE 'out of memory|killed process'`; lower `innodb_buffer_pool_size` (`SET GLOBAL innodb_buffer_pool_size = <bytes>;` resizes online, persist in my.cnf), cut max_connections or per-thread buffers, move co-located processes. k8s: `kubectl describe pod <pod>` shows `OOMKilled` → raise the memory limit / lower buffer pool in the Operator CR. RDS/Aurora: parameter group or larger instance class.
+- **Disk full** — self-managed: `df -h <datadir>`, `sudo du -xh <datadir> | sort -h | tail -20`; grow the volume or remove non-MySQL files; never delete ibdata*, redo/undo or .ibd files. Once up: `PURGE BINARY LOGS BEFORE NOW() - INTERVAL 3 DAY;` (only after replicas have read them) and set `binlog_expire_logs_seconds`. RDS: increase allocated storage / enable storage autoscaling.
+- **Permissions** — self-managed: `sudo chown -R mysql:mysql <datadir> <binlog_dir>`; SELinux: `ls -lZ <datadir>`, `sudo restorecon -Rv <datadir>`; then `sudo systemctl start mysqld`.
+- **Bad config** — self-managed: `mysqld --validate-config` (8.0.16+), fix my.cnf, start. k8s: fix the CR; RDS: parameter group.
+- **Crash recovery / corruption** — do not kill mysqld during recovery. Corruption: restore from backup or rebuild the replica; `innodb_force_recovery` only to dump data, DBA-led.
+- **Monitoring only** (port open, mysql_up=0): reset the exporter account, e.g. `ALTER USER 'pmm'@'<host>' IDENTIFIED BY '<password PMM uses>' ACCOUNT UNLOCK;`; pmm-agent problems → **exporter-scrape-failures**.
+- **Too many connections** (with approval):
+  ```sql
+  SELECT user, host, db, command, COUNT(*) AS n, MAX(time) AS max_s
+  FROM information_schema.processlist GROUP BY user, host, db, command ORDER BY n DESC LIMIT 20;
+  KILL <id>;                          -- RDS: CALL mysql.rds_kill(<id>);
+  SET GLOBAL max_connections = <n>;   -- check node memory first; persist via SET PERSIST / my.cnf / CR / parameter group
+  SET GLOBAL wait_timeout = 600;      -- closes idle sessions
+  ALTER USER '<app>'@'<host>' WITH MAX_USER_CONNECTIONS <n>;
+  ```
+  Long-term: right-size application pools or put ProxySQL in front; fix the slow queries behind a pileup.
 
-8. **Branch: deadlocks**
-   ```sql
-   SHOW ENGINE INNODB STATUS\G
-   ```
-   * Read `LATEST DETECTED DEADLOCK`; PMM deadlocks graph; app retries for 1213; indexes + shorter transactions.
-
-9. **Branch: autoincrement exhaustion**
-   * PMM / `information_schema` for offending table; plan `ALTER` to BIGINT — example:
-   ```sql
-   ALTER TABLE db1.t MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
-   ```
-   * Run only after sizing and maintenance window plan.
-
-10. **Branch: primary read_only**
-    ```sql
-    SELECT @@global.read_only, @@global.super_read_only;
-    ```
-    ```sql
-    SET GLOBAL read_only = 0;
-    SET GLOBAL super_read_only = 0;
-    ```
-    * Persist in `my.cnf` only per change process; investigate why it flipped (failover tool, maintenance).
-
-11. **Branch: history length (undo)**
-    * `SHOW ENGINE INNODB STATUS` — History list length; find long transactions in `information_schema.processlist`; end or kill with approval; tune purge only per analysis.
-
-12. **Branch: InnoDB checkpoint age**
-    * Correlate redo log usage, disk IO; may need IO capacity, `innodb_log_file_size` / throughput tuning — include exact `SET GLOBAL` only when variables are confirmed for version.
-
-13. **Branch: scraping issues**
-    * Same spine as exporter: **pmm-agent** logs on DB node (`journalctl -u pmm-agent`); credentials/exporter user; **pmm-monitoring-health** overlap.
-
-14. **Branch: IP controller (MySQL VIP)**
-    * Operator on monitor host:
-    ```bash
-    ps -ef | grep -i ip_controller
-    less ~/.local/percona/ip_controller_<cluster_name>.log
-    ```
-    * If DB unreachable, recover MySQL first; verify GAS/cron and tool versions per internal docs.
-
-## Synthesize Findings
-
-Separate crash/OOM vs config vs workload vs monitoring gap. For connections/threads, name lead blockers from InnoDB status. For IP controller, separate script stall vs DB down.
-
-### Environment availability matrix (shared)
-
-Before prescribing a command, decide **which surfaces this deployment exposes**. PMM tools (inventory, observability map, metrics snapshot, QAN on `pmm.metrics`, `otel.logs`, Grafana render) are available in **every** environment — always try those first. Host shell, DB superuser, and config-file edits are **not** universal.
-
-| Surface | Self-managed (VM / bare-metal / Docker) | Kubernetes / Operator (PSMDB, PXC, PG operator) | Managed cloud (RDS / Aurora / Cloud SQL / Atlas) |
-|---|---|---|---|
-| PMM metrics / QAN / observability map | ✅ | ✅ | ✅ (exporter may be **remote/cloud-mode**) |
-| `otel.logs` (PMM-collected) | ✅ | ✅ | ⚠️ partial — DB logs often only in the cloud console |
-| Host shell (`journalctl`, `grep /var/log/...`, `openssl`, `df`) | ✅ operator | ⚠️ via `kubectl exec` into the pod, not the node | ❌ none |
-| DB shell (`psql`, `mongosh`, `mysql`) | ✅ operator | ✅ operator via `kubectl exec` | ✅ but **no superuser** (rds_superuser / atlasAdmin only) |
-| `ALTER SYSTEM` / `mongod.conf` / `my.cnf` edits | ✅ | ❌ — change the **Custom Resource**, not the file (operator reverts file edits) | ❌ — change a **parameter group / cluster config**, then reboot/apply |
-| `pg_terminate_backend`, `KILL`, force-primary, oplog resize | ✅ with approval | ✅ with approval | ⚠️ often restricted or wrapped by a cloud API |
-
-**Routing rules:**
-
-- **Always lead with PMM/QAN/`otel.logs`.** They work everywhere and need no host/DB access.
-- **Gate host-shell and superuser steps.** Label them **"operator, self-managed / k8s only"**. On managed cloud, **skip** them and use the cloud-native equivalent (console logs, Performance Insights / Cloud Monitoring, parameter groups, provider CLI).
-- **Config changes:** on **operator** deployments edit the **CR** (e.g. `PerconaServerMongoDB`, `PerconaXtraDBCluster`, `PerconaPGCluster`) and let the operator roll it out; on **managed cloud** edit the **parameter group / flag** and apply per the provider; only on **self-managed** edit the file directly and reload/restart.
-- **Detect the environment** from inventory (`service_type`, `node_model`/cloud labels, address like `*.rds.amazonaws.com`, `*.mongodb.net`) before recommending a step. If unknown, state the assumption and give the **PMM-only** path plus the operator path as an option.
-- **Never tell the user to run a command their environment can't execute** (e.g. `journalctl` on RDS). Offer the reachable alternative instead.
-### PMM observability and panel embed rules (shared)
-
-**Evidence hierarchy:** inventory → **`pmm_observability_map`** → **`pmm_metrics_snapshot`** on panel `expr` → **`pmm_render_grafana_panel`** (embed PNGs, best-effort) → QAN + MySQL EXPLAIN → scoped fallbacks (`pmm_discover_series_labels`, `pmm_list_metric_names` prefix max 50) → **`execute_prometheus_range_query`** at most one per turn, last resort.
-
-**Render failures are non-blocking:** 502, timeout, blank PNG, or curl error on render must **never** skip snapshot, QAN, EXPLAIN, or final synthesis. State **`rendered M/N`**; deliver analysis from snapshot + QAN even when **`rendered 0/N`**.
-
-**FORBIDDEN:** unfiltered `GET /api/v1/label/__name__/values`, full dashboard JSON to the LLM, guessing panel IDs or metric names.
-
-**Observability map:** `GET /v1/grafana/observability-map` via **`pmm_observability_map`**. Pass **`engine`** (`mysql`, `postgresql`, `mongodb`, `valkey`, `node`), **`intent`**, **`service_id`**. Use returned **`primary.dashboard_uid`**, **`panels[].id`**, **`panels[].expr`**. Fall back to **`pmm_list_dashboard_panels`** only when the map warns or intent is unknown (e.g. ProxySQL — no map route yet).
-
-**Metrics snapshot:** **`pmm_metrics_snapshot`** on panel `expr` — returns server-computed **stats** (min/max/mean/median/p25/p75/p95/p99), **change_points**, **anomalies**; not raw matrices. Run **immediately after map** — does not require render. `start`/`end`: RFC3339 or Unix (not `now-24h`). Requires ADRE enabled.
-
-**Render panels (best-effort when this skill uses Grafana):**
-1. Inventory first: **`service_id`**, **`node_id`**, **`agent_id`**, **`service_name`**, **`node_name`**, **`version`** → pass all as `var_*` overrides to **`pmm_render_grafana_panel`**. Missing **`agent_id`** often causes blank/timeout renders.
-2. Tool: **`POST /v1/grafana/render/resolve`** only (via **`pmm_render_grafana_panel`**).
-3. Render **sequentially**; `from`/`to` without quotes (e.g. `now-6h`, `now`). Retry once with shorter window or fixed vars on failure — then **continue snapshot/QAN/EXPLAIN**.
-4. **Embed every successful render** in the user-visible answer:
-   ```markdown
-   ![Panel title](/v1/grafana/render/blob/{hash}.png)
-   [Open in Grafana](dashboard_url)
-   ```
-   Use **`image_url`** and **`dashboard_url` exactly** from tool JSON. Do not skip images for successful renders; do not use `dashboard_url` as img src, do not rebuild URLs.
-5. State **`rendered M/N`** if any panel failed; **do not abort** the investigation.
-
-**Scoped metric fallback (when map warns):** **`pmm_discover_series_labels`** with `service_id` + **`metric_prefix`** from map fallback, or **`pmm_list_metric_names`** with prefix only (max 50).
-
-**QAN (database services):** For workload-correlated incidents, query **`pmm.metrics`** top slow patterns by **`service_id`** — see **`general`** skill for query shape and MySQL EXPLAIN Step 3b when applicable. **Always run** even when render fails.
-## Recommended Remediation Steps
-
-* Start mysqld only when error log allows; fix `my.cnf` errors, disk full, corruption per Oracle/Percona procedures.
-* **max_connections** / **thread_cache_size**: temporary `SET GLOBAL`; permanent my.cnf + restart policy.
-* **read_only** on primary: clear only when topology role is confirmed.
-* **Deadlocks / slow queries**: indexes, chunk DML, retries — link QAN via workload runbook.
-* **Autoincrement**: ALTER column type; archive old rows if business allows.
-* **IP controller**: fix cron, upgrade gas-tools, restore DB connectivity.
+## Related skills
+mysql-query-analysis, node-capacity-saturation, exporter-scrape-failures.

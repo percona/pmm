@@ -1,181 +1,54 @@
 ---
 name: mongodb-incidents
-description: Percona_MS_MongodbInstanceNotAvailable, Percona_MS_MongodbPrimaryRoleHighFlipping,
-  Percona_MS_MongodbReplSetHasNoPrimary, Percona_MS_MongodbConnections, Percona_MS_MongodbReplStateUnknown,
-  Percona_MS_MongodbChunksImbalance, Percona_MS_MongoDBReadWriteQueueHigh, Percona_MS_MongoDBOpcounters,
-  Percona_MS_MongodbReadWriteWTTicketUse, Percona_MS_MongodbReplLag, Percona_MS_MongoDBOplogWindow,
-  Percona_MS_MongodbWTCheckpointTimeHigh, Percona_MS_MongodbWTDirtyRatio, Percona_MS_MongodHighCursorCount,
-  Percona_MS_MongoDBHighCacheMissRatio, Percona_MS_MongoDBHighHeapUsage, Percona_MS_MongoDBHighFlowControl,
-  Percona_MS_MongoDBHighWriteConflict, Percona_MS_MongoDBTLSExpiry, Percona_MS_InconsistentIndexes
-  — MongoDB replica set, sharding, WiredTiger, oplog, TLS
+description: pmm_mongodb_* availability, restart, replica set (no primary, primary changed, unusual state, replication lag, oplog window), WiredTiger read/write tickets, chunk migrations, dbPath disk, SSL cert expiry and CVE-2025-14847 zlib alerts; MongoDB outages, elections, lag, saturation.
 ---
 
-# MongoDB incidents (managed service alerts)
+# MongoDB incidents
 
-## Goal
+## When to use
+Any pmm_mongodb_* alert except the PBM backup ones (those belong to **pmm-backup-management**), or MongoDB symptoms: elections, members stuck, lag, queued operations, disk or certificate problems.
+Slow operations, COLLSCAN or index design: use **mongodb-query-analysis**.
 
-Route the MongoDB alert to the correct checks using PMM (inventory, Grafana, Prometheus, QAN/logs), then list exact **mongosh** / operator commands for replica set, sharding, WiredTiger, and TLS issues.
+## Steps
+1. Scope: `pmm_list_firing_alerts()` (`service_name`, `node_name`, `rs_nm`/`set`, `cluster`); `pmm_list_services(service_type=mongodb)` for every member of that replica set, not only the alerting one; `pmm_list_agents(service_id=<id>)` for `mongodb_exporter` status.
+2. Metrics: `pmm_observability_map(engine=mongodb, intent=<intent>, service_id=<id>)`, then `pmm_metrics_snapshot` on the panel exprs. Add these (scope with `service_id` or `rs_nm`/`set`/`cluster`):
 
-## Workflow
+| Alert | intent / dashboard | Extra PromQL |
+|---|---|---|
+| down, restarted | availability | `mongodb_up`, `mongodb_instance_uptime_seconds` |
+| replset_no_primary, primary_changed, unusual_state | replication; `mongodb-replicaset-summary` panels 1587, 1642 | `mongodb_mongod_replset_my_state` per member, `mongodb_rs_members_state` (labels `member_idx`, `member_state`) |
+| replication_lag, oplog_window | replication; `mongodb-replicaset-summary` panels 1038, 1025, 1020 (flow control) | `mongodb_mongod_replset_member_replication_lag{state="SECONDARY"}`, `(mongodb_mongod_replset_oplog_head_timestamp - mongodb_mongod_replset_oplog_tail_timestamp) / 3600`, `increase(mongodb_oplog_stats_wt_cache_bytes_written_from_cache[1h])` (oplog bytes/h) |
+| read_tickets, write_tickets | latency + workload; `mongodb-wiredtiger` panels 55, 40, 57 | `mongodb_mongod_wiredtiger_concurrent_transactions_available_tickets` / `_out_tickets` (by `txn_rw`), `mongodb_mongod_global_lock_current_queue` (by `type`), `mongodb_mongod_wiredtiger_cache_bytes{type="total"} / mongodb_mongod_wiredtiger_cache_max_bytes` |
+| too_many_chunk_migrations | `mongodb-cluster-summary` panels 1216, 1313 | `mongodb_mongos_sharding_changelog_10min_total{event=~".*moveChunk.*"}`, `mongodb_mongos_sharding_balancer_enabled`, `mongodb_mongos_sharding_shard_chunks_total` (by `shard`) |
+| dbpath_disk_space | - | `mongodb_dbstats_fsUsedSize / mongodb_dbstats_fsTotalSize`, `mongodb_dbstats_dataSize` and `mongodb_dbstats_indexSize` (by `database`) |
+| host_ssl_cert_expiry | - | `(mongodb_ss_security_SSLServerCertificateExpirationDate - mongodb_date) / 86400000` (days) |
+| cve_2025_14847_zlib | - | `mongodb_version_info` (label `mongodb`), `increase(mongodb_ss_network_compression_zlib_compressor_bytesIn[24h])` |
 
-### Alert routing
+3. Logs: `pmm_clickhouse_query(database=otel)` with the node filter and `LogAttributes['log.file.name'] ILIKE '%mongo%'`. Match `Body ILIKE` on `%election%`, `%transition to%`, `%rollback%`, `%heartbeat%`, `%too stale%`, `%No space left%`, `%SSL%`, `%Fatal%`.
+4. mongosh checks for the user: `rs.status()` (per member `stateStr`, `health`, `optimeDate`, `lastHeartbeatMessage`), `rs.printSecondaryReplicationInfo()`, `rs.printReplicationInfo()`, `db.currentOp({active: true, secs_running: {$gt: 5}})`, `db.serverStatus().wiredTiger.concurrentTransactions` (`queues.execution` on 7.0+), `sh.status()`.
 
-| Alert | Focus |
-|--------|--------|
-| **Percona_MS_MongodbInstanceNotAvailable** | `mongod` / process down; connectivity |
-| **Percona_MS_MongodbPrimaryRoleHighFlipping** | Frequent elections — network/partials |
-| **Percona_MS_MongodbReplSetHasNoPrimary** | No writable primary — quorum / split |
-| **Percona_MS_MongodbConnections** | Connection storms vs limits |
-| **Percona_MS_MongodbReplStateUnknown** | Member state not readable |
-| **Percona_MS_MongodbChunksImbalance** | Sharded cluster balancer / chunk distribution |
-| **Percona_MS_MongoDBReadWriteQueueHigh** | Operation backpressure |
-| **Percona_MS_MongoDBOpcounters** | Sudden op rate change |
-| **Percona_MS_MongodbReadWriteWTTicketUse** | WiredTiger ticket exhaustion |
-| **Percona_MS_MongodbReplLag** | Secondary replication lag |
-| **Percona_MS_MongoDBOplogWindow** | Oplog too small for recovery/catch-up |
-| **Percona_MS_MongodbWTCheckpointTimeHigh** | Checkpoint duration — IO or cache pressure |
-| **Percona_MS_MongodbWTDirtyRatio** | High dirty cache — flush / IO |
-| **Percona_MS_MongodHighCursorCount** | Open cursors leak |
-| **Percona_MS_MongoDBHighCacheMissRatio** | Working set > RAM |
-| **Percona_MS_MongoDBHighHeapUsage** | mongod heap pressure |
-| **Percona_MS_MongoDBHighFlowControl** | Replication flow control active |
-| **Percona_MS_MongoDBHighWriteConflict** | WiredTiger write conflicts |
-| **Percona_MS_MongoDBTLSExpiry** | Certificate nearing expiry |
-| **Percona_MS_InconsistentIndexes** | Index build / consistency issue |
+## Interpretation
+- **down**: exporter enabled but `mongodb_up` is not 1 for 1m (also fires when the exporter stops reporting). Exporter `RUNNING` with `mongodb_up=0`: mongod unreachable, or auth/TLS fails. Exporter not running: **exporter-scrape-failures**.
+- **restarted**: uptime below 300 s. Ranked causes: OOM kill (node memory), crash (`Fatal assertion` in the log), pod reschedule, planned restart or upgrade.
+- **replset_no_primary**: no writable member, so writes fail. Causes: voting majority unreachable (partition, members down), members in RECOVERING/STARTUP2, or only priority-0 members left.
+- **primary_changed**: an election in the last 10m. Planned if it matches `rs.stepDown()` or a rolling restart; otherwise the primary crashed or stalled (CPU, I/O, swap) or heartbeats timed out (10 s default). Repeated changes mean flapping: check node saturation and network.
+- **unusual_state**: a member is not PRIMARY(1), SECONDARY(2), ARBITER(7) or DOWN(8). Others: STARTUP(0), RECOVERING(3), STARTUP2(5, initial sync), UNKNOWN(6), ROLLBACK(9), REMOVED(10). RECOVERING plus `too stale` in the log: the member fell off the oplog and needs a resync. ROLLBACK: writes not replicated before a failover are being undone.
+- **replication_lag**: a secondary more than 600 s behind (default). Causes: primary write bursts (oplog GB/hour rising), slower secondary disk/CPU, network, index builds or heavy reads on the secondary. Flow control activity means the majority commit point lags.
+- **oplog_window**: the oplog holds less than 24 h (default). A member offline longer than the window cannot catch up and needs a full resync. If oplog GB/hour jumped, the burst shrank the window, not an undersized oplog.
+- **read/write tickets**: fewer than 50 available, so operations queue and latency rises. Ranked causes: slow operations holding tickets (COLLSCANs, see mongodb-query-analysis), WiredTiger cache above ~95% full (application threads evict), checkpoint or disk stalls, too many concurrent clients. On 7.0+ the pool is dynamic: compare available with out tickets.
+- **too_many_chunk_migrations**: more than 40 `moveChunk.start` in 10 minutes: balancing after a shard was added, a hot or monotonic shard key, zone changes, jumbo chunks retrying. Migrations add I/O and latency.
+- **dbpath_disk_space**: the data filesystem is more than 85% used. WiredTiger does not return freed space to the OS without `compact` or a resync. The oplog has a fixed size.
+- **host_ssl_cert_expiry**: fewer than 30 days left. After expiry, TLS handshakes fail between clients and members.
+- **cve_2025_14847_zlib**: a vulnerable version plus zlib traffic in the last 24 h. Fixed versions: 4.4.30+, 5.0.32+, 6.0.27+, 7.0.28+, 8.0.17+, 8.2.3+. 3.6, 4.0 and 4.2 have no fix.
 
-1. **Scope**
-   * **pmm-inventory** → **service_id**, **node_id**, **agent_id** for the MongoDB service from alert labels (replica set name, host).
-
-2. **PMM metrics and panels**
-   * **pmm_observability_map**: `engine=mongodb`, `service_id` from step 1. Pick **intent** by alert:
-     | Alert cluster | intent |
-     |---|---|
-     | InstanceNotAvailable | availability |
-     | Connections | connections |
-     | ReplLag, FlowControl, OplogWindow, Primary flipping, NoPrimary, ReplStateUnknown | replication |
-     | Opcounters, ReadWriteQueue | workload |
-     | WTTicketUse, WTCheckpoint, WTDirty, CacheMiss, Heap, WriteConflict | memory or latency |
-   * Render **2–4** panels from map; **embed every `image_url`** in the answer. **`pmm_metrics_snapshot`** on panel `expr`.
-   * **`pmm.metrics`** top patterns by `service_id` when workload/connections alerts correlate with query load. For per-operation plan/index analysis (explain, COLLSCAN, `$indexStats`) use the **mongodb-query-analysis** skill.
-
-3. **Logs**
-   * **otel.logs** for `mongod`, election, rollback, TLS, index build errors in the alert window.
-
-4. **Branch: availability / no primary / flipping**
-   * Operator **mongosh**:
-   ```javascript
-   rs.status()
-   rs.printSecondaryReplicationInfo()
-   ```
-   * Check member **stateStr**, **health**, **lastHeartbeat**, **optimeDate** drift.
-   * Network partitions, clock skew (see **pmm-monitoring-health**), or resource saturation (**node-capacity-saturation**) often correlate.
-
-5. **Branch: replication lag / flow control / oplog**
-   * Lag and secondary progress:
-   ```javascript
-   rs.printSecondaryReplicationInfo()
-   db.printReplicationInfo()
-   ```
-   * Oplog window too small: increase oplog size (planned maintenance) or reduce write burst — exact steps depend on deployment (mongod.conf / Kubernetes CR); state requirement for rolling change.
-   * Flow control: identify primary saturation; scale or reduce write load; check `replSetGetStatus` flow control fields in server version docs.
-
-6. **Branch: connections**
-   * In mongosh:
-   ```javascript
-   db.serverStatus().connections
-   db.currentOp({ "active": true })
-   ```
-   * Correlate with app pool sizing; **pmm.metrics** QAN for Mongo if configured for query patterns.
-
-7. **Branch: WiredTiger (tickets, checkpoints, dirty, cache miss, write conflicts)**
-   * `serverStatus` wiredTiger section:
-   ```javascript
-   db.serverStatus().wiredTiger
-   ```
-   * If cache pressure: RAM sizing, `storage.wiredTiger.engineConfig.cacheSizeGB`, workload (large scans), index design.
-   * Write conflicts: shorter transactions, idempotent retries, schema/index tuning — pair with QAN and logs.
-
-8. **Branch: sharding / chunk imbalance**
-   * On mongos (operator):
-   ```javascript
-   sh.status()
-   ```
-   * Balancer enabled, jumbo chunks, failed migrations — follow internal sharding runbook; **Balancer** window and zone tags.
-
-9. **Branch: high cursors**
-   ```javascript
-   db.serverStatus().metrics.cursor
-   db.currentOp({ "waitingForLock": true })
-   ```
-   * Find long-running `getMore` / unclosed cursors from app side.
-
-10. **Branch: TLS expiry** (`MongoDBTLSExpiry`)
-    * List cert paths from deployment; operator checks:
-    ```bash
-    openssl x509 -in /path/to/server.pem -noout -dates
-    ```
-    * Renew cert before expiry; restart `mongod` per rolling procedure.
-
-11. **Branch: inconsistent indexes**
-    * Check logs for index build failures; `db.currentOp()` for index builds; may require rebuild per MongoDB docs — coordinate maintenance window.
-
-## Synthesize Findings
-
-State whether the issue is topology (elections, primary), capacity (CPU/IO/RAM), replication (lag, oplog, flow control), sharding (balancer), WiredTiger, client behavior (cursors, pools), or TLS/config. Link evidence from panels and logs.
-
-### Environment availability matrix (shared)
-
-Before prescribing a command, decide **which surfaces this deployment exposes**. PMM tools (inventory, observability map, metrics snapshot, QAN on `pmm.metrics`, `otel.logs`, Grafana render) are available in **every** environment — always try those first. Host shell, DB superuser, and config-file edits are **not** universal.
-
-| Surface | Self-managed (VM / bare-metal / Docker) | Kubernetes / Operator (PSMDB, PXC, PG operator) | Managed cloud (RDS / Aurora / Cloud SQL / Atlas) |
-|---|---|---|---|
-| PMM metrics / QAN / observability map | ✅ | ✅ | ✅ (exporter may be **remote/cloud-mode**) |
-| `otel.logs` (PMM-collected) | ✅ | ✅ | ⚠️ partial — DB logs often only in the cloud console |
-| Host shell (`journalctl`, `grep /var/log/...`, `openssl`, `df`) | ✅ operator | ⚠️ via `kubectl exec` into the pod, not the node | ❌ none |
-| DB shell (`psql`, `mongosh`, `mysql`) | ✅ operator | ✅ operator via `kubectl exec` | ✅ but **no superuser** (rds_superuser / atlasAdmin only) |
-| `ALTER SYSTEM` / `mongod.conf` / `my.cnf` edits | ✅ | ❌ — change the **Custom Resource**, not the file (operator reverts file edits) | ❌ — change a **parameter group / cluster config**, then reboot/apply |
-| `pg_terminate_backend`, `KILL`, force-primary, oplog resize | ✅ with approval | ✅ with approval | ⚠️ often restricted or wrapped by a cloud API |
-
-**Routing rules:**
-
-- **Always lead with PMM/QAN/`otel.logs`.** They work everywhere and need no host/DB access.
-- **Gate host-shell and superuser steps.** Label them **"operator, self-managed / k8s only"**. On managed cloud, **skip** them and use the cloud-native equivalent (console logs, Performance Insights / Cloud Monitoring, parameter groups, provider CLI).
-- **Config changes:** on **operator** deployments edit the **CR** (e.g. `PerconaServerMongoDB`, `PerconaXtraDBCluster`, `PerconaPGCluster`) and let the operator roll it out; on **managed cloud** edit the **parameter group / flag** and apply per the provider; only on **self-managed** edit the file directly and reload/restart.
-- **Detect the environment** from inventory (`service_type`, `node_model`/cloud labels, address like `*.rds.amazonaws.com`, `*.mongodb.net`) before recommending a step. If unknown, state the assumption and give the **PMM-only** path plus the operator path as an option.
-- **Never tell the user to run a command their environment can't execute** (e.g. `journalctl` on RDS). Offer the reachable alternative instead.
-### PMM observability and panel embed rules (shared)
-
-**Evidence hierarchy:** inventory → **`pmm_observability_map`** → **`pmm_metrics_snapshot`** on panel `expr` → **`pmm_render_grafana_panel`** (embed PNGs, best-effort) → QAN + MySQL EXPLAIN → scoped fallbacks (`pmm_discover_series_labels`, `pmm_list_metric_names` prefix max 50) → **`execute_prometheus_range_query`** at most one per turn, last resort.
-
-**Render failures are non-blocking:** 502, timeout, blank PNG, or curl error on render must **never** skip snapshot, QAN, EXPLAIN, or final synthesis. State **`rendered M/N`**; deliver analysis from snapshot + QAN even when **`rendered 0/N`**.
-
-**FORBIDDEN:** unfiltered `GET /api/v1/label/__name__/values`, full dashboard JSON to the LLM, guessing panel IDs or metric names.
-
-**Observability map:** `GET /v1/grafana/observability-map` via **`pmm_observability_map`**. Pass **`engine`** (`mysql`, `postgresql`, `mongodb`, `valkey`, `node`), **`intent`**, **`service_id`**. Use returned **`primary.dashboard_uid`**, **`panels[].id`**, **`panels[].expr`**. Fall back to **`pmm_list_dashboard_panels`** only when the map warns or intent is unknown (e.g. ProxySQL — no map route yet).
-
-**Metrics snapshot:** **`pmm_metrics_snapshot`** on panel `expr` — returns server-computed **stats** (min/max/mean/median/p25/p75/p95/p99), **change_points**, **anomalies**; not raw matrices. Run **immediately after map** — does not require render. `start`/`end`: RFC3339 or Unix (not `now-24h`). Requires ADRE enabled.
-
-**Render panels (best-effort when this skill uses Grafana):**
-1. Inventory first: **`service_id`**, **`node_id`**, **`agent_id`**, **`service_name`**, **`node_name`**, **`version`** → pass all as `var_*` overrides to **`pmm_render_grafana_panel`**. Missing **`agent_id`** often causes blank/timeout renders.
-2. Tool: **`POST /v1/grafana/render/resolve`** only (via **`pmm_render_grafana_panel`**).
-3. Render **sequentially**; `from`/`to` without quotes (e.g. `now-6h`, `now`). Retry once with shorter window or fixed vars on failure — then **continue snapshot/QAN/EXPLAIN**.
-4. **Embed every successful render** in the user-visible answer:
-   ```markdown
-   ![Panel title](/v1/grafana/render/blob/{hash}.png)
-   [Open in Grafana](dashboard_url)
-   ```
-   Use **`image_url`** and **`dashboard_url` exactly** from tool JSON. Do not skip images for successful renders; do not use `dashboard_url` as img src, do not rebuild URLs.
-5. State **`rendered M/N`** if any panel failed; **do not abort** the investigation.
-
-**Scoped metric fallback (when map warns):** **`pmm_discover_series_labels`** with `service_id` + **`metric_prefix`** from map fallback, or **`pmm_list_metric_names`** with prefix only (max 50).
-
-**QAN (database services):** For workload-correlated incidents, query **`pmm.metrics`** top slow patterns by **`service_id`** — see **`general`** skill for query shape and MySQL EXPLAIN Step 3b when applicable. **Always run** even when render fails.
-## Recommended Remediation Steps
-
-* **No primary / split**: restore network quorum; fix misconfigured votes; restart stuck members only per procedure; never force primary without runbook approval.
-* **Lag**: reduce primary load; add secondaries; disk/IO upgrade; end long secondary batch jobs.
-* **Oplog**: increase oplog (version-specific procedure); e.g. for some installs, rolling change with `replication.oplogSizeMB` and resync if required — document exact steps for the customer’s install type.
-* **WT tickets / cache**: tune cache size; fix hot collections; add indexes to reduce full collection scans.
-* **Connections**: raise limits only with sizing; fix connection leaks; deploy pooler pattern at app.
-* **TLS**: renew certificates; update trust chain; rolling restart members.
-* **Chunks**: enable balancer; split jumbo; fix tag zones; clear migration errors from logs.
+## Remediation
+- **No primary**: restore network and the down members first; check votes and priorities in `rs.conf()`. Last resort, with approval: `rs.reconfig(cfg, {force: true})` on a survivor (can lose writes).
+- **Elections**: fix the primary's stall (node-capacity-saturation) or the network; change `settings.electionTimeoutMillis` only with evidence.
+- **Too stale member**: initial sync. Self-managed: stop it, empty `dbPath`, start it; Operator: delete the pod's PVC and pod. Confirm the other members are healthy first.
+- **Lag**: spread bulk writes, size secondaries like the primary, no index builds at peak.
+- **Oplog window**: resize online on each member (secondaries first): `db.adminCommand({replSetResizeOplog: 1, size: <MB>, minRetentionHours: 48})` (`minRetentionHours` needs 4.4+). Persist it with `replication.oplogSizeMB` (self-managed), the Operator CR, or the Atlas cluster config.
+- **Tickets**: kill long operations with approval (`db.killOp(<opid>)`) and fix their indexes; size `storage.wiredTiger.engineConfig.cacheSizeGB` against RAM. Raising the ticket count is not a first fix.
+- **Chunk migrations**: `sh.stopBalancer()` / `sh.startBalancer()`, or an `activeWindow` on the `balancer` document in `config.settings`. Review the shard key and jumbo chunks (`sh.status()`).
+- **Disk**: grow the volume; drop unused indexes and collections; reclaim space with `db.runCommand({compact: "<coll>"})` (check its locking for your version) or a member resync. Never delete files in `dbPath`.
+- **Certificate**: renew, then `db.adminCommand({rotateCertificates: 1})` (5.0+, self-managed) or a rolling restart. Operator: update the TLS secret (cert-manager renews it). Atlas manages certificates.
+- **CVE zlib**: upgrade to a fixed version, or remove `zlib` from `net.compression.compressors` (mongod.conf or Operator CR) and client connection strings, then rolling restart.
