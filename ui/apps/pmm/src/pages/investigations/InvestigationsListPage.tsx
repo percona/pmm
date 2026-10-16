@@ -132,7 +132,7 @@ const InvestigationsListPage: FC = () => {
 
   if (isLoading) {
     return (
-      <Page title="Investigations">
+      <Page title="Investigations" wide>
         <Box display="flex" justifyContent="center" p={4}>
           <CircularProgress />
         </Box>
@@ -142,7 +142,7 @@ const InvestigationsListPage: FC = () => {
 
   if (isError) {
     return (
-      <Page title="Investigations">
+      <Page title="Investigations" wide>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
@@ -193,6 +193,7 @@ const InvestigationsListPage: FC = () => {
   return (
     <Page
       title="Investigations"
+      wide
       topBar={
         <Stack
           direction="row"

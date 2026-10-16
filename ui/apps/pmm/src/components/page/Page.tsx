@@ -24,6 +24,7 @@ export const Page: FC<PageProps> = ({
   footer,
   children,
   fullWidth,
+  wide,
   surface,
   roles,
 }) => {
@@ -67,7 +68,7 @@ export const Page: FC<PageProps> = ({
                 minWidth: 0,
                 alignSelf: 'stretch',
                 [theme.breakpoints.up('lg')]: {
-                  maxWidth: 1000,
+                  maxWidth: wide ? '100%' : 1000,
                 },
               }),
           p: fullWidth ? { xs: 0.5, sm: 1 } : { xs: 2 },
