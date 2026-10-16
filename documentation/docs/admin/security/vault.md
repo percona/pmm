@@ -200,7 +200,7 @@ Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be
 
 The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at startup: PMM Client reads the references it is given itself, such as `PMM_AGENT_SERVER_PASSWORD`, so that their values are not saved to its configuration file.
 
-If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs. The passwords that you set in the environment are not written to the configuration files of PMM Server's components.
+If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs. The passwords that you set in the environment are not written to the configuration files of PMM Server's components. The username and password that `PMM_VM_URL` may carry reach vmalert and vmproxy in files outside `/srv` that only PMM Server can read, and are neither in their configuration nor on their command line.
 
 PMM Server reads these secrets only when it starts. To apply a changed secret, restart the container.
 
@@ -290,7 +290,6 @@ The password of a monitored database can be a reference too, as an alternative t
 Vault support has the following limitations:
 
 - PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the secret key of PMM Extensions and the certificates of Nomad.
-- Credentials in `PMM_VM_URL` are written to the configuration files of vmalert and vmproxy.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.

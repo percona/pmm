@@ -16,6 +16,7 @@
 package main
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -115,6 +116,24 @@ func main() {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
+
+	err = saveVMCredentials()
+	if err != nil {
+		logrus.Errorf("PMM Server configuration error: %s.", err)
+		os.Exit(1)
+	}
+}
+
+// saveVMCredentials writes the credentials that PMM_VM_URL carries to the files that vmalert and
+// vmproxy read them from. It runs before supervisord starts them, since vmalert does not start
+// without the files that its configuration from the previous start names.
+func saveVMCredentials() error {
+	// pmm-managed ignores an empty PMM_VM_URL too.
+	vmURL, err := models.ParseVictoriaMetricsURL(cmp.Or(os.Getenv("PMM_VM_URL"), models.VMBaseURL))
+	if err != nil {
+		return err
+	}
+	return supervisord.SaveVMCredentials(vmURL)
 }
 
 // checkHAEncryptionKey refuses to start an HA node that has no encryption key yet.

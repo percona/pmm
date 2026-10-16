@@ -258,6 +258,14 @@ command =
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteWrite.url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+		--datasource.basicAuth.usernameFile={{ .VMUsernameFile }}
+		--datasource.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteRead.basicAuth.usernameFile={{ .VMUsernameFile }}
+		--remoteRead.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteWrite.basicAuth.usernameFile={{ .VMUsernameFile }}
+		--remoteWrite.basicAuth.passwordFile={{ .VMPasswordFile }}
+{{- end }}
 		--rule=/srv/prometheus/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
@@ -281,6 +289,10 @@ priority = 9
 command =
     /usr/sbin/vmproxy
       --target-url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+      --target-username-file={{ .VMUsernameFile }}
+      --target-password-file={{ .VMPasswordFile }}
+{{- end }}
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
@@ -450,6 +462,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
+	vmURL, vmUsernameFile, vmPasswordFile := vmURLWithoutCredentials(s.vmParams.ParsedURL())
 
 	templateParams := map[string]any{
 		"DataRetentionDays":            settings.DataRetentionDays(),
@@ -464,7 +477,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMMaxIngestionRate":           vmMaxIngestionRate,
-		"VMURL":                        s.vmParams.URL(),
+		"VMURL":                        vmURL,
+		"VMUsernameFile":               vmUsernameFile,
+		"VMPasswordFile":               vmPasswordFile,
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
