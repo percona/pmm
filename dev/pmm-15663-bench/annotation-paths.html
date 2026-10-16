@@ -325,7 +325,7 @@ footer { font-size: 13px; color: var(--muted); max-width: 80ch; }
         <text class="t2" x="446" y="291">+ node and service labels</text>
 
         <line class="ln ln-g" x1="652" y1="96" x2="726" y2="96" marker-end="url(#f3-g)"/>
-        <text class="lbl" x="690" y="88" text-anchor="middle">tag match</text>
+        <text class="lbl" x="690" y="88" text-anchor="middle">one tag only</text>
         <line class="ln ln-vm" x1="652" y1="256" x2="726" y2="256" marker-end="url(#f3-vm)"/>
         <text class="lbl" x="690" y="248" text-anchor="middle">vmproxy</text>
         <text class="lbl" x="690" y="272" text-anchor="middle">+ LBAC</text>
@@ -364,6 +364,7 @@ footer { font-size: 13px; color: var(--muted); max-width: 80ch; }
     <li><code>AddAnnotation</code> still creates the Grafana annotation first (step 1). It then writes one <code>pmm_annotation_event</code> series per node or service to VictoriaMetrics, carrying the annotation’s ID, text, tags and that object’s labels (step 2).</li>
     <li>The sync job runs on the leader at start-up and every 5 minutes. It writes series that are missing (after an upgrade, or when VictoriaMetrics was down) and deletes series whose Grafana annotation is gone.</li>
     <li>Dashboards now have two annotation queries: global ones from Grafana as before, and node and service ones from VictoriaMetrics through vmproxy, so a restricted role sees only the annotations of what it may see.</li>
+    <li>The Grafana query asks for the one tag <code>pmm_annotation</code>; node and service names are no longer sent to Grafana as tags. On All, the VictoriaMetrics query uses <code>.+</code> for services, and on overview dashboards the hidden node list, which travels in the request body like the panels’ own queries in PR #6045, not in the URL.</li>
   </ul>
   <p class="src">Verified live on the test VM: shown on All, scoped when one object is selected, LBAC with an environment role and a custom-label role, backfill of annotations made before the upgrade, and all three delete paths below.</p>
 </section>
