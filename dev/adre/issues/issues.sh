@@ -401,7 +401,7 @@ start_mysql_deadlocks() {
   con:query(string.format("UPDATE accounts SET balance = balance + 1 WHERE id = %d", b))
   con:query("COMMIT")
 LUA
-  sb mysql_deadlocks shop_app 8 "$1" 10
+  sb mysql_deadlocks shop_app 8 "$1" 30
 }
 stop_mysql_deadlocks() {
   stop_jobs "$MYSQL_PRIMARY" mysql_deadlocks
@@ -416,8 +416,10 @@ start_mysql_connection_storm() {
   con:query("SELECT SLEEP(30)")
 LUA
   sb mysql_connection_storm shop_app 175 "$secs" 0
+  # Bursts start once the long connections are open; otherwise those fail to connect and the client exits.
   job "$MYSQL_PRIMARY" mysql_connection_storm-burst <<EOF
-end=\$((SECONDS + $secs))
+sleep 20
+end=\$((SECONDS + $secs - 20))
 while [ \$SECONDS -lt \$end ]; do
   for i in \$(seq 30); do mysql -h127.0.0.1 -ushop_app -p$APP_PASSWORD shop -e "SELECT SLEEP(3)" >/dev/null 2>&1 & done
   sleep 30
@@ -534,9 +536,11 @@ start_pg_connection_storm() {
 SELECT pg_sleep(30);
 SQL
   pgb pg_connection_storm shop_app -c 175 -j 8 -T "$secs" -f pg_connection_storm.sql
+  # Bursts start once the long connections are open; otherwise those fail to connect and the client exits.
   job "$PG" pg_connection_storm-burst <<EOF
 export PGPASSWORD=$APP_PASSWORD
-end=\$((SECONDS + $secs))
+sleep 20
+end=\$((SECONDS + $secs - 20))
 while [ \$SECONDS -lt \$end ]; do
   for i in \$(seq 30); do psql -h 127.0.0.1 -U shop_app -d shop -c "SELECT pg_sleep(3)" >/dev/null 2>&1 & done
   sleep 30
