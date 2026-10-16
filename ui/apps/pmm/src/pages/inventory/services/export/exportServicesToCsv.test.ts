@@ -97,6 +97,33 @@ describe('exportServicesToCsv', () => {
     });
   });
 
+  it('keeps custom labels named like an exported field under their own header', () => {
+    const [service] = toServiceRows([
+      {
+        ...TEST_MANAGED_SERVICE,
+        agents: [
+          agent('exporter', AgentType.mysqldExporter, AgentStatus.running),
+        ],
+        labels: {
+          monitoring: 'payments',
+          failed_agents: 'none',
+          status: 'custom',
+          team: 'payments',
+        },
+      },
+    ]);
+
+    expect(mapServiceToCsvRow(service)).toMatchObject({
+      monitoring: 'OK',
+      failed_agents: '',
+      status: 'Up',
+      'label:monitoring': 'payments',
+      'label:failed_agents': 'none',
+      'label:status': 'custom',
+      team: 'payments',
+    });
+  });
+
   it('puts the table columns first and the other labels alphabetically, whatever the service order', () => {
     const [other] = toServiceRows([
       {

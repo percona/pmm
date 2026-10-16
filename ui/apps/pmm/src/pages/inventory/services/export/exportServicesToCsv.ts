@@ -38,8 +38,6 @@ const formatFailedAgent = ({ agentType, agentId, status }: ManagedAgent) =>
 
 export const mapServiceToCsvRow = (service: ServiceRow): CsvRow => {
   const fields: Record<string, unknown> = {
-    // Custom labels and the service's other attributes, keyed as the API names them
-    ...service.labels,
     service_id: service.serviceId,
     service_name: service.serviceName,
     service_type: service.serviceType,
@@ -54,9 +52,20 @@ export const mapServiceToCsvRow = (service: ServiceRow): CsvRow => {
     address: service.address,
     port: service.port,
   };
+  // Custom labels and the service's other attributes, keyed as the API names
+  // them. Label names are letters, digits and underscores, so a custom label
+  // named like a field above keeps its value under a header no label can take.
+  const fieldNames = Object.keys(fields);
+  const labels = Object.entries(service.labels).map(([key, value]) => [
+    fieldNames.includes(key) ? `label:${key}` : key,
+    value,
+  ]);
 
   return Object.fromEntries(
-    Object.entries(fields).map(([key, value]) => [key, toCsvValue(value)])
+    [...Object.entries(fields), ...labels].map(([key, value]) => [
+      key,
+      toCsvValue(value),
+    ])
   );
 };
 
