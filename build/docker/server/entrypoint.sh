@@ -295,6 +295,9 @@ unset PMM_EXTENSIONS_POSTGRES_PASSWORD
 
 # A certificate given in the environment, read from Vault as a rule, replaces the one nginx reads from
 # /srv/nginx at every start, so that PMM Server serves the one in Vault. The CA certificate is optional.
+# The marker lists the files installed so, which go once the variables do: a self-signed certificate and
+# the bundled CA certificates take their place, as on a new installation.
+declare TLS_FROM_ENV_MARKER=/srv/nginx/.tls-from-env
 if [ -n "$PMM_TLS_CERTIFICATE" ] || [ -n "$PMM_TLS_CERTIFICATE_KEY" ]; then
     if [ -z "$PMM_TLS_CERTIFICATE" ] || [ -z "$PMM_TLS_CERTIFICATE_KEY" ]; then
         echo "FATAL: PMM_TLS_CERTIFICATE and PMM_TLS_CERTIFICATE_KEY must be given together." >&2
@@ -304,11 +307,21 @@ if [ -n "$PMM_TLS_CERTIFICATE" ] || [ -n "$PMM_TLS_CERTIFICATE_KEY" ]; then
     mkdir -p /srv/nginx
     (umask 077 && printf '%s\n' "$PMM_TLS_CERTIFICATE_KEY" > /srv/nginx/certificate.key)
     printf '%s\n' "$PMM_TLS_CERTIFICATE" > /srv/nginx/certificate.crt
+    printf 'certificate.crt\ncertificate.key\n' > "$TLS_FROM_ENV_MARKER"
     if [ -n "$PMM_TLS_CA_CERTIFICATE" ]; then
         printf '%s\n' "$PMM_TLS_CA_CERTIFICATE" > /srv/nginx/ca-certs.pem
+        printf 'ca-certs.pem\n' >> "$TLS_FROM_ENV_MARKER"
     fi
+elif [ -f "$TLS_FROM_ENV_MARKER" ]; then
+    echo "Removing the TLS certificate that PMM_TLS_CERTIFICATE installed..."
+    while read -r installed; do
+        case "$installed" in
+        certificate.crt | certificate.key | ca-certs.pem) rm -f "/srv/nginx/$installed" ;;
+        esac
+    done < "$TLS_FROM_ENV_MARKER"
+    rm -f "$TLS_FROM_ENV_MARKER"
 fi
-unset PMM_TLS_CERTIFICATE PMM_TLS_CERTIFICATE_KEY PMM_TLS_CA_CERTIFICATE
+unset PMM_TLS_CERTIFICATE PMM_TLS_CERTIFICATE_KEY PMM_TLS_CA_CERTIFICATE TLS_FROM_ENV_MARKER
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
