@@ -55,53 +55,22 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ## Plan your resources
 
-Before installing PMM HA, ensure your Kubernetes cluster has sufficient capacity to run the distributed architecture. This section helps you calculate the resources you'll need based on your monitoring requirements.
+Choose the size of your Kubernetes cluster based on how many nodes you plan to monitor. Count each host that runs one database service with Query Analytics turned on as one node.
 
-### Minimum cluster requirements
+If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. Each size handles the number of monitored nodes in its row:
 
-At minimum, your cluster needs:
+| Monitored nodes | Helm values to use | Each of the 3 worker nodes | Total storage |
+|-----------------|--------------------|----------------------------|---------------|
+| Up to 100 | The chart's default values | 16 CPUs, 32 GB memory | About 0.5 TB |
+| Up to 500 | `examples/values-500-nodes.yaml` | 32 CPUs, 64 GB memory | About 1.6 TB |
+| Up to 1,000 | `examples/values-1000-nodes.yaml` | 48 CPUs, 96 GB memory | About 3.2 TB |
 
-- **CPU**: 12+ cores
-- **Memory**: 20-40 GB RAM
-- **Storage**: 100+ GB with persistent volume provisioner
+For more than 100 nodes, pass the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you install, for example `helm install pmm-ha percona/pmm-ha --namespace pmm -f values-500-nodes.yaml`. These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
 
-This baseline supports monitoring **1-10 database services** with standard retention periods. 
+Choose a larger size than your node count suggests if:
 
-If you're planning a larger deployment, use the sizing guidelines below to calculate your resource needs.
-
-### Sizing guidelines
-
-Use this table to estimate resources based on your monitoring scale:
-
-| Monitored services | PMM replicas | ClickHouse replicas | VictoriaMetrics storage | Total CPU | Total memory | Total storage |
-|-------------------|--------------|---------------------|------------------------|-----------|--------------|---------------|
-| 1-10 | 3 | 3 | 3 | 12 cores | 20 GB | 100 GB |
-| 11-50 | 3 | 3 | 3 | 15 cores | 30 GB | 200 GB |
-| 51-100 | 3 | 3 | 5 | 20 cores | 40 GB | 500 GB |
-| 100+ | 5 | 5 | 5 | 30+ cores | 60+ GB | 1+ TB |
-
-### Factors affecting resource usage
-
-Your actual resource needs may vary based on:
-
-- number of monitored database instances
-- metrics resolution and retention period
-- Query Analytics (QAN) volume
-- number of concurrent users
-- custom dashboards and queries
-
-### Understand how resources are distributed
-
-PMM HA spreads resource consumption across multiple components to ensure high availability. Understanding this breakdown helps you identify which components to scale as your monitoring needs grow, and where bottlenecks might occur.
-
-| Component | CPU | Memory | Storage | Notes |
-|-----------|-----|--------|---------|-------|
-| **Per PMM Server pod** | 2 cores | 4 GB | Minimal | Stores configuration only |
-| **HAProxy (3 replicas)** | 1 core | 2 GB | - | Routing and failover overhead |
-| **ClickHouse cluster** | 3-6 cores | 8-12 GB | 50+ GB | Stores QAN data and scales with query volume |
-| **VictoriaMetrics cluster** | 2-4 cores | 4-8 GB | 50+ GB | Stores metrics and scales with retention period |
-| **PostgreSQL cluster** | 1-2 cores | 2-4 GB | 10 GB | Grafana metadata storage |
-| **Kubernetes operators** | 1-2 cores | 2-4 GB | - | Operator management overhead |
+- you monitor MySQL with per-table statistics, or MongoDB with many collections. These produce two to three times more metrics per node. To reduce them, [turn off table statistics](install-pmm-client/connect-database/mysql/improve_perf.md#disable-table-statistics).
+- you keep data for longer than 30 days. Storage grows with retention, for example 90 days needs about three times the metrics storage.
 
 ## Learn the architecture
 

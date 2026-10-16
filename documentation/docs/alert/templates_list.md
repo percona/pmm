@@ -1,6 +1,10 @@
 # List of available alert templates
 
-The following table lists all the alert templates available in PMM:
+Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#add-an-alert-rule-based-on-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
+
+## Template catalog
+
+Browse the alert templates by what they monitor:
 
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
