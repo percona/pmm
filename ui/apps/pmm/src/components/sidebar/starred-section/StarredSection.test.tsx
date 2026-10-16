@@ -22,19 +22,30 @@ const ITEMS: NavItem[] = [
   { id: 'third', text: 'Third', url: '/third', pinned: true },
 ];
 
-const renderSection = (drawerOpen = true) =>
-  render(
-    <ThemeContextProvider themeOptions={pmmThemeOptions}>
-      {wrapWithRouter(
-        <StarredSection
-          heading={HEADING}
-          items={ITEMS}
-          activeItem={{ id: 'none' }}
-          drawerOpen={drawerOpen}
-        />
-      )}
-    </ThemeContextProvider>
-  );
+const section = (items = ITEMS, drawerOpen = true) => (
+  <ThemeContextProvider themeOptions={pmmThemeOptions}>
+    {wrapWithRouter(
+      <StarredSection
+        heading={HEADING}
+        items={items}
+        activeItem={{ id: 'none' }}
+        drawerOpen={drawerOpen}
+      />
+    )}
+  </ThemeContextProvider>
+);
+
+const renderSection = (drawerOpen = true) => render(section(ITEMS, drawerOpen));
+
+const savedOrder = () =>
+  JSON.parse(localStorage.getItem(STARRED_ORDER_KEY) ?? '[]');
+
+const FOURTH: NavItem = {
+  id: 'fourth',
+  text: 'Fourth',
+  url: '/fourth',
+  pinned: true,
+};
 
 const entryNames = () =>
   within(screen.getByRole('list', { name: 'Starred' }))
@@ -142,6 +153,37 @@ describe('StarredSection', () => {
   it('applies a saved order', () => {
     localStorage.setItem(STARRED_ORDER_KEY, JSON.stringify(['third', 'first']));
     renderSection();
+
+    expect(entryNames()).toEqual(['Third', 'First', 'Second']);
+  });
+
+  it('puts a newly starred entry last, wherever it arrives in the list', () => {
+    const { rerender } = render(section());
+
+    rerender(section([FOURTH, ...ITEMS]));
+
+    expect(entryNames()).toEqual(['First', 'Second', 'Third', 'Fourth']);
+    expect(savedOrder()).toEqual(['first', 'second', 'third', 'fourth']);
+  });
+
+  it('forgets an entry that goes away, so it comes back last', () => {
+    const { rerender } = render(section());
+
+    rerender(section([ITEMS[0], ITEMS[2]]));
+    expect(savedOrder()).toEqual(['first', 'third']);
+
+    rerender(section(ITEMS));
+    expect(entryNames()).toEqual(['First', 'Third', 'Second']);
+  });
+
+  it('keeps the saved places of entries that have not loaded yet', () => {
+    localStorage.setItem(
+      STARRED_ORDER_KEY,
+      JSON.stringify(['third', 'first', 'second'])
+    );
+    const { rerender } = render(section([ITEMS[0]]));
+
+    rerender(section(ITEMS));
 
     expect(entryNames()).toEqual(['Third', 'First', 'Second']);
   });

@@ -38,6 +38,28 @@ const StarredSection: FC<Props> = ({
   const styles = getStyles(theme);
   const [order, setOrder] = useLocalStorage<string[]>(STARRED_ORDER_KEY, []);
   const ordered = useMemo(() => orderItems(items, order), [items, order]);
+  const ids = useMemo(() => items.map((item) => item.id), [items]);
+  const previousIds = useRef(ids);
+
+  // Keeps the saved order in step with the entries: a new one, such as a
+  // dashboard just starred in Grafana, goes last, and one seen to go away
+  // leaves it. An entry still loading was never seen, so it keeps its place.
+  useEffect(() => {
+    const gone = previousIds.current.filter((id) => !ids.includes(id));
+    const next = [
+      ...order.filter((id) => !gone.includes(id)),
+      ...ids.filter((id) => !order.includes(id)),
+    ];
+
+    previousIds.current = ids;
+
+    if (
+      next.length !== order.length ||
+      next.some((id, index) => id !== order[index])
+    ) {
+      setOrder(next);
+    }
+  }, [ids, order, setOrder]);
   const [editing, setEditing] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const listRef = useRef<HTMLUListElement>(null);

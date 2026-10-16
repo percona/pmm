@@ -19,6 +19,17 @@ import {
 
 const HA_OFF: HAInfo = { enabled: false, health: 'unknown', nodes: [] };
 
+const INNODB = {
+  uid: 'mysql-innodb',
+  title: 'MySQL InnoDB details',
+  url: '/graph/d/mysql-innodb/mysql-innodb-details',
+};
+const DISK = {
+  uid: 'node-disk',
+  title: 'Disk details',
+  url: '/graph/d/node-disk/disk-details',
+};
+
 const build = (overrides: Partial<ProposedNavTreeInput> = {}) =>
   buildProposedNavTree({
     user: TEST_USER_ADMIN,
@@ -41,7 +52,6 @@ describe('buildProposedNavTree', () => {
       'home-page',
       'section-starred',
       'pinned-mongodb-backups',
-      'pinned-mysql-innodb-details',
       'pinned-mysql-backups',
       'section-technologies',
       'mongo',
@@ -75,7 +85,7 @@ describe('buildProposedNavTree', () => {
   it('marks the sample entries as pinned', () => {
     const pinned = build().filter((item) => item.id.startsWith('pinned-'));
 
-    expect(pinned).toHaveLength(3);
+    expect(pinned).toHaveLength(2);
     expect(pinned.every((item) => item.pinned)).toBe(true);
   });
 
@@ -99,11 +109,36 @@ describe('buildProposedNavTree', () => {
     );
   });
 
-  it('lets a pinned entry claim its page ahead of the technology', () => {
+  it('lists the dashboards starred in Grafana after the starred apps', () => {
+    const tree = build({ starredDashboards: [INNODB, DISK] });
+    const start = tree.findIndex((item) => item.id === 'section-starred');
+
+    expect(ids(tree.slice(start + 1, start + 5))).toEqual([
+      'pinned-mongodb-backups',
+      'pinned-mysql-backups',
+      'starred-dashboard-mysql-innodb',
+      'starred-dashboard-node-disk',
+    ]);
+    expect(findById(tree, 'starred-dashboard-mysql-innodb')).toMatchObject({
+      text: 'MySQL InnoDB details',
+      url: '/graph/d/mysql-innodb/mysql-innodb-details',
+      pinned: true,
+    });
+  });
+
+  it('lets a starred dashboard claim its page ahead of the technology, whatever its slug', () => {
+    const tree = build({ starredDashboards: [INNODB] });
+
+    expect(
+      findActiveNavItem(tree, '/graph/d/mysql-innodb/mysql-innodb-details')?.id
+    ).toBe('starred-dashboard-mysql-innodb');
+    expect(findActiveNavItem(tree, '/graph/d/mysql-innodb/renamed')?.id).toBe(
+      'starred-dashboard-mysql-innodb'
+    );
     expect(
       findActiveNavItem(build(), '/graph/d/mysql-innodb/mysql-innodb-details')
         ?.id
-    ).toBe('pinned-mysql-innodb-details');
+    ).toBe('mysql');
   });
 
   it('splits stored metrics and real-time queries into two entries', () => {
@@ -142,7 +177,7 @@ describe('buildProposedNavTree', () => {
       'Replication checksums',
       'Schema changes',
       'Valkey backups',
-      'Get more apps',
+      'All apps',
     ]);
     expect(findById(apps, 'app-schema-changes')?.url).toBe(
       `${PROTOTYPE_PLACEHOLDER_PATH}/schema-changes`

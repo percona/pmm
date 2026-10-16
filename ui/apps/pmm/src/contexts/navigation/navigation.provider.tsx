@@ -7,6 +7,7 @@ import { useSettings } from 'contexts/settings';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
+import { useStarredDashboards } from 'hooks/api/useStarredDashboards';
 import { useAuth } from 'contexts/auth';
 import { buildProposedNavTree } from './navigation.proposal';
 
@@ -23,6 +24,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: haInfo } = useHaInfo({
     enabled: user?.isAnonymous === false,
   });
+  const { data: starredDashboards } = useStarredDashboards({
+    enabled: user?.isAnonymous === false,
+  });
 
   const navTree = useMemo<NavItem[]>(
     () =>
@@ -35,6 +39,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         versionInfo,
         colorMode,
         toggleColorMode,
+        starredDashboards,
       }),
     [
       user,
@@ -45,6 +50,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       versionInfo,
       colorMode,
       toggleColorMode,
+      starredDashboards,
     ]
   );
 

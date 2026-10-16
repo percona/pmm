@@ -11,6 +11,10 @@ vi.mock('hooks/api/useHA', () => ({
   useHaInfo: () => ({ data: { enabled: false, nodes: [] } }),
 }));
 
+vi.mock('hooks/api/useStarredDashboards', () => ({
+  useStarredDashboards: () => ({ data: [] }),
+}));
+
 vi.mock('hooks/theme', () => ({
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: () => {} }),
 }));

@@ -1,4 +1,4 @@
-import Add from '@mui/icons-material/Add';
+import AppRegistrationRounded from '@mui/icons-material/AppRegistrationRounded';
 import AppsRounded from '@mui/icons-material/AppsRounded';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import TrackChanges from '@mui/icons-material/TrackChanges';
@@ -17,6 +17,7 @@ import {
 } from 'lib/constants';
 import { ExtensionIcon } from 'lib/peak-ui-pending-icons';
 import { HAInfo } from 'types/ha.types';
+import type { StarredDashboard } from 'types/dashboards.types';
 import { NavItem } from 'types/navigation.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { User } from 'types/user.types';
@@ -72,10 +73,10 @@ export const NAV_SECTIONS = {
   administration: section('administration', 'Administration'),
 };
 
-// Sample pinned entries: pinning itself is a later iteration, so these stand in
-// for what a user would star and let the zone be reviewed with content in it.
-// Each entry carries the icon of the kind of thing it is, an app or a
-// dashboard, and a pinned app leaves the Apps list.
+// Sample starred apps: starring an app is a later iteration, so these stand in
+// for it. Dashboards come from the stars users set in Grafana. Each entry
+// carries the icon of the kind of thing it is, an app or a dashboard, and a
+// starred app leaves the Apps list.
 export const NAV_STARRED: NavItem[] = [
   {
     id: 'pinned-mongodb-backups',
@@ -83,13 +84,6 @@ export const NAV_STARRED: NavItem[] = [
     text: 'MongoDB backups',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
     matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
-    pinned: true,
-  },
-  {
-    id: 'pinned-mysql-innodb-details',
-    icon: DashboardOutlined,
-    text: 'MySQL InnoDB details',
-    url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-innodb/mysql-innodb-details`,
     pinned: true,
   },
   {
@@ -101,6 +95,21 @@ export const NAV_STARRED: NavItem[] = [
     pinned: true,
   },
 ];
+
+// A dashboard the user starred in Grafana. The entry follows the dashboard's
+// uid, so it stays highlighted whatever the address's slug or query.
+export const starredDashboard = ({
+  uid,
+  title,
+  url,
+}: StarredDashboard): NavItem => ({
+  id: `starred-dashboard-${uid}`,
+  icon: DashboardOutlined,
+  text: title,
+  url,
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/d/${uid}/*`],
+  pinned: true,
+});
 
 const dashboardUrls = (items: NavItem[] = []): string[] =>
   items.flatMap((item) => [
@@ -204,9 +213,10 @@ export const NAV_APPS: NavItem = {
       badge: createElement(PreviewChip, { level: 'tech' }),
       badgeAlwaysVisible: true,
     },
-    // Not an app but the way to find and add one, so it carries the plus that
-    // stands for adding throughout the sidebar.
-    { ...plannedApp('get-more-apps', 'Get more apps'), icon: Add },
+    // Not an app but the index of them all, installed and available, where
+    // people star the apps they want in the sidebar. Named like All
+    // dashboards, which does the same for dashboards.
+    { ...plannedApp('all-apps', 'All apps'), icon: AppRegistrationRounded },
   ],
 };
 
@@ -232,6 +242,7 @@ export interface ProposedNavTreeInput {
   versionInfo?: GetUpdatesResponse;
   colorMode: ColorMode;
   toggleColorMode: () => void;
+  starredDashboards?: StarredDashboard[];
 }
 
 // Configuration is the one place for everything configurable about PMM, so
@@ -265,12 +276,20 @@ const addConfigurationGroup = ({
 export const buildProposedNavTree = (
   input: ProposedNavTreeInput
 ): NavItem[] => {
-  const { user, isLoggedIn, haInfo, settings, colorMode, toggleColorMode } =
-    input;
+  const {
+    user,
+    isLoggedIn,
+    haInfo,
+    settings,
+    colorMode,
+    toggleColorMode,
+    starredDashboards = [],
+  } = input;
   const items: NavItem[] = [
     { ...addHomePage(user?.preferences), icon: HomeIcon },
     NAV_SECTIONS.starred,
     ...NAV_STARRED,
+    ...starredDashboards.map(starredDashboard),
     NAV_SECTIONS.technologies,
     ...NAV_TECHNOLOGIES,
     NAV_SECTIONS.analysis,

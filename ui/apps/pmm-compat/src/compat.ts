@@ -37,6 +37,7 @@ import {
   OpenAlertThresholdsModalEvent,
 } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
+import { watchDashboardStars } from 'compat/stars';
 
 export const initialize = () => {
   // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
@@ -114,6 +115,11 @@ export const initialize = () => {
   // --------------------------------------------------------------
 
   messenger.sendMessage({ type: 'GRAFANA_READY' });
+
+  // Starring a dashboard anywhere in Grafana updates PMM's Starred section.
+  watchDashboardStars(() =>
+    messenger.sendMessage({ type: 'DASHBOARD_STARS_CHANGED' })
+  );
 
   // PMM → Grafana: location changes
   messenger.addListener({
