@@ -27,7 +27,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -76,10 +75,6 @@ func addData(zipW *zip.Writer, name string, modTime time.Time, r io.Reader) {
 	}
 }
 
-// secretConfigLineRE matches the lines of pmm-agent.yaml that may hold a credential: the PMM Server password
-// and the Vault token and secret ID.
-var secretConfigLineRE = regexp.MustCompile(`(?m)^(\s+(?:password|token|secret-id):[ \t]*)(\S.*)$`)
-
 // addRedactedConfig adds the pmm-agent configuration file to zip file with given name, without the credentials
 // it holds. A vault:<path>#<key> reference is not a credential, so it is kept.
 func addRedactedConfig(zipW *zip.Writer, name string, fileName string) {
@@ -89,13 +84,7 @@ func addRedactedConfig(zipW *zip.Writer, name string, fileName string) {
 		b = []byte(err.Error() + "\n")
 	}
 
-	b = secretConfigLineRE.ReplaceAllFunc(b, func(line []byte) []byte {
-		m := secretConfigLineRE.FindSubmatch(line)
-		if vault.IsRef(strings.Trim(string(m[2]), `"'`)) {
-			return line
-		}
-		return append(m[1], "'***'"...)
-	})
+	b = vault.MaskConfigSecrets(b)
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {

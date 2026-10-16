@@ -280,7 +280,7 @@ pmm-admin add external --service-name=app --listen-port=9100 \
 
 PMM Server reads these secrets with the Vault access of the `PMM_VAULT_*` variables, see [Read PMM Server secrets from Vault](#read-pmm-server-secrets-from-vault), so its Vault policy needs `read` on their paths. A reference that PMM Server cannot read is refused when you add or change the setting.
 
-PMM Server checks these secrets at the interval of the `PMM_VAULT_CACHE_TTL` variable, one minute by default. When one of them changes in Vault, PMM Server sends the new one to the exporters and agents that use it, and scrapes them with it. While an exporter switches to a rotated password, a scrape or two can fail. It reads the keys of a backup location each time it uses them. If PMM Server cannot read a secret, the exporter or agent that uses it is left out of the configuration, and the PMM Server log says why.
+PMM Server checks these secrets at the interval of the `PMM_VAULT_CACHE_TTL` variable, one minute by default. When one of them changes in Vault, PMM Server sends the new one to the exporters and agents that use it, and scrapes them with it. While an exporter switches to a rotated password, a scrape or two can fail. It reads the keys of a backup location each time it uses them. If PMM Server cannot read a secret, the exporter or agent that uses it is left out of the configuration, and the PMM Server log says why. The configuration files that the PMM Server logs archive (`logs.zip`) includes have their credentials masked.
 
 The password of a monitored database can be a reference too, as an alternative to the Vault path: `--password='vault:secret/data/pmm/mysql-prod#password'`. Unlike the settings above, it is read by PMM Client, as for a Vault path.
 
