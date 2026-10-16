@@ -72,6 +72,18 @@ func TestBuildOtelCollectorConfigYAML_Defaults(t *testing.T) {
 	require.Contains(t, yaml, "username: 'default'")
 }
 
+func TestBuildOtelCollectorConfigYAML_ServiceName(t *testing.T) {
+	t.Parallel()
+
+	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7, 7, 90)
+
+	fromService := `set(resource.attributes["service.name"], resource.attributes["service_name"]) where resource.attributes["service.name"] == nil and resource.attributes["service_name"] != nil`
+	fromNode := `set(resource.attributes["service.name"], resource.attributes["node_name"]) where resource.attributes["service.name"] == nil and resource.attributes["node_name"] != nil`
+	require.Contains(t, yaml, fromService)
+	require.Contains(t, yaml, fromNode)
+	require.Less(t, strings.Index(yaml, fromService), strings.Index(yaml, fromNode), "service_name wins over node_name")
+}
+
 func TestQuoteYAMLString(t *testing.T) {
 	t.Parallel()
 

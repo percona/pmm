@@ -112,6 +112,8 @@ processors:
     error_mode: ignore
     log_statements:
       - set(resource.attributes["pmm_source"], resource.attributes["node_name"]) where resource.attributes["node_name"] != nil
+      - set(resource.attributes["service.name"], resource.attributes["service_name"]) where resource.attributes["service.name"] == nil and resource.attributes["service_name"] != nil
+      - set(resource.attributes["service.name"], resource.attributes["node_name"]) where resource.attributes["service.name"] == nil and resource.attributes["node_name"] != nil
   batch:
     timeout: 1s
     send_batch_size: 1024
