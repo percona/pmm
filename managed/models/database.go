@@ -1821,6 +1821,54 @@ $yaml$,
 		// for an env change. Cleared by the "restarted" acknowledgement after the container is recreated.
 		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS env_restart_required BOOLEAN NOT NULL DEFAULT FALSE`,
 	},
+	143: {
+		// MongoDB 4.4+ structured (JSON) log: body = msg, timestamp from t.$date, severity from s; c/ctx kept as
+		// component/context, attr kept as a map. $$ escapes $ in the collector config. Lines that are not JSON pass
+		// through unparsed. ON CONFLICT keeps a user's own preset of the same name.
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'mongodb',
+			'mongodb',
+			'MongoDB 4.4+ JSON log ({"t":{"$date":…},"s":"I","c":"COMMAND","ctx":…,"msg":…,"attr":{…}})',
+			$yaml$- type: json_parser
+  parse_from: body
+  parse_to: attributes
+  on_error: send_quiet
+- type: time_parser
+  parse_from: attributes.t["$$date"]
+  layout: '2006-01-02T15:04:05.999999999Z07:00'
+  layout_type: gotime
+  on_error: send_quiet
+- type: severity_parser
+  parse_from: attributes.s
+  preset: none
+  mapping:
+    fatal: F
+    error: E
+    warn: W
+    info: I
+    debug: [D1, D2, D3, D4, D5]
+  on_error: send_quiet
+- type: move
+  from: attributes.c
+  to: attributes.component
+  on_error: send_quiet
+- type: move
+  from: attributes.ctx
+  to: attributes.context
+  on_error: send_quiet
+- type: remove
+  field: attributes.t
+  on_error: send_quiet
+- type: move
+  from: attributes.msg
+  to: body
+  on_error: send_quiet
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		) ON CONFLICT DO NOTHING`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
