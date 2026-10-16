@@ -29,7 +29,8 @@ func msg(role, content string) map[string]any {
 
 // turns builds a system message followed by n turns of user, assistant tool call, tool result, assistant answer.
 func turns(n int) []any {
-	hist := []any{msg("system", "sys")}
+	hist := make([]any, 0, 1+4*n)
+	hist = append(hist, msg("system", "sys"))
 	for range n {
 		hist = append(hist,
 			msg("user", "q"),

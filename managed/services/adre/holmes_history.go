@@ -63,7 +63,10 @@ func holmesMessageRole(m any) string {
 func TrimHolmesHistory(hist []any, maxMsgs, maxBytes int) []any {
 	suffix := make([]int, len(hist)+1)
 	for i := len(hist) - 1; i >= 1; i-- {
-		b, _ := json.Marshal(hist[i])
+		b, err := json.Marshal(hist[i])
+		if err != nil {
+			b = nil
+		}
 		suffix[i] = suffix[i+1] + len(b)
 	}
 	if len(hist) <= maxMsgs && suffix[1] <= maxBytes {

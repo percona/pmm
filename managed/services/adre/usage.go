@@ -54,7 +54,7 @@ func tokenCount(v *float64) *int32 {
 	if v == nil {
 		return nil
 	}
-	n := int32(*v) //nolint:gosec
+	n := int32(*v)
 	return &n
 }
 
@@ -70,6 +70,7 @@ func ParseHolmesMetadata(raw json.RawMessage) *HolmesUsage {
 		Usage *holmesTokenCounts `json:"usage"`
 		Costs *struct {
 			holmesTokenCounts
+
 			TotalCost *float64 `json:"total_cost"`
 		} `json:"costs"`
 		Model string `json:"model"`
