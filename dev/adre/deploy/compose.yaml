@@ -45,6 +45,9 @@ services:
       # keeps `strict:true` — OpenAI then 400s "additionalProperties is required". Holmes already emits a
       # valid strict schema ({properties:{},additionalProperties:false}) for OpenAI, so leave it unset.
       - ENABLE_ADMIN_API=true                     # PMM hot-reloads config on save via POST /api/admin/reload
+      # Strict tool calls make the model send every optional parameter, as null. Holmes 0.45's Prometheus tools
+      # then fail on timeout=None ("'>' not supported between NoneType and int"), so every PromQL query errors.
+      - HOLMES_DISABLE_STRICT_TOOL_CALLS=true
       # Native HTTPS (Holmes 0.36.0+): both cert+key set → serves HTTPS on 5050. Remove both for HTTP.
       - HOLMES_SSL_CERTFILE=/config/certs/tls.crt
       - HOLMES_SSL_KEYFILE=/config/certs/tls.key
