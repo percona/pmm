@@ -694,7 +694,7 @@ JS
 stop_mongo_collscans() { stop_jobs "$MONGOS" mongo_collscans; }
 
 TARGET[mongo_big_sorts]="MongoDB shop.orders via $MONGOS"
-EXPECT[mongo_big_sorts]="Errors 'Sort exceeded memory limit of 104857600 bytes' (QueryExceededMemoryLimitNoDiskUseAllowed, code 292) for find on shop.orders sorted by note with allowDiskUse false; mongod.log Slow query lines with that error, COLLSCAN + in-memory SORT; QAN shows the failing find. Fix: index {note: 1}, add a filter/limit, or allow disk use."
+EXPECT[mongo_big_sorts]="Errors 'Sort exceeded memory limit of 104857600 bytes' (QueryExceededMemoryLimitNoDiskUseAllowed, code 292) for find on shop.orders sorted by note with allowDiskUse false: the shard primary's mongod.log has 'Plan executor error during find command' and 'Slow query' entries with that errName, mongos.log 'Unable to establish remote cursors'. QAN lists the find (COLLSCAN + SORT) but its error count stays 0. Fix: index {note: 1}, add a filter/limit, or allow disk use."
 start_mongo_big_sorts() {
   mjs "$MONGOS" mongo_big_sorts 3 "$(app_uri shop_app)" "$1" <<'JS'
 const o = db.getSiblingDB('shop').orders;
@@ -707,7 +707,7 @@ JS
 stop_mongo_big_sorts() { stop_jobs "$MONGOS" mongo_big_sorts; }
 
 TARGET[mongo_timeouts]="MongoDB shop.orders via $MONGOS"
-EXPECT[mongo_timeouts]="Errors 'operation exceeded time limit' (MaxTimeMSExpired, code 50) for find by customer_id with maxTimeMS 30 and an aggregate with maxTimeMS 200 on shop.orders; mongod.log Slow query entries with errName MaxTimeMSExpired; the queries are COLLSCANs needing ~1 s. Fix: index customer_id (and status) so they fit the time budget."
+EXPECT[mongo_timeouts]="Errors 'operation exceeded time limit' (MaxTimeMSExpired, code 50) for find by customer_id with maxTimeMS 30 and an aggregate with maxTimeMS 200 on shop.orders; mongod.log Slow query entries with errName MaxTimeMSExpired (in the log attributes); QAN error counts may stay 0; the queries are COLLSCANs needing ~1 s. Fix: index customer_id (and status) so they fit the time budget."
 start_mongo_timeouts() {
   mjs "$MONGOS" mongo_timeouts 4 "$(app_uri shop_app)" "$1" <<'JS'
 const o = db.getSiblingDB('shop').orders;
@@ -739,7 +739,7 @@ JS
 stop_mongo_write_storm() { stop_jobs "$MONGOS" mongo_write_storm; }
 
 TARGET[mongo_auth_failures]="MongoDB $MONGOS and rs101 (logs only)"
-EXPECT[mongo_auth_failures]="Logs only: mongos.log 'Authentication failed' (AuthenticationFailed, SCRAM-SHA-256) for shop_app@shop and the unknown user report_ro@admin, about 2 per second from 127.0.0.1, and the same on rs101 mongod.log for report_ro@admin; no alert. Cause: a client with a wrong password or brute force."
+EXPECT[mongo_auth_failures]="Logs only: mongos.log and rs101 mongod.log 'Failed to authenticate' (id 5286307; attr.error AuthenticationFailed for shop_app@shop, UserNotFound for report_ro@admin), about 2 per second each from 127.0.0.1; no alert. Unrelated background: user pmm logs MechanismUnavailable for SCRAM-SHA-256 now and then. Cause: a client with a wrong password or brute force."
 start_mongo_auth_failures() {
   local js
   js='while (Date.now() < END) {

@@ -71,7 +71,7 @@ Bad queries, load, and problems visible only in logs. Durations are per incident
 | `mongo_big_sorts` | errors | In-memory sort over the whole collection without disk use | `Sort exceeded memory limit` errors |
 | `mongo_timeouts` | errors | Unindexed finds with `maxTimeMS(30)` | `MaxTimeMSExpired` errors |
 | `mongo_write_storm` | load | Unindexed `updateMany` plus bulk inserts | write tickets, dirty cache, CPU |
-| `mongo_auth_failures` | logs | Wrong password / unknown user on mongos and rs101 | mongos/mongod log `Authentication failed` |
+| `mongo_auth_failures` | logs | Wrong password / unknown user on mongos and rs101 | mongos/mongod log `Failed to authenticate` |
 | `mongo_stepdown` | topology | `rs.stepDown` on the primary of the shard holding `shop` | alert *MongoDB primary changed*, election logs |
 | `host_cpu_saturation` | load | MySQL, PostgreSQL and MongoDB scans at once | alert *Host CPU high* |
 
