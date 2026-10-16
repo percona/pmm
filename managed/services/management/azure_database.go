@@ -25,12 +25,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/reform.v1"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/duration"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -134,6 +136,13 @@ func (s *ManagementService) DiscoverAzureDatabase(
 ) (*managementv1.DiscoverAzureDatabaseResponse, error) {
 	if !s.isAzureEnabled() {
 		return nil, services.ErrAzureDisabled
+	}
+
+	// The credentials may be references to them in Vault, as they may be for the exporter they are then added with.
+	req = proto.CloneOf(req)
+	err := secrets.ResolveAll(ctx, &req.AzureClientId, &req.AzureClientSecret, &req.AzureTenantId, &req.AzureSubscriptionId)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to read the Azure credentials: %s.", err)
 	}
 
 	client, err := s.getAzureClient(req)
