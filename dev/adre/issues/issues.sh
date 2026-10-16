@@ -21,7 +21,7 @@ ROTATION=(
   mysql_full_scans pg_lock_waits mongo_collscans mysql_deadlocks pg_connection_storm mongo_auth_failures
   mysql_replica_break pg_dead_tuples mongo_big_sorts mysql_connection_storm pg_temp_files mongo_timeouts
   mysql_auth_failures pg_deadlocks mongo_write_storm mysql_lock_waits pg_auth_failures mongo_stepdown
-  pg_seq_scans pg_vacuum_blocked pg_checkpoint_storm pg_rollbacks host_cpu_saturation
+  pg_seq_scans pg_vacuum_blocked pg_checkpoint_storm pg_rollbacks pg_shm_exhausted host_cpu_saturation
 )
 
 mkdir -p "$STATE_DIR"
@@ -105,11 +105,12 @@ EOF
 }
 
 # pgb <name> <user> <pgbench args>: runs pgbench against the shop database; scripts are in $CDIR.
+# PGB_PGOPTIONS, when set, becomes PGOPTIONS of its sessions.
 pgb() {
   local name=$1 user=$2
   shift 2
   job "$PG" "$name" <<EOF
-export PGPASSWORD=$APP_PASSWORD
+export PGPASSWORD=$APP_PASSWORD PGOPTIONS='${PGB_PGOPTIONS:-}'
 cd $CDIR
 exec pgbench -h 127.0.0.1 -U $user -n $* shop
 EOF
@@ -480,10 +481,32 @@ SQL
 SELECT c.country, count(*), sum(o.amount) FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'paid' GROUP BY c.country ORDER BY 3 DESC;
 SQL
   local c=${2:-8}
-  pgb pg_seq_scans shop_app -c "$c" -j "$c" -T "$1" -f pg_seq_scans-a.sql -f pg_seq_scans-b.sql -f pg_seq_scans-c.sql
+  # Parallel hash joins overflow the container's 64 MB /dev/shm and abort pgbench clients (pg_shm_exhausted).
+  PGB_PGOPTIONS='-c max_parallel_workers_per_gather=0' \
+    pgb pg_seq_scans shop_app -c "$c" -j "$c" -T "$1" -f pg_seq_scans-a.sql -f pg_seq_scans-b.sql -f pg_seq_scans-c.sql
 }
 stop_pg_seq_scans() {
   stop_jobs "$PG" pg_seq_scans
+  kill_pg_app
+}
+
+TARGET[pg_shm_exhausted]="PostgreSQL $PG (container /dev/shm)"
+EXPECT[pg_shm_exhausted]="Logs: 'ERROR: could not resize shared memory segment \"/PostgreSQL.N\" to N bytes: No space left on device' with CONTEXT 'parallel worker', for the orders/customers join and GROUP BY run by shop_app; those queries fail, the same SQL without parallel workers works. Cause: the container has Docker's default 64 MB /dev/shm and parallel hash joins need more dynamic shared memory. Fix: start the container with a larger --shm-size (e.g. 1g), or lower max_parallel_workers_per_gather / work_mem."
+start_pg_shm_exhausted() {
+  job "$PG" pg_shm_exhausted <<EOF
+export PGPASSWORD=$APP_PASSWORD PGOPTIONS='-c work_mem=64MB'
+end=\$((SECONDS + $1))
+for w in 1 2 3 4 5 6; do
+  (while [ \$SECONDS -lt \$end ]; do
+    psql -h 127.0.0.1 -U shop_app -d shop -c "SELECT c.country, o.status, count(*), sum(o.amount) FROM orders o JOIN customers c ON c.id = o.customer_id GROUP BY c.country, o.status" >/dev/null 2>&1
+    sleep 2
+  done) &
+done
+wait
+EOF
+}
+stop_pg_shm_exhausted() {
+  stop_jobs "$PG" pg_shm_exhausted
   kill_pg_app
 }
 
@@ -657,7 +680,7 @@ start_pg_checkpoint_storm() {
   pg -d postgres <<'SQL'
 ALTER SYSTEM SET min_wal_size = '32MB';
 ALTER SYSTEM SET max_wal_size = '32MB';
-SELECT pg_reload_conf();
+SELECT pg_reload_conf() \g /dev/null
 SQL
   job "$PG" pg_checkpoint_storm <<EOF
 export PGPASSWORD=$APP_PASSWORD
@@ -673,7 +696,7 @@ stop_pg_checkpoint_storm() {
   pg -d postgres <<'SQL'
 ALTER SYSTEM RESET min_wal_size;
 ALTER SYSTEM RESET max_wal_size;
-SELECT pg_reload_conf();
+SELECT pg_reload_conf() \g /dev/null
 SQL
   pg -d shop -c "TRUNCATE wal_churn" </dev/null
 }

@@ -58,6 +58,7 @@ Bad queries, load, and problems visible only in logs. Durations are per incident
 | `mysql_auth_failures` | logs | Wrong password / unknown user twice a second | error log `Access denied` |
 | `mysql_replica_break` | replication | Row written on the replica, then the same key on the source | alert *MySQL replication SQL thread stopped*, replica error log 1062 |
 | `pg_seq_scans` | bad query | 8 clients of unindexed lookups, `LIKE`, join | QAN, `duration:` log lines |
+| `pg_shm_exhausted` | logs + infra | Parallel hash joins in a container with Docker's 64 MB `/dev/shm` | log `could not resize shared memory segment ... No space left on device` |
 | `pg_lock_waits` | bad query + logs | Idle-in-transaction session holds 20k row locks; updates wait and hit `statement_timeout` | log `still waiting for ShareLock`, `canceling statement due to statement timeout` |
 | `pg_deadlocks` | logs | Opposite-order updates on `accounts` | log `deadlock detected` |
 | `pg_connection_storm` | load | 175 sleeping connections of 200, bursts over the limit | alert *PostgreSQL connections near max_connections*, log `too many clients already` |
