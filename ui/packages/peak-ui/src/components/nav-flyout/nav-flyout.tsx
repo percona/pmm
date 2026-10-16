@@ -9,8 +9,10 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import type { NavFlyoutProps } from './nav-flyout.types';
 
-// The sticky heading's height; rows scrolled into view stay below it.
+// The sticky heading's height with its divider, and the gap down to the first row. Rows scrolled
+// into view keep the same clearance below it.
 const HEADING_HEIGHT = 40;
+const HEADING_GAP = 8;
 
 // The entries themselves, without their actions or what a closed group holds.
 const getEntries = (list: HTMLElement | null) =>
@@ -23,7 +25,7 @@ const NavFlyout = ({
   label,
   anchorEl,
   onClose,
-  width = 250,
+  width = 244,
   autoFocus = true,
   children,
 }: NavFlyoutProps) => {
@@ -82,7 +84,7 @@ const NavFlyout = ({
       disableAutoFocus={!autoFocus}
       disableEnforceFocus={!autoFocus}
       slotProps={{
-        paper: { sx: { ml: 1, width, scrollPaddingTop: HEADING_HEIGHT } },
+        paper: { sx: { ml: 1, width, scrollPaddingTop: HEADING_HEIGHT + HEADING_GAP } },
         transition: { onEntered: focusEntry },
       }}
     >
@@ -98,8 +100,13 @@ const NavFlyout = ({
             zIndex: 1,
             minHeight: HEADING_HEIGHT,
             px: 2,
-            py: 1.25,
+            pt: 0.75,
+            pb: 1.25,
+            mb: `${HEADING_GAP}px`,
             bgcolor: 'background.paper',
+            // Sets the panel's title apart from its entries, and marks the edge they scroll under.
+            borderBottom: 1,
+            borderColor: 'divider',
           }}
         >
           {label}
@@ -118,6 +125,10 @@ const NavFlyout = ({
             // NavItem's 14px spacer, plus its 8px label padding.
             [`& .${listItemButtonClasses.root}:not(:has(.${listItemIconClasses.root}))`]: {
               paddingLeft: theme.spacing(2.75),
+            },
+            // An entry's icon starts where icon-less labels do.
+            [`& .${listItemButtonClasses.root}:has(.${listItemIconClasses.root})`]: {
+              paddingLeft: theme.spacing(2),
             },
           })}
         >
