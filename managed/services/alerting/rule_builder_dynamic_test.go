@@ -448,3 +448,20 @@ func TestBuildRuleDataInjectsThresholdForClickHouse(t *testing.T) {
 		exprOf(t, byRef["T_threshold"]))
 	assert.Equal(t, "$B > $T_threshold", expressionOf(t, byRef["C"]))
 }
+
+func TestBuildRuleDataForQANSlowQueries(t *testing.T) {
+	t.Parallel()
+
+	template, err := parseAlertTemplate(shippedTemplates(t)["pmm_qan_slow_queries"].Yaml)
+	require.NoError(t, err)
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "10"}, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "C", built.condition)
+
+	// The shipped YAML builds: its SQL runs on ClickHouse and its threshold is injected.
+	byRef := dataByRefID(t, built.data)
+	assert.Equal(t, "clickhouse-uid", byRef["A"].DatasourceUID)
+	assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
+	assert.Contains(t, byRef, "T_threshold")
+}
