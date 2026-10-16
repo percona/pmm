@@ -78,7 +78,6 @@ import (
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/adre"
-	"github.com/percona/pmm/managed/services/adre/deployment"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
@@ -208,17 +207,9 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
-func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
-	// Seed the shipped HolmesGPT config.yaml and skills on first run (idempotent: no-op once populated).
-	err := deployment.SeedDefaultConfig(db)
-	if err != nil {
-		logrus.Warnf("Failed to seed default ADRE config.yaml: %v", err)
-	}
-	err = deployment.SeedBuiltinSkills(db)
-	if err != nil {
-		logrus.Warnf("Failed to seed built-in ADRE skills: %v", err)
-	}
+func addAdreHandlers(ctx context.Context, mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
 	h := adre.NewHandlers(db, grafanaClient, vm, ch)
+	go h.SyncShippedDeployment(ctx)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -522,7 +513,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse)
+	addAdreHandlers(ctx, mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse)
 	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
 	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
 	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))

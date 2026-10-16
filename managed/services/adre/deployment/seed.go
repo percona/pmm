@@ -47,16 +47,21 @@ var defaultConfigYAML string
 // config.yaml at render time (the prometheus/metrics toolset).
 const grafanaTokenPlaceholder = "__PMM_GRAFANA_TOKEN__" //nolint:gosec
 
-// SeedDefaultConfig seeds adre_holmes_config with the shipped default config.yaml when empty (first run).
-func SeedDefaultConfig(db *reform.DB) error {
+// systemActor is the updated_by of rows PMM wrote itself; an admin's save replaces it with their login.
+const systemActor = "system"
+
+// SyncDefaultConfig stores the shipped config.yaml on first run, and again when it changed and no admin has
+// edited the stored one. It reports whether it wrote.
+func SyncDefaultConfig(db *reform.DB) (bool, error) {
 	cfg, err := models.GetAdreHolmesConfig(db)
 	if err != nil {
-		return err
+		return false, err
 	}
-	if strings.TrimSpace(cfg.ConfigYAML) != "" {
-		return nil
+	seeded := strings.TrimSpace(cfg.ConfigYAML) != ""
+	if seeded && (cfg.UpdatedBy != systemActor || cfg.ConfigYAML == defaultConfigYAML) {
+		return false, nil
 	}
-	return models.SaveAdreHolmesConfig(db, defaultConfigYAML, "system")
+	return true, models.SaveAdreHolmesConfig(db, defaultConfigYAML, systemActor)
 }
 
 type builtinSkill struct {
@@ -111,32 +116,80 @@ func loadBuiltinSkills() ([]builtinSkill, error) {
 	return out, nil
 }
 
-// SeedBuiltinSkills inserts the shipped skills into adre_skills when the table is empty (first run).
-func SeedBuiltinSkills(db *reform.DB) error {
-	n, err := models.CountAdreSkills(db)
+// SyncBuiltinSkills keeps PMM-owned skills (source builtin) equal to the shipped ones (see planSkillSync).
+// It reports whether anything changed.
+func SyncBuiltinSkills(db *reform.DB) (bool, error) {
+	shipped, err := loadBuiltinSkills()
 	if err != nil {
-		return err
+		return false, err
 	}
-	if n > 0 {
-		return nil
-	}
-	skills, err := loadBuiltinSkills()
+	existing, err := models.ListAdreSkills(db, false)
 	if err != nil {
-		return err
+		return false, err
 	}
-	return db.InTransaction(func(tx *reform.TX) error {
-		for _, s := range skills {
-			if err := models.UpsertAdreSkill(tx, &models.AdreSkill{ //nolint:noinlineerr
-				Name:        s.name,
-				Description: s.description,
-				Body:        s.body,
-				Source:      models.AdreSkillSourceBuiltin,
-				Enabled:     true,
-				UpdatedBy:   "system",
-			}); err != nil {
+	deleted, err := models.AdreSkillsDeletedByAdmin(db)
+	if err != nil {
+		return false, err
+	}
+	upserts, removals := planSkillSync(shipped, existing, deleted)
+	if len(upserts) == 0 && len(removals) == 0 {
+		return false, nil
+	}
+	err = db.InTransaction(func(tx *reform.TX) error {
+		for _, s := range upserts {
+			err := models.UpsertAdreSkill(tx, s)
+			if err != nil {
+				return err
+			}
+		}
+		for _, name := range removals {
+			err := models.DeleteAdreSkill(tx, name)
+			if err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+	return err == nil, err
+}
+
+// planSkillSync adds shipped skills that are missing unless an admin deleted them, refreshes changed PMM-owned ones
+// (keeping enabled), and removes PMM-owned ones no longer shipped. Skills an admin edited have source user and are
+// left alone.
+func planSkillSync(shipped []builtinSkill, existing []*models.AdreSkill, deletedByAdmin map[string]bool) ([]*models.AdreSkill, []string) {
+	byName := make(map[string]*models.AdreSkill, len(existing))
+	for _, s := range existing {
+		byName[s.Name] = s
+	}
+	upserts := make([]*models.AdreSkill, 0, len(shipped))
+	shippedNames := make(map[string]bool, len(shipped))
+	for _, s := range shipped {
+		shippedNames[s.name] = true
+		enabled := true
+		cur := byName[s.name]
+		switch {
+		case cur == nil && deletedByAdmin[s.name]:
+			continue
+		case cur == nil:
+		case cur.Source != models.AdreSkillSourceBuiltin, cur.Body == s.body && cur.Description == s.description:
+			continue
+		default:
+			enabled = cur.Enabled
+		}
+		upserts = append(upserts, &models.AdreSkill{
+			Name:        s.name,
+			Description: s.description,
+			Body:        s.body,
+			Source:      models.AdreSkillSourceBuiltin,
+			Enabled:     enabled,
+			UpdatedBy:   systemActor,
+		})
+	}
+	var removals []string
+	for _, cur := range existing {
+		if !shippedNames[cur.Name] && cur.Source == models.AdreSkillSourceBuiltin {
+			removals = append(removals, cur.Name)
+		}
+	}
+	return upserts, removals
 }

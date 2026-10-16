@@ -174,3 +174,35 @@ func TestWriteFileAtomic(t *testing.T) {
 	_, err = os.Stat(path + ".tmp")
 	assert.True(t, os.IsNotExist(err), "temp file must be renamed away")
 }
+
+func TestPlanSkillSync(t *testing.T) {
+	t.Parallel()
+	shipped := []builtinSkill{
+		{name: "same", description: "d", body: "b"},
+		{name: "changed", description: "d2", body: "b2"},
+		{name: "new", description: "d", body: "b"},
+		{name: "customized", description: "d2", body: "b2"},
+		{name: "deleted", description: "d", body: "b"},
+	}
+	existing := []*models.AdreSkill{
+		{Name: "same", Description: "d", Body: "b", Source: models.AdreSkillSourceBuiltin, Enabled: true},
+		{Name: "changed", Description: "d", Body: "b", Source: models.AdreSkillSourceBuiltin, Enabled: false},
+		{Name: "customized", Description: "mine", Body: "mine", Source: models.AdreSkillSourceUser, Enabled: true},
+		{Name: "retired", Description: "d", Body: "b", Source: models.AdreSkillSourceBuiltin, Enabled: true},
+		{Name: "users-own", Description: "d", Body: "b", Source: models.AdreSkillSourceUser, Enabled: true},
+	}
+	upserts, removals := planSkillSync(shipped, existing, map[string]bool{"deleted": true})
+
+	got := map[string]*models.AdreSkill{}
+	for _, s := range upserts {
+		got[s.Name] = s
+	}
+	require.Len(t, got, 2)
+	require.Contains(t, got, "changed")
+	assert.Equal(t, "b2", got["changed"].Body)
+	assert.False(t, got["changed"].Enabled, "refresh keeps the admin's enabled choice")
+	require.Contains(t, got, "new")
+	assert.True(t, got["new"].Enabled)
+	assert.Equal(t, models.AdreSkillSourceBuiltin, got["new"].Source)
+	assert.Equal(t, []string{"retired"}, removals)
+}

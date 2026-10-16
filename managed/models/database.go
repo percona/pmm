@@ -2019,6 +2019,11 @@ $y$,
 			updated_at TIMESTAMPTZ NOT NULL
 		)`,
 	},
+	147: {
+		// Built-in skills an admin already saved may carry their edits; mark them as the admin's so the startup sync
+		// of shipped skills leaves them alone.
+		`UPDATE adre_skills SET source = 'user' WHERE source = 'builtin' AND updated_by <> 'system'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

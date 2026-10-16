@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/metadata"
 	"gopkg.in/yaml.v3"
 
@@ -350,6 +351,10 @@ func (h *Handlers) PutDeploymentSkill(w http.ResponseWriter, r *http.Request, na
 	if existing != nil {
 		enabled = existing.Enabled
 		source = existing.Source
+		// Editing a built-in skill's text makes it the admin's: the startup sync no longer replaces it.
+		if source == models.AdreSkillSourceBuiltin && (body.Body != existing.Body || body.Description != existing.Description) {
+			source = models.AdreSkillSourceUser
+		}
 	}
 	if body.Enabled != nil {
 		enabled = *body.Enabled
@@ -381,6 +386,37 @@ func (h *Handlers) DeleteDeploymentSkill(w http.ResponseWriter, r *http.Request,
 	_ = models.InsertAdreConfigAudit(h.db, login, "delete", "skill:"+name, "")
 	reload, _ := h.renderAndReload(r.Context())
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "reload": reload})
+}
+
+// SyncShippedDeployment stores the shipped config.yaml and built-in skills (see deployment.SyncDefaultConfig and
+// deployment.SyncBuiltinSkills) and, when that changed a deployment that was already rendered, renders it and
+// hot-reloads Holmes so an upgrade takes effect without an admin pressing Apply.
+func (h *Handlers) SyncShippedDeployment(ctx context.Context) {
+	cfgChanged, err := deployment.SyncDefaultConfig(h.db)
+	if err != nil {
+		h.l.Warnf("Failed to sync the shipped ADRE config.yaml: %v", err)
+	}
+	skillsChanged, err := deployment.SyncBuiltinSkills(h.db)
+	if err != nil {
+		h.l.Warnf("Failed to sync the built-in ADRE skills: %v", err)
+	}
+	if !cfgChanged && !skillsChanged {
+		return
+	}
+	prov, err := models.GetAdreProvisioning(h.db)
+	if err != nil || prov.LastRenderAt == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute) //nolint:mnd
+	defer cancel()
+	outcome, err := h.renderAndReload(ctx)
+	if err != nil {
+		h.l.Warnf("Failed to apply the shipped ADRE config and skills: %v", err)
+		return
+	}
+	h.l.WithFields(logrus.Fields{
+		"config_changed": cfgChanged, "skills_changed": skillsChanged, "reloaded": outcome.Reloaded,
+	}).Info("Applied the shipped ADRE config and skills")
 }
 
 // PostDeploymentProvision handles POST /v1/adre/deployment/provision (mint token/key, render .env).

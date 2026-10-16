@@ -232,11 +232,30 @@ func UpsertAdreSkill(q reform.DBTX, s *AdreSkill) error {
 	_, err := q.Exec(
 		`INSERT INTO adre_skills (name, description, body, source, enabled, updated_at, updated_by)
 		 VALUES ($1, $2, $3, $4, $5, NOW(), $6)
-		 ON CONFLICT (name) DO UPDATE SET description = EXCLUDED.description, body = EXCLUDED.body,
+		 ON CONFLICT (name) DO UPDATE SET description = EXCLUDED.description, body = EXCLUDED.body, source = EXCLUDED.source,
 		   enabled = EXCLUDED.enabled, updated_at = NOW(), updated_by = EXCLUDED.updated_by`,
 		s.Name, s.Description, s.Body, source, s.Enabled, s.UpdatedBy,
 	)
 	return errors.Wrap(err, "failed to upsert adre_skills")
+}
+
+// AdreSkillsDeletedByAdmin returns the names of skills an admin deleted (adre_config_audit).
+func AdreSkillsDeletedByAdmin(q reform.DBTX) (map[string]bool, error) {
+	rows, err := q.Query(`SELECT DISTINCT substr(target, 7) FROM adre_config_audit WHERE action = 'delete' AND target LIKE 'skill:%'`)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query adre_config_audit")
+	}
+	defer rows.Close() //nolint:errcheck
+	out := make(map[string]bool)
+	for rows.Next() {
+		var name string
+		err := rows.Scan(&name)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to scan adre_config_audit")
+		}
+		out[name] = true
+	}
+	return out, errors.Wrap(rows.Err(), "failed to read adre_config_audit")
 }
 
 // DeleteAdreSkill removes a skill by name.
