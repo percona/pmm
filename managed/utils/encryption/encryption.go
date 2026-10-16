@@ -145,6 +145,9 @@ func New() *Encryption {
 }
 
 // newFromEnv creates an encryption with the key given by KeyEnvVar, read from Vault if it is a reference.
+// The key is read once, by whichever caller needs it first, so it is read without that caller's context.
+//
+//nolint:contextcheck,nolintlint // contextcheck reads this itself, so that callers are not asked for a context.
 func newFromEnv(given string) (*Encryption, error) {
 	key, err := secrets.Resolve(context.Background(), given)
 	if err != nil {

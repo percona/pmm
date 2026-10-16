@@ -16,7 +16,6 @@
 package models
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"slices"
@@ -835,7 +834,7 @@ func CreateNodeExporter(q *reform.Querier,
 	if err != nil {
 		return nil, err
 	}
-	err = row.validateVaultRefs(context.Background())
+	err = row.validateVaultRefs(q.Context())
 	if err != nil {
 		return nil, err
 	}
@@ -924,7 +923,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err != nil {
 		return nil, err
 	}
-	err = row.validateVaultRefs(context.Background())
+	err = row.validateVaultRefs(q.Context())
 	if err != nil {
 		return nil, err
 	}
@@ -1168,7 +1167,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
-	err = row.validateVaultRefs(context.Background())
+	err = row.validateVaultRefs(q.Context())
 	if err != nil {
 		return nil, err
 	}
@@ -1812,7 +1811,7 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 	}
 
-	err = row.validateVaultRefs(context.Background())
+	err = row.validateVaultRefs(q.Context())
 	if err != nil {
 		return nil, err
 	}

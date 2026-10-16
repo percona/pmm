@@ -2149,7 +2149,8 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 		}
 
 		changeParams, vaultSecrets := vaultChange(currentAgent, params)
-		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, changeParams)
+		// The querier carries ctx, and ApplyAgentChange reads Vault with it.
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, changeParams) //nolint:contextcheck
 		if err != nil {
 			return err
 		}
