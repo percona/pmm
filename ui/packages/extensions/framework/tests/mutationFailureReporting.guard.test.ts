@@ -85,6 +85,18 @@ const REPORTS_ITS_OWN_WAY: Record<string, string> = {
     'rename and delete dialogs each render their mutation error in-dialog',
   'plugins/atw/src/IncidentWorkspacePage.tsx':
     'inline alert above the header reading the in-place rename / case-reference error',
+  'plugins/om/src/NodesPage.tsx':
+    'inline Alert rendering the forget and refresh mutation errors',
+  'plugins/om/src/components/ConfigForm.tsx':
+    'inline Alert rendering the update and reset mutation errors',
+  'plugins/om/src/components/SyncButton.tsx':
+    'inline Typography rendering the trigger mutation error beside the button',
+  'plugins/om/src/inventoryHooks.ts':
+    'exposes mutation error state, rendered as inline Alerts by NodesPage.tsx and ConfigForm.tsx',
+  'plugins/om/src/BootstrapPage.tsx':
+    'inline Alert on the Review step rendering the trigger mutation error',
+  'plugins/om/src/components/RunProgress.tsx':
+    'in-dialog Alert rendering the abort mutation error, above the button that fired it',
 };
 
 const MUTATION_CALL = /\.(mutate|mutateAsync)\s*\(/;
