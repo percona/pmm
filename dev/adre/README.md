@@ -109,12 +109,12 @@ The PMM shell builds **structured Grafana context** when the user is on Grafana 
 
 The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-managed** appends it to Holmes **`additional_system_prompt`** (alongside the mode-specific prompt).
 
-## Holmes operator configuration (not shipped inside PMM)
+## Holmes configuration and skills
 
-PMM **does not** ship `holmes_config.yaml` or Holmes **skills** (`SKILL.md` trees) in the repository. Operators maintain them on the **HolmesGPT** deployment:
+PMM ships a Holmes `config.yaml` (`managed/services/adre/deployment/default_config.yaml`) and built-in skills (`managed/services/adre/deployment/builtin_skills/`). On startup pmm-managed stores both and re-renders the deployment when they changed; an admin's edits in **Configuration → Assistant → Deployment** are kept (see `SyncDefaultConfig` and `SyncBuiltinSkills`).
 
-- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, and **`pmm_clickhouse_query`** (Assistant proxy for QAN/logs — not direct ClickHouse) at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
-- **Skills** — Directories of `SKILL.md` files plus Holmes **`custom_skill_paths`** so the `fetch_skill` tool can load methodology. Paths are configured in Holmes, not in PMM.
+- **Toolsets** — Defined in the shipped `config.yaml` (custom toolsets) or added as **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, and **`pmm_clickhouse_query`** (Assistant proxy for QAN/logs — not direct ClickHouse) at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
+- **Skills** — `SKILL.md` files that the `fetch_skill` tool loads; built-in ones are synced from PMM, user skills are added on the Deployment page.
 - **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render/blob/...` or `/graph/...`.
 
 ## Grafana panel render (Tier 1 — `POST /v1/grafana/render/resolve`)
@@ -240,3 +240,7 @@ sequenceDiagram
   Holmes-->>PMM: analysis stream
   PMM-->>User: SSE or JSON
 ```
+
+## Test incidents
+
+[`issues/`](issues/README.md) creates alert rules and generates MySQL, PostgreSQL and MongoDB incidents (bad queries, load, log-only errors) on a CHAOS test VM, with a ground-truth log to grade investigations against.
