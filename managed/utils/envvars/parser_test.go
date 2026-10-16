@@ -17,6 +17,7 @@ package envvars
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -39,6 +40,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=5s",
 			"PMM_METRICS_RESOLUTION_LR=1h",
 			"PMM_DATA_RETENTION=72h",
+			"PMM_NOMAD_VAULT_PKI_PATH=pki/issue/pmm-nomad",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
@@ -210,6 +212,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=s5",
 			"PMM_METRICS_RESOLUTION_LR=1hour",
 			"PMM_DATA_RETENTION=keep one week",
+			"PMM_NOMAD_VAULT_PKI_PATH=pki/issue/../pmm-nomad",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
@@ -222,6 +225,8 @@ func TestEnvVarValidator(t *testing.T) {
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
 			errors.New(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
+			fmt.Errorf("invalid value for environment variable PMM_NOMAD_VAULT_PKI_PATH: %w",
+				errors.New("vault path 'pki/issue/../pmm-nomad' has an empty or relative segment")),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

@@ -1289,6 +1289,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	wg.Go(func() {
+		nomad.RenewCertificates(ctx, func(ctx context.Context) {
+			// Nomad reloads its certificates on SIGHUP; the agents get theirs with their state.
+			err := supervisord.SignalSupervisedService(ctx, "nomad-server", "HUP")
+			if err != nil {
+				l.Warnf("Failed to reload the certificates of the Nomad server: %s.", err)
+			}
+			err = agentsStateUpdater.UpdateAgentsState(ctx)
+			if err != nil {
+				l.Warnf("Failed to hand the certificates of Nomad to the agents: %s.", err)
+			}
+		})
+	})
+
+	wg.Go(func() {
 		alertingProvisioner.Run(ctx)
 	})
 

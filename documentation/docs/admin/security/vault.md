@@ -258,6 +258,24 @@ PMM Server writes the passwords of the built-in ClickHouse to its configuration 
 !!! note
     The token and secret ID that you give to PMM Server and to its own PMM Client, with `PMM_VAULT_TOKEN`, `PMM_VAULT_SECRET_ID`, `PMM_AGENT_VAULT_TOKEN`, and `PMM_AGENT_VAULT_SECRET_ID`, are handed over to them in files, and are not in the environment of PMM Server's components.
 
+### Issue the certificates of Nomad from Vault
+
+When [Nomad](../../reference/nomad.md) is enabled, the Nomad server of PMM Server and the Nomad agents of PMM Clients authenticate each other with certificates. PMM Server issues them from a CA of its own, and keeps the private key of the CA in `/srv/nomad/certs`. To issue them from the PKI secrets engine of Vault instead, so that PMM Server keeps no CA private key, set `PMM_NOMAD_VAULT_PKI_PATH` to the issue endpoint of a role, `<mount>/issue/<role>`:
+
+1. Create a role for the names that Nomad verifies, `server.global.nomad` and `client.global.nomad`, and for `localhost` and `127.0.0.1`:
+
+    ```sh
+    vault write pki/roles/pmm-nomad \
+      allowed_domains=global.nomad allow_subdomains=true \
+      allow_localhost=true allow_ip_sans=true max_ttl=720h
+    ```
+
+2. Give the identity of PMM Server `update` on the issue endpoint of the role, `pki/issue/pmm-nomad`.
+
+3. Set `PMM_NOMAD_VAULT_PKI_PATH=pki/issue/pmm-nomad`, and start PMM Server.
+
+PMM Server issues the certificates again when two thirds of their lifetime have passed. It reloads the Nomad server with them, and sends the new client certificate to PMM Clients, whose Nomad agents restart with it. If Vault cannot issue them, PMM Server keeps the certificates it has while they are valid, and tries again every minute. When you remove the variable, PMM Server creates a CA of its own again, and issues the certificates from it.
+
 ## Read the other secrets PMM Server stores from Vault
 
 Some secrets are used by PMM Server itself rather than by PMM Client: it scrapes exporters with their passwords, collects AWS and Azure metrics with the account keys, and manages backups with the keys of their storage location. Instead of the secret, set the setting to a reference of the form `vault:<path>#<key>`:
@@ -289,7 +307,7 @@ The password of a monitored database can be a reference too, as an alternative t
 
 Vault support has the following limitations:
 
-- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the secret key of PMM Extensions and the certificates of Nomad.
+- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the secret key of PMM Extensions, and the certificates of Nomad unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault).
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.

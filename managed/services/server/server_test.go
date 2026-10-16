@@ -93,7 +93,7 @@ func newTestServerWithHA(t *testing.T, db *reform.DB, haEnabled bool) (*Server, 
 
 	var nomad mockNomadService
 	nomad.Test(t)
-	nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+	nomad.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
 
 	var ha mockHaService
 	ha.Test(t)

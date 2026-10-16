@@ -213,6 +213,12 @@ func (s *Service) RestartSupervisedService(ctx context.Context, serviceName stri
 	return err
 }
 
+// SignalSupervisedService sends the given signal, such as HUP, to the given service.
+func (s *Service) SignalSupervisedService(ctx context.Context, serviceName, signal string) error {
+	_, err := s.supervisorctl(ctx, "signal", signal, serviceName)
+	return err
+}
+
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
 {{define "victoriametrics"}}

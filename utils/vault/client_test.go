@@ -50,6 +50,9 @@ type fakeVault struct {
 	mounts       map[string][2]string
 	mountsDenied bool
 	writes       []fakeWrite
+
+	// issue answers a request to the issue endpoint of a PKI secrets engine, <mount>/issue/<role>.
+	issue func(body map[string]any) map[string]any
 }
 
 type fakeWrite struct {
@@ -127,6 +130,11 @@ func (fv *fakeVault) serve(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fv.writes = append(fv.writes, fakeWrite{path: path, body: body})
+
+		if strings.Contains(path, "/issue/") && fv.issue != nil {
+			writeJSON(fv.t, w, http.StatusOK, map[string]any{"data": fv.issue(body)})
+			return
+		}
 
 		if inner, ok := body["data"].(map[string]any); ok {
 			fv.secrets[path] = kv2(inner)

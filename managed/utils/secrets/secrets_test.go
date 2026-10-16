@@ -71,6 +71,45 @@ func TestResolve(t *testing.T) {
 	assert.Equal(t, []string{"s3cr3t", "plain"}, []string{a, b})
 }
 
+type issuingStore struct {
+	mapStore
+
+	issue func(path string, req vault.CertificateRequest) (*vault.Certificate, error)
+}
+
+func (s issuingStore) IssueCertificate(_ context.Context, path string, req vault.CertificateRequest) (*vault.Certificate, error) {
+	return s.issue(path, req)
+}
+
+// Not parallel: it configures the process-wide Vault client.
+func TestIssueCertificate(t *testing.T) {
+	t.Cleanup(func() { Configure(nil, 0) })
+	req := vault.CertificateRequest{CommonName: "server.global.nomad"}
+
+	Configure(nil, 0)
+	_, err := IssueCertificate(t.Context(), "pki/issue/pmm-nomad", req)
+	require.ErrorIs(t, err, ErrNotConfigured)
+
+	Configure(mapStore{}, 0)
+	_, err = IssueCertificate(t.Context(), "pki/issue/pmm-nomad", req)
+	require.EqualError(t, err, "cannot issue a certificate from pki/issue/pmm-nomad: Vault does not issue certificates")
+
+	Configure(issuingStore{issue: func(path string, r vault.CertificateRequest) (*vault.Certificate, error) {
+		assert.Equal(t, "pki/issue/pmm-nomad", path)
+		assert.Equal(t, req, r)
+		return &vault.Certificate{Certificate: "leaf"}, nil
+	}}, 0)
+	cert, err := IssueCertificate(t.Context(), "pki/issue/pmm-nomad", req)
+	require.NoError(t, err)
+	assert.Equal(t, "leaf", cert.Certificate)
+
+	Configure(issuingStore{issue: func(string, vault.CertificateRequest) (*vault.Certificate, error) {
+		return nil, errors.New("permission denied")
+	}}, 0)
+	_, err = IssueCertificate(t.Context(), "pki/issue/pmm-nomad", req)
+	require.EqualError(t, err, "cannot issue a certificate from pki/issue/pmm-nomad: permission denied")
+}
+
 func TestConfigFromEnv(t *testing.T) {
 	t.Parallel()
 

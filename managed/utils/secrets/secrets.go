@@ -123,6 +123,28 @@ func WriteRef(ctx context.Context, ref, value string) error {
 	return nil
 }
 
+// IssueCertificate issues a new certificate from the role of a PKI secrets engine whose issue endpoint,
+// <mount>/issue/<role>, path is.
+func IssueCertificate(ctx context.Context, path string, req vault.CertificateRequest) (*vault.Certificate, error) {
+	h := current.Load()
+	if h == nil {
+		return nil, fmt.Errorf("cannot issue a certificate from %s: %w", path, ErrNotConfigured)
+	}
+
+	i, ok := h.store.(interface {
+		IssueCertificate(ctx context.Context, path string, req vault.CertificateRequest) (*vault.Certificate, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("cannot issue a certificate from %s: Vault does not issue certificates", path)
+	}
+
+	cert, err := i.IssueCertificate(ctx, path, req)
+	if err != nil {
+		return nil, fmt.Errorf("cannot issue a certificate from %s: %w", path, err)
+	}
+	return cert, nil
+}
+
 // ConfigFromEnv returns the Vault configuration of PMM Server, given by the PMM_VAULT_* variables.
 func ConfigFromEnv(getenv func(string) string) (vault.Config, error) {
 	skipVerify, _ := strconv.ParseBool(getenv("PMM_VAULT_TLS_SKIP_VERIFY"))

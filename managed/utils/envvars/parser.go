@@ -31,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/utils/vault"
 )
 
 const (
@@ -259,6 +260,12 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
+
+		case "PMM_NOMAD_VAULT_PKI_PATH":
+			err := vault.ValidatePath(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
+			}
 
 		// skip various HA-related variables, and the encryption key, which must never be logged
 		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ENCRYPTION_KEY", "PMM_ADMIN_PASSWORD":
