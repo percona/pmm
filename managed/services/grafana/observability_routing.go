@@ -179,9 +179,9 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 		IntentAvailability: {
 			DashboardUID:   "postgresql-instance-summary",
 			Title:          "PostgreSQL Instance Summary",
-			UseWhen:        "Use postgresql_up instant check",
+			UseWhen:        "Use pg_up instant check",
 			PanelIDs:       []int{23},
-			FallbackPrefix: "postgresql_up",
+			FallbackPrefix: "pg_up",
 		},
 	},
 	EngineMongoDB: {

@@ -13,7 +13,7 @@ export const PMM_ADRE_FRONTEND_TOOLS: Array<Record<string, unknown>> = [
   {
     name: 'pmm_ui_navigate_to_dashboard',
     description:
-      'Navigate the user’s PMM browser to a Grafana dashboard. Call when the user asks to open/go to/show a dashboard in PMM. First resolve the dashboard UID with grafana_search_dashboards or equivalent, then pass uid here. Prefer this over only pasting markdown links. Optional time range and template variables are not separate schema fields — pass uid only; the UI opens the dashboard with default time.',
+      'Navigate the user’s PMM browser to a Grafana dashboard. Call when the user asks to open/go to/show a dashboard in PMM. First resolve the dashboard UID with pmm_search_dashboards or pmm_observability_map, then pass uid here. Prefer this over only pasting markdown links. Optional time range and template variables are not separate schema fields — pass uid only; the UI opens the dashboard with default time.',
     mode: 'pause',
     parameters: {
       type: 'object',

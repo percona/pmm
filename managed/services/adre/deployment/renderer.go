@@ -86,7 +86,7 @@ func (r *Renderer) Render() error {
 		return err
 	}
 	// Inject the minted PMM service-account token where config.yaml references it (the Grafana-token
-	// placeholder used by the prometheus/metrics and grafana/dashboards toolsets).
+	// placeholder used by the prometheus/metrics toolset).
 	configYAML := strings.ReplaceAll(cfg.ConfigYAML, grafanaTokenPlaceholder, prov.PMMSAToken)
 	// Never overwrite an existing config.yaml with an empty one — an empty config.yaml strips all
 	// PMM toolsets from Holmes. A fresh setup must populate config.yaml before it is rendered.

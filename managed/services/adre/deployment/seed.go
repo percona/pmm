@@ -44,7 +44,7 @@ const builtinSkillsDir = "builtin_skills"
 var defaultConfigYAML string
 
 // grafanaTokenPlaceholder marks where the minted PMM service-account token is injected into
-// config.yaml at render time (the prometheus/metrics and grafana/dashboards toolsets).
+// config.yaml at render time (the prometheus/metrics toolset).
 const grafanaTokenPlaceholder = "__PMM_GRAFANA_TOKEN__" //nolint:gosec
 
 // SeedDefaultConfig seeds adre_holmes_config with the shipped default config.yaml when empty (first run).

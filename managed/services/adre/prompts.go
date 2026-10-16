@@ -103,10 +103,10 @@ When the user's message includes a block starting with "Current Grafana context"
 Fast chat — how to work:
 - Narrow factual asks (current value, list services, one check): use the fewest tool calls that answer; do not drag in long scripted methodology workflows.
 - Log tail (e.g. “last N lines from mysql error.log”): one pmm_clickhouse_query (database=otel) with ResourceAttributes['node_name'] and LogAttributes['log.file.name'] — not log.file.path. No inventory, observability map, or TodoWrite unless that query returns 0 rows or the user asked for a full investigation.
-- Panel image or named time-series graph: run pmm-inventory, pmm_observability_map (or pmm_list_dashboard_panels as fallback) for panel ids, then pmm_render_grafana_panel with correct from/to and overrides; embed image_url in markdown (/v1/grafana/render/blob/…). Never finish with prose-only or fake URLs when they asked for a graph.
+- Panel image or named time-series graph: run pmm-inventory, pmm_observability_map (or pmm_list_dashboard_panels as fallback) for panel ids, then pmm_render_grafana_panel with correct from/to and service_id (or node_id); embed image_url in markdown (/v1/grafana/render/blob/…). Never finish with prose-only or fake URLs when they asked for a graph.
 - Workload, spikes, “what happened in this window”, anomaly-style questions: follow Holmes toolset instructions (pmm-observability playbook: map → snapshot → QAN/EXPLAIN → render best-effort). If render fails, state rendered M/N and continue — never abort analysis.
 
-Tool order, ClickHouse SQL, QAN scoping, and EXPLAIN rules: follow Holmes toolset llm_instructions (pmm-observability, pmm-clickhouse, pmm-mysql-actions, pmm-grafana-render) — do not duplicate or contradict them here.
+Tool order, ClickHouse SQL, QAN scoping, and EXPLAIN rules: follow Holmes toolset llm_instructions (pmm-observability, pmm-clickhouse, pmm-db-actions, pmm-grafana-render) — do not duplicate or contradict them here.
 
 PMM frontend tools (pmm_ui_*): When the user asks to open or show a Grafana dashboard or PMM page in the UI, use the matching frontend tool after resolving ids — not markdown links alone (pmm_ui_navigate_to_dashboard, pmm_ui_render_graph, pmm_ui_open_explore, pmm_ui_open_investigation, pmm_ui_focus_qan_query, pmm_ui_check_alerts, pmm_ui_open_servicenow_ticket). pmm_ui_focus_qan_query opens native QAN (/pmm-ui/qan) for navigation only — never apply DDL or run migrations on the user's behalf.
 
@@ -140,9 +140,9 @@ Log tail: one pmm_clickhouse_query with LogAttributes['log.file.name'] (not log.
 
 Workload / spike / anomaly: follow Holmes toolset llm_instructions (pmm-observability playbook and general skill when loaded). Render panels best-effort; correlate multiple metrics before concluding; never stop because render failed.
 
-Panel renders: pmm-inventory → pmm_observability_map (or pmm_list_dashboard_panels fallback) → pmm_render_grafana_panel with inventory overrides; embed image_url — not text-only placeholders.
+Panel renders: pmm-inventory → pmm_observability_map (or pmm_list_dashboard_panels fallback) → pmm_render_grafana_panel with service_id or node_id; embed image_url — not text-only placeholders.
 
-Tool SQL and EXPLAIN rules: Holmes toolsets pmm-clickhouse, pmm-mysql-actions, pmm-grafana-render — do not duplicate here.
+Tool SQL and EXPLAIN rules: Holmes toolsets pmm-clickhouse, pmm-db-actions, pmm-grafana-render — do not duplicate here.
 
 PMM frontend tools (pmm_ui_*): use for open/navigate requests — not markdown links alone.
 
@@ -174,7 +174,7 @@ Output this exact structure (use empty string for optional fields if absent). Th
       "id": "ev-1",
       "kind": "explain",
       "claim": "Query uses full table scan on sbtest2",
-      "source_tool": "pmm_mysql_explain or as stated in report",
+      "source_tool": "pmm_db_action or as stated in report",
       "source_ref": "table sbtest2, query fingerprint or short id if present",
       "excerpt": "Verbatim or condensed EXPLAIN/plan line(s) from the source",
       "time_range": "RFC3339 range if known, else empty string",
@@ -201,7 +201,7 @@ Evidence rules (critical):
 - "id": stable unique within the array (ev-1, ev-2, ...).
 - "kind": one of: explain, metric, schema, alert, log, index, config, other (lowercase).
 - "claim": one short sentence stating what the evidence supports.
-- "source_tool": tool or origin named in the report (e.g. pmm_mysql_explain, Grafana panel, alert rule, slow query log); use empty string if unknown.
+- "source_tool": tool or origin named in the report (e.g. pmm_db_action, Grafana panel, alert rule, slow query log); use empty string if unknown.
 - "source_ref": panel id, query id, service name, table name, or file/log id when present; else empty string.
 - "excerpt": the concrete snippet from the source (EXPLAIN row, log line, SHOW INDEX output, row count, alert text). Keep it faithful; escape JSON.
 - "time_range" / "verification": empty string if not applicable.
@@ -223,10 +223,10 @@ const DefaultQanInsightsPrompt = `You are analyzing a single query from PMM Quer
 
 When a relevant slow-query skill exists in the catalog, use fetch_skill and follow its methodology. If no skill is available or fetch_skill fails, continue with standard QAN analysis using the available tools.
 
-QAN SQL and EXPLAIN tools: follow Holmes pmm-clickhouse and pmm-mysql-actions toolset llm_instructions (service_id scope, fingerprint/schema grouping, queryid as query_id).
+QAN SQL and EXPLAIN tools: follow Holmes pmm-clickhouse and pmm-db-actions toolset llm_instructions (service_id scope, fingerprint/schema grouping, queryid as query_id).
 
 Database parameter safety (critical):
-- For pmm_mysql_explain / pmm_mysql_explain_json / show_* tools, pass database ONLY if it was explicitly obtained from pmm.metrics.schema.
+- For pmm_db_action, pass database ONLY if it was explicitly obtained from pmm.metrics.schema.
 - If schema is unavailable (QAN/ClickHouse unavailable, query failed, or empty), omit database instead of guessing.
 - Never infer database from fingerprint SQL, example SQL, table names (e.g. sbtest2), service_name, node_name, or alert labels.
 
