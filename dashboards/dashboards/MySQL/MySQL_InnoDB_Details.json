@@ -265,13 +265,13 @@
             "type": "stat"
         },
         {
-            "description": "Number of InnoDB Log Files Multiplied by Their Size",
+            "description": "Measures the total redo log capacity InnoDB has available. If it is less than an hour of redo writes, InnoDB checkpoints too often and flushes under pressure. Raise innodb_redo_log_capacity, or innodb_log_file_size on MySQL before 8.0.30 and on MariaDB.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "decimals": 2,
+                    "decimals": 0,
                     "mappings": [
                         {
                             "options": {
@@ -332,7 +332,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "avg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"})",
+                    "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -10015,7 +10015,7 @@
                     "dashLength": 10,
                     "dashes": false,
                     "decimals": 2,
-                    "description": "**InnoDB Checkpoint Age**\n\nOn MySQL 8.0.30 and newer the limit series is the total InnoDB redo log capacity (innodb_redo_log_capacity). Older servers expose only the legacy status variables, so it falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity.\n\nWhen the checkpoint age reaches that limit, blocks are flushed synchronously. The rule of thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.\n\n**Notice**: the Innodb_checkpoint_max_age status variable was removed in Percona Server for MySQL 8.0.13-4 due to a change in MySQL. It was restored in 8.0.21-12.",
+                    "description": "Measures the redo InnoDB has written since the last checkpoint, against a limit line. If it stays near the limit, InnoDB flushes synchronously and writes stall. Increase the redo log size. Before MySQL 8.0.30, the limit line is the lower Innodb_checkpoint_max_age threshold.",
                     "editable": true,
                     "error": false,
                     "fieldConfig": {
@@ -10089,7 +10089,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (max_over_time(mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "avg by (service_name) (max_over_time(mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -12331,7 +12331,7 @@
             "type": "row"
         },
         {
-            "description": "Number of InnoDB Log Files Multiplied by Their Size",
+            "description": "Measures the total redo log capacity InnoDB has available. If it is less than an hour of redo writes, InnoDB checkpoints too often and flushes under pressure. Raise innodb_redo_log_capacity, or innodb_log_file_size on MySQL before 8.0.30 and on MariaDB.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -12399,7 +12399,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
+                    "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13001,6 +13001,7 @@
             "dashLength": 10,
             "dashes": false,
             "decimals": 2,
+            "description": "Estimates how long InnoDB takes to fill the redo log and the log buffer at the current write rate. If the redo log time drops well below one hour, InnoDB checkpoints often and risks synchronous flushing. Increase the redo log size.",
             "editable": true,
             "error": false,
             "fieldConfig": {
@@ -13055,7 +13056,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "(avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}))\n/\navg by (service_name) ((rate(mysql_innodb_redo_log_written_bytes_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[$interval])) or (irate(mysql_innodb_redo_log_written_bytes_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[5m])))",
+                    "expr": "(avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}))\n/\navg by (service_name) ((rate(mysql_innodb_redo_log_written_bytes_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[$interval])) or (irate(mysql_innodb_redo_log_written_bytes_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13117,7 +13118,7 @@
             "dashLength": 10,
             "dashes": false,
             "decimals": 2,
-            "description": "**InnoDB Log File Usage Hourly**\n\nAlong with the buffer pool size, innodb_log_file_size is the most important setting when we are working with InnoDB. This graph shows how much data was written to InnoDB's redo logs over each hour. When the InnoDB log files are full, InnoDB needs to flush the modified pages from memory to disk.\n\nThe rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.\n\nThis graph can help guide you in setting the correct innodb_log_file_size.",
+            "description": "Measures the redo InnoDB writes each hour, next to the total redo log capacity. If the hourly amount exceeds the capacity, InnoDB checkpoints too often and flushes under pressure. Raise the redo log size until it holds about one hour of writes.",
             "editable": true,
             "error": false,
             "fieldConfig": {
@@ -13211,7 +13212,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
+                    "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13727,7 +13728,7 @@
             }
         },
         {
-            "description": "",
+            "description": "Measures the size of each InnoDB redo log file. If all files together hold less than an hour of redo, InnoDB checkpoints too often. Check the Total Log Space panel for the combined size. On MySQL 8.0.30 and later, the value is the total capacity divided by 32.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -13795,7 +13796,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
+                    "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13810,7 +13811,7 @@
             "type": "stat"
         },
         {
-            "description": "Number of InnoDB Redo Log Files",
+            "description": "Counts the InnoDB redo log files. If all files together hold less than an hour of redo, InnoDB checkpoints too often. Check the Total Log Space panel for the combined size. On MySQL 8.0.30 and later, the count is always 32.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -13878,7 +13879,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"})",
+                    "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,

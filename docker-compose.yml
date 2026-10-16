@@ -55,8 +55,8 @@ services:
       - PMM_POSTGRES_USERNAME
       - PMM_POSTGRES_DBPASSWORD
       - PMM_DISABLE_BUILTIN_POSTGRES
-      # To expose the built-in PostgreSQL to PMM Extensions running on the same bridge network
-      # and reverse-proxy the side-car under /extensions/
+      # To expose the built-in PostgreSQL to the PMM Extensions side-car on the same
+      # bridge network and reverse-proxy it under /extensions/
       - PMM_ENABLE_EXTENSIONS
       - PMM_EXTENSIONS_POSTGRES_PASSWORD
       - PMM_EXTENSIONS_ADDRESS
@@ -67,8 +67,8 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-      # Credentials PMM provisions for PMM Extensions. Mount this same volume read-only in the PMM Extensions
-      # container and point SECRETS_DIR at it; never share pmm-data itself with PMM Extensions.
+      # Credentials PMM provisions for PMM Extensions. Mount this same volume read-only in
+      # the side-car and point SECRETS_DIR at it; never share pmm-data itself with it.
       - pmm-extensions:/srv/extensions
 
   pmm-client:

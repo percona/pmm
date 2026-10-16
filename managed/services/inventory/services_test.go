@@ -40,9 +40,6 @@ import (
 )
 
 // setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
-// Keep it for future work; suppress unparam which otherwise reports the return value is unused.
-//
-//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
@@ -163,7 +160,7 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
 			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test", InstanceId: "test-instance-id"})
 		require.NoError(t, err)
 
 		rdsAgent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{
