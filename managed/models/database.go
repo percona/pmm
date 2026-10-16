@@ -84,6 +84,17 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
 		},
 	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
+			{Name: "admin_username"},
+			{Name: "admin_password"},
+		},
+	},
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -1244,6 +1255,58 @@ var databaseSchema = [][]string{
 			ON alert_rule_threshold_overrides (scope, target)`,
 	},
 	122: {
+		`CREATE TABLE om_topology_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
+
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	123: {
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	124: {
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
+		)`,
+	},
+	125: {
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
+	},
+	126: {
 		`CREATE TABLE advisor_insights (
 			id VARCHAR NOT NULL,
 			run_id VARCHAR NOT NULL,
@@ -1277,7 +1340,7 @@ var databaseSchema = [][]string{
 		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
 		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
 	},
-	123: {
+	127: {
 		`CREATE TABLE advisor_checks (
 			name VARCHAR(128) NOT NULL CHECK (name <> ''),
 			source VARCHAR NOT NULL CHECK (source <> ''),
@@ -1331,7 +1394,7 @@ var databaseSchema = [][]string{
 
 		`DROP TABLE IF EXISTS check_settings`,
 	},
-	124: {
+	128: {
 		// One row per Advisor checks execution. Counts are denormalized on
 		// completion, so listing runs does not aggregate their insights.
 		`CREATE TABLE advisor_runs (

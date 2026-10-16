@@ -37,6 +37,7 @@ import (
 
 	"github.com/percona/pmm/api/common"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/env"
@@ -732,5 +733,99 @@ func TestConvertReadOnlySettings(t *testing.T) {
 		os.Unsetenv(env.EnableExtensions)
 
 		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
+	})
+}
+
+func TestApplyOMSwitch(t *testing.T) {
+	t.Parallel()
+
+	settings := func(enabled bool) *models.Settings {
+		s := &models.Settings{}
+		s.OM.Enabled = &enabled
+		return s
+	}
+
+	t.Run("enabling collects and syncs, detached from the caller", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		effects := make(chan error, 2)
+		// Check the context during the call: applyOMSwitch cancels its own timeout once the effects return.
+		record := func(args mock.Arguments) { effects <- args.Get(0).(context.Context).Err() }
+		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
+			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).Run(record)
+		om.On("SyncInventoryEnabled", mock.Anything, true).Run(record)
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		ctx, cancel := context.WithCancel(t.Context())
+
+		s.applyOMSwitch(ctx, settings(false), settings(true))
+		cancel()
+
+		for range 2 {
+			select {
+			case err := <-effects:
+				require.NoError(t, err, "the side effects must not inherit the request's cancellation")
+			case <-time.After(10 * time.Second):
+				t.Fatal("the switch's side effects never fired")
+			}
+		}
+	})
+
+	t.Run("enabling tells PMM Extensions the switch is on before asking it to collect", func(t *testing.T) {
+		t.Parallel()
+
+		// om_inventory skips a sweep while its own ENABLED is false, so collecting before the PATCH lands
+		// leaves the Hosts page empty until the app's own schedule comes round.
+		om := newMockOmService(t)
+		calls := make(chan string, 2)
+		om.On("SyncInventoryEnabled", mock.Anything, true).
+			Run(func(mock.Arguments) { calls <- "sync" })
+		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
+			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).
+			Run(func(mock.Arguments) { calls <- "collect" })
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		s.applyOMSwitch(t.Context(), settings(false), settings(true))
+
+		got := make([]string, 0, 2)
+		for range 2 {
+			select {
+			case c := <-calls:
+				got = append(got, c)
+			case <-time.After(10 * time.Second):
+				t.Fatal("the switch's side effects never fired")
+			}
+		}
+		assert.Equal(t, []string{"sync", "collect"}, got)
+	})
+
+	t.Run("disabling syncs PMM Extensions without collecting", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		synced := make(chan struct{})
+		om.On("SyncInventoryEnabled", mock.Anything, false).
+			Run(func(mock.Arguments) { close(synced) })
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		s.applyOMSwitch(t.Context(), settings(true), settings(false))
+
+		select {
+		case <-synced:
+		case <-time.After(10 * time.Second):
+			t.Fatal("PMM Extensions was never told OpenManager had been turned off")
+		}
+	})
+
+	t.Run("a save that leaves the switch alone never touches PMM Extensions", func(t *testing.T) {
+		t.Parallel()
+
+		// No expectations registered: every call below would fail the mock.
+		om := newMockOmService(t)
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+
+		s.applyOMSwitch(t.Context(), settings(true), settings(true))
+		s.applyOMSwitch(t.Context(), settings(false), settings(false))
 	})
 }

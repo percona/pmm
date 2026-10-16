@@ -13,6 +13,7 @@ const TEST_SETTINGS: Settings = {
   azurediscoverEnabled: false,
   enableAccessControl: false,
   extensionsEnabled: false,
+  omEnabled: false,
   dataRetention: '2592000s',
   advisorHistoryRetention: '1209600s',
   advisorNotificationsEnabled: true,

@@ -317,10 +317,15 @@
                       "type": "boolean",
                       "x-order": 18
                     },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
+                    },
                     "advisor_notifications_enabled": {
                       "description": "True if Advisor email notifications are enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "advisor_notification_severity_threshold": {
                       "description": "Severity represents severity level of the check result or alert.",
@@ -337,7 +342,7 @@
                         "SEVERITY_INFO",
                         "SEVERITY_DEBUG"
                       ],
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "advisor_notification_email_addresses": {
                       "description": "Email addresses Advisor notifications are sent to.",
@@ -345,12 +350,12 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "advisor_history_retention": {
                       "description": "Advisor check results history retention.",
                       "type": "string",
-                      "x-order": 22
+                      "x-order": 23
                     }
                   },
                   "x-order": 0
@@ -529,16 +534,22 @@
                   "x-nullable": true,
                   "x-order": 13
                 },
+                "enable_om": {
+                  "description": "Enable OpenManager.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 14
+                },
                 "advisor_history_retention": {
                   "description": "A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 14
+                  "x-order": 15
                 },
                 "enable_advisor_notifications": {
                   "description": "Enable Advisor email notifications.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "advisor_notification_severity_threshold": {
                   "description": "Severity represents severity level of the check result or alert.",
@@ -555,7 +566,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "advisor_notification_email_addresses": {
                   "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
@@ -570,7 +581,7 @@
                     }
                   },
                   "x-nullable": true,
-                  "x-order": 17
+                  "x-order": 18
                 }
               }
             }
@@ -718,10 +729,15 @@
                       "type": "boolean",
                       "x-order": 18
                     },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
+                    },
                     "advisor_notifications_enabled": {
                       "description": "True if Advisor email notifications are enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "advisor_notification_severity_threshold": {
                       "description": "Severity represents severity level of the check result or alert.",
@@ -738,7 +754,7 @@
                         "SEVERITY_INFO",
                         "SEVERITY_DEBUG"
                       ],
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "advisor_notification_email_addresses": {
                       "description": "Email addresses Advisor notifications are sent to.",
@@ -746,12 +762,12 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "advisor_history_retention": {
                       "description": "Advisor check results history retention.",
                       "type": "string",
-                      "x-order": 22
+                      "x-order": 23
                     }
                   },
                   "x-order": 0
@@ -857,6 +873,11 @@
                       "description": "True if PMM Extensions is enabled.",
                       "type": "boolean",
                       "x-order": 8
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0

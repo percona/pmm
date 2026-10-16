@@ -18,6 +18,7 @@ export const toFormValues = (
   publicAddress: settings.pmmPublicAddress,
   azureDiscover: settings.azurediscoverEnabled,
   accessControl: settings.enableAccessControl,
+  openManager: settings.omEnabled,
 });
 
 // Retention is sent only when it differs from the value loaded from the server and the field is
@@ -43,5 +44,6 @@ export const toPayload = (
     enableInternalPgQan: values.enableInternalPgQan,
     enableAzurediscover: values.azureDiscover,
     enableAccessControl: values.accessControl,
+    enableOm: values.openManager,
   };
 };

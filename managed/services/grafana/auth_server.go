@@ -69,6 +69,14 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
+	"/om.":                      viewer,
+	"/om.v1.OmService/TriggerInventoryRefresh":       editor,
+	"/om.v1.OmService/DeleteInventoryHost":           admin,
+	"/om.v1.OmService/DeleteInventoryService":        admin,
+	"/om.v1.OmService/UpdateInventoryConfig":         admin,
+	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
+	"/om.v1.OmService/TriggerHostBootstrap":          admin,
+	"/om.v1.OmService/CancelBootstrapRun":            admin,
 
 	// sending a test email belongs with the notification settings, which are admin-only
 	"/advisors.v1.AdvisorService/SendTestAdvisorNotification": admin,
@@ -111,6 +119,8 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/v1/om": viewer,
+
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/nomad":           admin,
@@ -145,6 +155,17 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// OM inventory writes.
+	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
+	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
+	http.MethodDelete + " /v1/om/inventory/services/":         admin,
+	http.MethodPut + " /v1/om/inventory/config":               admin,
+	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
+	http.MethodDelete + " /v1/om/inventory/config/":           admin,
+	// An install runs root commands on hosts and creates a root database user.
+	http.MethodPost + " /v1/om/inventory/hosts:bootstrap": admin,
+	http.MethodPost + " /v1/om/inventory/bootstrap-runs/": admin,
 }
 
 var lbacPrefixes = []string{
@@ -747,15 +768,17 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	code := codes.Internal
-	if cErr.Code == 401 || cErr.Code == 403 {
+	definitive := cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden
+	if definitive || errors.Is(err, errServiceTokenRejected) {
 		code = codes.Unauthenticated
 	}
 	authErr := &authError{code: code, message: cErr.ErrorMessage}
-	if code == codes.Unauthenticated {
+	if definitive {
 		// Cache definitive rejections: clients polling with a dead session would
 		// otherwise cost Grafana two failed lookups (user + rotation) per request.
-		// Internal errors are not cached so a Grafana hiccup does not lock
-		// clients out for the cache lifetime.
+		// Internal errors and rejected service tokens (a Grafana DB hiccup also
+		// answers 400) are not cached so a hiccup does not lock clients out for
+		// the cache lifetime.
 		s.rw.Lock()
 		s.cache[hash] = cacheItem{
 			authErr: authErr,

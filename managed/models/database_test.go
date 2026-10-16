@@ -560,7 +560,7 @@ func TestDatabaseMigrations(t *testing.T) {
 	})
 
 	t.Run("advisor checks migration: legacy settings seed advisor_checks", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, new(122))
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(126))
 		t.Cleanup(func() {
 			assert.NoError(t, sqlDB.Close())
 		})
@@ -583,7 +583,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(123))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(127))
 
 		rows, err := sqlDB.QueryContext(
 			t.Context(),
@@ -630,7 +630,7 @@ func TestDatabaseMigrations(t *testing.T) {
 	})
 
 	t.Run("advisor checks migration: non-array disabled_advisors is ignored", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, new(122))
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(126))
 		t.Cleanup(func() {
 			assert.NoError(t, sqlDB.Close())
 		})
@@ -645,7 +645,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(123))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(127))
 
 		var count int
 		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_checks`).Scan(&count)

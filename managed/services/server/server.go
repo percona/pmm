@@ -39,6 +39,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
@@ -51,6 +52,9 @@ import (
 
 // pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
 const pmmInitProgram = "pmm-init"
+
+// omSwitchEffectsTimeout keeps an unresponsive side-car from holding applyOMSwitch's goroutine forever.
+const omSwitchEffectsTimeout = 5 * time.Minute
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
@@ -70,6 +74,7 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
+	omService            omService
 
 	l *logrus.Entry
 
@@ -102,6 +107,7 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
+	OmService            omService
 }
 
 // NewServer returns new server for Server service.
@@ -127,6 +133,7 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
+		omService:            params.OmService,
 		l:                    logrus.WithField("component", "server"),
 		envSettings:          &models.ChangeSettingsParams{},
 	}
@@ -456,6 +463,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 
 		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
+		OmEnabled:         settings.IsOMEnabled(),
 	}
 
 	return res
@@ -481,6 +489,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
 		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
+		OmEnabled:               settings.IsOMEnabled(),
 	}
 
 	return res
@@ -556,6 +565,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
 	}
 
+	err := s.validateEnableOm(ctx, req.EnableOm)
+	if err != nil {
+		return err
+	}
+
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(
 			codes.FailedPrecondition,
@@ -606,6 +620,27 @@ func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *
 			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
 }
 
+func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
+	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
+		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
+	}
+
+	if enableOm == nil || !*enableOm {
+		return nil
+	}
+
+	currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
+	}
+
+	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: its inventory app is not available in PMM Extensions.")
+	}
+
+	return nil
+}
+
 // ChangeSettings changes PMM Server settings.
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
@@ -637,6 +672,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
+			EnableOM:               req.EnableOm,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
@@ -765,9 +801,35 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
+	s.applyOMSwitch(ctx, oldSettings, newSettings)
+
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
+}
+
+// applyOMSwitch runs in the background because its PMM Extensions calls can outlast the client's timeout
+// on a change that is already saved. Failures are only logged.
+func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	enabled := newSettings.IsOMEnabled()
+	if s.omService == nil || oldSettings.IsOMEnabled() == enabled {
+		return
+	}
+
+	ctx = context.WithoutCancel(ctx)
+	go func() {
+		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
+		defer cancel()
+
+		// Sync first: om_inventory skips a sweep while it is disabled, so collecting earlier would do nothing.
+		s.omService.SyncInventoryEnabled(ctx, enabled)
+		if enabled {
+			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
+			if err != nil {
+				s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
+			}
+		}
+	}()
 }
 
 // internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.

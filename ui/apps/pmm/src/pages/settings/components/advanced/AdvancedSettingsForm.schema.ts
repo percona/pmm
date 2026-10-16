@@ -32,6 +32,7 @@ export const createAdvancedSettingsSchema = (loadedRetention?: string) =>
     publicAddress: z.string(),
     azureDiscover: z.boolean(),
     accessControl: z.boolean(),
+    openManager: z.boolean(),
   });
 
 export type AdvancedSettingsFormValues = z.infer<

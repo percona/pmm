@@ -70,6 +70,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_ENABLE_ADVISOR_NOTIFICATIONS enables Advisor email notifications;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ENABLE_OM enables OpenManager;
 //   - the environment variables prefixed with GF_ are related to Grafana.
 //   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
 //     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
@@ -141,6 +142,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// PMM_ENABLE_EXTENSIONS is not a stored setting: it describes how this
 			// process was started, so it is read from the environment by
 			// env.ExtensionsEnabled instead of being persisted here.
+			continue
+		case "PMM_EXTENSIONS_URL", "PMM_EXTENSIONS_TOKEN":
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
@@ -237,6 +240,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableBackupManagement = &b
+
+		case "PMM_ENABLE_OM":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value '%s' for environment variable %s", v, k))
+				continue
+			}
+			envSettings.EnableOM = &b
 
 		case "PMM_ENABLE_NOMAD":
 			b, err := strconv.ParseBool(v)

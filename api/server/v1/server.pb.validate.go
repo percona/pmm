@@ -2289,6 +2289,8 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for ExtensionsEnabled
 
+	// no validation rules for OmEnabled
+
 	// no validation rules for AdvisorNotificationsEnabled
 
 	// no validation rules for AdvisorNotificationSeverityThreshold
@@ -2439,6 +2441,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for EnableAccessControl
 
 	// no validation rules for ExtensionsEnabled
+
+	// no validation rules for OmEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)
@@ -3199,6 +3203,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableInternalPgQan != nil {
 		// no validation rules for EnableInternalPgQan
+	}
+
+	if m.EnableOm != nil {
+		// no validation rules for EnableOm
 	}
 
 	if m.EnableAdvisorNotifications != nil {

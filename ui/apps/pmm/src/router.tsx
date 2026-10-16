@@ -13,6 +13,7 @@ import {
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
@@ -27,6 +28,8 @@ import { AdvisorRuns } from 'pages/advisors/runs';
 import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
+import { OmApp } from '@pmm/plugins-om';
+import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
   getMysqlBackupsTaskExecuteActions,
@@ -154,6 +157,25 @@ const router = createBrowserRouter(
                 <ExtensionsPage>
                   <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
                 </ExtensionsPage>
+              ),
+            },
+            {
+              // OM (OpenManager) is bespoke like ATW: OmApp composes its
+              // own <Routes>, so this must be a splat.
+              //
+              // All four pages are under it now. Inventory used to be mounted
+              // separately inside ExtensionsPage, because it read the Extensions
+              // app directly and needed a bearer minted from the PMM session;
+              // pmm-managed proxies the estate at /v1/om/inventory, so no OM path
+              // in the browser talks to the side-car any more. That is why OmPage
+              // rather than ExtensionsPage, and why a sick side-car now shows an
+              // error inside a page that still renders instead of blanking it --
+              // ExtensionsAuthGate fails closed.
+              path: `${relativeToNav(OM_PATH)}/*`,
+              element: (
+                <OmPage>
+                  <OmApp />
+                </OmPage>
               ),
             },
             {

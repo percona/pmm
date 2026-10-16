@@ -72,6 +72,7 @@ import (
 	hav1 "github.com/percona/pmm/api/ha/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -94,6 +95,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
+	"github.com/percona/pmm/managed/services/om"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -245,6 +247,8 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
+
+	omService *om.Service
 }
 
 // parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
@@ -350,6 +354,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	hav1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
+	omv1.RegisterOmServiceServer(gRPCServer, deps.omService)
+
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
 	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, rtaStore)
@@ -452,6 +458,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterRestoreServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
+
+		omv1.RegisterOmServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -732,6 +740,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
+
+	// Base URL only: each consumer appends its own /api/apps/<module> path.
+	// Optional; without it OM builds its document from PMM's own inventory and metrics alone.
+	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
+		Envar("PMM_EXTENSIONS_URL").String()
+	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
+		Envar("PMM_EXTENSIONS_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -1145,6 +1160,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		VMURL:         *victoriaMetricsURLF,
 	})
 
+	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
+	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
+	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithAgentRegistry(agentsRegistry)
+	omService.WithStateUpdater(agentsStateUpdater)
+	prom.MustRegister(om.NewMetricsCollector(omService))
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -1161,6 +1184,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
+		OmService:            omService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1278,6 +1302,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	// Leader-only: each collection prunes the shared run history, so running it on every HA node
+	// would have nodes pruning each other's runs.
+	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
+		omService.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only: two nodes driving the same bootstrap run would double-dispatch every step.
+	// Separate from "om" so each runs on its own cadence and one failing does not stop the other.
+	haService.AddLeaderService(ha.NewContextService("om-bootstrap-stepper", func(ctx context.Context) error {
+		omService.RunBootstrapStepper(ctx)
+		return nil
+	}))
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1310,6 +1348,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
+				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})

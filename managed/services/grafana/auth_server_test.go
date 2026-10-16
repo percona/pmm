@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -214,6 +215,38 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/advisors/notifications:test", admin},
 		{http.MethodPost, "/advisors.v1.AdvisorService/StartAdvisorChecks", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", admin},
+
+		// OM: reads are viewer; writes need editor or admin.
+		{http.MethodGet, "/v1/om/topology", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
+		{http.MethodGet, "/v1/om/inventory/services", viewer},
+		{http.MethodGet, "/v1/om/inventory/config", viewer},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
+		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
+		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
+		{http.MethodPut, "/v1/om/inventory/config", admin},
+		{http.MethodDelete, "/v1/om/inventory/config/overrides/SCHEDULE__every", admin},
+		// An unrouted DELETE must not fall back to the viewer rule at "/v1/om".
+		{http.MethodDelete, "/v1/om/inventory/config/anything-else", admin},
+		{http.MethodPost, "/v1/om/inventory/hosts:bootstrap", admin},
+		{http.MethodPost, "/v1/om/inventory/bootstrap-runs/run-1:cancel", admin},
+		{http.MethodGet, "/v1/om/inventory/bootstrap-runs/run-1", viewer},
+		// Collection only recomputes from data PMM already holds, so it stays viewer.
+		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
+
+		// OM over gRPC: method names carry no HTTP verb, so each needs an exact rule.
+		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
+		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
+		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryConfigOverride", admin},
+		{http.MethodPost, "/om.v1.OmService/TriggerHostBootstrap", admin},
+		{http.MethodPost, "/om.v1.OmService/CancelBootstrapRun", admin},
+		{http.MethodPost, "/om.v1.OmService/GetBootstrapRun", viewer},
+
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
@@ -352,8 +385,98 @@ func TestServerClientConnection(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer wrong")
 
 		_, _, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
-		assert.Equal(t, codes.Internal, authError.code)
+		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
+}
+
+// TestAuthServerGrafanaErrors checks the code clients get for each error Grafana answers the authentication check with.
+func TestAuthServerGrafanaErrors(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name      string
+		basicAuth bool
+		status    int
+		message   string
+		code      codes.Code
+		cached    bool
+	}{
+		{
+			name:    "disabled service account",
+			status:  http.StatusBadRequest,
+			message: "Auth method is not service account token",
+			code:    codes.Unauthenticated,
+		},
+		{
+			name:    "unauthorized",
+			status:  http.StatusUnauthorized,
+			message: "Invalid API key",
+			code:    codes.Unauthenticated,
+			cached:  true,
+		},
+		{
+			name:    "forbidden",
+			status:  http.StatusForbidden,
+			message: "Forbidden",
+			code:    codes.Unauthenticated,
+			cached:  true,
+		},
+		{
+			name:    "server error",
+			status:  http.StatusInternalServerError,
+			message: "Failed to retrieve service account",
+			code:    codes.Internal,
+		},
+		{
+			name:      "basic auth bad request",
+			basicAuth: true,
+			status:    http.StatusBadRequest,
+			message:   "Bad request",
+			code:      codes.Internal,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/api/auth/serviceaccount" && r.URL.Path != "/api/user" {
+					w.WriteHeader(http.StatusNotFound)
+					return
+				}
+				w.WriteHeader(tc.status)
+				_, _ = fmt.Fprintf(w, `{"message":%q}`, tc.message)
+			}))
+			defer ts.Close()
+
+			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+
+			rw := httptest.NewRecorder()
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/v1/inventory/nodes")
+			req.Header.Set("X-Original-Method", http.MethodGet)
+			if tc.basicAuth {
+				req.SetBasicAuth("admin", "admin")
+			} else {
+				req.Header.Set("Authorization", "Bearer glsa_disabled")
+			}
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, http.StatusUnauthorized, rw.Code)
+			var body map[string]any
+			require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &body))
+			assert.Equal(t, map[string]any{
+				"code":    float64(tc.code),
+				"error":   tc.message,
+				"message": tc.message,
+			}, body)
+			if tc.cached {
+				assert.Len(t, s.cache, 1)
+			} else {
+				assert.Empty(t, s.cache)
+			}
+		})
+	}
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
