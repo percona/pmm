@@ -51,6 +51,7 @@ services:
       # bridge network and reverse-proxy it under /extensions/
       - PMM_ENABLE_EXTENSIONS
       - PMM_EXTENSIONS_POSTGRES_PASSWORD
+      - PMM_EXTENSIONS_SECRET_KEY
       - PMM_EXTENSIONS_ADDRESS
       # To discover RDS databases via UI
       - AWS_ACCESS_KEY

@@ -292,10 +292,10 @@ fi
 # removed on the start after PMM_ENABLE_EXTENSIONS is cleared.
 bash /opt/ansible/roles/extensions/files/extensions-secrets
 
-# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
-# every supervisord child inherits it, and anything sharing the container's PID namespace
-# can then read it out of /proc/<pid>/environ.
-unset PMM_EXTENSIONS_POSTGRES_PASSWORD
+# The last consumer has run, so drop the password and the key before exec'ing supervisord:
+# otherwise every supervisord child inherits them, and anything sharing the container's PID
+# namespace can then read them out of /proc/<pid>/environ.
+unset PMM_EXTENSIONS_POSTGRES_PASSWORD PMM_EXTENSIONS_SECRET_KEY
 
 # A certificate given in the environment, read from Vault as a rule, replaces the one nginx reads from
 # /srv/nginx at every start, so that PMM Server serves the one in Vault. The CA certificate is optional.

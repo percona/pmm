@@ -225,6 +225,8 @@ PMM Server keeps some keys in files. The following variables give them from Vaul
 | `PMM_TLS_CERTIFICATE`, `PMM_TLS_CERTIFICATE_KEY` | The certificate of the PMM Server web interface and API, and its key, in PEM format |
 | `PMM_TLS_CA_CERTIFICATE` | The certificates of the CA that issued it, optional |
 | `GF_SECURITY_SECRET_KEY` | The key that Grafana encrypts the secrets it stores with, such as the passwords of alert contact points and data sources |
+| `PMM_EXTENSIONS_SECRET_KEY` | The key that the PMM Extensions side-car signs its sessions with, instead of `/srv/.extensions_secret_key` |
+| `PMM_EXTENSIONS_POSTGRES_PASSWORD` | The password that the PMM Extensions side-car connects to the built-in PostgreSQL with, instead of `/srv/.extensions_postgres_password` |
 
 For example:
 
@@ -256,6 +258,8 @@ The encryption key protects most of the secrets that PMM Server stores in its da
 In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path. If the rotation fails, it puts the old key back in Vault.
 
 PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. It applies the passwords of the built-in ClickHouse and PostgreSQL at every start, so restart PMM Server to apply rotated ones; without the variables, the default passwords apply again. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key. The superuser of the built-in PostgreSQL has no password, so there is none to store: it can only connect from inside PMM Server, over the local socket. PMM Server removes the superuser password of an existing installation, and the file in `/srv` that kept it, at the next start.
+
+To move the secret key of PMM Extensions of an existing installation to Vault, store the content of `/srv/.extensions_secret_key` under the reference: once the key from Vault is the same, PMM Server removes the file. A different key signs every session of the side-car out, and leaves the file in place, so that removing the variable returns to it. The side-car keeps reading the key and the password from `/srv/extensions`, where PMM Server publishes them at every start.
 
 !!! note
     The token and secret ID that you give to PMM Server and to its own PMM Client, with `PMM_VAULT_TOKEN`, `PMM_VAULT_SECRET_ID`, `PMM_AGENT_VAULT_TOKEN`, and `PMM_AGENT_VAULT_SECRET_ID`, are handed over to them in files, and are not in the environment of PMM Server's components.
@@ -309,7 +313,7 @@ The password of a monitored database can be a reference too, as an alternative t
 
 Vault support has the following limitations:
 
-- PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the secret key of PMM Extensions, and the certificates of Nomad unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault).
+- PMM Server keeps the certificates of Nomad in `/srv` unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault). It publishes the secret key and the database password of PMM Extensions to `/srv/extensions`, where the side-car reads them.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.

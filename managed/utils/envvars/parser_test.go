@@ -110,6 +110,7 @@ func TestEnvVarValidator(t *testing.T) {
 		envs := []string{
 			"PMM_ENABLE_EXTENSIONS=1",
 			"PMM_EXTENSIONS_POSTGRES_PASSWORD=s3cr3t",
+			"PMM_EXTENSIONS_SECRET_KEY=s3cr3t-key",
 			"PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000",
 			"PMM_EXTENSIONS_URL=http://pmm-extensions:9000",
 			"PMM_EXTENSIONS_TOKEN=s3cr3t-bearer",
