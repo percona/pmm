@@ -16,7 +16,11 @@
 package otel
 
 import (
+	"bytes"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -93,6 +97,7 @@ func BuildServerLogs(presets []*models.LogParserPreset, node ServerNode) ServerL
 		if operators != "" && f.dropExpr != "" {
 			operators = strings.TrimSuffix(operators, "\n") + "\n- type: filter\n  expr: " + quoteYAMLString(f.dropExpr) + "\n"
 		}
+		operators = quietOperators(f.preset, operators)
 		writeServerReceiver(&sb, id, []string{path}, nil, stem, node, lineStart, operators)
 	}
 
@@ -129,4 +134,42 @@ func yamlFlowList(items []string) string {
 		quoted[i] = quoteYAMLString(s)
 	}
 	return "[" + strings.Join(quoted, ", ") + "]"
+}
+
+// quietOperators makes every operator handle its errors quietly: the server collector reads its own log, so a logged
+// parse error would be read back and fail again. A line that fails still passes on unparsed. Returns "" for YAML
+// that does not parse.
+func quietOperators(preset, operatorYAML string) string {
+	if operatorYAML == "" {
+		return ""
+	}
+	l := logrus.WithField("component", "otel").WithField("preset", preset)
+	var ops []map[string]any
+	err := yaml.Unmarshal([]byte(operatorYAML), &ops)
+	if err != nil {
+		l.Warnf("Invalid operators, PMM Server logs read without parsing: %s.", err)
+		return ""
+	}
+	for _, op := range ops {
+		// router takes no on_error.
+		if op["type"] == "router" {
+			continue
+		}
+		switch op["on_error"] {
+		case nil, "send":
+			op["on_error"] = "send_quiet"
+		case "drop":
+			op["on_error"] = "drop_quiet"
+		}
+	}
+
+	var buf bytes.Buffer
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(2) //nolint:mnd
+	err = enc.Encode(ops)
+	if err != nil {
+		l.Warnf("Failed to render operators, PMM Server logs read without parsing: %s.", err)
+		return ""
+	}
+	return buf.String()
 }

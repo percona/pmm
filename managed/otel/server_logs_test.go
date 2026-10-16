@@ -60,7 +60,7 @@ func TestBuildServerLogs(t *testing.T) {
 	assert.Equal(t, "end", managed["start_at"])
 	assert.Equal(t, ServerLogStorage, managed["storage"])
 	assert.Equal(t, map[string]any{"node_id": "pmm-server", "node_name": "pmm-server", "service.name": "pmm-managed"}, managed["resource"])
-	assert.Equal(t, []any{map[string]any{"type": "key_value_parser", "parse_from": "body"}}, managed["operators"])
+	assert.Equal(t, []any{map[string]any{"type": "key_value_parser", "parse_from": "body", "on_error": "send_quiet"}}, managed["operators"])
 
 	pg := receivers["filelog/srv_postgresql14"]
 	assert.Equal(t, map[string]any{"line_start_pattern": presets[1].LineStartPattern}, pg["multiline"])
@@ -69,7 +69,7 @@ func TestBuildServerLogs(t *testing.T) {
 	ops, ok := nginx["operators"].([]any)
 	require.True(t, ok)
 	require.Len(t, ops, 2)
-	assert.Equal(t, map[string]any{"type": "filter", "expr": nginxStatusFilter}, ops[1])
+	assert.Equal(t, map[string]any{"type": "filter", "expr": nginxStatusFilter, "on_error": "send_quiet"}, ops[1])
 
 	assert.Equal(t, "clickhouse-server", receivers["filelog/srv_clickhouse_server"]["resource"].(map[string]any)["service.name"])
 	assert.NotContains(t, receivers["filelog/srv_pmm_init"], "operators")
@@ -111,4 +111,44 @@ func TestBuildServerLogs_HANode(t *testing.T) {
 		require.True(t, ok, id)
 		assert.Equal(t, "pmm-ha-1", res["ha_node_id"], id)
 	}
+}
+
+// The server collector reads its own log, so an operator that logs its errors would feed them back to itself.
+func TestBuildServerLogs_QuietOnError(t *testing.T) {
+	t.Parallel()
+
+	presets := []*models.LogParserPreset{{Name: "otel_collector", OperatorYAML: `- type: regex_parser
+  regex: '^(?P<message>.*)$'
+- type: time_parser
+  parse_from: attributes.timestamp
+  on_error: drop
+- type: move
+  from: attributes.message
+  to: body
+  on_error: send
+- type: remove
+  field: attributes.level
+  on_error: send_quiet
+- type: router
+  routes: []
+`}}
+	logs := BuildServerLogs(presets, ServerNode{NodeID: "pmm-server", NodeName: "pmm-server"})
+
+	ops, ok := parseServerReceivers(t, logs)["filelog/srv_otel_collector"]["operators"].([]any)
+	require.True(t, ok)
+	onError := make([]any, 0, len(ops))
+	for _, op := range ops {
+		onError = append(onError, op.(map[string]any)["on_error"])
+	}
+	assert.Equal(t, []any{"send_quiet", "drop_quiet", "send_quiet", "send_quiet", nil}, onError)
+	assert.Equal(t, `^(?P<message>.*)$`, ops[0].(map[string]any)["regex"])
+}
+
+func TestBuildServerLogs_InvalidPresetYAML(t *testing.T) {
+	t.Parallel()
+
+	presets := []*models.LogParserPreset{{Name: "grafana", OperatorYAML: "- type: [unclosed"}}
+	logs := BuildServerLogs(presets, ServerNode{NodeID: "pmm-server", NodeName: "pmm-server"})
+
+	assert.NotContains(t, parseServerReceivers(t, logs)["filelog/srv_grafana"], "operators")
 }
