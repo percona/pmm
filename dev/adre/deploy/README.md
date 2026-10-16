@@ -49,7 +49,7 @@ Defaults are in [`.env.example`](.env.example); override them in `./.env` or on 
 - **`PMM_ADMIN_PASSWORD`**, **`PMM_CALLBACK_URL`**, **`HOLMES_CONFIG_DIR`** — see `.env.example`.
 - **`MODEL_NAME` / `LITELLM_MODEL` / `LLM_API_KEY`** — all three or none.
 - **`FAST_MODEL_NAME` / `FAST_LITELLM_MODEL`** (+ optional `FAST_LLM_API_KEY`) — a cheaper model for Fast chat,
-  the default mode; `MODEL_NAME` then runs Investigation mode only. Every request carries roughly 25–30k tokens
+  the default mode; `MODEL_NAME` then runs Investigation mode only. Every request carries about 23k tokens
   of tool definitions and instructions, so the per-token price of the Fast model sets the cost of a simple
   question.
 
