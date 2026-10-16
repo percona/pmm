@@ -112,7 +112,7 @@ A password that the database refuses is not stored, so the secret keeps working 
 
 PMM Client stores the credentials with its own Vault identity, so its policy needs `create` and `update` on the path. Only secrets in a KV secrets engine can be written. For credentials issued by the database secrets engine, Vault manages the password, and PMM refuses to store one.
 
-The `--vault-path` flag is available for `pmm-admin add mysql`, `mongodb`, `postgresql`, `proxysql`, and `valkey`, and for the `pmm-admin inventory add agent` and `pmm-admin inventory change agent` commands of the agents that connect to a database. In the API, set the `vault_path` field instead of `password`.
+The `--vault-path` flag is available for `pmm-admin add mysql`, `mongodb`, `postgresql`, `proxysql`, and `valkey`, and for the `pmm-admin inventory add agent` and `pmm-admin inventory change agent` commands of the agents that connect to a database. In the API, set the `vault_path` field instead of `password`. In the PMM web interface, set **Vault path** in the **Main details** of the service when you add it in **Inventory > Add Service**; the **Username** and **Password** can then stay empty.
 
 To move an existing exporter or agent to Vault, set its Vault path. PMM Server removes the stored password. To store the current password in the secret at the same time, give it with `--password`:
 
