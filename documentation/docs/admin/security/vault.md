@@ -33,6 +33,8 @@ PMM supports the following Vault authentication methods:
 | `approle` | PMM runs on a virtual machine or a bare-metal host | `--vault-role-id` and `--vault-secret-id` or `--vault-secret-id-file` |
 | `kubernetes` | PMM runs in Kubernetes | `--vault-role`, and `--vault-jwt-file` when the service account token is not in its default location |
 | `aws` | PMM runs in AWS with an IAM role | `--vault-role`, and `--vault-aws-region` or `--vault-aws-server-id` when your Vault requires them |
+| `azure` | PMM runs on an Azure virtual machine or scale set with a managed identity | `--vault-role`, `--vault-azure-resource` when the azure auth method of Vault is configured with a resource other than `https://management.azure.com/`, and `--vault-azure-client-id` for a user-assigned managed identity |
+| `gcp` | PMM runs on a Google Compute Engine instance | `--vault-role`, a role of the `gce` type: PMM logs in with an identity token of the service account of the instance |
 
 PMM reads a token file again whenever Vault rejects the token, so it picks up the tokens that a Vault Agent renews. Every method logs in again before its token expires.
 
@@ -196,7 +198,7 @@ docker run -d --name pmm-server \
   percona/pmm-server:3
 ```
 
-Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be a reference. The `PMM_VAULT_*` variables are named after the PMM Client flags: `PMM_VAULT_ADDRESS`, `PMM_VAULT_NAMESPACE`, `PMM_VAULT_CA_CERT`, `PMM_VAULT_TLS_SKIP_VERIFY`, `PMM_VAULT_AUTH_METHOD`, `PMM_VAULT_AUTH_MOUNT`, `PMM_VAULT_TOKEN`, `PMM_VAULT_TOKEN_FILE`, `PMM_VAULT_ROLE_ID`, `PMM_VAULT_SECRET_ID`, `PMM_VAULT_SECRET_ID_FILE`, `PMM_VAULT_ROLE`, `PMM_VAULT_JWT_FILE`, `PMM_VAULT_AWS_REGION`, `PMM_VAULT_AWS_SERVER_ID`, and `PMM_VAULT_CACHE_TTL`.
+Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be a reference. The `PMM_VAULT_*` variables are named after the PMM Client flags: `PMM_VAULT_ADDRESS`, `PMM_VAULT_NAMESPACE`, `PMM_VAULT_CA_CERT`, `PMM_VAULT_TLS_SKIP_VERIFY`, `PMM_VAULT_AUTH_METHOD`, `PMM_VAULT_AUTH_MOUNT`, `PMM_VAULT_TOKEN`, `PMM_VAULT_TOKEN_FILE`, `PMM_VAULT_ROLE_ID`, `PMM_VAULT_SECRET_ID`, `PMM_VAULT_SECRET_ID_FILE`, `PMM_VAULT_ROLE`, `PMM_VAULT_JWT_FILE`, `PMM_VAULT_AWS_REGION`, `PMM_VAULT_AWS_SERVER_ID`, `PMM_VAULT_AZURE_RESOURCE`, `PMM_VAULT_AZURE_CLIENT_ID`, and `PMM_VAULT_CACHE_TTL`.
 
 The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at startup: PMM Client reads the references it is given itself, such as `PMM_AGENT_SERVER_PASSWORD`, so that their values are not saved to its configuration file.
 

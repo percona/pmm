@@ -165,6 +165,8 @@ func ConfigFromEnv(getenv func(string) string) (vault.Config, error) {
 		JWTFile:       getenv("PMM_VAULT_JWT_FILE"),
 		AWSRegion:     getenv("PMM_VAULT_AWS_REGION"),
 		AWSServerID:   getenv("PMM_VAULT_AWS_SERVER_ID"),
+		AzureResource: getenv("PMM_VAULT_AZURE_RESOURCE"),
+		AzureClientID: getenv("PMM_VAULT_AZURE_CLIENT_ID"),
 	}
 
 	if ttl := getenv("PMM_VAULT_CACHE_TTL"); ttl != "" {

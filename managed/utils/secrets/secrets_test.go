@@ -135,4 +135,21 @@ func TestConfigFromEnv(t *testing.T) {
 	env["PMM_VAULT_CACHE_TTL"] = "soon"
 	_, err = ConfigFromEnv(func(name string) string { return env[name] })
 	require.ErrorContains(t, err, "invalid PMM_VAULT_CACHE_TTL")
+
+	azure := map[string]string{
+		"PMM_VAULT_ADDRESS":         "https://vault:8200",
+		"PMM_VAULT_AUTH_METHOD":     "azure",
+		"PMM_VAULT_ROLE":            "pmm-server",
+		"PMM_VAULT_AZURE_RESOURCE":  "https://vault.example.com",
+		"PMM_VAULT_AZURE_CLIENT_ID": "6d0c1f2e",
+	}
+	cfg, err = ConfigFromEnv(func(name string) string { return azure[name] })
+	require.NoError(t, err)
+	assert.Equal(t, vault.Config{
+		Address:       "https://vault:8200",
+		AuthMethod:    "azure",
+		Role:          "pmm-server",
+		AzureResource: "https://vault.example.com",
+		AzureClientID: "6d0c1f2e",
+	}, cfg)
 }

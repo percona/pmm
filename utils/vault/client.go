@@ -51,6 +51,10 @@ type Client struct {
 	now  func() time.Time
 
 	// m serializes reads, so that concurrent readers of a dynamic secret share one set of credentials.
+	// azureMetadataURL and gcpMetadataURL are where the azure and gcp methods get the identity to log in with.
+	azureMetadataURL string
+	gcpMetadataURL   string
+
 	m           sync.Mutex
 	token       string
 	tokenExpiry time.Time
@@ -118,6 +122,9 @@ func New(cfg Config) (*Client, error) {
 		http:  &http.Client{Transport: transport, Timeout: requestTimeout},
 		now:   time.Now,
 		cache: make(map[string]cachedSecret),
+
+		azureMetadataURL: azureMetadataURL,
+		gcpMetadataURL:   gcpMetadataURL,
 	}, nil
 }
 
@@ -398,6 +405,26 @@ func (c *Client) login(ctx context.Context) (string, time.Duration, error) {
 			return "", 0, fmt.Errorf("failed to load AWS configuration: %w", err)
 		}
 		body, err = awsLoginData(ctx, awsCfg.Credentials, c.cfg.AWSRegion, c.cfg.AWSServerID, c.now())
+		if err != nil {
+			return "", 0, err
+		}
+		body["role"] = c.cfg.Role
+
+	case AuthMethodAzure:
+		resource := c.cfg.AzureResource
+		if resource == "" {
+			resource = DefaultAzureResource
+		}
+		var err error
+		body, err = azureLoginData(ctx, c.azureMetadataURL, resource, c.cfg.AzureClientID)
+		if err != nil {
+			return "", 0, err
+		}
+		body["role"] = c.cfg.Role
+
+	case AuthMethodGCP:
+		var err error
+		body, err = gcpLoginData(ctx, c.gcpMetadataURL, c.cfg.Role)
 		if err != nil {
 			return "", 0, err
 		}

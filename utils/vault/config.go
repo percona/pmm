@@ -29,10 +29,14 @@ const (
 	AuthMethodAppRole    = "approle"
 	AuthMethodKubernetes = "kubernetes"
 	AuthMethodAWS        = "aws"
+	AuthMethodAzure      = "azure"
+	AuthMethodGCP        = "gcp"
 )
 
 // AuthMethods lists the supported authentication methods.
-var AuthMethods = []string{AuthMethodToken, AuthMethodAppRole, AuthMethodKubernetes, AuthMethodAWS} //nolint:gochecknoglobals
+var AuthMethods = []string{ //nolint:gochecknoglobals
+	AuthMethodToken, AuthMethodAppRole, AuthMethodKubernetes, AuthMethodAWS, AuthMethodAzure, AuthMethodGCP,
+}
 
 const (
 	// DefaultCacheTTL is how long a secret without a lease is reused before it is read again.
@@ -66,7 +70,7 @@ type Config struct {
 	SecretID     string `yaml:"secret-id,omitempty"`
 	SecretIDFile string `yaml:"secret-id-file,omitempty"`
 
-	// Role is the Vault role of the kubernetes and aws methods.
+	// Role is the Vault role of the kubernetes, aws, azure and gcp methods.
 	Role string `yaml:"role,omitempty"`
 	// JWTFile is the service account token of the kubernetes method.
 	JWTFile string `yaml:"jwt-file,omitempty"`
@@ -74,6 +78,12 @@ type Config struct {
 	AWSRegion string `yaml:"aws-region,omitempty"`
 	// AWSServerID is sent as X-Vault-AWS-IAM-Server-ID when the aws method requires it.
 	AWSServerID string `yaml:"aws-server-id,omitempty"`
+	// AzureResource is the resource that the azure method requests the access token of the managed identity for,
+	// DefaultAzureResource when empty.
+	AzureResource string `yaml:"azure-resource,omitempty"`
+	// AzureClientID selects a user-assigned managed identity for the azure method; the system-assigned one is used
+	// when empty.
+	AzureClientID string `yaml:"azure-client-id,omitempty"`
 
 	// CacheTTL is how long a secret without a lease is reused before it is read again.
 	CacheTTL time.Duration `yaml:"cache-ttl,omitempty"`
@@ -120,7 +130,7 @@ func (c Config) Validate() error {
 		if c.RoleID == "" || (c.SecretID == "" && c.SecretIDFile == "") {
 			return errors.New("vault auth method approle requires a role ID and a secret ID or a secret ID file")
 		}
-	case AuthMethodKubernetes, AuthMethodAWS:
+	case AuthMethodKubernetes, AuthMethodAWS, AuthMethodAzure, AuthMethodGCP:
 		if c.Role == "" {
 			return fmt.Errorf("vault auth method %s requires a role", c.authMethod())
 		}

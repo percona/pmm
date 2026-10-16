@@ -494,7 +494,7 @@ func TestConfigValidate(t *testing.T) {
 		"Token":           {cfg: Config{Address: "https://vault:8200", Token: "t"}},
 		"BadAddress":      {cfg: Config{Address: "vault:8200", Token: "t"}, err: "vault address must be an http(s) URL, got 'vault:8200'"},
 		"NoToken":         {cfg: Config{Address: "https://vault:8200"}, err: "vault auth method token requires a token or a token file"},
-		"UnknownMethod":   {cfg: Config{Address: "https://vault:8200", AuthMethod: "ldap"}, err: "unsupported vault auth method 'ldap', expected one of [token approle kubernetes aws]"},
+		"UnknownMethod":   {cfg: Config{Address: "https://vault:8200", AuthMethod: "ldap"}, err: "unsupported vault auth method 'ldap', expected one of [token approle kubernetes aws azure gcp]"},
 		"AppRoleNoSecret": {cfg: Config{Address: "https://vault:8200", AuthMethod: AuthMethodAppRole, RoleID: "r"}, err: "vault auth method approle requires a role ID and a secret ID or a secret ID file"},
 		"KubernetesNoRole": {
 			cfg: Config{Address: "https://vault:8200", AuthMethod: AuthMethodKubernetes},

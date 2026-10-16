@@ -560,7 +560,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_VAULT_CA_CERT").StringVar(&cfg.Vault.CACert)
 	app.Flag("vault-tls-skip-verify", "Skip Vault TLS certificate validation [PMM_AGENT_VAULT_TLS_SKIP_VERIFY]").
 		Envar("PMM_AGENT_VAULT_TLS_SKIP_VERIFY").BoolVar(&cfg.Vault.TLSSkipVerify)
-	app.Flag("vault-auth-method", "Vault auth method: token (default), approle, kubernetes or aws [PMM_AGENT_VAULT_AUTH_METHOD]").
+	app.Flag("vault-auth-method", "Vault auth method: token (default), approle, kubernetes, aws, azure or gcp [PMM_AGENT_VAULT_AUTH_METHOD]").
 		Envar("PMM_AGENT_VAULT_AUTH_METHOD").EnumVar(&cfg.Vault.AuthMethod, vault.AuthMethods...)
 	app.Flag("vault-auth-mount", "Path the Vault auth method is mounted at, the method name by default [PMM_AGENT_VAULT_AUTH_MOUNT]").
 		Envar("PMM_AGENT_VAULT_AUTH_MOUNT").StringVar(&cfg.Vault.AuthMount)
@@ -574,7 +574,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_VAULT_SECRET_ID").StringVar(&cfg.Vault.SecretID)
 	app.Flag("vault-secret-id-file", "File with the secret ID for the approle auth method [PMM_AGENT_VAULT_SECRET_ID_FILE]").
 		Envar("PMM_AGENT_VAULT_SECRET_ID_FILE").StringVar(&cfg.Vault.SecretIDFile)
-	app.Flag("vault-role", "Vault role for the kubernetes and aws auth methods [PMM_AGENT_VAULT_ROLE]").
+	app.Flag("vault-role", "Vault role for the kubernetes, aws, azure and gcp auth methods [PMM_AGENT_VAULT_ROLE]").
 		Envar("PMM_AGENT_VAULT_ROLE").StringVar(&cfg.Vault.Role)
 	app.Flag("vault-jwt-file", "Service account token for the kubernetes auth method [PMM_AGENT_VAULT_JWT_FILE]").
 		Envar("PMM_AGENT_VAULT_JWT_FILE").StringVar(&cfg.Vault.JWTFile)
@@ -582,6 +582,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_VAULT_AWS_REGION").StringVar(&cfg.Vault.AWSRegion)
 	app.Flag("vault-aws-server-id", "X-Vault-AWS-IAM-Server-ID header value for the aws auth method [PMM_AGENT_VAULT_AWS_SERVER_ID]").
 		Envar("PMM_AGENT_VAULT_AWS_SERVER_ID").StringVar(&cfg.Vault.AWSServerID)
+	app.Flag("vault-azure-resource", "Resource of the managed identity token for the azure auth method, "+
+		vault.DefaultAzureResource+" by default [PMM_AGENT_VAULT_AZURE_RESOURCE]").
+		Envar("PMM_AGENT_VAULT_AZURE_RESOURCE").StringVar(&cfg.Vault.AzureResource)
+	app.Flag("vault-azure-client-id", "Client ID of a user-assigned managed identity for the azure auth method, "+
+		"the system-assigned one by default [PMM_AGENT_VAULT_AZURE_CLIENT_ID]").
+		Envar("PMM_AGENT_VAULT_AZURE_CLIENT_ID").StringVar(&cfg.Vault.AzureClientID)
 	app.Flag("vault-cache-ttl", "How long secrets without a lease are reused, and how often changed secrets are looked for [PMM_AGENT_VAULT_CACHE_TTL]").
 		Envar("PMM_AGENT_VAULT_CACHE_TTL").DurationVar(&cfg.Vault.CacheTTL)
 
