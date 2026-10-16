@@ -433,7 +433,7 @@ stop_mysql_connection_storm() {
 }
 
 TARGET[mysql_auth_failures]="MySQL $MYSQL_PRIMARY (error log only)"
-EXPECT[mysql_auth_failures]="Error log only: repeated 'Access denied for user 'shop_app'@'localhost' (using password: YES)' (MY-010926) and for the unknown user report_ro, about 2 per second; Aborted_connects / access denied counters rise; no alert. Cause: a client deployed with a wrong password (or a brute-force attempt) from 127.0.0.1."
+EXPECT[mysql_auth_failures]="Error log only: repeated Notes 'Access denied for user 'shop_app'@'127.0.0.1' (using password: YES)' (MY-010926) and the same for the unknown user report_ro, about once a second each; Aborted_connects / access denied counters rise; no alert. Cause: a client deployed with a wrong password (or a brute-force attempt) from 127.0.0.1."
 start_mysql_auth_failures() {
   job "$MYSQL_PRIMARY" mysql_auth_failures <<EOF
 end=\$((SECONDS + $1))
