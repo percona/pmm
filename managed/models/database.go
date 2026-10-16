@@ -2026,8 +2026,9 @@ $y$,
 	},
 	148: {
 		// postgres: only a line with a top-level level starts an entry, so DETAIL/HINT/STATEMENT/CONTEXT lines join it.
+		// The optional user@db is Debian's default log_line_prefix ('%m [%p] %q%u@%d ').
 		`UPDATE log_parser_presets SET
-			line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\] (LOG|ERROR|WARNING|FATAL|PANIC|NOTICE|INFO|DEBUG\d?):$p$,
+			line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\] (?:\S+@\S+ )?(LOG|ERROR|WARNING|FATAL|PANIC|NOTICE|INFO|DEBUG\d?):$p$,
 			updated_at = NOW()
 		WHERE name = 'postgres' AND built_in AND line_start_pattern = $p$^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\]$p$`,
 		// Go accepts fractional seconds the layout omits, so vmproxy.log lines without milliseconds parse too.

@@ -42,6 +42,13 @@ func TestLogParserPresetsServerLogs(t *testing.T) {
 		for _, l := range []string{"DETAIL", "HINT", "STATEMENT", "CONTEXT", "QUERY", "LOCATION"} {
 			assert.False(t, re.MatchString(`2026-10-16 12:38:54.405 UTC [233190] `+l+`:  x`), l)
 		}
+
+		// Debian and Ubuntu packages log with log_line_prefix = '%m [%p] %q%u@%d '.
+		assert.True(t, re.MatchString(`2026-10-16 12:38:54.405 UTC [233190] postgres@pmm ERROR:  deadlock detected`))
+		assert.True(t, re.MatchString(`2026-10-16 12:38:54.405 UTC [233191] [unknown]@[unknown] LOG:  connection received`))
+		for _, l := range []string{"DETAIL", "STATEMENT"} {
+			assert.False(t, re.MatchString(`2026-10-16 12:38:54.405 UTC [233190] postgres@pmm `+l+`:  x`), l)
+		}
 	})
 
 	t.Run("pmm_agent parses times with and without milliseconds", func(t *testing.T) {

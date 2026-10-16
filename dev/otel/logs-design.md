@@ -69,8 +69,10 @@ A new migration changes the built-in `postgres` preset's `line_start_pattern` so
 top-level line:
 
 ```
-^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\] (LOG|ERROR|WARNING|FATAL|PANIC|NOTICE|INFO|DEBUG\d?):
+^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)? \S+ \[\d+\] (?:\S+@\S+ )?(LOG|ERROR|WARNING|FATAL|PANIC|NOTICE|INFO|DEBUG\d?):
 ```
+
+The optional `user@db ` covers Debian's and Ubuntu's default `log_line_prefix` (`'%m [%p] %q%u@%d '`).
 
 `DETAIL`, `HINT`, `STATEMENT`, `CONTEXT`, `QUERY` and `LOCATION` lines join the entry above. PostgreSQL writes a
 whole report in one `write()`, so its lines are adjacent in the file. The migration only touches the preset if it is
