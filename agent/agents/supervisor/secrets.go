@@ -17,6 +17,7 @@ package supervisor
 import (
 	"maps"
 	"slices"
+	"time"
 
 	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -124,9 +125,12 @@ func (s *Supervisor) refreshSecrets() {
 	pending := len(s.pendingProcesses)+len(s.pendingBuiltins) != 0
 	s.rw.RUnlock()
 
+	// Each secret is read from Vault again, once, rather than taken from the cache: a change is seen at
+	// this check rather than at the next one.
+	ctx := vault.ReadSince(s.ctx, time.Now())
 	var changed []candidate
 	for _, c := range candidates {
-		fingerprint, err := secrets.Fingerprint(s.ctx, c.strs...)
+		fingerprint, err := secrets.Fingerprint(ctx, c.strs...)
 		if err != nil {
 			s.l.WithField("agentID", c.id).Warnf("Cannot check the Vault secrets of the Agent, it keeps running: %s.", err)
 			continue

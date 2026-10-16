@@ -291,6 +291,6 @@ Vault support has the following limitations:
 - PMM Server keeps the secrets it generates for its own components in `/srv`, next to the data they protect: the password of the PostgreSQL superuser, the secret key of PMM Extensions, and the certificates of Nomad. `GF_DATABASE_PASSWORD` applies to an [external Grafana database](../../reference/third-party/postgresql.md#grafana-database-configuration) only.
 - Credentials in `PMM_VM_URL` are written to the configuration files of vmalert and vmproxy.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
-- A secret changed in Vault takes up to twice the cache TTL to reach the exporters and agents that use it.
+- A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.
 - An admin password changed in the PMM web interface is not stored in Vault. Use `change-admin-password` instead.

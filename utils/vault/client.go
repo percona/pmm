@@ -60,7 +60,28 @@ type Client struct {
 type cachedSecret struct {
 	data    map[string]string
 	err     error
+	read    time.Time
 	expires time.Time
+	leased  bool
+}
+
+type readSinceKey struct{}
+
+// ReadSince returns a context in which the client answers from its cache only with the secrets it read at
+// or after t, and reads the others from Vault again. A secret with a lease is still answered from the cache
+// until it is about to expire: reading it again would issue new credentials. It serves to check the secrets
+// for changes, reading each of them once per check.
+func ReadSince(ctx context.Context, t time.Time) context.Context {
+	return context.WithValue(ctx, readSinceKey{}, t)
+}
+
+// fresh reports whether a cached secret may answer a read in ctx, see ReadSince.
+func (s cachedSecret) fresh(ctx context.Context, now time.Time) bool {
+	if !now.Before(s.expires) {
+		return false
+	}
+	since, ok := ctx.Value(readSinceKey{}).(time.Time)
+	return !ok || s.leased || !s.read.Before(since)
 }
 
 // New returns a Client for an enabled configuration.
@@ -113,21 +134,22 @@ func (c *Client) Read(ctx context.Context, path string) (map[string]string, erro
 	defer c.m.Unlock()
 
 	now := c.now()
-	if s, ok := c.cache[path]; ok && now.Before(s.expires) {
+	if s, ok := c.cache[path]; ok && s.fresh(ctx, now) {
 		return s.data, s.err
 	}
 
 	data, resp, err := c.read(ctx, path)
 	if err != nil {
-		c.cache[path] = cachedSecret{err: err, expires: now.Add(errorCacheTTL)}
+		c.cache[path] = cachedSecret{err: err, read: now, expires: now.Add(errorCacheTTL)}
 		return nil, err
 	}
 
 	ttl := c.cfg.EffectiveCacheTTL()
-	if resp.LeaseID != "" && resp.LeaseDuration > 0 {
+	leased := resp.LeaseID != "" && resp.LeaseDuration > 0
+	if leased {
 		ttl = time.Duration(resp.LeaseDuration) * time.Second * 2 / 3 //nolint:mnd
 	}
-	c.cache[path] = cachedSecret{data: data, expires: now.Add(ttl)}
+	c.cache[path] = cachedSecret{data: data, read: now, expires: now.Add(ttl), leased: leased}
 
 	return data, nil
 }

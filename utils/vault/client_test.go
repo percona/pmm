@@ -274,6 +274,50 @@ func TestClientCache(t *testing.T) {
 	})
 }
 
+func TestClientReadSince(t *testing.T) {
+	t.Parallel()
+
+	fv, srv := newFakeVault(t)
+	password := "first"
+	fv.secrets["secret/data/db"] = func() map[string]any { return kv2(map[string]any{"password": password})() }
+	n := 0
+	fv.secrets["database/creds/pmm"] = func() map[string]any {
+		n++
+		return map[string]any{
+			"lease_id":       "database/creds/pmm/abc",
+			"lease_duration": 3600,
+			"data":           map[string]any{"username": "v-pmm-" + string(rune('0'+n))},
+		}
+	}
+
+	c, err := New(Config{Address: srv.URL, Token: "static-token", CacheTTL: time.Minute})
+	require.NoError(t, err)
+	now := time.Now()
+	c.now = func() time.Time { return now }
+
+	_, err = c.Get(t.Context(), "secret/data/db", "password")
+	require.NoError(t, err)
+	_, err = c.Get(t.Context(), "database/creds/pmm", "username")
+	require.NoError(t, err)
+
+	// A check a moment later reads the changed secret, once, while a plain read keeps the cached one.
+	password = "second"
+	now = now.Add(time.Second)
+	check := ReadSince(t.Context(), now)
+	for range 2 {
+		v, err := c.Get(check, "secret/data/db", "password")
+		require.NoError(t, err)
+		assert.Equal(t, "second", v)
+	}
+	assert.Equal(t, 3, fv.reads)
+
+	// The credentials with a lease are not issued anew for a check.
+	u, err := c.Get(check, "database/creds/pmm", "username")
+	require.NoError(t, err)
+	assert.Equal(t, "v-pmm-1", u)
+	assert.Equal(t, 3, fv.reads)
+}
+
 func TestClientLogin(t *testing.T) {
 	t.Parallel()
 

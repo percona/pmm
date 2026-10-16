@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // WatchServerSecrets sends a new state to the pmm-agents, and a new configuration to VictoriaMetrics, when a
@@ -69,6 +70,9 @@ func (u *StateUpdater) changedServerSecrets(ctx context.Context, seen map[string
 		return nil
 	}
 
+	// Each secret is read from Vault again, once, rather than taken from the cache: a change is seen at this
+	// check rather than at the next one.
+	ctx = vault.ReadSince(ctx, time.Now())
 	changed := make(map[string]struct{})
 	present := make(map[string]struct{}, len(agents))
 	for _, agent := range agents {
