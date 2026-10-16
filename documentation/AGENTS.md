@@ -12,7 +12,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Scaffolded by the `pmm-rn-create` skill, filled in on the release branch |
+| `documentation/docs/release-notes/` | One page per released version | Scaffolded on `main` by the `pmm-rn-create` skill after the previous release; entries arrive with their PRs |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -187,7 +187,7 @@ Rules for the entry:
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
 
-The version page itself — the release summary, highlights, security updates and the `nav`/`variables.yml` bump — is scaffolded by the `pmm-rn-create` skill and written by the doc team on the release branch. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+The version page itself — the release summary, highlights, security updates and the `nav`/`variables.yml` bump — is scaffolded by the `pmm-rn-create` skill on `main` right after the previous release, so entries can land with their PRs, and is written by the doc team. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
 
 ## Content type templates
 
