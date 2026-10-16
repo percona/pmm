@@ -9,6 +9,7 @@ describe('AdreBehaviorControlsBlock utils', () => {
     expect(shippedPreset('investigation')).toEqual({
       todowrite_instructions: true,
       todowrite_reminder: true,
+      general_instructions: false,
     });
   });
 
@@ -32,5 +33,12 @@ describe('AdreBehaviorControlsBlock utils', () => {
 
     expect(effectiveValue(map, 'todowrite_instructions', 'fast')).toBe(false);
     expect(effectiveValue(map, 'time_skills', 'fast')).toBe(false);
+  });
+
+  it('drops Holmes general instructions in every preset', () => {
+    for (const variant of ['fast', 'investigation', 'format'] as const) {
+      const map = hydrateAdreBehaviorMap(undefined, variant);
+      expect(effectiveValue(map, 'general_instructions', variant)).toBe(false);
+    }
   });
 });

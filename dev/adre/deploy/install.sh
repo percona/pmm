@@ -32,6 +32,12 @@ MODEL_NAME="${MODEL_NAME:-}" LITELLM_MODEL="${LITELLM_MODEL:-}" LLM_API_KEY="${L
 if [ -n "$MODEL_NAME$LITELLM_MODEL$LLM_API_KEY" ] && { [ -z "$MODEL_NAME" ] || [ -z "$LITELLM_MODEL" ] || [ -z "$LLM_API_KEY" ]; }; then
   echo "ERROR: set all of MODEL_NAME, LITELLM_MODEL and LLM_API_KEY, or none (then add the model in the PMM UI)."; exit 1
 fi
+# Optional cheaper model for Fast chat; MODEL_NAME then serves Investigation mode only.
+FAST_MODEL_NAME="${FAST_MODEL_NAME:-}" FAST_LITELLM_MODEL="${FAST_LITELLM_MODEL:-}"
+FAST_LLM_API_KEY="${FAST_LLM_API_KEY:-$LLM_API_KEY}"
+if [ -n "$FAST_MODEL_NAME$FAST_LITELLM_MODEL" ] && { [ -z "$MODEL_NAME" ] || [ -z "$FAST_MODEL_NAME" ] || [ -z "$FAST_LITELLM_MODEL" ]; }; then
+  echo "ERROR: FAST_MODEL_NAME and FAST_LITELLM_MODEL go together, and need MODEL_NAME/LITELLM_MODEL/LLM_API_KEY."; exit 1
+fi
 
 for tool in curl openssl; do
   command -v "$tool" >/dev/null || { echo "ERROR: $tool is required."; exit 1; }
@@ -116,12 +122,14 @@ echo "         $PMM_CALLBACK_URL"
 
 echo "==> 4/5  provision ADRE"
 settings="{\"enabled\":true,\"url\":$(json_str "$HOLMES_URL"),\"tls_skip_verify\":true"
-[ -n "$MODEL_NAME" ] && settings+=",\"chat_model\":$(json_str "$MODEL_NAME"),\"investigation_model\":$(json_str "$MODEL_NAME")"
+[ -n "$MODEL_NAME" ] && settings+=",\"chat_model\":$(json_str "${FAST_MODEL_NAME:-$MODEL_NAME}"),\"investigation_model\":$(json_str "$MODEL_NAME")"
 api POST /v1/adre/settings "$settings}" >/dev/null
 echo "         + ADRE enabled, Holmes at $HOLMES_URL (self-signed cert, TLS verify skipped)"
 if [ -n "$MODEL_NAME" ]; then
-  api PUT /v1/adre/deployment/models "{\"models\":[{\"name\":$(json_str "$MODEL_NAME"),\"litellm_model\":$(json_str "$LITELLM_MODEL"),\"api_key\":$(json_str "$LLM_API_KEY")}]}" >/dev/null
-  echo "         + model $MODEL_NAME ($LITELLM_MODEL)"
+  mdls="{\"name\":$(json_str "$MODEL_NAME"),\"litellm_model\":$(json_str "$LITELLM_MODEL"),\"api_key\":$(json_str "$LLM_API_KEY")}"
+  [ -n "$FAST_MODEL_NAME" ] && mdls+=",{\"name\":$(json_str "$FAST_MODEL_NAME"),\"litellm_model\":$(json_str "$FAST_LITELLM_MODEL"),\"api_key\":$(json_str "$FAST_LLM_API_KEY")}"
+  api PUT /v1/adre/deployment/models "{\"models\":[$mdls]}" >/dev/null
+  echo "         + model $MODEL_NAME ($LITELLM_MODEL)${FAST_MODEL_NAME:+, fast chat model $FAST_MODEL_NAME ($FAST_LITELLM_MODEL)}"
 fi
 api PUT /v1/adre/deployment/provisioning "{\"pmm_url\":$(json_str "$PMM_CALLBACK_URL")}" >/dev/null
 api POST /v1/adre/deployment/provision >/dev/null

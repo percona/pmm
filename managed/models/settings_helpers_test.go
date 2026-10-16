@@ -60,7 +60,7 @@ func TestSettings(t *testing.T) {
 		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
 		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "investigation"
+		expected.Adre.DefaultChatMode = "fast"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
@@ -68,11 +68,13 @@ func TestSettings(t *testing.T) {
 			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
+			"general_instructions":   false,
 		}
 		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
 			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
+			"general_instructions":   false,
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -102,7 +104,7 @@ func TestSettings(t *testing.T) {
 		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
 		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "investigation"
+		expected.Adre.DefaultChatMode = "fast"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
@@ -110,11 +112,13 @@ func TestSettings(t *testing.T) {
 			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
+			"general_instructions":   false,
 		}
 		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
 			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
+			"general_instructions":   false,
 		}
 		assert.Equal(t, expected, s)
 	})

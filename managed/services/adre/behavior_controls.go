@@ -44,11 +44,14 @@ var KnownBehaviorControlKeys = []string{
 const AdreMaxConversationMessagesDefault = 40
 
 // DefaultBehaviorControlsFast disables timed skills catalog injection and TodoWrite for Fast mode (Holmes fast-mode recipe).
+// Every preset drops Holmes' general_instructions (generic and Kubernetes investigation guidance, ~2.6k tokens per
+// LLM call); the database-relevant rules live in the PMM prompts instead.
 func DefaultBehaviorControlsFast() map[string]bool {
 	return map[string]bool{
 		"time_skills":            false,
 		"todowrite_instructions": false,
 		"todowrite_reminder":     false,
+		"general_instructions":   false,
 	}
 }
 
@@ -57,6 +60,7 @@ func DefaultBehaviorControlsInvestigation() map[string]bool {
 	return map[string]bool{
 		"todowrite_instructions": true,
 		"todowrite_reminder":     true,
+		"general_instructions":   false,
 	}
 }
 
@@ -66,6 +70,7 @@ func DefaultBehaviorControlsFormatReport() map[string]bool {
 		"time_skills":            false,
 		"todowrite_instructions": false,
 		"todowrite_reminder":     false,
+		"general_instructions":   false,
 	}
 }
 

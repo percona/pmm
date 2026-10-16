@@ -16,9 +16,8 @@ export function defaultChatModeFromSettings(
   defaultChatMode: string | undefined
 ): AdreChatUiMode {
   if (defaultChatMode === 'investigation') return 'investigation';
-  if (defaultChatMode === 'fast' || defaultChatMode === 'chat') return 'fast';
 
-  return 'investigation';
+  return 'fast';
 }
 
 export function loadAdreChatUiPreferences(): AdreChatUiPrefs {

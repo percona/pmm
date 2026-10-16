@@ -46,7 +46,7 @@ const (
 	// AdreChatRetentionDaysDefault is the automatic ADRE chat retention when unset in settings (days).
 	AdreChatRetentionDaysDefault = 365
 	// AdreSchemaVersionCurrent is bumped when a one-way ADRE settings migration runs in fillDefaults.
-	AdreSchemaVersionCurrent = 2
+	AdreSchemaVersionCurrent = 3
 	awsPartitionID           = "aws"
 )
 
@@ -126,7 +126,7 @@ type Settings struct {
 		ChatModel string `json:"chat_model"`
 		// InvestigationModel is default Holmes model for investigation mode. Empty uses Holmes default model.
 		InvestigationModel string `json:"investigation_model"`
-		// DefaultChatMode: "fast" or "investigation" (empty defaults to "investigation"; legacy "chat" mapped to "fast" in fillDefaults).
+		// DefaultChatMode: "fast" or "investigation" (empty defaults to "fast"; legacy "chat" mapped to "fast" in fillDefaults).
 		DefaultChatMode string `json:"default_chat_mode"`
 		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps
 		// (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.
@@ -469,12 +469,12 @@ func (s *Settings) fillDefaults() {
 	if s.Adre.Enabled == nil {
 		s.Adre.Enabled = new(AdreEnabledDefault)
 	}
-	if s.Adre.AdreSchemaVersion < AdreSchemaVersionCurrent {
+	if s.Adre.AdreSchemaVersion < 2 { //nolint:mnd
 		// One-way migration: new behavior_controls model, Fast/Investigation prompts reset to built-in defaults (empty = use code defaults).
 		s.Adre.ChatPrompt = ""
 		s.Adre.InvestigationPrompt = ""
 		if s.Adre.DefaultChatMode == "" || s.Adre.DefaultChatMode == "chat" {
-			s.Adre.DefaultChatMode = "investigation"
+			s.Adre.DefaultChatMode = "fast"
 		}
 		s.Adre.BehaviorControlsFast = map[string]bool{
 			"time_skills":            false,
@@ -490,10 +490,23 @@ func (s *Settings) fillDefaults() {
 		if s.Adre.AdreMaxConversationMessages <= 0 {
 			s.Adre.AdreMaxConversationMessages = 40
 		}
-		s.Adre.AdreSchemaVersion = AdreSchemaVersionCurrent
 	}
+	if s.Adre.AdreSchemaVersion < 3 { //nolint:mnd
+		// One-way migration: Fast becomes the default chat mode (investigation mode on every message, a "ping" included,
+		// added TodoWrite and the skill catalog), and stored presets drop Holmes' generic/Kubernetes guidance.
+		if s.Adre.DefaultChatMode == "investigation" {
+			s.Adre.DefaultChatMode = "fast"
+		}
+		for _, m := range []map[string]bool{s.Adre.BehaviorControlsFast, s.Adre.BehaviorControlsInvestigation, s.Adre.BehaviorControlsFormatReport} {
+			_, ok := m["general_instructions"]
+			if m != nil && !ok {
+				m["general_instructions"] = false
+			}
+		}
+	}
+	s.Adre.AdreSchemaVersion = AdreSchemaVersionCurrent
 	if s.Adre.DefaultChatMode == "" {
-		s.Adre.DefaultChatMode = "investigation"
+		s.Adre.DefaultChatMode = "fast"
 	}
 	if s.Adre.DefaultChatMode == "chat" {
 		s.Adre.DefaultChatMode = "fast"

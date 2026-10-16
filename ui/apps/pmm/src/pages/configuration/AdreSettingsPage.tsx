@@ -82,7 +82,7 @@ const AdreSettingsPage: FC = () => {
   );
   const [localDefaultChatMode, setLocalDefaultChatMode] = useState<
     'fast' | 'investigation'
-  >('investigation');
+  >('fast');
   const [localFastModel, setLocalFastModel] = useState('');
   const [localInvestigationModel, setLocalInvestigationModel] = useState('');
   const [localQanInsightsModel, setLocalQanInsightsModel] = useState('');

@@ -158,7 +158,7 @@ type adreSettingsResponse struct {
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
 	if r.DefaultChatMode == "" {
-		r.DefaultChatMode = "investigation" //nolint:goconst
+		r.DefaultChatMode = "fast" //nolint:goconst
 	}
 	if r.PromptMaxBytes <= 0 {
 		r.PromptMaxBytes = models.AdrePromptMaxBytes

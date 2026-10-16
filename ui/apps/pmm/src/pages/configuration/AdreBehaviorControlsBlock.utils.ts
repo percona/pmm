@@ -1,15 +1,18 @@
 export type AdreBehaviorVariant = 'fast' | 'investigation' | 'format';
 
+// Every preset drops Holmes' generic/Kubernetes general_instructions; the PMM prompts carry the DB-relevant rules.
 const FAST_SHIPPED: Record<string, boolean> = {
   time_skills: false,
   todowrite_instructions: false,
   todowrite_reminder: false,
+  general_instructions: false,
 };
 
 // Holmes disables TodoWrite planning by default since 0.43 (ROB-574); Investigation opts back in.
 const INVESTIGATION_SHIPPED: Record<string, boolean> = {
   todowrite_instructions: true,
   todowrite_reminder: true,
+  general_instructions: false,
 };
 
 export function shippedPreset(
