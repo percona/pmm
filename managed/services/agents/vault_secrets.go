@@ -41,8 +41,14 @@ func (u *StateUpdater) WatchServerSecrets(ctx context.Context, interval time.Dur
 		for pmmAgentID := range changed {
 			u.RequestStateUpdate(ctx, pmmAgentID)
 		}
+		// Without the batch delay of a requested update: from the moment an exporter restarts with a new
+		// password, VictoriaMetrics fails to scrape it with the old one.
 		if len(changed) != 0 {
-			u.vmdb.RequestConfigurationUpdate()
+			err := u.vmdb.ForceConfigurationUpdate(ctx)
+			if err != nil {
+				l.Warnf("Cannot update the VictoriaMetrics configuration, requesting an update: %s.", err)
+				u.vmdb.RequestConfigurationUpdate()
+			}
 		}
 
 		select {

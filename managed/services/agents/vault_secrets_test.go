@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/logger"
 )
 
 type mapSecrets map[string]string
@@ -93,4 +95,82 @@ func TestJobS3KeysFromVault(t *testing.T) {
 	assert.Equal(t, "AKIA", cfg.AccessKey)
 	assert.Equal(t, "s3cr3t", cfg.SecretKey)
 	assert.Equal(t, "vault:secret/data/s3#secret_key", location.SecretKey, "the location itself is not changed")
+}
+
+type fakeVictoriaMetrics struct {
+	forced chan struct{}
+}
+
+func (f *fakeVictoriaMetrics) RequestConfigurationUpdate() {}
+
+func (f *fakeVictoriaMetrics) ForceConfigurationUpdate(context.Context) error {
+	f.forced <- struct{}{}
+	return nil
+}
+
+func (f *fakeVictoriaMetrics) BuildScrapeConfigForVMAgent(context.Context, string) ([]byte, error) {
+	return nil, nil
+}
+
+// Not parallel: it configures the process-wide Vault client of PMM Server.
+func TestWatchServerSecretsUpdatesVictoriaMetricsAtOnce(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	stored := &lockedSecrets{m: map[string]string{"secret/data/pmm#agent_password": "first"}}
+	secrets.Configure(stored, time.Minute)
+	t.Cleanup(func() { secrets.Configure(nil, 0) })
+
+	_, err := models.CreateNodeExporter(db.Querier, models.PMMServerAgentID, nil, false, false, nil, new("vault:secret/data/pmm#agent_password"), "")
+	require.NoError(t, err)
+
+	vmdb := &fakeVictoriaMetrics{forced: make(chan struct{}, 1)}
+	u := &StateUpdater{db: db, r: &Registry{}, vmdb: vmdb}
+	ctx, cancel := context.WithCancel(logger.Set(t.Context(), t.Name()))
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		u.WatchServerSecrets(ctx, 10*time.Millisecond)
+	}()
+	t.Cleanup(func() {
+		cancel()
+		<-done
+	})
+
+	select {
+	case <-vmdb.forced:
+		t.Fatal("updated without a change")
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	stored.set("secret/data/pmm#agent_password", "rotated")
+	select {
+	case <-vmdb.forced:
+	case <-time.After(5 * time.Second):
+		t.Fatal("not updated after the secret changed")
+	}
+}
+
+type lockedSecrets struct {
+	mu sync.Mutex
+	m  map[string]string
+}
+
+func (s *lockedSecrets) Get(_ context.Context, path, key string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	v, ok := s.m[path+"#"+key]
+	if !ok {
+		return "", errors.New("no such secret")
+	}
+	return v, nil
+}
+
+func (s *lockedSecrets) set(k, v string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.m[k] = v
 }
