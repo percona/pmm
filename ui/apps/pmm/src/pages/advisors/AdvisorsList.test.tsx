@@ -374,6 +374,22 @@ describe('AdvisorsList', () => {
     expect(screen.getByTestId('clear-filters')).toBeDisabled();
   });
 
+  it('reloads the checks via the refresh button', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    const calls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
+
+    fireEvent.click(screen.getByTestId('refresh-checks'));
+
+    await waitFor(() =>
+      expect(vi.mocked(advisorsApi.listAdvisors).mock.calls.length).toBe(
+        calls + 1
+      )
+    );
+  });
+
   it('runs all checks', async () => {
     renderComponent();
 

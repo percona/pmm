@@ -24,6 +24,8 @@ export const Messages = {
     interval: 'Interval',
     status: 'Status',
     clear: 'Clear filters',
+    refresh: 'Refresh',
+    refreshTooltip: 'Reload the list of checks',
   },
   runAll: 'Run all',
   runSelected: 'Run selected',

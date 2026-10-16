@@ -5,6 +5,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
+import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -98,7 +99,7 @@ const FilterSelect: FC<FilterSelectProps> = ({
 
 const AdvisorsList: FC = () => {
   const navigate = useNavigate();
-  const { data: advisors = [], isLoading } = useAdvisors();
+  const { data: advisors = [], isLoading, refetch } = useAdvisors();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
@@ -444,6 +445,15 @@ const AdvisorsList: FC = () => {
                 <FilterAltOffOutlinedIcon />
               </IconButton>
             </Box>
+          </Tooltip>
+          <Tooltip title={Messages.filters.refreshTooltip} arrow>
+            <IconButton
+              onClick={() => void refetch()}
+              aria-label={Messages.filters.refresh}
+              data-testid="refresh-checks"
+            >
+              <RefreshOutlinedIcon />
+            </IconButton>
           </Tooltip>
           <Tooltip title={Messages.runAll} arrow>
             <Box component="span">
