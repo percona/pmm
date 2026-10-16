@@ -395,7 +395,12 @@ func TestCatalogUIDs(t *testing.T) {
 	t.Parallel()
 
 	uids := catalogUIDs()
-	assert.Len(t, uids, 9+len(retiredRuleUIDs))
+	for _, bundle := range builtinBundles {
+		for _, rule := range bundle.rules {
+			assert.Contains(t, uids, rule.uid, "bundle %s", bundle.id)
+		}
+	}
+	assert.Subset(t, uids, retiredRuleUIDs)
 	assert.Contains(t, uids, "pmm-ha-no-leader")
 	assert.Contains(t, uids, "pmm-qan-api2-down")
 }
