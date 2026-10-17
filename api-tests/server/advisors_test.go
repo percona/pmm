@@ -113,17 +113,13 @@ func TestStartChecks(t *testing.T) {
 
 		waitForNoActiveRun(t)
 		runs, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{
-			PageSize: new(int32(20)),
-			Context:  pmmapitests.Context,
+			RunID:   &runID,
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		var run *advisor.ListRunsOKBodyResultsItems0
-		for _, r := range runs.Payload.Results {
-			if r.ID == runID {
-				run = r
-			}
-		}
-		require.NotNil(t, run)
+		require.Len(t, runs.Payload.Results, 1)
+		run := runs.Payload.Results[0]
+		assert.Equal(t, runID, run.ID)
 		require.Len(t, run.Intervals, 1)
 		assert.Equal(t, frequent, *run.Intervals[0])
 		assert.LessOrEqual(t, run.ChecksCount, run.PlannedChecksCount)

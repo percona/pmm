@@ -395,6 +395,7 @@ func TestListRuns(t *testing.T) {
 
 		var checksService mockChecksService
 		checksService.On("GetRuns", mock.Anything, models.AdvisorRunFilters{
+			RunID:       "run-1",
 			TriggeredBy: &triggeredBy,
 			From:        &from,
 			To:          &to,
@@ -407,6 +408,7 @@ func TestListRuns(t *testing.T) {
 			TriggeredBy: new(advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER),
 			From:        timestamppb.New(from),
 			To:          timestamppb.New(to),
+			RunId:       "run-1",
 		})
 		require.NoError(t, err)
 		checksService.AssertExpectations(t)

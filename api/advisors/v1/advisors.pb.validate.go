@@ -4945,6 +4945,8 @@ func (m *ListRunsRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for RunId
+
 	if m.PageSize != nil {
 		if m.GetPageSize() < 1 {
 			err := ListRunsRequestValidationError{

@@ -169,7 +169,7 @@ func (s *ChecksAPIService) ListRuns(
 		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
-	var filters models.AdvisorRunFilters
+	filters := models.AdvisorRunFilters{RunID: req.RunId}
 	if req.TriggeredBy != nil {
 		if tb := convertAPITriggeredBy(*req.TriggeredBy); tb != "" {
 			filters.TriggeredBy = &tb

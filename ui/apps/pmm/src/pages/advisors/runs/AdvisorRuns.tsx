@@ -1,4 +1,5 @@
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
@@ -17,17 +18,26 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
-import { useRuns, useStartAdvisorChecks } from 'hooks/api/useAdvisors';
+import {
+  useFetchRunInsights,
+  useRuns,
+  useStartAdvisorChecks,
+} from 'hooks/api/useAdvisors';
 import {
   type MRT_PaginationState,
   type MRT_Updater,
 } from 'material-react-table';
 import { enqueueSnackbar } from 'notistack';
-import { FC, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AdvisorCheckTriggeredBy, AdvisorRun } from 'types/advisors.types';
+import {
+  AdvisorCheckResultStatus,
+  type AdvisorCheckTriggeredBy,
+  type AdvisorRun,
+} from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
 import { getRunsColumns } from './AdvisorRuns.constants';
+import { exportRunInsightsToCsv } from './AdvisorRuns.export';
 import { TRIGGERED_BY_FILTER_OPTIONS } from './AdvisorRuns.filters';
 import { Messages } from './AdvisorRuns.messages';
 import { ACTIVE_RUN_POLL_INTERVAL_MS, isRunning } from './AdvisorRuns.utils';
@@ -46,10 +56,18 @@ const AdvisorRuns: FC = () => {
 
   // the query string is the single source of truth, so links reproduce the view
   const triggeredBy = searchParams.get('triggeredBy') || '';
+  const runId = searchParams.get('runId') || '';
   const pagination: MRT_PaginationState = {
     pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
     pageSize: Number(searchParams.get('pageSize')) || DEFAULT_PAGE_SIZE,
   };
+
+  // local mirror of the run-id URL param, committed on blur/Enter so typing
+  // does not refetch on every keystroke
+  const [runIdInput, setRunIdInput] = useState(runId);
+  useEffect(() => {
+    setRunIdInput(runId);
+  }, [runId]);
 
   const patchParams = (
     mutate: (params: URLSearchParams) => void,
@@ -86,10 +104,24 @@ const AdvisorRuns: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
+  const commitRunIdInput = () => {
+    const trimmed = runIdInput.trim();
+    if (trimmed !== runId) {
+      patchParams((p) => {
+        if (trimmed) {
+          p.set('runId', trimmed);
+        } else {
+          p.delete('runId');
+        }
+      });
+    }
+  };
+
   const { data, isLoading, isFetching, refetch } = useRuns(
     {
       pageIndex: pagination.pageIndex,
       pageSize: pagination.pageSize,
+      runId: runId || undefined,
       triggeredBy: (triggeredBy as AdvisorCheckTriggeredBy) || undefined,
     },
     {
@@ -102,6 +134,7 @@ const AdvisorRuns: FC = () => {
   );
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
+  const fetchRunInsights = useFetchRunInsights();
 
   const columns = useMemo(() => getRunsColumns(), []);
 
@@ -130,6 +163,23 @@ const AdvisorRuns: FC = () => {
   const copyRunId = (run: AdvisorRun) => {
     void navigator.clipboard.writeText(run.id);
     enqueueSnackbar(Messages.success.runIdCopied, { variant: 'success' });
+  };
+
+  const exportInsights = async (run: AdvisorRun, failedOnly: boolean) => {
+    const { results } = await fetchRunInsights(
+      run.id,
+      failedOnly ? AdvisorCheckResultStatus.failed : undefined
+    );
+    if (!results.length) {
+      enqueueSnackbar(
+        failedOnly
+          ? Messages.info.noFailedInsightsToExport
+          : Messages.info.noInsightsToExport,
+        { variant: 'info' }
+      );
+      return;
+    }
+    exportRunInsightsToCsv(run, results, failedOnly);
   };
 
   return (
@@ -184,13 +234,27 @@ const AdvisorRuns: FC = () => {
               </MenuItem>
             ))}
           </TextField>
+          <TextField
+            size="small"
+            label={Messages.filters.runId}
+            value={runIdInput}
+            onChange={(e) => setRunIdInput(e.target.value)}
+            onBlur={commitRunIdInput}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                commitRunIdInput();
+              }
+            }}
+            sx={{ minWidth: 260 }}
+            data-testid="run-id-filter"
+          />
 
           <Stack direction="row" gap={0.5} sx={{ alignSelf: 'center' }}>
             <Tooltip title={Messages.filters.clear} arrow>
               <Box component="span">
                 <IconButton
                   onClick={handleClearFilters}
-                  disabled={!triggeredBy}
+                  disabled={!triggeredBy && !runId}
                   aria-label={Messages.filters.clear}
                   data-testid="clear-run-filters"
                 >
@@ -279,6 +343,35 @@ const AdvisorRuns: FC = () => {
             <VisibilityOutlinedIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>{Messages.actions.viewInsights}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            if (actionMenu) {
+              // the API client already reports a failed request
+              exportInsights(actionMenu.run, false).catch(() => undefined);
+            }
+            setActionMenu(null);
+          }}
+          data-testid="action-export-all-insights"
+        >
+          <ListItemIcon>
+            <FileDownloadOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.exportAll}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            if (actionMenu) {
+              exportInsights(actionMenu.run, true).catch(() => undefined);
+            }
+            setActionMenu(null);
+          }}
+          data-testid="action-export-failed-insights"
+        >
+          <ListItemIcon>
+            <FileDownloadOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.exportFailed}</ListItemText>
         </MenuItem>
         <MenuItem
           disabled={isStarting}

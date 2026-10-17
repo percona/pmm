@@ -3631,6 +3631,12 @@
             "description": "Return only runs started at or before this time.",
             "name": "to",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by run ID.",
+            "name": "run_id",
+            "in": "query"
           }
         ],
         "responses": {

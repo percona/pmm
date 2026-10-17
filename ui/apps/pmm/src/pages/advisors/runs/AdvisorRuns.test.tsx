@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AdvisorRuns from './AdvisorRuns';
+import { exportRunInsightsToCsv } from './AdvisorRuns.export';
 import { Messages } from './AdvisorRuns.messages';
 import * as advisorsApi from 'api/advisors';
 import {
@@ -17,14 +18,17 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
+  AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
   AdvisorInterval,
   type AdvisorRun,
   AdvisorRunStatus,
+  type Insight,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 
 vi.mock('api/advisors');
+vi.mock('./AdvisorRuns.export');
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => ({
@@ -70,6 +74,34 @@ const RUNNING_RUN: AdvisorRun = {
   checkNames: [],
   serviceIds: [],
   intervals: [],
+};
+
+const INSIGHT: Insight = {
+  id: 'result-1',
+  checkName: 'mysql_version',
+  category: 'Configuration',
+  interval: AdvisorInterval.standard,
+  serviceId: 'service-1',
+  serviceName: 'mysql-prod',
+  serviceType: 'mysql',
+  nodeId: 'node-1',
+  nodeName: 'node-1',
+  status: AdvisorCheckResultStatus.failed,
+  summary: 'MySQL is outdated',
+  description: 'Newer version of MySQL is available',
+  readMoreUrl: 'https://percona.com',
+  severity: Severity.warning,
+  labels: {},
+  checkedAt: '2026-08-04T19:58:00Z',
+  isRead: false,
+  runId: 'run-finished',
+  triggeredBy: AdvisorCheckTriggeredBy.user,
+  outcome: '',
+  environment: '',
+  cluster: '',
+  replicationSet: '',
+  region: '',
+  az: '',
 };
 
 const renderComponent = (initialEntry = '/advisors/runs') =>
@@ -242,6 +274,47 @@ describe('AdvisorRuns', () => {
         triggeredBy: AdvisorCheckTriggeredBy.user,
       })
     );
+  });
+
+  it('applies the run ID filter on Enter and resets the page', async () => {
+    renderComponent('/advisors/runs?page=3');
+
+    await waitForRows();
+
+    const input = within(screen.getByTestId('run-id-filter')).getByRole(
+      'textbox'
+    );
+    fireEvent.change(input, { target: { value: '  run-finished ' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenLastCalledWith(
+        expect.objectContaining({ runId: 'run-finished', pageIndex: 0 })
+      )
+    );
+  });
+
+  it('reads the run ID filter from the URL, and Clear filters drops it', async () => {
+    renderComponent('/advisors/runs?runId=run-finished');
+
+    await waitForRows();
+
+    expect(advisorsApi.listRuns).toHaveBeenCalledWith(
+      expect.objectContaining({ runId: 'run-finished' })
+    );
+    const input = within(screen.getByTestId('run-id-filter')).getByRole(
+      'textbox'
+    );
+    expect(input).toHaveValue('run-finished');
+
+    fireEvent.click(screen.getByTestId('clear-run-filters'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenLastCalledWith(
+        expect.objectContaining({ runId: undefined })
+      )
+    );
+    expect(input).toHaveValue('');
   });
 
   it('keeps Clear filters on screen, disabled until a filter is applied', async () => {
@@ -437,4 +510,79 @@ describe('AdvisorRuns', () => {
       await screen.findByText(Messages.success.runIdCopied)
     ).toBeInTheDocument();
   });
+
+  it('exports every insight of the run from the row menu', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [INSIGHT],
+    });
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('run-run-finished-actions'));
+    fireEvent.click(await screen.findByTestId('action-export-all-insights'));
+
+    await waitFor(() =>
+      expect(exportRunInsightsToCsv).toHaveBeenCalledWith(
+        FINISHED_RUN,
+        [INSIGHT],
+        false
+      )
+    );
+    // no page size, so the API returns them all
+    expect(advisorsApi.listInsights).toHaveBeenCalledWith({
+      runId: 'run-finished',
+    });
+  });
+
+  it('exports only the failed insights of the run from the row menu', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [INSIGHT],
+    });
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('run-run-finished-actions'));
+    fireEvent.click(await screen.findByTestId('action-export-failed-insights'));
+
+    await waitFor(() =>
+      expect(exportRunInsightsToCsv).toHaveBeenCalledWith(
+        FINISHED_RUN,
+        [INSIGHT],
+        true
+      )
+    );
+    expect(advisorsApi.listInsights).toHaveBeenCalledWith({
+      runId: 'run-finished',
+      status: AdvisorCheckResultStatus.failed,
+    });
+  });
+
+  it.each([
+    ['action-export-all-insights', Messages.info.noInsightsToExport],
+    ['action-export-failed-insights', Messages.info.noFailedInsightsToExport],
+  ])(
+    'tells the user when %s finds nothing to export',
+    async (testId, message) => {
+      vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+        totalItems: 0,
+        totalPages: 0,
+        results: [],
+      });
+      renderComponent();
+
+      await waitForRows();
+
+      fireEvent.click(screen.getByTestId('run-run-open-actions'));
+      fireEvent.click(await screen.findByTestId(testId));
+
+      expect(await screen.findByText(message)).toBeInTheDocument();
+      expect(exportRunInsightsToCsv).not.toHaveBeenCalled();
+    }
+  );
 });

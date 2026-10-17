@@ -224,6 +224,7 @@ export interface AdvisorRun {
 export interface ListRunsParams {
   pageSize?: number;
   pageIndex?: number;
+  runId?: string;
   triggeredBy?: AdvisorCheckTriggeredBy;
   from?: string;
   to?: string;

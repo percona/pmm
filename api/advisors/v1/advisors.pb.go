@@ -2862,7 +2862,9 @@ type ListRunsRequest struct {
 	// Return only runs started at or after this time.
 	From *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
 	// Return only runs started at or before this time.
-	To            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	To *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	// Filter by run ID.
+	RunId         string `protobuf:"bytes,6,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2930,6 +2932,13 @@ func (x *ListRunsRequest) GetTo() *timestamppb.Timestamp {
 		return x.To
 	}
 	return nil
+}
+
+func (x *ListRunsRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
 }
 
 type ListRunsResponse struct {
@@ -3218,14 +3227,15 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\tintervals\x18\x0f \x03(\x0e2!.advisors.v1.AdvisorCheckIntervalR\tintervals\"Z\n" +
 	"\rSeverityCount\x123\n" +
 	"\bseverity\x18\x01 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x05R\x05count\"\xc1\x02\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count\"\xd8\x02\n" +
 	"\x0fListRunsRequest\x12)\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
 	"\n" +
 	"page_index\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00H\x01R\tpageIndex\x88\x01\x01\x12L\n" +
 	"\ftriggered_by\x18\x03 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByH\x02R\vtriggeredBy\x88\x01\x01\x12.\n" +
 	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02toB\f\n" +
+	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x15\n" +
+	"\x06run_id\x18\x06 \x01(\tR\x05runIdB\f\n" +
 	"\n" +
 	"_page_sizeB\r\n" +
 	"\v_page_indexB\x0f\n" +

@@ -39,11 +39,14 @@ export const Messages = {
   actions: {
     more: 'More actions',
     viewInsights: 'View insights',
+    exportAll: 'Export all',
+    exportFailed: 'Export failed',
     runAgain: 'Run again',
     copyRunId: 'Copy run ID',
   },
   filters: {
     triggeredBy: 'Triggered by',
+    runId: 'Run ID',
     all: 'All',
     clear: 'Clear filters',
     refresh: 'Refresh',
@@ -52,5 +55,9 @@ export const Messages = {
   success: {
     runIdCopied: 'Run ID copied to clipboard',
     checksStarted: 'Advisor checks started',
+  },
+  info: {
+    noInsightsToExport: 'This run has no insights to export',
+    noFailedInsightsToExport: 'This run has no failed insights to export',
   },
 };

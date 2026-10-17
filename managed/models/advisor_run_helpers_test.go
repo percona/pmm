@@ -248,6 +248,21 @@ func TestAdvisorRuns(t *testing.T) {
 		assert.Equal(t, models.CheckTriggeredByScheduler, runs[0].TriggeredBy)
 	})
 
+	t.Run("filters by run ID", func(t *testing.T) {
+		create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser})
+		wanted := create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser})
+
+		filters := models.AdvisorRunFilters{RunID: wanted.ID}
+		runs, err := models.FindAdvisorRuns(t.Context(), q, filters, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, runs, 1)
+		assert.Equal(t, wanted.ID, runs[0].ID)
+
+		total, err := models.CountAdvisorRuns(t.Context(), q, filters)
+		require.NoError(t, err)
+		assert.Equal(t, 1, total)
+	})
+
 	t.Run("counts are derived from the run's insights", func(t *testing.T) {
 		run := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,

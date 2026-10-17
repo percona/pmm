@@ -220,6 +220,7 @@ func LastInsightTimeForRun(ctx context.Context, q *reform.Querier, runID string)
 
 // AdvisorRunFilters specifies filters for querying Advisor runs.
 type AdvisorRunFilters struct {
+	RunID       string
 	TriggeredBy *CheckTriggeredBy
 	From        *time.Time
 	To          *time.Time
@@ -230,6 +231,10 @@ func advisorRunConditions(q *reform.Querier, filters AdvisorRunFilters) (string,
 	var conditions []string
 	var args []any
 
+	if filters.RunID != "" {
+		conditions = append(conditions, "id = "+q.Placeholder(len(args)+1))
+		args = append(args, filters.RunID)
+	}
 	if filters.TriggeredBy != nil {
 		conditions = append(conditions, "triggered_by = "+q.Placeholder(len(args)+1))
 		args = append(args, *filters.TriggeredBy)

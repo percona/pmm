@@ -82,6 +82,12 @@ type ListRunsParams struct {
 	*/
 	PageSize *int32
 
+	/* RunID.
+
+	   Filter by run ID.
+	*/
+	RunID *string
+
 	/* To.
 
 	   Return only runs started at or before this time.
@@ -196,6 +202,17 @@ func (o *ListRunsParams) SetPageSize(pageSize *int32) {
 	o.PageSize = pageSize
 }
 
+// WithRunID adds the runID to the list runs params
+func (o *ListRunsParams) WithRunID(runID *string) *ListRunsParams {
+	o.SetRunID(runID)
+	return o
+}
+
+// SetRunID adds the runId to the list runs params
+func (o *ListRunsParams) SetRunID(runID *string) {
+	o.RunID = runID
+}
+
 // WithTo adds the to to the list runs params
 func (o *ListRunsParams) WithTo(to *strfmt.DateTime) *ListRunsParams {
 	o.SetTo(to)
@@ -268,6 +285,22 @@ func (o *ListRunsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 		qPageSize := swag.FormatInt32(qrPageSize)
 		if qPageSize != "" {
 			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.RunID != nil {
+
+		// query param run_id
+		var qrRunID string
+
+		if o.RunID != nil {
+			qrRunID = *o.RunID
+		}
+		qRunID := qrRunID
+		if qRunID != "" {
+			if err := r.SetQueryParam("run_id", qRunID); err != nil {
 				return err
 			}
 		}

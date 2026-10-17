@@ -445,6 +445,8 @@ message ListRunsRequest {
   google.protobuf.Timestamp from = 4;
   // Return only runs started at or before this time.
   google.protobuf.Timestamp to = 5;
+  // Filter by run ID.
+  string run_id = 6;
 }
 
 message ListRunsResponse {

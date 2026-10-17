@@ -25,6 +25,7 @@ import {
 import {
   Advisor,
   AdvisorCheck,
+  AdvisorCheckResultStatus,
   AdvisorRun,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
@@ -111,6 +112,20 @@ export const useInsights = (
     placeholderData: keepPreviousData,
     ...options,
   });
+
+// fetches every insight of a run, optionally only those with a status, on
+// demand: without a page size the API returns them all
+export const useFetchRunInsights = () => {
+  const queryClient = useQueryClient();
+
+  return (runId: string, status?: AdvisorCheckResultStatus) => {
+    const params: ListInsightsParams = { runId, status };
+    return queryClient.fetchQuery({
+      queryKey: [KEYS.INSIGHTS, params],
+      queryFn: () => listInsights(params),
+    });
+  };
+};
 
 export const useRuns = (
   params: ListRunsParams,
