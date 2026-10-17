@@ -282,8 +282,9 @@ func TestEnableChecks(t *testing.T) {
 func runAllChecks(t *testing.T, s *Service) *models.AdvisorRun {
 	t.Helper()
 
+	// a user run is recorded even when it has nothing to check
 	run := &models.AdvisorRun{
-		TriggeredBy: models.CheckTriggeredByScheduler,
+		TriggeredBy: models.CheckTriggeredByUser,
 		Status:      models.AdvisorRunStatusRunning,
 	}
 	require.NoError(t, models.CreateAdvisorRun(t.Context(), s.db.Querier, run))

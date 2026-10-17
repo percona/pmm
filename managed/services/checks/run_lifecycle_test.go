@@ -218,3 +218,36 @@ func TestRunStoppedBeforeAnyCheck(t *testing.T) {
 		assert.NotNil(t, run.FinishedAt)
 	})
 }
+
+func TestRunWithNothingToCheck(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	s := New(db, nil, nil, nil)
+
+	// with no services in the inventory, a run plans no checks
+	runOnce := func(t *testing.T, triggeredBy models.CheckTriggeredBy) *models.AdvisorRun {
+		t.Helper()
+		run := &models.AdvisorRun{
+			TriggeredBy: triggeredBy,
+			Status:      models.AdvisorRunStatusRunning,
+		}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, run))
+		require.NoError(t, s.run(t.Context(), run))
+		return run
+	}
+
+	t.Run("a scheduled run is discarded", func(t *testing.T) {
+		run := runOnce(t, models.CheckTriggeredByScheduler)
+		require.ErrorIs(t, db.Reload(run), reform.ErrNoRows)
+	})
+
+	t.Run("a user run is kept", func(t *testing.T) {
+		run := runOnce(t, models.CheckTriggeredByUser)
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.NotNil(t, run.FinishedAt)
+	})
+}

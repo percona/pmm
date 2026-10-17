@@ -297,6 +297,17 @@ func CountAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRun
 	return count, nil
 }
 
+// DeleteEmptyAdvisorRun deletes the Advisor run if it recorded no insights, and
+// reports whether it did.
+func DeleteEmptyAdvisorRun(ctx context.Context, q *reform.Querier, runID string) (bool, error) {
+	n, err := q.WithContext(ctx).DeleteFrom(AdvisorRunTable,
+		" WHERE id = $1 AND NOT EXISTS (SELECT 1 FROM "+InsightTable.Name()+" WHERE run_id = $1)", runID)
+	if err != nil {
+		return false, err
+	}
+	return n != 0, nil
+}
+
 // CleanupOldAdvisorRuns deletes Advisor runs started at or before the given time.
 // CleanupOldInsights prunes their insights by the same rule.
 func CleanupOldAdvisorRuns(ctx context.Context, q *reform.Querier, olderThan time.Time) error {

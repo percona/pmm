@@ -534,6 +534,19 @@ func (s *Service) run(ctx context.Context, run *models.AdvisorRun) error {
 		// stopped part-way, e.g. by a shutdown or a loss of HA leadership
 		status = models.AdvisorRunStatusInterrupted
 	}
+
+	// a scheduled run with nothing to check, e.g. before any database is added, is not kept
+	if status == models.AdvisorRunStatusCompleted && len(plan) == 0 && ri.triggeredBy == models.CheckTriggeredByScheduler {
+		deleted, err := models.DeleteEmptyAdvisorRun(ctx, s.db.Querier, ri.runID)
+		if err != nil {
+			s.l.Warnf("Failed to discard the empty Advisor run %s: %+v", ri.runID, err)
+		}
+		if deleted {
+			s.l.WithField("run_id", ri.runID).Info("Discarded the scheduled Advisor run: nothing to check.")
+			return nil
+		}
+	}
+
 	s.finishRun(ctx, ri.runID, status)
 	if status != models.AdvisorRunStatusCompleted {
 		return nil
