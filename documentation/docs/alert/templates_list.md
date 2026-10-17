@@ -1,9 +1,15 @@
 # List of available alert templates
 
-The following table lists all the alert templates available in PMM:
+Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#add-an-alert-rule-based-on-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
+
+## Template catalog
+
+Browse the alert templates by what they monitor:
 
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
+- [PMM High Availability templates](#pmm_ha_alerts)
+- [PMM internal component templates](#pmm_component_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
 - [MySQL templates](#mysql_alerts)
@@ -26,6 +32,59 @@ The following table lists all the alert templates available in PMM:
 | :----|:------------- | :---------- | :------------------ |
 | PMM | **PMM agent down** | Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues. | MySQL, MongoDB, PostgreSQL, ProxySQL |
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and raises alerts on failures. Provides details about the failed backup artifact and affected service to ensure data safety and recovery readiness. This template is currently in [Technical Preview](../reference/glossary.md) and is intended for testing purposes only, as it is subject to change. | MySQL, MongoDB, PostgreSQL, ProxySQL |
+
+<a id="pmm_ha_alerts"></a>
+### PMM High Availability templates
+
+These templates warn you when a [PMM HA Cluster](../install-pmm/install-HA-clustered.md) has no leader, splits into separate clusters, keeps switching leaders, or loses nodes.
+
+You don't need to create rules from these templates yourself. PMM adds them to every PMM HA Cluster and turns them on automatically. To get notified, customize the rules, or turn them off, see [Manage the built-in alert rules](built_in_alerts.md).
+
+| Template name | Description |
+|:------------- | :---------- |
+| **PMM HA cluster has no active leader** | Alerts when no PMM Server node is the leader. While this lasts, you can't open the PMM UI or use the API, and cluster-wide tasks such as advisor checks and scheduled backups stop. |
+| **PMM HA split-brain detected** | Alerts when more than one node acts as the leader at the same time, because the nodes have formed separate clusters instead of one. |
+| **PMM HA leader is flapping** | Alerts when a node goes through more than 5 leader elections within 10 minutes, usually because of an unstable network or a node that keeps restarting. |
+| **PMM HA node unreachable** | Alerts when fewer PMM Server nodes report in than the number configured in `PMM_HA_PEERS`, which means at least one node is down or cut off from the others. |
+| **PMM HA quorum at risk** | Alerts when only the minimum number of nodes needed to keep PMM running are still up, so losing one more node would stop PMM. Applies to clusters of three or more nodes. |
+
+#### Coverage limitations
+
+In these situations, the HA alerts stay silent, fire a different alert than you might expect, leave out details, or fire when nothing is wrong:
+
+| Situation | What to expect |
+|-----------|----------------|
+| Every PMM Server node goes down at once | No alert fires, because no node is left to report the problem. To catch a full outage, monitor the PMM address from outside the cluster. |
+| A network problem cuts off one node | *PMM HA leader is flapping* fires, not *PMM HA split-brain detected*, because the isolated node keeps trying to become the leader and fails. The split-brain alert covers the rarer case where nodes start up without finding each other and each forms its own cluster. It fires only if the isolated node can still send metrics to VictoriaMetrics. |
+| One or more nodes are missing | *PMM HA node unreachable* names a missing node only if the node reported in the last 6 hours. If more than one node is missing, check **PMM HA > Identify Nodes** to see all of them. |
+| The cluster has one or two nodes | *PMM HA quorum at risk* doesn't apply. Rely on *PMM HA node unreachable* instead. |
+| You change `PMM_HA_PEERS` | *PMM HA node unreachable* and *PMM HA quorum at risk* can fire until the rolling restart finishes. Wait for the rollout to complete before you treat them as real failures. |
+
+<a id="pmm_component_alerts"></a>
+### PMM internal component templates
+
+These templates warn you when VictoriaMetrics, ClickHouse, Grafana, or the Query Analytics API on PMM Server stops responding.
+
+You don't need to create rules from these templates yourself. PMM adds them to every PMM Server and turns them on automatically. To get notified, customize the rules, or turn them off, see [Manage the built-in alert rules](built_in_alerts.md).
+
+| Template name | Description |
+|:------------- | :---------- |
+| **PMM VictoriaMetrics is down** | Alerts when a VictoriaMetrics component stops responding. Covers the single instance on a standalone PMM Server and the `vmselect`, `vminsert`, `vmstorage`, and `vmagent` components on a PMM HA Cluster. |
+| **PMM ClickHouse is down** | Alerts when the ClickHouse instance that stores Query Analytics (QAN) data stops responding. While this lasts, QAN stops collecting data. Metrics aren't affected. |
+| **PMM Grafana is down** | Alerts when a Grafana instance stops responding. The PMM UI, dashboards, and alert rules all depend on Grafana. |
+| **PMM Query Analytics API is down** | Alerts when the QAN API (`qan-api2`) stops responding. While this lasts, QAN stops accepting new data and the QAN page doesn't load. |
+
+#### Coverage limitations
+
+Whether the component alerts fire depends on which component fails and how:
+
+| Situation | What to expect |
+|-----------|----------------|
+| VictoriaMetrics or Grafana is down everywhere | These alerts can't fire, because Grafana evaluates them using data from VictoriaMetrics. Instead, every alert rule shows a data source error at the same time. To catch a full outage, monitor PMM from outside. |
+| One VictoriaMetrics component or one Grafana instance fails on a PMM HA Cluster | The matching alert fires while the other components keep working. |
+| ClickHouse or the QAN API is down | The matching alert always fires, because VictoriaMetrics keeps running and records the failure. |
+| A VictoriaMetrics or ClickHouse pod on a PMM HA Cluster isn't monitored by the `pmm-ha` Helm chart | The alert for that pod stays silent instead of firing. |
+| A PMM Client stops reporting | These alerts cover PMM Server only. Use the *PMM agent down* template instead. |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
