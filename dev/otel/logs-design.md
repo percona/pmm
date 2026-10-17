@@ -1,17 +1,17 @@
 # Logs: rule-based detection and the Logs page — design
 
-Status: draft for review (2026-10-16). Branch `tibi-holmes` (PMM-7).
+Status: Part 1 implemented (2026-10-16); Part 2B design revised for review (2026-10-17). Branch `tibi-holmes` (PMM-7).
 
 ## Goal
 
 Give PMM users one place to read, filter and make sense of every collected log — database logs from agents
 and PMM Server's own logs — and find known problems in them automatically with predefined, editable rules, not by
 running an LLM over every line. A rule match is a normal PMM alert, so notifications, the Alerts page and the
-Assistant's *Investigate* work unchanged.
+Assistant's *Investigate* work unchanged; high-signal built-in rules alert with no setup.
 
 Both halves weigh equally: detection (rules → alerts → Assistant) and a log viewer for incidents.
 
-## Current state
+## Current state (before Part 1)
 
 Verified on the test server (adre-fb4259: PMM 3.9.1 build of this branch, otelcol-contrib 0.148.0, Grafana 12.4.5,
 grafana-clickhouse-datasource 4.20.0) and in the branch code:
@@ -42,15 +42,16 @@ PMM Server: /srv/logs/*.log ──filelog (server collector)──────�
                                                                      ├─▶ ClickHouse otel.logs (all lines)
                                                                      └─▶ count ─▶ deltatocumulative ─▶ VictoriaMetrics
                                                                            pmm_log_rule_matches_total{pmm_rule, node_name, service_name}
-                                                                                 └─▶ log-rule alert templates ─▶ Alerts, Assistant
-pmm-managed: log rules (PostgreSQL) ─▶ server collector config + alert templates
-pmm-managed: logs API over ClickHouse ─▶ pmm-ui /logs (Lines, Patterns, Rules)
+                                                                                 └─▶ Grafana alert rule per alert-on log rule ─▶ Alerts, Assistant
+pmm-managed: log rules (PostgreSQL) ─▶ server collector config + Grafana alert rules (provisioning API)
+pmm-managed: logs API over ClickHouse ─▶ pmm-ui /logs (Rules in 2B; Lines, Patterns in Part 3)
 ```
 
 The `pmm.rule` attribute ties the halves together: an alert names its rule, and the Logs page shows exactly the
 lines that matched.
 
-Work is split into three parts, each with its own implementation plan, built in order.
+Work is split into parts, each with its own implementation plan, built in this order: Part 1 (log data, done),
+Part 2B (rules and detection), Part 2A (database log discovery), Part 3 (logs API and Logs page).
 
 ## Part 1: log data
 
@@ -111,26 +112,35 @@ Filters and rules use `SeverityNumber`. `SeverityText` is display only.
   with status below 400; 4xx, 5xx and error lines are kept.
 - `DefaultServerOtelLogSources` and `BuildServerOtelConfigYAML` are replaced by this; `dev/otel/README.md` is
   updated.
+- Added during Part 1's live verification: vmproxy's per-request info lines are dropped like nginx's below-400 lines
+  (about 2,500 a minute; nginx logs the same requests), and every operator on the server receivers handles errors
+  quietly (`send_quiet` / `drop_quiet`), because the collector reads its own log and logged parse errors fed back
+  into it.
 
 ### 1.5 Out of scope
 
 Changing log retention does not alter the existing table's TTL (`schema.go` has no `MODIFY TTL`). Separate ticket.
 
-## Part 2: rules and detection
+## Part 2B: rules and detection
 
-### 2.1 Rule model
+Built before Part 2A. Decisions from the 2026-10-17 review: a rule match alerts with no setup for a high-signal
+subset of built-in rules; each rule owns its alert (no alert templates); the Assistant gets a bounded tool for the
+lines behind a log-rule alert.
+
+### 2B.1 Rule model
 
 Table `log_rules` (new migration, reform model `LogRule`):
 
 | Column | Type | Notes |
 |---|---|---|
-| `name` | varchar PK | `^[a-z0-9_]{1,64}$`, used in the metric and the template name |
+| `name` | varchar PK | `^[a-z0-9_]{1,64}$`, used in the metric and the alert |
 | `summary` | varchar | shown in the UI and the alert |
-| `presets` | jsonb | non-empty list of preset names the rule applies to |
+| `presets` | jsonb | non-empty list of preset names the rule applies to (`raw` allowed) |
 | `min_severity` | int | OTel SeverityNumber; 0 = any |
 | `match_type` | varchar | `contains` (case-insensitive) or `regex` |
 | `match` | varchar | ≤ 1024 chars |
-| `enabled` | bool | |
+| `enabled` | bool | a disabled rule neither tags nor counts lines |
+| `alert_enabled` | bool | the rule's Grafana alert exists (2B.4) |
 | `alert_severity` | varchar | `info`, `warning`, `error`, `critical` |
 | `alert_threshold` | double | matches per window that fire the alert |
 | `alert_window` | interval | 1 m to 1 h |
@@ -138,42 +148,51 @@ Table `log_rules` (new migration, reform model `LogRule`):
 | `deleted_at` | timestamptz | soft delete for built-ins, so upgrades do not bring them back |
 | `created_at`, `updated_at`, `updated_by` | | |
 
-Validation on save: Go `regexp` compiles the pattern (`contains` is compiled as `(?i)` + `regexp.QuoteMeta`);
-`match` may be empty only when `min_severity` > 0 (a severity-only rule); presets must exist; at most 200 enabled
-rules.
+Validation on save, in order:
 
-### 2.2 Built-in rules and sync
+1. Go `regexp` compiles the pattern (`contains` is compiled as `(?i)` + `regexp.QuoteMeta`). The collector's OTTL
+   `IsMatch` and ClickHouse's `match()` use the same RE2 syntax.
+2. `match` may be empty only when `min_severity` > 0 (a severity-only rule); presets must exist; at most 200 enabled
+   rules.
+3. pmm-managed renders the server collector config with the candidate rule set and runs `otelcol-contrib validate` on
+   it (Part 1's validator). A rejection fails the save with `InvalidArgument` and the validator's message.
 
-Built-in rules ship as YAML in `managed/data/log-rules/*.yml` and are synced at startup with the pattern of
-`planSkillSync` (`managed/services/adre/deployment/seed.go`):
+Preset edits (`ChangeLogParserPreset`, `AddLogParserPreset`) get the same collector check: a one-receiver config with
+the candidate operators, so presets the server config does not use (`mysql_error`, `mongodb`) are checked too.
+
+Matching order: rules with a `match` first, then severity-only rules, each group by name; the first match wins. A
+failed PostgreSQL login therefore counts as `postgresql_auth_failed`, not as `postgresql_fatal_panic`.
+
+### 2B.2 Built-in rules and sync
+
+Built-in rules ship as YAML in `managed/data/log-rules/*.yml` (with `alert_enabled` per rule) and are synced at
+startup with the pattern of `planSkillSync` (`managed/services/adre/deployment/seed.go`):
 
 - New shipped rule → inserted.
 - Shipped rule changed and the row is still `source = builtin` → updated.
 - An admin edit sets `source = user`; upgrades leave it alone.
 - A deleted built-in keeps `deleted_at`; upgrades do not restore it.
+- **Reset** puts a built-in back to its shipped definition: `source = builtin`, `deleted_at` cleared.
 
-### 2.3 Rules API
+### 2B.3 Collector pipeline
 
-`api/logs/v1/rules.proto`, `LogRulesService` (admin for writes, viewer for reads):
+pmm-managed renders the server collector config from the enabled rules. Changes go through Part 1's
+validate-then-swap and the pending collector restart; changes within 10 s are batched into one restart. During a
+restart agents keep sending (their OTLP exporters retry) and the server's own receivers resume from their stored read
+positions. A restart resets the cumulative counters; `increase()` handles resets.
 
-| RPC | HTTP |
-|---|---|
-| `ListLogRules` | `GET /v1/logs/rules` |
-| `CreateLogRule` | `POST /v1/logs/rules` |
-| `UpdateLogRule` | `PUT /v1/logs/rules/{name}` (includes enable/disable) |
-| `DeleteLogRule` | `DELETE /v1/logs/rules/{name}` |
-| `PreviewLogRule` | `POST /v1/logs/rules:preview` — a rule body (saved or not) and a time range; returns the match count and up to 20 sample lines from `otel.logs` |
-
-`ListLogRules` returns, per rule, matches in the last 1 h and 24 h from VictoriaMetrics.
-
-### 2.4 Collector pipeline
-
-pmm-managed renders the server collector config from the enabled rules and restarts the collector through
-supervisord when rules change (changes within 10 s are batched into one restart). In HA every node renders the same
-config from the shared database. Rule strings are escaped as OTTL string literals; unit tests cover quotes,
-backslashes and Unicode. The first matching rule wins, so statements are ordered: rules with a `match` first, then
-severity-only rules, each group by name. During a restart agents keep sending: their OTLP exporters retry, so no lines
-are lost.
+- Every receiver adds `attributes["log.preset"]` through an `add` operator: one per preset receiver on agents, one per
+  file receiver on the server (`raw` for unparsed files). The agent config is rendered by pmm-managed, so existing
+  agents need no upgrade.
+- `transform/pmm_rules` holds one OTTL statement per enabled rule, in matching order, and sets
+  `attributes["pmm.rule"]`; the attribute is stored in `otel.logs`, so Part 3 shows exactly the matched lines. Rule
+  strings are escaped as OTTL string literals; unit tests cover quotes, backslashes and Unicode. Rules match `body`,
+  which is the message for presets that extract one.
+- `count/pmm_rules` turns tagged lines into `pmm_log_rule_matches`, `deltatocumulative` makes it cumulative, and
+  `prometheusremotewrite/pmm_rules` writes it to VictoriaMetrics.
+- HA: each node's collector counts only the lines it receives, so the remote-write exporter sets the external label
+  `pmm_collector` (the HA node ID; `pmm-server` when standalone) and alerts sum across nodes. Without it two nodes
+  would write the same series.
 
 ```yaml
 processors:
@@ -198,11 +217,13 @@ connectors:
 exporters:
   prometheusremotewrite/pmm_rules:
     endpoint: http://127.0.0.1:9090/prometheus/api/v1/write
+    external_labels:
+      pmm_collector: pmm-server
 service:
   pipelines:
     logs:
-      receivers: [otlp, filelog/srv_<component>...]
-      processors: [memory_limiter, transform, filter/nginx_success, transform/pmm_rules, batch]
+      receivers: [otlp, filelog/srv_...]
+      processors: [memory_limiter, transform, transform/pmm_rules, batch]
       exporters: [clickhouse/logs, count/pmm_rules]
     metrics/pmm_rules:
       receivers: [count/pmm_rules]
@@ -210,75 +231,163 @@ service:
       exporters: [prometheusremotewrite/pmm_rules]
 ```
 
-Agents tag each line with `attributes["log.preset"]` through an `add` operator in each preset receiver; the server
-collector's own receivers do the same. Because the agent config is rendered by pmm-managed, existing agents need no
-upgrade.
+`service_name` on agent-collected lines is the node name until a log source is tied to its service (Part 2A does that
+for discovered sources).
 
-Verified in Part 2's first task, before anything is built on them:
+Verified in a spike on the test server, before anything is built on it:
 
-1. `count` groups by resource attributes (`node_name`, `service.name`); if not, `transform/pmm_rules` copies them
-   onto the record.
-2. `count` emits delta sums, so `deltatocumulative` is needed before remote write.
-3. The resulting series name and labels in VictoriaMetrics (expected
-   `pmm_log_rule_matches_total{pmm_rule, node_name, service_name}`), and the write URL.
+1. `count` groups by resource attributes (`node_name`, `service.name`); if not, `transform/pmm_rules` copies them onto
+   the record.
+2. `count` emits delta sums, so `deltatocumulative` is needed before remote write, and counts arrive correctly.
+3. The series name and labels in VictoriaMetrics (expected
+   `pmm_log_rule_matches_total{pmm_rule, node_name, service_name, pmm_collector}`) and the write URL.
 4. Collector CPU with 30 rules at the test server's log rate.
+5. pmm-managed can create, update and delete Grafana alert rules through the provisioning HTTP API with a server-side
+   credential, without restarting Grafana, and they show read-only in Alerting.
 
-### 2.5 Alert templates
+The HA label cannot be tested on one VM; it is verified in the next HA test.
 
-The alerting service gets a fourth template source next to built-in, user-file and DB templates: one template per
-log rule, generated in `CollectTemplates` and collected again after a rule change. New enum value
-`TEMPLATE_SOURCE_LOG_RULE` (additive). These templates are read-only in the Alerting UI; they are edited through
-their rule.
+### 2B.4 Alerts
 
-```yaml
-name: pmm_log_rule_postgresql_deadlock
-summary: PostgreSQL deadlock detected (logs)
-# [[ ]] are template delimiters, so the PromQL range is "[" + [[ .window ]] + "]"
-expr: sum by (node_name, service_name) (increase(pmm_log_rule_matches_total{pmm_rule="postgresql_deadlock"}[[[ .window ]]])) >= [[ .threshold ]]
-params: threshold (float, default from the rule), window (string, default from the rule)
-for: 0s
-severity: from the rule
-labels: {pmm_log_rule: postgresql_deadlock}
-annotations:
-  description: <summary>; open the matching lines: /pmm-ui/logs?rule=postgresql_deadlock&node=<node>&from=<t-15m>&to=<t+5m>
-```
+Each rule owns its alert: a rule that is enabled with `alert_enabled` has exactly one Grafana alert rule. There are no
+alert templates for log rules and no `TEMPLATE_SOURCE_LOG_RULE`.
 
-Alert rules are not created automatically; users create them from these templates as from any other. Deleting a log
-rule deletes its template; the Rules tab warns first when an alert rule uses it, because that rule would stop firing.
+- Folder **PMM Log Rules** (fixed UID `pmm-log-rules`), one rule group evaluated every 1 m.
+- Grafana rule: UID `pmm-log-` + the first 12 hex characters of `sha1(name)`; title = summary; label
+  `pmm_log_rule=<name>` and `severity` from the rule; query on PMM's VictoriaMetrics datasource (UID resolved as in
+  `provisioning_datasource.go`):
+  `sum by (node_name, service_name) (increase(pmm_log_rule_matches_total{pmm_rule="<name>"}[<window>])) >= <threshold>`;
+  `for: 0s`; no data = OK (no matches is normal); execution error = Error. Each alert carries `node_name` and
+  `service_name`, so notification policies can route on them. Annotations: summary and match count (a link to the
+  matching lines comes with Part 3).
+- Sync: pmm-managed compares the enabled, alert-on rules with the rules in the folder and creates, updates or deletes
+  through Grafana's provisioning HTTP API (`/api/v1/provisioning/alert-rules`). Rules created this way carry
+  provenance, so Grafana shows them read-only; they are edited through the log rule. The provisioning *file* path used
+  for the HA and components bundles is not used: applying it restarts Grafana.
+- Runs after every rule change, at startup, and every 5 min (repairs drift such as a deleted folder). In HA only the
+  leader syncs; alert rules live in the shared Grafana database.
+- When Grafana is unreachable the rule save still succeeds (the database is the source of truth) and the sync retries
+  with backoff. `ListLogRules` reports each rule's alert state: `synced`, `pending` or `failed` with the reason.
+- With the collector disabled, alert rules stay (they cannot fire) and the Rules tab shows a banner.
+- Deleting a rule deletes its alert; silences that referenced it no longer match anything.
+- Quieting a rule for one service uses Alertmanager silences; per-service exceptions in rules are not in v1.
 
-### 2.6 Built-in rules (v1)
+### 2B.5 Rules API
 
-| Rule | Preset | Match |
-|---|---|---|
-| `mysql_deadlock` | mysql_error | `Transactions deadlock detected` |
-| `mysql_access_denied` | mysql_error | `Access denied for user` (threshold 10 / 5 m) |
-| `mysql_replica_sql_error` | mysql_error | `Replica SQL for channel` + ERROR |
-| `mysql_semaphore_wait` | mysql_error | `Semaphore wait has lasted` |
-| `mysql_crash_recovery` | mysql_error | `crash recovery` |
-| `mysql_out_of_memory` | mysql_error | `Out of memory` |
-| `postgresql_deadlock` | postgres | `deadlock detected` |
-| `postgresql_auth_failed` | postgres | `password authentication failed` (threshold 10 / 5 m) |
-| `postgresql_too_many_clients` | postgres | `too many clients already` |
-| `postgresql_statement_timeout` | postgres | `canceling statement due to statement timeout` (threshold 5 / 5 m) |
-| `postgresql_lock_wait` | postgres | `still waiting for .*Lock` |
-| `postgresql_checkpoints_too_frequent` | postgres | `checkpoints are occurring too frequently` |
-| `postgresql_temp_file` | postgres | `temporary file: path` (threshold 20 / 5 m) |
-| `postgresql_shm_exhausted` | postgres | `could not resize shared memory segment` |
-| `postgresql_fatal_panic` | postgres | severity ≥ FATAL |
-| `postgresql_unclean_shutdown` | postgres | `was not properly shut down` |
-| `mongodb_auth_failed` | mongodb | `Failed to authenticate` (threshold 10 / 5 m) |
-| `mongodb_election` | mongodb | `Starting an election` |
-| `mongodb_stepdown` | mongodb | `Stepping down from primary` |
-| `mongodb_query_executor_error` | mongodb | `Plan executor error` |
-| `mongodb_wiredtiger_error` | mongodb | `WiredTiger error` |
-| `pmm_managed_errors` | pmm_managed | severity ≥ ERROR (threshold 20 / 5 m) |
-| `clickhouse_errors` | clickhouse_server | severity ≥ ERROR (threshold 20 / 5 m) |
-| `victoriametrics_errors` | victoriametrics | severity ≥ ERROR (threshold 10 / 5 m) |
-| `nginx_5xx` | nginx_access | severity ≥ ERROR, which the preset sets for status ≥ 500 (threshold 20 / 5 m) |
-| `pmm_component_crash` | supervisord | `exited: .* \(exit status` |
+`api/logs/v1/rules.proto`, `LogRulesService`; viewer for reads, admin for writes, both added to the auth server's
+rules for `/v1/logs/`:
 
-Threshold 1 per 5 m unless noted. Patterns are checked against real lines from the incident generator before they
-ship.
+| RPC | HTTP |
+|---|---|
+| `ListLogRules` | `GET /v1/logs/rules` — each rule with matches in the last 1 h and 24 h (VictoriaMetrics), alert state, and built-in / edited / custom |
+| `CreateLogRule` | `POST /v1/logs/rules` |
+| `UpdateLogRule` | `PUT /v1/logs/rules/{name}` — includes enable/disable, alert on/off and thresholds |
+| `DeleteLogRule` | `DELETE /v1/logs/rules/{name}` — custom rules are removed, built-ins hidden (`deleted_at`) |
+| `ResetLogRule` | `POST /v1/logs/rules/{name}:reset` — built-ins only |
+| `PreviewLogRule` | `POST /v1/logs/rules:preview` — a rule body (saved or not) and a range of 1 h or 24 h; returns the match count and up to 20 sample lines |
+| `ListLogRuleMatches` | `GET /v1/logs/rules/{name}/matches` — see 2B.7 |
+
+Preview and matches query `otel.logs` with ClickHouse `match()` / `positionCaseInsensitive()`, filtered by
+`LogAttributes['log.preset']` and `SeverityNumber`, with `max_execution_time = 10`, `readonly = 1` and a rows-read
+limit. They see only lines stored after 2B ships, since older rows have no preset tag.
+
+### 2B.6 Rules tab
+
+Route `/pmm-ui/logs`, a top-level **Logs** item in the left menu; in 2B the page has only the **Rules** tab (Part 3
+adds Lines and Patterns to the same page). Layout from the 2026-10-16 mockups, with the per-rule alert toggle in place
+of **Create alert rule**; MUI and `@percona/peak-ui`, API module and
+TanStack Query hooks, Vitest tests, per `ui/AGENTS.md`.
+
+- Table: summary, presets, match, matches 1 h / 24 h, enable switch, alert on/off with severity and threshold, alert
+  state, built-in / edited / custom badge.
+- Editor drawer: the fields and a live preview (debounced) with sample lines; server validation errors inline,
+  including the collector's rejection message.
+- Actions: delete; reset for built-ins; confirmation before deleting a rule whose alert is on.
+- Banner when the OTEL collector is disabled.
+
+### 2B.7 Assistant
+
+The Assistant already reads `otel.logs` through `pmm_clickhouse_query` (toolset `pmm-clickhouse`); 2B adds a bounded
+tool and corrects that toolset's guidance.
+
+- `ListLogRuleMatches`: query `service_name`, `from`/`to` (≤ 24 h), `limit` (default 20, max 100). Returns the newest
+  matched lines: timestamp, severity, file name, body (cut to 4 KB). With `around=<timestamp>` it returns up to 20
+  lines before and after one match from the same service and file. Same limits as preview; filters on `ServiceName`,
+  the table's sort key. Part 3's logs API extends this rather than replacing it.
+- Holmes tool `pmm_log_rule_matches` in `pmm-clickhouse`, calling the endpoint like the other PMM tools (curl with
+  the API token).
+- Investigation guidance: for an alert with a `pmm_log_rule` label, the first step is `pmm_log_rule_matches` for that
+  rule, service and window; the report quotes the lines (for a deadlock, its DETAIL and STATEMENT).
+- `pmm_clickhouse_query` guidance for logs: filter by `ServiceName` and `TimestampTime` first, use `SeverityNumber`,
+  not `SeverityText`, use `LogAttributes['pmm.rule']` for rule matches, and avoid `JSONExtract` over wide ranges.
+
+### 2B.8 Built-in rules (v1)
+
+| Rule | Preset | Match | Threshold | Alert |
+|---|---|---|---|---|
+| `mysql_deadlock` | mysql_error | `Transactions deadlock detected` | 1 / 5 m | on, error |
+| `mysql_out_of_memory` | mysql_error | `Out of memory` | 1 / 5 m | on, critical |
+| `mysql_access_denied` | mysql_error | `Access denied for user` | 10 / 5 m | off |
+| `mysql_replica_sql_error` | mysql_error | `Replica SQL for channel` + ERROR | 1 / 5 m | off |
+| `mysql_semaphore_wait` | mysql_error | `Semaphore wait has lasted` | 1 / 5 m | off |
+| `mysql_crash_recovery` | mysql_error | `crash recovery` | 1 / 5 m | off |
+| `postgresql_deadlock` | postgres | `deadlock detected` | 1 / 5 m | on, error |
+| `postgresql_too_many_clients` | postgres | `too many clients already` | 1 / 5 m | on, critical |
+| `postgresql_shm_exhausted` | postgres | `could not resize shared memory segment` | 1 / 5 m | on, error |
+| `postgresql_fatal_panic` | postgres | severity ≥ FATAL | 1 / 5 m | on, critical |
+| `postgresql_unclean_shutdown` | postgres | `was not properly shut down` | 1 / 5 m | on, critical |
+| `postgresql_auth_failed` | postgres | `password authentication failed` | 10 / 5 m | off |
+| `postgresql_statement_timeout` | postgres | `canceling statement due to statement timeout` | 5 / 5 m | off |
+| `postgresql_lock_wait` | postgres | `still waiting for .*Lock` | 1 / 5 m | off |
+| `postgresql_checkpoints_too_frequent` | postgres | `checkpoints are occurring too frequently` | 1 / 5 m | off |
+| `postgresql_temp_file` | postgres | `temporary file: path` | 20 / 5 m | off |
+| `mongodb_election` | mongodb | `Starting an election` | 1 / 5 m | on, warning |
+| `mongodb_stepdown` | mongodb | `Stepping down from primary` | 1 / 5 m | on, warning |
+| `mongodb_auth_failed` | mongodb | `Failed to authenticate` | 10 / 5 m | off |
+| `mongodb_query_executor_error` | mongodb | `Plan executor error` | 1 / 5 m | off |
+| `mongodb_wiredtiger_error` | mongodb | `WiredTiger error` | 1 / 5 m | off |
+| `pmm_component_crash` | supervisord | `exited: .* \(exit status` | 1 / 5 m | on, error |
+| `pmm_managed_errors` | pmm_managed | severity ≥ ERROR | 20 / 5 m | off |
+| `clickhouse_errors` | clickhouse_server | severity ≥ ERROR | 20 / 5 m | off |
+| `victoriametrics_errors` | victoriametrics | severity ≥ ERROR | 10 / 5 m | off |
+| `nginx_5xx` | nginx_access | severity ≥ ERROR (the preset sets it for status ≥ 500) | 20 / 5 m | off |
+
+Every pattern is checked against real lines from the incident generator before it ships. A default-on rule that
+matches during normal operation (for example `postgresql_fatal_panic` on "role does not exist" or "terminating
+connection due to administrator command") is narrowed or switched to alert off, and the table is updated.
+
+### 2B.9 Part 1 follow-ups
+
+- nginx error-format lines (`2026/10/16 20:41:58 [warn] …`) in `nginx.log` get a severity: a new migration adds a
+  second parser to the built-in `nginx_access` preset, selected with the stanza `if:` field, that sets their level.
+  Access lines are unchanged; only an unedited preset is updated.
+- `dev/otel/README.md`: lines failing a parse are dropped, not stored, for presets that use `on_error: drop`
+  (`grafana`, `otel_collector`).
+
+### 2B.10 Done
+
+Verified on the test server:
+
+1. The spike's five checks pass, or the design is changed first.
+2. For every log-based scenario of the incident generator (`dev/adre/issues/`), its rule's matches appear on the
+   Rules tab within 2 min; where the rule is alert-on, the Grafana alert fires with no setup. Matches outside
+   incident windows are false positives; report a per-rule table.
+3. Switching an alert on or off shows in Alerting within seconds, and Grafana's uptime shows no restart.
+4. **Investigate** on a deadlock alert quotes the DETAIL and STATEMENT lines.
+5. Collector CPU with all built-ins enabled stays near the Part 1 level, and its log stays free of errors.
+
+## Part 2A: database log discovery
+
+Built after 2B, with its own spec and plan. Decisions so far (2026-10-17):
+
+- Log collection is on by default for newly added MySQL, PostgreSQL and MongoDB services; `--disable-logs` (and a
+  global setting) turns it off. Already-registered services are offered collection in the UI.
+- pmm-agent asks the database where its log is (`log_error`; `logging_collector`, `log_directory`, `log_filename` or
+  `pg_current_logfile()`; `systemLog.path`), tries known default locations, and tails the file with the right preset,
+  tied to its service.
+- When no readable file is found, the service shows why and the fix: the setting to change, or
+  `--log-file=<path>`. No journald or Docker log readers in v1.
+- Needs a new pmm-agent; older agents keep the manual `pmm-admin add otel` setup. Tested with a Feature Build.
 
 ## Part 3: logs API and Logs page
 
@@ -326,27 +435,26 @@ dependencies.
   context), **Open dashboard** (the node's dashboard at that time) and **Open QAN** (when the row has a service).
   **Load older** fetches the next page.
 - **Patterns tab:** pattern, count, severity, first and last seen, `new` badge; clicking one filters Lines by it.
-- **Rules tab:** rules with scope, match, enabled and matches in 1 h / 24 h. Admins create and edit rules in a
-  dialog with **Preview**. Each rule links to its lines and to **Create alert rule** (Alerting with its template
-  selected).
+- **Rules tab:** built in Part 2B (2B.6); Part 3 adds a link from each rule to its lines.
 - **Empty state:** when nothing is collected, a link to Settings → OTEL → Log collectors.
 
 ### 3.5 Assistant
 
 A `pmm_logs_patterns` tool in the shipped Holmes config calls `GetLogPatterns`, so the Assistant reads summarized
-patterns instead of writing SQL against `otel.logs`. The `otel-logs-analysis` skill is updated to use it and the
+patterns instead of writing SQL against `otel.logs`; it sits next to 2B's `pmm_log_rule_matches`. The `otel-logs-analysis` skill is updated to use it and the
 `pmm.rule` attribute.
 
 ## Testing
 
 - **Unit:** collector config rendering (rules → OTTL, escaping, server receivers, nginx filter); rule validation and
-  built-in sync; template generation; query builders (SQL and arguments for every filter); pattern expression;
-  UI components (Vitest).
-- **API tests** (`api-tests/logs/`): rules CRUD and preview, search, volume, patterns, context against a live server.
+  built-in sync; Grafana alert sync (create, update, delete against a mocked client); query builders (SQL and
+  arguments for every filter); pattern expression; UI components (Vitest).
+- **API tests** (`api-tests/logs/`): rules CRUD, reset, preview and matches with admin/viewer permissions; search,
+  volume, patterns, context against a live server.
 - **Live, on a CHAOS VM with the incident generator (`dev/adre/issues/`):**
   - Every scenario with a rule must increase that rule's metric inside its window; matches outside incident windows
     are false positives. Report a per-rule table.
-  - An alert created from a log-rule template fires during its scenario, and **Investigate** works from it.
+  - Alert-on rules fire during their scenario with no setup, and **Investigate** quotes the matched lines (2B.10).
   - Server logs from every `/srv/logs` component reach `otel.logs` with the right preset; restarting the collector
     neither loses nor duplicates lines.
   - PostgreSQL errors arrive as one row with DETAIL and STATEMENT.
@@ -359,4 +467,6 @@ patterns instead of writing SQL against `otel.logs`. The `otel-logs-analysis` sk
 - Rules spanning several lines or entries (same PID within 1 s); would need scheduled queries.
 - LBAC for logs (needs labels on log rows).
 - Live tail; saved searches; log-derived dashboards in Grafana.
-- Automatic creation of alert rules from log rules.
+- Per-service exceptions in a rule (use silences).
+- Rules suggested by the Assistant.
+- journald and Docker log readers (Part 2A reports the fix instead).
