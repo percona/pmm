@@ -324,7 +324,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(ctx context.Context, req *advisors
 	return &advisorsv1.StartAdvisorChecksResponse{RunId: runID}, nil
 }
 
-// ListAdvisorChecks returns a list of available advisor checks and their statuses.
+// ListAdvisorChecks returns available advisor checks and their statuses, ordered by name.
 func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks(ctx)
 	if err != nil {
@@ -347,7 +347,8 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 	}
 
 	res := make([]*advisorsv1.AdvisorCheck, 0, len(checks))
-	for _, c := range checks {
+	for _, name := range slices.Sorted(maps.Keys(checks)) {
+		c := checks[name]
 		_, disabled := m[c.Name]
 		res = append(res, &advisorsv1.AdvisorCheck{
 			Name:               c.Name,
@@ -363,55 +364,6 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 	}
 
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
-}
-
-// ListAdvisors retrieves a list of advisors based on the provided request.
-func (s *ChecksAPIService) ListAdvisors(ctx context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
-	disChecks, err := s.checksService.GetDisabledChecks(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get disabled checks list: %w", err)
-	}
-
-	m := make(map[string]struct{}, len(disChecks))
-	for _, c := range disChecks {
-		m[c] = struct{}{}
-	}
-
-	disServices, err := s.checksService.GetDisabledServicesForChecks(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get disabled services list: %w", err)
-	}
-
-	advisors, err := s.checksService.GetAdvisors()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get available checks list: %w", err)
-	}
-
-	res := make([]*advisorsv1.Advisor, 0, len(advisors))
-	for _, a := range advisors {
-		checks := make([]*advisorsv1.AdvisorCheck, 0, len(a.Checks))
-		for _, c := range a.Checks {
-			_, disabled := m[c.Name]
-			checks = append(checks, &advisorsv1.AdvisorCheck{
-				Name:               c.Name,
-				Enabled:            !disabled,
-				Summary:            c.Summary,
-				Technology:         convertTechnology(c.Technology),
-				Description:        c.Description,
-				Interval:           convertInterval(c.Interval),
-				Category:           c.Category,
-				UserDefined:        c.UserDefined,
-				DisabledServiceIds: disServices[c.Name],
-			})
-		}
-
-		res = append(res, &advisorsv1.Advisor{
-			Category: a.Category,
-			Checks:   checks,
-		})
-	}
-
-	return &advisorsv1.ListAdvisorsResponse{Advisors: res}, nil
 }
 
 // ChangeAdvisorChecks enables/disables advisor checks — globally or for specific

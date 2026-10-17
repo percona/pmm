@@ -17,7 +17,7 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
-  Advisor,
+  AdvisorCheck,
   AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
   AdvisorTechnology,
@@ -31,31 +31,26 @@ import { TIME_FORMAT } from 'lib/constants';
 
 vi.mock('api/advisors');
 
-const TEST_ADVISORS: Advisor[] = [
+const TEST_CHECKS: AdvisorCheck[] = [
   {
+    name: 'mysql_version_check',
+    enabled: true,
+    summary: 'MySQL version check',
+    description: '',
+    interval: AdvisorInterval.standard,
+    technology: AdvisorTechnology.mysql,
     category: 'Configuration',
-    checks: [
-      {
-        name: 'mysql_version_check',
-        enabled: true,
-        summary: 'MySQL version check',
-        description: '',
-        interval: AdvisorInterval.standard,
-        technology: AdvisorTechnology.mysql,
-        category: 'Configuration',
-        userDefined: false,
-      },
-      {
-        name: 'postgresql_super_role',
-        enabled: false,
-        summary: 'PostgreSQL super role',
-        description: '',
-        interval: AdvisorInterval.rare,
-        technology: AdvisorTechnology.postgresql,
-        category: 'Configuration',
-        userDefined: false,
-      },
-    ],
+    userDefined: false,
+  },
+  {
+    name: 'postgresql_super_role',
+    enabled: false,
+    summary: 'PostgreSQL super role',
+    description: '',
+    interval: AdvisorInterval.rare,
+    technology: AdvisorTechnology.postgresql,
+    category: 'Configuration',
+    userDefined: false,
   },
 ];
 
@@ -115,16 +110,16 @@ const PENDING_ITEM: Insight = {
   outcome: '',
 };
 
-// same advisors fixture, with one check turned off for a single service
-const withDisabledService = (checkName: string, serviceId: string): Advisor[] =>
-  TEST_ADVISORS.map((advisor) => ({
-    ...advisor,
-    checks: advisor.checks.map((check) =>
-      check.name === checkName
-        ? { ...check, disabledServiceIds: [serviceId] }
-        : check
-    ),
-  }));
+// same checks fixture, with one check turned off for a single service
+const withDisabledService = (
+  checkName: string,
+  serviceId: string
+): AdvisorCheck[] =>
+  TEST_CHECKS.map((check) =>
+    check.name === checkName
+      ? { ...check, disabledServiceIds: [serviceId] }
+      : check
+  );
 
 const renderComponent = (initialEntry = '/advisors/insights') =>
   render(
@@ -148,7 +143,7 @@ const waitForRows = async () => {
 describe('AdvisorInsights', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
+    vi.mocked(advisorsApi.listAdvisorChecks).mockResolvedValue(TEST_CHECKS);
     vi.mocked(advisorsApi.listInsights).mockResolvedValue({
       totalItems: 250,
       totalPages: 3,
@@ -319,7 +314,8 @@ describe('AdvisorInsights', () => {
     await waitForRows();
 
     const historyCalls = vi.mocked(advisorsApi.listInsights).mock.calls.length;
-    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
+    const checksCalls = vi.mocked(advisorsApi.listAdvisorChecks).mock.calls
+      .length;
     const filterValuesCalls = vi.mocked(advisorsApi.listInsightsFilterValues)
       .mock.calls.length;
 
@@ -329,8 +325,8 @@ describe('AdvisorInsights', () => {
       expect(vi.mocked(advisorsApi.listInsights).mock.calls.length).toBe(
         historyCalls + 1
       );
-      expect(vi.mocked(advisorsApi.listAdvisors).mock.calls.length).toBe(
-        advisorsCalls + 1
+      expect(vi.mocked(advisorsApi.listAdvisorChecks).mock.calls.length).toBe(
+        checksCalls + 1
       );
       expect(
         vi.mocked(advisorsApi.listInsightsFilterValues).mock.calls.length
@@ -667,7 +663,7 @@ describe('AdvisorInsights', () => {
   });
 
   it("dims rows whose check is disabled for that row's service", async () => {
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(
+    vi.mocked(advisorsApi.listAdvisorChecks).mockResolvedValue(
       withDisabledService('mysql_version_check', 'service-1')
     );
     renderComponent();
@@ -689,13 +685,14 @@ describe('AdvisorInsights', () => {
 
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
     const item = await screen.findByTestId('action-disable-check');
-    // the item stays disabled until the advisors list resolves
+    // the item stays disabled until the checks list resolves
     await waitFor(() =>
       expect(item).not.toHaveAttribute('aria-disabled', 'true')
     );
     expect(item).toHaveTextContent(Messages.actions.disableCheck);
 
-    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
+    const checksCalls = vi.mocked(advisorsApi.listAdvisorChecks).mock.calls
+      .length;
     fireEvent.click(item);
 
     await waitFor(() =>
@@ -715,16 +712,16 @@ describe('AdvisorInsights', () => {
         Messages.success.checkDisabled('MySQL version check', 'mysql-prod')
       )
     ).toBeInTheDocument();
-    // the advisors list refetches, so the menu reflects the new state
+    // the checks list refetches, so the menu reflects the new state
     await waitFor(() =>
       expect(
-        vi.mocked(advisorsApi.listAdvisors).mock.calls.length
-      ).toBeGreaterThan(advisorsCalls)
+        vi.mocked(advisorsApi.listAdvisorChecks).mock.calls.length
+      ).toBeGreaterThan(checksCalls)
     );
   });
 
   it('offers re-enabling a check disabled for that service', async () => {
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(
+    vi.mocked(advisorsApi.listAdvisorChecks).mockResolvedValue(
       withDisabledService('mysql_version_check', 'service-1')
     );
     renderComponent();
@@ -733,7 +730,7 @@ describe('AdvisorInsights', () => {
 
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
     const item = await screen.findByTestId('action-disable-check');
-    // the label flips only once the advisors list resolves
+    // the label flips only once the checks list resolves
     await waitFor(() =>
       expect(item).toHaveTextContent(Messages.actions.enableCheck)
     );
@@ -778,7 +775,7 @@ describe('AdvisorInsights', () => {
   });
 
   it("disables re-run when the check is off for the row's service", async () => {
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(
+    vi.mocked(advisorsApi.listAdvisorChecks).mockResolvedValue(
       withDisabledService('mysql_version_check', 'service-1')
     );
     renderComponent();
@@ -928,7 +925,7 @@ describe('AdvisorInsights', () => {
 
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
     const rerun = await screen.findByTestId('action-rerun-now');
-    // the item stays disabled until the advisors list resolves
+    // the item stays disabled until the checks list resolves
     await waitFor(() =>
       expect(rerun).not.toHaveAttribute('aria-disabled', 'true')
     );

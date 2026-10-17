@@ -57,7 +57,6 @@ type prometheusService interface {
 type checksService interface { //nolint:interfacebloat
 	StartChecks(ctx context.Context, checkNames, serviceIDs []string, intervals []check.Interval) (string, error)
 	GetChecks() (map[string]check.Check, error)
-	GetAdvisors() ([]check.Advisor, error)
 	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)
 	GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error)
 	GetInsightsFilterValues(ctx context.Context) ([]string, []string, error)

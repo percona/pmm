@@ -17,6 +17,7 @@ package server
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -180,27 +181,11 @@ func TestListAdvisorChecks(t *testing.T) {
 		assert.NotEmpty(t, c.Name, "%+v", c)
 		assert.NotEmpty(t, c.Summary, "%+v", c)
 		assert.NotEmpty(t, c.Description, "%+v", c)
+		assert.NotEmpty(t, c.Category, "%+v", c)
 	}
-}
-
-func TestListAdvisors(t *testing.T) {
-	toggleAdvisorChecks(t, true)
-	t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-	resp, err := advisorClient.Default.AdvisorService.ListAdvisors(nil)
-	require.NoError(t, err)
-	assert.NotNil(t, resp)
-	assert.NotEmpty(t, resp.Payload.Advisors)
-	for _, a := range resp.Payload.Advisors {
-		assert.NotEmpty(t, a.Category, "%+v", a)
-		assert.NotEmpty(t, a.Checks, "%+v", a)
-
-		for _, c := range a.Checks {
-			assert.NotEmpty(t, c.Name, "%+v", c)
-			assert.NotEmpty(t, c.Summary, "%+v", c)
-			assert.NotEmpty(t, c.Description, "%+v", c)
-		}
-	}
+	assert.True(t, slices.IsSortedFunc(resp.Payload.Checks, func(a, b *advisor.ListAdvisorChecksOKBodyChecksItems0) int {
+		return strings.Compare(a.Name, b.Name)
+	}), "checks must be ordered by name")
 }
 
 func TestChangeAdvisorChecks(t *testing.T) {

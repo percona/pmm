@@ -143,36 +143,6 @@ func (_m *mockChecksService) EnableChecksForServices(ctx context.Context, checkN
 	return r0
 }
 
-// GetAdvisors provides a mock function with no fields
-func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAdvisors")
-	}
-
-	var r0 []check.Advisor
-	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]check.Advisor, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() []check.Advisor); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]check.Advisor)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetChecks provides a mock function with no fields
 func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	ret := _m.Called()

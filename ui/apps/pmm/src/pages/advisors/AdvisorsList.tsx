@@ -24,7 +24,7 @@ import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import {
-  useAdvisors,
+  useAdvisorChecks,
   useChangeAdvisorChecks,
   useDeleteAdvisorCheck,
   useStartAdvisorChecks,
@@ -39,7 +39,7 @@ import { FC, useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
-import { flattenAdvisorChecks } from 'utils/advisors.utils';
+import { toAdvisorCheckRows } from 'utils/advisors.utils';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
 import { Messages } from './AdvisorsList.messages';
 import { AdvisorCheckForm, AdvisorCheckFormMode } from './check-form';
@@ -99,7 +99,7 @@ const FilterSelect: FC<FilterSelectProps> = ({
 
 const AdvisorsList: FC = () => {
   const navigate = useNavigate();
-  const { data: advisors = [], isLoading, refetch } = useAdvisors();
+  const { data: checks = [], isLoading, refetch } = useAdvisorChecks();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
@@ -194,7 +194,7 @@ const AdvisorsList: FC = () => {
     );
   };
 
-  const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
+  const rows = useMemo(() => toAdvisorCheckRows(checks), [checks]);
 
   // the open details overlay is driven by the ?details=<checkName> URL param,
   // so the overlay is deep-linkable and reproduced by a shared URL

@@ -23,12 +23,11 @@ import {
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import {
   useAdvisorCheck,
-  useAdvisors,
+  useAdvisorChecks,
   useCreateAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
 import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
-import { flattenAdvisorChecks } from 'utils/advisors.utils';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
 import { useCheckTest } from '../check-test/useCheckTest';
@@ -108,13 +107,10 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
 
   // suggest the categories already in use; the query is shared with the list
   // page, so opening the form costs no extra request
-  const { data: advisors = [] } = useAdvisors();
+  const { data: checks = [] } = useAdvisorChecks();
   const categoryOptions = useMemo(
-    () =>
-      [
-        ...new Set(flattenAdvisorChecks(advisors).map((row) => row.category)),
-      ].sort(),
-    [advisors]
+    () => [...new Set(checks.map((check) => check.category))].sort(),
+    [checks]
   );
 
   const test = useCheckTest({ technology, enabled: open, resetKey: open });

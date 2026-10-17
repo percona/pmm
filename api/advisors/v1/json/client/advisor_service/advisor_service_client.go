@@ -63,8 +63,6 @@ type ClientService interface {
 
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
 
-	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
-
 	ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error)
 
 	ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error)
@@ -307,7 +305,7 @@ func (a *Client) ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargets
 /*
 ListAdvisorChecks lists advisor checks
 
-List advisor checks available to the user.
+List advisor checks available to the user, ordered by name.
 */
 func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error) {
 	// NOTE: parameters are not validated before sending
@@ -344,50 +342,6 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAdvisorChecksDefault)
-
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-ListAdvisors lists advisors
-
-List advisors available to the user.
-*/
-func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error) {
-	// NOTE: parameters are not validated before sending
-	if params == nil {
-		params = NewListAdvisorsParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "ListAdvisors",
-		Method:             "GET",
-		PathPattern:        "/v1/advisors",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ListAdvisorsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-
-	// only one success response has to be checked
-	success, ok := result.(*ListAdvisorsOK)
-	if ok {
-		return success, nil
-	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*ListAdvisorsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

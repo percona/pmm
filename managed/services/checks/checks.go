@@ -112,9 +112,8 @@ type Service struct {
 	// execute runs a recorded run; tests replace it.
 	execute func(ctx context.Context, run *models.AdvisorRun) error
 
-	am       sync.Mutex
-	advisors []check.Advisor
-	checks   map[string]check.Check // Checks extracted from advisors and stored by name.
+	am     sync.Mutex
+	checks map[string]check.Check // Checks stored by name.
 
 	tm             sync.Mutex
 	rareTicker     *time.Ticker
@@ -561,16 +560,6 @@ func (s *Service) run(ctx context.Context, run *models.AdvisorRun) error {
 // CleanupCheckResults drops all check results in the registry.
 func (s *Service) CleanupCheckResults() {
 	s.resultsRegistry.cleanup()
-}
-
-// GetAdvisors returns all available advisors.
-func (s *Service) GetAdvisors() ([]check.Advisor, error) {
-	s.am.Lock()
-	defer s.am.Unlock()
-
-	res := make([]check.Advisor, 0, len(s.advisors))
-	res = append(res, s.advisors...)
-	return res, nil
 }
 
 // GetChecks retrieves a map of checks from the service.
@@ -2378,7 +2367,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		checks = append(checks, c)
 	}
 
-	s.updateAdvisors(s.filterSupportedChecks(groupChecksIntoAdvisors(checks)))
+	s.updateChecks(s.filterSupportedChecks(checks))
 }
 
 // reconcileBuiltinChecks synchronizes Percona-shipped checks from disk into the
@@ -2427,25 +2416,6 @@ func (s *Service) loadBuiltinChecks(_ context.Context) ([]check.Check, error) {
 	return s.loadChecksFromFiles(checkFiles)
 }
 
-// groupChecksIntoAdvisors groups checks into advisors by their category,
-// preserving first-seen order.
-func groupChecksIntoAdvisors(checks []check.Check) []check.Advisor {
-	index := make(map[string]int, len(checks))
-	advisors := make([]check.Advisor, 0, len(checks))
-	for _, c := range checks {
-		key := c.Category
-		i, ok := index[key]
-		if !ok {
-			i = len(advisors)
-			index[key] = i
-			advisors = append(advisors, check.Advisor{Category: c.Category})
-		}
-		advisors[i].Checks = append(advisors[i].Checks, c)
-	}
-
-	return advisors
-}
-
 // loadChecksFromFiles loads Advisor checks from a list of given files.
 func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 	res := make([]check.Check, 0, len(files))
@@ -2481,32 +2451,24 @@ func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 }
 
 // filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.
-func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Advisor {
-	res := make([]check.Advisor, 0, len(advisors))
+func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
+	res := make([]check.Check, 0, len(checks))
 
-	for _, advisor := range advisors {
-		checks := make([]check.Check, 0, len(advisor.Checks))
+LOOP:
+	for _, c := range checks {
+		if c.Version > check.MaxSupportedVersion {
+			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, check.MaxSupportedVersion)
+			continue LOOP
+		}
 
-	LOOP:
-		for _, c := range advisor.Checks {
-			if c.Version > check.MaxSupportedVersion {
-				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, check.MaxSupportedVersion)
+		for _, query := range c.Queries {
+			if ok := isQueryTypeSupported(query.Type); !ok {
+				s.l.Warnf("Unsupported query type: %s.", query.Type)
 				continue LOOP
 			}
-
-			for _, query := range c.Queries {
-				if ok := isQueryTypeSupported(query.Type); !ok {
-					s.l.Warnf("Unsupported query type: %s.", query.Type)
-					continue LOOP
-				}
-			}
-
-			checks = append(checks, c)
 		}
-		if len(checks) != 0 {
-			advisor.Checks = checks
-			res = append(res, advisor)
-		}
+
+		res = append(res, c)
 	}
 
 	return res
@@ -2533,21 +2495,15 @@ func isQueryTypeSupported(typ check.Type) bool {
 	return true
 }
 
-// updateAdvisors update advisors filed value under mutex.
-func (s *Service) updateAdvisors(advisors []check.Advisor) {
+// updateChecks replaces the loaded checks under mutex.
+func (s *Service) updateChecks(checks []check.Check) {
 	s.am.Lock()
 	defer s.am.Unlock()
 
-	s.advisors = advisors
-
-	checks := make(map[string]check.Check)
-	for _, a := range s.advisors {
-		for _, c := range a.Checks {
-			checks[c.Name] = c
-		}
+	s.checks = make(map[string]check.Check, len(checks))
+	for _, c := range checks {
+		s.checks[c.Name] = c
 	}
-
-	s.checks = checks
 }
 
 // UpdateIntervals updates advisor checks restart timer intervals.

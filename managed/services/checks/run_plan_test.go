@@ -66,7 +66,7 @@ func TestRunPlan(t *testing.T) {
 			Queries:    []check.Query{{Type: check.MySQLShow, Query: "VARIABLES"}},
 		}
 	}
-	s.updateAdvisors([]check.Advisor{{Checks: []check.Check{mysqlCheck("check_a"), mysqlCheck("check_b")}}})
+	s.updateChecks([]check.Check{mysqlCheck("check_a"), mysqlCheck("check_b")})
 
 	start := func(t *testing.T) runInfo {
 		t.Helper()

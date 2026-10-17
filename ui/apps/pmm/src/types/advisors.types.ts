@@ -48,13 +48,8 @@ export interface AdvisorCheckInput {
   script: string;
 }
 
-export interface Advisor {
-  category: string;
+export interface ListAdvisorChecksResponse {
   checks: AdvisorCheck[];
-}
-
-export interface ListAdvisorsResponse {
-  advisors: Advisor[];
 }
 
 export interface GetAdvisorCheckResponse {

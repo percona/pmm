@@ -1,6 +1,5 @@
 import type { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 import {
-  Advisor,
   AdvisorCheck,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
@@ -12,8 +11,8 @@ import {
   CreateAdvisorCheckRequest,
   CreateAdvisorCheckResponse,
   GetAdvisorCheckResponse,
+  ListAdvisorChecksResponse,
   ListAdvisorCheckTestTargetsResponse,
-  ListAdvisorsResponse,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
   ListRunsParams,
@@ -29,9 +28,12 @@ import {
 import { EmptyResponse, PaginatedResponse } from 'types/util.types';
 import { api } from './api';
 
-export const listAdvisors = async (): Promise<Advisor[]> => {
-  const res = await api.get<ListAdvisorsResponse>('/advisors', rawKeysConfig);
-  return res.data.advisors;
+export const listAdvisorChecks = async (): Promise<AdvisorCheck[]> => {
+  const res = await api.get<ListAdvisorChecksResponse>(
+    '/advisors/checks',
+    rawKeysConfig
+  );
+  return res.data.checks;
 };
 
 export const getAdvisorCheck = async (name: string): Promise<AdvisorCheck> => {

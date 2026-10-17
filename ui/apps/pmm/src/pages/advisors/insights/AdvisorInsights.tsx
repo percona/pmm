@@ -26,7 +26,7 @@ import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import {
-  useAdvisors,
+  useAdvisorChecks,
   useChangeAdvisorChecks,
   useInsightsFilterValues,
   useInsights,
@@ -241,7 +241,7 @@ const AdvisorInsights: FC = () => {
       ) ?? null,
     [data, searchParams]
   );
-  const { data: advisors = [], refetch: refetchAdvisors } = useAdvisors();
+  const { data: checks = [], refetch: refetchChecks } = useAdvisorChecks();
   const { data: filterValues, refetch: refetchFilterValues } =
     useInsightsFilterValues();
   const { mutate: markRead, isPending: isMarking } = useMarkInsightsRead();
@@ -251,11 +251,8 @@ const AdvisorInsights: FC = () => {
     useChangeAdvisorChecks();
 
   const checksByName = useMemo(
-    () =>
-      new Map(
-        advisors.flatMap((advisor) => advisor.checks).map((c) => [c.name, c])
-      ),
-    [advisors]
+    () => new Map(checks.map((c) => [c.name, c])),
+    [checks]
   );
 
   // a check can be turned off for individual services while staying enabled
@@ -375,16 +372,16 @@ const AdvisorInsights: FC = () => {
   // reloads the results and the data behind the filter dropdowns
   const handleRefresh = () => {
     refetch();
-    refetchAdvisors();
+    refetchChecks();
     refetchFilterValues();
   };
 
   const categoryOptions = useMemo<FilterOption[]>(
     () =>
-      [...new Set(advisors.map((advisor) => advisor.category))]
+      [...new Set(checks.map((check) => check.category))]
         .sort()
         .map((category) => ({ label: category, value: category })),
-    [advisors]
+    [checks]
   );
 
   const serviceOptions = useMemo<FilterOption[]>(

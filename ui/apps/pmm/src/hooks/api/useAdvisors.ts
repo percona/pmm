@@ -11,8 +11,8 @@ import {
   createAdvisorCheck,
   deleteAdvisorCheck,
   getAdvisorCheck,
+  listAdvisorChecks,
   listAdvisorCheckTestTargets,
-  listAdvisors,
   listInsightsFilterValues,
   listInsights,
   listRuns,
@@ -23,7 +23,6 @@ import {
   updateAdvisorCheck,
 } from 'api/advisors';
 import {
-  Advisor,
   AdvisorCheck,
   AdvisorCheckResultStatus,
   AdvisorRun,
@@ -60,10 +59,12 @@ const KEYS = {
   TEST_NOTIFICATION: 'advisors:test-notification',
 };
 
-export const useAdvisors = (options?: Partial<UseQueryOptions<Advisor[]>>) =>
+export const useAdvisorChecks = (
+  options?: Partial<UseQueryOptions<AdvisorCheck[]>>
+) =>
   useQuery({
     queryKey: [KEYS.LIST],
-    queryFn: () => listAdvisors(),
+    queryFn: () => listAdvisorChecks(),
     ...options,
   });
 

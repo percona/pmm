@@ -17,7 +17,6 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
-  Advisor,
   AdvisorCheck,
   AdvisorTechnology,
   AdvisorInterval,
@@ -26,53 +25,43 @@ import {
 vi.mock('api/advisors');
 vi.mock('api/services');
 
-const TEST_ADVISORS: Advisor[] = [
+const TEST_CHECKS: AdvisorCheck[] = [
   {
+    name: 'mysql_version_check',
+    enabled: true,
+    summary: 'MySQL version check',
+    description: 'Warns if MySQL version is EOL',
+    interval: AdvisorInterval.standard,
+    technology: AdvisorTechnology.mysql,
     category: 'Configuration',
-    checks: [
-      {
-        name: 'mysql_version_check',
-        enabled: true,
-        summary: 'MySQL version check',
-        description: 'Warns if MySQL version is EOL',
-        interval: AdvisorInterval.standard,
-        technology: AdvisorTechnology.mysql,
-        category: 'Configuration',
-        userDefined: false,
-      },
-    ],
+    userDefined: false,
   },
   {
+    name: 'postgresql_super_role',
+    enabled: true,
+    summary: 'PostgreSQL super role',
+    description: 'Detects users with the SUPER role',
+    interval: AdvisorInterval.rare,
+    technology: AdvisorTechnology.postgresql,
     category: 'Security',
-    checks: [
-      {
-        name: 'postgresql_super_role',
-        enabled: true,
-        summary: 'PostgreSQL super role',
-        description: 'Detects users with the SUPER role',
-        interval: AdvisorInterval.rare,
-        technology: AdvisorTechnology.postgresql,
-        category: 'Security',
-        userDefined: true,
-        disabledServiceIds: ['svc-1', 'svc-2'],
-      },
-      {
-        name: 'postgresql_disabled_check',
-        enabled: false,
-        summary: 'PostgreSQL disabled check',
-        description: 'A disabled check',
-        interval: AdvisorInterval.standard,
-        technology: AdvisorTechnology.postgresql,
-        category: 'Security',
-        userDefined: false,
-      },
-    ],
+    userDefined: true,
+    disabledServiceIds: ['svc-1', 'svc-2'],
+  },
+  {
+    name: 'postgresql_disabled_check',
+    enabled: false,
+    summary: 'PostgreSQL disabled check',
+    description: 'A disabled check',
+    interval: AdvisorInterval.standard,
+    technology: AdvisorTechnology.postgresql,
+    category: 'Security',
+    userDefined: false,
   },
 ];
 
 // the full definition returned by getAdvisorCheck (queries + script populated)
 const FULL_CHECK: AdvisorCheck = {
-  ...TEST_ADVISORS[0].checks[0],
+  ...TEST_CHECKS[0],
   queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
   script: 'print("hi")',
 };
@@ -108,7 +97,7 @@ const selectFilterOption = async (filterTestId: string, option: string) => {
 describe('AdvisorsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
+    vi.mocked(advisorsApi.listAdvisorChecks).mockResolvedValue(TEST_CHECKS);
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(FULL_CHECK);
@@ -379,12 +368,12 @@ describe('AdvisorsList', () => {
 
     await waitForRows();
 
-    const calls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
+    const calls = vi.mocked(advisorsApi.listAdvisorChecks).mock.calls.length;
 
     fireEvent.click(screen.getByTestId('refresh-checks'));
 
     await waitFor(() =>
-      expect(vi.mocked(advisorsApi.listAdvisors).mock.calls.length).toBe(
+      expect(vi.mocked(advisorsApi.listAdvisorChecks).mock.calls.length).toBe(
         calls + 1
       )
     );

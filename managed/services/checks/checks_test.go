@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"slices"
 	"testing"
 	"time"
 
@@ -94,7 +95,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 	s := New(db, nil, vmClient, clickhouseDB)
 
 	t.Run("normal", func(t *testing.T) {
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
@@ -105,7 +106,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 
 		s.UpdateAdvisorsList(ctx)
 
-		checks, err = s.GetAdvisors()
+		checks, err = s.GetChecks()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
@@ -123,7 +124,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
@@ -143,23 +144,10 @@ func TestUpdateAdvisorsList(t *testing.T) {
 
 		s.UpdateAdvisorsList(t.Context())
 
-		advisors, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
-		require.GreaterOrEqual(t, len(advisors), 1)
-
-		// the user check carries a unique category, so it forms its own advisor
-		// group loaded last.
-		advisor := advisors[len(advisors)-1]
-		require.Equal(t, "Development", advisor.Category)
-		require.Len(t, advisor.Checks, 1)
-
-		checkNames := make([]string, 0, len(advisor.Checks))
-		for _, c := range advisor.Checks {
-			checkNames = append(checkNames, c.Name)
-		}
-		assert.ElementsMatch(t, []string{
-			"good_check_pg",
-		}, checkNames)
+		require.Contains(t, checks, "good_check_pg")
+		assert.Equal(t, "Development", checks["good_check_pg"].Category)
 	})
 }
 
@@ -485,7 +473,6 @@ func TestStartChecks(t *testing.T) {
 
 		seedUserCheck(t, db)
 		s.UpdateAdvisorsList(t.Context())
-		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
 		run := runAllChecks(t, s)
@@ -740,53 +727,21 @@ func TestUpdateIntervalsBeforeRun(t *testing.T) {
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 
-	valid := []check.Advisor{
-		{
-			Category: "MySQL",
-			Checks: []check.Check{
-				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
-			},
-		},
-		{
-			Category: "PostgreSQL",
-			Checks: []check.Check{
-				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
-			},
-		},
-		{
-			Category: "MongoDB",
-			Checks: []check.Check{
-				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
-			},
-		},
+	valid := []check.Check{
+		{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
+		{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
+		{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
 	}
 
-	invalid := []check.Advisor{
-		{
-			Category: "CompletelyInvalid",
-			Checks: []check.Check{
-				{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
-				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
-			},
-		},
-		{
-			Category: "PartiallyInvalid",
-			Checks: []check.Check{
-				{Name: "MySQLShow", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}},
-				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
-			},
-		},
+	invalid := []check.Check{
+		{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
+		{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
+		{Name: "partially unsupported type", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.Type("RedisInfo")}}},
 	}
-
-	checks := append(valid, invalid...) //nolint:gocritic
-
-	partiallyValidAdvisor := invalid[1]
-	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
-	expected := append(valid, partiallyValidAdvisor)                 //nolint:gocritic
 
 	s := New(nil, nil, vmClient, clickhouseDB)
-	actual := s.filterSupportedChecks(checks)
-	assert.ElementsMatch(t, expected, actual)
+	actual := s.filterSupportedChecks(slices.Concat(valid, invalid))
+	assert.Equal(t, valid, actual)
 }
 
 func TestMinPMMAgents(t *testing.T) {

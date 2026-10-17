@@ -104,21 +104,6 @@ message AdvisorCheckDefinition {
   string script = 7;
 }
 
-message Advisor {
-  // Deprecated: no longer populated; an advisor is identified by its category.
-  string name = 1 [deprecated = true];
-  // Deprecated: advisor descriptions were removed.
-  string description = 2 [deprecated = true];
-  // Deprecated: use category instead.
-  string summary = 3 [deprecated = true];
-  // Deprecated: no longer populated.
-  string comment = 4 [deprecated = true];
-  // Category the checks belong to.
-  string category = 5;
-  // Advisor checks.
-  repeated AdvisorCheck checks = 6;
-}
-
 // ChangeAdvisorCheckParams specifies a single check parameters.
 message ChangeAdvisorCheckParams {
   // The name of the check to change.
@@ -238,12 +223,6 @@ message AdvisorCheckTestTarget {
 message ListAdvisorCheckTestTargetsResponse {
   // Services a check of the requested technology can be tested against.
   repeated AdvisorCheckTestTarget targets = 1;
-}
-
-message ListAdvisorsRequest {}
-
-message ListAdvisorsResponse {
-  repeated Advisor advisors = 1;
 }
 
 message ChangeAdvisorChecksRequest {
@@ -528,15 +507,7 @@ service AdvisorService {
     option (google.api.http) = {get: "/v1/advisors/checks"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Checks"
-      description: "List advisor checks available to the user."
-    };
-  }
-  // ListAdvisors returns a list of advisors available for the user.
-  rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
-    option (google.api.http) = {get: "/v1/advisors"};
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Advisors"
-      description: "List advisors available to the user."
+      description: "List advisor checks available to the user, ordered by name."
     };
   }
   // ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
