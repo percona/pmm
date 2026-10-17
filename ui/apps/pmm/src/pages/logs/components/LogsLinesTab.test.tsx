@@ -28,7 +28,7 @@ const line = (body: string, preset = 'postgres'): LogLine => ({
   severityText: 'ERROR',
   body,
   bodyTruncated: false,
-  attributes: { pid: '42' },
+  attributes: { pid: '42', user: '' },
 });
 
 const filter = {
@@ -76,6 +76,7 @@ describe('LogsLinesTab', () => {
     expect(within(pg).getByText('Open dashboard')).toBeInTheDocument();
     expect(within(pg).getByText('Open QAN')).toBeInTheDocument();
     expect(within(pg).getByText('pid: 42')).toBeInTheDocument();
+    expect(within(pg).queryByText(/^user:/)).not.toBeInTheDocument();
 
     const rows = screen.getAllByTestId('log-line-row');
     fireEvent.click(rows[0]);

@@ -117,14 +117,16 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                 </Typography>
               )}
               <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-                {Object.entries(line.attributes).map(([k, v]) => (
-                  <Chip
-                    key={k}
-                    size="small"
-                    variant="outlined"
-                    label={`${k}: ${v}`}
-                  />
-                ))}
+                {Object.entries(line.attributes)
+                  .filter(([, v]) => v !== '')
+                  .map(([k, v]) => (
+                    <Chip
+                      key={k}
+                      size="small"
+                      variant="outlined"
+                      label={`${k}: ${v}`}
+                    />
+                  ))}
               </Stack>
               <Stack direction="row" spacing={1}>
                 <Button size="small" onClick={() => onShowContext(line)}>
