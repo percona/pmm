@@ -25,6 +25,34 @@ Every workload runs inside the database containers. Never run them against a rea
 
 `chaos start <minutes> <gap> [scenario ...]` changes the timing or limits the rotation.
 
+## Log collection
+
+The log-only scenarios need each database's log in `otel.logs`. pmm-framework leaves MySQL and MongoDB logging to
+stderr and syslog, so after it runs (once per VM):
+
+```sh
+# MySQL (replica first): mysqld is the container's main process, so a restart also stops pmm-agent
+for c in ps_pmm_replication_8_4_2 ps_pmm_replication_8_4_1; do
+  docker exec -u root $c bash -c 'mkdir -p /var/log/mysql && chown mysql:mysql /var/log/mysql &&
+    printf "[mysqld]\nlog_error=/var/log/mysql/error.log\n" > /etc/my.cnf.d/zz-pmm-otel-error-log.cnf'
+  docker restart $c
+  docker exec --detach --user root $c sh -c 'exec pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml >>/var/log/pmm-agent.log 2>&1'
+done
+# MongoDB (systemd in the containers): secondaries before each primary, mongos last
+for c in rs102 rs103 rs101 rs202 rs203 rs201 rscfg02 rscfg03 rscfg01; do
+  docker exec -u root $c bash -c 'sed -i "s|^  destination: syslog$|  destination: file\n  path: /var/log/mongo/mongod.log\n  logAppend: true|" /etc/mongod/mongod.conf && systemctl restart mongod'
+done
+docker exec -u root mongos bash -c 'sed -i "s|^  destination: syslog$|  destination: file\n  path: /var/log/mongo/mongos.log\n  logAppend: true|" /etc/mongos/mongos.conf && systemctl restart mongos'
+# One log collector per node
+for c in rs101 rs102 rs103 rs201 rs202 rs203 rscfg01 rscfg02 rscfg03; do docker exec $c pmm-admin add otel logs --log-sources=/var/log/mongo/mongod.log:mongodb; done
+docker exec mongos pmm-admin add otel logs --log-sources=/var/log/mongo/mongos.log:mongodb
+docker exec pdpgsql_pmm_17_1 pmm-admin add otel logs --log-sources=/var/log/postgresql/postgresql-17-main.log:postgres
+for c in ps_pmm_replication_8_4_1 ps_pmm_replication_8_4_2; do docker exec $c pmm-admin add otel logs --log-sources=/var/log/mysql/error.log:mysql_error; done
+```
+
+Wait for each mongod to answer `db.adminCommand({ping: 1})` before restarting the next. `--log-sources` needs a PMM
+Client built from this branch.
+
 ## Ground truth
 
 Each finished incident appends a JSON line to `/root/adre-issues/incidents.jsonl`: scenario, UTC start and end,
