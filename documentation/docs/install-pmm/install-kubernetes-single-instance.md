@@ -1,43 +1,9 @@
-# Install PMM with Kubernetes HA (Single-Instance)
+# Install PMM on a Kubernetes single instance
 
-Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution. This production-ready option combines simplicity with Kubernetes' built-in resilience for automatic recovery from failures.
-
-!!! success "Production-ready and recommended"
-    This is the **best choice for 90% of production deployments**. It provides automatic recovery with minimal operational complexity and has been production-tested for years.
-
-## What is Kubernetes HA Single-Instance?
-
-Kubernetes HA Single-Instance leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails. 
-
-Combined with persistent volumes and PMM Client caching, this approach prevents data loss and maintains monitoring continuity with minimal operational overhead.
-
-### Key benefits
-
-- **Automatic recovery**: Kubernetes reschedules failed pods to healthy nodes without manual intervention
-- **Persistent data**: All monitoring data, configurations, and dashboards survive pod restarts
-- **Health monitoring**: Liveness and readiness probes ensure only healthy instances receive traffic
-- **Zero data loss**: PMM Clients cache metrics locally during brief outages
-- **Production-tested**: Stable and battle-tested in production environments for years
-- **Simple operations**: Single PMM instance is easier to manage than distributed clusters
-
-### How it works
-
-Kubernetes watches your PMM deployment and fixes problems automatically. 
-
-If a pod crashes or a node fails, Kubernetes restarts it on a healthy node within a few minutes.
-
-Your persistent volume keeps all your data safe and it stays attached when the pod moves. Your PMM Clients cache metrics locally, so nothing gets lost during the restart. Once PMM comes back up, everything syncs automatically.
-
-### Limitations
-
-- **Brief monitoring gaps**: 2-5 minutes of downtime during pod rescheduling
-- **Single PMM instance**: No load distribution across multiple servers
-- **No zero-downtime**: Cannot maintain continuous monitoring during failures
-- **Node-level delays**: Pod rescheduling takes longer than container restarts
-
-This solution works well for production environments that can tolerate brief monitoring interruptions during automatic failover. The trade-off between operational simplicity and high availability makes it ideal for most production workloads.
+Deploy PMM Server on Kubernetes using the `percona/pmm` Helm chart. For an overview of this deployment type and when to use it, see [Understand PMM on a Kubernetes single instance](kubernetes-single-instance.md).
 
 ## Prerequisites
+
 Storage requirements scale with the number of monitored services and data retention period.
 
 === "Required software"
@@ -429,6 +395,7 @@ resources:
 ## Operations
 
 ### Connect monitoring clients
+
 To monitor your databases, install PMM Client on each database host and connect it to PMM Server:
 {.power-number}
 
@@ -625,169 +592,10 @@ helm rollback pmm -n monitoring
 helm rollback pmm 2 -n monitoring
 ```
 
-## Troubleshooting
-
-### Pod stuck in Pending state
-
-**Problem**: PMM pod remains in `Pending` state
-
-**Solution**: Check for resource or storage issues:
-```sh
-# Check why pod is pending
-kubectl describe pod -n monitoring -l app=pmm
-
-# Common causes:
-# - Insufficient CPU/memory on nodes
-# - PVC cannot be bound (no available PV or storage class issue)
-# - Node selector/affinity rules prevent scheduling
-
-# Check PVC status
-kubectl get pvc -n monitoring
-
-# Check available node resources
-kubectl top nodes
-```
-
-### Pod constantly restarting
-
-**Problem**: Pod enters CrashLoopBackOff state
-
-**Solution**: Check logs for errors:
-```sh
-# View recent logs
-kubectl logs -n monitoring -l app=pmm --tail=100
-
-# View previous container logs
-kubectl logs -n monitoring -l app=pmm --previous
-
-# Common causes:
-# - Corrupted data volume (check PV)
-# - Insufficient memory (increase limits)
-# - Configuration errors (check env vars)
-```
-
-### Cannot access PMM UI
-
-**Problem**: LoadBalancer external IP pending or connection refused
-
-**Solution**: Verify service configuration:
-```sh
-# Check service status
-kubectl get svc -n monitoring monitoring-service
-
-# Check service endpoints
-kubectl get endpoints -n monitoring monitoring-service
-
-# For LoadBalancer pending:
-# - Verify cloud provider supports LoadBalancer
-# - Check cloud provider quota limits
-# - Consider using NodePort or Ingress instead
-
-# Test connectivity from within cluster
-kubectl run -it --rm debug \
-  --image=curlimages/curl \
-  --restart=Never \
-  -- curl -k https://monitoring-service.monitoring.svc.cluster.local
-```
-
-### High memory usage
-
-**Problem**: PMM consuming excessive memory
-
-**Solution**: Optimize configuration:
-```sh
-# Check current memory usage
-kubectl top pod -n monitoring -l app=pmm
-
-# Reduce data retention
-kubectl exec -n monitoring -l app=pmm -- \
-  pmm-admin config --data-retention=7d
-
-# Increase memory limits in values.yaml
-# resources:
-#   limits:
-#     memory: "16Gi"
-
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
-```
-
-### Data not persisting
-
-**Problem**: Data lost after pod restart
-
-**Solution**: Verify persistent volume configuration:
-```sh
-# Check PVC is bound
-kubectl get pvc -n monitoring
-
-# Check PV exists
-kubectl get pv
-
-# Verify pod is using PVC
-kubectl describe pod -n monitoring -l app=pmm | grep -A 5 Volumes
-
-# Ensure persistence is enabled in values.yaml
-# persistence:
-#   enabled: true
-```
-
-### Slow pod rescheduling
-
-**Problem**: Pod takes longer than 5 minutes to reschedule
-
-**Solution**: Check node health and volume attachment:
-```sh
-# Check node status
-kubectl get nodes
-
-# Check volume attachment (AWS example)
-aws ec2 describe-volumes --filters "Name=status,Values=in-use"
-
-# For cloud providers, volume detachment may take time
-# Consider using regional persistent disks for faster failover
-
-# Check pod events
-kubectl describe pod -n monitoring -l app=pmm
-```
-
-## Limitations and when to upgrade
-
-### When Kubernetes Single-Instance is sufficient
-
-- **Most production workloads** where 2-5 minutes of monitoring gap is acceptable
-- **Teams with Kubernetes expertise** who want automatic recovery
-- **Cloud-native architectures** already using Kubernetes
-- **Environments with maintenance windows** for planned upgrades
-
-### When to consider PMM High Availability Cluster
-
-!!! warning "HA Clustered is Tech Preview only"
-    PMM Kubernetes HA Cluster is currently NOT production-ready. Only consider it for testing and evaluation purposes.
-
-Consider upgrading to [Kubernetes HA Cluster](HA-clustered.md) when you:
-
-- require **zero-downtime monitoring** (< 30 second failover)
-- can tolerate **Tech Preview status** with known issues
-- have **expert Kubernetes skills** to manage complex deployments
-- need **multiple active PMM instances** for load distribution
-- are **testing for future production** HA requirements
-
-### When to stay with Docker HA
-
-Consider using [Docker HA](HA-docker.md) instead if:
-
-- don't have Kubernetes infrastructure
-- want the simplest possible setup
-- are in development or testing
-- can tolerate 1-3 minutes of downtime
-
-
 ## Get help
 
-- [PMM Community Forums](https://per.co.na/PMM3_forums) 
-- [Contact Percona Support](https://www.percona.com/services/support) 
+- [PMM Community Forums](https://per.co.na/PMM3_forums)
+- [Contact Percona Support](https://www.percona.com/services/support)
 - [Report bugs or technical issues](https://perconadev.atlassian.net/jira/software/c/projects/PMM/issues/)
 - [Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm)
 - [Kubernetes best practices for PMM](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
