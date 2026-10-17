@@ -98,12 +98,12 @@ func BuildServerLogs(presets []*models.LogParserPreset, node ServerNode) ServerL
 		if operators != "" && f.dropExpr != "" {
 			operators = strings.TrimSuffix(operators, "\n") + "\n- type: filter\n  expr: " + quoteYAMLString(f.dropExpr) + "\n"
 		}
-		operators = quietOperators(f.preset, operators)
+		operators = quietOperators(f.preset, operators) + PresetTagOperatorYAML(f.preset)
 		writeServerReceiver(&sb, id, []string{path}, nil, stem, node, lineStart, operators)
 	}
 
 	ids = append(ids, "filelog/srv_other")
-	writeServerReceiver(&sb, "filelog/srv_other", []string{ServerLogDir + "/*.log"}, known, "pmm-server", node, "", "")
+	writeServerReceiver(&sb, "filelog/srv_other", []string{ServerLogDir + "/*.log"}, known, "pmm-server", node, "", PresetTagOperatorYAML("raw"))
 
 	return ServerLogs{ReceiversYAML: sb.String(), ReceiverIDs: ids}
 }

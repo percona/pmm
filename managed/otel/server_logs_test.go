@@ -25,6 +25,10 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+func presetTag(preset string) map[string]any {
+	return map[string]any{"type": "add", "field": `attributes["log.preset"]`, "value": preset, "on_error": "send_quiet"}
+}
+
 const (
 	nginxStatusFilter   = `attributes.status != nil and int(attributes.status) < 400`
 	vmproxyAccessFilter = `attributes.level == "info" and attributes.msg != nil and attributes.msg matches "^[A-Z]+: /"`
@@ -64,7 +68,10 @@ func TestBuildServerLogs(t *testing.T) {
 	assert.Equal(t, "end", managed["start_at"])
 	assert.Equal(t, ServerLogStorage, managed["storage"])
 	assert.Equal(t, map[string]any{"node_id": "pmm-server", "node_name": "pmm-server", "service.name": "pmm-managed"}, managed["resource"])
-	assert.Equal(t, []any{map[string]any{"type": "key_value_parser", "parse_from": "body", "on_error": "send_quiet"}}, managed["operators"])
+	assert.Equal(t, []any{
+		map[string]any{"type": "key_value_parser", "parse_from": "body", "on_error": "send_quiet"},
+		presetTag("pmm_managed"),
+	}, managed["operators"])
 
 	pg := receivers["filelog/srv_postgresql14"]
 	assert.Equal(t, map[string]any{"line_start_pattern": presets[1].LineStartPattern}, pg["multiline"])
@@ -72,25 +79,27 @@ func TestBuildServerLogs(t *testing.T) {
 	nginx := receivers["filelog/srv_nginx"]
 	ops, ok := nginx["operators"].([]any)
 	require.True(t, ok)
-	require.Len(t, ops, 2)
+	require.Len(t, ops, 3)
 	assert.Equal(t, map[string]any{"type": "filter", "expr": nginxStatusFilter, "on_error": "send_quiet"}, ops[1])
+	assert.Equal(t, presetTag("nginx_access"), ops[2])
 
 	// vmproxy logs every request nginx already logged; keep only its other lines.
 	ops, ok = receivers["filelog/srv_vmproxy"]["operators"].([]any)
 	require.True(t, ok)
-	require.Len(t, ops, 2)
+	require.Len(t, ops, 3)
 	assert.Equal(t, map[string]any{"type": "filter", "expr": vmproxyAccessFilter, "on_error": "send_quiet"}, ops[1])
+	assert.Equal(t, presetTag("pmm_agent"), ops[2])
 	ops, ok = receivers["filelog/srv_qan_api2"]["operators"].([]any)
 	require.True(t, ok)
-	assert.Len(t, ops, 1, "same preset, no filter")
+	assert.Len(t, ops, 2, "same preset, no filter")
 
 	assert.Equal(t, "clickhouse-server", receivers["filelog/srv_clickhouse_server"]["resource"].(map[string]any)["service.name"])
-	assert.NotContains(t, receivers["filelog/srv_pmm_init"], "operators")
+	assert.Equal(t, []any{presetTag("raw")}, receivers["filelog/srv_pmm_init"]["operators"])
 
 	other := receivers["filelog/srv_other"]
 	assert.Equal(t, []any{"/srv/logs/*.log"}, other["include"])
 	assert.Equal(t, "pmm-server", other["resource"].(map[string]any)["service.name"])
-	assert.NotContains(t, other, "operators")
+	assert.Equal(t, []any{presetTag("raw")}, other["operators"])
 	exclude, ok := other["exclude"].([]any)
 	require.True(t, ok)
 	assert.ElementsMatch(t, []any{
@@ -110,7 +119,10 @@ func TestBuildServerLogs_NoPresets(t *testing.T) {
 	require.Len(t, receivers, 14)
 	for _, id := range logs.ReceiverIDs {
 		require.Contains(t, receivers, id)
-		assert.NotContains(t, receivers[id], "operators", id)
+		ops, ok := receivers[id]["operators"].([]any)
+		require.True(t, ok, id)
+		require.Len(t, ops, 1, "only the preset tag")
+		assert.Equal(t, "add", ops[0].(map[string]any)["type"], id)
 	}
 }
 
@@ -153,7 +165,7 @@ func TestBuildServerLogs_QuietOnError(t *testing.T) {
 	for _, op := range ops {
 		onError = append(onError, op.(map[string]any)["on_error"])
 	}
-	assert.Equal(t, []any{"send_quiet", "drop_quiet", "send_quiet", "send_quiet", nil}, onError)
+	assert.Equal(t, []any{"send_quiet", "drop_quiet", "send_quiet", "send_quiet", nil, "send_quiet"}, onError)
 	assert.Equal(t, `^(?P<message>.*)$`, ops[0].(map[string]any)["regex"])
 }
 
@@ -163,5 +175,5 @@ func TestBuildServerLogs_InvalidPresetYAML(t *testing.T) {
 	presets := []*models.LogParserPreset{{Name: "grafana", OperatorYAML: "- type: [unclosed"}}
 	logs := BuildServerLogs(presets, ServerNode{NodeID: "pmm-server", NodeName: "pmm-server"})
 
-	assert.NotContains(t, parseServerReceivers(t, logs)["filelog/srv_grafana"], "operators")
+	assert.Equal(t, []any{presetTag("grafana")}, parseServerReceivers(t, logs)["filelog/srv_grafana"]["operators"])
 }

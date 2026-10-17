@@ -33,6 +33,14 @@ func IndentYAML(block, indent string) string {
 	return strings.Join(lines, "\n") + "\n"
 }
 
+// LogPresetAttribute is the log attribute that names the parser preset a line was read with.
+const LogPresetAttribute = "log.preset"
+
+// PresetTagOperatorYAML returns the filelog operator that tags every line with its preset name.
+func PresetTagOperatorYAML(preset string) string {
+	return "- type: add\n  field: 'attributes[\"" + LogPresetAttribute + "\"]'\n  value: " + quoteYAMLString(preset) + "\n  on_error: send_quiet\n"
+}
+
 // sanitizePresetName returns a safe receiver id suffix (alphanumeric and underscore only).
 func sanitizePresetName(name string) string {
 	return regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(name, "_")

@@ -197,11 +197,12 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		}
 		fmt.Fprintf(&configYamlSb179, "  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
 		configYamlSb179.WriteString(otel.FilelogMultilineYAML(presetLineStart[preset], "    "))
-		if preset != presetRaw {
-			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
-				configYamlSb179.WriteString("    operators:\n" + otel.IndentYAML(yaml, "      "))
-			}
+		var operators string
+		if yaml := presetYAML[preset]; preset != presetRaw && yaml != "" {
+			operators = strings.TrimSuffix(yaml, "\n") + "\n"
 		}
+		operators += otel.PresetTagOperatorYAML(preset)
+		configYamlSb179.WriteString("    operators:\n" + otel.IndentYAML(operators, "      "))
 	}
 	configYaml += configYamlSb179.String()
 	sort.Strings(receivers)

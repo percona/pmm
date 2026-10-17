@@ -21,8 +21,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+	"gopkg.in/yaml.v3"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/otel"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 // TestOtelCollectorOperatorsYAMLIndent verifies filelog operators are indented under
@@ -47,4 +52,31 @@ func TestOtelCollectorOperatorsYAMLIndent(t *testing.T) {
 		assert.Greater(t, len(first), len("    operators:"),
 			"list item must be indented deeper than operators key")
 	}
+}
+
+func TestOtelCollectorConfig_PresetTag(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	row := &models.Agent{AgentID: "otel-1", AgentType: models.OtelCollectorType}
+	require.NoError(t, row.SetCustomLabels(map[string]string{
+		"log_sources": `[{"path":"/var/log/pg.log","preset":"postgres"},{"path":"/var/log/app.log","preset":"raw"}]`,
+	}))
+
+	cfg := otelCollectorConfig(row, q).TextFiles["otelconfig"]
+	receiversYAML, _, found := strings.Cut(cfg, "\nprocessors:")
+	require.True(t, found, cfg)
+	var parsed struct {
+		Receivers map[string]map[string]any `yaml:"receivers"`
+	}
+	require.NoError(t, yaml.Unmarshal([]byte(receiversYAML), &parsed))
+
+	tag := func(preset string) map[string]any {
+		return map[string]any{"type": "add", "field": `attributes["log.preset"]`, "value": preset, "on_error": "send_quiet"}
+	}
+	pg, ok := parsed.Receivers["filelog/preset_postgres"]["operators"].([]any)
+	require.True(t, ok)
+	assert.Greater(t, len(pg), 1, "preset operators come first")
+	assert.Equal(t, tag("postgres"), pg[len(pg)-1])
+	assert.Equal(t, []any{tag("raw")}, parsed.Receivers["filelog/preset_raw"]["operators"])
 }
