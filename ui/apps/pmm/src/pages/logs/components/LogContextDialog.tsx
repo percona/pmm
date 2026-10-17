@@ -13,6 +13,7 @@ import { FC, useEffect, useRef } from 'react';
 import { LogLine, severityClass, severityLabel } from 'api/logs';
 import { useLogContext } from 'hooks/api/useLogs';
 import { MONO, severityColor } from '../logsTheme';
+import { detailJson, previewText } from '../utils/logDisplay';
 import { timeOfDay } from '../utils/logTime';
 import { LogsErrorAlert } from './LogsErrorAlert';
 
@@ -99,7 +100,8 @@ export const LogContextDialog: FC<LogContextDialogProps> = ({
                 component="span"
                 sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
               >
-                {l.body}
+                {/* MongoDB lines carry their details in attr; others keep their own line breaks. */}
+                {detailJson(l) ? previewText(l) : l.body}
               </Box>
             </Box>
           );

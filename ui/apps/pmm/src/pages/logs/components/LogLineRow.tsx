@@ -14,12 +14,15 @@ import { FC, ReactNode, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { LogLine, severityClass, severityLabel } from 'api/logs';
 import { MONO, severityColor } from '../logsTheme';
+import { useManagedServices } from 'hooks/api/useServices';
 import {
   assistantAskUrl,
+  dashboardUrl,
   DATABASE_PRESETS,
-  nodeDashboardUrl,
   qanUrl,
+  serviceTypeOf,
 } from '../utils/logLinks';
+import { detailJson, previewText } from '../utils/logDisplay';
 import { timeOfDay } from '../utils/logTime';
 
 const LINK_WINDOW_MS = 15 * 60_000;
@@ -76,14 +79,28 @@ export const LogLineRow: FC<LogLineRowProps> = ({
   const [open, setOpen] = useState(false);
   const ms = Date.parse(line.time);
   const [from, to] = [ms - LINK_WINDOW_MS, ms + LINK_WINDOW_MS];
-  const firstLine = line.body.split('\n', 1)[0];
   const color = severityColor(severityClass(line.severityNumber), palette.mode);
   const label = severityLabel(line.severityNumber);
+  const serviceType = serviceTypeOf(line.preset);
+  const services = useManagedServices(
+    {},
+    { enabled: open && !!serviceType, staleTime: 60_000 }
+  );
+  const service = services.data?.services.find(
+    (s) => s.nodeName === line.nodeName && s.serviceType === serviceType
+  );
+  const json = detailJson(line);
   const attributes = [
     ...(line.severityText && line.severityText !== label
       ? [['original level', line.severityText]]
       : []),
-    ...Object.entries(line.attributes).filter(([, v]) => v !== ''),
+    // attr is shown as JSON below the message; MongoDB's s repeats the original level.
+    ...Object.entries(line.attributes).filter(
+      ([k, v]) =>
+        v !== '' &&
+        !(k === 'attr' && json) &&
+        !(k === 's' && v === line.severityText)
+    ),
   ];
 
   return (
@@ -136,7 +153,7 @@ export const LogLineRow: FC<LogLineRowProps> = ({
           )}
         </TableCell>
         <TableCell sx={{ ...MONO, maxWidth: 0, width: '100%', ...ellipsis }}>
-          {highlight(firstLine, highlightText)}
+          {highlight(previewText(line), highlightText)}
         </TableCell>
       </TableRow>
       {open && (
@@ -166,6 +183,29 @@ export const LogLineRow: FC<LogLineRowProps> = ({
               >
                 {highlight(line.body, highlightText)}
               </Box>
+              {json && (
+                <Box
+                  component="pre"
+                  data-testid="log-line-attr"
+                  sx={{
+                    ...MONO,
+                    m: 0,
+                    p: 1.5,
+                    lineHeight: 1.5,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    maxHeight: 360,
+                    overflow: 'auto',
+                    color: 'text.secondary',
+                    bgcolor: 'background.default',
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                  }}
+                >
+                  {json}
+                </Box>
+              )}
               {line.bodyTruncated && (
                 <Typography variant="caption" color="text.secondary">
                   truncated — open context for the full line
@@ -221,7 +261,9 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                   size="small"
                   variant="outlined"
                   component={RouterLink}
-                  to={nodeDashboardUrl(line.nodeName, from, to)}
+                  to={dashboardUrl(line, from, to, service?.serviceName)}
+                  target="_blank"
+                  rel="noopener"
                 >
                   Open dashboard
                 </Button>
@@ -229,7 +271,10 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                   <Button
                     size="small"
                     variant="outlined"
-                    href={qanUrl(line.nodeName, from, to)}
+                    component={RouterLink}
+                    to={qanUrl(line, from, to)}
+                    target="_blank"
+                    rel="noopener"
                   >
                     Open QAN
                   </Button>

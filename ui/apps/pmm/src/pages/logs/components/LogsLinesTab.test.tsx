@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { LogLine } from 'api/logs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
@@ -7,6 +13,15 @@ import { LogsLinesTab } from './LogsLinesTab';
 const { searchLogs, getLogContext } = vi.hoisted(() => ({
   searchLogs: vi.fn(),
   getLogContext: vi.fn(),
+}));
+
+const { listManagedServices } = vi.hoisted(() => ({
+  listManagedServices: vi.fn(),
+}));
+
+vi.mock('api/services', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('api/services')>()),
+  listManagedServices,
 }));
 
 vi.mock('api/logs', async (importOriginal) => ({
@@ -52,6 +67,7 @@ const renderTab = () =>
 describe('LogsLinesTab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    listManagedServices.mockResolvedValue({ services: [] });
   });
 
   it('loads older lines page by page', async () => {
@@ -88,6 +104,40 @@ describe('LogsLinesTab', () => {
     fireEvent.click(rows[1]);
     const nginx = screen.getByTestId('log-line-details');
     expect(within(nginx).queryByText('Open QAN')).not.toBeInTheDocument();
+  });
+
+  it('opens the service dashboard and QAN in new tabs', async () => {
+    listManagedServices.mockResolvedValue({
+      services: [
+        { serviceName: 'other-pg', serviceType: 'postgresql', nodeName: 'x' },
+        {
+          serviceName: 'pg-svc',
+          serviceType: 'postgresql',
+          nodeName: 'pg-node',
+        },
+      ],
+    });
+    searchLogs.mockResolvedValue({ lines: [line('pg line')] });
+    renderTab();
+    fireEvent.click(await screen.findByText('pg line'));
+    const dashboard = await screen.findByRole('link', {
+      name: 'Open dashboard',
+    });
+    await waitFor(() =>
+      expect(dashboard).toHaveAttribute(
+        'href',
+        expect.stringContaining(
+          'postgresql-instance-summary?var-service_name=pg-svc'
+        )
+      )
+    );
+    expect(dashboard).toHaveAttribute('target', '_blank');
+    const qan = screen.getByRole('link', { name: 'Open QAN' });
+    expect(qan).toHaveAttribute(
+      'href',
+      expect.stringContaining('/graph/d/pmm-qan/pmm-query-analytics')
+    );
+    expect(qan).toHaveAttribute('target', '_blank');
   });
 
   it('highlights the anchor line in the context dialog', async () => {
@@ -130,6 +180,69 @@ describe('LogsLinesTab', () => {
     const anchor = await screen.findByTestId('log-context-anchor');
     expect(anchor).toHaveTextContent(clock(new Date(mongo.time)));
     expect(within(anchor).getByText('INFO')).toBeInTheDocument();
+  });
+
+  it('shows MongoDB details in the row and attr as JSON when expanded', async () => {
+    searchLogs.mockResolvedValue({
+      lines: [
+        {
+          ...line('Applied op', 'mongodb'),
+          severityNumber: 9,
+          severityText: 'I',
+          attributes: {
+            attr: JSON.stringify({
+              CRUD: { op: 'u', ns: 'config.transactions' },
+              durationMillis: 1,
+            }),
+            component: 'REPL',
+            s: 'I',
+          },
+        },
+      ],
+    });
+    renderTab();
+    const row = await screen.findByTestId('log-line-row');
+    expect(row).toHaveTextContent(
+      'Applied op · config.transactions · update · 1 ms'
+    );
+    fireEvent.click(row);
+    const details = screen.getByTestId('log-line-details');
+    expect(within(details).getByTestId('log-line-attr')).toHaveTextContent(
+      '"ns": "config.transactions"'
+    );
+    expect(within(details).queryByText('attr')).not.toBeInTheDocument();
+    expect(within(details).queryByText('s')).not.toBeInTheDocument();
+    expect(within(details).getByText('component')).toBeInTheDocument();
+  });
+
+  it('shows MongoDB details in the context dialog', async () => {
+    const applied = {
+      ...line('Applied op', 'mongodb'),
+      attributes: {
+        attr: JSON.stringify({
+          CRUD: { op: 'i', ns: 'shop.orders' },
+          durationMillis: 2,
+        }),
+      },
+    };
+    searchLogs.mockResolvedValue({ lines: [applied] });
+    getLogContext.mockResolvedValue({ lines: [applied], anchorIndex: 0 });
+    renderTab();
+    fireEvent.click(await screen.findByTestId('log-line-row'));
+    fireEvent.click(screen.getByText('Show context'));
+    expect(await screen.findByTestId('log-context-anchor')).toHaveTextContent(
+      'Applied op · shop.orders · insert · 2 ms'
+    );
+  });
+
+  it('shows a multi-line statement on one line in the row', async () => {
+    searchLogs.mockResolvedValue({
+      lines: [line('statement: \n\t\tSELECT\n\t\t  datid,\n\t\t  datname')],
+    });
+    renderTab();
+    expect(await screen.findByTestId('log-line-row')).toHaveTextContent(
+      'statement: SELECT datid, datname'
+    );
   });
 
   it('names the level the same way for every source', async () => {

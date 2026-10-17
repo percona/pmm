@@ -1,6 +1,5 @@
 import { LogLine } from 'api/logs';
 import { PMM_ASSISTANT_PATH } from 'lib/constants';
-import { buildNativeQanPath } from 'utils/nativeQanNav';
 
 /** Presets of database logs, the ones QAN has queries for. */
 export const DATABASE_PRESETS = [
@@ -10,23 +9,75 @@ export const DATABASE_PRESETS = [
   'syslog_mysql_systemd',
 ];
 
-export const nodeDashboardUrl = (
-  nodeName: string,
+// The service type each database preset logs for, and that type's summary dashboard.
+const SERVICES: Record<string, { type: string; dashboard: string }> = {
+  postgres: {
+    type: 'postgresql',
+    dashboard: 'postgresql-instance-summary/postgresql-instance-summary',
+  },
+  mongodb: {
+    type: 'mongodb',
+    dashboard: 'mongodb-instance-summary/mongodb-instance-summary',
+  },
+  mysql_error: {
+    type: 'mysql',
+    dashboard: 'mysql-instance-summary/mysql-instance-summary',
+  },
+  syslog_mysql_systemd: {
+    type: 'mysql',
+    dashboard: 'mysql-instance-summary/mysql-instance-summary',
+  },
+};
+
+/** The service type a preset logs for, as /v1/management/services names it. */
+export const serviceTypeOf = (preset: string) => SERVICES[preset]?.type;
+
+/** The service's summary dashboard for a database line with a known service, else the node summary. */
+export const dashboardUrl = (
+  line: LogLine,
   fromMs: number,
-  toMs: number
-) =>
-  `/graph/d/node-instance-summary/node-summary?${new URLSearchParams({
-    'var-node_name': nodeName,
+  toMs: number,
+  serviceName?: string
+) => {
+  const service = SERVICES[line.preset];
+  const [path, variable] =
+    service && serviceName
+      ? [service.dashboard, { 'var-service_name': serviceName }]
+      : [
+          'node-instance-summary/node-summary',
+          { 'var-node_name': line.nodeName },
+        ];
+  return `/graph/d/${path}?${new URLSearchParams({
+    ...variable,
     from: String(fromMs),
     to: String(toMs),
   })}`;
+};
 
-export const qanUrl = (nodeName: string, fromMs: number, toMs: number) =>
-  buildNativeQanPath({
+const MIN_SEARCH = 10;
+const MAX_SEARCH = 80;
+
+/** The start of a logged PostgreSQL statement up to its first literal, which QAN fingerprints replace. */
+const statementSearch = (body: string) => {
+  const query = body.match(/^(?:statement|execute [^:]*):[ \t]*([^\n]*)/)?.[1];
+  const start = query
+    ?.split(/['"0-9]/, 1)[0]
+    .replace(/\W+$/, '')
+    .slice(0, MAX_SEARCH);
+  return start && start.length >= MIN_SEARCH ? start : undefined;
+};
+
+/** Grafana QAN for the line's node and window, searched for the line's statement when it logs one. */
+export const qanUrl = (line: LogLine, fromMs: number, toMs: number) => {
+  const params = new URLSearchParams({
+    'var-node_name': line.nodeName,
     from: String(fromMs),
     to: String(toMs),
-    filter_node_name: nodeName,
   });
+  const search = statementSearch(line.body);
+  if (search) params.set('dimensionSearchText', search);
+  return `/graph/d/pmm-qan/pmm-query-analytics?${params}`;
+};
 
 export const assistantAskUrl = (
   line: LogLine,
