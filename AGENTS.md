@@ -243,6 +243,7 @@ Some areas span multiple directories. When working on them, read **both** the co
 | **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
 | **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
 | **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
+| **Logs** | `api/logs/v1/`, `managed/services/logs/` | `ui/apps/pmm/src/pages/logs/` | Logs page and API over ClickHouse `otel.logs` (`/v1/logs:*`); see `dev/otel/README.md` |
 
 ---
 

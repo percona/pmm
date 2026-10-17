@@ -1,6 +1,6 @@
 # Logs: rule-based detection and the Logs page — design
 
-Status: Part 1 implemented (2026-10-16); Part 3 revised for review and built next; Part 2B deferred (2026-10-17).
+Status: Part 1 implemented (2026-10-16); Part 3 implemented (2026-10-17, plan `logs-part3-plan.md`); Part 2B deferred (2026-10-17).
 Branch `tibi-holmes` (PMM-7).
 
 ## Goal
