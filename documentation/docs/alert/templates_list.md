@@ -63,8 +63,8 @@ The table below lists all the alert templates available in Percona Monitoring an
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
 | MySQL | **MySQL down** | Monitors MySQL instance availability and alerts when any MySQL service becomes unreachable. Enables quick response to maintain database services.  | MySQL |
-| MySQL | **MySQL replication running IO** | Tracks MySQL replication I/O thread status and alerts if it stops running on a replica. Crucial for ensuring data is being received from the primary server.  | MySQL |
-| MySQL | **MySQL replication running SQL** | Monitors MySQL replication SQL thread status and alerts if it stops running on a replica. Essential for verifying that received data is being applied correctly to maintain data consistency.  | MySQL |
+| MySQL | **MySQL replication running IO** | Tracks MySQL replication I/O thread status and alerts if it stops running on a replica. Crucial for ensuring data is being received from the primary server. On a multi-source replica, it alerts once for each replication channel whose I/O thread stops, and names the channel.  | MySQL |
+| MySQL | **MySQL replication running SQL** | Monitors MySQL replication SQL thread status and alerts if it stops running on a replica. Essential for verifying that received data is being applied correctly to maintain data consistency. On a multi-source replica, it alerts once for each replication channel whose SQL thread stops, and names the channel.  | MySQL |
 | MySQL | **MySQL restarted** | Detects recent MySQL restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Aids in investigating unexpected downtime and potential issues.  | MySQL |
 | MySQL | **MySQL connections in use** | Tracks MySQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to connection overload.  | MySQL |
 
