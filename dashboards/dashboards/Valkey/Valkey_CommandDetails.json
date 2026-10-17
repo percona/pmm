@@ -405,7 +405,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\"} [1m])) by (service_name,cmd)",
+                    "expr": "sum(rate(redis_commands_total{service_name=~\"$ns_service_name\"} [1m])) by (service_name,cmd)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -2278,7 +2278,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", service_name=~\"$service_name\"},service_name)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Service Name",
@@ -2287,7 +2287,7 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", service_name=~\"$service_name\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
