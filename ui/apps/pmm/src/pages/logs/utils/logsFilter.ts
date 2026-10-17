@@ -20,6 +20,17 @@ export const SEVERITY_OPTIONS = [
   { label: 'Fatal', value: 21 },
 ] as const;
 
+/** Whether any filter besides the time range is set. */
+export const hasFilters = (f: LogFilter) =>
+  !!(
+    f.nodeNames ||
+    f.sources ||
+    f.presets ||
+    f.minSeverity ||
+    f.text ||
+    f.pattern
+  );
+
 const isQuickRange = (v: string | null): v is QuickRange =>
   QUICK_RANGES.includes(v as QuickRange);
 

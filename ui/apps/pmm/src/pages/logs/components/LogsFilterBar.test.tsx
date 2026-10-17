@@ -80,6 +80,28 @@ describe('LogsFilterBar', () => {
     });
   });
 
+  it('clears every filter but the time range', () => {
+    const onChange = renderBar({
+      filter: {
+        ...filter,
+        nodeNames: ['pg-1'],
+        presets: ['postgres'],
+        minSeverity: 13,
+        text: 'lock',
+        pattern: 'deadlock detected',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(onChange).toHaveBeenCalledWith(filter, '1h');
+  });
+
+  it('offers to clear filters only when one is set', () => {
+    renderBar();
+    expect(
+      screen.queryByRole('button', { name: 'Clear filters' })
+    ).not.toBeInTheDocument();
+  });
+
   it('searches once typing stops', async () => {
     const onChange = renderBar();
     fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), {

@@ -11,6 +11,7 @@ import {
 import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Link as RouterLink,
+  useLocation,
   useNavigate,
   useParams,
   useSearchParams,
@@ -27,6 +28,7 @@ import { LogsVolumeChart } from './components/LogsVolumeChart';
 import { logsTheme } from './logsTheme';
 import {
   filterFromSearchParams,
+  hasFilters,
   QuickRange,
   rangeFromSearchParams,
   searchParamsFromFilter,
@@ -34,20 +36,11 @@ import {
 
 type LogsTab = 'lines' | 'patterns';
 
-const hasFilters = (f: LogFilter) =>
-  !!(
-    f.nodeNames ||
-    f.sources ||
-    f.presets ||
-    f.minSeverity ||
-    f.text ||
-    f.pattern
-  );
-
 export const LogsPage: FC = () => {
   const { tab } = useParams<{ tab?: string }>();
   const activeTab: LogsTab = tab === 'patterns' ? 'patterns' : 'lines';
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   // A quick range ends at `now`, fixed until the filter changes or Refresh is clicked, so query keys stay stable.
   const [now, setNow] = useState(() => new Date());
@@ -71,12 +64,17 @@ export const LogsPage: FC = () => {
     [setSearchParams]
   );
 
+  // A zoom is a history entry marked as one, so Back returns to the range it came from.
   const zoom = (fromMs: number, toMs: number) =>
-    update({
-      ...filter,
-      start: new Date(fromMs).toISOString(),
-      end: new Date(toMs).toISOString(),
-    });
+    setSearchParams(
+      searchParamsFromFilter({
+        ...filter,
+        start: new Date(fromMs).toISOString(),
+        end: new Date(toMs).toISOString(),
+      }),
+      { state: { zoomed: true } }
+    );
+  const zoomed = !!(location.state as { zoomed?: boolean } | null)?.zoomed;
 
   return (
     <ThemeProvider theme={logsTheme}>
@@ -96,6 +94,7 @@ export const LogsPage: FC = () => {
               buckets={volume.data.buckets}
               step={volume.data.step}
               onZoom={zoom}
+              onBack={zoomed ? () => navigate(-1) : undefined}
             />
           ) : (
             <Alert severity="info" data-testid="logs-empty-state">

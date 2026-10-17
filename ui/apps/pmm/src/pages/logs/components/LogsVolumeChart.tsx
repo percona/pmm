@@ -1,5 +1,7 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
   Box,
+  Button,
   Paper,
   Stack,
   Tooltip,
@@ -15,6 +17,8 @@ interface LogsVolumeChartProps {
   /** Bucket width as a protobuf Duration, e.g. "60s". */
   step: string;
   onZoom: (fromMs: number, toMs: number) => void;
+  /** Returns to the range before the last zoom; the button shows only when set. */
+  onBack?: () => void;
 }
 
 const CLASSES: { key: SeverityClass; label: string }[] = [
@@ -64,6 +68,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
   buckets,
   step,
   onZoom,
+  onBack,
 }) => {
   const { palette } = useTheme();
   const [drag, setDrag] = useState<[number, number] | null>(null);
@@ -144,10 +149,20 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
             </Box>
           </Typography>
         ))}
+        {onBack && (
+          <Button
+            size="small"
+            startIcon={<ArrowBackIcon />}
+            onClick={onBack}
+            sx={{ ml: 'auto', textTransform: 'none' }}
+          >
+            Back to previous range
+          </Button>
+        )}
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ ml: 'auto' }}
+          sx={{ ml: onBack ? 0 : 'auto' }}
         >
           Drag across bars to zoom · {formatStep(stepMs)} per bar
         </Typography>

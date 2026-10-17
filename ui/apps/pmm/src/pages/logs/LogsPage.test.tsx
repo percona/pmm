@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { Route, Routes } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { LogsPage } from './LogsPage';
@@ -27,6 +27,11 @@ const apiError = (code: number, message: string) => ({
   response: { status: code === 7 ? 403 : 504, data: { code, message } },
 });
 
+const Location = () => {
+  const { search } = useLocation();
+  return <div data-testid="location">{search}</div>;
+};
+
 const renderPage = (path = '/logs') =>
   render(
     wrapWithQueryProvider(
@@ -34,6 +39,7 @@ const renderPage = (path = '/logs') =>
         <Routes>
           <Route path="logs/:tab?" element={<LogsPage />} />
         </Routes>
+        <Location />
       </TestWrapper>
     )
   );
@@ -72,6 +78,26 @@ describe('LogsPage', () => {
     renderPage();
     await screen.findByTestId('logs-volume-chart');
     expect(screen.getByTestId('logs-tab-lines')).toHaveTextContent('Lines 6');
+  });
+
+  it('goes back to the range before a zoom', async () => {
+    renderPage('/logs?range=1h');
+    expect(
+      screen.queryByRole('button', { name: 'Back to previous range' })
+    ).not.toBeInTheDocument();
+    const [bucket] = await screen.findAllByTestId('logs-volume-bucket');
+    fireEvent.mouseDown(bucket);
+    fireEvent.mouseUp(bucket);
+    expect(screen.getByTestId('location')).toHaveTextContent('from=');
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Back to previous range' })
+    );
+    expect(await screen.findByTestId('location')).toHaveTextContent(
+      /^\?range=1h$/
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Back to previous range' })
+    ).not.toBeInTheDocument();
   });
 
   it('selects the Patterns tab from the path', async () => {

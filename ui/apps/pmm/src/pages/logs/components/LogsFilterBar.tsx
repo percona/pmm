@@ -23,6 +23,7 @@ import { LogFacet, LogFacets, LogFilter } from 'api/logs';
 import { toDatetimeLocalValue } from 'pages/qan/utils/qanTools';
 import { MONO } from '../logsTheme';
 import {
+  hasFilters,
   QUICK_RANGES,
   QuickRange,
   SEVERITY_OPTIONS,
@@ -380,6 +381,17 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
             onChange({ ...filter, minSeverity }, range)
           }
         />
+        {hasFilters(filter) && (
+          <Button
+            size="small"
+            onClick={() =>
+              onChange({ start: filter.start, end: filter.end }, range)
+            }
+            sx={{ height: CONTROL_HEIGHT, textTransform: 'none' }}
+          >
+            Clear filters
+          </Button>
+        )}
         {filter.pattern && (
           <Chip
             label={`Pattern: ${filter.pattern}`}
