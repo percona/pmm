@@ -421,6 +421,7 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
             />
           }
           label="Hide PMM Server"
+          slotProps={{ typography: { variant: 'body2' } }}
           sx={{ ml: 0.5, color: 'text.secondary' }}
         />
         {hasFilters(filter) && (
