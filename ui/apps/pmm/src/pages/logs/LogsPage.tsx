@@ -20,6 +20,7 @@ import { useLogFacets, useLogVolume } from 'hooks/api/useLogs';
 import { PMM_LOGS_PATH } from 'lib/constants';
 import { LogsErrorAlert } from './components/LogsErrorAlert';
 import { LogsFilterBar } from './components/LogsFilterBar';
+import { LogsLinesTab } from './components/LogsLinesTab';
 import { LogsVolumeChart } from './components/LogsVolumeChart';
 import {
   filterFromSearchParams,
@@ -122,7 +123,7 @@ export const LogsPage: FC = () => {
             label="Patterns"
           />
         </Tabs>
-        {activeTab === 'lines' && <Box data-testid="logs-lines-tab" />}
+        {activeTab === 'lines' && <LogsLinesTab filter={filter} />}
         {activeTab === 'patterns' && <Box data-testid="logs-patterns-tab" />}
       </Stack>
     </Page>

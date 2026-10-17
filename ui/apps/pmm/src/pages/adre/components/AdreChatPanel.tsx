@@ -34,6 +34,7 @@ import {
   useRef,
 } from 'react';
 import Markdown from 'react-markdown';
+import { useSearchParams } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
@@ -74,7 +75,9 @@ export const AdreChatPanel: FC = () => {
     scrollToMessageId,
     clearScrollToMessage,
   } = useAdreChat();
-  const [ask, setAsk] = useState('');
+  const [searchParams] = useSearchParams();
+  // Other pages link here with ?ask= to suggest a question; it is not sent until the user does.
+  const [ask, setAsk] = useState(() => searchParams.get('ask') ?? '');
   const [model, setModel] = useState('');
   const [mode, setMode] = useState<'fast' | 'investigation'>(() => {
     const p = loadAdreChatUiPreferences();
