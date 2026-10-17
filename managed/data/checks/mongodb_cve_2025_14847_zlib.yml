@@ -7,7 +7,7 @@ checks:
       Checks if MongoDB Server is vulnerable to CVE-2025-14847 with active Zlib compression.
       Fixed versions: 4.4.30+, 5.0.32+, 6.0.27+, 7.0.28+, 8.0.17+, 8.2.3+
       EOL (no fix): 3.6.x, 4.0.x, 4.2.x
-    interval: frequent
+    interval: standard
     technology: MONGODB
     category: Security
     queries:
