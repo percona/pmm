@@ -1,7 +1,8 @@
 # Logs Part 2B: rules and detection — Implementation Plan
 
-> **Draft (2026-10-17):** Tasks 1, 2, 4 and 5 are written; Tasks 3 and 6–10 wait on the Grafana credential decision
-> (pmm-managed has no credential for background Grafana calls on this branch).
+> **Deferred draft (2026-10-17):** Part 2B is postponed until alerting is revisited (see the spec's Part 2B note).
+> Tasks 1, 2, 4 and 5 are written; Tasks 3 and 6–10 wait on the Grafana credential decision. The preset tag (Task 4)
+> and the nginx migration (Task 2) move to the Part 3 plan; drop them here when this plan is resumed.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

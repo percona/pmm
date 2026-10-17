@@ -1,6 +1,7 @@
 # Logs: rule-based detection and the Logs page — design
 
-Status: Part 1 implemented (2026-10-16); Part 2B design revised for review (2026-10-17). Branch `tibi-holmes` (PMM-7).
+Status: Part 1 implemented (2026-10-16); Part 3 revised for review and built next; Part 2B deferred (2026-10-17).
+Branch `tibi-holmes` (PMM-7).
 
 ## Goal
 
@@ -51,7 +52,8 @@ The `pmm.rule` attribute ties the halves together: an alert names its rule, and 
 lines that matched.
 
 Work is split into parts, each with its own implementation plan, built in this order: Part 1 (log data, done),
-Part 2B (rules and detection), Part 2A (database log discovery), Part 3 (logs API and Logs page).
+Part 3 (logs API and Logs page), then Part 2B (rules and detection, with alerting) and Part 2A (database log
+discovery).
 
 ## Part 1: log data
 
@@ -122,6 +124,14 @@ Filters and rules use `SeverityNumber`. `SeverityText` is display only.
 Changing log retention does not alter the existing table's TTL (`schema.go` has no `MODIFY TTL`). Separate ticket.
 
 ## Part 2B: rules and detection
+
+**Deferred (2026-10-17)** until alerting is revisited; Part 3 is built first. Open issue to settle then: on this
+branch pmm-managed holds no Grafana credential for background calls (every Grafana call uses the caller's request
+auth, Grafana has no auth proxy, and the only stored token is the Assistant's, which exists only once the Assistant is
+provisioned), so "alerts with no setup" needs one of: a dedicated service account minted from the first admin request,
+a Grafana provisioning file with a Grafana restart on each alert change (upstream master's pattern for its built-in
+HA alerts), or an explicit "Enable log alerts" step. A draft plan for the parts that do not depend on it is in
+`dev/otel/logs-part2b-plan.md`. The preset tag (2B.3) and the nginx error-line severity (2B.9) move to Part 3.
 
 Built before Part 2A. Decisions from the 2026-10-17 review: a rule match alerts with no setup for a high-signal
 subset of built-in rules; each rule owns its alert (no alert templates); the Assistant gets a bounded tool for the
@@ -391,20 +401,33 @@ Built after 2B, with its own spec and plan. Decisions so far (2026-10-17):
 
 ## Part 3: logs API and Logs page
 
+Built next (2026-10-17), without rules: no rule filter, rule chips or Rules tab until Part 2B.
+
+### 3.0 Prerequisites taken from Part 2B
+
+- Every collector receiver adds `attributes["log.preset"]` (the preset name, `raw` for unparsed files) through an `add`
+  operator: one per preset receiver on agents, one per file receiver on the server. The agent config is rendered by
+  pmm-managed, so existing agents need no upgrade. This feeds the log-type filter and the Patterns tab.
+- nginx error-format lines in `nginx.log` (`2026/10/16 20:41:58 [warn] …`) get a severity: a new migration adds a second
+  parser to the built-in `nginx_access` preset, selected with the stanza `if:` field; access lines are unchanged; only
+  an unedited preset is updated.
+
 ### 3.1 Logs API
 
 `api/logs/v1/logs.proto`, `LogsService`, viewer access:
 
 | RPC | HTTP | Returns |
 |---|---|---|
-| `SearchLogs` | `POST /v1/logs:search` | Lines, newest first: timestamp, node, service, preset, severity, body, attributes, rule; 200 per page with a timestamp cursor |
+| `SearchLogs` | `POST /v1/logs:search` | Lines, newest first: timestamp, node, source, preset, severity, body, attributes; 200 per page with a timestamp cursor |
 | `GetLogVolume` | `POST /v1/logs:getVolume` | Counts per time bucket (about 100 buckets) by severity class: error (≥ 17), warning (13–16), info (9–12), other (< 9) |
 | `GetLogPatterns` | `POST /v1/logs:getPatterns` | Top 50 patterns: count, max severity, first and last seen, one sample, `new` when absent from the previous window of equal length |
 | `GetLogContext` | `POST /v1/logs:getContext` | ±50 lines from the same node and file around one entry |
+| `GetLogFacets` | `POST /v1/logs:getFacets` | Distinct node names, sources (`ServiceName`) and presets in the range with line counts, top 200 each, for the pickers |
 
-Every request takes the same filter: time range (required; default 1 h, maximum the retention), node names, service
-names, presets, minimum severity, text (case-insensitive contains, served by the `tokenbf` index on `Body`), rule,
-pattern.
+Every request takes the same filter: time range (required; default 1 h, maximum the retention), node names, sources
+(`ServiceName`: the component for PMM Server's own logs, the node name for agent logs until log sources are tied to
+services), presets, minimum severity, text (case-insensitive contains, served by the `tokenbf` index on `Body`),
+pattern. Rows written before the preset tag existed match no preset filter.
 
 ### 3.2 Queries
 
@@ -417,7 +440,7 @@ IPv4 addresses, numbers → `?`; then the first 200 characters. One Go helper bu
 
 ### 3.3 Access control
 
-Viewers read logs; admins change rules. Log rows carry no environment or cluster labels, so LBAC filters cannot be
+Viewers read logs. Log rows carry no environment or cluster labels, so LBAC filters cannot be
 applied to them. `/v1/logs` joins `lbacPrefixes` in `managed/services/grafana/auth_server.go`, so the auth server
 sets `X-Proxy-Filter` for users with LBAC filters; when that header is present the logs API returns
 `PermissionDenied` instead of possibly someone else's logs.
@@ -427,39 +450,36 @@ sets `X-Proxy-Filter` for users with LBAC filters; when that header is present t
 Route `/pmm-ui/logs`, a top-level **Logs** item in the left menu. Built with MUI and `@percona/peak-ui`; no new
 dependencies.
 
-- **Filter bar:** the time-range control from native QAN, node and service pickers from inventory, log type
+- **Filter bar:** the time-range control from native QAN, node and source pickers filled from `GetLogFacets`, log type
   (preset), minimum severity, search box. Filters live in the URL, so alert links open the right view.
 - **Volume chart:** bars stacked by severity, drawn like QAN's sparklines; drag to zoom the time range.
-- **Lines tab:** time, node, service, severity (coloured), message; a chip on rule-matched lines. Expanding a row shows
+- **Lines tab:** time, node, source, severity (coloured), message. Expanding a row shows
   its attributes, **Show context**, **Ask Assistant** (opens the Assistant chat with the line and time window as
   context), **Open dashboard** (the node's dashboard at that time) and **Open QAN** (when the row has a service).
   **Load older** fetches the next page.
 - **Patterns tab:** pattern, count, severity, first and last seen, `new` badge; clicking one filters Lines by it.
-- **Rules tab:** built in Part 2B (2B.6); Part 3 adds a link from each rule to its lines.
 - **Empty state:** when nothing is collected, a link to Settings → OTEL → Log collectors.
 
 ### 3.5 Assistant
 
 A `pmm_logs_patterns` tool in the shipped Holmes config calls `GetLogPatterns`, so the Assistant reads summarized
-patterns instead of writing SQL against `otel.logs`; it sits next to 2B's `pmm_log_rule_matches`. The `otel-logs-analysis` skill is updated to use it and the
-`pmm.rule` attribute.
+patterns instead of writing SQL against `otel.logs`. The `pmm_clickhouse_query` guidance for logs is corrected:
+filter by `ServiceName` and `TimestampTime` first, use `SeverityNumber`, not `SeverityText`, and avoid `JSONExtract`
+over wide ranges. The `otel-logs-analysis` skill is updated to use the tool.
 
 ## Testing
 
-- **Unit:** collector config rendering (rules → OTTL, escaping, server receivers, nginx filter); rule validation and
-  built-in sync; Grafana alert sync (create, update, delete against a mocked client); query builders (SQL and
-  arguments for every filter); pattern expression; UI components (Vitest).
-- **API tests** (`api-tests/logs/`): rules CRUD, reset, preview and matches with admin/viewer permissions; search,
-  volume, patterns, context against a live server.
-- **Live, on a CHAOS VM with the incident generator (`dev/adre/issues/`):**
-  - Every scenario with a rule must increase that rule's metric inside its window; matches outside incident windows
-    are false positives. Report a per-rule table.
-  - Alert-on rules fire during their scenario with no setup, and **Investigate** quotes the matched lines (2B.10).
-  - Server logs from every `/srv/logs` component reach `otel.logs` with the right preset; restarting the collector
-    neither loses nor duplicates lines.
-  - PostgreSQL errors arrive as one row with DETAIL and STATEMENT.
-  - Logs page: each tab, filters, context, alert link; screenshots.
-  - Collector CPU and memory with rules off and on; logs API latency on 7 days of test-server data.
+Part 3 (Part 2B's checks are in 2B.10):
+
+- **Unit:** the preset tag on server and agent receivers; query builders (SQL and arguments for every filter, the
+  cursor, facets); the pattern expression; LBAC denial; UI components and hooks (Vitest).
+- **Database:** the nginx preset migration (run in the test server's container).
+- **API tests** (`api-tests/logs/`): search, volume, patterns, context and facets against a live server, viewer access,
+  and `PermissionDenied` for a user with LBAC filters.
+- **Live, on the test VM with the incident generator (`dev/adre/issues/`):** for incident windows from
+  `incidents.jsonl`, the Logs page finds the expected evidence (deadlock DETAIL/STATEMENT, `Access denied`, election
+  lines) through filters, patterns and context; nginx error lines carry a severity; screenshots of each tab; logs API
+  latency on 7 days of test-server data (target: under 2 s for search and volume over 24 h).
 
 ## Not in v1
 
