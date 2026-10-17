@@ -121,7 +121,18 @@ func TestGetLogPatterns(t *testing.T) {
 func TestGetLogContext(t *testing.T) {
 	t.Parallel()
 
-	line := search(t, "", 1).Lines[0]
+	// The swagger client sends times in milliseconds (strfmt.MarshalFormat); pmm-managed's log has millisecond times.
+	start, end := lastHour()
+	found, err := logsClient.Default.LogsService.SearchLogs(&logs_service.SearchLogsParams{
+		Body: logs_service.SearchLogsBody{
+			Filter: &logs_service.SearchLogsParamsBodyFilter{Start: start, End: end, Sources: []string{"pmm-managed"}},
+			Limit:  1,
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, found.Payload.Lines)
+	line := found.Payload.Lines[0]
 	res, err := logsClient.Default.LogsService.GetLogContext(&logs_service.GetLogContextParams{
 		Body: logs_service.GetLogContextBody{
 			Time:     line.Time,
@@ -139,11 +150,11 @@ func TestGetLogContext(t *testing.T) {
 	anchor := lines[res.Payload.AnchorIndex]
 	assert.Equal(t, line.FileName, anchor.FileName)
 	assert.True(t, time.Time(anchor.Time).Equal(time.Time(line.Time)))
-	found := false
+	inContext := false
 	for _, l := range lines {
-		found = found || (time.Time(l.Time).Equal(time.Time(line.Time)) && strings.HasPrefix(l.Body, line.Body))
+		inContext = inContext || (time.Time(l.Time).Equal(time.Time(line.Time)) && strings.HasPrefix(l.Body, line.Body))
 	}
-	assert.True(t, found, "the line itself is in its context")
+	assert.True(t, inContext, "the line itself is in its context")
 }
 
 func TestGetLogFacets(t *testing.T) {
