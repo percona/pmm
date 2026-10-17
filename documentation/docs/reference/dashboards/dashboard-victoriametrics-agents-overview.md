@@ -12,7 +12,7 @@ The Overview section gives you a snapshot of agent activity across all monitored
 
 ### Current Uptime
 
-Shows how long each VMAgent instance has been running, with one row per node. Red means under 1 hour, orange means 1 to 24 hours, and green means over 24 hours.
+Shows how long each VMAgent instance has been running, with one row per node, shortest uptime first. Click the **Uptime** column header to reverse the order. Red means under 1 hour, orange means 1 to 24 hours, and green means over 24 hours.
 
 An agent restarts when a new service is added for monitoring, so a low value right after adding a service is expected. An unexpected low value at other times warrants investigation.
 
@@ -43,6 +43,8 @@ A non-zero value may indicate connectivity issues or a misconfiguration. Expand 
 ### Uptime
 
 Shows the up/down state of each VMAgent instance per node as a timeline. Green means the agent is up, red means it is down.
+
+The panel shows 8 nodes per page. When you select more nodes than that, page controls appear at the bottom of the panel. Nodes that are down are listed first, so problem nodes stay on the first page.
 
 Use this to spot agents that are down or that have restarted recently.
 

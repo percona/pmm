@@ -396,6 +396,7 @@ nav:
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
+          - alert/alert-thresholds.md
           - alert/contact_points.md
           - alert/templates_list.md
           - alert/built_in_alerts.md
