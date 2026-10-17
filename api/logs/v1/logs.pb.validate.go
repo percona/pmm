@@ -1658,6 +1658,8 @@ func (m *GetLogContextRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for Source
+
 	if len(errors) > 0 {
 		return GetLogContextRequestMultiError(errors)
 	}

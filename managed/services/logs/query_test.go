@@ -178,14 +178,22 @@ func TestPatternExpr_Shared(t *testing.T) {
 
 func TestContextQuery(t *testing.T) {
 	at := time.Date(2026, 10, 17, 10, 30, 0, 123456789, time.UTC)
-	q, args := contextQuery(at, "node1", "/var/log/postgresql/postgresql.log", 20)
+	q, args := contextQuery(at, "node1", "/var/log/postgresql/postgresql.log", "src", 20)
 	assert.Contains(t, q, "substringUTF8(Body, 1, 65536)")
-	assert.Contains(t, q, "Timestamp <= fromUnixTimestamp64Nano(?)")
-	assert.Contains(t, q, "Timestamp > fromUnixTimestamp64Nano(?)")
+	// Every line at the anchor's own timestamp, so the clicked line is always among them.
+	assert.Contains(t, q, "Timestamp < fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?")
+	assert.Contains(t, q, "Timestamp = fromUnixTimestamp64Nano(?) LIMIT 100")
+	assert.Contains(t, q, "Timestamp > fromUnixTimestamp64Nano(?) ORDER BY Timestamp LIMIT ?")
+	assert.Equal(t, 3, strings.Count(q, "ServiceName = ? AND "))
+	assert.Contains(t, args, "src")
 	assert.Contains(t, args, "node1")
 	assert.Contains(t, args, "/var/log/postgresql/postgresql.log")
 	assert.Contains(t, args, at.UnixNano())
 	assert.Equal(t, 20, args[len(args)-1])
+
+	q, args = contextQuery(at, "node1", "f", "", 20)
+	assert.NotContains(t, q, "ServiceName = ?")
+	assert.NotContains(t, args, "")
 }
 
 func TestFacetsQueries(t *testing.T) {
@@ -204,7 +212,7 @@ func TestQueries_Settings(t *testing.T) {
 	search, _ := searchQuery(f, nil, 0)
 	volume, _, _ := volumeQuery(f)
 	patterns, _ := patternsQuery(f)
-	context, _ := contextQuery(testStart, "n", "f", 5)
+	context, _ := contextQuery(testStart, "n", "f", "s", 5)
 	nodes, sources, presets, _ := facetsQueries(f)
 	for _, q := range []string{search, volume, patterns, context, nodes, sources, presets} {
 		assert.True(t, strings.HasSuffix(q, " SETTINGS max_execution_time = 30, readonly = 1"), q)

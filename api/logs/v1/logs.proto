@@ -120,6 +120,8 @@ message GetLogContextRequest {
     gte: 0
     lte: 100
   }];
+  // Source of the line; optional, narrows the scan.
+  string source = 5;
 }
 
 message GetLogContextResponse {

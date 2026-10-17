@@ -790,7 +790,9 @@ type GetLogContextRequest struct {
 	NodeName string                 `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	FileName string                 `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
 	// Lines before and after; 0 means 50.
-	Lines         int32 `protobuf:"varint,4,opt,name=lines,proto3" json:"lines,omitempty"`
+	Lines int32 `protobuf:"varint,4,opt,name=lines,proto3" json:"lines,omitempty"`
+	// Source of the line; optional, narrows the scan.
+	Source        string `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -851,6 +853,13 @@ func (x *GetLogContextRequest) GetLines() int32 {
 		return x.Lines
 	}
 	return 0
+}
+
+func (x *GetLogContextRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
 }
 
 type GetLogContextResponse struct {
@@ -1079,12 +1088,13 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\x15GetLogPatternsRequest\x124\n" +
 	"\x06filter\x18\x01 \x01(\v2\x12.logs.v1.LogFilterB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x06filter\"I\n" +
 	"\x16GetLogPatternsResponse\x12/\n" +
-	"\bpatterns\x18\x01 \x03(\v2\x13.logs.v1.LogPatternR\bpatterns\"\xb4\x01\n" +
+	"\bpatterns\x18\x01 \x03(\v2\x13.logs.v1.LogPatternR\bpatterns\"\xcc\x01\n" +
 	"\x14GetLogContextRequest\x128\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x04time\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12$\n" +
 	"\tfile_name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bfileName\x12\x1f\n" +
-	"\x05lines\x18\x04 \x01(\x05B\t\xfaB\x06\x1a\x04\x18d(\x00R\x05lines\"b\n" +
+	"\x05lines\x18\x04 \x01(\x05B\t\xfaB\x06\x1a\x04\x18d(\x00R\x05lines\x12\x16\n" +
+	"\x06source\x18\x05 \x01(\tR\x06source\"b\n" +
 	"\x15GetLogContextResponse\x12&\n" +
 	"\x05lines\x18\x01 \x03(\v2\x10.logs.v1.LogLineR\x05lines\x12!\n" +
 	"\fanchor_index\x18\x02 \x01(\x05R\vanchorIndex\"K\n" +

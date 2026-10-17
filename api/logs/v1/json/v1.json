@@ -50,6 +50,11 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 3
+                },
+                "source": {
+                  "description": "Source of the line; optional, narrows the scan.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }

@@ -247,15 +247,18 @@ func (s *Service) GetLogContext(ctx context.Context, req *logsv1.GetLogContextRe
 		n = defaultContextLines
 	}
 	at := req.Time.AsTime()
-	q, args := contextQuery(at, req.NodeName, req.FileName, n)
+	q, args := contextQuery(at, req.NodeName, req.FileName, req.Source, n)
 	res := &logsv1.GetLogContextResponse{}
+	anchored := false
 	err = s.query(ctx, q, args, func(rows *sql.Rows) error {
 		l, err := scanLine(rows)
 		if err != nil {
 			return err
 		}
-		if !l.Time.AsTime().After(at) {
+		// The first line at the requested time, else the last one before it.
+		if ts := l.Time.AsTime(); !anchored && !ts.After(at) {
 			res.AnchorIndex = int32(len(res.Lines)) //nolint:gosec
+			anchored = ts.Equal(at)
 		}
 		res.Lines = append(res.Lines, l)
 		return nil

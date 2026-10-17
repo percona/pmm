@@ -189,11 +189,12 @@ export const getLogContext = async (
   time: string,
   nodeName: string,
   fileName: string,
+  source?: string,
   lines?: number
 ): Promise<{ lines: LogLine[]; anchorIndex: number }> => {
   const res = await api.post<{ lines?: RawLogLine[]; anchor_index?: number }>(
     '/logs:getContext',
-    { time, node_name: nodeName, file_name: fileName, lines },
+    { time, node_name: nodeName, file_name: fileName, source, lines },
     config
   );
   return {

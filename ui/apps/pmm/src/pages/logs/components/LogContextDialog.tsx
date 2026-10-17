@@ -17,6 +17,13 @@ interface LogContextDialogProps {
   onClose: () => void;
 }
 
+// Lists cut bodies to 4 KiB and context to 64 KiB, so a cut list body is a prefix of the context one.
+const isSameLine = (a: LogLine, b: LogLine) =>
+  a.time === b.time &&
+  a.severityNumber === b.severityNumber &&
+  JSON.stringify(a.attributes) === JSON.stringify(b.attributes) &&
+  (b.bodyTruncated ? a.body.startsWith(b.body) : a.body === b.body);
+
 /** The lines before and after one line of the same node and file. */
 export const LogContextDialog: FC<LogContextDialogProps> = ({
   line,
@@ -24,6 +31,11 @@ export const LogContextDialog: FC<LogContextDialogProps> = ({
 }) => {
   const context = useLogContext(line);
   const anchorRef = useRef<HTMLDivElement>(null);
+  // Lines sharing the clicked line's timestamp are all returned; the server can only anchor the first of them.
+  const matched = line
+    ? (context.data?.lines.findIndex((l) => isSameLine(l, line)) ?? -1)
+    : -1;
+  const anchorIndex = matched >= 0 ? matched : context.data?.anchorIndex;
 
   useEffect(() => {
     anchorRef.current?.scrollIntoView?.({ block: 'center' });
@@ -38,7 +50,7 @@ export const LogContextDialog: FC<LogContextDialogProps> = ({
         {context.isLoading && <LinearProgress />}
         {context.error && <LogsErrorAlert error={context.error} />}
         {context.data?.lines.map((l, i) => {
-          const anchor = i === context.data.anchorIndex;
+          const anchor = i === anchorIndex;
           return (
             <Box
               key={`${l.time}-${i}`}

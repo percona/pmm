@@ -52,6 +52,7 @@ export const useLogFacets = (filter: LogFilter) =>
 export const useLogContext = (line: LogLine | null) =>
   useQuery({
     queryKey: LOGS_KEYS.context(line),
-    queryFn: () => getLogContext(line!.time, line!.nodeName, line!.fileName),
+    queryFn: () =>
+      getLogContext(line!.time, line!.nodeName, line!.fileName, line!.source),
     enabled: !!line,
   });

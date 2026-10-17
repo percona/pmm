@@ -183,9 +183,9 @@ func TestGetLogPatterns(t *testing.T) {
 func TestGetLogContext(t *testing.T) {
 	s, mock := newTestService(t)
 	at := testStart.Add(30 * time.Minute)
-	q, _ := contextQuery(at, "node1", "postgresql.log", 50)
+	q, _ := contextQuery(at, "node1", "postgresql.log", "node1", 50)
 	rows := mock.NewRows(lineCols)
-	for i, ts := range []time.Time{at.Add(-2 * time.Second), at.Add(-time.Second), at, at.Add(time.Second)} {
+	for i, ts := range []time.Time{at.Add(-time.Second), at, at, at.Add(time.Second)} {
 		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", string(rune('a'+i)), false, map[string]string{})
 	}
 	mock.ExpectQuery(q).WillReturnRows(rows)
@@ -193,11 +193,22 @@ func TestGetLogContext(t *testing.T) {
 		Time:     timestamppb.New(at),
 		NodeName: "node1",
 		FileName: "postgresql.log",
+		Source:   "node1",
 	})
 	require.NoError(t, err)
 	require.Len(t, res.Lines, 4)
-	assert.Equal(t, int32(2), res.AnchorIndex)
-	assert.Equal(t, "c", res.Lines[res.AnchorIndex].Body)
+	assert.Equal(t, int32(1), res.AnchorIndex, "first line at the requested time")
+
+	// No line at the requested time: the last one before it.
+	q, _ = contextQuery(at, "node1", "postgresql.log", "", 50)
+	rows = mock.NewRows(lineCols)
+	for _, ts := range []time.Time{at.Add(-2 * time.Second), at.Add(-time.Second), at.Add(time.Second)} {
+		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", "x", false, map[string]string{})
+	}
+	mock.ExpectQuery(q).WillReturnRows(rows)
+	res, err = s.GetLogContext(t.Context(), &logsv1.GetLogContextRequest{Time: timestamppb.New(at), NodeName: "node1", FileName: "postgresql.log"})
+	require.NoError(t, err)
+	assert.Equal(t, int32(1), res.AnchorIndex)
 }
 
 func TestGetLogFacets(t *testing.T) {

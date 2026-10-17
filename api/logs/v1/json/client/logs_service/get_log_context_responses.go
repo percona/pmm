@@ -202,6 +202,9 @@ type GetLogContextBody struct {
 
 	// Lines before and after; 0 means 50.
 	Lines int32 `json:"lines,omitempty"`
+
+	// Source of the line; optional, narrows the scan.
+	Source string `json:"source,omitempty"`
 }
 
 // Validate validates this get log context body

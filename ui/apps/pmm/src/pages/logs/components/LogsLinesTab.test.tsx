@@ -86,8 +86,14 @@ describe('LogsLinesTab', () => {
 
   it('highlights the anchor line in the context dialog', async () => {
     searchLogs.mockResolvedValue({ lines: [line('the line')] });
+    // Two lines share the clicked line's millisecond; the server anchors the first, the dialog the clicked one.
     getLogContext.mockResolvedValue({
-      lines: [line('before'), line('the line'), line('after')],
+      lines: [
+        { ...line('before'), time: '2026-10-17T10:29:59.000Z' },
+        line('same millisecond'),
+        line('the line'),
+        { ...line('after'), time: '2026-10-17T10:30:01.000Z' },
+      ],
       anchorIndex: 1,
     });
     renderTab();
@@ -98,8 +104,9 @@ describe('LogsLinesTab', () => {
     expect(getLogContext).toHaveBeenCalledWith(
       '2026-10-17T10:30:00.000Z',
       'pg-node',
-      'postgresql.log'
+      'postgresql.log',
+      'pg-node'
     );
-    expect(screen.getAllByTestId('log-context-line')).toHaveLength(2);
+    expect(screen.getAllByTestId('log-context-line')).toHaveLength(3);
   });
 });

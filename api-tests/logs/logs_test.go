@@ -18,6 +18,7 @@ package logs
 import (
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -126,6 +127,7 @@ func TestGetLogContext(t *testing.T) {
 			Time:     line.Time,
 			NodeName: line.NodeName,
 			FileName: line.FileName,
+			Source:   line.Source,
 			Lines:    5,
 		},
 		Context: pmmapitests.Context,
@@ -133,11 +135,15 @@ func TestGetLogContext(t *testing.T) {
 	require.NoError(t, err)
 	lines := res.Payload.Lines
 	require.NotEmpty(t, lines)
-	assert.LessOrEqual(t, len(lines), 10)
 	require.Less(t, int(res.Payload.AnchorIndex), len(lines))
 	anchor := lines[res.Payload.AnchorIndex]
 	assert.Equal(t, line.FileName, anchor.FileName)
-	assert.False(t, time.Time(anchor.Time).After(time.Time(line.Time)))
+	assert.True(t, time.Time(anchor.Time).Equal(time.Time(line.Time)))
+	found := false
+	for _, l := range lines {
+		found = found || (time.Time(l.Time).Equal(time.Time(line.Time)) && strings.HasPrefix(l.Body, line.Body))
+	}
+	assert.True(t, found, "the line itself is in its context")
 }
 
 func TestGetLogFacets(t *testing.T) {

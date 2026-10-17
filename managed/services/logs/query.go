@@ -226,17 +226,27 @@ func patternsQuery(f Filter) (string, []any) {
 	return q + querySettings, append([]any{f.Start.UnixNano()}, args...)
 }
 
-func contextQuery(at time.Time, nodeName, fileName string, n int) (string, []any) {
-	sel := "SELECT " + lineColumns(contextBodyLimit) + " FROM otel.logs WHERE ResourceAttributes['node_name'] = ? AND " +
-		"LogAttributes['log.file.name'] = ? AND TimestampTime BETWEEN toDateTime(?) AND toDateTime(?) AND "
-	q := "SELECT " + lineColumnNames + " FROM (" +
-		"(" + sel + "Timestamp <= fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?) UNION ALL " +
-		"(" + sel + "Timestamp > fromUnixTimestamp64Nano(?) ORDER BY Timestamp LIMIT ?)" +
-		") ORDER BY Timestamp" + querySettings
-	return q, []any{
-		nodeName, fileName, at.Add(-contextWindow).Unix(), at.Unix(), at.UnixNano(), n,
-		nodeName, fileName, at.Unix(), at.Add(contextWindow).Unix(), at.UnixNano(), n,
+// contextQuery returns n lines before the anchor time, every line at that time (at most 100) and n after it, of one
+// node and file; source, when set, uses the primary key.
+func contextQuery(at time.Time, nodeName, fileName, source string, n int) (string, []any) {
+	var args []any
+	part := func(from, to time.Time, tail string, tailArgs ...any) string {
+		sel := "SELECT " + lineColumns(contextBodyLimit) + " FROM otel.logs WHERE "
+		if source != "" {
+			sel += "ServiceName = ? AND "
+			args = append(args, source)
+		}
+		args = append(append(args, nodeName, fileName, from.Unix(), to.Unix()), tailArgs...)
+		return "(" + sel + "ResourceAttributes['node_name'] = ? AND LogAttributes['log.file.name'] = ? AND " +
+			"TimestampTime BETWEEN toDateTime(?) AND toDateTime(?) AND " + tail + ")"
 	}
+	nanos := at.UnixNano()
+	q := "SELECT " + lineColumnNames + " FROM (" +
+		part(at.Add(-contextWindow), at, "Timestamp < fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?", nanos, n) +
+		" UNION ALL " + part(at, at, "Timestamp = fromUnixTimestamp64Nano(?) LIMIT 100", nanos) +
+		" UNION ALL " + part(at, at.Add(contextWindow), "Timestamp > fromUnixTimestamp64Nano(?) ORDER BY Timestamp LIMIT ?", nanos, n) +
+		") ORDER BY Timestamp" + querySettings
+	return q, args
 }
 
 func facetsQueries(f Filter) (string, string, string, []any) {
