@@ -69,7 +69,7 @@ Choose the deployment option that matches your infrastructure and requirements:
 
 === "HA Cluster"
 
-    Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing. Supported on Amazon EKS and OpenShift 4.21+.
+    Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing. Supported on [Amazon EKS and OpenShift](HA-clustered.md#check-if-your-platform-is-supported).
 
     **Key features**
     

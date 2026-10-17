@@ -306,7 +306,7 @@ To install PMM HA:
 
 === "OpenShift installation"
 
-    Install PMM HA Cluster on OpenShift 4.21+ (including ROSA HCP). These steps address OpenShift-specific requirements: pod security contexts (`restricted-v2` SCC), HAProxy port binding, and node exporter configuration.
+    Install PMM HA Cluster on a [supported OpenShift version](HA-clustered.md#check-if-your-platform-is-supported), including ROSA with hosted control planes. These steps address OpenShift-specific requirements: pod security contexts (`restricted-v2` SCC), HAProxy port binding, and node exporter configuration.
     {.power-number}
 
     1. Add Percona Helm repositories:
@@ -783,7 +783,7 @@ To enable external access when required, choose the configuration that matches y
 
 === "OpenShift"
 
-    **Best for**: OpenShift 4.21+ deployments
+    **Best for**: OpenShift deployments
 
     On OpenShift, expose PMM HA externally using an OpenShift Route. Do not use the chart's `ingress.enabled` setting — it targets `monitoring-service` directly and bypasses HAProxy, losing leader routing.
 
