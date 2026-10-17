@@ -39082,21 +39082,25 @@
                       "type": "boolean",
                       "x-order": 20
                     },
-                    "advisor_notification_severity_threshold": {
-                      "description": "Severity represents severity level of the check result or alert.",
-                      "type": "string",
-                      "default": "SEVERITY_UNSPECIFIED",
-                      "enum": [
-                        "SEVERITY_UNSPECIFIED",
-                        "SEVERITY_EMERGENCY",
-                        "SEVERITY_ALERT",
-                        "SEVERITY_CRITICAL",
-                        "SEVERITY_ERROR",
-                        "SEVERITY_WARNING",
-                        "SEVERITY_NOTICE",
-                        "SEVERITY_INFO",
-                        "SEVERITY_DEBUG"
-                      ],
+                    "advisor_notification_severities": {
+                      "description": "Severities of the Advisor insights that are emailed.",
+                      "type": "array",
+                      "items": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ]
+                      },
                       "x-order": 21
                     },
                     "advisor_notification_email_addresses": {
@@ -39306,21 +39310,25 @@
                   "x-nullable": true,
                   "x-order": 16
                 },
-                "advisor_notification_severity_threshold": {
-                  "description": "Severity represents severity level of the check result or alert.",
-                  "type": "string",
-                  "default": "SEVERITY_UNSPECIFIED",
-                  "enum": [
-                    "SEVERITY_UNSPECIFIED",
-                    "SEVERITY_EMERGENCY",
-                    "SEVERITY_ALERT",
-                    "SEVERITY_CRITICAL",
-                    "SEVERITY_ERROR",
-                    "SEVERITY_WARNING",
-                    "SEVERITY_NOTICE",
-                    "SEVERITY_INFO",
-                    "SEVERITY_DEBUG"
-                  ],
+                "advisor_notification_severities": {
+                  "description": "Severities of the Advisor insights that are emailed. Empty leaves them unchanged.",
+                  "type": "array",
+                  "items": {
+                    "description": "Severity represents severity level of the check result or alert.",
+                    "type": "string",
+                    "default": "SEVERITY_UNSPECIFIED",
+                    "enum": [
+                      "SEVERITY_UNSPECIFIED",
+                      "SEVERITY_EMERGENCY",
+                      "SEVERITY_ALERT",
+                      "SEVERITY_CRITICAL",
+                      "SEVERITY_ERROR",
+                      "SEVERITY_WARNING",
+                      "SEVERITY_NOTICE",
+                      "SEVERITY_INFO",
+                      "SEVERITY_DEBUG"
+                    ]
+                  },
                   "x-order": 17
                 },
                 "advisor_notification_email_addresses": {
@@ -39494,21 +39502,25 @@
                       "type": "boolean",
                       "x-order": 20
                     },
-                    "advisor_notification_severity_threshold": {
-                      "description": "Severity represents severity level of the check result or alert.",
-                      "type": "string",
-                      "default": "SEVERITY_UNSPECIFIED",
-                      "enum": [
-                        "SEVERITY_UNSPECIFIED",
-                        "SEVERITY_EMERGENCY",
-                        "SEVERITY_ALERT",
-                        "SEVERITY_CRITICAL",
-                        "SEVERITY_ERROR",
-                        "SEVERITY_WARNING",
-                        "SEVERITY_NOTICE",
-                        "SEVERITY_INFO",
-                        "SEVERITY_DEBUG"
-                      ],
+                    "advisor_notification_severities": {
+                      "description": "Severities of the Advisor insights that are emailed.",
+                      "type": "array",
+                      "items": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ]
+                      },
                       "x-order": 21
                     },
                     "advisor_notification_email_addresses": {
