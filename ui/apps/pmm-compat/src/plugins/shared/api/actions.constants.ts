@@ -1,0 +1,2 @@
+export const ACTION_POLL_INITIAL_DELAY_MS = 500;
+export const ACTION_POLL_MAX_ATTEMPTS = 10;
