@@ -85,6 +85,8 @@ func (m *LogFilter) validate(all bool) error {
 
 	// no validation rules for Pattern
 
+	// no validation rules for MaxSeverity
+
 	if len(errors) > 0 {
 		return LogFilterMultiError(errors)
 	}

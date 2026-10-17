@@ -730,6 +730,12 @@ type GetLogVolumeParamsBodyFilter struct {
 
 	// Only lines with this pattern, as returned by GetLogPatterns.
 	Pattern string `json:"pattern,omitempty"`
+
+	// Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).
+	MaxSeverity int32 `json:"max_severity,omitempty"`
+
+	// No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
+	ExcludeNodeNames []string `json:"exclude_node_names"`
 }
 
 // Validate validates this get log volume params body filter

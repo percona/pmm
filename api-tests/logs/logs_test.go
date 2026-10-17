@@ -90,6 +90,35 @@ func TestSearchLogs(t *testing.T) {
 	assert.Equal(t, whole, paged)
 }
 
+func TestSearchLogs_SeverityRangeAndExcludedNodes(t *testing.T) {
+	t.Parallel()
+
+	start, end := lastHour()
+	searchFiltered := func(f *logs_service.SearchLogsParamsBodyFilter) []*logs_service.SearchLogsOKBodyLinesItems0 {
+		f.Start, f.End = start, end
+		res, err := logsClient.Default.LogsService.SearchLogs(&logs_service.SearchLogsParams{
+			Body:    logs_service.SearchLogsBody{Filter: f, Limit: 100},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		return res.Payload.Lines
+	}
+
+	info := searchFiltered(&logs_service.SearchLogsParamsBodyFilter{
+		NodeNames: []string{"pmm-server"}, MinSeverity: 9, MaxSeverity: 12,
+	})
+	require.NotEmpty(t, info)
+	for _, l := range info {
+		assert.GreaterOrEqual(t, l.SeverityNumber, int32(9))
+		assert.LessOrEqual(t, l.SeverityNumber, int32(12))
+	}
+
+	excluded := searchFiltered(&logs_service.SearchLogsParamsBodyFilter{
+		NodeNames: []string{"pmm-server"}, ExcludeNodeNames: []string{"pmm-server"},
+	})
+	assert.Empty(t, excluded)
+}
+
 func TestGetLogVolume(t *testing.T) {
 	t.Parallel()
 

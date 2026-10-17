@@ -238,6 +238,20 @@
                       "description": "Only lines with this pattern, as returned by GetLogPatterns.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -417,6 +431,20 @@
                       "description": "Only lines with this pattern, as returned by GetLogPatterns.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -585,6 +613,20 @@
                       "description": "Only lines with this pattern, as returned by GetLogPatterns.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -747,6 +789,20 @@
                       "description": "Only lines with this pattern, as returned by GetLogPatterns.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0

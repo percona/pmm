@@ -17,6 +17,7 @@ package logs
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -41,20 +42,24 @@ func TestBuildWhere_Empty(t *testing.T) {
 
 func TestBuildWhere_All(t *testing.T) {
 	where, args := buildWhere(Filter{
-		Start:       testStart,
-		End:         testEnd,
-		NodeNames:   []string{"node1", "node2"},
-		Sources:     []string{"pmm-managed"},
-		Presets:     []string{"postgres"},
-		MinSeverity: 13,
-		Text:        "deadlock",
-		Pattern:     "connection ? from ?",
+		Start:            testStart,
+		End:              testEnd,
+		NodeNames:        []string{"node1", "node2"},
+		ExcludeNodeNames: []string{"pmm-server"},
+		Sources:          []string{"pmm-managed"},
+		Presets:          []string{"postgres"},
+		MinSeverity:      13,
+		MaxSeverity:      16,
+		Text:             "deadlock",
+		Pattern:          "connection ? from ?",
 	})
 	assert.Equal(t, testTimeWhere+
 		" AND ServiceName IN ?"+
 		" AND ResourceAttributes['node_name'] IN ?"+
 		" AND LogAttributes['log.preset'] IN ?"+
+		" AND ResourceAttributes['node_name'] NOT IN ?"+
 		" AND SeverityNumber >= ?"+
+		" AND SeverityNumber <= ?"+
 		" AND positionCaseInsensitiveUTF8(Body, ?) > 0"+
 		" AND "+PatternExpr("Body")+" = ?", where)
 	assert.Equal(t, []any{
@@ -62,7 +67,9 @@ func TestBuildWhere_All(t *testing.T) {
 		[]string{"pmm-managed"},
 		[]string{"node1", "node2"},
 		[]string{"postgres"},
+		[]string{"pmm-server"},
 		int32(13),
+		int32(16),
 		"deadlock",
 		"connection ? from ?",
 	}, args)
@@ -169,8 +176,29 @@ func TestPatternsQuery_PreviousWindow(t *testing.T) {
 	require.Len(t, args, 5)
 	assert.Equal(t, testStart.UnixNano(), args[0])
 	assert.Equal(t, []any{prev.Unix(), testEnd.Unix(), prev.UnixNano(), testEnd.UnixNano()}, args[1:])
-	assert.Contains(t, q, "HAVING current > 0 ORDER BY current DESC, p LIMIT 50")
-	assert.Contains(t, q, "previous = 0 AS is_new")
+	assert.Contains(t, q, ") WHERE current > 0 ORDER BY current DESC, p LIMIT 50")
+	// Without any line in the previous window there is nothing to compare with, so no pattern is new.
+	assert.Contains(t, q, "sum(countIf(NOT cur)) OVER () AS baseline")
+	assert.Contains(t, q, "previous = 0 AND baseline > 0 AS is_new")
+}
+
+// TestPatternRules applies the masking rules with Go's RE2, the engine of ClickHouse's replaceRegexpAll.
+func TestPatternRules(t *testing.T) {
+	mask := func(s string) string {
+		for _, r := range patternRules {
+			s = regexp.MustCompile(r[0]).ReplaceAllLiteralString(s, r[1])
+		}
+		return s
+	}
+	for in, want := range map[string]string{
+		"connection authenticated: identity='pmm' method=md5 (/etc/postgresql/17/main/pg_hba.conf:4)": "connection authenticated: identity='?' method=md5 (/etc/postgresql/?/main/pg_hba.conf:?)",
+		"process 48211 still waiting for ShareLock on transaction 9912044 after 1000.087 ms":          "process ? still waiting for ShareLock on transaction ? after ? ms",
+		"execute <unnamed>: SELECT pg_database_size($1)":                                              "execute <unnamed>: SELECT pg_database_size($?)",
+		"connection received: host=10.30.51.101 port=53068":                                           "connection received: host=? port=?",
+		"Applied op on rs103 shard":                                                                   "Applied op on rs103 shard",
+	} {
+		assert.Equal(t, want, mask(in))
+	}
 }
 
 func TestPatternExpr_Shared(t *testing.T) {

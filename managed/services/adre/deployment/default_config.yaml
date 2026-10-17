@@ -53,7 +53,7 @@ toolsets:
       - core
     llm_instructions: |
       Use **pmm_clickhouse_query** for QAN (`database=pmm`) and logs (`database=otel`). Pass one unquoted SELECT — never wrap the whole query in quotes.
-      Start every log question with **pmm_logs_patterns** for the time range: it groups lines that differ only in values, with counts, max severity, first/last seen and `is_new` (absent from the preceding range of the same length). Fetch raw lines afterwards only for the patterns that matter.
+      Start every log question with **pmm_logs_patterns** for the time range: it groups lines that differ only in values, with counts, max severity, first/last seen and `is_new` (absent from the preceding range of the same length, which has lines; never set when that range is empty). Fetch raw lines afterwards only for the patterns that matter.
 
       ## QAN (database=pmm)
       CRITICAL — `period_start` uses ClickHouse DateTime (`'YYYY-MM-DD HH:MM:SS'` or `parseDateTimeBestEffort`), not bare RFC3339 in WHERE.
@@ -125,7 +125,7 @@ toolsets:
                 Summarize ClickHouse query results for an on-call engineer. Preserve column names, key values (fingerprint, schema, queryid, service_id, Timestamp, Body), counts, and errors. Be concise.
 
       - name: pmm_logs_patterns
-        description: "Group the log lines of a time range into patterns (values replaced by ?), most frequent first: count, max severity number, first/last seen, a sample line and is_new (absent from the preceding range of the same length). Up to 50 patterns."
+        description: "Group the log lines of a time range into patterns (values replaced by ?), most frequent first: count, max severity number, first/last seen, a sample line and is_new (absent from the preceding range of the same length, which has lines; never set when that range is empty). Up to 50 patterns."
         command: |
           set -euo pipefail
           PMM_URL="${PMM_URL%/}"

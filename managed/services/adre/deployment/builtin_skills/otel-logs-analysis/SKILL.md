@@ -9,7 +9,7 @@ description: "Search logs PMM collects into ClickHouse otel.logs: which log file
 The user asks for log lines or errors, or metrics show a restart, crash or error burst and you need the log evidence. Only nodes that ship files have logs (`pmm-admin add otel logs`); RDS/Azure database logs stay at the provider (cloud-rds-azure).
 
 ## Patterns first
-`pmm_logs_patterns` (start, end RFC3339; optional node_names, sources, min_severity, text) groups the range's lines into up to 50 patterns (values replaced by `?`) with count, max severity, first/last seen, a sample and `is_new` (absent from the preceding range of the same length). Call it before any SQL: new and error-level patterns are usually the answer, and they tell you which raw lines to fetch. Users can open the same view in PMM: `/pmm-ui/logs/patterns?from=<ms>&to=<ms>&source=<source>`; lines are under `/pmm-ui/logs?…&severity=17`.
+`pmm_logs_patterns` (start, end RFC3339; optional node_names, sources, min_severity, text) groups the range's lines into up to 50 patterns (values replaced by `?`) with count, max severity, first/last seen, a sample and `is_new` (absent from the preceding range of the same length, which has lines; never set when that range is empty). Call it before any SQL: new and error-level patterns are usually the answer, and they tell you which raw lines to fetch. Users can open the same view in PMM: `/pmm-ui/logs/patterns?from=<ms>&to=<ms>&source=<source>`; lines are under `/pmm-ui/logs?…&severity=17`.
 
 ## Schema (`pmm_clickhouse_query`, `database=otel`, table `logs`)
 - `ServiceName` and `TimestampTime` are the primary key: filter on both first. `ServiceName` is the node name for client logs and the component (pmm-managed, nginx, grafana, qan-api2, …) for PMM Server logs.

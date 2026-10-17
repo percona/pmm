@@ -47,13 +47,15 @@ var volumeSteps = []time.Duration{
 
 // Filter is the shared filter of every logs call.
 type Filter struct {
-	Start, End  time.Time
-	NodeNames   []string
-	Sources     []string
-	Presets     []string
-	MinSeverity int32
-	Text        string
-	Pattern     string
+	Start, End       time.Time
+	NodeNames        []string
+	ExcludeNodeNames []string
+	Sources          []string
+	Presets          []string
+	MinSeverity      int32
+	MaxSeverity      int32
+	Text             string
+	Pattern          string
 }
 
 // lineHash identifies a line among those with the same Timestamp; lines it cannot tell apart look identical.
@@ -99,16 +101,20 @@ func DecodeCursor(s string) (Cursor, error) {
 	return Cursor{Time: time.Unix(0, n).UTC(), Hash: h, Skip: skip}, nil
 }
 
+// patternRules replace the variable parts of a line, in order: quoted strings, UUIDs, hex IDs, IPv4 addresses and
+// whole numbers; a number inside a word (md5, rs103) is part of the word.
+var patternRules = [][2]string{
+	{`'[^']*'|"[^"]*"`, `'?'`},
+	{`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`, `?`},
+	{`\b[0-9a-fA-F]{8,}\b`, `?`},
+	{`\b[0-9]{1,3}(\.[0-9]{1,3}){3}\b`, `?`},
+	{`\b[0-9]+(\.[0-9]+)?\b`, `?`},
+}
+
 // PatternExpr returns the ClickHouse expression that turns column into its pattern; GetLogPatterns and the pattern filter both use it.
 func PatternExpr(column string) string {
 	expr := column
-	for _, r := range [][2]string{
-		{`'[^']*'|"[^"]*"`, `'?'`},
-		{`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`, `?`},
-		{`\b[0-9a-fA-F]{8,}\b`, `?`},
-		{`\b[0-9]{1,3}(\.[0-9]{1,3}){3}\b`, `?`},
-		{`[0-9]+(\.[0-9]+)?`, `?`},
-	} {
+	for _, r := range patternRules {
 		expr = "replaceRegexpAll(" + expr + ", " + sqlString(r[0]) + ", " + sqlString(r[1]) + ")"
 	}
 	return "substringUTF8(" + expr + ", 1, 200)"
@@ -142,9 +148,17 @@ func buildWhere(f Filter) (string, []any) {
 			args = append(args, in.values)
 		}
 	}
+	if len(f.ExcludeNodeNames) > 0 {
+		conds = append(conds, "ResourceAttributes['node_name'] NOT IN ?")
+		args = append(args, f.ExcludeNodeNames)
+	}
 	if f.MinSeverity > 0 {
 		conds = append(conds, "SeverityNumber >= ?")
 		args = append(args, f.MinSeverity)
+	}
+	if f.MaxSeverity > 0 {
+		conds = append(conds, "SeverityNumber <= ?")
+		args = append(args, f.MaxSeverity)
 	}
 	if f.Text != "" {
 		conds = append(conds, "positionCaseInsensitiveUTF8(Body, ?) > 0")
@@ -223,11 +237,15 @@ func patternsQuery(f Filter) (string, []any) {
 	prev := f
 	prev.Start = f.Start.Add(-f.End.Sub(f.Start))
 	where, args := buildWhere(prev)
-	q := fmt.Sprintf("WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT %s AS p, "+
-		"countIf(cur) AS current, countIf(NOT cur) AS previous, previous = 0 AS is_new, "+
+	// A pattern is new when the previous window has lines but none of it; baseline counts that window's lines.
+	q := fmt.Sprintf("SELECT p, current, previous, previous = 0 AND baseline > 0 AS is_new, "+
+		"max_severity, first_seen, last_seen, sample FROM ("+
+		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT %s AS p, "+
+		"countIf(cur) AS current, countIf(NOT cur) AS previous, sum(countIf(NOT cur)) OVER () AS baseline, "+
 		"maxIf(SeverityNumber, cur) AS max_severity, minIf(Timestamp, cur) AS first_seen, maxIf(Timestamp, cur) AS last_seen, "+
 		"substringUTF8(anyIf(Body, cur), 1, %d) AS sample "+
-		"FROM otel.logs WHERE %s GROUP BY p HAVING current > 0 ORDER BY current DESC, p LIMIT 50",
+		"FROM otel.logs WHERE %s GROUP BY p"+
+		") WHERE current > 0 ORDER BY current DESC, p LIMIT 50",
 		PatternExpr("Body"), listBodyLimit, where)
 	return q + querySettings, append([]any{f.Start.UnixNano()}, args...)
 }

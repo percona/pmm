@@ -26,6 +26,10 @@ message LogFilter {
   string text = 7;
   // Only lines with this pattern, as returned by GetLogPatterns.
   string pattern = 8;
+  // Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).
+  int32 max_severity = 9;
+  // No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
+  repeated string exclude_node_names = 10;
 }
 
 // LogLine is one log entry.

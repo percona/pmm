@@ -45,9 +45,13 @@ type LogFilter struct {
 	// Only lines containing this text, ignoring case.
 	Text string `protobuf:"bytes,7,opt,name=text,proto3" json:"text,omitempty"`
 	// Only lines with this pattern, as returned by GetLogPatterns.
-	Pattern       string `protobuf:"bytes,8,opt,name=pattern,proto3" json:"pattern,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Pattern string `protobuf:"bytes,8,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	// Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).
+	MaxSeverity int32 `protobuf:"varint,9,opt,name=max_severity,json=maxSeverity,proto3" json:"max_severity,omitempty"`
+	// No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
+	ExcludeNodeNames []string `protobuf:"bytes,10,rep,name=exclude_node_names,json=excludeNodeNames,proto3" json:"exclude_node_names,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LogFilter) Reset() {
@@ -134,6 +138,20 @@ func (x *LogFilter) GetPattern() string {
 		return x.Pattern
 	}
 	return ""
+}
+
+func (x *LogFilter) GetMaxSeverity() int32 {
+	if x != nil {
+		return x.MaxSeverity
+	}
+	return 0
+}
+
+func (x *LogFilter) GetExcludeNodeNames() []string {
+	if x != nil {
+		return x.ExcludeNodeNames
+	}
+	return nil
 }
 
 // LogLine is one log entry.
@@ -1024,7 +1042,7 @@ var File_logs_v1_logs_proto protoreflect.FileDescriptor
 
 const file_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xa3\x02\n" +
+	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xf4\x02\n" +
 	"\tLogFilter\x12:\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x05start\x126\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x03end\x12\x1d\n" +
@@ -1034,7 +1052,10 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\apresets\x18\x05 \x03(\tR\apresets\x12!\n" +
 	"\fmin_severity\x18\x06 \x01(\x05R\vminSeverity\x12\x12\n" +
 	"\x04text\x18\a \x01(\tR\x04text\x12\x18\n" +
-	"\apattern\x18\b \x01(\tR\apattern\"\xad\x03\n" +
+	"\apattern\x18\b \x01(\tR\apattern\x12!\n" +
+	"\fmax_severity\x18\t \x01(\x05R\vmaxSeverity\x12,\n" +
+	"\x12exclude_node_names\x18\n" +
+	" \x03(\tR\x10excludeNodeNames\"\xad\x03\n" +
 	"\aLogLine\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x16\n" +

@@ -65,17 +65,22 @@ func start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
 		return Filter{}, err
 	}
 	res := Filter{
-		Start:       f.GetStart().AsTime(),
-		End:         f.GetEnd().AsTime(),
-		NodeNames:   f.GetNodeNames(),
-		Sources:     f.GetSources(),
-		Presets:     f.GetPresets(),
-		MinSeverity: f.GetMinSeverity(),
-		Text:        f.GetText(),
-		Pattern:     f.GetPattern(),
+		Start:            f.GetStart().AsTime(),
+		End:              f.GetEnd().AsTime(),
+		NodeNames:        f.GetNodeNames(),
+		ExcludeNodeNames: f.GetExcludeNodeNames(),
+		Sources:          f.GetSources(),
+		Presets:          f.GetPresets(),
+		MinSeverity:      f.GetMinSeverity(),
+		MaxSeverity:      f.GetMaxSeverity(),
+		Text:             f.GetText(),
+		Pattern:          f.GetPattern(),
 	}
 	if res.End.Before(res.Start) {
 		return Filter{}, status.Error(codes.InvalidArgument, "The end of the time range is before its start.")
+	}
+	if res.MaxSeverity > 0 && res.MaxSeverity < res.MinSeverity {
+		return Filter{}, status.Error(codes.InvalidArgument, "The highest severity is below the lowest.")
 	}
 	if res.End.Sub(res.Start) > maxRange {
 		return Filter{}, status.Errorf(codes.InvalidArgument, "The time range can be at most %d days.", maxRangeDays)

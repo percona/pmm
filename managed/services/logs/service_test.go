@@ -247,6 +247,9 @@ func TestBadRange(t *testing.T) {
 		"reversed": {Start: timestamppb.New(testEnd), End: timestamppb.New(testStart)},
 		// Longer than 100 daily volume buckets.
 		"too long": {Start: timestamppb.New(testEnd.Add(-100 * 24 * time.Hour)), End: timestamppb.New(testEnd)},
+		"severity bounds reversed": {
+			Start: timestamppb.New(testStart), End: timestamppb.New(testEnd), MinSeverity: 17, MaxSeverity: 16,
+		},
 	} {
 		_, err := s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: f})
 		requireCode(t, err, codes.InvalidArgument)
