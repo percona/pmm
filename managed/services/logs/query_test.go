@@ -171,15 +171,18 @@ func TestVolumeQuery_Step(t *testing.T) {
 }
 
 func TestPatternsQuery_PreviousWindow(t *testing.T) {
-	q, args := patternsQuery(Filter{Start: testStart, End: testEnd})
+	q, args := patternsQuery(Filter{Start: testStart, End: testEnd, NodeNames: []string{"n1"}, Text: "x", MinSeverity: 17})
 	prev := testStart.Add(-testEnd.Sub(testStart))
-	require.Len(t, args, 5)
-	assert.Equal(t, testStart.UnixNano(), args[0])
-	assert.Equal(t, []any{prev.Unix(), testEnd.Unix(), prev.UnixNano(), testEnd.UnixNano()}, args[1:])
+	// The baseline asks whether the scope had any line before the range; search and severity do not narrow it,
+	// or a search for a new message would never find it new.
+	baseWhere, baseArgs := buildWhere(Filter{Start: prev, End: testStart, NodeNames: []string{"n1"}})
+	assert.Contains(t, q, "previous = 0 AND (SELECT count() FROM (SELECT 1 FROM otel.logs WHERE "+baseWhere+" LIMIT 1)) > 0 AS is_new")
+	// The main query's arguments: four time bounds, the node list, the severity and the search text.
+	require.Len(t, args, len(baseArgs)+1+7)
+	assert.Equal(t, baseArgs, args[:len(baseArgs)])
+	assert.Equal(t, testStart.UnixNano(), args[len(baseArgs)])
+	assert.Equal(t, []any{prev.Unix(), testEnd.Unix(), prev.UnixNano(), testEnd.UnixNano()}, args[len(baseArgs)+1:len(baseArgs)+5])
 	assert.Contains(t, q, ") WHERE current > 0 ORDER BY current DESC, p LIMIT 50")
-	// Without any line in the previous window there is nothing to compare with, so no pattern is new.
-	assert.Contains(t, q, "sum(countIf(NOT cur)) OVER () AS baseline")
-	assert.Contains(t, q, "previous = 0 AND baseline > 0 AS is_new")
 }
 
 // TestPatternRules applies the masking rules with Go's RE2, the engine of ClickHouse's replaceRegexpAll.

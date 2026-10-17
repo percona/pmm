@@ -237,17 +237,24 @@ func patternsQuery(f Filter) (string, []any) {
 	prev := f
 	prev.Start = f.Start.Add(-f.End.Sub(f.Start))
 	where, args := buildWhere(prev)
-	// A pattern is new when the previous window has lines but none of it; baseline counts that window's lines.
-	q := fmt.Sprintf("SELECT p, current, previous, previous = 0 AND baseline > 0 AS is_new, "+
+	// A pattern is new when the previous window had lines of the same nodes, sources and presets but none of it;
+	// without such lines (collection had not started) nothing is new. Search and severity do not narrow the baseline.
+	baseWhere, baseArgs := buildWhere(Filter{
+		Start: prev.Start, End: f.Start,
+		NodeNames: f.NodeNames, ExcludeNodeNames: f.ExcludeNodeNames, Sources: f.Sources, Presets: f.Presets,
+	})
+	q := fmt.Sprintf("SELECT p, current, previous, "+
+		"previous = 0 AND (SELECT count() FROM (SELECT 1 FROM otel.logs WHERE %s LIMIT 1)) > 0 AS is_new, "+
 		"max_severity, first_seen, last_seen, sample FROM ("+
 		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT %s AS p, "+
-		"countIf(cur) AS current, countIf(NOT cur) AS previous, sum(countIf(NOT cur)) OVER () AS baseline, "+
+		"countIf(cur) AS current, countIf(NOT cur) AS previous, "+
 		"maxIf(SeverityNumber, cur) AS max_severity, minIf(Timestamp, cur) AS first_seen, maxIf(Timestamp, cur) AS last_seen, "+
 		"substringUTF8(anyIf(Body, cur), 1, %d) AS sample "+
 		"FROM otel.logs WHERE %s GROUP BY p"+
 		") WHERE current > 0 ORDER BY current DESC, p LIMIT 50",
-		PatternExpr("Body"), listBodyLimit, where)
-	return q + querySettings, append([]any{f.Start.UnixNano()}, args...)
+		baseWhere, PatternExpr("Body"), listBodyLimit, where)
+	args = append(append(baseArgs, f.Start.UnixNano()), args...)
+	return q + querySettings, args
 }
 
 // contextQuery returns n lines before the anchor time, every line at that time (at most 100) and n after it, of one
