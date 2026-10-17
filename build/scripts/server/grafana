@@ -1,0 +1,41 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo $(get_shortcommit grafana)
+}
+
+build() {
+    run_in_container $1 grafana <<EOF
+cd ${build_dir}
+
+rm -rf Godeps
+sudo npm install -g grunt-cli
+sudo dnf install -y fontconfig
+
+make build-go
+make deps-js
+# Same heap limit as Grafana's own Dockerfile: webpack needs more than Node's default.
+export NODE_OPTIONS=--max_old_space_size=8000
+make build-js
+
+install -d ${rootfs}/usr/share/grafana
+cp -rpa conf public tools ${rootfs}/usr/share/grafana/
+
+install -d ${rootfs}/usr/sbin ${rootfs}/usr/bin
+install -p -m 0755 bin/linux/${go_arch}/grafana ${rootfs}/usr/sbin/grafana
+install -p -m 0755 bin/linux/${go_arch}/grafana-server ${rootfs}/usr/sbin/grafana-server
+install -p -m 0755 bin/linux/${go_arch}/grafana-cli ${rootfs}/usr/bin/grafana-cli
+
+install -d ${rootfs}/etc/grafana
+cp -p conf/sample.ini ${rootfs}/etc/grafana/grafana.ini
+cp -p conf/ldap.toml ${rootfs}/etc/grafana/ldap.toml
+
+install -d ${rootfs}/var/lib/grafana
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/percona-grafana/LICENSE
+install -D -p -m 0644 CHANGELOG.md ${rootfs}/usr/share/doc/percona-grafana/CHANGELOG.md
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/percona-grafana/README.md
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4
