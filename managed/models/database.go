@@ -2071,6 +2071,66 @@ $yaml$,
 			NOW()
 		) ON CONFLICT DO NOTHING`,
 	},
+	149: {
+		// nginx.log holds access lines (key=value) and nginx's own error lines; each kind gets its parser, so errors get a severity.
+		`UPDATE log_parser_presets SET
+			operator_yaml = $yaml$- type: key_value_parser
+  if: 'body matches "^time="'
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  if: 'body matches "^time="'
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05Z07:00'
+  layout_type: gotime
+- type: add
+  if: 'body matches "^time="'
+  field: attributes.level
+  value: 'EXPR(int(attributes.status) >= 500 ? "error" : (int(attributes.status) >= 400 ? "warn" : "info"))'
+- type: regex_parser
+  if: 'body matches "^\\d{4}/\\d{2}/\\d{2} "'
+  regex: '^(?P<timestamp>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.*?)(?:, client: (?P<client>[^,]+))?(?:, server: (?P<server>[^,]+))?(?:, request: "(?P<request>[^"]*)")?(?:, host: "(?P<host>[^"]*)")?.*'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  if: 'body matches "^\\d{4}/\\d{2}/\\d{2} "'
+  parse_from: attributes.timestamp
+  layout: '2006/01/02 15:04:05'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: [info, notice]
+    warn: warn
+    error: error
+    fatal: [crit, alert, emerg]
+$yaml$,
+			updated_at = NOW()
+		WHERE name = 'nginx_access' AND built_in AND operator_yaml = $old$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05Z07:00'
+  layout_type: gotime
+- type: add
+  field: attributes.level
+  value: 'EXPR(int(attributes.status) >= 500 ? "error" : (int(attributes.status) >= 400 ? "warn" : "info"))'
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    info: info
+    warn: warn
+    error: error
+$old$`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -60,6 +60,28 @@ func TestLogParserPresetsServerLogs(t *testing.T) {
 		}
 	})
 
+	t.Run("nginx_access parses error-format lines", func(t *testing.T) {
+		p := mustPreset(t, q, "nginx_access")
+		var ops []map[string]any
+		require.NoError(t, yaml.Unmarshal([]byte(p.OperatorYAML), &ops))
+		var errRegex string
+		for _, op := range ops {
+			switch op["type"] {
+			case "regex_parser":
+				errRegex, _ = op["regex"].(string)
+				assert.Contains(t, op["if"], "body matches")
+			case "key_value_parser":
+				assert.Contains(t, op["if"], "body matches")
+			}
+		}
+		require.NotEmpty(t, errRegex)
+		re := regexp.MustCompile(errRegex)
+		m := re.FindStringSubmatch("2026/10/16 20:41:58 [warn] 114#114: *259446 a client request body is buffered to a temporary file")
+		require.NotNil(t, m)
+		assert.Equal(t, "warn", m[re.SubexpIndex("level")])
+		assert.Contains(t, p.OperatorYAML, "fatal: [crit, alert, emerg]")
+	})
+
 	t.Run("victoriametrics parses tab-separated lines", func(t *testing.T) {
 		vm := mustPreset(t, q, "victoriametrics")
 		assert.True(t, vm.BuiltIn)
