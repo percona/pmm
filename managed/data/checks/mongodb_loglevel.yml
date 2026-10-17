@@ -4,9 +4,9 @@ checks:
     name: mongodb_loglevel
     summary: MongoDB Non-Default Log Level
     description: This check returns warnings if MongoDB is not using the default log level.
-    family: MONGODB
-    #author: Vinicius Grippa
-    advisor: configuration_generic
+    technology: MONGODB
+    # author: Vinicius Grippa
+    category: Logging
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
@@ -20,7 +20,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
           parsed = rows[0]["parsed"]

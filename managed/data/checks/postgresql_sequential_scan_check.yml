@@ -5,8 +5,8 @@ checks:
     summary: PostgreSQL sequential scan check
     description: This check for tables with excessive sequential scans
     interval: standard
-    family: POSTGRESQL
-    advisor: query_index
+    technology: POSTGRESQL
+    category: Schema & indexes
     queries:
       - type: POSTGRESQL_SELECT
         query: " schemaname, relname, n_live_tup, seq_scan, COALESCE(idx_scan,0) AS idx_scan, ROUND(seq_scan / ( seq_scan + COALESCE(idx_scan,0))::numeric * 100)::int  AS percent_seq_scan  FROM pg_stat_user_tables WHERE seq_scan > 0 AND n_live_tup >= 50000"
@@ -14,23 +14,30 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(tuple, context):
           results = []
           for checkedDB, rows in tuple[0].items():
+              tables = []
               for row in rows:
-                schemaname = row["schemaname"]
-                relname = row["relname"]
-                n_live_tup = row["n_live_tup"]
-                seq_scan = row["seq_scan"]
-                idx_scan = row["idx_scan"]
                 percent_seq_scan = row["percent_seq_scan"]
-                fqn = schemaname + "." + relname
                 if percent_seq_scan >= 50:
-                    results.append({
-                        "summary": "Excessive sequential scans",
-                        "description": "{}% of all scans on {} have been sequential scans.".format(percent_seq_scan, fqn),
-                        "read_more_url":read_url.format("postgresql-sequential-scan-check"),
-                        "severity": "warning",
-                    })
+                    fqn = row["schemaname"] + "." + row["relname"]
+                    tables.append("{} ({}% sequential)".format(fqn, percent_seq_scan))
+
+              if not tables:
+                  continue
+
+              results.append({
+                  "summary": "{} table(s) with excessive sequential scans in database {}".format(len(tables), checkedDB),
+                  "description": "The database {} has tables where sequential scans dominate: {}.".format(checkedDB, format_list(tables)),
+                  "read_more_url":read_url.format("postgresql-sequential-scan-check"),
+                  "severity": "warning",
+                  "labels": {"database": checkedDB, "count": str(len(tables))},
+              })
 
           return results

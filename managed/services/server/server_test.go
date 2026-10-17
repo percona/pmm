@@ -35,6 +35,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/api/common"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
@@ -138,7 +140,7 @@ func TestServer(t *testing.T) {
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_ENABLE_UPDATES=true",
 				"PMM_ENABLE_TELEMETRY=1",
 				"PMM_METRICS_RESOLUTION_HR=1s",
@@ -159,7 +161,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_ENABLE_TELEMETRY=TrUe",
 				"PMM_METRICS_RESOLUTION=3S",
 				"PMM_DATA_RETENTION=360H",
@@ -172,7 +174,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("NoValue", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_ENABLE_TELEMETRY",
 			})
 			require.Len(t, errs, 1)
@@ -182,7 +184,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("InvalidValue", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_ENABLE_TELEMETRY=",
 			})
 			require.Len(t, errs, 1)
@@ -192,7 +194,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_METRICS_RESOLUTION=5ns",
 			})
 			require.Len(t, errs, 1)
@@ -204,7 +206,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_DATA_RETENTION=12h",
 			})
 			require.Len(t, errs, 1)
@@ -216,7 +218,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_DATA_RETENTION=30h",
 			})
 			require.Len(t, errs, 1)
@@ -228,7 +230,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Data retention without suffix", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
+			errs := s.UpdateSettingsFromEnv(t.Context(), []string{
 				"PMM_DATA_RETENTION=30",
 			})
 			require.Len(t, errs, 1)
@@ -240,7 +242,7 @@ func TestServer(t *testing.T) {
 	t.Run("ValidateChangeSettingsRequest", func(t *testing.T) {
 		s := newServer(t)
 
-		ctx := context.TODO()
+		ctx := t.Context()
 
 		s.envSettings.EnableUpdates = new(true)
 		expected := status.New(codes.FailedPrecondition, "Updates are configured via PMM_ENABLE_UPDATES environment variable.")
@@ -274,6 +276,15 @@ func TestServer(t *testing.T) {
 		}))
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAdvisor: new(true),
+		}))
+
+		s.envSettings.EnableAdvisorNotifications = new(true)
+		expected = status.New(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisorNotifications: new(false),
+		}))
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisorNotifications: new(true),
 		}))
 	})
 
@@ -490,12 +501,12 @@ func TestServer(t *testing.T) {
 	t.Run("ChangeSettings", func(t *testing.T) {
 		server := newServer(t)
 
-		server.UpdateSettingsFromEnv(context.TODO(), []string{
+		server.UpdateSettingsFromEnv(t.Context(), []string{
 			"ENABLE_ALERTING=1",
 			"PMM_ENABLE_AZURE_DISCOVER=1",
 		})
 
-		ctx := context.TODO()
+		ctx := t.Context()
 
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
 			EnableTelemetry: new(true),
@@ -512,9 +523,9 @@ func TestServer(t *testing.T) {
 
 	t.Run("ChangeSettings Alerting", func(t *testing.T) {
 		server := newServer(t)
-		server.UpdateSettingsFromEnv(context.TODO(), []string{})
+		server.UpdateSettingsFromEnv(t.Context(), []string{})
 
-		ctx := context.TODO()
+		ctx := t.Context()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAlerting: new(false),
 		})
@@ -526,6 +537,37 @@ func TestServer(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
+	})
+
+	t.Run("ChangeSettings Advisor notifications", func(t *testing.T) {
+		server := newServer(t)
+		server.UpdateSettingsFromEnv(t.Context(), []string{})
+
+		ctx := t.Context()
+		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisorNotifications: new(true),
+			AdvisorNotificationSeverities: []managementv1.Severity{
+				managementv1.Severity_SEVERITY_WARNING,
+				managementv1.Severity_SEVERITY_CRITICAL,
+			},
+			AdvisorHistoryRetention: durationpb.New(48 * time.Hour),
+			// enabling the notifications requires at least one recipient
+			AdvisorNotificationEmailAddresses: &common.StringArray{
+				Values: []string{"dba@percona.com"},
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, s)
+
+		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
+		require.NoError(t, err)
+		assert.True(t, settings.Settings.AdvisorNotificationsEnabled)
+		assert.Equal(t, []managementv1.Severity{
+			managementv1.Severity_SEVERITY_CRITICAL,
+			managementv1.Severity_SEVERITY_WARNING,
+		}, settings.Settings.AdvisorNotificationSeverities)
+		assert.Equal(t, durationpb.New(48*time.Hour), settings.Settings.AdvisorHistoryRetention)
+		assert.Equal(t, []string{"dba@percona.com"}, settings.Settings.AdvisorNotificationEmailAddresses)
 	})
 }
 

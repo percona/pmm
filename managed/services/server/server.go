@@ -41,6 +41,7 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -249,7 +250,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			if err != nil {
 				return nil, err
 			}
-			grpcCode := codes.Code(code)
+			grpcCode := codes.Code(code) //nolint:gosec // debug-only value from the dummy field
 			return nil, status.Errorf(grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 		}
 	}
@@ -438,13 +439,17 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
-		DataRetention:        durationpb.New(settings.DataRetention),
-		SshKey:               settings.SSHKey,
-		AwsPartitions:        settings.AWSPartitions,
-		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:     settings.PMMPublicAddress,
-		EnableInternalPgQan:  !disableInternalPgQan,
+		DataRetention:                     durationpb.New(settings.DataRetention),
+		AdvisorHistoryRetention:           durationpb.New(settings.AdvisorHistoryRetention),
+		AdvisorNotificationSeverities:     advisorSeveritiesToAPI(settings.AdvisorNotifications.Severities),
+		AdvisorNotificationsEnabled:       settings.IsAdvisorNotificationsEnabled(),
+		AdvisorNotificationEmailAddresses: settings.AdvisorNotifications.EmailAddresses,
+		SshKey:                            settings.SSHKey,
+		AwsPartitions:                     settings.AWSPartitions,
+		AdvisorEnabled:                    settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled:              settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:                  settings.PMMPublicAddress,
+		EnableInternalPgQan:               !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -552,6 +557,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
+	if req.EnableAdvisorNotifications != nil && s.envSettings.EnableAdvisorNotifications != nil &&
+		*req.EnableAdvisorNotifications != *s.envSettings.EnableAdvisorNotifications {
+		return status.Error(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
+	}
+
 	err := s.validateEnableOm(ctx, req.EnableOm)
 	if err != nil {
 		return err
@@ -576,6 +586,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	// against the stored row instead; see refuseDataRetentionChangeInHA.
 	if !s.haService.Params().Enabled && !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	if !canUpdateDurationSetting(req.AdvisorHistoryRetention.AsDuration(), s.envSettings.AdvisorHistoryRetention) {
+		return status.Error(codes.FailedPrecondition, "Advisor check results history retention is set via PMM_ADVISOR_HISTORY_RETENTION environment variable.")
 	}
 
 	return nil
@@ -666,13 +680,29 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention: req.DataRetention.AsDuration(),
-			SSHKey:        req.SshKey,
+			DataRetention:                 req.DataRetention.AsDuration(),
+			AdvisorHistoryRetention:       req.AdvisorHistoryRetention.AsDuration(),
+			EnableAdvisorNotifications:    req.EnableAdvisorNotifications,
+			AdvisorNotificationSeverities: advisorSeveritiesFromAPI(req.AdvisorNotificationSeverities),
+			SSHKey:                        req.SshKey,
 		}
 
 		if req.AwsPartitions != nil {
 			// Nil treated as "do not change", empty slice treated as "reset to default"
 			settingsParams.AWSPartitions = req.AwsPartitions.Values
+		}
+
+		if req.AdvisorNotificationEmailAddresses != nil {
+			// Nil treated as "do not change", empty slice treated as "clear the recipients"
+			settingsParams.AdvisorNotificationEmailAddresses = req.AdvisorNotificationEmailAddresses.Values
+		}
+
+		// Notifications with nobody to notify would fail silently at run-completion time, so
+		// reject the combination here rather than at delivery. The effective state is checked, not
+		// just this request's fields, because either half may already be stored.
+		err = validateAdvisorNotificationRecipients(oldSettings, settingsParams)
+		if err != nil {
+			return err
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -746,15 +776,17 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		err := s.checksService.StartChecks(nil)
-		if err != nil {
+		_, err := s.checksService.StartChecks(ctx, nil, nil, nil)
+		_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
+		// a run in progress is already logged, and the scheduled runs cover it
+		if err != nil && !inProgress {
 			s.l.Error(err)
 		}
 	}
 
-	// When Advisor is moved from enabled to disabled state, drop all existing alerts.
+	// When Advisor is moved from enabled to disabled state, drop all existing check results.
 	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
-		s.checksService.CleanupAlerts()
+		s.checksService.CleanupCheckResults()
 	}
 
 	// When telemetry state is switched force alert templates and Advisor check files collection.

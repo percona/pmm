@@ -4,9 +4,9 @@ checks:
     name: postgresql_fsync
     summary: PostgreSQL fsync is set to off
     description: This check returns an error if the fsync configuration option is off which can lead to database corruption.
-    family: POSTGRESQL
-    #author: Jobin Augustine
-    advisor: configuration_generic
+    technology: POSTGRESQL
+    # author: Jobin Augustine
+    category: Durability
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

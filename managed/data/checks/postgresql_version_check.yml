@@ -4,10 +4,10 @@ checks:
     name: postgresql_version_check
     summary: Check for newer version of PostgreSQL
     description: Checks to see if the currently installed version is outdated for it's release level
-    #author: Jorge Torralba
-    advisor: configuration_version
+    # author: Jorge Torralba
+    category: Versions
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: "setting, (setting::int / 10000) major, extract(epoch FROM NOW())::int AS today  FROM pg_settings WHERE name = 'server_version_num' "
@@ -62,7 +62,7 @@ checks:
 
           if daysleft <= 0:
              daysleft = daysleft * -1
-             return "WARNING: The version currently installed expired {} days ago".format(daysleft)
+             return "WARNING: The version currently installed expired {} days ago.".format(daysleft)
 
           if daysleft > 0:
              return "NOTE: Support for current version will end in {} days.".format(daysleft)
@@ -115,7 +115,7 @@ checks:
                    if int(ver) < latest_for_current:
                       latest_current = format_version(major, latest_for_current)
                       description = "There is a newer minor version ({}) available. ".format(latest_current)
-                      description = description + daysleft
+                      description += daysleft
                       minoroutdated = True
 
                if major < 10:
@@ -126,14 +126,14 @@ checks:
                    daysleft = days_left(realmajor,today)
                    if int(ver) < latest_for_current:
                       latest_current = format_version(major, latest_for_current)
-                      description = "There is a newer minor version ({}) available.".format(latest_current)
-                      description = description + daysleft
+                      description = "There is a newer minor version ({}) available. ".format(latest_current)
+                      description += daysleft
                       minoroutdated = True
 
                if int(ver) < int(latestpg) and minoroutdated == False:
                       majoroutdated = True
-                      description = "Version ({}) is the latest release for this major/minor version.  However, there is a newer major verion ({}) available. ".format(current_version, latest_and_greatest)
-                      description = description + daysleft
+                      description = "Version ({}) is the latest release for this major/minor version. However, there is a newer major version ({}) available. ".format(current_version, latest_and_greatest)
+                      description += daysleft
 
                results.append({
                    "summary": "Currently installed version is ({})".format(current_version),

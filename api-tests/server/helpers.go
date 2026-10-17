@@ -48,7 +48,7 @@ func RestoreSettingsDefaults(t *testing.T) {
 			AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
 				FrequentInterval: "14400s",
 				StandardInterval: "86400s",
-				RareInterval:     "280800s",
+				RareInterval:     "259200s",
 			},
 			DataRetention: "2592000s",
 			AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{
@@ -69,7 +69,7 @@ func RestoreSettingsDefaults(t *testing.T) {
 	expectedAdvisorRunIntervals := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
 		FrequentInterval: "14400s",
 		StandardInterval: "86400s",
-		RareInterval:     "280800s",
+		RareInterval:     "259200s",
 	}
 	assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 	assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)

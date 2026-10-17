@@ -52,7 +52,7 @@ func TestSettings(t *testing.T) {
 		expectedAdvisorRunIntervals := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
 			FrequentInterval: "14400s",
 			StandardInterval: "86400s",
-			RareInterval:     "280800s",
+			RareInterval:     "259200s",
 		}
 		assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)

@@ -1,33 +1,45 @@
-# MongoDB sharding - chunk imbalance across shards
+# MongoDB balancer is disabled
+
+The `mongodb_balancer` check warns if the balancer is disabled in a MongoDB sharded cluster.
 
 ## Description
-This check warns if the chunks are imbalanced across shards.
 
-In a sharded cluster, chunk imbalances can occur when the data is not evenly distributed among the shards. This can lead to some shards having more chunks than others, which can cause performance issues and slower query times.
+The balancer is a background process of a sharded cluster that migrates chunks between shards, so that each shard holds an even share of the data. The balancer is enabled by default.
 
-There are a few possible reasons for chunk imbalance:
+While the balancer is disabled, chunks don't move between shards. New data accumulates on some shards, which then serve more reads and writes than the others and run out of disk space sooner. Queries that target these shards slow down.
 
-- **Poor shard key selection:** If the shard key is not chosen properly, some shards may end up with a larger portion of the data than others. For example, if the shard key is based on a timestamp and the data is inserted in a sequential manner, this can create hotspots due to busier application write periods. 
+The check reads the balancer mode that PMM collects from the `mongos` routers with the `balancerStatus` command. If the mode isn't `full`, the balancer is disabled, and the check returns a warning that lists the affected clusters. An enabled balancer doesn't trigger the check, whether or not it is migrating chunks at the moment.
 
-- **Jumbo chunks:** Jumbo chunks can be another cause of chunk imbalances in a sharded cluster . Jumbo chunks are chunks that have grown beyond the maximum size that is allowed by MongoDB. When a chunk becomes jumbo, MongoDB cannot split it further automatically and the balancer won’t distribute the associated data across the shards. Jumbo chunks are often caused by low cardinality or too high frequency of elements in a shard key.
+You can disable the balancer on purpose for a short time, for example during maintenance or a manual backup with `mongodump`. Enable it again when you finish.
 
 ## Resolution
 
-To address chunk imbalance, you can:
+To enable the balancer:
+{.power-number}
 
-### Select a good shard key
-The choice of shard key impacts the way chunks are created and distributed across the available shards. While selecting the shard key, consider the following factors:
+1. Connect to any `mongos` of the cluster with `mongosh`.
+2. Check the balancer state. The method returns `false` if the balancer is disabled:
 
-  - High Cardinality
-  - Non-monotonic is nature
-  - It should be used in most of your queries
-  - Reads should be done from particular shards
-  - Writes should get written across all shards
+    ```javascript
+    sh.getBalancerState()
+    ```
 
-Starting with MongoDB 5.0, you can reshard collections by changing their shard keys. For information on changing the shard key, check out [MongoDB documentation](https://www.mongodb.com/docs/manual/core/sharding-reshard-a-collection/#std-label-sharding-resharding).
+3. If no maintenance or backup requires the balancer to stay disabled, enable it:
 
-### Clear the jumbo chunks
-To prevent the situation described above, check for jumbo chunks and remove the jumbo flag. For information on detecting and splitting the jumbo chunks, see [Finding Undetected Jumbo Chunks in MongoDB](https://www.percona.com/blog/finding-undetected-jumbo-chunks-in-mongodb/).
+    ```javascript
+    sh.startBalancer()
+    ```
+
+    To enable the balancer from a driver, run the `balancerStart` command against the `admin` database instead: `db.adminCommand( { balancerStart: 1 } )`.
+
+If chunk migrations affect performance during busy hours, schedule a balancing window instead of disabling the balancer. For details, see [Manage Sharded Cluster Balancer](https://www.mongodb.com/docs/manual/tutorial/manage-sharded-cluster-balancer/) in the MongoDB documentation.
+
+### Data stays unevenly distributed
+
+If the data stays unevenly distributed while the balancer is enabled, check the following common causes:
+
+- **Shard key**: A shard key with low cardinality, or one that increases monotonically, such as a timestamp, sends most writes to the same shard. Choose a shard key with high cardinality that most of your queries use. Starting with MongoDB 5.0, you can reshard a collection to change its shard key. For details, see [Reshard a Collection](https://www.mongodb.com/docs/manual/core/sharding-reshard-a-collection/) in the MongoDB documentation.
+- **Jumbo chunks**: The balancer can't move a chunk that grew beyond the maximum chunk size and can't be split. To find and clear jumbo chunks, see [Finding Undetected Jumbo Chunks in MongoDB](https://www.percona.com/blog/finding-undetected-jumbo-chunks-in-mongodb/).
 
 ## Need more support from Percona?
 
