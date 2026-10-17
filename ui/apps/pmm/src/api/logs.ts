@@ -64,6 +64,14 @@ export const severityClass = (severityNumber: number): SeverityClass => {
   return 'other';
 };
 
+const SEVERITY_LABELS = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'];
+
+/** The OpenTelemetry name of a severity number's range, the same for every source; empty when unset. */
+export const severityLabel = (severityNumber: number): string =>
+  severityNumber > 0
+    ? SEVERITY_LABELS[Math.min(5, Math.floor((severityNumber - 1) / 4))]
+    : '';
+
 // Wire types: snake_case, int64 as strings, zero values may be omitted.
 interface RawLogLine {
   time: string;

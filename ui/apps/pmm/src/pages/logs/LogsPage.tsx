@@ -1,4 +1,13 @@
-import { Alert, LinearProgress, Link, Stack, Tab, Tabs } from '@mui/material';
+import {
+  Alert,
+  Box,
+  LinearProgress,
+  Link,
+  Stack,
+  Tab,
+  Tabs,
+  ThemeProvider,
+} from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Link as RouterLink,
@@ -15,6 +24,7 @@ import { LogsFilterBar } from './components/LogsFilterBar';
 import { LogsLinesTab } from './components/LogsLinesTab';
 import { LogsPatternsTab } from './components/LogsPatternsTab';
 import { LogsVolumeChart } from './components/LogsVolumeChart';
+import { logsTheme } from './logsTheme';
 import {
   filterFromSearchParams,
   QuickRange,
@@ -47,6 +57,10 @@ export const LogsPage: FC = () => {
   );
   const range = rangeFromSearchParams(searchParams);
   const volume = useLogVolume(filter);
+  const total = volume.data?.buckets.reduce(
+    (sum, b) => sum + b.error + b.warning + b.info + b.other,
+    0
+  );
   const facets = useLogFacets(filter);
 
   const update = useCallback(
@@ -65,75 +79,98 @@ export const LogsPage: FC = () => {
     });
 
   return (
-    <Page title="Logs" wide>
-      <LogsFilterBar
-        filter={filter}
-        range={range}
-        facets={facets.data}
-        onChange={update}
-        onRefresh={() => setNow(new Date())}
-      />
-      {volume.isLoading && <LinearProgress />}
-      {volume.error && <LogsErrorAlert error={volume.error} />}
-      {volume.data &&
-        (volume.data.buckets.some(
-          (b) => b.error + b.warning + b.info + b.other > 0
-        ) ? (
-          <LogsVolumeChart
-            buckets={volume.data.buckets}
-            step={volume.data.step}
-            onZoom={zoom}
-          />
-        ) : (
-          <Alert severity="info" data-testid="logs-empty-state">
-            {hasFilters(filter) ? (
-              'No log lines match these filters in this time range.'
-            ) : (
-              <>
-                No log lines in this time range. Logs are collected per node;
-                see{' '}
-                <Link component={RouterLink} to="/settings/otel">
-                  Settings → OTEL
-                </Link>{' '}
-                and the <code>pmm-admin add otel</code> command.
-              </>
-            )}
-          </Alert>
-        ))}
-      <Stack sx={{ flex: 1, minHeight: 0 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, value: LogsTab) =>
-            navigate({
-              pathname: `${PMM_LOGS_PATH}/${value}`,
-              search: searchParams.toString(),
-            })
-          }
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Tab data-testid="logs-tab-lines" value="lines" label="Lines" />
-          <Tab
-            data-testid="logs-tab-patterns"
-            value="patterns"
-            label="Patterns"
-          />
-        </Tabs>
-        {activeTab === 'lines' && <LogsLinesTab filter={filter} />}
-        {activeTab === 'patterns' && (
-          <LogsPatternsTab
-            filter={filter}
-            onSelect={(pattern) =>
+    <ThemeProvider theme={logsTheme}>
+      <Page title="Logs" wide surface="default">
+        <LogsFilterBar
+          filter={filter}
+          range={range}
+          facets={facets.data}
+          onChange={update}
+          onRefresh={() => setNow(new Date())}
+        />
+        {volume.isLoading && <LinearProgress />}
+        {volume.error && <LogsErrorAlert error={volume.error} />}
+        {volume.data &&
+          (total ? (
+            <LogsVolumeChart
+              buckets={volume.data.buckets}
+              step={volume.data.step}
+              onZoom={zoom}
+            />
+          ) : (
+            <Alert severity="info" data-testid="logs-empty-state">
+              {hasFilters(filter) ? (
+                'No log lines match these filters in this time range.'
+              ) : (
+                <>
+                  No log lines in this time range. Logs are collected per node;
+                  see{' '}
+                  <Link component={RouterLink} to="/settings/otel">
+                    Settings → OTEL
+                  </Link>{' '}
+                  and the <code>pmm-admin add otel</code> command.
+                </>
+              )}
+            </Alert>
+          ))}
+        <Stack sx={{ flex: 1, minHeight: 0 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(_, value: LogsTab) =>
               navigate({
-                pathname: `${PMM_LOGS_PATH}/lines`,
-                search: searchParamsFromFilter(
-                  { ...filter, pattern },
-                  range
-                ).toString(),
+                pathname: `${PMM_LOGS_PATH}/${value}`,
+                search: searchParams.toString(),
               })
             }
-          />
-        )}
-      </Stack>
-    </Page>
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab
+              data-testid="logs-tab-lines"
+              value="lines"
+              label={
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <span>Lines</span>{' '}
+                  {total !== undefined && (
+                    <Box
+                      component="span"
+                      sx={{
+                        px: 0.75,
+                        borderRadius: 2,
+                        fontSize: 12,
+                        color: 'text.secondary',
+                        bgcolor: 'action.hover',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {total.toLocaleString()}
+                    </Box>
+                  )}
+                </Stack>
+              }
+            />
+            <Tab
+              data-testid="logs-tab-patterns"
+              value="patterns"
+              label="Patterns"
+            />
+          </Tabs>
+          {activeTab === 'lines' && <LogsLinesTab filter={filter} />}
+          {activeTab === 'patterns' && (
+            <LogsPatternsTab
+              filter={filter}
+              onSelect={(pattern) =>
+                navigate({
+                  pathname: `${PMM_LOGS_PATH}/lines`,
+                  search: searchParamsFromFilter(
+                    { ...filter, pattern },
+                    range
+                  ).toString(),
+                })
+              }
+            />
+          )}
+        </Stack>
+      </Page>
+    </ThemeProvider>
   );
 };

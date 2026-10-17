@@ -1,4 +1,4 @@
-import { searchLogs, severityClass } from './logs';
+import { searchLogs, severityClass, severityLabel } from './logs';
 
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
 
@@ -13,6 +13,22 @@ describe('severityClass', () => {
     expect(severityClass(9)).toBe('info');
     expect(severityClass(5)).toBe('other');
     expect(severityClass(0)).toBe('other');
+  });
+});
+
+describe('severityLabel', () => {
+  it('names OpenTelemetry severity ranges whatever the source wrote', () => {
+    expect(severityLabel(1)).toBe('TRACE');
+    expect(severityLabel(5)).toBe('DEBUG');
+    expect(severityLabel(9)).toBe('INFO');
+    expect(severityLabel(12)).toBe('INFO');
+    expect(severityLabel(13)).toBe('WARN');
+    expect(severityLabel(17)).toBe('ERROR');
+    expect(severityLabel(21)).toBe('FATAL');
+  });
+
+  it('has no label for an unset severity', () => {
+    expect(severityLabel(0)).toBe('');
   });
 });
 

@@ -1,4 +1,5 @@
 import {
+  alpha,
   Box,
   Button,
   Dialog,
@@ -6,10 +7,13 @@ import {
   DialogContent,
   DialogTitle,
   LinearProgress,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useRef } from 'react';
-import { LogLine } from 'api/logs';
+import { LogLine, severityClass, severityLabel } from 'api/logs';
 import { useLogContext } from 'hooks/api/useLogs';
+import { MONO, severityColor } from '../logsTheme';
+import { timeOfDay } from '../utils/logTime';
 import { LogsErrorAlert } from './LogsErrorAlert';
 
 interface LogContextDialogProps {
@@ -29,6 +33,7 @@ export const LogContextDialog: FC<LogContextDialogProps> = ({
   line,
   onClose,
 }) => {
+  const { palette } = useTheme();
   const context = useLogContext(line);
   const anchorRef = useRef<HTMLDivElement>(null);
   // Lines sharing the clicked line's timestamp are all returned; the server can only anchor the first of them.
@@ -57,15 +62,45 @@ export const LogContextDialog: FC<LogContextDialogProps> = ({
               ref={anchor ? anchorRef : undefined}
               data-testid={anchor ? 'log-context-anchor' : 'log-context-line'}
               sx={{
-                fontFamily: 'monospace',
-                fontSize: 'body2.fontSize',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                px: 1,
-                bgcolor: anchor ? 'action.selected' : undefined,
+                ...MONO,
+                display: 'grid',
+                gridTemplateColumns: 'auto 48px minmax(0, 1fr)',
+                columnGap: 1.5,
+                px: 1.5,
+                py: 0.25,
+                borderLeft: '3px solid',
+                borderColor: anchor ? 'primary.main' : 'transparent',
+                bgcolor: anchor ? alpha(palette.primary.main, 0.14) : undefined,
               }}
             >
-              {new Date(l.time).toLocaleString()} {l.severityText} {l.body}
+              <Box
+                component="span"
+                sx={{
+                  color: 'text.secondary',
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {timeOfDay(l.time)}
+              </Box>
+              <Box
+                component="span"
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: severityColor(
+                    severityClass(l.severityNumber),
+                    palette.mode
+                  ),
+                }}
+              >
+                {severityLabel(l.severityNumber) || '—'}
+              </Box>
+              <Box
+                component="span"
+                sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+              >
+                {l.body}
+              </Box>
             </Box>
           );
         })}

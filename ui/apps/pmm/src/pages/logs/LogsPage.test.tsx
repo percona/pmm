@@ -68,6 +68,12 @@ describe('LogsPage', () => {
     expect(await screen.findByTestId('logs-volume-chart')).toBeInTheDocument();
   });
 
+  it('counts the matching lines on the Lines tab', async () => {
+    renderPage();
+    await screen.findByTestId('logs-volume-chart');
+    expect(screen.getByTestId('logs-tab-lines')).toHaveTextContent('Lines 6');
+  });
+
   it('selects the Patterns tab from the path', async () => {
     renderPage('/logs/patterns');
     expect(await screen.findByTestId('logs-tab-patterns')).toHaveAttribute(

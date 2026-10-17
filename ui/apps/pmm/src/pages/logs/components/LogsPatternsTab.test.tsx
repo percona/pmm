@@ -61,6 +61,31 @@ describe('LogsPatternsTab', () => {
     expect(within(rows[1]).queryByText('new')).not.toBeInTheDocument();
   });
 
+  it('shows each placeholder as a visible token', async () => {
+    renderAt('/logs/patterns?range=1h');
+    const rows = await screen.findAllByTestId('log-pattern-row');
+    expect(
+      within(rows[1]).getAllByTestId('log-pattern-placeholder')
+    ).toHaveLength(2);
+    expect(
+      within(rows[0]).queryByTestId('log-pattern-placeholder')
+    ).not.toBeInTheDocument();
+  });
+
+  it('names the level and compares each count with the top one', async () => {
+    renderAt('/logs/patterns?range=1h');
+    const rows = await screen.findAllByTestId('log-pattern-row');
+    expect(within(rows[0]).getByText('ERROR')).toBeInTheDocument();
+    expect(within(rows[0]).getByRole('meter')).toHaveAttribute(
+      'aria-valuenow',
+      '100'
+    );
+    expect(within(rows[1]).getByRole('meter')).toHaveAttribute(
+      'aria-valuenow',
+      '42'
+    );
+  });
+
   it('opens the lines of a pattern', async () => {
     renderAt('/logs/patterns?range=1h&source=pg');
     const rows = await screen.findAllByTestId('log-pattern-row');

@@ -1,34 +1,43 @@
 import {
+  alpha,
   Box,
-  Chip,
-  ChipProps,
   LinearProgress,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { FC, Fragment } from 'react';
-import { LogFilter, severityClass, SeverityClass } from 'api/logs';
+import { LogFilter, severityClass, severityLabel } from 'api/logs';
 import { useLogPatterns } from 'hooks/api/useLogs';
+import { MONO, severityColor } from '../logsTheme';
+import { shortDateTime } from '../utils/logTime';
 import { LogsErrorAlert } from './LogsErrorAlert';
 
-const CHIP_COLORS: Record<SeverityClass, ChipProps['color']> = {
-  error: 'error',
-  warning: 'warning',
-  info: 'info',
-  other: 'default',
-};
-
-/** A pattern with its `?` placeholders dimmed. */
+/** A pattern with its `?` placeholders shown as tokens. */
 const PatternText: FC<{ pattern: string }> = ({ pattern }) => (
   <>
     {pattern.split('?').map((part, i) => (
       <Fragment key={i}>
         {i > 0 && (
-          <Box component="span" sx={{ color: 'text.disabled' }}>
+          <Box
+            component="span"
+            data-testid="log-pattern-placeholder"
+            sx={(theme) => ({
+              mx: 0.25,
+              px: 0.5,
+              borderRadius: '4px',
+              fontWeight: 600,
+              color: 'primary.main',
+              bgcolor: alpha(theme.palette.primary.main, 0.12),
+              boxShadow: `inset 0 0 0 1px ${alpha(theme.palette.primary.main, 0.3)}`,
+            })}
+          >
             ?
           </Box>
         )}
@@ -47,6 +56,7 @@ export const LogsPatternsTab: FC<LogsPatternsTabProps> = ({
   filter,
   onSelect,
 }) => {
+  const { palette } = useTheme();
   const patterns = useLogPatterns(filter, true);
 
   if (patterns.error) return <LogsErrorAlert error={patterns.error} />;
@@ -59,56 +69,136 @@ export const LogsPatternsTab: FC<LogsPatternsTabProps> = ({
     );
   }
 
+  const top = Math.max(...patterns.data.map((p) => p.count));
+
   return (
-    <Table size="small" stickyHeader data-testid="logs-patterns-tab">
-      <TableHead>
-        <TableRow>
-          <TableCell>Pattern</TableCell>
-          <TableCell align="right">Count</TableCell>
-          <TableCell>Max severity</TableCell>
-          <TableCell>First seen</TableCell>
-          <TableCell>Last seen</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {patterns.data.map((p) => {
-          const cls = severityClass(p.maxSeverityNumber);
-          return (
-            <TableRow
-              key={p.pattern}
-              hover
-              onClick={() => onSelect(p.pattern)}
-              sx={{ cursor: 'pointer', '& td': { verticalAlign: 'top' } }}
-              data-testid="log-pattern-row"
-            >
-              <TableCell
-                sx={{ fontFamily: 'monospace', wordBreak: 'break-word' }}
+    <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'clip' }}>
+      <Table
+        size="small"
+        stickyHeader
+        data-testid="logs-patterns-tab"
+        sx={{
+          '& th': {
+            py: 1,
+            bgcolor: 'background.paper',
+            borderColor: 'divider',
+            color: 'text.secondary',
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          },
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell>Lines</TableCell>
+            <TableCell>Level</TableCell>
+            <TableCell>Pattern</TableCell>
+            <TableCell>First seen</TableCell>
+            <TableCell>Last seen</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {patterns.data.map((p) => {
+            const color = severityColor(
+              severityClass(p.maxSeverityNumber),
+              palette.mode
+            );
+            const share = Math.round((p.count / top) * 100);
+            return (
+              <TableRow
+                key={p.pattern}
+                hover
+                onClick={() => onSelect(p.pattern)}
+                sx={{ cursor: 'pointer', '& td': { borderColor: 'divider' } }}
+                data-testid="log-pattern-row"
               >
-                {p.isNew && (
-                  <Chip
-                    size="small"
-                    color="warning"
-                    variant="outlined"
-                    label="new"
-                    sx={{ mr: 1 }}
-                  />
-                )}
-                <PatternText pattern={p.pattern} />
-              </TableCell>
-              <TableCell align="right">{p.count.toLocaleString()}</TableCell>
-              <TableCell>
-                <Chip size="small" label={cls} color={CHIP_COLORS[cls]} />
-              </TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {new Date(p.firstSeen).toLocaleString()}
-              </TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {new Date(p.lastSeen).toLocaleString()}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+                <TableCell
+                  sx={{ width: 140, boxShadow: `inset 3px 0 0 ${color}` }}
+                >
+                  <Stack spacing={0.5}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {p.count.toLocaleString()}
+                    </Typography>
+                    <Box
+                      role="meter"
+                      aria-label="Lines compared with the most frequent pattern"
+                      aria-valuenow={share}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      sx={{
+                        height: 3,
+                        borderRadius: 2,
+                        bgcolor: 'action.hover',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: `${share}%`,
+                          height: '100%',
+                          bgcolor: 'text.secondary',
+                        }}
+                      />
+                    </Box>
+                  </Stack>
+                </TableCell>
+                <TableCell
+                  sx={{ ...MONO, fontSize: 12, fontWeight: 600, color }}
+                >
+                  {severityLabel(p.maxSeverityNumber) || '—'}
+                </TableCell>
+                <TableCell sx={{ ...MONO, wordBreak: 'break-word' }}>
+                  {p.isNew && (
+                    <Box
+                      component="span"
+                      sx={{
+                        mr: 1,
+                        px: 0.5,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        borderRadius: '4px',
+                        color: severityColor('warning', palette.mode),
+                        boxShadow: `inset 0 0 0 1px ${alpha(severityColor('warning', palette.mode), 0.5)}`,
+                      }}
+                    >
+                      new
+                    </Box>
+                  )}
+                  <PatternText pattern={p.pattern} />
+                </TableCell>
+                <TableCell
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    color: 'text.secondary',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {shortDateTime(p.firstSeen)}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    color: 'text.secondary',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {shortDateTime(p.lastSeen)}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </Paper>
   );
 };
