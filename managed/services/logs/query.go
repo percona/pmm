@@ -32,7 +32,10 @@ const (
 	contextBodyLimit   = 65536
 	contextWindow      = 24 * time.Hour
 	maxVolumeBuckets   = 100
-	querySettings      = " SETTINGS max_execution_time = 30, readonly = 1"
+	// The longest range (days) is the one the largest volume step (a day) covers in maxVolumeBuckets.
+	maxRangeDays  = maxVolumeBuckets - 1
+	maxRange      = maxRangeDays * 24 * time.Hour
+	querySettings = " SETTINGS max_execution_time = 30, readonly = 1"
 )
 
 // volumeSteps are the volume bucket widths, smallest first.

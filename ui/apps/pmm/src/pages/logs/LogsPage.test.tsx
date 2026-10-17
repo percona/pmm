@@ -77,13 +77,30 @@ describe('LogsPage', () => {
   });
 
   it('explains that label-based access filters block logs', async () => {
-    getLogVolume.mockRejectedValue(apiError(7, 'denied'));
+    getLogVolume.mockRejectedValue(
+      apiError(
+        7,
+        'Logs are not available to users with label-based access filters.'
+      )
+    );
     renderPage();
     expect(
       await screen.findByText(
         'Logs are not available to users with label-based access filters.'
       )
     ).toBeInTheDocument();
+  });
+
+  it('does not blame access filters for other denials', async () => {
+    // nginx's answer when the user's role is not allowed.
+    getLogVolume.mockRejectedValue(apiError(7, 'Access denied'));
+    renderPage();
+    expect(await screen.findByText('Access denied')).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'Logs are not available to users with label-based access filters.'
+      )
+    ).not.toBeInTheDocument();
   });
 
   it('shows the server message on a timeout', async () => {

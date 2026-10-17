@@ -77,6 +77,9 @@ func start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
 	if res.End.Before(res.Start) {
 		return Filter{}, status.Error(codes.InvalidArgument, "The end of the time range is before its start.")
 	}
+	if res.End.Sub(res.Start) > maxRange {
+		return Filter{}, status.Errorf(codes.InvalidArgument, "The time range can be at most %d days.", maxRangeDays)
+	}
 	return res, nil
 }
 

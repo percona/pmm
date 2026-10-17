@@ -16,6 +16,7 @@
 package logs
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -29,8 +30,12 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	accesscontrolClient "github.com/percona/pmm/api/accesscontrol/v1beta1/json/client"
+	"github.com/percona/pmm/api/accesscontrol/v1beta1/json/client/access_control_service"
 	logsClient "github.com/percona/pmm/api/logs/v1/json/client"
 	"github.com/percona/pmm/api/logs/v1/json/client/logs_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 // lastHour returns the start and end of the last hour; PMM Server's own logs always have lines in it.
@@ -39,9 +44,8 @@ func lastHour() (strfmt.DateTime, strfmt.DateTime) {
 	return strfmt.DateTime(end.Add(-time.Hour)), strfmt.DateTime(end)
 }
 
-func search(t *testing.T, cursor string, limit int32) *logs_service.SearchLogsOKBody {
+func search(t *testing.T, start, end strfmt.DateTime, cursor string, limit int32) *logs_service.SearchLogsOKBody {
 	t.Helper()
-	start, end := lastHour()
 	res, err := logsClient.Default.LogsService.SearchLogs(&logs_service.SearchLogsParams{
 		Body: logs_service.SearchLogsBody{
 			Filter: &logs_service.SearchLogsParamsBodyFilter{Start: start, End: end},
@@ -57,27 +61,33 @@ func search(t *testing.T, cursor string, limit int32) *logs_service.SearchLogsOK
 func TestSearchLogs(t *testing.T) {
 	t.Parallel()
 
-	first := search(t, "", 50)
+	// A window that ended a while ago, so no new lines arrive in it between the calls.
+	now := time.Now().UTC()
+	start, end := strfmt.DateTime(now.Add(-62*time.Minute)), strfmt.DateTime(now.Add(-2*time.Minute))
+	first := search(t, start, end, "", 50)
 	require.Len(t, first.Lines, 50)
 	require.NotEmpty(t, first.NextCursor)
 	for _, l := range first.Lines {
 		assert.NotEmpty(t, l.Source)
 		assert.NotEmpty(t, l.NodeName)
 	}
-
-	second := search(t, first.NextCursor, 50)
+	second := search(t, start, end, first.NextCursor, 50)
 	require.NotEmpty(t, second.Lines)
+	assert.False(t, time.Time(second.Lines[0].Time).After(time.Time(first.Lines[len(first.Lines)-1].Time)))
+
+	// Identical lines are legitimate, so two pages must hold the same lines, with the same counts, as one page of 100.
 	key := func(l *logs_service.SearchLogsOKBodyLinesItems0) string {
-		return l.Time.String() + "|" + l.Source + "|" + l.FileName + "|" + l.Body
+		return fmt.Sprint(l.Time.String(), l.Source, l.FileName, l.Body, l.Attributes)
 	}
-	seen := make(map[string]bool, len(first.Lines))
-	for _, l := range first.Lines {
-		seen[key(l)] = true
+	paged := make(map[string]int)
+	for _, l := range append(first.Lines, second.Lines...) {
+		paged[key(l)]++
 	}
-	for _, l := range second.Lines {
-		assert.False(t, seen[key(l)], "line returned twice: %s", key(l))
-		assert.False(t, time.Time(l.Time).After(time.Time(first.Lines[len(first.Lines)-1].Time)))
+	whole := make(map[string]int)
+	for _, l := range search(t, start, end, "", int32(len(first.Lines)+len(second.Lines))).Lines {
+		whole[key(l)]++
 	}
+	assert.Equal(t, whole, paged)
 }
 
 func TestGetLogVolume(t *testing.T) {
@@ -189,9 +199,22 @@ func TestBadRange(t *testing.T) {
 func TestViewerCanRead(t *testing.T) {
 	t.Parallel()
 
+	_, viewer := createViewer(t, "logs-viewer")
+	start, end := lastHour()
+	res, err := viewer.LogsService.GetLogVolume(&logs_service.GetLogVolumeParams{
+		Body:    logs_service.GetLogVolumeBody{Filter: &logs_service.GetLogVolumeParamsBodyFilter{Start: start, End: end}},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, res.Payload.Buckets)
+}
+
+// createViewer creates a Grafana user with the Viewer role and returns its ID and a logs client acting as it.
+func createViewer(t *testing.T, name string) (int64, *logsClient.PMMLogsAPI) {
+	t.Helper()
 	gClient := pmmapitests.GetGrafanaClient(t)
-	login := pmmapitests.TestString(t, "logs-viewer")
-	password := pmmapitests.TestString(t, "logs-viewer-password")
+	login := pmmapitests.TestString(t, name)
+	password := pmmapitests.TestString(t, name+"-password")
 	created, err := gClient.AdminUsers.AdminCreateUser(&models.AdminCreateUserForm{
 		Name:     login,
 		Login:    login,
@@ -204,14 +227,63 @@ func TestViewerCanRead(t *testing.T) {
 	_, err = gClient.Org.UpdateOrgUserForCurrentOrg(created.Payload.ID, &models.UpdateOrgUserCommand{Role: "Viewer"})
 	require.NoError(t, err)
 
-	viewerURL := *pmmapitests.BaseURL
-	viewerURL.User = url.UserPassword(login, password)
-	viewer := logsClient.New(pmmapitests.Transport(&viewerURL, pmmapitests.ServerInsecureTLS), nil)
-	start, end := lastHour()
-	res, err := viewer.LogsService.GetLogVolume(&logs_service.GetLogVolumeParams{
-		Body:    logs_service.GetLogVolumeBody{Filter: &logs_service.GetLogVolumeParamsBodyFilter{Start: start, End: end}},
+	u := *pmmapitests.BaseURL
+	u.User = url.UserPassword(login, password)
+	return created.Payload.ID, logsClient.New(pmmapitests.Transport(&u, pmmapitests.ServerInsecureTLS), nil)
+}
+
+// TestLBACDenied changes the server-wide access control setting, so it does not run in parallel.
+func TestLBACDenied(t *testing.T) { //nolint:paralleltest
+	settings, err := serverClient.Default.ServerService.GetSettings(&server.GetSettingsParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+	wasEnabled := settings.Payload.Settings.EnableAccessControl
+	setAccessControl := func(enabled bool) {
+		_, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+			Body:    server.ChangeSettingsBody{EnableAccessControl: new(enabled)},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+	}
+	setAccessControl(true)
+	t.Cleanup(func() { setAccessControl(wasEnabled) })
+
+	accessControl := accesscontrolClient.New(pmmapitests.Transport(pmmapitests.BaseURL, pmmapitests.ServerInsecureTLS), nil)
+	role, err := accessControl.AccessControlService.CreateRole(&access_control_service.CreateRoleParams{
+		Body: access_control_service.CreateRoleBody{
+			Title:  pmmapitests.TestString(t, "logs-lbac"),
+			Filter: `{service_name="logs-lbac-test"}`,
+		},
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.NotEmpty(t, res.Payload.Buckets)
+	t.Cleanup(func() {
+		_, _ = accessControl.AccessControlService.DeleteRole(&access_control_service.DeleteRoleParams{
+			RoleID:  role.Payload.RoleID,
+			Context: pmmapitests.Context,
+		})
+	})
+
+	userID, viewer := createViewer(t, "logs-lbac-viewer")
+	_, err = accessControl.AccessControlService.AssignRoles(&access_control_service.AssignRolesParams{
+		Body:    access_control_service.AssignRolesBody{RoleIds: []int64{role.Payload.RoleID}, UserID: userID},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+
+	start, end := lastHour()
+	// The auth server caches the access control setting for a few seconds.
+	require.Eventually(t, func() bool {
+		_, err = viewer.LogsService.GetLogVolume(&logs_service.GetLogVolumeParams{
+			Body:    logs_service.GetLogVolumeBody{Filter: &logs_service.GetLogVolumeParamsBodyFilter{Start: start, End: end}},
+			Context: pmmapitests.Context,
+		})
+		return err != nil
+	}, 15*time.Second, time.Second)
+	pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Logs are not available to users with label-based access filters.")
+
+	_, err = viewer.LogsService.SearchLogs(&logs_service.SearchLogsParams{
+		Body:    logs_service.SearchLogsBody{Filter: &logs_service.SearchLogsParamsBodyFilter{Start: start, End: end}},
+		Context: pmmapitests.Context,
+	})
+	pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Logs are not available to users with label-based access filters.")
 }

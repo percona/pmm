@@ -60,9 +60,9 @@ func testLogFilter() *logsv1.LogFilter {
 	return &logsv1.LogFilter{Start: timestamppb.New(testStart), End: timestamppb.New(testEnd)}
 }
 
-func requireCode(t *testing.T, err error, code codes.Code) {
+func requireCode(t *testing.T, err error, code codes.Code, msgAndArgs ...any) {
 	t.Helper()
-	require.Error(t, err)
+	require.Error(t, err, msgAndArgs...)
 	assert.Equal(t, code, status.Code(err), err.Error())
 }
 
@@ -243,13 +243,18 @@ func TestLBACDenied(t *testing.T) {
 
 func TestBadRange(t *testing.T) {
 	s, _ := newTestService(t)
-	f := &logsv1.LogFilter{Start: timestamppb.New(testEnd), End: timestamppb.New(testStart)}
-	_, err := s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: f})
-	requireCode(t, err, codes.InvalidArgument)
-	_, err = s.GetLogVolume(t.Context(), &logsv1.GetLogVolumeRequest{Filter: f})
-	requireCode(t, err, codes.InvalidArgument)
-	_, err = s.GetLogPatterns(t.Context(), &logsv1.GetLogPatternsRequest{Filter: f})
-	requireCode(t, err, codes.InvalidArgument)
-	_, err = s.GetLogFacets(t.Context(), &logsv1.GetLogFacetsRequest{Filter: f})
-	requireCode(t, err, codes.InvalidArgument)
+	for name, f := range map[string]*logsv1.LogFilter{
+		"reversed": {Start: timestamppb.New(testEnd), End: timestamppb.New(testStart)},
+		// Longer than 100 daily volume buckets.
+		"too long": {Start: timestamppb.New(testEnd.Add(-100 * 24 * time.Hour)), End: timestamppb.New(testEnd)},
+	} {
+		_, err := s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: f})
+		requireCode(t, err, codes.InvalidArgument)
+		_, err = s.GetLogVolume(t.Context(), &logsv1.GetLogVolumeRequest{Filter: f})
+		requireCode(t, err, codes.InvalidArgument)
+		_, err = s.GetLogPatterns(t.Context(), &logsv1.GetLogPatternsRequest{Filter: f})
+		requireCode(t, err, codes.InvalidArgument)
+		_, err = s.GetLogFacets(t.Context(), &logsv1.GetLogFacetsRequest{Filter: f})
+		requireCode(t, err, codes.InvalidArgument, name)
+	}
 }
