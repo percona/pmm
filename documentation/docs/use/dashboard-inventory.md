@@ -19,7 +19,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 | Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are: <br><br> • <b style="color:#73BF69;">OK</b> - all agents are healthy <br> • <b style="color:#FF9830;">Warning</b> - multiple agents are disabled <br> • <b style="color:#e02f44;">Failed</b> - one or more agents are failing <br> • <b style="color:#6C757D;">Disabled</b> - agent is intentionally disabled <br> • <b style="color:#6C757D;">Stopped</b> - agent has stopped but is not disabled |
 |  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
-|  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the ![](../images/dots-three-vertical.png) icon </br> </br> * You can also check additional information about the service, by clicking on the <span class="material-icons">expand_more</span> icon. This expands the service entry to show reference information like service labels and IDs.|
+|  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the :material-dots-vertical: icon <br> <br> * You can also check additional information about the service, by clicking on the :material-chevron-down: icon. This expands the service entry to show reference information like service labels and IDs.|
 
 
 #### Attributes
@@ -50,7 +50,7 @@ Example:
 
 To view the agents running on a service and their health status, click the status indicator (<b style="color:#73BF69;">OK</b>, <b style="color:#FF9830;">Warning</b>, <b style="color:#e02f44;">Failed</b>, <b style="color:#6C757D;">Disabled</b>, or <b style="color:#6C757D;">Stopped</b>) under the **Monitoring** column.
 
-You can also check the properties of a particular agent by clicking the :material-arrow-downward: icon under the **Options** column.
+You can also check the properties of a particular agent by clicking the :material-arrow-down: icon under the **Options** column.
 
 ![!PMM Inventory Service Agent Properties](../images/PMM_Inventory_Service_Agent_Properties.png)
 
@@ -159,9 +159,11 @@ To see agent details:
 
 2. Click on the :material-arrow-down: icon under the **Options** column to view the properties of a specific agent.
 
-3.  On the **Nodes** tab, under the **Options** column, click on the :material-arrow-downward: icon for the selected node to check the properties and the current health status of an agent.       
+3.  On the **Nodes** tab, under the **Options** column, click on the :material-arrow-down: icon for the selected node to check the properties and the current health status of an agent.       
      
      ![!image](../images/PMM_Inventory_Node_Agent_Properties.png)
+
+To change alert thresholds for a node, click the :material-dots-vertical: icon next to it and select **Override alert thresholds**. For details, see [Dynamic alert thresholds](../alert/alert-thresholds.md).
 
 ## Remove items from the inventory
 
@@ -175,3 +177,9 @@ To remove items from the inventory:
     ![!image](../images/PMM_Inventory_Item_Selection.png)
 
 3. Click **Delete** and confirm the removal.
+
+### PMM HA Cluster nodes
+
+PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from **Inventory** page. Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
+
+To add or remove replicas, [use `helm upgrade`](../install-pmm/install-HA-clustered.md#scale-pmm-server-replicas).

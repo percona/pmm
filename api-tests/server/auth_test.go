@@ -66,7 +66,7 @@ func TestAuth(t *testing.T) {
 				t.Logf("URI: %s", uri)
 
 				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-				resp, err := http.DefaultClient.Do(req)
+				resp, err := pmmapitests.HTTPClient.Do(req)
 				require.NoError(t, err)
 				t.Cleanup(func() {
 					assert.NoError(t, resp.Body.Close())
@@ -126,7 +126,7 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, err := http.DefaultClient.Do(req)
+				resp, err := pmmapitests.HTTPClient.Do(req)
 				require.NoError(t, err)
 				t.Cleanup(func() {
 					assert.NoError(t, resp.Body.Close())
@@ -140,6 +140,7 @@ func TestSwagger(t *testing.T) {
 
 				// Create a client that preserves credentials during redirects
 				client := &http.Client{
+					Transport: pmmapitests.HTTPClient.Transport,
 					CheckRedirect: func(req *http.Request, via []*http.Request) error {
 						// Copy authentication from original request
 						if len(via) > 0 && via[0].URL.User != nil {
@@ -237,7 +238,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
-					resp, err := http.DefaultClient.Do(req)
+					resp, err := pmmapitests.HTTPClient.Do(req)
 					require.NoError(t, err)
 					t.Cleanup(func() {
 						assert.NoError(t, resp.Body.Close())
@@ -267,7 +268,7 @@ func deleteUser(t *testing.T, userID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -291,7 +292,7 @@ func createUser(t *testing.T, login string) int {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -318,7 +319,7 @@ func setRole(t *testing.T, userID int, role string) {
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -386,7 +387,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 					req.Header.Set("Authorization", "Bearer "+user.serviceToken)
 
-					resp, err := http.DefaultClient.Do(req)
+					resp, err := pmmapitests.HTTPClient.Do(req)
 					require.NoError(t, err)
 					t.Cleanup(func() {
 						assert.NoError(t, resp.Body.Close())
@@ -404,7 +405,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
-					resp, err := http.DefaultClient.Do(req)
+					resp, err := pmmapitests.HTTPClient.Do(req)
 					require.NoError(t, err)
 					t.Cleanup(func() {
 						assert.NoError(t, resp.Body.Close())
@@ -435,7 +436,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -455,7 +456,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b = doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b = doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -471,7 +472,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -493,7 +494,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -513,7 +514,7 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }

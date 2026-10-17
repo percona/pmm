@@ -1,0 +1,132 @@
+import {
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useServerVersion } from 'hooks/api/useServerVersion';
+import { reloadPage } from 'utils/dom.utils';
+import { VersionContext } from './version.context';
+import {
+  canAutoReload,
+  getServerBuildId,
+  hasBuildChanged,
+  recordAutoReload,
+} from './version.utils';
+
+/**
+ * Keeps the page in sync with the server build. An external upgrade (Docker, Podman,
+ * Helm) swaps the backend under an open tab, which then keeps running the assets of
+ * the previous version and renders a mix of the two, so the page has to be reloaded.
+ *
+ * A hidden tab is reloaded straight away, which covers the case this exists for: a
+ * tab left open in the background while the server is upgraded. A visible tab is
+ * left alone so the reload cannot discard work in progress, including unsaved edits
+ * inside the Grafana iframe; consumers prompt for that case instead.
+ */
+export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
+  const { data } = useServerVersion();
+  const [isOutdated, setIsOutdated] = useState(false);
+  const baseline = useRef('');
+  const reloading = useRef(false);
+  const buildId = getServerBuildId(data);
+
+  // Leaving the document fires `visibilitychange` on the way out, so a reload
+  // already under way would otherwise look like a tab being backgrounded and
+  // trigger a second one.
+  const reload = useCallback(() => {
+    if (reloading.current) {
+      return;
+    }
+
+    reloading.current = true;
+    reloadPage();
+  }, []);
+
+  // Reloading on our own initiative is rationed; doing it because the user asked
+  // is not, so only this path spends the allowance. An allowance that cannot be
+  // written down cannot be enforced either, and reloading anyway is how a build
+  // flapping between HA nodes would reload the tab on every poll, so leave it to
+  // the prompt instead.
+  const autoReload = useCallback(() => {
+    if (reloading.current || !canAutoReload(Date.now())) {
+      return;
+    }
+
+    if (!recordAutoReload(Date.now())) {
+      return;
+    }
+
+    reload();
+  }, [reload]);
+
+  useEffect(() => {
+    if (!buildId) {
+      return;
+    }
+
+    if (!baseline.current) {
+      baseline.current = buildId;
+      return;
+    }
+
+    if (hasBuildChanged(baseline.current, buildId)) {
+      setIsOutdated(true);
+    }
+  }, [buildId]);
+
+  useEffect(() => {
+    if (!isOutdated) {
+      return;
+    }
+
+    const reloadWhenHidden = () => {
+      if (document.visibilityState === 'hidden') {
+        autoReload();
+      }
+    };
+
+    reloadWhenHidden();
+    document.addEventListener('visibilitychange', reloadWhenHidden);
+
+    return () => {
+      document.removeEventListener('visibilitychange', reloadWhenHidden);
+    };
+  }, [isOutdated, autoReload]);
+
+  // Lazily imported chunks are named after their content, so an upgrade leaves the
+  // ones this page knows about missing from the server. That is the upgrade making
+  // itself known ahead of the poll rather than a case of its own, so it goes through
+  // the same policy: it cannot reload a tab the user is looking at.
+  useEffect(() => {
+    // Claiming the event stops Vite rethrowing the failed import, which also lets it
+    // go on to try the module itself when it was only the preload that failed.
+    const markOutdated = (event: Event) => {
+      event.preventDefault();
+      setIsOutdated(true);
+    };
+
+    window.addEventListener('vite:preloadError', markOutdated);
+
+    return () => {
+      window.removeEventListener('vite:preloadError', markOutdated);
+    };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      isOutdated,
+      serverVersion: data?.version ?? '',
+      serverBuild: buildId,
+      reload,
+    }),
+    [isOutdated, data?.version, buildId, reload]
+  );
+
+  return (
+    <VersionContext.Provider value={value}>{children}</VersionContext.Provider>
+  );
+};
