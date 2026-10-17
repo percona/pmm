@@ -146,8 +146,15 @@ func TestVolumeQuery_Step(t *testing.T) {
 	} {
 		q, args, step := volumeQuery(Filter{Start: testStart, End: testStart.Add(r)})
 		assert.Equal(t, expected, step, r)
-		assert.Contains(t, q, fmt.Sprintf("toStartOfInterval(Timestamp, INTERVAL %d SECOND)", int(expected.Seconds())), r)
-		assert.Len(t, args, 4)
+		n := int(expected.Seconds())
+		assert.Contains(t, q, fmt.Sprintf("toStartOfInterval(Timestamp, INTERVAL %d SECOND)", n), r)
+		// Empty buckets are returned too, so the chart's time axis is linear; at most 100 of them.
+		assert.Contains(t, q, fmt.Sprintf("ORDER BY t WITH FILL FROM toStartOfInterval(toDateTime(?), INTERVAL %d SECOND) "+
+			"TO toDateTime(?) + 1 STEP INTERVAL %d SECOND", n, n), r)
+		assert.Equal(t, []any{testStart.Unix(), testStart.Add(r).Unix()}, args[4:], r)
+		if r <= 99*24*time.Hour {
+			assert.LessOrEqual(t, int(r/expected)+1, 100, r)
+		}
 	}
 	q, _, _ := volumeQuery(Filter{Start: testStart, End: testEnd})
 	assert.Contains(t, q, "countIf(SeverityNumber >= 17) AS error")

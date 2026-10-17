@@ -84,7 +84,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
               onMouseUp={finish}
               sx={{
                 flex: 1,
-                minWidth: 1,
+                minWidth: 0,
                 height: '100%',
                 cursor: 'crosshair',
                 bgcolor: inDrag(i) ? 'action.selected' : 'transparent',

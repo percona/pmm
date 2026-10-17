@@ -102,7 +102,26 @@ describe('LogsPage', () => {
   });
 
   it('points to log collection settings when the range is empty', async () => {
-    getLogVolume.mockResolvedValue({ buckets: [], step: '60s' });
+    // The API returns every bucket of the range, empty ones included.
+    getLogVolume.mockResolvedValue({
+      buckets: [
+        {
+          start: '2026-10-17T10:00:00Z',
+          error: 0,
+          warning: 0,
+          info: 0,
+          other: 0,
+        },
+        {
+          start: '2026-10-17T10:01:00Z',
+          error: 0,
+          warning: 0,
+          info: 0,
+          other: 0,
+        },
+      ],
+      step: '60s',
+    });
     renderPage();
     expect(await screen.findByTestId('logs-empty-state')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /settings/i })).toHaveAttribute(

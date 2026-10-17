@@ -76,7 +76,9 @@ export const LogsPage: FC = () => {
       {volume.isLoading && <LinearProgress />}
       {volume.error && <LogsErrorAlert error={volume.error} />}
       {volume.data &&
-        (volume.data.buckets.length ? (
+        (volume.data.buckets.some(
+          (b) => b.error + b.warning + b.info + b.other > 0
+        ) ? (
           <LogsVolumeChart
             buckets={volume.data.buckets}
             step={volume.data.step}

@@ -198,7 +198,8 @@ func volumeQuery(f Filter) (string, []any, time.Duration) {
 	r := f.End.Sub(f.Start)
 	step := volumeSteps[len(volumeSteps)-1]
 	for _, s := range volumeSteps {
-		if r <= s*maxVolumeBuckets {
+		// One bucket is spare: an unaligned start adds one.
+		if r <= s*(maxVolumeBuckets-1) {
 			step = s
 			break
 		}
@@ -209,8 +210,10 @@ func volumeQuery(f Filter) (string, []any, time.Duration) {
 		"countIf(SeverityNumber >= 13 AND SeverityNumber < 17) AS warning, "+
 		"countIf(SeverityNumber >= 9 AND SeverityNumber < 13) AS info, "+
 		"countIf(SeverityNumber < 9) AS other "+
-		"FROM otel.logs WHERE %s GROUP BY t ORDER BY t", int(step.Seconds()), where)
-	return q + querySettings, args, step
+		"FROM otel.logs WHERE %s GROUP BY t "+
+		"ORDER BY t WITH FILL FROM toStartOfInterval(toDateTime(?), INTERVAL %[1]d SECOND) TO toDateTime(?) + 1 STEP INTERVAL %[1]d SECOND",
+		int(step.Seconds()), where)
+	return q + querySettings, append(args, f.Start.Unix(), f.End.Unix()), step
 }
 
 func patternsQuery(f Filter) (string, []any) {
