@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/lib/pq"
 	"github.com/lib/pq/pqerror"
@@ -651,5 +652,38 @@ func TestDatabaseMigrations(t *testing.T) {
 		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_checks`).Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 0, count)
+	})
+
+	t.Run("advisor runs migration: rare interval on the former default becomes 72h", func(t *testing.T) {
+		for _, tc := range []struct {
+			name     string
+			stored   time.Duration
+			expected time.Duration
+		}{
+			{name: "former default", stored: 78 * time.Hour, expected: 72 * time.Hour},
+			{name: "custom value", stored: 8 * time.Hour, expected: 8 * time.Hour},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				sqlDB := testdb.Open(t, models.SkipFixtures, new(127))
+				t.Cleanup(func() {
+					assert.NoError(t, sqlDB.Close())
+				})
+
+				_, err := sqlDB.ExecContext(
+					t.Context(),
+					`UPDATE settings SET settings = jsonb_set(
+						jsonb_set(settings, '{sass}', COALESCE(settings->'sass', '{}'::jsonb)),
+						'{sass,advisor_run_intervals}', jsonb_build_object('rare_interval', $1::bigint))`,
+					int64(tc.stored),
+				)
+				require.NoError(t, err)
+
+				testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(128))
+
+				settings, err := models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				assert.Equal(t, tc.expected, settings.SaaS.AdvisorRunIntervals.RareInterval)
+			})
+		}
 	})
 }

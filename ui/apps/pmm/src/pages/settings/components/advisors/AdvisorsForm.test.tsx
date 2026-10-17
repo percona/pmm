@@ -18,7 +18,7 @@ const sendTestMock = vi.mocked(advisorsApi.sendTestAdvisorNotification);
 const settings = {
   advisorEnabled: true,
   advisorRunIntervals: {
-    rareInterval: '280800s',
+    rareInterval: '259200s',
     standardInterval: '86400s',
     frequentInterval: '14400s',
   },

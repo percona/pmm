@@ -286,7 +286,7 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour //nolint:mnd
+		s.SaaS.AdvisorRunIntervals.RareInterval = 72 * time.Hour //nolint:mnd
 	}
 
 	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {

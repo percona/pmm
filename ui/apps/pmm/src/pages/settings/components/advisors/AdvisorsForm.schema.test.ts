@@ -4,7 +4,7 @@ import { AdvisorsFormValues, advisorsSchema } from './AdvisorsForm.schema';
 
 const valid: AdvisorsFormValues = {
   stt: true,
-  rareInterval: '78',
+  rareInterval: '72',
   standardInterval: '24',
   frequentInterval: '4',
   advisorRetention: '30',

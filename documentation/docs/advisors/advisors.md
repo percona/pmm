@@ -27,7 +27,7 @@ To control when and how often advisor checks run:
 ### Change run interval for automatic advisors
 You can change the standard 24-hour interval to a custom frequency for each advisor check:
 
- - *Rare interval* - 78 hours
+ - *Rare interval* - 72 hours
  - *Standard interval* (default) - 24 hours
  - *Frequent interval* - 4 hours
 

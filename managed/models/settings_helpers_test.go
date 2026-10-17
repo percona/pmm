@@ -51,7 +51,7 @@ func TestSettings(t *testing.T) {
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
-					RareInterval:     78 * time.Hour,
+					RareInterval:     72 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
@@ -78,7 +78,7 @@ func TestSettings(t *testing.T) {
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
-					RareInterval:     78 * time.Hour,
+					RareInterval:     72 * time.Hour,
 					FrequentInterval: 4 * time.Hour,
 				},
 			},

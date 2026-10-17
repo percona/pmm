@@ -1420,6 +1420,11 @@ var databaseSchema = [][]string{
 		// At most one queued or running run, so claiming the run slot is a single
 		// atomic insert on every HA node.
 		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
+
+		// Move servers still on the former 78h rare interval default to 72h;
+		// the settings JSON stores durations in nanoseconds.
+		`UPDATE settings SET settings = jsonb_set(settings, '{sass,advisor_run_intervals,rare_interval}', '259200000000000')
+		WHERE settings #> '{sass,advisor_run_intervals,rare_interval}' = '280800000000000'`,
 	},
 }
 
