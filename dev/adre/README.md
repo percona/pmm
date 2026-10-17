@@ -58,6 +58,8 @@ Request body:
 
 In Holmes config, use the **`pmm-clickhouse`** custom toolset (`pmm_clickhouse_query` curl tool). Disable legacy `clickhouse-pmm-http` / `clickhouse-logs-http` database toolsets that pointed at `:8123`.
 
+The same toolset has **`pmm_logs_patterns`**, which calls the logs API (`POST /v1/logs:getPatterns`, see [dev/otel/README.md](../otel/README.md#logs-page-and-api)) and returns up to 50 log patterns for a time range with counts, max severity and `is_new`. The guidance tells the Assistant to start log questions there and to query raw lines by `ServiceName` and `TimestampTime`.
+
 ### Legacy: external mcp-clickhouse
 
 Optional alternative (not required when Assistant proxy is deployed):

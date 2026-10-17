@@ -53,6 +53,7 @@ toolsets:
       - core
     llm_instructions: |
       Use **pmm_clickhouse_query** for QAN (`database=pmm`) and logs (`database=otel`). Pass one unquoted SELECT — never wrap the whole query in quotes.
+      Start every log question with **pmm_logs_patterns** for the time range: it groups lines that differ only in values, with counts, max severity, first/last seen and `is_new` (absent from the preceding range of the same length). Fetch raw lines afterwards only for the patterns that matter.
 
       ## QAN (database=pmm)
       CRITICAL — `period_start` uses ClickHouse DateTime (`'YYYY-MM-DD HH:MM:SS'` or `parseDateTimeBestEffort`), not bare RFC3339 in WHERE.
@@ -65,20 +66,23 @@ toolsets:
         GROUP BY fingerprint, schema ORDER BY total_query_time DESC LIMIT 5
 
       ## Logs (database=otel)
-      Scope by **node_name** (inventory node name). CRITICAL — filename is `LogAttributes['log.file.name']` (not `log.file.path`, which is empty). Use `ResourceAttributes['node_name']` with single-quoted bracket keys. `pmm_source` is node name, not a log filename.
+      CRITICAL — filter by `ServiceName` and `TimestampTime` first: they are the primary key. `ServiceName` is the node name for client logs and the component (pmm-managed, nginx, grafana, qan-api2, …) for PMM Server logs. Filter severity on `SeverityNumber` (17+ error, 13–16 warning, 9–12 info, 0 unparsed), never `SeverityText`, whose spelling differs per database. Filename is `LogAttributes['log.file.name']` (not `log.file.path`, which is empty); parser preset `LogAttributes['log.preset']`; node `ResourceAttributes['node_name']`, single-quoted bracket keys. Never run JSONExtract or regexes over Body across a wide range: narrow by ServiceName and time first.
+
+      Errors of one node in a window:
+        SELECT Timestamp, SeverityText, LogAttributes['log.file.name'] AS file, substring(Body, 1, 400) AS msg FROM logs
+        WHERE ServiceName = 'mysql' AND TimestampTime BETWEEN '2026-03-22 12:00:00' AND '2026-03-22 12:30:00'
+          AND SeverityNumber >= 17
+        ORDER BY Timestamp DESC LIMIT 20
 
       Named log file (e.g. error.log) — one query, no TodoWrite:
         SELECT Timestamp, Body FROM logs
-        WHERE ResourceAttributes['node_name'] = 'mysql'
+        WHERE ServiceName = 'mysql' AND TimestampTime >= now() - INTERVAL 1 HOUR
           AND LogAttributes['log.file.name'] LIKE '%error.log%'
         ORDER BY Timestamp DESC LIMIT 10
 
-      All logs for a node (no file filter):
-        SELECT Timestamp, Body FROM logs WHERE ResourceAttributes['node_name'] = 'mysql' ORDER BY Timestamp DESC LIMIT 10
-
-      Discover filenames (only if named-file query returned 0 rows):
-        SELECT LogAttributes['log.file.name'] AS filename, count() AS n FROM logs
-        WHERE ResourceAttributes['node_name'] = 'mysql' GROUP BY filename ORDER BY n DESC LIMIT 20
+      Discover sources and files (only if a query returned 0 rows):
+        SELECT ServiceName, LogAttributes['log.file.name'] AS filename, count() AS n FROM logs
+        WHERE TimestampTime >= now() - INTERVAL 1 HOUR GROUP BY ServiceName, filename ORDER BY n DESC LIMIT 20
 
       Paste actual Timestamp + Body rows in replies. EXPLAIN/queryid rules: see **pmm-db-actions** toolset.
     tools:
@@ -108,7 +112,7 @@ toolsets:
           query:
             description: |
               Single SELECT starting with SELECT or WITH — do NOT wrap the whole query in quotes.
-              Logs example (database=otel): SELECT Timestamp, Body FROM logs WHERE ResourceAttributes['node_name'] = 'mysql' AND LogAttributes['log.file.name'] LIKE '%error.log%' ORDER BY Timestamp DESC LIMIT 10
+              Logs example (database=otel): SELECT Timestamp, Body FROM logs WHERE ServiceName = 'mysql' AND TimestampTime >= now() - INTERVAL 1 HOUR AND LogAttributes['log.file.name'] LIKE '%error.log%' ORDER BY Timestamp DESC LIMIT 10
               QAN example (database=pmm): SELECT fingerprint, schema FROM pmm.metrics WHERE service_id = '<uuid>' LIMIT 5
           max_rows:
             description: "Max rows (default 500, cap 1000)."
@@ -119,6 +123,55 @@ toolsets:
               input_threshold: 4000
               prompt: |
                 Summarize ClickHouse query results for an on-call engineer. Preserve column names, key values (fingerprint, schema, queryid, service_id, Timestamp, Body), counts, and errors. Be concise.
+
+      - name: pmm_logs_patterns
+        description: "Group the log lines of a time range into patterns (values replaced by ?), most frequent first: count, max severity number, first/last seen, a sample line and is_new (absent from the preceding range of the same length). Up to 50 patterns."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          START={{ start }}
+          END={{ end }}
+          NODES={{ node_names | default('') }}
+          SOURCES={{ sources | default('') }}
+          MINSEV={{ min_severity | default('') }}
+          TEXT={{ text | default('') }}
+          for v in NODES SOURCES MINSEV TEXT; do
+            if [ "${!v}" = None ]; then printf -v "$v" '%s' ''; fi
+          done
+          list() { jq -cn --arg s "$1" '$s | split(",") | map(gsub("^ +| +$"; "")) | map(select(length > 0))'; }
+          BODY=$(jq -n \
+            --arg start "$START" --arg end "$END" \
+            --argjson nodes "$(list "$NODES")" --argjson sources "$(list "$SOURCES")" \
+            --arg minsev "$MINSEV" --arg text "$TEXT" \
+            '{filter: ({start: $start, end: $end, node_names: $nodes, sources: $sources, text: $text}
+              + (if $minsev == "" then {} else {min_severity: ($minsev | tonumber)} end))}')
+          curl -s -k -X POST "${PMM_URL}/v1/logs:getPatterns" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" | jq .
+        parameters:
+          start:
+            description: "Start of the range, RFC3339 UTC, e.g. 2026-10-17T10:00:00Z."
+          end:
+            description: "End of the range, RFC3339 UTC, e.g. 2026-10-17T11:00:00Z."
+          node_names:
+            description: "Comma-separated node names (inventory node_name)."
+            required: false
+          sources:
+            description: "Comma-separated sources: the node name for client logs, the component (pmm-managed, nginx, …) for PMM Server logs."
+            required: false
+          min_severity:
+            description: "Minimum OTel severity number: 9 info, 13 warning, 17 error, 21 fatal."
+            required: false
+          text:
+            description: "Only lines containing this text, ignoring case."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 6000
+              prompt: |
+                Summarize these log patterns for an on-call engineer. Keep each pattern's text, count, max_severity_number, first_seen, last_seen and is_new; list new and error-level patterns first. Be concise.
 
   pmm-inventory:
     description: |

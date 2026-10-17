@@ -24,6 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -97,6 +98,30 @@ func TestDefaultConfigEmbedAndPlaceholder(t *testing.T) {
 	assert.Contains(t, defaultConfigYAML, grafanaTokenPlaceholder)
 	assert.NotContains(t, defaultConfigYAML, "glsa_", "no real Grafana token may ship in the template")
 	assert.Contains(t, defaultConfigYAML, "pmm-inventory", "default config must define the PMM toolsets")
+}
+
+func TestDefaultConfigLogsPatternsTool(t *testing.T) {
+	t.Parallel()
+	var cfg struct {
+		Toolsets map[string]struct {
+			Tools []struct {
+				Name       string         `yaml:"name"`
+				Command    string         `yaml:"command"`
+				Parameters map[string]any `yaml:"parameters"`
+			} `yaml:"tools"`
+		} `yaml:"toolsets"`
+	}
+	require.NoError(t, yaml.Unmarshal([]byte(defaultConfigYAML), &cfg))
+	for _, tool := range cfg.Toolsets["pmm-clickhouse"].Tools {
+		if tool.Name == "pmm_logs_patterns" {
+			assert.Contains(t, tool.Command, "/v1/logs:getPatterns")
+			for _, p := range []string{"start", "end", "node_names", "sources", "min_severity", "text"} {
+				assert.Contains(t, tool.Parameters, p)
+			}
+			return
+		}
+	}
+	t.Fatal("pmm-clickhouse has no pmm_logs_patterns tool")
 }
 
 func TestRenderConfigYAMLSubstitutesToken(t *testing.T) {

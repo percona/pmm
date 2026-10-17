@@ -62,6 +62,22 @@ Presets define the OTEL filelog operator chain (regex, time, severity, etc.) and
 - **Per-path preset**: Different files can use different parsers.
 - **Extensible**: New preset = new row in `log_parser_presets` (or a new migration for built-ins).
 
+## Logs page and API
+
+**Logs** in the PMM menu (`/pmm-ui/logs`, viewers included) reads `otel.logs` through `LogsService` (`api/logs/v1/logs.proto`, `managed/services/logs`):
+
+| Endpoint | Returns |
+|----------|---------|
+| `POST /v1/logs:search` | Lines, newest first, 200 per page (max 500), bodies cut to 4 KiB; `next_cursor` pages on (time, line hash) |
+| `POST /v1/logs:getVolume` | Line counts per severity class in up to 100 buckets |
+| `POST /v1/logs:getPatterns` | Up to 50 patterns (quoted strings, UUIDs, hex, IPs and numbers replaced by `?`), `is_new` against the preceding range |
+| `POST /v1/logs:getContext` | Up to 100 lines before and after a line of the same node and file, bodies up to 64 KiB |
+| `POST /v1/logs:getFacets` | Nodes, sources and presets with lines in the time range |
+
+Every call takes `LogFilter` (start, end, node names, sources, presets, minimum severity, case-insensitive text, pattern). Severity classes: error ≥ 17, warning 13–16, info 9–12, other < 9. Source is `ServiceName`: the component for PMM Server logs, the node name for client logs. Queries run with `max_execution_time = 30` and `readonly = 1`; a timeout returns `DeadlineExceeded`. Users with label-based access filters get `PermissionDenied`, because log lines carry no labels to filter on.
+
+The page keeps its state in the URL (`range` or `from`/`to`, `node`, `source`, `preset`, `severity`, `q`, `pattern`), so links can open a filtered view; the Assistant's `pmm_logs_patterns` tool calls `:getPatterns`.
+
 ## Configuration
 
 - **Settings**: `Otel.CollectorEnabled`, `Otel.LogsRetentionDays` (default 7).
@@ -73,7 +89,9 @@ Presets define the OTEL filelog operator chain (regex, time, severity, etc.) and
 
 - Server-side OTEL collector (supervisord): OTLP and `/srv/logs` filelog receivers → transform → batch → ClickHouse; configurable TTL.
 - Client-side OTEL collector (pmm-agent), config pushed from server; filelog receivers with per-preset operator YAML from `log_parser_presets`.
-- `log_parser_presets` table: migration 127 (`mysql_error`), 128/129 (nginx, grafana, PMM, postgres, clickhouse_server, otel_collector, supervisord), migration 134 (`syslog_mysql_systemd`), 143 (`mongodb`), 148 (`victoriametrics`; `postgres` starts an entry only at a top-level line, so DETAIL/HINT/STATEMENT/CONTEXT join the error above).
+- `log_parser_presets` table: migration 127 (`mysql_error`), 128/129 (nginx, grafana, PMM, postgres, clickhouse_server, otel_collector, supervisord), migration 134 (`syslog_mysql_systemd`), 143 (`mongodb`), 148 (`victoriametrics`; `postgres` starts an entry only at a top-level line, so DETAIL/HINT/STATEMENT/CONTEXT join the error above), 149 (`nginx_access` also parses nginx's own error lines, with severity), 150 (`postgres` accepts any timezone abbreviation and Debian's `user@db` prefix).
+- Every line carries `log.preset` (the preset it was read with).
+- Logs page and API (see above).
 - API: `LogSource`, `log_sources` in `AddOtelCollectorParams`; validation and storage in custom_labels.
 - `pmm-admin add otel` with `--log-file-paths`, `--log-sources`, `--parser-preset`; help lists all built-in presets.
 - Backward compatibility: agents with only `log_file_paths` still work (treated as raw).
