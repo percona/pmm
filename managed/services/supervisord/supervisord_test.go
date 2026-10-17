@@ -263,3 +263,89 @@ func TestProgramRunningStatuses(t *testing.T) {
 		})
 	}
 }
+
+func TestRetireRemovedPrograms(t *testing.T) {
+	t.Parallel()
+
+	// recordingSupervisorctl returns a Service whose supervisorctl appends each call's arguments
+	// as a line to the returned file, and answers `status` with the given line and exit code.
+	recordingSupervisorctl := func(t *testing.T, status string, statusExitCode int) (*Service, string) {
+		t.Helper()
+
+		dir := t.TempDir()
+		calls := filepath.Join(dir, "calls")
+		path := filepath.Join(dir, "supervisorctl")
+		script := fmt.Sprintf("#!/bin/sh\necho \"$*\" >> '%s'\n"+
+			"if [ \"$1\" = status ]; then printf '%%s\\n' '%s'; exit %d; fi\n", calls, status, statusExitCode)
+		require.NoError(t, os.WriteFile(path, []byte(script), 0o700))
+
+		s := &Service{
+			configDir:         t.TempDir(),
+			supervisorctlPath: path,
+			l:                 logrus.WithField("component", "supervisord-test"),
+		}
+		return s, calls
+	}
+
+	// Output and exit codes as captured from supervisorctl in a PMM Server container.
+	const (
+		notConfigured = "vmalert: ERROR (no such process)"
+		running       = "vmalert                          RUNNING   pid 949, uptime 0:01:17"
+	)
+
+	touch := func(t *testing.T, path string) {
+		t.Helper()
+		require.NoError(t, os.WriteFile(path, nil, 0o600))
+	}
+
+	readCalls := func(t *testing.T, calls string) string {
+		t.Helper()
+		b, err := os.ReadFile(calls)
+		require.NoError(t, err)
+		return string(b)
+	}
+
+	t.Run("config left by an older pmm-managed", func(t *testing.T) {
+		t.Parallel()
+
+		s, calls := recordingSupervisorctl(t, running, 0)
+		logs := t.TempDir()
+		touch(t, filepath.Join(s.configDir, "vmalert.ini"))
+		touch(t, filepath.Join(s.configDir, "vmproxy.ini"))
+		touch(t, filepath.Join(logs, "vmalert.log"))
+		touch(t, filepath.Join(logs, "vmalert.log.1"))
+		touch(t, filepath.Join(logs, "vmproxy.log"))
+
+		s.retireRemovedPrograms(logs)
+
+		assert.NoFileExists(t, filepath.Join(s.configDir, "vmalert.ini"))
+		assert.FileExists(t, filepath.Join(s.configDir, "vmproxy.ini"))
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log"))
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log.1"))
+		assert.FileExists(t, filepath.Join(logs, "vmproxy.log"))
+		assert.Equal(t, "reread\nupdate vmalert\n", readCalls(t, calls))
+	})
+
+	t.Run("config gone but program still running after a failed update", func(t *testing.T) {
+		t.Parallel()
+
+		s, calls := recordingSupervisorctl(t, running, 0)
+
+		s.retireRemovedPrograms(t.TempDir())
+
+		assert.Equal(t, "status vmalert\nreread\nupdate vmalert\n", readCalls(t, calls))
+	})
+
+	t.Run("only logs left on /srv by an upgrade", func(t *testing.T) {
+		t.Parallel()
+
+		s, calls := recordingSupervisorctl(t, notConfigured, 4)
+		logs := t.TempDir()
+		touch(t, filepath.Join(logs, "vmalert.log"))
+
+		s.retireRemovedPrograms(logs)
+
+		assert.NoFileExists(t, filepath.Join(logs, "vmalert.log"))
+		assert.Equal(t, "status vmalert\n", readCalls(t, calls), "nothing to remove from supervisord")
+	})
+}

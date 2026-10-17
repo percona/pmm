@@ -253,8 +253,7 @@ This is a **monorepository** containing multiple PMM components, APIs, documenta
 Exporters (node, mysqld, mongodb, postgres, proxysql, valkey, rds, azure)
   → VMAgent (scrapes exporters)
     → VictoriaMetrics (time-series storage on PMM Server)
-      → Grafana (visualization)
-      → VMAlert → Alertmanager (alerting)
+      → Grafana (visualization and alerting)
 ```
 
 ### Query Analytics (QAN) Pipeline
@@ -339,7 +338,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **PostgreSQL** | Primary data store for pmm-managed (inventory, settings, backups) |
 | **ClickHouse** | Query analytics data store (qan-api2) |
 | **VictoriaMetrics** | Time-series metrics storage |
-| **VMAlert** | Alerting rules evaluation |
 | **Grafana** | Dashboards and visualization |
 | **reform** | Go ORM — NOT gorm. pmm-managed's PostgreSQL store, and pmm-agent's row mappers for monitored MySQL/PostgreSQL system views |
 | **logrus** | Structured logging |

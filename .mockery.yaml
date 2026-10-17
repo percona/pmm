@@ -82,7 +82,6 @@ packages:
       supervisordService:
       telemetryService:
       templatesService:
-      vmAlertExternalRules:
       nomadService:
       omService:
   github.com/percona/pmm/managed/services/versioncache:

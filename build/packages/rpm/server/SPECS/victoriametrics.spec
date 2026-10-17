@@ -6,7 +6,7 @@
 
 Name:           percona-victoriametrics
 Version:        1.152.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
@@ -27,22 +27,22 @@ export BUILDINFO_TAG=%{commit}
 export USER=builder
 
 make victoria-metrics-pure
-make vmalert-pure
 
 
 %install
 install -D -p -m 0755 ./bin/victoria-metrics-pure %{buildroot}%{_sbindir}/victoriametrics
-install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %files
 %license LICENSE
 %doc README.md
 %{_sbindir}/victoriametrics
-%{_sbindir}/vmalert
 
 
 %changelog
+* Thu Oct 15 2026 Mattia Simonato <mattia.simonato@percona.com> - 1.152.0-2
+- PMM-15182 stop building and shipping vmalert
+
 * Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.152.0-1
 - upgrade victoriametrics to 1.152.0 release
 

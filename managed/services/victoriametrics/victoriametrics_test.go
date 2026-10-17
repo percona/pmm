@@ -316,17 +316,6 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: vmalert
-      honor_timestamps: false
-      scrape_interval: 5s
-      scrape_timeout: 4500ms
-      metrics_path: /metrics
-      static_configs:
-        - targets:
-            - 127.0.0.1:8880
-          labels:
-            instance: pmm-server
-      follow_redirects: false
     - job_name: grafana
       honor_timestamps: false
       scrape_interval: 10s
@@ -872,17 +861,6 @@ scrape_configs:
     - 127.0.0.1:9090
     labels:
       instance: pmm-server
-  follow_redirects: false
-- job_name: vmalert
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4500ms
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:8880
-    labels:
-      instance: pmm-server
   follow_redirects: false`)))
 		require.NoError(t, err)
 	})
@@ -943,17 +921,6 @@ scrape_configs:
       static_configs:
         - targets:
             - 127.0.0.1:9090
-          labels:
-            instance: pmm-server
-      follow_redirects: false
-    - job_name: vmalert
-      honor_timestamps: false
-      scrape_interval: 5s
-      scrape_timeout: 4500ms
-      metrics_path: /metrics
-      static_configs:
-        - targets:
-            - 127.0.0.1:8880
           labels:
             instance: pmm-server
       follow_redirects: false
