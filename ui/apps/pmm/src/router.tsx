@@ -16,7 +16,11 @@ import {
   OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect, SettingsRedirect } from 'components/redirect';
+import {
+  Redirect,
+  SettingsRedirect,
+  advisorsRedirects,
+} from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { PersistedFilters } from 'components/persisted-filters';
@@ -205,6 +209,7 @@ const router = createBrowserRouter(
               path: 'graph/alerting/alerts',
               element: <Navigate to="/alerting/status" replace />,
             },
+            ...advisorsRedirects,
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',
