@@ -60,7 +60,7 @@ To restore PMM Server from a snapshot:
 
 5. Check that PMM Server is running properly:
     ```sh
-    kubectl port-forward svc/pmm-service 443:443
+    kubectl port-forward svc/monitoring-service 443:443
     ```
 6. Access PMM Server at `https://localhost:443`. 
 

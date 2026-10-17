@@ -1,69 +1,171 @@
 # PMM data encryption
 
-Percona Monitoring and Management (PMM) implements robust encryption for sensitive data stored in its internal database's `agent` table. This includes access credentials and configuration details.
+Percona Monitoring and Management (PMM) encrypts the sensitive data it stores in its internal database, such as the access credentials and configuration details of monitored services.
 
 ## Default encryption
 
 PMM automatically manages encryption using a key file located at `/srv/pmm-encryption.key`. PMM generates this file upon the initial launch of PMM 3 or when upgrading from the latest version of PMM 2.
 
-## Custom encryption key configuration
+## Use a custom encryption key
 
-For enhanced security control, PMM supports custom encryption keys.
-
-**Key format requirements:**
-
-- The key must be a 32-byte (256-bit) random value, suitable for AES-256-GCM encryption.
-- The file must contain exactly 32 raw bytes (not a hex-encoded or base64-encoded string).
-
-
-PMM uses this key with the TINK `AES256GCMKeyTemplate` output prefix type.
-
-To set up a custom key, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
+By default, PMM generates its own encryption key. To manage the key yourself, for example to keep it in your own secrets store, provide a custom key instead.
 
 !!! hint alert alert-success "Important"
-    Configure this **before** any data encryption occurs: either before upgrading to PMM 3 or before initially starting a new PMM 3.x instance.
+    Set up the custom key **before** PMM encrypts any data: before you upgrade to PMM 3, or before you start a new PMM 3 instance for the first time.
 
-### Key management requirements
+### Key format
 
-Once configured, PMM will use the custom key to encrypt and decrypt all sensitive data stored within the system.
+If you provide your own key, it must be in the format PMM expects: a base64-encoded [Tink](https://developers.google.com/tink) keyset created from the `AES256GCMKeyTemplate`. A raw 32-byte value doesn't work, so don't create the key with a general-purpose tool such as `openssl rand`. If PMM can't read the key file, it doesn't start.
 
-If the custom key is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
+To get a key in the right format, generate it with the [Encryption Rotation Tool](#set-up-a-custom-key).
 
-Make sure to store and manage the custom encryption key securely to avoid potential loss of data access.
+### Set up a custom key
 
-## Rotating the encryption key
+To set up a custom key:
+{.power-number}
 
-You may want to generate a new encryption key or rotate it when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
+1. Generate the key with `pmm-encryption-rotation`, a tool that comes with PMM Server, so there's nothing to install. Run it from the PMM Server Docker image:
 
-This tool re-encrypts all existing sensitive data with a newly generated encryption key, ensuring continuous security with minimal disruption.
+    ```bash
+    docker run --rm --entrypoint /usr/sbin/pmm-encryption-rotation percona/pmm-server:3 --generate-key > pmm-encryption.key
+    ```
 
-To rotate the encryption key:
+    This starts a temporary container, saves a new key to `pmm-encryption.key` in your current directory, and removes the container. The command doesn't connect to any database, so you can run it before you start PMM Server.
+
+    If PMM Server is already running, you can instead run `pmm-encryption-rotation --generate-key > pmm-encryption.key` inside its container.
+
+2. Make the key file available inside the PMM Server container, for example on a mounted volume.
+
+3. Set the `PMM_ENCRYPTION_KEY_PATH` environment variable to the path of the key file inside the container.
+
+### Keep the key safe
+
+PMM uses the custom key to encrypt and decrypt all credentials it stores. If you lose the key, PMM can't decrypt those credentials. To avoid this:
+
+- store the key securely and keep a backup of it outside PMM.
+- in containerized environments, set `PMM_ENCRYPTION_KEY_PATH` in the container configuration so it persists across restarts.
+- test key rotation in a staging environment before you rotate the key in production.
+
+## HA clusters: use the same key on every node
+
+In a [high availability (HA) cluster](../../install-pmm/install-HA-clustered.md), all PMM Server nodes share one PostgreSQL database, but each node reads the encryption key from its own local file. This means every node must use the **same** key.
+
+A node with a different key can't decrypt the credentials that other nodes stored. PMM detects the mismatch and stops that node from starting. Otherwise, the node would send unusable credentials to PMM Clients, and monitoring would stop for those services.
+
+If you deploy with the [PMM HA Helm chart](../../install-pmm/install-HA-clustered.md#manage-the-encryption-key), the chart manages the shared key for you. If you deploy with Docker:
+{.power-number}
+
+1. [Generate a single key](#set-up-a-custom-key) for the whole cluster.
+
+2. Copy the key file to `/srv/pmm-encryption.key` on every node, or to the path set in `PMM_ENCRYPTION_KEY_PATH`.
+
+3. Back up the key file together with the rest of your cluster configuration.
+
+4. Start the nodes.
+
+### Upgrade an existing Docker HA cluster
+
+The HA Helm chart 3.10.0 has no upgrade path from earlier versions. Deploy a fresh cluster instead. Once on 3.10.0, you can upgrade to later Helm chart versions.
+
+If you are reusing an existing database on a fresh 3.10.0 cluster, make sure every node has the same key first:
+{.power-number}
+
+1. Find the node where monitoring works. Its key file is the one that matches the database.
+
+2. Copy that key file to every other node, using the same path.
+
+3. Start the nodes.
+
+If a node still has a different key, it logs `encryption key does not match the database` and doesn't start. Copy the key from a node that works, then restart the node.
+
+Clusters deployed with the PMM HA Helm chart need no action, because the chart already gives every node the same key.
+
+## Rotate the encryption key
+
+Rotate the encryption key when it is compromised or as part of your regular security maintenance. The `pmm-encryption-rotation` tool generates a new key and re-encrypts all stored credentials with it.
+
+!!! note ""
+    PMM Server stops briefly and restarts during rotation. Plan for a short monitoring gap.
+
+### Prepare a custom setup
+
+Skip this section if you use the default key path and default database settings.
+
+#### Custom key path
+
+- Make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool can decrypt existing data.
+- Make sure the `pmm` user (UID 1000) can write to the directory that contains the key file. Otherwise, the rotation fails with a `permission denied` error and leaves `pmm-managed` stopped. To fix this, see [Recover from a failed rotation](#recover-from-a-failed-rotation).
+
+#### Custom database credentials or SSL
+
+- Have the credentials or SSL settings for the PMM internal database ready to pass as options to the rotation tool. To list the available options, run `pmm-encryption-rotation --help`.
+
+### Rotate the key
+
+To rotate the key:
 {.power-number}
 
 1. Log in to the container that runs PMM Server.
 
-2. Run the Encryption Rotation Tool using the following command:
+2. Run the rotation tool. If you use custom database credentials or SSL, add them as options:
 
     ```bash
-     pmm-encryption-rotation
+    pmm-encryption-rotation
     ```
 
-    - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
-    - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
+    The tool saves the new key to the same location as the old one: `/srv/pmm-encryption.key`, or the path set in `PMM_ENCRYPTION_KEY_PATH`. The previous key is saved as `pmm-encryption_old.key` in the same directory.
 
-3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
+3. If you installed PMM Server with the [Helm chart](../../install-pmm/install-pmm-server/deployment-options/helm/index.md#manage-the-encryption-key), restart the pod so the chart updates its backup copy of the key:
 
-Once the rotation tool has completed, a new encryption key will be generated and saved either in the default location (`/srv/pmm-encryption.key`) or in the path specified by `PMM_ENCRYPTION_KEY_PATH`. The tool will automatically re-encrypt all sensitive data with the new key.
+    ```bash
+    kubectl delete pod pmm-0
+    ```
 
-## Recovery after a corrupted rotation
+4. Confirm that PMM is working: check that your services appear as connected in **Inventory > Services** and that metrics are visible in your dashboards.
+
+5. Delete `pmm-encryption_old.key` or move it to secure offline storage. This file contains the previous key in plain text.
+
+### Rotate the key in a Docker HA cluster
+
+All nodes must switch to the new key together, so rotate it on one node and then copy it to the others:
+{.power-number}
+
+1. Stop PMM Server on every node except one. Any node left running keeps using the old key, which leaves the database encrypted with two different keys.
+
+2. On the remaining node, [rotate the encryption key](#rotate-the-encryption-key).
+
+3. Copy the new key file from that node to every other node, using the same path.
+
+4. Start the other nodes.
+
+Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
+
+
+## Recover from a failed rotation
+
+If PMM Server stops while `pmm-encryption-rotation` is running, your data remains intact and encrypted with the previous key.
+
+To bring PMM back up and retry:
+{.power-number}
+
+1. Restart `pmm-managed`:
+
+    ```bash
+    supervisorctl start pmm-managed
+    ```
+
+2. If the directory containing your key file is not writable by the `pmm` user (UID 1000), fix the permissions:
+
+    ```bash
+    chown pmm:pmm /path/to/key/directory
+    ```
+
+3. Run the rotation tool again.
+
+## Recover from a corrupted rotation
 
 PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation. If you rotated the encryption key before upgrading to 3.9.1, see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) for recovery steps.
 
-## Best practices for custom key management
-
-- Always keep a secure backup of your encryption key, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
-- In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
-- Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
 
 ## See also
 

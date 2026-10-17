@@ -1,12 +1,7 @@
 # Understand PMM High Availability Cluster
 
-!!! warning "Technical Preview: Not production-ready"
-    This feature is in **Technical Preview** for testing and feedback only. Expect [known issues](../install-pmm/install-HA-clustered.md#known-issues), breaking changes, and incomplete features.
-    
-    **Test in non-production environments only** and [provide feedback](../install-pmm/install-HA-clustered.md#get-help-and-provide-feedback) to shape the GA release.
-
 !!! danger "VictoriaMetrics limitations"
-    This Tech Preview does not support:
+    PMM HA Cluster does not support:
     
     - **Prometheus data imports**: Cannot import existing Prometheus files
     - **Metrics downsampling**: No automatic historical data optimization
@@ -18,7 +13,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance deployments](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
+Unlike [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -32,9 +27,9 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Choose your Kubernetes deployment type
 
-| Consideration | Single-instance (GA) | HA Cluster (Tech Preview) |
+| Consideration | Single-instance | HA Cluster |
 |--------------|----------------------|-----------------------------|
-| **Production status** | ✅ Production-ready | ⚠️ Testing only |
+| **Production status** | ✅ Production-ready | ✅ Production-ready |
 | **Failover time** | 2-5 minutes | Immediate |
 | **Setup complexity** | ● Low | ●●● Medium |
 | **Resource overhead** | 1x baseline | 3-5x baseline |
@@ -49,14 +44,14 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 ### Check prerequisites
 
 - **Kubernetes**: 1.32 or higher
-- **Helm**: 3.2.0 or higher
+- **Helm**: 3.17.0 or higher
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 
 ### Check if your platform is supported
 
-!!! info "Tested Platform: Amazon EKS only"
-    This Tech Preview is validated exclusively on **Amazon EKS (Kubernetes 1.32+)**. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.
+!!! info "Supported platforms"
+    PMM HA Cluster has been validated on **Amazon EKS (Kubernetes 1.32+)** and **OpenShift 4.21+** (including ROSA HCP). Other platforms (GKE, AKS, on-premise) may work but are untested. VMware Tanzu is not supported.
 
 ## Plan your resources
 
@@ -140,13 +135,9 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **Automatic failover**: HAProxy detects when the active leader becomes unhealthy and routes traffic to the new leader
 - **Pod anti-affinity**: Kubernetes scheduler distributes components across different nodes
 - **Health checks**: Comprehensive readiness and liveness probes on all components
-- **Rolling updates**: Zero-downtime upgrades with sequential pod updates
+- **Rolling updates**: Upgrades restart each pod sequentially. Expect a brief interruption (around 5-10 seconds) when the active leader pod restarts and a new leader is elected.
 
-### Known issues
-
-- Only databases deployed in the same Kubernetes cluster can be added to monitoring. Remote database monitoring will be added in a future release.
-- **[PMM-14665](https://perconadev.atlassian.net/browse/PMM-14665)**: When adding a service, the node list incorrectly includes PostgreSQL database instance nodes alongside PMM HA nodes.
-- **[PMM-14678](https://perconadev.atlassian.net/browse/PMM-14678)**: Database dashboards don't display metrics for services added via pmm-admin, though they work correctly for services added through the UI.
+- Exporters in pull mode get no metrics, because nothing in the HA deployment scrapes them. Exporters on PMM Client nodes use push mode by default, so this affects only those set to pull mode, for example with `--metrics-mode=pull`. To switch an exporter to push mode, run `pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> --push-metrics` (see [`pmm-admin inventory change agent`](../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-change-agent)).
 - **[PMM-14680](https://perconadev.atlassian.net/browse/PMM-14680)**: PostgreSQL database instance nodes and services display with an incorrect 'pmm-' prefix in their names.
 - **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: HA cluster status always displays as "Healthy" even when follower or leader pods are deleted or not ready.
 - **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: The Inventory page shows inconsistent numbers of PostgreSQL services (4-5 instead of the expected 6 services).
@@ -159,3 +150,7 @@ Now that you understand how PMM HA Cluster works, you can deploy it on your Kube
 The installation process uses Helm to set up all three replicas, configure HAProxy load balancing, and deploy the distributed databases automatically.
 
 [Install PMM HA Cluster →](../install-pmm/install-HA-clustered.md){.md-button}
+
+## Need to upgrade?
+
+When a new PMM release is available, see [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.
