@@ -106,17 +106,25 @@ func isTest() bool {
 func New() *Encryption {
 	e := &Encryption{Path: KeyPath()}
 
-	bytes, err := os.ReadFile(e.Path)
-	switch {
-	case os.IsNotExist(err):
-		err = e.generateAndPersistKey()
+	if e.Path == "" {
+		key, err := e.GenerateKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
-	case err != nil:
-		logrus.Panicf("Encryption: %v", err)
-	default:
-		e.Key = string(bytes)
+		e.Key = key
+	} else {
+		bytes, err := os.ReadFile(e.Path)
+		switch {
+		case os.IsNotExist(err):
+			err = e.generateAndPersistKey()
+			if err != nil {
+				logrus.Panicf("Encryption: %v", err)
+			}
+		case err != nil:
+			logrus.Panicf("Encryption: %v", err)
+		default:
+			e.Key = string(bytes)
+		}
 	}
 
 	primitive, err := e.getPrimitive()
