@@ -161,15 +161,26 @@ func pageSize(limit int) int {
 	return min(limit, maxSearchLimit)
 }
 
+// searchQuery returns the newest page of lines older than after; its subquery bounds Timestamp first, so only the page's rows are hashed and sorted.
 func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
-	where, args := buildWhere(f)
+	size := pageSize(limit)
+	where, whereArgs := buildWhere(f)
+	inner, innerArgs := where, append([]any{}, whereArgs...)
 	if after != nil {
-		where += " AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)"
+		// Strictly older, so lines sharing after's timestamp stay above the bound; the tuple comparison drops returned ones.
+		inner += " AND Timestamp < fromUnixTimestamp64Nano(?)"
+		innerArgs = append(innerArgs, after.Time.UnixNano())
+	}
+	cond := where + " AND Timestamp >= (SELECT min(Timestamp) FROM (SELECT Timestamp FROM otel.logs WHERE " + inner +
+		" ORDER BY Timestamp DESC LIMIT ?))"
+	args := append(append(append([]any{}, whereArgs...), innerArgs...), size)
+	if after != nil {
+		cond += " AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)"
 		args = append(args, after.Time.UnixNano(), after.Hash)
 	}
 	q := "SELECT " + lineColumns(listBodyLimit) + ", cityHash64(Body, ServiceName, LogAttributes['log.file.name']) AS h" +
-		" FROM otel.logs WHERE " + where + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings
-	return q, append(args, pageSize(limit))
+		" FROM otel.logs WHERE " + cond + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings
+	return q, append(args, size)
 }
 
 func volumeQuery(f Filter) (string, []any, time.Duration) {

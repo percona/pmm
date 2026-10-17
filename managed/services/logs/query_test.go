@@ -85,7 +85,7 @@ func TestSearchQuery_Cursor(t *testing.T) {
 
 	q, args := searchQuery(Filter{Start: testStart, End: testEnd}, &c, 100)
 	assert.Contains(t, q, "AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)")
-	assert.Equal(t, []any{c.Time.UnixNano(), c.Hash, 100}, args[4:])
+	assert.Equal(t, []any{c.Time.UnixNano(), c.Hash, 100}, args[len(args)-3:])
 
 	q, _ = searchQuery(Filter{Start: testStart, End: testEnd}, nil, 100)
 	assert.NotContains(t, q, "(Timestamp, h) <")
@@ -94,6 +94,24 @@ func TestSearchQuery_Cursor(t *testing.T) {
 		_, err = DecodeCursor(s)
 		assert.Error(t, err, s)
 	}
+}
+
+func TestSearchQuery_TopNCutoff(t *testing.T) {
+	f := Filter{Start: testStart, End: testEnd, Sources: []string{"pmm-managed"}}
+	where, whereArgs := buildWhere(f)
+
+	q, args := searchQuery(f, nil, 50)
+	assert.Contains(t, q, "WHERE "+where+" AND Timestamp >= (SELECT min(Timestamp) FROM "+
+		"(SELECT Timestamp FROM otel.logs WHERE "+where+" ORDER BY Timestamp DESC LIMIT ?)) ORDER BY")
+	expected := append(append(append([]any{}, whereArgs...), whereArgs...), 50, 50)
+	assert.Equal(t, expected, args)
+
+	c := Cursor{Time: testStart.Add(time.Minute), Hash: 7}
+	q, args = searchQuery(f, &c, 50)
+	assert.Contains(t, q, "(SELECT Timestamp FROM otel.logs WHERE "+where+
+		" AND Timestamp < fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?)")
+	expected = append(append(append([]any{}, whereArgs...), whereArgs...), c.Time.UnixNano(), 50, c.Time.UnixNano(), c.Hash, 50)
+	assert.Equal(t, expected, args)
 }
 
 func TestSearchQuery_Truncates(t *testing.T) {
