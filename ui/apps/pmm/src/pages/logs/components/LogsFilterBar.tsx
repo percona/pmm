@@ -92,7 +92,7 @@ const FilterButton: FC<FilterButtonProps> = ({
       bgcolor: active ? 'primary.hover' : 'background.paper',
     }}
   >
-    <Box component="span" sx={{ color: 'text.secondary' }}>
+    <Box component="span" sx={{ color: 'text.secondary', mr: 0.75 }}>
       {label}
     </Box>{' '}
     {value}
@@ -156,7 +156,6 @@ const FacetFilter: FC<FacetFilterProps> = ({
         <Autocomplete
           multiple
           open
-          disablePortal
           size="small"
           options={options}
           value={value}

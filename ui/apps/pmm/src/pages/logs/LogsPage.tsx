@@ -122,7 +122,7 @@ export const LogsPage: FC = () => {
                 search: searchParams.toString(),
               })
             }
-            sx={{ borderBottom: 1, borderColor: 'divider' }}
+            sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
           >
             <Tab
               data-testid="logs-tab-lines"
