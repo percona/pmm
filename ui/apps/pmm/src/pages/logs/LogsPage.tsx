@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Box,
-  LinearProgress,
-  Link,
-  Stack,
-  Tab,
-  Tabs,
-} from '@mui/material';
+import { Alert, LinearProgress, Link, Stack, Tab, Tabs } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Link as RouterLink,
@@ -21,6 +13,7 @@ import { PMM_LOGS_PATH } from 'lib/constants';
 import { LogsErrorAlert } from './components/LogsErrorAlert';
 import { LogsFilterBar } from './components/LogsFilterBar';
 import { LogsLinesTab } from './components/LogsLinesTab';
+import { LogsPatternsTab } from './components/LogsPatternsTab';
 import { LogsVolumeChart } from './components/LogsVolumeChart';
 import {
   filterFromSearchParams,
@@ -124,7 +117,20 @@ export const LogsPage: FC = () => {
           />
         </Tabs>
         {activeTab === 'lines' && <LogsLinesTab filter={filter} />}
-        {activeTab === 'patterns' && <Box data-testid="logs-patterns-tab" />}
+        {activeTab === 'patterns' && (
+          <LogsPatternsTab
+            filter={filter}
+            onSelect={(pattern) =>
+              navigate({
+                pathname: `${PMM_LOGS_PATH}/lines`,
+                search: searchParamsFromFilter(
+                  { ...filter, pattern },
+                  range
+                ).toString(),
+              })
+            }
+          />
+        )}
       </Stack>
     </Page>
   );
