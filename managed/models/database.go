@@ -2131,6 +2131,15 @@ $yaml$,
     error: error
 $old$`,
 	},
+	150: {
+		// postgres: accept any log_timezone abbreviation (pmm-qa images log GMT) and Debian's user@db prefix; the time is still
+		// read as UTC.
+		`UPDATE log_parser_presets SET
+			operator_yaml = replace(operator_yaml, $o$\.\d+) UTC \[(?P<pid>\d+)\] (?P<level>\w+):$o$,
+				$n$\.\d+) \S+ \[(?P<pid>\d+)\] (?:(?P<user>\S+?)@(?P<database>\S+) )?(?P<level>\w+):$n$),
+			updated_at = NOW()
+		WHERE name = 'postgres' AND built_in`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -51,6 +51,25 @@ func TestLogParserPresetsServerLogs(t *testing.T) {
 		}
 	})
 
+	t.Run("postgres parses any timezone and the Debian user@db prefix", func(t *testing.T) {
+		pg := mustPreset(t, q, "postgres")
+		require.NoError(t, models.ValidateLogParserOperatorYAML(pg.OperatorYAML))
+		re := regexp.MustCompile(regexParserRegex(t, pg.OperatorYAML))
+		for line, expected := range map[string][4]string{
+			"2026-10-17 07:14:59.915 GMT [6252] LOG:  statement: SELECT 1":                                     {"LOG", "", "", "statement: SELECT 1"},
+			"2026-10-16 12:38:54.405 UTC [233190] ERROR:  deadlock detected\n2026-10-16 DETAIL:  x":            {"ERROR", "", "", "deadlock detected\n2026-10-16 DETAIL:  x"},
+			"2026-10-16 12:38:54.405 CEST [233190] shop_app@shop FATAL:  password authentication failed":       {"FATAL", "shop_app", "shop", "password authentication failed"},
+			"2026-10-16 12:38:54.405 UTC [233191] [unknown]@[unknown] LOG:  connection received: host=[local]": {"LOG", "[unknown]", "[unknown]", "connection received: host=[local]"},
+		} {
+			m := re.FindStringSubmatch(line)
+			require.NotNil(t, m, line)
+			assert.Equal(t, expected[0], m[re.SubexpIndex("level")], line)
+			assert.Equal(t, expected[1], m[re.SubexpIndex("user")], line)
+			assert.Equal(t, expected[2], m[re.SubexpIndex("database")], line)
+			assert.Equal(t, expected[3], m[re.SubexpIndex("message")], line)
+		}
+	})
+
 	t.Run("pmm_agent parses times with and without milliseconds", func(t *testing.T) {
 		agent := mustPreset(t, q, "pmm_agent")
 		assert.Contains(t, agent.OperatorYAML, `layout: '2006-01-02T15:04:05Z07:00'`)
