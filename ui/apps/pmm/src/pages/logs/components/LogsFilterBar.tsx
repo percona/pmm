@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Chip,
+  FormControlLabel,
   IconButton,
   InputAdornment,
   Menu,
@@ -13,20 +14,23 @@ import {
   PopperProps,
   Popover,
   Stack,
+  Switch,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
 } from '@mui/material';
 import { FC, MouseEvent, ReactNode, useEffect, useState } from 'react';
-import { LogFacet, LogFacets, LogFilter } from 'api/logs';
+import { LogFacet, LogFacets, LogFilter, SeverityClass } from 'api/logs';
 import { toDatetimeLocalValue } from 'pages/qan/utils/qanTools';
 import { MONO } from '../logsTheme';
 import {
   hasFilters,
+  PMM_SERVER_NODE,
   QUICK_RANGES,
   QuickRange,
   SEVERITY_OPTIONS,
+  severityClassOf,
 } from '../utils/logsFilter';
 
 interface LogsFilterBarProps {
@@ -184,17 +188,33 @@ const FacetFilter: FC<FacetFilterProps> = ({
   );
 };
 
+// What the Severity button says for a filter that selects one class.
+const CLASS_LABELS: Record<SeverityClass, string> = {
+  error: 'Error and above',
+  warning: 'Warning only',
+  info: 'Info only',
+  other: 'Other only',
+};
+
+const severityFilterLabel = (f: LogFilter) => {
+  const cls = severityClassOf(f);
+  if (cls) return CLASS_LABELS[cls];
+  const min = severityOptionLabel(f.minSeverity ?? 0);
+  return f.maxSeverity ? `${min}, up to ${f.maxSeverity}` : min;
+};
+
 const SeverityFilter: FC<{
-  value?: number;
-  onChange: (value?: number) => void;
-}> = ({ value = 0, onChange }) => {
+  filter: LogFilter;
+  onChange: (minSeverity?: number) => void;
+}> = ({ filter, onChange }) => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const value = filter.maxSeverity ? undefined : (filter.minSeverity ?? 0);
   return (
     <>
       <FilterButton
         label="Severity"
-        value={severityOptionLabel(value)}
-        active={value > 0}
+        value={severityFilterLabel(filter)}
+        active={!!(filter.minSeverity || filter.maxSeverity)}
         onClick={(e) => setAnchor(e.currentTarget)}
         testId="logs-filter-severity"
       />
@@ -225,6 +245,7 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
 }) => {
   const [text, setText] = useState(filter.text ?? '');
   const [timeAnchor, setTimeAnchor] = useState<HTMLElement | null>(null);
+  const hidesServer = !!filter.excludeNodeNames?.includes(PMM_SERVER_NODE);
 
   useEffect(() => setText(filter.text ?? ''), [filter.text]);
 
@@ -376,16 +397,44 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
           testId="logs-filter-preset"
         />
         <SeverityFilter
-          value={filter.minSeverity}
+          filter={filter}
           onChange={(minSeverity) =>
-            onChange({ ...filter, minSeverity }, range)
+            onChange({ ...filter, minSeverity, maxSeverity: undefined }, range)
           }
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={hidesServer}
+              onChange={(e) =>
+                onChange(
+                  {
+                    ...filter,
+                    excludeNodeNames: e.target.checked
+                      ? [PMM_SERVER_NODE]
+                      : undefined,
+                  },
+                  range
+                )
+              }
+            />
+          }
+          label="Hide PMM Server"
+          sx={{ ml: 0.5, color: 'text.secondary' }}
         />
         {hasFilters(filter) && (
           <Button
             size="small"
             onClick={() =>
-              onChange({ start: filter.start, end: filter.end }, range)
+              onChange(
+                {
+                  start: filter.start,
+                  end: filter.end,
+                  excludeNodeNames: filter.excludeNodeNames,
+                },
+                range
+              )
             }
             sx={{ height: CONTROL_HEIGHT, textTransform: 'none' }}
           >

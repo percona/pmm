@@ -102,6 +102,36 @@ describe('LogsFilterBar', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('names a selected severity class in the Severity button', () => {
+    renderBar({ filter: { ...filter, minSeverity: 13, maxSeverity: 16 } });
+    expect(
+      screen.getByRole('button', { name: 'Severity Warning only' })
+    ).toBeVisible();
+  });
+
+  it('hides and shows PMM Server logs', () => {
+    const onChange = renderBar();
+    fireEvent.click(screen.getByRole('switch', { name: 'Hide PMM Server' }));
+    expect(onChange).toHaveBeenCalledWith(
+      { ...filter, excludeNodeNames: ['pmm-server'] },
+      '1h'
+    );
+  });
+
+  it('keeps PMM Server hidden when filters are cleared', () => {
+    const onChange = renderBar({
+      filter: { ...filter, text: 'lock', excludeNodeNames: ['pmm-server'] },
+    });
+    expect(
+      screen.getByRole('switch', { name: 'Hide PMM Server' })
+    ).toBeChecked();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(onChange).toHaveBeenCalledWith(
+      { ...filter, excludeNodeNames: ['pmm-server'] },
+      '1h'
+    );
+  });
+
   it('searches once typing stops', async () => {
     const onChange = renderBar();
     fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), {

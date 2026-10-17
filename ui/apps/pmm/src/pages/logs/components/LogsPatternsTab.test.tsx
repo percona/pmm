@@ -61,6 +61,16 @@ describe('LogsPatternsTab', () => {
     expect(within(rows[1]).queryByText('new')).not.toBeInTheDocument();
   });
 
+  it('explains what new means', async () => {
+    renderAt('/logs/patterns?range=1h');
+    const rows = await screen.findAllByTestId('log-pattern-row');
+    expect(
+      within(rows[0]).getByLabelText(
+        'No lines with this pattern in the 1 hour before this range'
+      )
+    ).toBeInTheDocument();
+  });
+
   it('shows each placeholder as a visible token', async () => {
     renderAt('/logs/patterns?range=1h');
     const rows = await screen.findAllByTestId('log-pattern-row');

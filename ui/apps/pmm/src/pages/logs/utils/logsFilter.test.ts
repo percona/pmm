@@ -2,6 +2,8 @@ import {
   filterFromSearchParams,
   rangeFromSearchParams,
   searchParamsFromFilter,
+  severityClassOf,
+  toggleSeverityClass,
 } from './logsFilter';
 
 const now = new Date('2026-10-17T12:00:00Z');
@@ -9,16 +11,18 @@ const now = new Date('2026-10-17T12:00:00Z');
 describe('logsFilter', () => {
   it('round-trips every key', () => {
     const params = new URLSearchParams(
-      'from=1760695200000&to=1760698800000&node=n1&node=n2&source=pmm-managed&preset=postgres&preset=mysql_error&severity=13&q=deadlock&pattern=connection+%3F'
+      'from=1760695200000&to=1760698800000&node=n1&node=n2&exclude_node=pmm-server&source=pmm-managed&preset=postgres&preset=mysql_error&severity=13&severity_max=16&q=deadlock&pattern=connection+%3F'
     );
     const filter = filterFromSearchParams(params, now);
     expect(filter).toEqual({
       start: '2025-10-17T10:00:00.000Z',
       end: '2025-10-17T11:00:00.000Z',
       nodeNames: ['n1', 'n2'],
+      excludeNodeNames: ['pmm-server'],
       sources: ['pmm-managed'],
       presets: ['postgres', 'mysql_error'],
       minSeverity: 13,
+      maxSeverity: 16,
       text: 'deadlock',
       pattern: 'connection ?',
     });
@@ -53,6 +57,23 @@ describe('logsFilter', () => {
       '2025-10-17T10:00:00.000Z'
     );
     expect(rangeFromSearchParams(params)).toBeUndefined();
+  });
+
+  it('selects one severity class and clears it on a second click', () => {
+    const base = { start: 's', end: 'e', text: 'x' };
+    const warnings = toggleSeverityClass(base, 'warning');
+    expect(warnings).toEqual({ ...base, minSeverity: 13, maxSeverity: 16 });
+    expect(severityClassOf(warnings)).toBe('warning');
+    expect(toggleSeverityClass(warnings, 'warning')).toEqual(base);
+    expect(toggleSeverityClass(base, 'other')).toEqual({
+      ...base,
+      maxSeverity: 8,
+    });
+    expect(toggleSeverityClass(warnings, 'error')).toEqual({
+      ...base,
+      minSeverity: 17,
+    });
+    expect(severityClassOf({ ...base, minSeverity: 13 })).toBeUndefined();
   });
 
   it('ignores an unknown severity', () => {

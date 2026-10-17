@@ -27,3 +27,19 @@ export const shortDateTime = (iso: string) =>
     hour: '2-digit',
     minute: '2-digit',
   });
+
+const DURATION_UNITS: [number, string][] = [
+  [86_400_000, 'day'],
+  [3_600_000, 'hour'],
+  [60_000, 'minute'],
+];
+
+/** A duration in its largest whole unit, e.g. 6 hours. */
+export const formatDuration = (ms: number) => {
+  const [size, unit] = DURATION_UNITS.find(([size]) => ms >= size) ?? [
+    1000,
+    'second',
+  ];
+  const n = Math.round(ms / size);
+  return `${n} ${unit}${n === 1 ? '' : 's'}`;
+};

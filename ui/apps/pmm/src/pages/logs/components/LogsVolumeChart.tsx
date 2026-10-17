@@ -1,5 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
+  alpha,
   Box,
   Button,
   Paper,
@@ -19,6 +20,10 @@ interface LogsVolumeChartProps {
   onZoom: (fromMs: number, toMs: number) => void;
   /** Returns to the range before the last zoom; the button shows only when set. */
   onBack?: () => void;
+  /** The severity class the lines are filtered to, highlighted in the legend. */
+  selectedClass?: SeverityClass;
+  /** Filters to a class clicked in the legend; legend entries are buttons only when set. */
+  onSelectClass?: (cls: SeverityClass) => void;
 }
 
 const CLASSES: { key: SeverityClass; label: string }[] = [
@@ -69,6 +74,8 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
   step,
   onZoom,
   onBack,
+  selectedClass,
+  onSelectClass,
 }) => {
   const { palette } = useTheme();
   const [drag, setDrag] = useState<[number, number] | null>(null);
@@ -123,7 +130,33 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
             variant="body2"
             color="text.secondary"
             data-testid={`logs-volume-total-${c.key}`}
-            sx={{ opacity: c.count ? 1 : 0.5 }}
+            {...(onSelectClass && {
+              component: 'button',
+              type: 'button',
+              'aria-pressed': selectedClass === c.key,
+              title: `Show only ${c.label.toLowerCase()} lines`,
+              onClick: () => onSelectClass(c.key),
+            })}
+            sx={{
+              px: 1,
+              py: 0.25,
+              ml: -1,
+              border: 1,
+              borderRadius: 2,
+              font: 'inherit',
+              fontSize: 'body2.fontSize',
+              borderColor:
+                selectedClass === c.key
+                  ? severityColor(c.key, palette.mode)
+                  : 'transparent',
+              bgcolor:
+                selectedClass === c.key
+                  ? alpha(severityColor(c.key, palette.mode), 0.12)
+                  : 'transparent',
+              opacity: c.count || selectedClass === c.key ? 1 : 0.5,
+              cursor: onSelectClass ? 'pointer' : 'default',
+              '&:hover': onSelectClass ? { bgcolor: 'action.hover' } : {},
+            }}
           >
             <Box
               component="span"

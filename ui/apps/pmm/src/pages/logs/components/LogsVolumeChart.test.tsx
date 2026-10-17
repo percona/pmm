@@ -82,4 +82,29 @@ describe('LogsVolumeChart', () => {
       })
     );
   });
+
+  it('selects a severity class from the legend', () => {
+    const onSelectClass = vi.fn();
+    render(
+      <TestWrapper>
+        <LogsVolumeChart
+          buckets={buckets}
+          step="60s"
+          onZoom={vi.fn()}
+          selectedClass="warning"
+          onSelectClass={onSelectClass}
+        />
+      </TestWrapper>
+    );
+    expect(screen.getByTestId('logs-volume-total-warning')).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(screen.getByTestId('logs-volume-total-error')).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    fireEvent.click(screen.getByTestId('logs-volume-total-error'));
+    expect(onSelectClass).toHaveBeenCalledWith('error');
+  });
 });

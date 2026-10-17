@@ -32,6 +32,8 @@ import {
   QuickRange,
   rangeFromSearchParams,
   searchParamsFromFilter,
+  severityClassOf,
+  toggleSeverityClass,
 } from './utils/logsFilter';
 
 type LogsTab = 'lines' | 'patterns';
@@ -95,6 +97,10 @@ export const LogsPage: FC = () => {
               step={volume.data.step}
               onZoom={zoom}
               onBack={zoomed ? () => navigate(-1) : undefined}
+              selectedClass={severityClassOf(filter)}
+              onSelectClass={(cls) =>
+                update(toggleSeverityClass(filter, cls), range)
+              }
             />
           ) : (
             <Alert severity="info" data-testid="logs-empty-state">

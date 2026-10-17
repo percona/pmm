@@ -62,6 +62,8 @@ describe('searchLogs', () => {
         start: '2026-10-17T09:00:00Z',
         end: '2026-10-17T10:00:00Z',
         minSeverity: 13,
+        maxSeverity: 16,
+        excludeNodeNames: ['pmm-server'],
       },
       'c0',
       100
@@ -74,6 +76,8 @@ describe('searchLogs', () => {
           start: '2026-10-17T09:00:00Z',
           end: '2026-10-17T10:00:00Z',
           min_severity: 13,
+          max_severity: 16,
+          exclude_node_names: ['pmm-server'],
         },
         cursor: 'c0',
         limit: 100,

@@ -9,6 +9,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
@@ -16,7 +17,7 @@ import { FC, Fragment } from 'react';
 import { LogFilter, severityClass, severityLabel } from 'api/logs';
 import { useLogPatterns } from 'hooks/api/useLogs';
 import { MONO, severityColor } from '../logsTheme';
-import { shortDateTime } from '../utils/logTime';
+import { formatDuration, shortDateTime } from '../utils/logTime';
 import { LogsErrorAlert } from './LogsErrorAlert';
 
 /** A pattern with its `?` placeholders shown as tokens. */
@@ -70,6 +71,9 @@ export const LogsPatternsTab: FC<LogsPatternsTabProps> = ({
   }
 
   const top = Math.max(...patterns.data.map((p) => p.count));
+  const newTitle = `No lines with this pattern in the ${formatDuration(
+    Date.parse(filter.end) - Date.parse(filter.start)
+  )} before this range`;
 
   return (
     <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'clip' }}>
@@ -157,22 +161,24 @@ export const LogsPatternsTab: FC<LogsPatternsTabProps> = ({
                 </TableCell>
                 <TableCell sx={{ ...MONO, wordBreak: 'break-word' }}>
                   {p.isNew && (
-                    <Box
-                      component="span"
-                      sx={{
-                        mr: 1,
-                        px: 0.5,
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: '0.06em',
-                        textTransform: 'uppercase',
-                        borderRadius: '4px',
-                        color: severityColor('warning', palette.mode),
-                        boxShadow: `inset 0 0 0 1px ${alpha(severityColor('warning', palette.mode), 0.5)}`,
-                      }}
-                    >
-                      new
-                    </Box>
+                    <Tooltip title={newTitle}>
+                      <Box
+                        component="span"
+                        sx={{
+                          mr: 1,
+                          px: 0.5,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          borderRadius: '4px',
+                          color: severityColor('warning', palette.mode),
+                          boxShadow: `inset 0 0 0 1px ${alpha(severityColor('warning', palette.mode), 0.5)}`,
+                        }}
+                      >
+                        new
+                      </Box>
+                    </Tooltip>
                   )}
                   <PatternText pattern={p.pattern} />
                 </TableCell>

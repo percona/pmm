@@ -1,4 +1,4 @@
-import { LogFilter } from 'api/logs';
+import { LogFilter, SeverityClass } from 'api/logs';
 
 export const QUICK_RANGES = ['15m', '1h', '6h', '24h', '7d'] as const;
 export type QuickRange = (typeof QUICK_RANGES)[number];
@@ -27,6 +27,7 @@ export const hasFilters = (f: LogFilter) =>
     f.sources ||
     f.presets ||
     f.minSeverity ||
+    f.maxSeverity ||
     f.text ||
     f.pattern
   );
@@ -66,6 +67,7 @@ export const filterFromSearchParams = (
   };
   const lists = {
     nodeNames: 'node',
+    excludeNodeNames: 'exclude_node',
     sources: 'source',
     presets: 'preset',
   } as const;
@@ -76,6 +78,10 @@ export const filterFromSearchParams = (
   const severity = Number(params.get('severity'));
   if (severity > 0 && SEVERITY_OPTIONS.some((o) => o.value === severity)) {
     filter.minSeverity = severity;
+  }
+  const maxSeverity = Number(params.get('severity_max'));
+  if (maxSeverity > 0 && maxSeverity <= MAX_SEVERITY) {
+    filter.maxSeverity = maxSeverity;
   }
   const text = params.get('q');
   if (text) filter.text = text;
@@ -97,10 +103,50 @@ export const searchParamsFromFilter = (
     params.set('to', String(Date.parse(filter.end)));
   }
   filter.nodeNames?.forEach((v) => params.append('node', v));
+  filter.excludeNodeNames?.forEach((v) => params.append('exclude_node', v));
   filter.sources?.forEach((v) => params.append('source', v));
   filter.presets?.forEach((v) => params.append('preset', v));
   if (filter.minSeverity) params.set('severity', String(filter.minSeverity));
+  if (filter.maxSeverity) {
+    params.set('severity_max', String(filter.maxSeverity));
+  }
   if (filter.text) params.set('q', filter.text);
   if (filter.pattern) params.set('pattern', filter.pattern);
   return params;
+};
+
+// The highest OpenTelemetry severity number (FATAL4).
+const MAX_SEVERITY = 24;
+
+/** PMM Server's own node, whose logs the Hide PMM Server switch excludes. */
+export const PMM_SERVER_NODE = 'pmm-server';
+
+// The severity numbers of each class, as severityClass draws them.
+const CLASS_BOUNDS: Record<
+  SeverityClass,
+  Pick<LogFilter, 'minSeverity' | 'maxSeverity'>
+> = {
+  error: { minSeverity: 17 },
+  warning: { minSeverity: 13, maxSeverity: 16 },
+  info: { minSeverity: 9, maxSeverity: 12 },
+  other: { maxSeverity: 8 },
+};
+
+/** The severity class the filter selects exactly, if any. */
+export const severityClassOf = (f: LogFilter): SeverityClass | undefined =>
+  (Object.keys(CLASS_BOUNDS) as SeverityClass[]).find(
+    (cls) =>
+      CLASS_BOUNDS[cls].minSeverity === f.minSeverity &&
+      CLASS_BOUNDS[cls].maxSeverity === f.maxSeverity
+  );
+
+/** Selects only the lines of one severity class, or clears the severity when that class is already selected. */
+export const toggleSeverityClass = (
+  f: LogFilter,
+  cls: SeverityClass
+): LogFilter => {
+  const rest = { ...f };
+  delete rest.minSeverity;
+  delete rest.maxSeverity;
+  return severityClassOf(f) === cls ? rest : { ...rest, ...CLASS_BOUNDS[cls] };
 };

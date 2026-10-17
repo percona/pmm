@@ -5,9 +5,11 @@ export interface LogFilter {
   start: string;
   end: string;
   nodeNames?: string[];
+  excludeNodeNames?: string[];
   sources?: string[];
   presets?: string[];
   minSeverity?: number;
+  maxSeverity?: number;
   text?: string;
   pattern?: string;
 }
@@ -104,6 +106,8 @@ const toRawFilter = (f: LogFilter) => ({
   sources: f.sources,
   presets: f.presets,
   min_severity: f.minSeverity,
+  max_severity: f.maxSeverity,
+  exclude_node_names: f.excludeNodeNames,
   text: f.text,
   pattern: f.pattern,
 });
