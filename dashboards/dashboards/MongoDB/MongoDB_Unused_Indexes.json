@@ -146,7 +146,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "min(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", node_name=~\"$node_name\"}) / 86400",
+                    "expr": "min(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", node_name=~\"$node_name\"}) / 86400",
                     "instant": true,
                     "refId": "A"
                 }
@@ -222,7 +222,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "count(avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
+                    "expr": "count(avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
                     "instant": true,
                     "refId": "A"
                 }
@@ -289,7 +289,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "count(avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
+                    "expr": "count(avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
                     "refId": "A"
                 }
             ],
@@ -458,7 +458,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0",
+                    "expr": "avg by (cluster, collection, database, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0",
                     "format": "table",
                     "instant": true,
                     "refId": "A"
@@ -599,7 +599,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "avg by (cluster, database, collection, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
+                    "expr": "avg by (cluster, database, collection, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
                     "interval": "$interval",
                     "legendFormat": "{{cluster}} | {{service_name}} | {{node_name}} | {{database}}.{{collection}} | {{key_name}}",
                     "range": true,
@@ -754,7 +754,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "bottomk(20, avg by (cluster, database, collection, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
+                    "expr": "bottomk(20, avg by (cluster, database, collection, key_name, service_name, node_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name_list\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
                     "format": "table",
                     "instant": true,
                     "refId": "A"
@@ -967,6 +967,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "selected": true,
                     "text": [
@@ -1003,7 +1004,36 @@
                         "$__all"
                     ]
                 },
-                "definition": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; service_name uses allValue \".+\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "query_result(count by (database) (mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"} and on (service_name) group by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"})))",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Database",
@@ -1011,11 +1041,11 @@
                 "name": "database",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+                    "query": "query_result(count by (database) (mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"} and on (service_name) group by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"})))",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
-                "regex": "",
+                "regex": "/database=\"(.*)\"/",
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query"
