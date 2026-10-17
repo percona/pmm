@@ -238,7 +238,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 			continue
 		}
 		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, environment, cluster,
-			secret.MongoDBUsername, secret.MongoDBPassword)
+			secret.MongoDBUsername.Reveal(), secret.MongoDBPassword.Reveal())
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 			continue
@@ -276,13 +276,13 @@ func (s *Service) paramsForStep(ctx context.Context, runID, stepName string) (ma
 		if err != nil {
 			return nil, err
 		}
-		return map[string]string{"key_file_content": secret.KeyFile}, nil
+		return map[string]string{"key_file_content": secret.KeyFile.Reveal()}, nil
 	case "create_pmm_monitoring_user":
 		secret, err := s.ensureBootstrapSecret(ctx, runID)
 		if err != nil {
 			return nil, err
 		}
-		return map[string]string{"username": secret.MongoDBUsername, "password": secret.MongoDBPassword}, nil
+		return map[string]string{"username": secret.MongoDBUsername.Reveal(), "password": secret.MongoDBPassword.Reveal()}, nil
 	case createAdminUserStep:
 		secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
 		if errors.Is(err, models.ErrNotFound) {
@@ -291,10 +291,10 @@ func (s *Service) paramsForStep(ctx context.Context, runID, stepName string) (ma
 		if err != nil {
 			return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
 		}
-		if secret.AdminPassword == "" {
+		if secret.AdminPassword.Reveal() == "" {
 			return nil, errAdminPasswordGone
 		}
-		return map[string]string{"username": secret.AdminUsername, "password": secret.AdminPassword}, nil
+		return map[string]string{"username": secret.AdminUsername.Reveal(), "password": secret.AdminPassword.Reveal()}, nil
 	default:
 		return nil, nil //nolint:nilnil // "no params needed" is not an error
 	}
@@ -339,8 +339,8 @@ func newBootstrapSecret() (*models.OmBootstrapSecret, error) {
 	}
 	return &models.OmBootstrapSecret{
 		MongoDBUsername: bootstrapMongoDBUsername,
-		MongoDBPassword: password,
-		KeyFile:         keyFile,
+		MongoDBPassword: models.EncryptedString(password),
+		KeyFile:         models.EncryptedString(keyFile),
 	}, nil
 }
 

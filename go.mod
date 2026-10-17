@@ -65,7 +65,7 @@ require (
 	github.com/sirupsen/logrus v1.10.0
 	github.com/stretchr/objx v0.5.3
 	github.com/stretchr/testify v1.12.1
-	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
+	github.com/tink-crypto/tink-go/v2 v2.7.0
 	github.com/xdg-go/stringprep v1.0.4
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
 	go.mongodb.org/mongo-driver v1.17.7

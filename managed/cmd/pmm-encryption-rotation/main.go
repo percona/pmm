@@ -58,8 +58,7 @@ func main() {
 	)
 
 	if opts.GenerateKey {
-		e := &encryption.Encryption{}
-		key, err := e.GenerateKey()
+		key, err := encryption.GenerateKeyset()
 		if err != nil {
 			logrus.Errorf("Failed to generate key: %v", err)
 			os.Exit(1)
@@ -74,7 +73,11 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, encryptionService.RotationParams{
+		Prune:                   opts.Prune,
+		OtherHANodesStopped:     opts.HAOtherNodesStopped,
+		MigrationBackupKeySaved: opts.MigrationBackupKeySaved,
+	})
 	sqlDB.Close() //nolint:errcheck
 	if err != nil {
 		logrus.Error(err)
@@ -84,15 +87,19 @@ func main() {
 
 //nolint:lll
 type flags struct {
-	Address     string `name:"postgres-addr" default:"${address}" help:"PostgreSQL address with port"`
-	DBName      string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
-	DBUsername  string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
-	DBPassword  string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
-	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"`
-	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
-	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
-	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
-	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
+	Address                 string `name:"postgres-addr" default:"${address}" help:"PostgreSQL address with port"`
+	DBName                  string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
+	DBUsername              string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
+	DBPassword              string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
+	SSLMode                 string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"`
+	SSLCAPath               string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
+	SSLKeyPath              string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
+	SSLCertPath             string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
+	GenerateKey             bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
+	Prune                   bool   `name:"prune" help:"Remove retired keys from the keyset after all data is re-encrypted with the new key"`
+	MigrationBackupKeySaved bool   `name:"migration-backup-key-saved" help:"With --prune, confirm that a copy of the key file is kept elsewhere: pruning removes the keys the migration backups are encrypted with"`
+	// HA mode
+	HAOtherNodesStopped bool `name:"ha-other-nodes-stopped" help:"In HA mode, confirm that PMM Server is stopped on every other node; copy the key file to them before starting them again"`
 }
 
 func setupParams(opts flags) models.SetupDBParams {

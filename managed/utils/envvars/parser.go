@@ -264,6 +264,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
 			continue
 
+		// read when the encryption key is loaded, see models.SetupDB
+		case "PMM_ENCRYPTION_ACCEPT_KEY_LOSS":
+			continue
+
 		case pkgenv.EnableAccessControl:
 			b, err := strconv.ParseBool(v)
 			if err != nil {

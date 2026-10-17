@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -360,8 +359,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		rtaAgent, err = models.CreateAgent(tx.Querier, rtaAgentType, &models.CreateAgentParams{
 			PMMAgentID:        pmmAgent.AgentID,
 			ServiceID:         service.ServiceID,
-			Username:          pointer.GetString(existingAgent.Username),
-			Password:          pointer.GetString(existingAgent.Password),
+			Username:          existingAgent.Username.Reveal(),
+			Password:          existingAgent.Password.Reveal(),
 			TLS:               existingAgent.TLS,
 			TLSSkipVerify:     existingAgent.TLSSkipVerify,
 			MongoDBOptions:    existingAgent.MongoDBOptions,
