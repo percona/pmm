@@ -96,9 +96,9 @@ func TestSearchLogs(t *testing.T) {
 		BodyTruncated:  true,
 		Attributes:     map[string]string{"component": "grpc"},
 	}, res.Lines[0])
-	assert.Equal(t, Cursor{Time: t2, Hash: 7}.Encode(), res.NextCursor)
+	assert.Equal(t, Cursor{Time: t2, Hash: 7, Skip: 1}.Encode(), res.NextCursor)
 
-	after := Cursor{Time: t2, Hash: 7}
+	after := Cursor{Time: t2, Hash: 7, Skip: 1}
 	q, _ = searchQuery(f, &after, 3)
 	mock.ExpectQuery(q).WillReturnRows(rows())
 	res, err = s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: testLogFilter(), Cursor: after.Encode(), Limit: 3})
@@ -108,6 +108,30 @@ func TestSearchLogs(t *testing.T) {
 
 	_, err = s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: testLogFilter(), Cursor: "bad"})
 	requireCode(t, err, codes.InvalidArgument)
+}
+
+func TestSearchLogs_IdenticalLines(t *testing.T) {
+	s, mock := newTestService(t)
+	f := Filter{Start: testStart, End: testEnd}
+	t1, t2 := testStart.Add(2*time.Minute), testStart.Add(time.Minute)
+	row := func(rows *sqlmock.Rows, ts time.Time, h uint64) *sqlmock.Rows {
+		return rows.AddRow(ts, "n", "s", "postgres", "f", int32(9), "LOG", "statement: COMMIT", false, map[string]string{}, h)
+	}
+
+	// The page ends with two identical lines: the cursor skips both.
+	q, _ := searchQuery(f, nil, 3)
+	mock.ExpectQuery(q).WillReturnRows(row(row(row(mock.NewRows(append(lineCols, "h")), t1, 5), t2, 7), t2, 7))
+	res, err := s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: testLogFilter(), Limit: 3})
+	require.NoError(t, err)
+	assert.Equal(t, Cursor{Time: t2, Hash: 7, Skip: 2}.Encode(), res.NextCursor)
+
+	// A page made only of more such lines adds to the skip.
+	after := Cursor{Time: t2, Hash: 7, Skip: 2}
+	q, _ = searchQuery(f, &after, 3)
+	mock.ExpectQuery(q).WillReturnRows(row(row(row(mock.NewRows(append(lineCols, "h")), t2, 7), t2, 7), t2, 7))
+	res, err = s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: testLogFilter(), Cursor: after.Encode(), Limit: 3})
+	require.NoError(t, err)
+	assert.Equal(t, Cursor{Time: t2, Hash: 7, Skip: 5}.Encode(), res.NextCursor)
 }
 
 func TestSearchLogs_Timeout(t *testing.T) {

@@ -77,20 +77,24 @@ func TestBuildWhere_TextLiteral(t *testing.T) {
 }
 
 func TestSearchQuery_Cursor(t *testing.T) {
-	c := Cursor{Time: time.Date(2026, 10, 17, 10, 30, 0, 123456789, time.UTC), Hash: 18446744073709551615}
+	c := Cursor{Time: time.Date(2026, 10, 17, 10, 30, 0, 123456789, time.UTC), Hash: 18446744073709551615, Skip: 3}
 	decoded, err := DecodeCursor(c.Encode())
 	require.NoError(t, err)
 	assert.True(t, c.Time.Equal(decoded.Time))
 	assert.Equal(t, c.Hash, decoded.Hash)
+	assert.Equal(t, 3, decoded.Skip)
 
+	// Lines identical in every shown field share (Timestamp, h): the cursor includes them and skips those returned.
 	q, args := searchQuery(Filter{Start: testStart, End: testEnd}, &c, 100)
-	assert.Contains(t, q, "AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)")
-	assert.Equal(t, []any{c.Time.UnixNano(), c.Hash, 100}, args[len(args)-3:])
+	assert.Contains(t, q, "AND (Timestamp, h) <= (fromUnixTimestamp64Nano(?), ?)")
+	assert.True(t, strings.HasSuffix(q, " LIMIT ? OFFSET ?"+querySettings), q)
+	assert.Equal(t, []any{c.Time.UnixNano(), c.Hash, 100, 3}, args[len(args)-4:])
 
 	q, _ = searchQuery(Filter{Start: testStart, End: testEnd}, nil, 100)
-	assert.NotContains(t, q, "(Timestamp, h) <")
+	assert.NotContains(t, q, "(Timestamp, h)")
+	assert.NotContains(t, q, "OFFSET")
 
-	for _, s := range []string{"", "not base64!", c.Encode()[:3], "MTIz"} {
+	for _, s := range []string{"", "not base64!", c.Encode()[:3], "MTIz", "MS4yLng"} {
 		_, err = DecodeCursor(s)
 		assert.Error(t, err, s)
 	}
@@ -110,7 +114,7 @@ func TestSearchQuery_TopNCutoff(t *testing.T) {
 	q, args = searchQuery(f, &c, 50)
 	assert.Contains(t, q, "(SELECT Timestamp FROM otel.logs WHERE "+where+
 		" AND Timestamp < fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?)")
-	expected = append(append(append([]any{}, whereArgs...), whereArgs...), c.Time.UnixNano(), 50, c.Time.UnixNano(), c.Hash, 50)
+	expected = append(append(append([]any{}, whereArgs...), whereArgs...), c.Time.UnixNano(), 50, c.Time.UnixNano(), c.Hash, 50, 0)
 	assert.Equal(t, expected, args)
 }
 
@@ -118,7 +122,7 @@ func TestSearchQuery_Truncates(t *testing.T) {
 	q, _ := searchQuery(Filter{Start: testStart, End: testEnd}, nil, 0)
 	assert.Contains(t, q, "substringUTF8(Body, 1, 4096)")
 	assert.Contains(t, q, "lengthUTF8(Body) > 4096")
-	assert.Contains(t, q, "cityHash64(Body, ServiceName, LogAttributes['log.file.name']) AS h")
+	assert.Contains(t, q, "cityHash64(Body, ServiceName, ResourceAttributes['node_name'], LogAttributes, SeverityNumber, SeverityText) AS h")
 	assert.Contains(t, q, "ORDER BY Timestamp DESC, h DESC LIMIT ?")
 }
 

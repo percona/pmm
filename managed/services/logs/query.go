@@ -53,15 +53,20 @@ type Filter struct {
 	Pattern     string
 }
 
+// lineHash identifies a line among those with the same Timestamp; lines it cannot tell apart look identical.
+const lineHash = "cityHash64(Body, ServiceName, ResourceAttributes['node_name'], LogAttributes, SeverityNumber, SeverityText)"
+
 // Cursor positions a search page after the last returned line.
 type Cursor struct {
 	Time time.Time
 	Hash uint64
+	// Skip counts the returned lines identical to the last one (same Time and Hash).
+	Skip int
 }
 
 // Encode returns the opaque form of c that clients pass back.
 func (c Cursor) Encode() string {
-	return base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatInt(c.Time.UnixNano(), 10) + "." + strconv.FormatUint(c.Hash, 10)))
+	return base64.RawURLEncoding.EncodeToString(fmt.Appendf(nil, "%d.%d.%d", c.Time.UnixNano(), c.Hash, c.Skip))
 }
 
 // DecodeCursor parses a cursor made by Cursor.Encode.
@@ -70,19 +75,25 @@ func DecodeCursor(s string) (Cursor, error) {
 	if err != nil {
 		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
 	}
-	nanos, hash, ok := strings.Cut(string(b), ".")
-	if !ok {
+	// time.hash.skip
+	const fields = 3
+	parts := strings.Split(string(b), ".")
+	if len(parts) != fields {
 		return Cursor{}, errors.New("invalid cursor")
 	}
-	n, err := strconv.ParseInt(nanos, 10, 64)
+	n, err := strconv.ParseInt(parts[0], 10, 64)
 	if err != nil {
 		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
 	}
-	h, err := strconv.ParseUint(hash, 10, 64)
+	h, err := strconv.ParseUint(parts[1], 10, 64)
 	if err != nil {
 		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
 	}
-	return Cursor{Time: time.Unix(0, n).UTC(), Hash: h}, nil
+	skip, err := strconv.Atoi(parts[2])
+	if err != nil || skip < 0 {
+		return Cursor{}, errors.New("invalid cursor")
+	}
+	return Cursor{Time: time.Unix(0, n).UTC(), Hash: h, Skip: skip}, nil
 }
 
 // PatternExpr returns the ClickHouse expression that turns column into its pattern; GetLogPatterns and the pattern filter both use it.
@@ -174,13 +185,13 @@ func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
 	cond := where + " AND Timestamp >= (SELECT min(Timestamp) FROM (SELECT Timestamp FROM otel.logs WHERE " + inner +
 		" ORDER BY Timestamp DESC LIMIT ?))"
 	args := append(append(append([]any{}, whereArgs...), innerArgs...), size)
-	if after != nil {
-		cond += " AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)"
-		args = append(args, after.Time.UnixNano(), after.Hash)
+	q := "SELECT " + lineColumns(listBodyLimit) + ", " + lineHash + " AS h FROM otel.logs WHERE " + cond
+	if after == nil {
+		return q + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings, append(args, size)
 	}
-	q := "SELECT " + lineColumns(listBodyLimit) + ", cityHash64(Body, ServiceName, LogAttributes['log.file.name']) AS h" +
-		" FROM otel.logs WHERE " + cond + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings
-	return q, append(args, size)
+	// Lines identical to after sort first; OFFSET skips the ones already returned.
+	q += " AND (Timestamp, h) <= (fromUnixTimestamp64Nano(?), ?) ORDER BY Timestamp DESC, h DESC LIMIT ? OFFSET ?" + querySettings
+	return q, append(args, after.Time.UnixNano(), after.Hash, size, after.Skip)
 }
 
 func volumeQuery(f Filter) (string, []any, time.Duration) {

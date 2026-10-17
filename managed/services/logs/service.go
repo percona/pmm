@@ -147,11 +147,17 @@ func (s *Service) SearchLogs(ctx context.Context, req *logsv1.SearchLogsRequest)
 	res := &logsv1.SearchLogsResponse{}
 	var last Cursor
 	err = s.query(ctx, q, args, func(rows *sql.Rows) error {
-		l, err := scanLine(rows, &last.Hash)
+		var h uint64
+		l, err := scanLine(rows, &h)
 		if err != nil {
 			return err
 		}
-		last.Time = l.Time.AsTime()
+		ts := l.Time.AsTime()
+		if ts.Equal(last.Time) && h == last.Hash {
+			last.Skip++
+		} else {
+			last = Cursor{Time: ts, Hash: h, Skip: 1}
+		}
 		res.Lines = append(res.Lines, l)
 		return nil
 	})
@@ -159,6 +165,10 @@ func (s *Service) SearchLogs(ctx context.Context, req *logsv1.SearchLogsRequest)
 		return nil, err
 	}
 	if len(res.Lines) == pageSize(int(req.Limit)) {
+		// A page of nothing but lines identical to the cursor's continues its count.
+		if after != nil && last.Skip == len(res.Lines) && after.Time.Equal(last.Time) && after.Hash == last.Hash {
+			last.Skip += after.Skip
+		}
 		res.NextCursor = last.Encode()
 	}
 	return res, nil
