@@ -153,11 +153,15 @@ func lineColumns(bodyLimit int) string {
 		"lengthUTF8(Body) > %d AS body_truncated, LogAttributes", bodyLimit, bodyLimit)
 }
 
-func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
+// pageSize returns the search page size for a requested limit.
+func pageSize(limit int) int {
 	if limit <= 0 {
-		limit = defaultSearchLimit
+		return defaultSearchLimit
 	}
-	limit = min(limit, maxSearchLimit)
+	return min(limit, maxSearchLimit)
+}
+
+func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
 	where, args := buildWhere(f)
 	if after != nil {
 		where += " AND (Timestamp, h) < (fromUnixTimestamp64Nano(?), ?)"
@@ -165,7 +169,7 @@ func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
 	}
 	q := "SELECT " + lineColumns(listBodyLimit) + ", cityHash64(Body, ServiceName, LogAttributes['log.file.name']) AS h" +
 		" FROM otel.logs WHERE " + where + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings
-	return q, append(args, limit)
+	return q, append(args, pageSize(limit))
 }
 
 func volumeQuery(f Filter) (string, []any, time.Duration) {

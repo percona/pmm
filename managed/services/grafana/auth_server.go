@@ -138,6 +138,10 @@ var rules = map[string]role{
 	// Investigations (AI Investigations).
 	"/v1/investigations": viewer,
 
+	// Logs; users with label-based access filters are refused by the service.
+	"/v1/logs":  viewer,
+	"/logs.v1.": viewer,
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -163,6 +167,8 @@ var lbacPrefixes = []string{
 	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
+	"/v1/logs",
+	"/logs.v1.",
 	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
 	"/graph/api/datasources/proxy/1/api/v1/",
 }

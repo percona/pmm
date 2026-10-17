@@ -72,6 +72,7 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	logsv1 "github.com/percona/pmm/api/logs/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
@@ -91,6 +92,7 @@ import (
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/investigations"
+	logsservice "github.com/percona/pmm/managed/services/logs"
 	"github.com/percona/pmm/managed/services/management"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
@@ -298,6 +300,7 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+	otelClickhouse            *sql.DB
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -394,6 +397,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
 	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
 
+	logsv1.RegisterLogsServiceServer(gRPCServer, logsservice.New(deps.otelClickhouse))
+
 	// Start RTA store cleanup goroutine
 	go rtaStore.Run(ctx)
 
@@ -457,6 +462,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
 		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+		grpc_gateway.WithIncomingHeaderMatcher(func(key string) (string, bool) {
+			// nginx sets X-Proxy-Filter for users with label-based access filters (see auth_server.go).
+			if strings.EqualFold(key, "X-Proxy-Filter") {
+				return "x-proxy-filter", true
+			}
+			return grpc_gateway.DefaultHeaderMatcher(key)
+		}),
 	)
 
 	opts := []grpc.DialOption{
@@ -500,6 +512,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dumpv1beta1.RegisterDumpServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
+
+		logsv1.RegisterLogsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
 
@@ -1289,6 +1303,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				vmalert:                   vmalert,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
+				otelClickhouse:            clickhouseOTelClient,
 			})
 	})
 

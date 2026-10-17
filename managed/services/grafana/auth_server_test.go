@@ -82,6 +82,10 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// Logs are readable by viewers; the support bundle stays admin-only.
+		{http.MethodPost, "/v1/logs:search", viewer},
+		{http.MethodPost, "/logs.v1.LogsService/SearchLogs", viewer},
+		{http.MethodGet, "/logs.zip", admin},
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
