@@ -28,7 +28,7 @@ import type { FinishStatus } from '../../hooks/useTaskLogs';
 export type BadgeStatus = FinishStatus | 'stream-error' | 'executor-gone';
 
 const NOT_IN_EXECUTOR = {
-  label: 'Not in executor',
+  label: 'Cannot run on this host',
   color: 'warning',
   icon: <CloudOffIcon />,
 } as const;

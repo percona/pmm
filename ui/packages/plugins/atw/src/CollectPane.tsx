@@ -259,14 +259,77 @@ export function buildBatchPayload(
   };
 }
 
-/** Summarise the batch response's per-item errors for a banner. */
-function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
+/** One per-item failure for the Collect banner, keyed by filename for React. */
+export interface BatchItemError {
+  key: string;
+  message: string;
+}
+
+/**
+ * Display name for a script in a list that prefers titles.
+ *
+ * Titles are not unique by contract. When more than one entry in `peers` shares
+ * this title, the filename is appended so the reader can tell them apart.
+ */
+export function scriptListLabel(
+  title: string | undefined,
+  filename: string,
+  peers: readonly { title: string }[]
+): string {
+  const trimmed = title?.trim();
+  if (!trimmed) {
+    return filename;
+  }
+  const ambiguous =
+    peers.filter((peer) => peer.title.trim() === trimmed).length > 1;
+  return ambiguous ? `${trimmed} (${filename})` : trimmed;
+}
+
+/**
+ * Caption under a picker option: description when it is enough, otherwise the
+ * filename when titles (and descriptions) do not distinguish the row.
+ */
+export function scriptOptionCaption(
+  option: AtwSnippetSummary,
+  options: readonly AtwSnippetSummary[]
+): string | undefined {
+  const sameTitle = options.filter((peer) => peer.title === option.title);
+  if (sameTitle.length > 1) {
+    const descriptions = new Set(
+      sameTitle.map((peer) => peer.description.trim())
+    );
+    const descriptionsDistinguish =
+      descriptions.size === sameTitle.length &&
+      ![...descriptions].some((text) => text === '');
+    if (!descriptionsDistinguish) {
+      return option.name;
+    }
+  }
+  return option.description.trim() || undefined;
+}
+
+/** Summarise the batch response's per-item errors for a banner, by script title. */
+export function batchItemErrors(
+  response: AtwBatchExecuteResponse,
+  snippets: AtwSnippetSummary[]
+): BatchItemError[] {
+  const titles = new Map(
+    snippets.map((snippet) => [snippet.name, snippet.title])
+  );
   return response.items
     .filter((item) => item.error !== null && item.error !== undefined)
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      return `${item.snippet_filename}: ${detail}`;
+      const name = scriptListLabel(
+        titles.get(item.snippet_filename),
+        item.snippet_filename,
+        snippets
+      );
+      return {
+        key: item.snippet_filename,
+        message: `${name}: ${detail}`,
+      };
     });
 }
 
@@ -345,7 +408,7 @@ export function CollectPane({
   const { canMutate } = useAuth();
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
   const [selected, setSelected] = useState<AtwSnippetSummary[]>([]);
-  const [itemErrors, setItemErrors] = useState<string[]>([]);
+  const [itemErrors, setItemErrors] = useState<BatchItemError[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [formDefaults, setFormDefaults] = useState<
@@ -370,7 +433,7 @@ export function CollectPane({
   // off the prop would remount the form with the *previous* defaults and
   // never re-render again once the right ones arrived.
   const [appliedRerunNonce, setAppliedRerunNonce] = useState(0);
-  // The filename a rerun request could not resolve — renamed, removed, or no
+  // The script a rerun request could not resolve — renamed, removed, or no
   // longer approved since the tab that dispatched it closed. Cleared by the
   // next rerun request, or by a match finally resolving.
   const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
@@ -481,10 +544,12 @@ export function CollectPane({
     ) {
       return;
     }
+    const failedName =
+      rerunRequest.snippetTitle || rerunRequest.snippetFilename;
     if (rerunResolveQuery.isError) {
       setResolvingRerunNonce(null);
       setRerunResolveTerm(null);
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
       return;
     }
     if (!rerunResolveQuery.isSuccess) {
@@ -499,7 +564,7 @@ export function CollectPane({
       setSelected([match]);
       setRerunResolveFailed(null);
     } else {
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
     }
   }, [
     rerunResolveQuery.data,
@@ -633,7 +698,7 @@ export function CollectPane({
         const stillCurrent = selectionRef.current === snippetsAtSubmit;
         const started = startedCount(response);
         if (stillCurrent) {
-          setItemErrors(batchItemErrors(response));
+          setItemErrors(batchItemErrors(response, snippetsAtSubmit));
           if (started > 0) {
             // Seeded so reopening the confirmation's form comes back filled:
             // the collapse unmounts the form, and `defaultValues` is the only
@@ -651,7 +716,7 @@ export function CollectPane({
   };
 
   const submitError = batchMutation.isError
-    ? (batchMutation.error?.message ?? 'Batch execution failed')
+    ? (batchMutation.error?.message ?? "Couldn't start the diagnostics")
     : null;
 
   // Remount the form when the selection changes so react-hook-form rebuilds its
@@ -670,7 +735,7 @@ export function CollectPane({
           Collect
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          This incident is closed. Reopen it to run more diagnostic snippets.
+          This incident is closed. Reopen it to run more diagnostic scripts.
         </Typography>
       </Box>
     );
@@ -684,7 +749,7 @@ export function CollectPane({
 
       {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Snippet search failed: {searchQuery.error.message}
+          Script search failed: {searchQuery.error.message}
         </Alert>
       )}
 
@@ -698,7 +763,7 @@ export function CollectPane({
         // the user keeps typing, and must not interrupt a screen reader mid-word.
         <Alert severity="info" role="status" sx={{ mb: 2 }}>
           Showing the first {searchResults.length} of {searchPagination?.total}{' '}
-          snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
+          scripts matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
           name or description to narrow the results.
         </Alert>
       )}
@@ -725,11 +790,11 @@ export function CollectPane({
           !categoryFilterActive &&
           searchQuery.isFetching
         }
-        loadingText="Searching snippets…"
+        loadingText="Searching scripts…"
         noOptionsText={
           searchInput.trim() === ''
-            ? 'Type to search every snippet, or filter by category below.'
-            : 'No approved snippet matches this search.'
+            ? 'Type to search every diagnostic script, or filter by category below.'
+            : 'No approved script matches this search.'
         }
         getOptionLabel={(option) => option.title}
         // Without this MUI keys each row on the label, and titles are not unique
@@ -738,19 +803,20 @@ export function CollectPane({
         isOptionEqualToValue={(option, value) => option.name === value.name}
         renderOption={(props, option) => {
           const { key, ...liProps } = props as typeof props & { key: string };
+          const caption = scriptOptionCaption(option, options);
           return (
-            // The server matches filename and description too, so a hit can look
-            // unrelated to the typed term.
-            <Box
-              component="li"
-              key={key}
-              {...liProps}
-              sx={{ display: 'flex', gap: 0.5 }}
-            >
-              <Typography variant="body2">{option.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {option.name}
-              </Typography>
+            // The server matches the description too, so a hit can look
+            // unrelated to the typed term. Filename appears only when titles
+            // (and descriptions) would leave two options looking the same.
+            <Box component="li" key={key} {...liProps}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="body2">{option.title}</Typography>
+                {caption && (
+                  <Typography variant="caption" color="text.secondary">
+                    {caption}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           );
         }}
@@ -809,18 +875,18 @@ export function CollectPane({
 
       {gatedSnippetTitles.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          These snippets use conditional (required/forbidden) fields, which
-          batch collection does not evaluate — review their inputs before
-          executing: {gatedSnippetTitles.join(', ')}.
+          These scripts use conditional (required/forbidden) fields, which are
+          not evaluated when several scripts run together — review their inputs
+          before running: {gatedSnippetTitles.join(', ')}.
         </Alert>
       )}
 
       {itemErrors.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          Some snippets did not dispatch:
+          Some scripts did not start:
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
-            {itemErrors.map((message) => (
-              <li key={message}>{message}</li>
+            {itemErrors.map((item) => (
+              <li key={item.key}>{item.message}</li>
             ))}
           </Box>
         </Alert>
@@ -859,7 +925,7 @@ export function CollectPane({
               onSubmit={handleSubmit}
               renderField={renderField}
               submitLabel={
-                batchMutation.isPending ? 'Starting…' : 'Execute batch'
+                batchMutation.isPending ? 'Starting…' : 'Run diagnostics'
               }
               loading={batchMutation.isPending}
               submitError={submitError}

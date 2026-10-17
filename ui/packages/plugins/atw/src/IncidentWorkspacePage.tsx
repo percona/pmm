@@ -175,6 +175,7 @@ export function IncidentWorkspacePage() {
       setRerunRequest({
         nonce: rerunNonceRef.current,
         snippetFilename: execution.snippet_filename,
+        snippetTitle: execution.snippet_title?.trim() || undefined,
         remembered: remembered.get(execution.task_history_id),
       });
       const target = collectSectionRef.current;

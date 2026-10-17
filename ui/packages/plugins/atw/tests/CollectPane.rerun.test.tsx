@@ -183,4 +183,32 @@ describe('CollectPane rerun requests', () => {
       { timeout: 3000 }
     );
   });
+
+  it('names an unresolved snippet by its title when the execution carried one', async () => {
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return Promise.resolve({
+          data: { items: [], total: 0, offset: 0, limit: 50 },
+        });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    const rerunRequest: AtwRerunRequest = {
+      nonce: 1,
+      snippetFilename: 'diag/renamed-away.sh',
+      snippetTitle: 'Renamed Away',
+    };
+
+    renderPane(<CollectPane incidentId="inc-1" rerunRequest={rerunRequest} />);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/Could not find “Renamed Away”/)
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+    expect(screen.queryByText(/renamed-away\.sh/)).toBeNull();
+  });
 });
