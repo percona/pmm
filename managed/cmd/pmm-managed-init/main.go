@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -41,6 +42,13 @@ func main() {
 	}
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
+	}
+
+	// Before the rest, which the program it runs would wait for.
+	if len(os.Args) > 1 && os.Args[1] == execEnvCommand {
+		err := runExecEnv(os.Args[2:], secrets.RotatedEnvPath)
+		fmt.Fprintf(os.Stderr, "Cannot run %v: %s.\n", os.Args[2:], err)
+		os.Exit(1)
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == vaultEnvCommand {

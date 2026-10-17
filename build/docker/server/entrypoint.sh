@@ -103,6 +103,10 @@ for VAULT_CREDENTIAL in PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID PMM_AGENT_VAULT_TOKE
 done
 unset VAULT_CREDENTIALS_DIR VAULT_CREDENTIAL
 
+# The values of the secrets rotated in Vault while PMM Server ran, which pmm-managed applies without a restart, see
+# secrets.RotatedEnvPath. Removed at every start: the variables have their values from Vault now.
+rm -rf /tmp/pmm-secrets
+
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then

@@ -206,7 +206,23 @@ The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at start
 
 If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs. The passwords that you set in the environment are not written to the configuration files of PMM Server's components. The username and password that `PMM_VM_URL` may carry reach vmalert and vmproxy in files outside `/srv` that only PMM Server can read, and are neither in their configuration nor on their command line.
 
-PMM Server reads these secrets only when it starts, except for the admin password, see below. To apply another changed secret, restart the container.
+PMM Server reads these secrets when it starts, and checks them for changes in Vault at the interval of `PMM_VAULT_CACHE_TTL` while it runs. A changed secret is applied without a restart of PMM Server, by restarting the components that use it, for a few seconds each:
+
+| Variable | Applied by |
+|----------|------------|
+| `PMM_TLS_CERTIFICATE`, `PMM_TLS_CERTIFICATE_KEY`, `PMM_TLS_CA_CERTIFICATE` | Reloading nginx, without dropping connections. A certificate and a key that do not belong together are not installed, so rotate both, and PMM Server installs them once they do. |
+| `PMM_CLICKHOUSE_PASSWORD` | Changing the password in the built-in ClickHouse, and restarting qan-api2 and pmm-managed |
+| `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | Changing the password in the built-in ClickHouse, and restarting Grafana |
+| `GF_DATABASE_PASSWORD` | Changing the password in the built-in PostgreSQL, and restarting Grafana and pmm-managed |
+| `PMM_POSTGRES_DBPASSWORD` | Restarting Grafana and pmm-managed, which changes the password in the built-in PostgreSQL |
+| `PMM_VM_URL` | Restarting vmproxy and pmm-managed; vmalert reads the new credentials by itself |
+| `PMM_EXTENSIONS_SECRET_KEY`, `PMM_EXTENSIONS_POSTGRES_PASSWORD` | Publishing them to the side-car, and changing the password in the built-in PostgreSQL. Restart the side-car to apply them. |
+| `GF_SECURITY_ADMIN_PASSWORD` | Changing the password of the admin user, see below |
+| Other `GF_*` | Restarting Grafana |
+| `VM_*` | Restarting VictoriaMetrics |
+| `VMAGENT_*`, other `PMM_*` | Restarting pmm-managed, which sends the `VMAGENT_*` variables to the vmagents of PMM Clients |
+
+`GF_SECURITY_SECRET_KEY` cannot be changed while PMM Server runs: Grafana cannot read the secrets it stored with another key. A secret that a component uses on another host, such as the password of an external PostgreSQL or ClickHouse, must be changed there as well. When PMM Server restarts, it reads every secret from Vault again.
 
 When `GF_SECURITY_ADMIN_PASSWORD` is a reference, PMM Server keeps the password of the admin user the one in Vault:
 
@@ -265,7 +281,7 @@ The encryption key protects most of the secrets that PMM Server stores in its da
 
 In High Availability mode, give every node the same reference. To rotate the key, run `pmm-encryption-rotation` as before: it stores the new key in Vault under the same reference, so the identity of PMM Server needs `create` and `update` on its path. If the rotation fails, it puts the old key back in Vault.
 
-PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. It applies the passwords of the built-in ClickHouse and PostgreSQL at every start, so restart PMM Server to apply rotated ones; without the variables, the default passwords apply again. The certificate and its key are written to `/srv/nginx` at every start, where nginx reads them, so that PMM Server serves the certificate in Vault after a restart. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key. The superuser of the built-in PostgreSQL has no password, so there is none to store: it can only connect from inside PMM Server, over the local socket. PMM Server removes the superuser password of an existing installation, and the file in `/srv` that kept it, at the next start.
+PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. It applies the passwords of the built-in ClickHouse and PostgreSQL at every start, and those rotated in Vault while it runs, see above; without the variables, the default passwords apply again at the next start. The certificate and its key are written to `/srv/nginx` at every start, and when they are rotated in Vault, where nginx reads them, so that PMM Server serves the certificate in Vault. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key. The superuser of the built-in PostgreSQL has no password, so there is none to store: it can only connect from inside PMM Server, over the local socket. PMM Server removes the superuser password of an existing installation, and the file in `/srv` that kept it, at the next start.
 
 To move the secret key of PMM Extensions of an existing installation to Vault, store the content of `/srv/.extensions_secret_key` under the reference: once the key from Vault is the same, PMM Server removes the file. A different key signs every session of the side-car out, and leaves the file in place, so that removing the variable returns to it. The side-car keeps reading the key and the password from `/srv/extensions`, where PMM Server publishes them at every start.
 

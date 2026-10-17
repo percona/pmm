@@ -85,6 +85,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dump"
+	"github.com/percona/pmm/managed/services/envsecrets"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -1381,6 +1382,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				vmdb:                      vmdb,
 			})
 	})
+
+	if secrets.Configured() {
+		envSecrets := envsecrets.New(os.Environ(), supervisord)
+		wg.Go(func() {
+			envSecrets.Run(ctx, secrets.CacheTTL())
+		})
+	}
 
 	// Kept the one in Vault while GF_SECURITY_ADMIN_PASSWORD is a reference, which vault-env keeps.
 	adminPassword := grafana.NewAdminPassword(os.Getenv("PMM_VAULT_REF_GF_SECURITY_ADMIN_PASSWORD"),

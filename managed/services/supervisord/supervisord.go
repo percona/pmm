@@ -225,7 +225,7 @@ var templates = template.Must(template.New("").Option("missingkey=error").Parse(
 [program:victoriametrics]
 priority = 7
 command =
-	/usr/sbin/victoriametrics
+	/usr/sbin/pmm-managed-init exec-env /usr/sbin/victoriametrics
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
@@ -318,7 +318,7 @@ redirect_stderr = true
 [program:qan-api2]
 priority = 13
 command =
-	/usr/sbin/percona-qan-api2
+	/usr/sbin/pmm-managed-init exec-env /usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
@@ -345,7 +345,7 @@ redirect_stderr = true
 [program:grafana]
 priority = 3
 command =
-    /usr/sbin/grafana server
+    /usr/sbin/pmm-managed-init exec-env /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
 environment =
