@@ -372,6 +372,8 @@ After configuring your database server, add a MongoDB service using either the u
         ```
 
     === "SSL/TLS secured MongoDB"
+        Use this when MongoDB requires TLS connections and PMM logs in with a username and password. If the client certificate file has a password, also pass `--tls-certificate-key-file-password`:
+
         ```sh
         pmm-admin add mongodb \
         --username=pmm \
@@ -380,10 +382,22 @@ After configuring your database server, add a MongoDB service using either the u
         --port=27017 \
         --tls \
         --tls-certificate-key-file=/path/to/client.pem \
-        --tls-certificate-key-file-password=cert_password \  # If needed
+        --tls-ca-file=/path/to/ca.pem \
+        --cluster=my_cluster_or_rs_name
+        ```
+
+    === "X.509 certificate authentication"
+        Use this when PMM logs in with its client certificate instead of a password. MongoDB identifies the user by the certificate subject, so don't pass `--username` or `--password`. Before you add the service, [create a user in the `$external` database](https://docs.percona.com/percona-server-for-mongodb/latest/x509-ldap.html#authenticate-with-the-x509-certificate) whose name matches the certificate subject, and give it the [roles PMM needs](#step-1-set-up-mongodb-monitoring-permissions).
+
+        ```sh
+        pmm-admin add mongodb \
+        --host=fqdn_of_your_mongo_host \
+        --port=27017 \
+        --tls \
+        --tls-certificate-key-file=/path/to/client.pem \
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
-        --authentication-database='$external'\
+        --authentication-database='$external' \
         --cluster=my_cluster_or_rs_name
         ```
     
