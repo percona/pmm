@@ -908,16 +908,10 @@ func (o *UpdateAdvisorCheckOKBodyCheckQueriesItems0) UnmarshalBinary(b []byte) e
 }
 
 /*
-UpdateAdvisorCheckParamsBodyCheck AdvisorCheck contains check name and status.
+UpdateAdvisorCheckParamsBodyCheck AdvisorCheckDefinition is the editable content of a user-authored check.
 swagger:model UpdateAdvisorCheckParamsBodyCheck
 */
 type UpdateAdvisorCheckParamsBodyCheck struct {
-	// Machine-readable name (ID) that is used in expression.
-	Name string `json:"name,omitempty"`
-
-	// True if that check is enabled.
-	Enabled bool `json:"enabled,omitempty"`
-
 	// Long human-readable description.
 	Description string `json:"description,omitempty"`
 
@@ -935,17 +929,11 @@ type UpdateAdvisorCheckParamsBodyCheck struct {
 	// Category the check belongs to.
 	Category string `json:"category,omitempty"`
 
-	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
-	UserDefined bool `json:"user_defined,omitempty"`
-
-	// Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
+	// Data-collection queries.
 	Queries []*UpdateAdvisorCheckParamsBodyCheckQueriesItems0 `json:"queries"`
 
-	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
+	// Starlark source script.
 	Script string `json:"script,omitempty"`
-
-	// IDs of services for which this check is disabled.
-	DisabledServiceIds []string `json:"disabled_service_ids"`
 }
 
 // Validate validates this update advisor check params body check

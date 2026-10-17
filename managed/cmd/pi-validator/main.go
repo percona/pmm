@@ -114,7 +114,7 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 
 		if strings.HasPrefix(c.Name, check.UserCheckNamePrefix) {
 			validationErrors = append(validationErrors,
-				fmt.Errorf("check %s uses the name prefix '%s' reserved for user-authored checks", c.Name, check.UserCheckNamePrefix))
+				fmt.Errorf("check %s uses the name prefix %s reserved for user-authored checks", c.Name, check.UserCheckNamePrefix))
 		}
 
 		if _, ok := res[c.Name]; ok {

@@ -62,7 +62,7 @@ type UpdateAdvisorCheckParams struct {
 
 	/* Name.
 
-	   Machine-readable name (ID) of the check to update.
+	   Machine-readable name (ID) of the check to update. A check cannot be renamed.
 	*/
 	Name string
 

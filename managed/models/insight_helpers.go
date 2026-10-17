@@ -60,14 +60,14 @@ func CreateInsights(ctx context.Context, q *reform.Querier, insights []*Insight)
 // its ID, and any further findings are added.
 func CompleteInsight(ctx context.Context, q *reform.Querier, id string, outcomes []*Insight) error {
 	if len(outcomes) == 0 {
-		return fmt.Errorf("no outcomes for insight '%s'", id)
+		return fmt.Errorf("no outcomes for insight %s", id)
 	}
 
 	first := outcomes[0]
 	first.ID = id
 	err := q.WithContext(ctx).Update(first)
 	if err != nil {
-		return fmt.Errorf("failed to complete insight '%s': %w", id, err)
+		return fmt.Errorf("failed to complete insight %s: %w", id, err)
 	}
 	return CreateInsights(ctx, q, outcomes[1:])
 }
@@ -79,7 +79,7 @@ func MarkPendingInsightsNotRun(ctx context.Context, q *reform.Querier, runID, ou
 		"UPDATE "+InsightTable.Name()+" SET status = $1, outcome = $2 WHERE run_id = $3 AND status = $4",
 		CheckResultNotRun, outcome, runID, CheckResultPending)
 	if err != nil {
-		return fmt.Errorf("failed to mark pending insights of run '%s' as not run: %w", runID, err)
+		return fmt.Errorf("failed to mark pending insights of run %s as not run: %w", runID, err)
 	}
 	return nil
 }

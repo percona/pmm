@@ -717,17 +717,14 @@ func TestListAdvisorChecks(t *testing.T) {
 func TestUpdateAdvisorCheck(t *testing.T) {
 	t.Parallel()
 
-	apiCheck := func(name string) *advisorsv1.AdvisorCheck {
-		return &advisorsv1.AdvisorCheck{
-			Name:        name,
-			Summary:     "Check summary",
-			Description: "Check description",
-			Category:    "configuration",
-			Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
-			Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
-			Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
-			Script:      "def check_context(docs, context):\n    return []",
-		}
+	definition := &advisorsv1.AdvisorCheckDefinition{
+		Summary:     "Check summary",
+		Description: "Check description",
+		Category:    "configuration",
+		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
+		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
+		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
+		Script:      "def check_context(docs, context):\n    return []",
 	}
 
 	t.Run("check is required", func(t *testing.T) {
@@ -743,24 +740,7 @@ func TestUpdateAdvisorCheck(t *testing.T) {
 		checksService.AssertNotCalled(t, "UpdateAdvisorCheck")
 	})
 
-	t.Run("rename is rejected", func(t *testing.T) {
-		t.Parallel()
-
-		var checksService mockChecksService
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.UpdateAdvisorCheck(t.Context(), &advisorsv1.UpdateAdvisorCheckRequest{
-			Name:  "custom_one",
-			Check: apiCheck("custom_two"),
-		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
-			"Advisor check cannot be renamed: name 'custom_two' in the request body does not match 'custom_one'."), err)
-		assert.Nil(t, resp)
-		checksService.AssertNotCalled(t, "UpdateAdvisorCheck")
-	})
-
-	t.Run("an empty body name falls back to the path name", func(t *testing.T) {
+	t.Run("updates the check named in the path", func(t *testing.T) {
 		t.Parallel()
 
 		expectedCheck := check.Check{
@@ -784,31 +764,11 @@ func TestUpdateAdvisorCheck(t *testing.T) {
 
 		resp, err := s.UpdateAdvisorCheck(t.Context(), &advisorsv1.UpdateAdvisorCheckRequest{
 			Name:  "custom_one",
-			Check: apiCheck(""),
+			Check: definition,
 		})
 		require.NoError(t, err)
 		assert.Equal(t, "custom_one", resp.Check.Name)
 		checksService.AssertExpectations(t)
-	})
-
-	t.Run("a matching body name is accepted", func(t *testing.T) {
-		t.Parallel()
-
-		var checksService mockChecksService
-		checksService.On("UpdateAdvisorCheck", mock.Anything, mock.Anything).Return(nil)
-		checksService.On("GetChecks").
-			Return(map[string]check.Check{"custom_one": {Name: "custom_one", Interval: check.Standard}}, nil)
-		checksService.On("GetDisabledChecks", mock.Anything).Return([]string(nil), nil)
-		checksService.On("GetDisabledServicesForChecks", mock.Anything).Return(map[string][]string(nil), nil)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.UpdateAdvisorCheck(t.Context(), &advisorsv1.UpdateAdvisorCheckRequest{
-			Name:  "custom_one",
-			Check: apiCheck("custom_one"),
-		})
-		require.NoError(t, err)
-		assert.Equal(t, "custom_one", resp.Check.Name)
 	})
 }
 

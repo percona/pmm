@@ -58,7 +58,8 @@ export const updateAdvisorCheck = async (
   name: string,
   check: AdvisorCheckInput
 ): Promise<AdvisorCheck> => {
-  const payload: UpdateAdvisorCheckRequest = { check };
+  const { name: _name, ...definition } = check;
+  const payload: UpdateAdvisorCheckRequest = { check: definition };
   const res = await api.put<UpdateAdvisorCheckResponse>(
     `/advisors/checks/${encodeURIComponent(name)}`,
     payload,

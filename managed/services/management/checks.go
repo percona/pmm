@@ -105,7 +105,7 @@ func (s *ChecksAPIService) ListInsights(
 	for _, r := range results {
 		labels, err := r.GetLabels()
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode labels for insight '%s': %w", r.ID, err)
+			return nil, fmt.Errorf("failed to decode labels for insight %s: %w", r.ID, err)
 		}
 
 		item := &advisorsv1.Insight{
@@ -193,7 +193,7 @@ func (s *ChecksAPIService) ListRuns(
 	for _, r := range runs {
 		severityCounts, err := r.GetSeverityCounts()
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode severity counts for advisor run '%s': %w", r.ID, err)
+			return nil, fmt.Errorf("failed to decode severity counts for advisor run %s: %w", r.ID, err)
 		}
 
 		item := &advisorsv1.AdvisorRun{
@@ -517,20 +517,7 @@ func (s *ChecksAPIService) UpdateAdvisorCheck(ctx context.Context, req *advisors
 		return nil, status.Error(codes.InvalidArgument, "Check is required.")
 	}
 
-	// a check cannot be renamed: its name is the primary key and is denormalized
-	// into insight history, so reject a body name that disagrees with the path
-	// instead of silently updating the check the path points at. An empty body
-	// name means "not specified" and keeps working.
-	if req.Check.Name != "" && req.Check.Name != req.Name {
-		return nil, status.Errorf(codes.InvalidArgument,
-			"Advisor check cannot be renamed: name '%s' in the request body does not match '%s'.",
-			req.Check.Name, req.Name)
-	}
-
-	c := apiToAdvisorCheck(req.Check)
-	c.Name = req.Name
-
-	err := s.checksService.UpdateAdvisorCheck(ctx, c)
+	err := s.checksService.UpdateAdvisorCheck(ctx, apiDefinitionToAdvisorCheck(req.Name, req.Check))
 	if err != nil {
 		return nil, err
 	}
@@ -658,7 +645,7 @@ func (s *ChecksAPIService) getCheck(ctx context.Context, name string) (check.Che
 
 	c, ok := checks[name]
 	if !ok {
-		return check.Check{}, false, nil, status.Errorf(codes.NotFound, "Advisor check %q not found.", name)
+		return check.Check{}, false, nil, status.Errorf(codes.NotFound, "Advisor check %s not found", name)
 	}
 
 	disabled, err := s.checksService.GetDisabledChecks(ctx)
@@ -878,7 +865,7 @@ func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string)
 	}
 }
 
-// apiToAdvisorCheck converts an API advisor check (from a create/update request) into a check.Check.
+// apiToAdvisorCheck converts an API advisor check (from a create or test request) into a check.Check.
 func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
 	return check.Check{
 		Name:        c.Name,
@@ -889,6 +876,20 @@ func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
 		Interval:    convertAPIIntervalOptional(c.Interval),
 		Queries:     convertAPIQueries(c.Queries),
 		Script:      c.Script,
+	}
+}
+
+// apiDefinitionToAdvisorCheck converts the definition from an update request into the check.Check with the given name.
+func apiDefinitionToAdvisorCheck(name string, d *advisorsv1.AdvisorCheckDefinition) check.Check {
+	return check.Check{
+		Name:        name,
+		Summary:     d.Summary,
+		Description: d.Description,
+		Category:    d.Category,
+		Technology:  convertAPITechnology(d.Technology),
+		Interval:    convertAPIIntervalOptional(d.Interval),
+		Queries:     convertAPIQueries(d.Queries),
+		Script:      d.Script,
 	}
 }
 

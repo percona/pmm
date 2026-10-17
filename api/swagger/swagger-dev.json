@@ -2102,7 +2102,7 @@
         }
       },
       "put": {
-        "description": "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path.",
+        "description": "Updates an existing user-authored advisor check, identified by the name in the path. Percona-shipped checks cannot be modified, and a check cannot be renamed.",
         "tags": [
           "AdvisorService"
         ],
@@ -2111,7 +2111,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Machine-readable name (ID) of the check to update.",
+            "description": "Machine-readable name (ID) of the check to update. A check cannot be renamed.",
             "name": "name",
             "in": "path",
             "required": true
@@ -2124,28 +2124,18 @@
               "type": "object",
               "properties": {
                 "check": {
-                  "description": "AdvisorCheck contains check name and status.",
+                  "description": "AdvisorCheckDefinition is the editable content of a user-authored check.",
                   "type": "object",
                   "properties": {
-                    "name": {
-                      "description": "Machine-readable name (ID) that is used in expression.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "enabled": {
-                      "description": "True if that check is enabled.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
                     "description": {
                       "description": "Long human-readable description.",
                       "type": "string",
-                      "x-order": 2
+                      "x-order": 0
                     },
                     "summary": {
                       "description": "Short human-readable summary.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 1
                     },
                     "interval": {
                       "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
@@ -2157,7 +2147,7 @@
                         "ADVISOR_CHECK_INTERVAL_FREQUENT",
                         "ADVISOR_CHECK_INTERVAL_RARE"
                       ],
-                      "x-order": 4
+                      "x-order": 2
                     },
                     "technology": {
                       "type": "string",
@@ -2168,20 +2158,15 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 3
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
-                    },
-                    "user_defined": {
-                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
-                      "type": "boolean",
-                      "x-order": 7
+                      "x-order": 4
                     },
                     "queries": {
-                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "description": "Data-collection queries.",
                       "type": "array",
                       "items": {
                         "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
@@ -2207,20 +2192,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 5
                     },
                     "script": {
-                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "description": "Starlark source script.",
                       "type": "string",
-                      "x-order": 9
-                    },
-                    "disabled_service_ids": {
-                      "description": "IDs of services for which this check is disabled.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 10
+                      "x-order": 6
                     }
                   },
                   "x-order": 0

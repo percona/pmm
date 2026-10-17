@@ -86,6 +86,24 @@ message AdvisorCheck {
   repeated string disabled_service_ids = 11;
 }
 
+// AdvisorCheckDefinition is the editable content of a user-authored check.
+message AdvisorCheckDefinition {
+  // Long human-readable description.
+  string description = 1;
+  // Short human-readable summary.
+  string summary = 2;
+  // Check execution interval.
+  AdvisorCheckInterval interval = 3;
+  // DB technology.
+  AdvisorCheckTechnology technology = 4;
+  // Category the check belongs to.
+  string category = 5;
+  // Data-collection queries.
+  repeated AdvisorCheckQuery queries = 6;
+  // Starlark source script.
+  string script = 7;
+}
+
 message Advisor {
   // Deprecated: no longer populated; an advisor is identified by its category.
   string name = 1 [deprecated = true];
@@ -157,11 +175,10 @@ message CreateAdvisorCheckResponse {
 }
 
 message UpdateAdvisorCheckRequest {
-  // Machine-readable name (ID) of the check to update.
+  // Machine-readable name (ID) of the check to update. A check cannot be renamed.
   string name = 1;
-  // The updated check definition. A check cannot be renamed: leave its name
-  // empty or set it to the name above, otherwise the request is rejected.
-  AdvisorCheck check = 2;
+  // The updated check definition.
+  AdvisorCheckDefinition check = 2;
 }
 
 message UpdateAdvisorCheckResponse {
@@ -560,7 +577,7 @@ service AdvisorService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update Advisor Check"
-      description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path."
+      description: "Updates an existing user-authored advisor check, identified by the name in the path. Percona-shipped checks cannot be modified, and a check cannot be renamed."
     };
   }
   // TestAdvisorCheck executes an advisor check definition without saving it.

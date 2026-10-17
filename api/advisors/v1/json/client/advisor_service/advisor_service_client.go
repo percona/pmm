@@ -703,7 +703,7 @@ func (a *Client) TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...Client
 /*
 UpdateAdvisorCheck updates advisor check
 
-Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path.
+Updates an existing user-authored advisor check, identified by the name in the path. Percona-shipped checks cannot be modified, and a check cannot be renamed.
 */
 func (a *Client) UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...ClientOption) (*UpdateAdvisorCheckOK, error) {
 	// NOTE: parameters are not validated before sending

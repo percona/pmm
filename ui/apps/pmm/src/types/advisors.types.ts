@@ -70,7 +70,8 @@ export interface CreateAdvisorCheckResponse {
 }
 
 export interface UpdateAdvisorCheckRequest {
-  check: AdvisorCheckInput;
+  // the check is named by the request path
+  check: Omit<AdvisorCheckInput, 'name'>;
 }
 
 export interface UpdateAdvisorCheckResponse {

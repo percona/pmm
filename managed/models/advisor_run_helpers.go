@@ -65,11 +65,11 @@ func StartQueuedAdvisorRun(ctx context.Context, q *reform.Querier, id string, st
 		"UPDATE "+AdvisorRunTable.Name()+" SET status = $1, started_at = $2 WHERE id = $3 AND status = $4",
 		AdvisorRunStatusRunning, startedAt, id, AdvisorRunStatusQueued)
 	if err != nil {
-		return false, fmt.Errorf("failed to start advisor run '%s': %w", id, err)
+		return false, fmt.Errorf("failed to start advisor run %s: %w", id, err)
 	}
 	n, err := res.RowsAffected()
 	if err != nil {
-		return false, fmt.Errorf("failed to start advisor run '%s': %w", id, err)
+		return false, fmt.Errorf("failed to start advisor run %s: %w", id, err)
 	}
 	return n == 1, nil
 }
@@ -113,7 +113,7 @@ func FinishAdvisorRun(
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return fmt.Errorf("failed to load advisor run '%s': %w", id, err)
+		return fmt.Errorf("failed to load advisor run %s: %w", id, err)
 	}
 
 	run.Status = status
@@ -125,7 +125,7 @@ func FinishAdvisorRun(
 
 	err = q.WithContext(ctx).Update(run)
 	if err != nil {
-		return fmt.Errorf("failed to update advisor run '%s': %w", id, err)
+		return fmt.Errorf("failed to update advisor run %s: %w", id, err)
 	}
 	return nil
 }
@@ -153,7 +153,7 @@ func ComputeAdvisorRunCounts(ctx context.Context, q *reform.Querier, runID strin
 		&counts.FindingsCount, &counts.ErrorsCount,
 	)
 	if err != nil {
-		return counts, fmt.Errorf("failed to count insights for run '%s': %w", runID, err)
+		return counts, fmt.Errorf("failed to count insights for run %s: %w", runID, err)
 	}
 
 	rows, err := q.QueryContext(
@@ -163,7 +163,7 @@ func ComputeAdvisorRunCounts(ctx context.Context, q *reform.Querier, runID strin
 		runID, failed,
 	)
 	if err != nil {
-		return counts, fmt.Errorf("failed to count severities for run '%s': %w", runID, err)
+		return counts, fmt.Errorf("failed to count severities for run %s: %w", runID, err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -173,13 +173,13 @@ func ComputeAdvisorRunCounts(ctx context.Context, q *reform.Querier, runID strin
 		var count int
 		err = rows.Scan(&severity, &count)
 		if err != nil {
-			return counts, fmt.Errorf("failed to scan severity count for run '%s': %w", runID, err)
+			return counts, fmt.Errorf("failed to scan severity count for run %s: %w", runID, err)
 		}
 		counts.SeverityCounts[severity] = count
 	}
 	err = rows.Err()
 	if err != nil {
-		return counts, fmt.Errorf("failed to read severity counts for run '%s': %w", runID, err)
+		return counts, fmt.Errorf("failed to read severity counts for run %s: %w", runID, err)
 	}
 
 	return counts, nil
@@ -210,7 +210,7 @@ func LastInsightTimeForRun(ctx context.Context, q *reform.Querier, runID string)
 		"SELECT max(checked_at) FROM "+InsightTable.Name()+" WHERE run_id = $1", runID,
 	).Scan(&last)
 	if err != nil {
-		return time.Time{}, false, fmt.Errorf("failed to read last insight time for run '%s': %w", runID, err)
+		return time.Time{}, false, fmt.Errorf("failed to read last insight time for run %s: %w", runID, err)
 	}
 	if last == nil {
 		return time.Time{}, false, nil

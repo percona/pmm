@@ -163,8 +163,11 @@ describe('advisors API wire format', () => {
     expect(calls).toHaveLength(2);
     for (const call of calls) {
       expect(call.headers.getContentType()).toBe('application/json');
-      expect(sentBody(call)).toEqual({ check: CHECK_INPUT });
     }
+    expect(sentBody(calls[0])).toEqual({ check: CHECK_INPUT });
+    // the path names the check, so the update body carries no name
+    const { name: _name, ...definition } = CHECK_INPUT;
+    expect(sentBody(calls[1])).toEqual({ check: definition });
     expect(created.queries?.[0].parameters).toEqual({ all_dbs: 'true' });
   });
 

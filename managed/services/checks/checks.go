@@ -652,14 +652,14 @@ func (s *Service) DisableChecksForServices(ctx context.Context, checkName string
 		c, err := models.FindAdvisorCheckByName(tx.WithContext(ctx), checkName)
 		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
-				return status.Errorf(codes.NotFound, "advisor check '%s' not found", checkName)
+				return status.Errorf(codes.NotFound, "advisor check %s not found", checkName)
 			}
 			return err
 		}
 
 		if c.Disabled {
 			return status.Errorf(codes.FailedPrecondition,
-				"advisor check '%s' is disabled globally; enable it globally to manage per-service settings", checkName)
+				"advisor check %s is disabled globally; enable it globally to manage per-service settings", checkName)
 		}
 
 		services, err := models.FindServicesByIDs(tx.WithContext(ctx), serviceIDs)
@@ -668,7 +668,7 @@ func (s *Service) DisableChecksForServices(ctx context.Context, checkName string
 		}
 		for _, id := range serviceIDs {
 			if _, ok := services[id]; !ok {
-				return status.Errorf(codes.NotFound, "service with ID '%s' not found", id)
+				return status.Errorf(codes.NotFound, "service with ID %s not found", id)
 			}
 		}
 
@@ -711,7 +711,7 @@ func (s *Service) EnableChecksForServices(ctx context.Context, checkName string,
 		c, err := models.FindAdvisorCheckByName(tx.WithContext(ctx), checkName)
 		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
-				return status.Errorf(codes.NotFound, "advisor check '%s' not found", checkName)
+				return status.Errorf(codes.NotFound, "advisor check %s not found", checkName)
 			}
 			return err
 		}
@@ -790,7 +790,7 @@ func (s *Service) CreateAdvisorCheck(ctx context.Context, c check.Check) error {
 	// future Percona-shipped check names
 	if !strings.HasPrefix(c.Name, check.UserCheckNamePrefix) {
 		return status.Errorf(codes.InvalidArgument,
-			"user check name must start with '%s'", check.UserCheckNamePrefix)
+			"user check name must start with %s", check.UserCheckNamePrefix)
 	}
 
 	existing, err := s.GetChecks()
@@ -798,7 +798,7 @@ func (s *Service) CreateAdvisorCheck(ctx context.Context, c check.Check) error {
 		return err
 	}
 	if _, ok := existing[c.Name]; ok {
-		return status.Errorf(codes.AlreadyExists, "advisor check '%s' already exists", c.Name)
+		return status.Errorf(codes.AlreadyExists, "advisor check %s already exists", c.Name)
 	}
 
 	m, err := userCheckToModel(c)
@@ -908,7 +908,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		if err != nil {
 			// a status error keeps the query/script failure details visible to
 			// the caller; plain errors are masked by the gRPC interceptor
-			msg := fmt.Sprintf("Failed to execute check '%s' on service '%s': %v", c.Name, target.ServiceName, err)
+			msg := fmt.Sprintf("Failed to execute check %s on service '%s': %v", c.Name, target.ServiceName, err)
 			if output != "" {
 				// keep the error itself on top; the print output goes below it
 				msg += "\n\nScript output:\n" + output
@@ -949,7 +949,7 @@ func serviceTypeForTechnology(technology check.Technology) (models.ServiceType, 
 	case check.MongoDB:
 		return models.MongoDBServiceType, nil
 	default:
-		return "", status.Errorf(codes.InvalidArgument, "Unknown check technology '%s'", technology)
+		return "", status.Errorf(codes.InvalidArgument, "Unknown check technology %s", technology)
 	}
 }
 
@@ -981,13 +981,13 @@ func (s *Service) ensureUserCheck(name string) error {
 	c, err := models.FindAdvisorCheckByName(s.db.Querier, name)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return status.Errorf(codes.NotFound, "Advisor check '%s' not found", name)
+			return status.Errorf(codes.NotFound, "Advisor check %s not found", name)
 		}
 		return err
 	}
 
 	if c.Source != models.UserCheckSource {
-		return status.Errorf(codes.FailedPrecondition, "Advisor check '%s' is shipped by Percona and cannot be modified", name)
+		return status.Errorf(codes.FailedPrecondition, "Advisor check %s is shipped by Percona and cannot be modified", name)
 	}
 	return nil
 }
@@ -2365,13 +2365,13 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 	for _, row := range rows {
 		c, err := modelToCheck(row)
 		if err != nil {
-			s.l.Warnf("Failed to decode advisor check '%s': %s.", row.Name, err)
+			s.l.Warnf("Failed to decode advisor check %s: %s.", row.Name, err)
 			continue
 		}
 
 		err = c.Validate()
 		if err != nil {
-			s.l.Warnf("Advisor check '%s' is invalid and is ignored: %s.", row.Name, err)
+			s.l.Warnf("Advisor check %s is invalid and is ignored: %s.", row.Name, err)
 			continue
 		}
 

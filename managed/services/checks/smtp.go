@@ -63,11 +63,11 @@ func smtpConfigFromEnv() smtpConfig {
 func (c smtpConfig) dialer() (*gomail.Dialer, error) {
 	host, portStr, err := net.SplitHostPort(c.host)
 	if err != nil {
-		return nil, fmt.Errorf("invalid GF_SMTP_HOST %q: %w", c.host, err)
+		return nil, fmt.Errorf("invalid GF_SMTP_HOST '%s': %w", c.host, err)
 	}
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		return nil, fmt.Errorf("invalid SMTP port in %q: %w", c.host, err)
+		return nil, fmt.Errorf("invalid SMTP port in '%s': %w", c.host, err)
 	}
 
 	d := gomail.NewDialer(host, port, c.user, c.password)

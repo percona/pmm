@@ -62,7 +62,7 @@ var insightTriggeredByText = map[models.CheckTriggeredBy]string{
 func insightToText(r *models.Insight) (string, error) {
 	labelsMap, err := r.GetLabels()
 	if err != nil {
-		return "", fmt.Errorf("failed to decode labels for check result %q: %w", r.ID, err)
+		return "", fmt.Errorf("failed to decode labels for check result %s: %w", r.ID, err)
 	}
 
 	keys := make([]string, 0, len(labelsMap))
