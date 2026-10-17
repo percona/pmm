@@ -1,0 +1,45 @@
+---
+templates:
+  - name: pmm_qan_slow_queries
+    version: 1
+    summary: QAN slow queries
+    queries:
+      - ref_id: A
+        datasource: clickhouse
+        # One row per service with a constant time, so the reduce never sees a gap. greatest() takes
+        # a query class's longest run where the engine reports one, else its average.
+        expr: |-
+          SELECT $__toTime AS time, service_name, node_name, service_type, environment, cluster,
+                 max(query_time) AS query_time
+          FROM (
+            SELECT service_name, node_name, service_type, environment, cluster,
+                   greatest(max(m_query_time_max), ifNull(sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0), 0)) AS query_time
+            FROM pmm.metrics
+            WHERE period_start >= $__fromTime AND period_start <= $__toTime
+            GROUP BY service_name, node_name, service_type, environment, cluster, queryid
+          )
+          GROUP BY service_name, node_name, service_type, environment, cluster
+    expressions:
+      - ref_id: B
+        type: reduce
+        reducer: max
+        expression: $A
+      - ref_id: C
+        type: math
+        expression: "$B > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Query execution time
+        unit: s
+        type: float
+        range: [0, 3600]
+        value: 10
+        overridable: true
+    for: 1m
+    severity: warning
+    annotations:
+      summary: Slow queries on {{ $labels.service_name }} ({{ $labels.node_name }})
+      description: |-
+        A query class on {{ $labels.service_name }} took {{ printf "%.2f" $values.B.Value }}s, more than [[ .threshold ]]s.
+        Query Analytics reports the longest run for MySQL slow log and MongoDB, and the average run for PostgreSQL and MySQL Performance Schema.

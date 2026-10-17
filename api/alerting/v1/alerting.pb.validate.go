@@ -651,6 +651,8 @@ func (m *TemplateQuery) validate(all bool) error {
 
 	// no validation rules for Expr
 
+	// no validation rules for Datasource
+
 	if len(errors) > 0 {
 		return TemplateQueryMultiError(errors)
 	}
@@ -757,6 +759,8 @@ func (m *TemplateExpression) validate(all bool) error {
 	// no validation rules for Type
 
 	// no validation rules for Expression
+
+	// no validation rules for Reducer
 
 	if len(errors) > 0 {
 		return TemplateExpressionMultiError(errors)
