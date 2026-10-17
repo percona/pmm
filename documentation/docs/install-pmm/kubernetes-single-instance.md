@@ -1,10 +1,10 @@
-# Understand Single-Instance HA
+# Understand PMM on a Kubernetes single instance
 
-Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution. This production-ready option combines simplicity with Kubernetes' built-in resilience for automatic recovery from failures.
+Run PMM Server as one pod on Kubernetes when you want it to recover from failures on its own. Kubernetes restarts PMM Server automatically if it fails, so you get automatic recovery without running a PMM HA Cluster.
 
 ## What it is
 
-Single-Instance HA leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails.
+A Kubernetes single instance uses Kubernetes pod management and self-healing to keep PMM Server running when infrastructure fails.
 
 Combined with persistent volumes and PMM Client caching, this approach preserves metric data during brief outages and maintains monitoring continuity with minimal operational overhead.
 
@@ -14,7 +14,7 @@ Combined with persistent volumes and PMM Client caching, this approach preserves
 - **Persistent data**: All monitoring data, configurations, and dashboards survive pod restarts
 - **Health monitoring**: Liveness and readiness probes ensure only healthy instances receive traffic
 - **Metric data preserved**: PMM clients cache metrics locally during brief outages and resend them once connectivity resumes
-- **Production-tested**: Stable and battle-tested in production environments for years
+- **Production-ready**: Supported for production use
 - **Simple operations**: Single PMM instance is easier to manage than distributed clusters
 
 ### How it works
@@ -32,11 +32,11 @@ Your persistent volume keeps all your data safe and it stays attached when the p
 - **No zero-downtime**: Cannot maintain continuous monitoring during failures
 - **Node-level delays**: Pod rescheduling takes longer than container restarts
 
-This solution works well for production environments that can tolerate brief monitoring interruptions during automatic failover.
+This option works well for production environments that can tolerate a few minutes without monitoring while Kubernetes restarts PMM Server.
 
 ## Choose your deployment type
 
-| Consideration | Single-instance | HA Cluster |
+| Consideration | Kubernetes single instance | HA Cluster |
 |--------------|-----------------|------------|
 | **Failover time** | 2-5 minutes | Immediate |
 | **Setup complexity** | ● Low | ●●● Medium |
@@ -59,4 +59,4 @@ If you don't have Kubernetes, run PMM Server with `--restart always` and Docker 
 
 ## Ready to deploy?
 
-[Install PMM Server on Kubernetes →](install-HA-kubernetes-single-instance.md){.md-button}
+[Install PMM Server on Kubernetes →](install-kubernetes-single-instance.md){.md-button}

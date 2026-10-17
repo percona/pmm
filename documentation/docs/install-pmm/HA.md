@@ -25,7 +25,7 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 ## Feature comparison
 
-| Feature | [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) | [HA Cluster](../install-pmm/HA-clustered.md) |
+| Feature | [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md) | [HA Cluster](../install-pmm/HA-clustered.md) |
 |---------|-------------------|---------------------|
 | **Kubernetes required** | Yes | Yes (Kubernetes or OpenShift) |
 | **PMM instances** | 1 | 3 |
@@ -42,16 +42,16 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 Choose the deployment option that matches your infrastructure and requirements:
 
-=== "Single-Instance HA"
+=== "Kubernetes single instance"
 
-    Enterprise-grade high availability through Kubernetes orchestration. Provides automatic pod rescheduling and persistent data across failures.
+    Kubernetes restarts PMM Server automatically if it fails, and persistent volumes keep your data across restarts.
 
     **Key features**
     
     - Kubernetes automatically reschedules failed pods to healthy nodes
     - Persistent volumes preserve all data and configurations
     - Health probes ensure only healthy instances receive traffic
-    - Production-tested and stable
+    - Supported for production use
 
     **Limitations**
     
@@ -61,11 +61,11 @@ Choose the deployment option that matches your infrastructure and requirements:
     **When to use this option**
     
     - You have Kubernetes infrastructure
-    - You need production-ready HA
+    - You want PMM Server to recover from failures on its own
     - You can tolerate 2-5 minutes of downtime
     - You want automatic recovery without complexity
 
-    [Install Single-Instance HA](../install-pmm/install-HA-kubernetes-single-instance.md){.md-button} 
+    [Install a Kubernetes single instance](../install-pmm/install-kubernetes-single-instance.md){.md-button} 
 
 === "HA Cluster"
 
@@ -80,7 +80,7 @@ Choose the deployment option that matches your infrastructure and requirements:
 
     **What makes it different**
     
-    - **No monitoring blind spots**: unlike single-instance (2-5 min gaps), clustered maintains continuous visibility
+    - **No monitoring blind spots**: unlike a Kubernetes single instance (2-5 min gaps), clustered maintains continuous visibility
     - **Multiple active instances**: load distribution and instant failover to followers
     - **Horizontal scalability**: add replicas as monitoring load grows
     - **True zero-downtime**: Traffic redirects to healthy instances in < 30 seconds

@@ -1,6 +1,6 @@
-# Install PMM Single-Instance HA
+# Install PMM on a Kubernetes single instance
 
-Deploy PMM Server on Kubernetes using the `percona/pmm` Helm chart. For an overview of this deployment type and when to use it, see [Understand Single-Instance HA](HA-kubernetes-single-instance.md).
+Deploy PMM Server on Kubernetes using the `percona/pmm` Helm chart. For an overview of this deployment type and when to use it, see [Understand PMM on a Kubernetes single instance](kubernetes-single-instance.md).
 
 ## Prerequisites
 

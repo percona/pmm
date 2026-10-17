@@ -13,7 +13,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
+Unlike a [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md), where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -27,7 +27,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Choose your Kubernetes deployment type
 
-| Consideration | Single-instance | HA Cluster |
+| Consideration | Kubernetes single instance | HA Cluster |
 |--------------|----------------------|-----------------------------|
 | **Production status** | ✅ Production-ready | ✅ Production-ready |
 | **Failover time** | 2-5 minutes | Immediate |

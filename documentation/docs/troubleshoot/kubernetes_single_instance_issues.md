@@ -1,4 +1,4 @@
-# Troubleshoot Single-Instance HA issues
+# Troubleshoot a Kubernetes single instance
 
 Use this page when your PMM pod is not running, not accessible, or not persisting data. For problems that aren't specific to this deployment, such as dashboards, agents, or queries on an otherwise healthy server, see [Troubleshoot PMM](index.md).
 
@@ -140,5 +140,5 @@ For cloud providers, volume detachment from a failed node can add time before th
 
 ## See also
 
-- [Understand Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md)
-- [Install PMM Single-Instance HA](../install-pmm/install-HA-kubernetes-single-instance.md)
+- [Understand PMM on a Kubernetes single instance](../install-pmm/kubernetes-single-instance.md)
+- [Install PMM on a Kubernetes single instance](../install-pmm/install-kubernetes-single-instance.md)
