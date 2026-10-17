@@ -117,6 +117,7 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
 				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				OtelCollector:    "/usr/local/percona/pmm/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -178,6 +179,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
 				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				OtelCollector:    "/usr/local/percona/pmm/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -240,6 +242,7 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
 				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				OtelCollector:    "/usr/local/percona/pmm/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -307,6 +310,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
 				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				OtelCollector:    "/usr/local/percona/pmm/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -372,6 +376,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 				Nomad:            "/base/tools/nomad",
+				OtelCollector:    "/base/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -435,6 +440,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 				Nomad:            "/base/tools/nomad",
+				OtelCollector:    "/base/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -487,6 +493,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
 				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				OtelCollector:    "/usr/local/percona/pmm/tools/otelcol-contrib",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{

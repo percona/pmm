@@ -85,6 +85,10 @@ export const initialize = () => {
 
   messenger.sendMessage({ type: 'MESSENGER_READY' });
 
+  // Ensure docked menu is closed in the iframe
+  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
+
   updateBodyClassByLocation(window.location);
   applyCustomStyles();
   adjustToolbar();

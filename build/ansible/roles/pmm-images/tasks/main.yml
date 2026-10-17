@@ -70,6 +70,14 @@
     - /etc/grafana
     - /srv/clickhouse
 
+- name: Install default vmalert recording rules for PMM Service Map (rr_connection_*)
+  copy:
+    src: srv/prometheus/rules/pmm-service-map.recording-rules.yml
+    dest: /srv/prometheus/rules/pmm-service-map.recording-rules.yml
+    owner: pmm
+    group: root
+    mode: "0644"
+
 - name: Create pmm-server directory with write access for any user
   file:
     path: /usr/share/pmm-server

@@ -34,7 +34,7 @@ func TestDevContainer(t *testing.T) {
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 
-		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, nil)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		// restore original files after test

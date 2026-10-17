@@ -41,6 +41,7 @@ import (
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
 	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	logsClient "github.com/percona/pmm/api/logs/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
@@ -202,6 +203,7 @@ func init() {
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
+	logsClient.Default = logsClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	logrus.Info("Checking PMM Server availability...")

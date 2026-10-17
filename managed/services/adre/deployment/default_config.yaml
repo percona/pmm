@@ -1,0 +1,823 @@
+# HolmesGPT config for PMM (metrics, logs, QAN, Grafana, MySQL actions, inventory).
+# Env: PMM_URL (no trailing slash), PMM_API_TOKEN (Bearer). Optional: PMM_GRAFANA_TZ (default Europe/Amsterdam).
+# Everything (bash toolsets via $PMM_URL, and prometheus_url/api_url via {{ env.PMM_URL }}) uses the
+# single PMM_URL — set it (Provisioning tab) to an address reachable BOTH from the Holmes container
+# and the browser (panel image links embed it). The host address (e.g. https://192.168.2.33:8443)
+# satisfies both; a Docker-only name like pmm-server:8443 is not browser-reachable.
+# Skills are provided by PMM via the CUSTOM_SKILL_PATHS env var (=/config/skills). Do NOT set
+# custom_skill_paths here — Holmes only applies the env var when this file omits it, so a value
+# here would override it and point Holmes at the wrong directory.
+# Nomad (optional pmm-nomad toolset): PMM_NOMAD_API_BASE, PMM_NOMAD_BASIC_USER/PASSWORD, PMM_NOMAD_DATACENTER.
+# Model rules live in toolset llm_instructions and skills — not in this comment block.
+
+# Default model / fast_model are intentionally NOT hardcoded here. The chat model is chosen per
+# request by PMM, and the available models + provider keys live in model_list.yaml (Models tab).
+# To pin a fixed default or a fast model for llm_summarize, add `model:` / `fast_model:` here.
+
+toolsets:
+  # Typical PMM Holmes has no usable kubeconfig; these toolsets still inject large schemas into every Opus call and burn TPM. Disable unless you run Holmes in-cluster with a real kubeconfig.
+  openshift/core:
+    enabled: false
+  openshift/logs:
+    enabled: false
+  openshift/live-metrics:
+    enabled: false
+  openshift/security:
+    enabled: false
+  kubernetes/core:
+    enabled: false
+  kubernetes/logs:
+    enabled: false
+  kubernetes/live-metrics:
+    enabled: false
+  kubernetes/kube-prometheus-stack:
+    enabled: false
+
+  prometheus/metrics:
+    enabled: true
+    description: "PMM Prometheus / VictoriaMetrics metrics and alerting."
+    config:
+      prometheus_url: "{{ env.PMM_URL }}/prometheus"
+      additional_headers:
+        Authorization: "Bearer __PMM_GRAFANA_TOKEN__"
+      verify_ssl: false
+      # % of model context window; above this estimated size Holmes returns data_summary (not raw matrix). Lower = stricter = fewer huge Prometheus payloads per turn (helps Anthropic input TPM).
+      # Recommended operating range: 1 (aggressive compaction), 2-4 (balanced), 8+ (more raw data).
+      # Rollback/tuning rule: if evidence quality drops too much, raise gradually (1 -> 2 -> 3/4) and re-test token stability.
+      query_response_size_limit_pct: 1
+    # No llm_instructions: Holmes replaces them with its built-in Prometheus text; PMM's rules live in pmm-observability.
+
+  pmm-clickhouse:
+    description: "Read-only ClickHouse SQL through PMM (QAN pmm.metrics and otel.logs)."
+    tags:
+      - core
+    llm_instructions: |
+      Use **pmm_clickhouse_query** for QAN (`database=pmm`) and logs (`database=otel`). Pass one unquoted SELECT — never wrap the whole query in quotes.
+      Start every log question with **pmm_logs_patterns** for the time range: it groups lines that differ only in values, with counts, max severity, first/last seen and `is_new` (absent from the preceding range of the same length). Fetch raw lines afterwards only for the patterns that matter.
+
+      ## QAN (database=pmm)
+      CRITICAL — `period_start` uses ClickHouse DateTime (`'YYYY-MM-DD HH:MM:SS'` or `parseDateTimeBestEffort`), not bare RFC3339 in WHERE.
+      Scope by **service_id** (UUID from inventory). Top/slowest: GROUP BY fingerprint plus `schema` (MySQL) or `database` (PostgreSQL, MongoDB — their schema is empty), with `any(queryid) AS queryid`. Executions = SUM(num_queries); COUNT() counts time buckets. Filter on fingerprint only, never example. pmm_db_action `database=` takes the MySQL schema column.
+
+      Example:
+        SELECT fingerprint, schema, any(queryid) AS queryid, SUM(m_query_time_sum) AS total_query_time, SUM(num_queries) AS exec_count
+        FROM pmm.metrics
+        WHERE service_id = '<uuid>' AND period_start >= '2026-03-22 12:00:00' AND period_start <= '2026-03-22 14:30:00'
+        GROUP BY fingerprint, schema ORDER BY total_query_time DESC LIMIT 5
+
+      ## Logs (database=otel)
+      CRITICAL — filter by `ServiceName` and `TimestampTime` first: they are the primary key. `ServiceName` is the node name for client logs and the component (pmm-managed, nginx, grafana, qan-api2, …) for PMM Server logs. Filter severity on `SeverityNumber` (17+ error, 13–16 warning, 9–12 info, 0 unparsed), never `SeverityText`, whose spelling differs per database. Filename is `LogAttributes['log.file.name']` (not `log.file.path`, which is empty); parser preset `LogAttributes['log.preset']`; node `ResourceAttributes['node_name']`, single-quoted bracket keys. Never run JSONExtract or regexes over Body across a wide range: narrow by ServiceName and time first.
+
+      Errors of one node in a window:
+        SELECT Timestamp, SeverityText, LogAttributes['log.file.name'] AS file, substring(Body, 1, 400) AS msg FROM logs
+        WHERE ServiceName = 'mysql' AND TimestampTime BETWEEN '2026-03-22 12:00:00' AND '2026-03-22 12:30:00'
+          AND SeverityNumber >= 17
+        ORDER BY Timestamp DESC LIMIT 20
+
+      Named log file (e.g. error.log) — one query, no TodoWrite:
+        SELECT Timestamp, Body FROM logs
+        WHERE ServiceName = 'mysql' AND TimestampTime >= now() - INTERVAL 1 HOUR
+          AND LogAttributes['log.file.name'] LIKE '%error.log%'
+        ORDER BY Timestamp DESC LIMIT 10
+
+      Discover sources and files (only if a query returned 0 rows):
+        SELECT ServiceName, LogAttributes['log.file.name'] AS filename, count() AS n FROM logs
+        WHERE TimestampTime >= now() - INTERVAL 1 HOUR GROUP BY ServiceName, filename ORDER BY n DESC LIMIT 20
+
+      Paste actual Timestamp + Body rows in replies. EXPLAIN/queryid rules: see **pmm-db-actions** toolset.
+    tools:
+      - name: pmm_clickhouse_query
+        description: "Run read-only ClickHouse SQL. database=pmm for QAN (pmm.metrics); database=otel for logs (otel.logs)."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          DB="{{ database }}"
+          MAX={{ max_rows | default('') }}
+          case "$MAX" in ''|None) MAX=500 ;; esac
+          # Holmes shell-escapes apostrophes in tool params; undo before POST (PromQL metrics tools are unaffected).
+          QUERY=$(printf '%s' "{{ query }}" | sed "s/'\"\\([^']*\\)\"'/'\\1'/g")
+          QUERY="${QUERY#\'}"; QUERY="${QUERY%\'}"
+          BODY=$(jq -n \
+            --arg database "$DB" \
+            --arg query "$QUERY" \
+            --argjson max_rows "$MAX" \
+            '{database:$database,query:$query,max_rows:$max_rows}')
+          curl -s -k -X POST "${PMM_URL}/v1/adre/clickhouse/query" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$BODY"
+        parameters:
+          database:
+            description: "pmm (QAN metrics table) or otel (logs table otel.logs)."
+          query:
+            description: |
+              Single SELECT starting with SELECT or WITH — do NOT wrap the whole query in quotes.
+              Logs example (database=otel): SELECT Timestamp, Body FROM logs WHERE ServiceName = 'mysql' AND TimestampTime >= now() - INTERVAL 1 HOUR AND LogAttributes['log.file.name'] LIKE '%error.log%' ORDER BY Timestamp DESC LIMIT 10
+              QAN example (database=pmm): SELECT fingerprint, schema FROM pmm.metrics WHERE service_id = '<uuid>' LIMIT 5
+          max_rows:
+            description: "Max rows (default 500, cap 1000)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize ClickHouse query results for an on-call engineer. Preserve column names, key values (fingerprint, schema, queryid, service_id, Timestamp, Body), counts, and errors. Be concise.
+
+      - name: pmm_logs_patterns
+        description: "Group the log lines of a time range into patterns (values replaced by ?), most frequent first: count, max severity number, first/last seen, a sample line and is_new (absent from the preceding range of the same length). Up to 50 patterns."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          START={{ start }}
+          END={{ end }}
+          NODES={{ node_names | default('') }}
+          SOURCES={{ sources | default('') }}
+          MINSEV={{ min_severity | default('') }}
+          TEXT={{ text | default('') }}
+          for v in NODES SOURCES MINSEV TEXT; do
+            if [ "${!v}" = None ]; then printf -v "$v" '%s' ''; fi
+          done
+          list() { jq -cn --arg s "$1" '$s | split(",") | map(gsub("^ +| +$"; "")) | map(select(length > 0))'; }
+          BODY=$(jq -n \
+            --arg start "$START" --arg end "$END" \
+            --argjson nodes "$(list "$NODES")" --argjson sources "$(list "$SOURCES")" \
+            --arg minsev "$MINSEV" --arg text "$TEXT" \
+            '{filter: ({start: $start, end: $end, node_names: $nodes, sources: $sources, text: $text}
+              + (if $minsev == "" then {} else {min_severity: ($minsev | tonumber)} end))}')
+          curl -s -k -X POST "${PMM_URL}/v1/logs:getPatterns" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" | jq .
+        parameters:
+          start:
+            description: "Start of the range, RFC3339 UTC, e.g. 2026-10-17T10:00:00Z."
+          end:
+            description: "End of the range, RFC3339 UTC, e.g. 2026-10-17T11:00:00Z."
+          node_names:
+            description: "Comma-separated node names (inventory node_name)."
+            required: false
+          sources:
+            description: "Comma-separated sources: the node name for client logs, the component (pmm-managed, nginx, …) for PMM Server logs."
+            required: false
+          min_severity:
+            description: "Minimum OTel severity number: 9 info, 13 warning, 17 error, 21 fatal."
+            required: false
+          text:
+            description: "Only lines containing this text, ignoring case."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 6000
+              prompt: |
+                Summarize these log patterns for an on-call engineer. Keep each pattern's text, count, max_severity_number, first_seen, last_seen and is_new; list new and error-level patterns first. Be concise.
+
+  pmm-inventory:
+    description: |
+      Authoritative source for PMM inventory. Use these tools whenever you need service_id, node_id, or agent_id (UUIDs).
+      Other toolsets (pmm-db-actions, QAN, etc.) require these IDs — always obtain them here first via pmm_list_services, pmm_list_nodes, or pmm_list_agents (or pmm_get_service, pmm_get_node, pmm_get_agent). Auth: PMM_URL and PMM_API_TOKEN (Bearer).
+    tags:
+      - core
+    transformers:
+      - name: llm_summarize
+        config:
+          input_threshold: 5000
+          prompt: |
+            Summarize for an on-call engineer. Preserve UUIDs, alert names, panel ids/titles, and exact SQL/errors when critical. Group healthy items; highlight anomalies and required actions. Be concise.
+    tools:
+      - name: pmm_list_nodes
+        description: "List all PMM nodes. Returns node_id (UUID), node type, and name. Use this whenever you need a node_id; do not assume or use names instead of IDs."
+        command: |
+          set -e
+          curl -s -k "$PMM_URL/v1/inventory/nodes" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters: {}
+      - name: pmm_get_node
+        description: "Get one PMM node by node_id (UUID). Use node_id from pmm_list_nodes."
+        command: |
+          set -e
+          curl -s -k "$PMM_URL/v1/inventory/nodes/{{ node_id }}" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          node_id:
+            description: "PMM node ID (UUID). Must come from pmm_list_nodes."
+      - name: pmm_list_agents
+        description: "List PMM agents. Returns agent_id (UUID), type, node_id, service_id. Use whenever you need agent_id; optionally filter by node_id, service_id, or pmm_agent_id."
+        command: |
+          set -e
+          NID={{ node_id | default('') }}; SID={{ service_id | default('') }}; PID={{ pmm_agent_id | default('') }}
+          PARAMS=""
+          [ -n "$NID" ] && [ "$NID" != None ] && PARAMS="node_id=$NID"
+          [ -n "$SID" ] && [ "$SID" != None ] && PARAMS="${PARAMS:+$PARAMS&}service_id=$SID"
+          [ -n "$PID" ] && [ "$PID" != None ] && PARAMS="${PARAMS:+$PARAMS&}pmm_agent_id=$PID"
+          [ -n "$PARAMS" ] && PARAMS="?$PARAMS"
+          curl -s -k "$PMM_URL/v1/inventory/agents$PARAMS" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          node_id:
+            description: "Filter by node UUID."
+            required: false
+          service_id:
+            description: "Filter by service UUID."
+            required: false
+          pmm_agent_id:
+            description: "Filter by pmm-agent ID."
+            required: false
+      - name: pmm_get_agent
+        description: "Get one PMM agent by agent_id (UUID). Use agent_id from pmm_list_agents."
+        command: |
+          set -e
+          curl -s -k "$PMM_URL/v1/inventory/agents/{{ agent_id }}" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          agent_id:
+            description: "PMM agent ID (UUID). Must come from pmm_list_agents."
+      - name: pmm_list_services
+        description: "List PMM services (MySQL, PostgreSQL, MongoDB, etc.). Returns service_id (UUID), service name, type. Use whenever you need service_id for actions or QAN; do not use service name as ID."
+        command: |
+          set -e
+          NID={{ node_id | default('') }}; SERVICE_TYPE={{ service_type | default('') }}
+          [ "$NID" = None ] && NID=
+          [ "$SERVICE_TYPE" = None ] && SERVICE_TYPE=
+          PARAMS=""
+          [ -n "$NID" ] && PARAMS="node_id=$NID"
+          case "$SERVICE_TYPE" in
+            mysql|MYSQL|MYSQL_SERVICE) SERVICE_TYPE="SERVICE_TYPE_MYSQL_SERVICE" ;;
+            postgresql|POSTGRESQL|POSTGRESQL_SERVICE) SERVICE_TYPE="SERVICE_TYPE_POSTGRESQL_SERVICE" ;;
+            mongodb|MONGODB|MONGODB_SERVICE) SERVICE_TYPE="SERVICE_TYPE_MONGODB_SERVICE" ;;
+            valkey|VALKEY|VALKEY_SERVICE) SERVICE_TYPE="SERVICE_TYPE_VALKEY_SERVICE" ;;
+            proxysql|PROXYSQL|PROXYSQL_SERVICE) SERVICE_TYPE="SERVICE_TYPE_PROXYSQL_SERVICE" ;;
+            haproxy|HAPROXY|HAPROXY_SERVICE) SERVICE_TYPE="SERVICE_TYPE_HAPROXY_SERVICE" ;;
+            external|EXTERNAL|EXTERNAL_SERVICE) SERVICE_TYPE="SERVICE_TYPE_EXTERNAL_SERVICE" ;;
+          esac
+          [ -n "$SERVICE_TYPE" ] && PARAMS="${PARAMS:+$PARAMS&}service_type=$SERVICE_TYPE"
+          [ -n "$PARAMS" ] && PARAMS="?$PARAMS"
+          curl -s -k "$PMM_URL/v1/inventory/services$PARAMS" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          node_id:
+            description: "Filter by node UUID."
+            required: false
+          service_type:
+            description: "Filter: mysql, postgresql, mongodb, valkey, proxysql, haproxy or external."
+            required: false
+      - name: pmm_get_service
+        description: "Get one PMM service by service_id (UUID). Use service_id from pmm_list_services."
+        command: |
+          set -e
+          curl -s -k "$PMM_URL/v1/inventory/services/{{ service_id }}" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          service_id:
+            description: "PMM service ID (UUID). Must come from pmm_list_services."
+  pmm-alerts:
+    description: |
+      List firing alerts from PMM (Grafana Alertmanager). Use when the user asks which alerts are firing, what alerts are active, or to list firing alerts. Same data source as the PMM 'Firing alerts' panel. Requires PMM_URL and PMM_API_TOKEN (same as pmm-inventory).
+    tags:
+      - core
+    transformers:
+      - name: llm_summarize
+        config:
+          input_threshold: 5000
+          prompt: |
+            Summarize for an on-call engineer. Preserve UUIDs, alert names, panel ids/titles, and exact SQL/errors when critical. Group healthy items; highlight anomalies and required actions. Be concise.
+    tools:
+      - name: pmm_list_firing_alerts
+        description: "List all currently firing (active) alerts. Returns the same data as the PMM 'Firing alerts' panel (from Grafana Alertmanager). Use when the user asks which alerts are firing, what alerts are active, or to list firing alerts. Response includes .alerts array with labels (e.g. alertname), annotations, and fingerprint."
+        command: |
+          set -e
+          curl -s -k "$PMM_URL/v1/adre/alerts" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters: {}
+  pmm-assistant-chat:
+    description: |
+      List and full-text search the current Grafana user's Assistant chat history stored in PMM. Same auth as pmm-inventory (PMM_URL, PMM_API_TOKEN Bearer). Use when the user asks about past Assistant conversations, prior analysis, or to find messages by keyword. Results are scoped to the token's user — not other PMM users.
+    tags:
+      - core
+    tools:
+      - name: pmm_assistant_list_conversations
+        description: "List recent Assistant chat conversations for the authenticated user. Returns id, title, last_message_at, updated_at. Optional limit (default 50)."
+        command: |
+          set -e
+          LIM={{ limit | default('') }}
+          case "$LIM" in ''|None) LIM=50 ;; esac
+          curl -s -k "${PMM_URL}/v1/adre/conversations?limit=${LIM}" -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          limit:
+            description: "Max conversations (default 50)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 8000
+              prompt: |
+                Summarize this PMM Assistant conversation list. Preserve conversation ids and titles; note recency (last_message_at). Be concise.
+
+      - name: pmm_assistant_search_messages
+        description: "Full-text search Assistant chat messages for the authenticated user. Pass q as plain text (special characters are URL-encoded). Returns hits with conversation_id, message_id, snippet, role, created_at."
+        command: |
+          set -e
+          LIM={{ limit | default('') }}
+          case "$LIM" in ''|None) LIM=30 ;; esac
+          curl -s -k -G "${PMM_URL}/v1/adre/messages/search" \
+            --data-urlencode q={{ q }} \
+            --data-urlencode "limit=$LIM" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          q:
+            description: "Search query (keywords or phrases)."
+          limit:
+            description: "Max hits (default 30)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 8000
+              prompt: |
+                Summarize Assistant chat search hits. Preserve conversation_id and message_id; quote short snippets when useful. Be concise.
+
+  pmm-observability:
+    description: |
+      PMM Observability Map + metrics snapshot APIs for scoped metric discovery and Tier-1 statistical summaries.
+      Use BEFORE raw Prometheus range queries or global metric name listing.
+    tags:
+      - core
+    llm_instructions: |
+      PMM investigation playbook (workload, spikes, anomalies, most multi-step questions):
+      1. pmm-inventory → service_id, node_id, engine
+      2. pmm_observability_map → dashboard_uid, panel ids, live PromQL expr
+      3. pmm_metrics_snapshot on the panel expr → stats, change points, anomalies (no render needed)
+      4. QAN (pmm.metrics via pmm-clickhouse) and pmm_db_action EXPLAIN for the dominant queryids
+      5. pmm_render_grafana_panel → only panels that show the finding (best-effort)
+      6. Scoped fallbacks: pmm_discover_series_labels, pmm_list_metric_names (prefix, max 50)
+      7. execute_prometheus_range_query — one per turn, last resort
+      Render failure never blocks the analysis: run snapshot, QAN and EXPLAIN anyway and state rendered M/N.
+      FORBIDDEN: unfiltered `/api/v1/label/__name__/values`, full dashboard JSON, guessing panel ids or metric names.
+
+      Prometheus (prometheus/metrics toolset, PMM's VictoriaMetrics):
+      - Instant queries for current state; range queries only when snapshot/map are not enough.
+      - execute_prometheus_range_query start/end: negative seconds (e.g. -43200 for 12h), RFC3339 or Unix epoch — never a `now…` string. Omit end for now.
+      - Oversized results come back as data_summary: filter by service_id/node_name first, use topk(5, …) or sum by (…), max_points <= 60.
+      - Service up checks: mysql_up, pg_up, mongodb_up, redis_up (node: up{job=~"node.*"}).
+      - Query results come back to you; read them before answering.
+      - Never write `<< {"type": "promql", ...} >>` graph embeds: PMM cannot show them. For a graph, embed a rendered panel (pmm_render_grafana_panel).
+
+      Engines: mysql, postgresql, mongodb, valkey, node. Intents: workload, connections, slow_queries, replication, group_replication, innodb, wal, locks, latency, memory, cpu_memory, disk_io, network, overview, availability.
+      pmm_metrics_snapshot: start/end = RFC3339 or Unix; end omitted = now; max_series default 5.
+    tools:
+      - name: pmm_observability_map
+        description: "Intent-based dashboard/panel routing with live PromQL expr from Grafana cache. GET /v1/grafana/observability-map. Returns ~1–3 KB scoped JSON — use instead of listing all metrics or full dashboard JSON."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          ARGS=(--data-urlencode "engine={{ engine }}" --data-urlencode "intent={{ intent }}")
+          SID={{ service_id | default('') }}
+          PIDS={{ panel_ids | default('') }}
+          IPQ={{ include_panel_queries | default('') }}
+          [ -n "$SID" ] && [ "$SID" != None ] && ARGS+=(--data-urlencode "service_id=$SID")
+          [ -n "$PIDS" ] && [ "$PIDS" != None ] && ARGS+=(--data-urlencode "panel_ids=$PIDS")
+          case "$IPQ" in ''|None) IPQ=true ;; esac
+          curl -s -k -G "${PMM_URL}/v1/grafana/observability-map" \
+            "${ARGS[@]}" \
+            --data-urlencode "include_panel_queries=$IPQ" \
+            -H "Authorization: Bearer $PMM_API_TOKEN"
+        parameters:
+          engine:
+            description: "mysql, postgresql, mongodb, valkey or node."
+          intent:
+            description: "Intent, e.g. workload, connections, slow_queries, replication, locks, cpu_memory, disk_io."
+          service_id:
+            description: "Service UUID; scopes the fallback series match."
+            required: false
+          panel_ids:
+            description: "Comma-separated panel ids to narrow the result."
+            required: false
+          include_panel_queries:
+            description: "Include live panel PromQL (default true)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize observability-map output for an on-call engineer. Preserve dashboard_uid, panel id/title/expr pairs, fallback metric_prefix and scoped_series_match, and any warnings. Be concise.
+
+      - name: pmm_metrics_snapshot
+        description: "Tier-1 metrics summary. Returns per-series stats (min, max, mean, median, p25, p75, p95, p99), top change_points, and z-score anomalies — NOT raw sample matrices. Use panel expr from pmm_observability_map."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          END={{ end | default('') }}
+          STEP={{ step | default('') }}
+          MAX={{ max_series | default('') }}
+          [ "$END" = None ] && END=
+          [ "$STEP" = None ] && STEP=
+          case "$MAX" in ''|None) MAX=5 ;; esac
+          if [ -n "$END" ] && [ -n "$STEP" ]; then
+            BODY=$(jq -n --arg query "{{ query }}" --arg start "{{ start }}" --arg end "$END" --arg step "$STEP" --argjson max_series "$MAX" '{query:$query,start:$start,end:$end,step:$step,max_series:$max_series}')
+          elif [ -n "$END" ]; then
+            BODY=$(jq -n --arg query "{{ query }}" --arg start "{{ start }}" --arg end "$END" --argjson max_series "$MAX" '{query:$query,start:$start,end:$end,max_series:$max_series}')
+          elif [ -n "$STEP" ]; then
+            BODY=$(jq -n --arg query "{{ query }}" --arg start "{{ start }}" --arg step "$STEP" --argjson max_series "$MAX" '{query:$query,start:$start,step:$step,max_series:$max_series}')
+          else
+            BODY=$(jq -n --arg query "{{ query }}" --arg start "{{ start }}" --argjson max_series "$MAX" '{query:$query,start:$start,max_series:$max_series}')
+          fi
+          curl -s -k -X POST "${PMM_URL}/v1/adre/metrics/snapshot" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$BODY"
+        parameters:
+          query:
+            description: "PromQL, typically panels[].expr from pmm_observability_map; tighten matchers or topk (max 5 series by default)."
+          start:
+            description: "Window start: RFC3339 UTC or Unix seconds."
+          end:
+            description: "Window end: RFC3339 or Unix (default now)."
+            required: false
+          step:
+            description: "Step, e.g. 5m (default 5m)."
+            required: false
+          max_series:
+            description: "Max series (default 5)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize metrics snapshot for an on-call engineer. Preserve stats (min/max/mean/median/p25/p75/p95/p99), change_points (bucket, delta_pct), anomalies (bucket, z_score), series labels, and time window. Highlight spikes and shifts; do not invent values not in the JSON.
+
+      - name: pmm_discover_series_labels
+        description: "Scoped series discovery fallback. GET VictoriaMetrics /prometheus/api/v1/series with service_id + metric_prefix matcher — NOT global metric browse."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          PREFIX="{{ metric_prefix }}"
+          MATCH="{service_id=\"{{ service_id }}\",__name__=~\"${PREFIX}.*\"}"
+          START="{{ start }}"
+          END={{ end | default('') }}
+          [ "$END" = None ] && END=
+          ARGS=(-G "${PMM_URL}/prometheus/api/v1/series" --data-urlencode "match[]=$MATCH" --data-urlencode "start=$START")
+          [ -n "$END" ] && ARGS+=(--data-urlencode "end=$END")
+          curl -s -k "${ARGS[@]}" -H "Authorization: Bearer $PMM_API_TOKEN" \
+            | jq '{status, data: (.data // []) | .[:50]}'
+        parameters:
+          service_id:
+            description: "PMM service UUID from inventory (required)."
+          metric_prefix:
+            description: "Metric name prefix from observability-map fallback (e.g. mysql_, pg_, node_)."
+          start:
+            description: "Window start as Unix epoch seconds (required for series API)."
+          end:
+            description: "Window end, Unix seconds (default now)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize scoped series discovery. Preserve label sets (__name__, service_id, instance, job, etc.) and note count capped at 50. Be concise.
+
+      - name: pmm_list_metric_names
+        description: "Last-resort prefix-filtered metric name list (max 50). Uses /prometheus/api/v1/label/__name__/values — NEVER call without a prefix filter."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          PREFIX="{{ prefix }}"
+          LIMIT={{ limit | default('') }}
+          case "$LIMIT" in ''|None) LIMIT=50 ;; esac
+          curl -s -k "${PMM_URL}/prometheus/api/v1/label/__name__/values" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            | jq --arg p "$PREFIX" --argjson lim "$LIMIT" '{status, data: [.data[] | select(startswith($p))] | .[:$lim]}'
+        parameters:
+          prefix:
+            description: "Required metric prefix (e.g. mysql_, pg_, mongodb_, node_). From observability-map fallback.metric_prefix."
+          limit:
+            description: "Max names (default 50)."
+            required: false
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize prefix-filtered metric names. List up to 50 names; note prefix used. Be concise.
+
+  pmm-grafana-render:
+    description: "Grafana panel PNGs and dashboard lookup via PMM (POST /v1/grafana/render/resolve, /graph/api/search)."
+    tags:
+      - core
+    transformers:
+      - name: llm_summarize
+        config:
+          input_threshold: 5000
+          prompt: |
+            Summarize for an on-call engineer. Preserve UUIDs, alert names, panel ids/titles, and exact SQL/errors when critical. Group healthy items; highlight anomalies and required actions. Be concise.
+    llm_instructions: |
+      Render when the user asks for a graph or a panel shows the finding. Panel ids come from pmm_observability_map (fallback pmm_list_dashboard_panels) — never guess. Dashboard uids: map, pmm_search_dashboards, or known PMM uids.
+      Pass service_id (service dashboards) or node_id (node dashboards); the tool fills the other dashboard variables from inventory. from/to: absolute RFC3339 UTC renders most reliably (now-6h also works).
+      Embed every successful render as `![title](image_url)` plus `[Open in Grafana](dashboard_url)`, using the returned URLs exactly. Render sequentially, retry once on failure, state rendered M/N; a failed render never blocks the analysis.
+    tools:
+      - name: pmm_render_grafana_panel
+        description: "Render one Grafana panel as a PNG. Returns image_url (embed it) and dashboard_url."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          PANEL={{ panel_id }}
+          case "$PANEL" in panel-*) PANEL="${PANEL#panel-}" ;; esac
+          PANEL_JSON=$(printf '%s' "$PANEL" | jq -R 'if test("^[0-9]+$") then tonumber else . end')
+          FROM={{ from }}
+          TO={{ to }}
+          SERVICE_ID={{ service_id | default('') }}
+          NODE_ID={{ node_id | default('') }}
+          [ "$SERVICE_ID" = None ] && SERVICE_ID=
+          [ "$NODE_ID" = None ] && NODE_ID=
+
+          is_uuid() {
+            printf '%s' "$1" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+          }
+          is_uuid "$SERVICE_ID" || SERVICE_ID=""
+          is_uuid "$NODE_ID" || NODE_ID=""
+          AUTH=(-H "Authorization: Bearer ${PMM_API_TOKEN}")
+
+          # Dashboard variables come from inventory, so the model passes ids only.
+          SERVICE_NAME="" CLUSTER="" REPLICATION_SET="" VERSION="" AGENT_ID=""
+          NODE_NAME="" NODE_TYPE="" REGION="" AZ="" NODE_MODEL=""
+          if [ -n "$SERVICE_ID" ]; then
+            SVC=$(curl -fsS -k "${PMM_URL}/v1/inventory/services/${SERVICE_ID}" "${AUTH[@]}" | jq -c 'to_entries[0].value // {}' || echo '{}')
+            SERVICE_NAME=$(printf '%s' "$SVC" | jq -r '.service_name // ""')
+            CLUSTER=$(printf '%s' "$SVC" | jq -r '.cluster // ""')
+            REPLICATION_SET=$(printf '%s' "$SVC" | jq -r '.replication_set // ""')
+            VERSION=$(printf '%s' "$SVC" | jq -r '.version // ""')
+            [ -z "$NODE_ID" ] && NODE_ID=$(printf '%s' "$SVC" | jq -r '.node_id // ""')
+            AGENT_ID=$(curl -fsS -k "${PMM_URL}/v1/inventory/agents?service_id=${SERVICE_ID}" "${AUTH[@]}" \
+              | jq -r '[.mysqld_exporter[]?.agent_id, .postgres_exporter[]?.agent_id, .mongodb_exporter[]?.agent_id,
+                        .valkey_exporter[]?.agent_id, .proxysql_exporter[]?.agent_id]
+                       | map(select(type=="string" and length>0)) | .[0] // ""' || true)
+          fi
+          if [ -n "$NODE_ID" ]; then
+            NODE=$(curl -fsS -k "${PMM_URL}/v1/inventory/nodes/${NODE_ID}" "${AUTH[@]}" | jq -c 'to_entries[0] // {}' || echo '{}')
+            NODE_TYPE=$(printf '%s' "$NODE" | jq -r '.key // ""')
+            NODE_NAME=$(printf '%s' "$NODE" | jq -r '.value.node_name // ""')
+            REGION=$(printf '%s' "$NODE" | jq -r '.value.region // ""')
+            AZ=$(printf '%s' "$NODE" | jq -r '.value.az // ""')
+            NODE_MODEL=$(printf '%s' "$NODE" | jq -r '.value.node_model // ""')
+            if [ -z "$AGENT_ID" ]; then
+              AGENT_ID=$(curl -fsS -k "${PMM_URL}/v1/inventory/agents?node_id=${NODE_ID}" "${AUTH[@]}" \
+                | jq -r '[.node_exporter[]?.agent_id] | map(select(type=="string" and length>0)) | .[0] // ""' || true)
+            fi
+          fi
+          # Local-only or cloud FQDN node aliases destabilize panel variable resolution; ids are enough.
+          case "$(printf '%s' "$NODE_NAME" | tr '[:upper:]' '[:lower:]')" in
+            localhost|localhost.localdomain|127.0.0.1|*.internal|ip-*.*) NODE_NAME="" ;;
+          esac
+
+          # PMM rejects dashboard_uid unless it matches ^[a-zA-Z0-9_-]+$ (strip ZWSP / unicode dashes / etc.).
+          DASHBOARD_UID=$(printf '%s' {{ dashboard_uid }} | LC_ALL=C tr -cd 'A-Za-z0-9_-')
+          if [ -z "$DASHBOARD_UID" ]; then
+            printf '%s\n' '{"error":"dashboard_uid is empty or not PMM-safe after sanitization (use ASCII letters, digits, hyphen, underscore only)"}'
+            exit 1
+          fi
+
+          # PMM rejects overrides the dashboard does not define, so send only its own template variables.
+          VARS=$(curl -fsS -k "${PMM_URL}/graph/api/dashboards/uid/${DASHBOARD_UID}" "${AUTH[@]}" \
+            | jq -c '[.dashboard.templating.list[]?.name | ascii_downcase]' || echo '[]')
+          # IANA tz is not a tool param: a UTC tz stalls the image renderer. Env or EU default.
+          TZ_VAL="${PMM_GRAFANA_TZ:-Europe/Amsterdam}"
+          # Empty cluster/replication_set/version/region/az/node_model are sent as "" so PMM clears the dashboard's
+          # saved defaults instead of keeping them and stalling the renderer.
+          BODY=$(jq -n --argjson vars "$VARS" \
+            --arg dashboard_uid "$DASHBOARD_UID" --argjson panel_id "$PANEL_JSON" \
+            --arg from "$FROM" --arg to "$TO" --arg tz_val "$TZ_VAL" \
+            --arg node_name "$NODE_NAME" --arg service_name "$SERVICE_NAME" --arg service_id "$SERVICE_ID" \
+            --arg node_id "$NODE_ID" --arg agent_id "$AGENT_ID" --arg node_type "$NODE_TYPE" \
+            --arg region "$REGION" --arg cluster "$CLUSTER" --arg az "$AZ" --arg node_model "$NODE_MODEL" \
+            --arg replication_set "$REPLICATION_SET" --arg version "$VERSION" \
+            '{
+              dashboard_uid: $dashboard_uid, panel_id: $panel_id, from: $from, to: $to,
+              width: 800, height: 400, tz: $tz_val,
+              overrides: (
+                {region: $region, cluster: $cluster, az: $az, node_model: $node_model, replication_set: $replication_set, version: $version}
+                | (if $node_name != "" then . + {node_name: $node_name} else . end)
+                | (if $service_name != "" then . + {service_name: $service_name} else . end)
+                | (if $service_id != "" then . + {service_id: $service_id} else . end)
+                | (if $node_id != "" then . + {node_id: $node_id} else . end)
+                | (if $agent_id != "" then . + {agent_id: $agent_id} else . end)
+                | (if $node_type != "" then . + {node_type: $node_type} else . end)
+                | with_entries(select(.key | IN($vars[])))
+              )
+            }')
+          PMM_SCHEME="$(printf '%s' "$PMM_URL" | sed -E 's#^([a-zA-Z][a-zA-Z0-9+.-]*)://.*#\1#')"
+          PMM_HOSTPORT="$(printf '%s' "$PMM_URL" | sed -E 's#^[a-zA-Z][a-zA-Z0-9+.-]*://([^/]+).*$#\1#')"
+          # Print PMM's error body (e.g. "panel_id 20 not found on dashboard") so the model can correct the call.
+          RESP=$(curl -sS -k -X POST "${PMM_URL}/v1/grafana/render/resolve" \
+            -H "Content-Type: application/json" \
+            -H "X-Forwarded-Proto: ${PMM_SCHEME}" \
+            -H "X-Forwarded-Host: ${PMM_HOSTPORT}" \
+            "${AUTH[@]}" \
+            -d "$BODY" -w '\n%{http_code}')
+          CODE=${RESP##*$'\n'}
+          printf '%s\n' "${RESP%$'\n'*}"
+          [ "$CODE" -lt 400 ]
+        parameters:
+          dashboard_uid:
+            description: "Dashboard UID, e.g. mysql-instance-summary."
+          panel_id:
+            description: "Panel id from pmm_observability_map panels[].id (e.g. 47 or panel-47)."
+          from:
+            description: "Range start: RFC3339 UTC (preferred) or Grafana-relative like now-6h."
+          to:
+            description: "Range end: RFC3339 UTC (preferred) or now."
+          service_id:
+            description: "Service UUID from inventory, for service dashboards."
+            required: false
+          node_id:
+            description: "Node UUID from inventory, for node dashboards (taken from the service when omitted)."
+            required: false
+
+      - name: pmm_render_grafana_from_dashboard_url
+        description: "DEPRECATED: direct /graph/render URL building is disabled. Use pmm_render_grafana_panel (POST /v1/grafana/render/resolve) only."
+        command: |
+          set -e
+          echo '{"error":"pmm_render_grafana_from_dashboard_url is deprecated. Use pmm_render_grafana_panel (POST /v1/grafana/render/resolve)."}'
+          exit 1
+        parameters:
+          dashboard_url:
+            description: "Full Grafana panel URL from the browser (after View panel), e.g. https://HOST/graph/d/mysql-innodb/mysql-innodb-details?from=...&to=...&viewPanel=panel-47&var-node_name=mysql&... Include orgId and all var-* you see."
+      - name: pmm_list_dashboard_panels
+        description: "List panel ids and titles of a dashboard (fallback when pmm_observability_map has no route)."
+        command: |
+          set -euo pipefail
+          DASHBOARD_UID=$(printf '%s' {{ dashboard_uid }} | LC_ALL=C tr -cd 'A-Za-z0-9_-')
+          curl -s -k "${PMM_URL%/}/graph/api/dashboards/uid/${DASHBOARD_UID}" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            -H "Accept: application/json" \
+            | jq -c '[.dashboard.panels[] | select(.type != "row") | {id, title}] + [.dashboard.panels[]? | .panels[]? | select(.type != "row") | {id, title}]'
+        parameters:
+          dashboard_uid:
+            description: "Dashboard UID."
+      - name: pmm_search_dashboards
+        description: "Find dashboards by title words. Returns uid, title, url and folder."
+        command: |
+          set -euo pipefail
+          curl -s -k -G "${PMM_URL%/}/graph/api/search" \
+            --data-urlencode query={{ query }} \
+            --data-urlencode type=dash-db \
+            --data-urlencode limit=20 \
+            -H "Authorization: Bearer $PMM_API_TOKEN" \
+            | jq -c '[.[] | {uid, title, url, folder: .folderTitle}]'
+        parameters:
+          query:
+            description: "Title words, e.g. MySQL Instance Summary, ProxySQL, HAProxy."
+
+  pmm-db-actions:
+    description: "Read-only diagnostics on a monitored database via PMM Actions (EXPLAIN, SHOW CREATE TABLE, SHOW INDEX, SHOW TABLE STATUS)."
+    llm_instructions: |
+      Slow-query and performance questions: EXPLAIN the 1–3 query patterns that dominate total time (do not skip it), then SHOW CREATE TABLE / SHOW INDEX on the tables they use, and recommend concrete fixes with the full ALTER/CREATE statement. Summarize the output in the reply (access type, key, rows, scan vs index).
+      query_id is the pmm.metrics queryid hash (select any(queryid) when grouping by fingerprint) — never fingerprint or example text.
+      database: for MySQL only the QAN schema column, and only when it came from pmm.metrics; otherwise omit it — never infer it from table, service or node names.
+      PostgreSQL has SHOW actions only and MongoDB none: give the user the EXPLAIN (ANALYZE, BUFFERS) / explain("executionStats") command to run.
+    tags:
+      - core
+    transformers:
+      - name: llm_summarize
+        config:
+          input_threshold: 5000
+          prompt: |
+            Summarize for an on-call engineer. Preserve UUIDs, alert names, panel ids/titles, and exact SQL/errors when critical. Group healthy items; highlight anomalies and required actions. Be concise.
+    tools:
+      - name: pmm_db_action
+        description: "Run a read-only PMM Action on a monitored database and return its output. EXPLAIN actions take query_id; SHOW actions take table_name."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          ACTION={{ action }}
+          SID={{ service_id }}
+          QID={{ query_id | default('') }}
+          TBL={{ table_name | default('') }}
+          DBNAME={{ database | default('') }}
+          [ "$QID" = None ] && QID=
+          [ "$TBL" = None ] && TBL=
+          [ "$DBNAME" = None ] && DBNAME=
+          case "$ACTION" in
+            mysql_explain|mysql_explain_json)
+              [ -n "$QID" ] || { echo "Error: query_id (pmm.metrics queryid) is required for $ACTION"; exit 1; } ;;
+            mysql_show_create_table|mysql_show_index|mysql_show_table_status|postgres_show_create_table|postgres_show_index)
+              [ -n "$TBL" ] || { echo "Error: table_name is required for $ACTION"; exit 1; } ;;
+            *)
+              echo "Error: unknown action $ACTION"; exit 1 ;;
+          esac
+          PAYLOAD=$(jq -n --arg action "$ACTION" --arg service_id "$SID" --arg query_id "$QID" --arg table_name "$TBL" --arg database "$DBNAME" \
+            '{($action): ({service_id: $service_id}
+              + (if $query_id != "" then {query_id: $query_id} else {} end)
+              + (if $table_name != "" then {table_name: $table_name} else {} end)
+              + (if $database != "" then {database: $database} else {} end))}')
+          RESP=$(curl -s -k -X POST "${PMM_URL}/v1/actions:startServiceAction" -H "Authorization: Bearer $PMM_API_TOKEN" -H "Content-Type: application/json" -d "$PAYLOAD")
+          AID=$(printf '%s' "$RESP" | jq -r 'to_entries[0].value.action_id? // empty' 2>/dev/null || true)
+          [ -n "$AID" ] || { echo "Start failed: $RESP"; exit 1; }
+          for _ in $(seq 1 20); do
+            sleep 2
+            R=$(curl -s -k "${PMM_URL}/v1/actions/${AID}" -H "Authorization: Bearer $PMM_API_TOKEN")
+            ERR=$(printf '%s' "$R" | jq -r '.error // empty')
+            [ -n "$ERR" ] && { echo "Error: $ERR"; exit 1; }
+            if [ "$(printf '%s' "$R" | jq -r '.done')" = "true" ]; then
+              OUT=$(printf '%s' "$R" | jq -r '.output // empty')
+              case "$ACTION" in
+                mysql_explain*) printf '%s' "$OUT" | base64 -d 2>/dev/null || printf '%s\n' "$OUT" ;;
+                *) printf '%s\n' "$OUT" ;;
+              esac
+              exit 0
+            fi
+          done
+          echo "Timeout waiting for action $AID"
+          exit 1
+        parameters:
+          action:
+            description: "mysql_explain | mysql_explain_json (need query_id); mysql_show_create_table | mysql_show_index | mysql_show_table_status | postgres_show_create_table | postgres_show_index (need table_name)."
+            enum: [mysql_explain, mysql_explain_json, mysql_show_create_table, mysql_show_index, mysql_show_table_status, postgres_show_create_table, postgres_show_index]
+          service_id:
+            description: "Service UUID from inventory."
+          query_id:
+            description: "queryid hash from pmm.metrics, for EXPLAIN."
+            required: false
+          table_name:
+            description: "Table name (optionally schema.table), for SHOW actions."
+            required: false
+          database:
+            description: "Database: MySQL = QAN schema column; PostgreSQL = database name. Omit when unknown."
+            required: false
+  pmm-nomad:
+    enabled: true
+    description: |
+      Register (run) a fixed Nomad batch job fix_mysql_owner on one client: chown mysql datadir + systemctl restart mysql via raw_exec.
+      DESTRUCTIVE. Only when the user explicitly asks to execute this remediation via Nomad and names the target Nomad client.
+    llm_instructions: |
+      Use **only** when the user clearly asks to run the **fix_mysql_owner** Nomad job (MySQL datadir ownership + service restart) on a specific host **via Nomad**.
+      Do **not** call this tool for casual chat, generic investigations, or vague "fix mysql" requests without explicit Nomad execution intent.
+      Before calling: the user must confirm the target **Nomad client Name** (from Nomad UI → Clients or GET …/nomad/v1/nodes). That Name is **not** always the same string as PMM inventory `node_name`; if unsure, say so and ask the user or infer only after listing Nomad nodes (user may paste JSON).
+      Pass **nomad_datacenter** when the client’s Datacenter is not the default (see env PMM_NOMAD_DATACENTER / parameter default).
+      After the tool returns, summarize EvalID / HTTP outcome and warn that **raw_exec** ran on the host.
+      If Nomad is disabled or credentials wrong, report the error; do not retry blindly.
+    tools:
+      - name: pmm_nomad_run_fix_mysql_owner
+        description: |
+          Register Nomad job fix_mysql_owner constrained to one client: runs chown -R mysql:mysql /var/lib/mysql/* && systemctl restart mysql (raw_exec).
+          Requires Nomad client Name (exact match to Nomad node Name). Uses PMM /nomad API (Basic auth). DESTRUCTIVE.
+        command: |
+          set -e
+          if [ -n "${PMM_NOMAD_API_BASE:-}" ]; then
+            NOMAD_API="${PMM_NOMAD_API_BASE%/}"
+          else
+            NOMAD_API="${PMM_URL%/}/nomad"
+          fi
+          NUSER="${PMM_NOMAD_BASIC_USER:-admin}"
+          NPASS="${PMM_NOMAD_BASIC_PASSWORD:-admin}"
+          NODE="{{ nomad_client_name }}"
+          DC_RAW="{{ nomad_datacenter | default('') }}"
+          if [ -z "$DC_RAW" ]; then
+            DC="${PMM_NOMAD_DATACENTER:-PMM Deployment}"
+          else
+            DC="$DC_RAW"
+          fi
+          [ -z "$NODE" ] && { echo '{"error":"nomad_client_name is required"}'; exit 1; }
+          JOBHCL=$(jq -rn --arg dc "$DC" --arg node "$NODE" '["job \"fix_mysql_owner\" {",("  datacenters = [\""+$dc+"\"]"),"  type        = \"batch\"","","  constraint {","    attribute = \"${node.unique.name}\"","    operator  = \"=\"",("    value     = \""+$node+"\""),"  }","","  group \"g\" {","    task \"fix\" {","      driver = \"raw_exec\"","      config {","        command = \"/bin/bash\"","        args    = [\"-c\", \"chown -R mysql:mysql /var/lib/mysql/* && systemctl restart mysql\"]","      }","    }","  }","}"] | join("\n")')
+          PARSED_JSON=$(printf '%s' "$JOBHCL" | jq -Rs '{JobHCL: ., Canonicalize: true}' \
+            | curl -sk -u "$NUSER:$NPASS" -X POST "$NOMAD_API/v1/jobs/parse" \
+                -H 'Content-Type: application/json' -d @-)
+          if ! echo "$PARSED_JSON" | jq -e . >/dev/null 2>&1; then
+            echo "{\"error\":\"Nomad parse failed\",\"raw\":$(echo "$PARSED_JSON" | jq -Rs .)}"
+            exit 1
+          fi
+          if echo "$PARSED_JSON" | jq -e 'has("ID") | not' >/dev/null 2>&1; then
+            echo "{\"error\":\"Unexpected parse response\",\"body\":$PARSED_JSON}"
+            exit 1
+          fi
+          curl -sk -u "$NUSER:$NPASS" -X PUT "$NOMAD_API/v1/job/fix_mysql_owner" \
+            -H 'Content-Type: application/json' \
+            -d "$(echo "$PARSED_JSON" | jq '{Job: .}')"
+        parameters:
+          nomad_client_name:
+            description: "Exact Nomad client Name to constrain the job (from Nomad UI Clients or GET /nomad/v1/nodes field Name)."
+          nomad_datacenter:
+            description: "Nomad datacenter allow-list entry for this job; must match the target client’s Datacenter. Omit to use PMM_NOMAD_DATACENTER env or default PMM Deployment."
+        transformers:
+          - name: llm_summarize
+            config:
+              input_threshold: 4000
+              prompt: |
+                Summarize for an on-call engineer: whether Nomad accepted the job registration, EvalID if present, and that raw_exec ran chown + systemctl restart mysql on the constrained host. Flag any error JSON.
+
+  # Investigation report generator: structures loop context (sub-conversation with Holmes Agent) into structured JSON.
+  # Used by PMM Agent when it has gathered enough info from ask_holmes; does not call other tools.
+  investigation-report-generator:
+    enabled: true
+    description: "Structures the given loop context (sub-conversation messages and optional summary) into a structured JSON investigation report. Does not call other tools; input is messages array and optional summary. Output: JSON with summary, findings, evidence, recommendations."
+    llm_instructions: |
+      Use when the PMM Agent has gathered enough information from the ask_holmes loop and needs a structured report.
+      Input: messages (array of {role, content} from the sub-conversation) and optional summary string.
+      Output: Structured JSON report with summary, findings, evidence, recommendations. Do not call other tools.
+      Include in findings everything the investigation discovered: primary cause, and any secondary or related issues (e.g. errors in logs like permission denied or file not found), consequences, and same-time events. Do not omit any; list each with a brief assessment (cause, consequence, or co-occurring and whether follow-up is needed).
+      CRITICAL — Recommendations: For every recommendation that involves running a command (add index, drop index, ALTER TABLE, restart service, fix config, fix permissions, etc.), include the exact command(s) in the report. Do not write only "add an index on column k" — write the full SQL or shell command (e.g. ALTER TABLE sbtest.sbtest2 ADD INDEX idx_k (k); or systemctl restart mysql). Each "Next Steps" or remediation step that has a runnable command must contain that command.
+      When the sub-conversation includes relevant dashboard panels (image_url and dashboard_url from pmm_render_grafana_panel), include them in the report. Add an optional "panels" or "evidence_panels" array: each entry has image_url, dashboard_url, and a short caption/title (e.g. "QPS during incident window"). Where the investigation references metrics, trends, or dashboard context, list the corresponding rendered panels so the report UI can show the image and "Open in Grafana" link.
+    tools:
+      - name: investigation_report_generator
+        description: "Generate a structured investigation report JSON from the given loop context. Input: messages (array of {role, content}), optional summary. Output: JSON with summary, findings, evidence, recommendations. Does not call other tools."
+        parameters:
+          messages:
+            description: "Array of message objects {role, content} from the sub-conversation with Holmes Agent."
+          summary:
+            description: "Optional short summary from the PMM Agent to guide the report structure."
+        command: "echo '{\"summary\":\"\",\"findings\":[],\"recommendations\":[]}'"

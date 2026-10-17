@@ -1,5 +1,6 @@
 digraph packages {
 	"/cmd/pmm-managed-init" -> "/models";
+	"/cmd/pmm-managed-init" -> "/services/clickhouse";
 	"/cmd/pmm-managed-init" -> "/services/supervisord";
 	"/cmd/pmm-managed-starlark" -> "/pi/check";
 	"/cmd/pmm-managed-starlark" -> "/pi/starlark";
@@ -13,6 +14,7 @@ digraph packages {
 	"/models_test" -> "/pi/alert";
 	"/models_test" -> "/pi/common";
 	"/services/agents" -> "/models";
+	"/services/agents" -> "/otel";
 	"/services/agents" -> "/services/agents/channel";
 	"/services/agents.test" -> "/services/agents";
 	"/services/agents/grpc" -> "/services/agents";
@@ -45,6 +47,7 @@ digraph packages {
 	"/services/server" -> "/services";
 	"/services/server.test" -> "/services/server";
 	"/services/supervisord" -> "/models";
+	"/services/supervisord" -> "/otel";
 	"/services/supervisord.test" -> "/services/supervisord";
 	"/services/telemetry" -> "/models";
 	"/services/telemetry.test" -> "/services/telemetry";

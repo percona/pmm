@@ -34,5 +34,17 @@ export const Messages = {
     plan: {
       tab: 'Plan',
     },
+    aiInsights: {
+      tab: 'AI Insights',
+      loading: 'Running AI analysis…',
+      noExample: 'No example available for this query.',
+      error: 'Failed to get AI insights.',
+      copyAnalysis: 'Copy analysis',
+      createServiceNowTicket: 'Create ServiceNow ticket',
+      creatingTicket: 'Creating…',
+      ticketCreated: 'ServiceNow ticket created',
+      copySuccess: 'Analysis copied to clipboard',
+      copyFailed: 'Could not copy to clipboard',
+    },
   },
 };
