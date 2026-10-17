@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
@@ -29,13 +31,16 @@ import (
 // GetMetrics implements rpc to get metrics for specific filtering.
 func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (*qanpb.GetMetricsResponse, error) {
 	if in.PeriodStartFrom == nil {
-		return nil, fmt.Errorf("period_start_from is required: %v", in.PeriodStartFrom)
+		return nil, status.Errorf(codes.InvalidArgument, "period_start_from is required: %v", in.PeriodStartFrom)
 	}
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	if in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("period_start_to is required: %v", in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "period_start_to is required: %v", in.PeriodStartTo)
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
+	if periodStartFromSec > periodStartToSec {
+		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
+	}
 
 	labels := make(map[string][]string)
 	dimensions := make(map[string][]string)
@@ -103,7 +108,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 	// Get totals for given filter
 	totals := totalsList[totalLen-1]
 
-	durationSec := periodStartToSec - periodStartFromSec
+	durationSec := models.PeriodDuration(periodStartFromSec, periodStartToSec)
 
 	// skip on TOTAL request.
 	if !in.Totals {
@@ -183,7 +188,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 	for k := range commonColumnNames {
 		cnt := interfaceToFloat32(mm["m_"+k+"_cnt"])
 		sum := interfaceToFloat32(mm["m_"+k+"_sum"])
-		totalSum := interfaceToFloat32(mm["m_"+k+"sum"])
+		totalSum := interfaceToFloat32(t["m_"+k+"_sum"])
 		mv := qanpb.MetricValues{
 			Cnt: cnt,
 			Sum: sum,
@@ -197,7 +202,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 		if sum > 0 && totalSum > 0 {
 			mv.PercentOfTotal = sum / totalSum
 		}
-		if sum > 0 && durationSec > 0 {
+		if sum > 0 {
 			mv.Rate = sum / float32(durationSec)
 		}
 		m[k] = &mv
@@ -206,7 +211,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 	for k := range sumColumnNames {
 		cnt := interfaceToFloat32(mm["m_"+k+"_cnt"])
 		sum := interfaceToFloat32(mm["m_"+k+"_sum"])
-		totalSum := interfaceToFloat32(t["m_"+k+"sum"])
+		totalSum := interfaceToFloat32(t["m_"+k+"_sum"])
 		mv := qanpb.MetricValues{
 			Cnt: cnt,
 			Sum: sum,
@@ -217,7 +222,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 		if sum > 0 && totalSum > 0 {
 			mv.PercentOfTotal = sum / totalSum
 		}
-		if sum > 0 && durationSec > 0 {
+		if sum > 0 {
 			mv.Rate = sum / float32(durationSec)
 		}
 		m[k] = &mv
