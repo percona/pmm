@@ -1,6 +1,7 @@
 import {
   PMM_ASSISTANT_CONFIG_PATH,
   PMM_ASSISTANT_PATH,
+  PMM_LOGS_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
@@ -16,6 +17,7 @@ import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import ReceiptLong from '@mui/icons-material/ReceiptLong';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
@@ -457,6 +459,14 @@ export const NAV_RTA: NavItem = {
   icon: QueryStatsIcon,
   text: 'Real-Time Query Analysis',
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
+};
+
+export const NAV_LOGS: NavItem = {
+  id: 'logs',
+  icon: ReceiptLong,
+  text: 'Logs',
+  url: PMM_LOGS_PATH,
+  matches: [PMM_LOGS_PATH, `${PMM_LOGS_PATH}/*`],
 };
 
 export const NAV_ASSISTANT: NavItem = {

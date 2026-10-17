@@ -22,6 +22,7 @@ import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPag
 import QanPage from 'pages/qan/QanPage';
 import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
 import { AlertsPage } from 'pages/alerting/status';
+import { LogsPage } from 'pages/logs/LogsPage';
 
 const router = createBrowserRouter(
   [
@@ -110,6 +111,10 @@ const router = createBrowserRouter(
             {
               path: 'qan',
               element: <QanPage />,
+            },
+            {
+              path: 'logs/:tab?',
+              element: <LogsPage />,
             },
             {
               path: 'qan/ai-insights',

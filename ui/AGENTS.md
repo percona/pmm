@@ -60,6 +60,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/assistant`                                                | PMM Assistant chat (`/adre` redirects here)                       |
 | `/configuration/assistant/{configuration,deployment,usage}` | Assistant configuration, Holmes deployment, AI usage              |
 | `/investigations`                                           | Investigations list                                               |
+| `/logs`, `/logs/patterns`                                   | Logs: volume, lines and patterns from `/v1/logs`                  |
 | `/graph/*`                                                  | Grafana iframe                                                    |
 | `*`                                                         | 404 fallback                                                      |
 
