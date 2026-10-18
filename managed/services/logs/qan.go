@@ -25,22 +25,30 @@ import (
 	logsv1 "github.com/percona/pmm/api/logs/v1"
 )
 
-// queryWindow is how far from a line's time QAN is searched for its query.
-const queryWindow = 30 * time.Minute
+const (
+	// How far from a line's time QAN is searched for its query.
+	queryWindow = 30 * time.Minute
+	// The shortest fingerprint that may have been cut: pgsm_query_max_len is 1024 at least.
+	minTruncatedLen = 1024
+)
 
 var (
 	// A PostgreSQL statement or execute line, after an optional duration.
 	statementRe = regexp.MustCompile(`^(?:duration: [0-9.]+ ms\s+)?(?:statement|execute [^:\n]*):\s*`)
-	// Lines PostgreSQL appends to an entry, such as the parameters of an execute.
-	appendedRe = regexp.MustCompile(`\n(?:DETAIL|HINT|CONTEXT|QUERY|LOCATION|STATEMENT):`)
+	// Lines PostgreSQL appends to an entry, such as the parameters of an execute, or the next entry.
+	appendedRe = regexp.MustCompile(`\n(?:(?:DETAIL|HINT|CONTEXT|QUERY|LOCATION|STATEMENT):|[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2})`)
 
 	sqlCommentRe = regexp.MustCompile(`(?s)/\*.*?\*/|--[^\n]*`)
 	sqlStringRe  = regexp.MustCompile(`'(?:[^']|'')*'`)
 	sqlParamRe   = regexp.MustCompile(`\$[0-9]+`)
-	sqlNumberRe  = regexp.MustCompile(`\b[0-9]+(?:\.[0-9]+)?\b`)
+	sqlNumberRe  = regexp.MustCompile(`\b[0-9]+(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?`)
 	sqlSpaceRe   = regexp.MustCompile(`\s+`)
 	sqlPunctRe   = regexp.MustCompile(`\s*([(),;=<>+\-*/])\s*`)
 	sqlListRe    = regexp.MustCompile(`\?(?:,\?)+`)
+	// PostgreSQL fingerprints these as constants too.
+	sqlConstRe = regexp.MustCompile(`\b(?:true|false|null)\b|\bextract\(\w+ from\b`)
+	// What a cut may have left of the fingerprint's last token.
+	sqlPartialRe = regexp.MustCompile(`[^ (),;=<>+\-*/?]+$`)
 )
 
 // statementOf returns the SQL a PostgreSQL log line logged, or "" when it logged none.
@@ -69,8 +77,24 @@ func normalizeSQL(s string) string {
 	s = sqlNumberRe.ReplaceAllString(s, "?")
 	s = sqlSpaceRe.ReplaceAllString(strings.ToLower(s), " ")
 	s = sqlPunctRe.ReplaceAllString(s, "$1")
+	s = sqlConstRe.ReplaceAllStringFunc(s, func(c string) string {
+		if strings.HasPrefix(c, "extract(") {
+			return "extract(? from"
+		}
+		return "?"
+	})
 	s = sqlListRe.ReplaceAllString(s, "?")
 	return strings.TrimRight(strings.TrimSpace(s), ";")
+}
+
+// sameQuery reports whether a normalized statement ran a QAN fingerprint.
+// A long fingerprint may have been cut by pg_stat_monitor or pmm-agent, so it matches as a prefix.
+func sameQuery(stmt, fingerprint string) bool {
+	if len(fingerprint) < minTruncatedLen {
+		return normalizeSQL(fingerprint) == stmt
+	}
+	fp := normalizeSQL(strings.TrimSuffix(fingerprint, " ..."))
+	return strings.HasPrefix(stmt, sqlPartialRe.ReplaceAllString(fp, ""))
 }
 
 // findQueryQuery returns the PostgreSQL QAN queries of a node around a time, most executed first.
@@ -104,7 +128,7 @@ func (s *Service) FindLogQuery(ctx context.Context, req *logsv1.FindLogQueryRequ
 			return err
 		}
 		// Rows come most executed first, so the first match is the busiest service of the busiest query.
-		if res.QueryId == "" && normalizeSQL(fingerprint) == want {
+		if res.QueryId == "" && sameQuery(want, fingerprint) {
 			res.QueryId, res.ServiceName, res.ServiceId, res.Fingerprint = queryID, serviceName, serviceID, fingerprint
 		}
 		return nil

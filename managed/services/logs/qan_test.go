@@ -16,6 +16,7 @@
 package logs
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -37,6 +38,7 @@ func TestStatementOf(t *testing.T) {
 		"statement: SELECT a,\n  b\nFROM t":                                                    "SELECT a,\n  b\nFROM t",
 		"connection authorized: user=pmm database=shop":                                        "",
 		"statement: ;": "",
+		"statement: SELECT 1;\n2026-10-18 10:00:00 GMT [12] app@shop [qid=-1] LOG:  duration: 0.5 ms": "SELECT 1;",
 	} {
 		assert.Equal(t, want, statementOf(body), body)
 	}
@@ -49,6 +51,10 @@ func TestNormalizeSQL(t *testing.T) {
 		"SELECT * FROM t WHERE id IN (1, 2, 3)":                    "SELECT * FROM t WHERE id IN ($1, $2)",
 		"SELECT\n  a,b FROM t WHERE x = 'it''s'":                   "select a, b from t where x = $1",
 		"SELECT pg_sleep(1.5)":                                     "SELECT pg_sleep($1)",
+		"SELECT d FROM pg_database WHERE a = true AND b = false":   "SELECT d FROM pg_database WHERE a = $1 AND b = $2",
+		"SELECT null::bigint AS n FROM t WHERE x IS NOT NULL":      "SELECT $1::bigint AS n FROM t WHERE x IS NOT NULL",
+		"SELECT extract(epoch from now())::int":                    "SELECT extract($1 from now())::int",
+		"SELECT round(100.*hit/(read+hit), 2), 1e-3":               "SELECT round($1*hit/(read+hit), $2), $3",
 	} {
 		assert.Equal(t, normalizeSQL(fingerprint), normalizeSQL(logged), logged)
 	}
@@ -56,6 +62,19 @@ func TestNormalizeSQL(t *testing.T) {
 		normalizeSQL("UPDATE accounts SET balance = balance - $1 WHERE id = $2"),
 		normalizeSQL("UPDATE accounts SET balance = balance + 5 WHERE id = 1"))
 	assert.NotEqual(t, normalizeSQL("SELECT a FROM t2"), normalizeSQL("SELECT a FROM t3"))
+}
+
+func TestSameQuery(t *testing.T) {
+	assert.True(t, sameQuery(normalizeSQL("SELECT a FROM t WHERE x = 1"), "SELECT a FROM t WHERE x = $1"))
+	assert.False(t, sameQuery(normalizeSQL("SELECT a FROM t WHERE x = 1"), "SELECT a FROM t"))
+
+	// pg_stat_monitor cuts fingerprints at pgsm_query_max_len, 1024 at least, even inside a token.
+	long := "SELECT " + strings.Repeat("col, ", 300) + "version FROM t WHERE x = $1"
+	stmt := normalizeSQL(strings.ReplaceAll(long, "$1", "7"))
+	assert.True(t, sameQuery(stmt, long[:1024]))
+	assert.True(t, sameQuery(stmt, long[:1100]+" ..."))
+	assert.True(t, sameQuery(stmt, long[:len(long)-1]))
+	assert.False(t, sameQuery(normalizeSQL("SELECT "+strings.Repeat("col, ", 300)+"other FROM t"), long[:len(long)-10]))
 }
 
 func TestFindLogQuery(t *testing.T) {
