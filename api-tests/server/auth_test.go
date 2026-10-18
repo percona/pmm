@@ -227,6 +227,26 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 200},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
+		{name: "advisor checks", url: "/v1/advisors/checks", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 200},
+			{userType: "admin", login: admin, statusCode: 200},
+		}},
+		// without a technology the request fails validation after passing auth
+		{name: "advisor check test targets", url: "/v1/advisors/checks:testTargets", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 400},
+			{userType: "admin", login: admin, statusCode: 400},
+		}},
+		// the check doesn't exist, so the request fails after passing auth and deletes nothing
+		{name: "advisor check delete", url: "/v1/advisors/checks/custom_auth_test_missing", method: "DELETE", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 404},
+			{userType: "admin", login: admin, statusCode: 404},
+		}},
 		// without recipients the request fails validation after passing auth, so no email is sent
 		{name: "advisor test notification", url: "/v1/advisors/notifications:test", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 403},

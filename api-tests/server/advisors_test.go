@@ -310,6 +310,78 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			})
 		})
 	})
+
+	t.Run("per service", func(t *testing.T) {
+		serviceID, _ := addAdvisorTargetService(t)
+		name := customCheckName(t)
+		createCustomCheck(t, name)
+
+		change := func(p *advisor.ChangeAdvisorChecksParamsBodyParamsItems0) error {
+			_, err := advisorClient.Default.AdvisorService.ChangeAdvisorChecks(&advisor.ChangeAdvisorChecksParams{
+				Body:    advisor.ChangeAdvisorChecksBody{Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{p}},
+				Context: pmmapitests.Context,
+			})
+			return err
+		}
+		listed := func(t *testing.T) *advisor.ListAdvisorChecksOKBodyChecksItems0 {
+			t.Helper()
+			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
+			require.NoError(t, err)
+			for _, c := range resp.Payload.Checks {
+				if c.Name == name {
+					return c
+				}
+			}
+			require.FailNow(t, "check isn't listed", name)
+			return nil
+		}
+
+		t.Run("disable and enable", func(t *testing.T) {
+			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, ServiceIds: []string{serviceID}, Enable: new(false)})
+			require.NoError(t, err)
+			c := listed(t)
+			assert.True(t, c.Enabled, "a per-service disable must leave the check enabled globally")
+			assert.Equal(t, []string{serviceID}, c.DisabledServiceIds)
+
+			err = change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, ServiceIds: []string{serviceID}, Enable: new(true)})
+			require.NoError(t, err)
+			c = listed(t)
+			assert.True(t, c.Enabled)
+			assert.Empty(t, c.DisabledServiceIds)
+		})
+
+		t.Run("interval cannot be changed per service", func(t *testing.T) {
+			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
+				Name:       name,
+				ServiceIds: []string{serviceID},
+				Interval:   new(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE),
+			})
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Interval of check %s cannot be changed per service.", name)
+		})
+
+		t.Run("enable flag is required", func(t *testing.T) {
+			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, ServiceIds: []string{serviceID}})
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Enable flag is required to change check %s per service.", name)
+		})
+
+		t.Run("unknown service", func(t *testing.T) {
+			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, ServiceIds: []string{"unknown-service-id"}, Enable: new(false)})
+			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "service with ID unknown-service-id not found")
+			assert.Empty(t, listed(t).DisabledServiceIds)
+		})
+
+		t.Run("check disabled globally", func(t *testing.T) {
+			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, Enable: new(false)})
+			require.NoError(t, err)
+			t.Cleanup(func() {
+				assert.NoError(t, change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, Enable: new(true)}))
+			})
+
+			err = change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{Name: name, ServiceIds: []string{serviceID}, Enable: new(false)})
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition,
+				"advisor check %s is disabled globally; enable it globally to manage per-service settings", name)
+		})
+	})
 }
 
 func TestCustomAdvisorCheck(t *testing.T) {

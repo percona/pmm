@@ -715,6 +715,216 @@ func TestListAdvisorChecks(t *testing.T) {
 	})
 }
 
+func TestGetAdvisorCheck(t *testing.T) {
+	t.Parallel()
+
+	storedCheck := check.Check{
+		Name:        "custom_pg_settings",
+		Summary:     "Check summary",
+		Description: "Check description",
+		Category:    "configuration",
+		Technology:  check.PostgreSQL,
+		Interval:    check.Rare,
+		UserDefined: true,
+		Queries: []check.Query{{
+			Type:       check.PostgreSQLSelect,
+			Query:      "name FROM pg_settings",
+			Parameters: map[check.Parameter]string{check.AllDBs: "true"},
+		}},
+		Script: "def check_context(docs, context):\n    return []",
+	}
+
+	t.Run("returns the check with its enabled state and disabled services", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_pg_settings": storedCheck}, nil)
+		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"custom_pg_settings"}, nil)
+		checksService.On("GetDisabledServicesForChecks", mock.Anything).
+			Return(map[string][]string{"custom_pg_settings": {"svc-1", "svc-2"}}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheck(t.Context(), &advisorsv1.GetAdvisorCheckRequest{Name: "custom_pg_settings"})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.GetAdvisorCheckResponse{
+			Check: &advisorsv1.AdvisorCheck{
+				Name:        "custom_pg_settings",
+				Enabled:     false,
+				Summary:     "Check summary",
+				Description: "Check description",
+				Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL,
+				Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE,
+				Category:    "configuration",
+				UserDefined: true,
+				Queries: []*advisorsv1.AdvisorCheckQuery{{
+					Type:       "POSTGRESQL_SELECT",
+					Query:      "name FROM pg_settings",
+					Parameters: map[string]string{"all_dbs": "true"},
+				}},
+				Script:             "def check_context(docs, context):\n    return []",
+				DisabledServiceIds: []string{"svc-1", "svc-2"},
+			},
+		}, resp)
+	})
+
+	t.Run("unknown check", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_pg_settings": storedCheck}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheck(t.Context(), &advisorsv1.GetAdvisorCheckRequest{Name: "custom_missing"})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, "Advisor check custom_missing not found"), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("get checks error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheck(t.Context(), &advisorsv1.GetAdvisorCheckRequest{Name: "custom_pg_settings"})
+		require.EqualError(t, err, "failed to get available checks list: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("get disabled checks error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_pg_settings": storedCheck}, nil)
+		checksService.On("GetDisabledChecks", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheck(t.Context(), &advisorsv1.GetAdvisorCheckRequest{Name: "custom_pg_settings"})
+		require.EqualError(t, err, "failed to get disabled checks list: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("get disabled services error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_pg_settings": storedCheck}, nil)
+		checksService.On("GetDisabledChecks", mock.Anything).Return([]string(nil), nil)
+		checksService.On("GetDisabledServicesForChecks", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheck(t.Context(), &advisorsv1.GetAdvisorCheckRequest{Name: "custom_pg_settings"})
+		require.EqualError(t, err, "failed to get disabled services list: random error")
+		assert.Nil(t, resp)
+	})
+}
+
+func TestCreateAdvisorCheck(t *testing.T) {
+	t.Parallel()
+
+	apiCheck := &advisorsv1.AdvisorCheck{
+		Name:        "custom_mysql_version",
+		Summary:     "Check summary",
+		Description: "Check description",
+		Category:    "configuration",
+		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
+		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT,
+		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
+		Script:      "def check_context(docs, context):\n    return []",
+	}
+	expectedCheck := check.Check{
+		Name:        "custom_mysql_version",
+		Summary:     "Check summary",
+		Description: "Check description",
+		Category:    "configuration",
+		Technology:  check.MySQL,
+		Interval:    check.Frequent,
+		Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
+		Script:      "def check_context(docs, context):\n    return []",
+	}
+
+	t.Run("check is required", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.CreateAdvisorCheck(t.Context(), &advisorsv1.CreateAdvisorCheckRequest{})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Check is required."), err)
+		assert.Nil(t, resp)
+		checksService.AssertNotCalled(t, "CreateAdvisorCheck")
+	})
+
+	t.Run("service errors keep their gRPC code", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("CreateAdvisorCheck", mock.Anything, expectedCheck).
+			Return(status.Errorf(codes.AlreadyExists, "advisor check custom_mysql_version already exists"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.CreateAdvisorCheck(t.Context(), &advisorsv1.CreateAdvisorCheckRequest{Check: apiCheck})
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, "advisor check custom_mysql_version already exists"), err)
+		assert.Nil(t, resp)
+		checksService.AssertNotCalled(t, "GetChecks")
+	})
+
+	t.Run("reload error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("CreateAdvisorCheck", mock.Anything, expectedCheck).Return(nil)
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_mysql_version": expectedCheck}, nil)
+		checksService.On("GetDisabledChecks", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.CreateAdvisorCheck(t.Context(), &advisorsv1.CreateAdvisorCheckRequest{Check: apiCheck})
+		require.EqualError(t, err, "failed to get disabled checks list: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("creates the check and returns it as stored", func(t *testing.T) {
+		t.Parallel()
+
+		storedCheck := expectedCheck
+		storedCheck.UserDefined = true
+
+		var checksService mockChecksService
+		checksService.On("CreateAdvisorCheck", mock.Anything, expectedCheck).Return(nil)
+		checksService.On("GetChecks").Return(map[string]check.Check{"custom_mysql_version": storedCheck}, nil)
+		checksService.On("GetDisabledChecks", mock.Anything).Return([]string(nil), nil)
+		checksService.On("GetDisabledServicesForChecks", mock.Anything).Return(map[string][]string(nil), nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.CreateAdvisorCheck(t.Context(), &advisorsv1.CreateAdvisorCheckRequest{Check: apiCheck})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.CreateAdvisorCheckResponse{
+			Check: &advisorsv1.AdvisorCheck{
+				Name:        "custom_mysql_version",
+				Enabled:     true,
+				Summary:     "Check summary",
+				Description: "Check description",
+				Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
+				Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT,
+				Category:    "configuration",
+				UserDefined: true,
+				Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
+				Script:      "def check_context(docs, context):\n    return []",
+			},
+		}, resp)
+		checksService.AssertExpectations(t)
+	})
+}
+
 func TestUpdateAdvisorCheck(t *testing.T) {
 	t.Parallel()
 
@@ -769,6 +979,39 @@ func TestUpdateAdvisorCheck(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, "custom_one", resp.Check.Name)
+		checksService.AssertExpectations(t)
+	})
+}
+
+func TestDeleteAdvisorCheck(t *testing.T) {
+	t.Parallel()
+
+	t.Run("service errors keep their gRPC code", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("DeleteAdvisorCheck", mock.Anything, "mysql_version").
+			Return(status.Errorf(codes.FailedPrecondition, "Advisor check mysql_version is shipped by Percona and cannot be modified"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.DeleteAdvisorCheck(t.Context(), &advisorsv1.DeleteAdvisorCheckRequest{Name: "mysql_version"})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"Advisor check mysql_version is shipped by Percona and cannot be modified"), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("deletes the check named in the request", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("DeleteAdvisorCheck", mock.Anything, "custom_one").Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.DeleteAdvisorCheck(t.Context(), &advisorsv1.DeleteAdvisorCheckRequest{Name: "custom_one"})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.DeleteAdvisorCheckResponse{}, resp)
 		checksService.AssertExpectations(t)
 	})
 }
@@ -904,5 +1147,186 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Nil(t, resp)
+	})
+}
+
+func TestConvertIntervals(t *testing.T) {
+	t.Parallel()
+
+	t.Run("round-trips every specified API interval", func(t *testing.T) {
+		t.Parallel()
+
+		for value, name := range advisorsv1.AdvisorCheckInterval_name {
+			apiInterval := advisorsv1.AdvisorCheckInterval(value)
+			if apiInterval == advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
+				continue
+			}
+
+			interval, err := convertAPIInterval(apiInterval)
+			require.NoError(t, err, name)
+			assert.Equal(t, apiInterval, convertInterval(interval), name)
+
+			optional := convertAPIIntervalOptional(apiInterval)
+			assert.Equal(t, interval, optional, name)
+			assert.Equal(t, apiInterval, convertModelInterval(models.Interval(optional)), name)
+		}
+	})
+
+	t.Run("unspecified and unknown values", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD, convertInterval(""))
+		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED, convertInterval("hourly"))
+		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD, convertModelInterval(""))
+		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED, convertModelInterval("hourly"))
+
+		_, err := convertAPIInterval(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED)
+		require.EqualError(t, err, "invalid advisor check interval")
+		_, err = convertAPIInterval(advisorsv1.AdvisorCheckInterval(999))
+		require.EqualError(t, err, "unknown advisor check interval")
+
+		assert.Empty(t, convertAPIIntervalOptional(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED))
+		assert.Empty(t, convertAPIIntervalOptional(advisorsv1.AdvisorCheckInterval(999)))
+	})
+}
+
+func TestConvertResultStatuses(t *testing.T) {
+	t.Parallel()
+
+	t.Run("round-trips every specified API status", func(t *testing.T) {
+		t.Parallel()
+
+		for value, name := range advisorsv1.AdvisorCheckResultStatus_name {
+			apiStatus := advisorsv1.AdvisorCheckResultStatus(value)
+			if apiStatus == advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED {
+				continue
+			}
+
+			assert.Equal(t, apiStatus, convertModelResultStatus(convertAPIResultStatus(apiStatus)), name)
+		}
+	})
+
+	t.Run("unspecified and unknown values", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Empty(t, convertAPIResultStatus(advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED))
+		assert.Empty(t, convertAPIResultStatus(advisorsv1.AdvisorCheckResultStatus(999)))
+		assert.Equal(t, advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED, convertModelResultStatus(""))
+		assert.Equal(t, advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED, convertModelResultStatus("unknown"))
+	})
+}
+
+func TestConvertTriggeredBy(t *testing.T) {
+	t.Parallel()
+
+	t.Run("round-trips every specified API value", func(t *testing.T) {
+		t.Parallel()
+
+		for value, name := range advisorsv1.AdvisorCheckTriggeredBy_name {
+			apiTriggeredBy := advisorsv1.AdvisorCheckTriggeredBy(value)
+			if apiTriggeredBy == advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED {
+				continue
+			}
+
+			assert.Equal(t, apiTriggeredBy, convertModelTriggeredBy(convertAPITriggeredBy(apiTriggeredBy)), name)
+		}
+	})
+
+	t.Run("unspecified and unknown values", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Empty(t, convertAPITriggeredBy(advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED))
+		assert.Empty(t, convertAPITriggeredBy(advisorsv1.AdvisorCheckTriggeredBy(999)))
+		assert.Equal(t, advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED, convertModelTriggeredBy(""))
+		assert.Equal(t, advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED, convertModelTriggeredBy("unknown"))
+	})
+}
+
+func TestConvertTechnologies(t *testing.T) {
+	t.Parallel()
+
+	t.Run("round-trips every specified API technology", func(t *testing.T) {
+		t.Parallel()
+
+		for value, name := range advisorsv1.AdvisorCheckTechnology_name {
+			apiTechnology := advisorsv1.AdvisorCheckTechnology(value)
+			if apiTechnology == advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED {
+				continue
+			}
+
+			assert.Equal(t, apiTechnology, convertTechnology(convertAPITechnology(apiTechnology)), name)
+		}
+	})
+
+	t.Run("unspecified and unknown values", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Empty(t, convertAPITechnology(advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED))
+		assert.Empty(t, convertAPITechnology(advisorsv1.AdvisorCheckTechnology(999)))
+		assert.Equal(t, advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED, convertTechnology(""))
+		assert.Equal(t, advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED, convertTechnology("CLICKHOUSE"))
+	})
+}
+
+func TestConvertModelRunStatus(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		status   models.AdvisorRunStatus
+		expected advisorsv1.AdvisorRunStatus
+	}{
+		{models.AdvisorRunStatusQueued, advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_QUEUED},
+		{models.AdvisorRunStatusRunning, advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING},
+		{models.AdvisorRunStatusCompleted, advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED},
+		{models.AdvisorRunStatusInterrupted, advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_INTERRUPTED},
+		{models.AdvisorRunStatusAborted, advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_ABORTED},
+		{"", advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED},
+		{"unknown", advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED},
+	} {
+		assert.Equal(t, tc.expected, convertModelRunStatus(tc.status), string(tc.status))
+	}
+}
+
+func TestConvertQueries(t *testing.T) {
+	t.Parallel()
+
+	t.Run("round-trips queries with and without parameters", func(t *testing.T) {
+		t.Parallel()
+
+		queries := []check.Query{
+			{Type: check.MySQLShow, Query: "version"},
+			{
+				Type:       check.MetricsRange,
+				Query:      "mysql_up",
+				Parameters: map[check.Parameter]string{check.Lookback: "5m", check.Range: "1h", check.Step: "1m"},
+			},
+		}
+
+		apiQueries := convertQueriesToAPI(queries)
+		assert.Equal(t, []*advisorsv1.AdvisorCheckQuery{
+			{Type: "MYSQL_SHOW", Query: "version"},
+			{
+				Type:       "METRICS_RANGE",
+				Query:      "mysql_up",
+				Parameters: map[string]string{"lookback": "5m", "range": "1h", "step": "1m"},
+			},
+		}, apiQueries)
+		assert.Equal(t, queries, convertAPIQueries(apiQueries))
+	})
+
+	t.Run("nil and empty input", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, convertQueriesToAPI(nil))
+		assert.Nil(t, convertQueriesToAPI([]check.Query{}))
+		assert.Nil(t, convertAPIQueries(nil))
+		assert.Nil(t, convertAPIQueries([]*advisorsv1.AdvisorCheckQuery{}))
+	})
+
+	t.Run("nil API queries are skipped", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, []check.Query{{Type: check.MySQLShow, Query: "version"}},
+			convertAPIQueries([]*advisorsv1.AdvisorCheckQuery{nil, {Type: "MYSQL_SHOW", Query: "version"}}))
 	})
 }
