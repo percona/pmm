@@ -1,10 +1,6 @@
 # Back up and restore PMM HA Cluster
 
-Back up your PMM HA Cluster to S3-compatible storage or a shared volume, and restore it in place or into another namespace for disaster recovery. Backups are optional and turned off by default.
-
-## Default values used in examples
-
-The examples assume the default namespace `pmm` and release name `pmm-ha`. If you used different values, replace `pmm` and `pmm-ha` in the commands. Resource names such as `pmm-ha-backup-tools` start with your release name.
+Back up your PMM High Availability (HA) Cluster to S3-compatible storage or a shared volume, and restore it in place or into another namespace for disaster recovery. Backups are optional and turned off by default.
 
 ## What gets backed up
 
@@ -76,6 +72,12 @@ Choose where to store your backups, then add the matching settings to your `valu
         helm upgrade pmm-ha percona/pmm-ha --namespace pmm -f values.yaml
         ```
 
+    5. Verify the backup deployment was created:
+
+        ```sh
+        kubectl get deploy,cronjob -n pmm | grep backup
+        ```
+
 === "Amazon S3 with IRSA (EKS)"
 
     On Amazon EKS, you can use IAM Roles for Service Accounts (IRSA) instead of access keys, so no credentials are stored in the cluster.
@@ -106,13 +108,19 @@ Choose where to store your backups, then add the matching settings to your `valu
                 enabled: true
         ```
 
-    4. Apply the changes:
+    4. Make sure the AWS STS regional endpoint is active for your cluster's region. Otherwise, every backup fails with `403 RegionDisabledException`.
+
+    5. Apply the changes:
 
         ```sh
         helm upgrade pmm-ha percona/pmm-ha --namespace pmm -f values.yaml
         ```
 
-    Make sure the AWS STS regional endpoint is active for your cluster's region. Otherwise, every backup fails with `403 RegionDisabledException`.
+    6. Verify the backup deployment was created:
+
+        ```sh
+        kubectl get deploy,cronjob -n pmm | grep backup
+        ```
 
 === "Shared volume"
 
@@ -130,17 +138,23 @@ Choose where to store your backups, then add the matching settings to your `valu
           existingClaim: "pmm-backup-pvc"
         ```
 
-    3. Apply the changes:
+    3. If you plan to restore into another namespace, make the export group-writable before applying: `chmod -R g+rwX,g+s <export-path>`. On OpenShift, each namespace runs with a different user ID, so a restore from another namespace can't read backups the source namespace created otherwise.
+
+    4. Apply the changes:
 
         ```sh
         helm upgrade pmm-ha percona/pmm-ha --namespace pmm -f values.yaml
         ```
 
-    If you plan to restore into another namespace, make the export group-writable once, for example with `chmod -R g+rwX,g+s <export-path>`. On OpenShift, each namespace runs with a different user ID, so a restore from another namespace can't read backups the source namespace created otherwise.
+    5. Verify the backup deployment was created:
 
-Once backups are on, the chart creates a `pmm-ha-backup-tools` Deployment that runs the backup tool, and a `pmm-ha-backup` CronJob that stays suspended until you set a schedule.
+        ```sh
+        kubectl get deploy,cronjob -n pmm | grep backup
+        ```
 
 ## Back up PMM HA Cluster
+
+The examples below use the default namespace `pmm` and release name `pmm-ha`. If you used different values, replace them in the commands. Resource names such as `pmm-ha-backup-tools` start with your release name.
 
 === "kubectl exec"
 
@@ -150,9 +164,10 @@ Once backups are on, the chart creates a `pmm-ha-backup-tools` Deployment that r
     kubectl exec -n pmm deploy/pmm-ha-backup-tools -- pmm-backup.sh backup
     ```
 
-    The command prints a summary for each component and exits with an error if any component failed.
+    The command prints a summary for each component and exits with an error if any component failed. To target specific components:
 
-    To back up only some components, add `--postgresql`, `--clickhouse`, `--victoriametrics`, or `--pmm-server`. To exclude a component instead, use the matching `--skip-` option, for example `--skip-victoriametrics`.
+    - To include only some, add `--postgresql`, `--clickhouse`, `--victoriametrics`, or `--pmm-server`
+    - To exclude a component, use the matching `--skip-` flag, for example `--skip-victoriametrics`
 
 === "Kubernetes Job"
 
@@ -211,25 +226,27 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
   pmm-backup.sh restore --backup-id latest --dry-run --yes
 ```
 
+<a id="restore-in-place"></a>
+
 === "Restore in place"
 
-    To restore the latest backup into the same installation:
+    Restore the latest backup. To restore a specific backup, replace `latest` with a backup ID from `pmm-backup.sh list`. The `--yes` flag is required:
 
     ```sh
     kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
       pmm-backup.sh restore --backup-id latest --yes
     ```
 
-    To restore a specific backup, replace `latest` with its ID from `pmm-backup.sh list`. The `--yes` option confirms the restore and is required.
-
-    If your `kubectl exec` session is interrupted, `kubectl` reports an error but the restore keeps running inside the cluster. Don't run it again — check the restore log instead. The restore has finished when the log ends with a `PMM-HA Restore Summary` block:
+    If the `kubectl exec` session is interrupted, `kubectl` reports an error but the restore keeps running inside the cluster. Don't run the command again. Check the log instead. The restore is complete when it ends with a `PMM-HA Restore Summary` block:
 
     ```sh
     kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
       sh -c 'tail -20 $(ls -t /backups/logs/restore_*.log | head -1)'
     ```
 
-    To avoid this, run the restore as a Job. The chart includes an example Job definition in `examples/restore-job.yaml`.
+    For long restores where session interruption is a concern, run the restore as a Kubernetes Job instead. The chart includes an example Job definition in `examples/restore-job.yaml`.
+
+<a id="restore-into-another-namespace"></a>
 
 === "Restore into another namespace"
 

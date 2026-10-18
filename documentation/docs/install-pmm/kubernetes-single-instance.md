@@ -1,62 +1,41 @@
 # Understand PMM on a Kubernetes single instance
 
-Run PMM Server as one pod on Kubernetes when you want it to recover from failures on its own. Kubernetes restarts PMM Server automatically if it fails, so you get automatic recovery without running a PMM HA Cluster.
+A Kubernetes single instance runs PMM Server as one pod. If it fails or the node it runs on goes down, Kubernetes restarts it on a healthy node automatically. 
 
-## What it is
+Monitoring is interrupted for 2–5 minutes during recovery. PMM Clients cache metrics locally during that time and resend them once PMM comes back.
 
-A Kubernetes single instance uses Kubernetes pod management and self-healing to keep PMM Server running when infrastructure fails.
-
-Combined with persistent volumes and PMM Client caching, this approach preserves metric data during brief outages and maintains monitoring continuity with minimal operational overhead.
+If you don't have Kubernetes, run PMM Server with `--restart always` and [Docker will restart it automatically after crashes or reboots](install-pmm-server/deployment-options/docker/index.md).
 
 ### Key benefits
 
-- **Automatic recovery**: Kubernetes reschedules failed pods to healthy nodes without manual intervention
-- **Persistent data**: All monitoring data, configurations, and dashboards survive pod restarts
-- **Health monitoring**: Liveness and readiness probes ensure only healthy instances receive traffic
-- **Metric data preserved**: PMM clients cache metrics locally during brief outages and resend them once connectivity resumes
-- **Production-ready**: Supported for production use
-- **Simple operations**: Single PMM instance is easier to manage than distributed clusters
+Running PMM Server on Kubernetes gives you automatic recovery without the complexity of an HA Cluster:
+
+- Kubernetes reschedules failed pods to healthy nodes without manual intervention
+- All monitoring data, configurations, and dashboards survive pod restarts
+- Liveness and readiness probes ensure only healthy instances receive traffic
+- Easier to manage than a distributed HA Cluster
 
 ### How it works
 
-Kubernetes watches your PMM deployment and fixes problems automatically.
-
-If a pod crashes or a node fails, Kubernetes restarts it on a healthy node within a few minutes.
+Kubernetes watches your PMM deployment and fixes problems automatically. If a pod crashes or a node fails, Kubernetes restarts it on a healthy node within a few minutes.
 
 Your persistent volume keeps all your data safe and it stays attached when the pod moves. Your PMM clients cache metrics locally during the restart and resend them once PMM comes back up.
 
 ### Limitations
 
-- **Brief monitoring gaps**: 2-5 minutes of downtime during pod rescheduling
-- **Single PMM instance**: No load distribution across multiple servers
-- **No zero-downtime**: Cannot maintain continuous monitoring during failures
-- **Node-level delays**: Pod rescheduling takes longer than container restarts
+A Kubernetes single instance has no redundancy and no load distribution:
 
-This option works well for production environments that can tolerate a few minutes without monitoring while Kubernetes restarts PMM Server.
+- 2–5 minutes of monitoring downtime during pod rescheduling
+- Pod rescheduling takes longer than a simple container restart
+- Single PMM instance handles all traffic with no load distribution
+
+This option is suitable for production environments that can tolerate a brief monitoring gap during recovery.
 
 ## Choose your deployment type
 
-| Consideration | Kubernetes single instance | HA Cluster |
-|--------------|-----------------|------------|
-| **Failover time** | 2-5 minutes | Immediate |
-| **Setup complexity** | ● Low | ●●● Medium |
-| **Resource overhead** | 1x baseline | 3-5x baseline |
-| **PMM instances** | 1 pod | 3 pods with leader election |
-| **Automatic failover routing** | No | Yes (HAProxy routes to active leader) |
-| **Databases** | Built-in | External clusters |
+If a 2–5 minute recovery window is acceptable, a Kubernetes single instance is the simpler choice. For a full comparison with PMM HA Cluster, see [Choose your HA deployment](HA.md).
 
-### When to consider PMM HA Cluster
+## Get started
 
-Consider upgrading to [Kubernetes/OpenShift HA Cluster](HA-clustered.md) when you:
-
-- need **faster failover** (5–10 seconds with HA Cluster versus 2–5 minutes with a single instance)
-- have **expert Kubernetes or OpenShift skills** to manage complex deployments
-- want **automatic failover routing** without manual intervention
-
-### When to use Docker instead
-
-If you don't have Kubernetes, run PMM Server with `--restart always` and Docker handles automatic restarts after crashes or reboots. See [Install PMM Server with Docker](install-pmm-server/deployment-options/docker/index.md).
-
-## Ready to deploy?
-
-[Install PMM Server on Kubernetes →](install-kubernetes-single-instance.md){.md-button}
+- [Install Kubernetes single instance](install-kubernetes-single-instance.md)
+- [Install HA Cluster](install-HA-clustered.md)

@@ -8,7 +8,7 @@ Browse the alert templates by what they monitor:
 
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
-- [PMM High Availability templates](#pmm_ha_alerts)
+- [PMM High Availability (HA)templates](#pmm_ha_alerts)
 - [PMM internal component templates](#pmm_component_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
@@ -34,7 +34,7 @@ Browse the alert templates by what they monitor:
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and raises alerts on failures. Provides details about the failed backup artifact and affected service to ensure data safety and recovery readiness. This template is currently in [Technical Preview](../reference/glossary.md) and is intended for testing purposes only, as it is subject to change. | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
 <a id="pmm_ha_alerts"></a>
-### PMM High Availability templates
+### PMM High Availability (HA) templates
 
 These templates warn you when a [PMM HA Cluster](../install-pmm/install-HA-clustered.md) has no leader, splits into separate clusters, keeps switching leaders, or loses nodes.
 

@@ -1,12 +1,14 @@
 # Install PMM on a Kubernetes single instance
 
-Deploy PMM Server on Kubernetes using the `percona/pmm` Helm chart. For an overview of this deployment type and when to use it, see [Understand PMM on a Kubernetes single instance](kubernetes-single-instance.md).
+Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. Not sure this is the right setup for you? [Choose a deployment option](HA.md) before you start.
 
 ## Prerequisites
 
-Storage requirements scale with the number of monitored services and data retention period.
+Check that your environment meets the software and cluster resource requirements before installing:
 
 === "Required software"
+
+    Required tools and components:
 
     - **Kubernetes**: 1.21 or higher
     - **Helm**: 3.2.0 or higher
@@ -22,6 +24,8 @@ Storage requirements scale with the number of monitored services and data retent
     - **Storage**: 20+ GB persistent volume
 
 === "Recommended for production"
+
+    Recommended resources for production use:
 
     - **CPU**: 4+ cores
     - **Memory**: 8+ GB RAM
@@ -46,7 +50,7 @@ kubectl get storageclass
 helm version --short
 ```
 
-## Installation
+## Install PMM Server
 
 Choose the installation method that fits your needs and install PMM Server on Kubernetes.
 
@@ -181,7 +185,7 @@ Expected output:
 pod/pmm-0   1/1   Running   0   2m
 ```
 
-## Configuration
+## Configure PMM Server
 
 ### Change admin password
 
@@ -206,7 +210,7 @@ secret:
 
 ### Configure external access
 
-Choose the service type that fits your environment and apply the configuration.
+By default, PMM Server is only accessible inside the cluster. To reach it from a browser or from PMM Clients running outside the cluster, expose it using a Kubernetes Service. Choose the service type that fits your environment:
 
 === "LoadBalancer"
 
@@ -323,51 +327,66 @@ Choose the service type that fits your environment and apply the configuration.
 
 ### Configure storage
 
-**Choose appropriate storage class**
-```yaml
-# values.yaml
-persistence:
-  storageClass: "fast-ssd"  # Use fastest available
-  size: 100Gi
-  
-  # Optional: Use existing PVC
-  # existingClaim: "pmm-data"
-  
-  # Optional: Storage selector
-  # selector:
-  #   matchLabels:
-  #     type: ssd
-```
+PMM Server stores metrics, query analytics data, and Grafana settings on a persistent volume. Use your fastest available storage class to avoid I/O bottlenecks as data grows:
+{.power-number}
 
-**Common storage classes by provider**
+1. Find the storage classes available in your cluster:
 
-- **AWS**: `gp3` (recommended), `gp2`, `io1`
-- **GCP**: `pd-ssd`, `pd-balanced`
-- **Azure**: `managed-premium`, `managed`
-- **On-premise**: Check with `kubectl get storageclass`
+    - **AWS**: `gp3` (recommended), `gp2`, `io1`
+    - **GCP**: `pd-ssd`, `pd-balanced`
+    - **Azure**: `managed-premium`, `managed`
+    - **On-premise**: `kubectl get storageclass`
+
+2. Set the storage class in your `values.yaml`:
+
+    ```yaml
+    # values.yaml
+    persistence:
+      storageClass: "fast-ssd"  # Use fastest available
+      size: 100Gi
+
+      # Optional: Use existing PVC
+      # existingClaim: "pmm-data"
+
+      # Optional: Storage selector
+      # selector:
+      #   matchLabels:
+      #     type: ssd
+    ```
+
+3. Apply the change:
+
+    ```sh
+    helm upgrade pmm percona/pmm \
+      --namespace monitoring \
+      --values values.yaml
+    ```
 
 ### Configure data retention
 
-Set how long PMM retains monitoring data:
-```yaml
-# values.yaml
-env:
-  - name: PMM_DATA_RETENTION
-    value: "720h"  # 30 days (recommended)
-```
+PMM retains monitoring data for 30 days by default. To change it, set `PMM_DATA_RETENTION` in your `values.yaml` and apply the change:
+{.power-number}
 
-Common retention periods:
+1. Set the retention period. Common values:
 
-- `168h`: 7 days (minimal storage)
-- `720h`: 30 days (recommended)
-- `2160h`: 90 days (compliance/audit)
+    - `168h`: 7 days (minimal storage)
+    - `720h`: 30 days (recommended)
+    - `2160h`: 90 days (compliance/audit)
 
-Apply changes:
-```sh
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
-```
+    ```yaml
+    # values.yaml
+    env:
+      - name: PMM_DATA_RETENTION
+        value: "720h"  # 30 days (recommended)
+    ```
+
+2. Apply the change:
+
+    ```sh
+    helm upgrade pmm percona/pmm \
+      --namespace monitoring \
+      --values values.yaml
+    ```
 
 ### Configure resource limits
 
@@ -392,7 +411,7 @@ resources:
 | 51-100 | 16 GB | 8 cores | 200 GB |
 | 100+ | 32+ GB | 16+ cores | 500+ GB |
 
-## Operations
+## Manage PMM Server
 
 ### Connect monitoring clients
 

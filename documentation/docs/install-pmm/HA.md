@@ -23,78 +23,25 @@ PMM HA is worth the added complexity when your monitoring must recover in second
 - **Network partitions**: HA can't monitor infrastructure segments that are completely cut off from PMM
 - **Operational overhead**: HA adds complexity to deployment, maintenance, and troubleshooting
 
-## Feature comparison
+## No Kubernetes?
 
-| Feature | [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md) | [HA Cluster](../install-pmm/HA-clustered.md) |
-|---------|-------------------|---------------------|
-| **Kubernetes required** | Yes | Yes (Kubernetes or OpenShift) |
+If you don't have Kubernetes, run PMM Server with `--restart always` and [Docker will restart it automatically after crashes or reboots](install-pmm-server/deployment-options/docker/index.md).
+
+## HA deployment options
+
+| | [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md) | [HA Cluster](HA-clustered.md) |
+|--|--|--|
+| **Overview** | Kubernetes restarts PMM Server automatically if it fails. Persistent volumes keep your data across restarts. | Fast automatic failover with distributed databases. Supported on [Amazon EKS and OpenShift](HA-clustered.md#check-if-your-platform-is-supported). |
 | **PMM instances** | 1 | 3 |
 | **Failover time** | 2–5 min | 5–10 sec interruption on leader failover |
 | **Setup complexity** | Low | High |
 | **Resource overhead** | 1.2x | 3–5x |
 | **Metric data during outage** | Cached on clients, resent on reconnect | Cached on clients. Brief gap during leader failover (5–10 sec) |
+| **Limitations** | 2–5 min interruption during pod rescheduling | Complex setup requiring 3 Kubernetes operators. PostgreSQL monitoring may show incorrect FAILED status. |
+| **Use when** | You already run Kubernetes, want automatic recovery, and can tolerate 2–5 min of downtime. | You need near-continuous monitoring, failover under 30 seconds, and have advanced Kubernetes or OpenShift experience. |
 
-!!! tip "No Kubernetes? Use Docker with auto-restart"
-    If you don't have Kubernetes, run PMM Server with `--restart always` and Docker will automatically restart it after crashes or reboots. See [Install PMM Server with Docker](install-pmm-server/deployment-options/docker/index.md).
+## Get started
 
-## HA deployment options
+- [Install a Kubernetes single instance](../install-pmm/install-kubernetes-single-instance.md)
+- [Install PMM HA Cluster](install-HA-clustered.md)
 
-Choose the deployment option that matches your infrastructure and requirements:
-
-=== "Kubernetes single instance"
-
-    Kubernetes restarts PMM Server automatically if it fails, and persistent volumes keep your data across restarts.
-
-    **Key features**
-    
-    - Kubernetes automatically reschedules failed pods to healthy nodes
-    - Persistent volumes preserve all data and configurations
-    - Health probes ensure only healthy instances receive traffic
-    - Supported for production use
-
-    **Limitations**
-    
-    - 2–5 minutes monitoring interruption during pod rescheduling
-    - Single PMM instance
-
-    **When to use this option**
-    
-    Choose this option if you:
-
-    - already run Kubernetes infrastructure
-    - want PMM Server to recover from failures automatically
-    - can tolerate 2–5 minutes of downtime during recovery
-
-    [Install a Kubernetes single instance](../install-pmm/install-kubernetes-single-instance.md){.md-button} 
-
-=== "HA Cluster"
-
-    High availability with fast automatic failover and distributed databases. Supported on [Amazon EKS and OpenShift](HA-clustered.md#check-if-your-platform-is-supported).
-
-    **Key features**
-    
-    - Failover in 5–10 seconds when the leader pod restarts
-    - Leader election across 3 PMM server replicas, with only the active leader handling traffic
-    - HAProxy routes all traffic to the active leader automatically
-    - Distributed ClickHouse, VictoriaMetrics, and PostgreSQL clusters
-
-    **What makes it different**
-    
-    - **Shorter outages**: unlike a Kubernetes single instance (2–5 min), failover takes about 5–10 seconds
-    - **Automatic failover routing**: HAProxy switches to the new leader without manual intervention
-    - **Higher resilience**: additional replicas provide more standby nodes, reducing the risk of losing quorum
-
-    **Known limitations**
-    
-    - Complex setup requiring 3 Kubernetes operators
-    - 3x resource overhead minimum
-    - PostgreSQL monitoring may show incorrect FAILED status
-
-    **When to use this option**
-
-    Choose this option if you:
-    
-    - need near-continuous monitoring (seconds of interruption, not minutes)
-    - have strict SLAs that require failover in under 30 seconds
-    - need automatic leader failover across multiple PMM Server replicas
-    - have advanced Kubernetes or OpenShift experience

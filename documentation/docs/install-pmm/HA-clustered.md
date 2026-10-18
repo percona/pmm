@@ -48,24 +48,19 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 
-### Check if your platform is supported
+### Check supported platforms
 
-You can deploy PMM as an HA Cluster on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. The Amazon EKS and OpenShift versions you can use depend on your `pmm-ha` Helm chart version, because each chart ships its own database operators.
+PMM HA Cluster runs on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. Supported versions depend on the `pmm-ha` chart version, because each chart ships its own database operators.
 
-To check that your platform version is supported, before you install or upgrade:
-{.power-number}
+Find your chart version (`helm list -n <namespace>` for an existing installation) and check it against the table:
 
-1. Find your `pmm-ha` chart version. For a new installation, use the chart version you plan to install. For an existing installation, run `helm list -n <namespace>`.
+| `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift |
+|------------------------|-------------|------------|-----------|
+| 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.18 to 4.22 |
 
-2. In the following table, find the row for your chart version and check that your Amazon EKS or OpenShift version is between the versions listed for it. For example, chart 1.8.0 supports Amazon EKS 1.33, 1.34, 1.35 and 1.36:
+If your platform version isn't listed, upgrade the cluster or use a chart version that supports it.
 
-    | `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift |
-    |------------------------|-------------|------------|-----------|
-    | 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.18 to 4.22 |
-
-    If your version is supported, continue with [Plan your resources](#plan-your-resources). If it isn't, upgrade your Amazon EKS or OpenShift cluster to a supported version, or use a chart version that supports your current version.
-
-Other platforms, such as GKE, AKS or on-premises Kubernetes, might work but aren't tested. VMware Tanzu isn't supported.
+Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't tested. VMware Tanzu isn't supported.
 
 ## Plan your resources
 
@@ -150,4 +145,4 @@ The installation process uses Helm to set up all three replicas, configure HAPro
 
 ## Need to upgrade?
 
-When a new PMM release is available, see [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.
+When a new PMM release is available, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.

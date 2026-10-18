@@ -220,14 +220,14 @@ nav:
       - Install PMM in HA mode:
         - Choose your HA deployment: install-pmm/HA.md
         - Kubernetes single instance:
-            - Understand: install-pmm/kubernetes-single-instance.md
-            - Install: install-pmm/install-kubernetes-single-instance.md
-            - Troubleshoot: troubleshoot/kubernetes_single_instance_issues.md
+            - Understand Kubernetes single instance: install-pmm/kubernetes-single-instance.md
+            - Install Kubernetes single instance: install-pmm/install-kubernetes-single-instance.md
+            - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
         - HA Cluster:
-            - Understand PMM HA Cluster: install-pmm/HA-clustered.md
-            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
-            - Back up and restore PMM HA Cluster: install-pmm/backup-restore-HA-clustered.md
-            - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
+            - Understand HA Cluster: install-pmm/HA-clustered.md
+            - Install HA Cluster: install-pmm/install-HA-clustered.md
+            - Back up and restore HA Cluster: install-pmm/backup-restore-HA-clustered.md
+            - Troubleshoot HA Cluster: troubleshoot/ha_issues.md
 
   - Use:
       - use/using-pmm.md
