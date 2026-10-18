@@ -435,8 +435,28 @@ pmm-managed builds parameterized ClickHouse SQL; the browser never sends SQL. Qu
 `max_execution_time = 30` and `readonly = 1`.
 
 Pattern = message with variable parts replaced, applied in this order: quoted strings → `'?'`, UUIDs, hex ≥ 8 chars,
-IPv4 addresses, numbers → `?`; then the first 200 characters. One Go helper builds the expression for both
-`GetLogPatterns` and the pattern filter, so they agree.
+IPv4 addresses, numbers → `?`; then the first 200 characters (`managed/otel/patterns.go`). `otel.logs.PatternHash` is a
+MATERIALIZED `cityHash64` of that expression, so masking runs once per line at insert. `GetLogPatterns` groups by the
+hash and masks only the sample lines it returns; the pattern filter compares hashes. Parts written before the column
+existed compute it on read until they expire or `ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash` runs.
+
+The OpenTelemetry `drain` processor (alpha) was measured against the hash on adre-pmm7 on 2026-10-18 and not adopted.
+The test replayed 2.2 M lines (6 h) through otelcol-contrib 0.163.1 and ran one hour live (0.37 M lines):
+
+- The hash found 18,510 patterns in the replay, and Drain with the same masks found 534 templates. ClickHouse server
+  lines alone made 16,840 of the hashes, because the masks miss part names (`20261018_161096_1`); Grafana `t=`
+  timestamps and numbers with a unit (MySQL `4717ms`) split patterns the same way. On database logs they agree
+  (MongoDB 134 and 134, PostgreSQL 160 and 139).
+- Templates change as Drain learns. 4.4% of the replayed lines (1.9% live) carry an older template than the latest one
+  for their hash, and templates that keep the hour of a timestamp (`18T12:<num>:50Z`) are replaced as time passes. Each
+  collector learns its own tree, so HA collectors and restarts disagree unless a snapshot is shared.
+- With the quoted-string mask both merge logfmt messages, since `msg="…"` becomes one token: one pmm-agent pattern
+  held 1,140 different messages, and Drain cut pmm-managed's 181 patterns to 28 templates.
+- Each processor costs about 25 µs of CPU per line; at 75 lines/s the live collector used 6–7% of a core with and
+  without it.
+
+Masking underscore-joined numbers, timestamps and numbers with units, and keeping logfmt `msg` text, should close most
+of the gap without Drain's state; that is untested.
 
 ### 3.3 Access control
 
