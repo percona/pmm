@@ -1,4 +1,5 @@
 import {
+  findLogQuery,
   getLogPatterns,
   searchLogs,
   severityClass,
@@ -156,5 +157,66 @@ describe('getLogPatterns', () => {
       patternHash: '',
       topSources: [],
     });
+  });
+});
+
+describe('findLogQuery', () => {
+  it('sends the line and maps the found query', async () => {
+    post.mockResolvedValue({
+      data: {
+        query_id: 'q1',
+        service_name: 'pg-tcp',
+        service_id: 's1',
+        fingerprint: 'SELECT $1',
+      },
+    });
+
+    const query = await findLogQuery({
+      time: '2026-10-17T10:30:00.000Z',
+      nodeName: 'pg-node',
+      source: 'pg-node',
+      preset: 'postgres',
+      fileName: 'postgresql.log',
+      severityNumber: 9,
+      severityText: 'LOG',
+      body: 'statement: SELECT 1',
+      bodyTruncated: false,
+      attributes: {},
+      patternHash: '',
+    });
+
+    expect(post).toHaveBeenCalledWith(
+      '/logs:findQuery',
+      {
+        time: '2026-10-17T10:30:00.000Z',
+        node_name: 'pg-node',
+        body: 'statement: SELECT 1',
+      },
+      expect.anything()
+    );
+    expect(query).toEqual({
+      queryId: 'q1',
+      serviceName: 'pg-tcp',
+      serviceId: 's1',
+      fingerprint: 'SELECT $1',
+    });
+  });
+
+  it('has an empty query id when QAN has none', async () => {
+    post.mockResolvedValue({ data: {} });
+    const query = await findLogQuery({
+      time: '2026-10-17T10:30:00.000Z',
+      nodeName: 'pg-node',
+      source: '',
+      preset: 'postgres',
+      fileName: '',
+      severityNumber: 9,
+      severityText: '',
+      body: 'statement: SELECT 1',
+      bodyTruncated: false,
+      attributes: {},
+      patternHash: '',
+    });
+    expect(query.queryId).toBe('');
   });
 });

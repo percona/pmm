@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
+  findLogQuery,
   getLogContext,
   getLogFacets,
   getLogPatterns,
@@ -20,6 +21,8 @@ export const LOGS_KEYS = {
     ['logs', 'facets', start, end] as const,
   context: (line: LogLine | null) =>
     ['logs', 'context', line?.time, line?.nodeName, line?.fileName] as const,
+  query: (line: LogLine) =>
+    ['logs', 'query', line.time, line.nodeName, line.body] as const,
 };
 
 /** Pages through matching lines, newest first, following nextCursor. */
@@ -71,4 +74,12 @@ export const useLogContext = (line: LogLine | null) =>
     queryFn: () =>
       getLogContext(line!.time, line!.nodeName, line!.fileName, line!.source),
     enabled: !!line,
+  });
+
+/** The QAN query a line ran. */
+export const useLogQuery = (line: LogLine, enabled: boolean) =>
+  useQuery({
+    queryKey: LOGS_KEYS.query(line),
+    queryFn: () => findLogQuery(line),
+    enabled,
   });

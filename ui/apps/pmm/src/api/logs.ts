@@ -236,6 +236,33 @@ export const getLogContext = async (
   };
 };
 
+/** The QAN query a log line ran; queryId is empty when QAN has none. */
+export interface LogQuery {
+  queryId: string;
+  serviceName: string;
+  serviceId: string;
+  fingerprint: string;
+}
+
+export const findLogQuery = async (line: LogLine): Promise<LogQuery> => {
+  const res = await api.post<{
+    query_id?: string;
+    service_name?: string;
+    service_id?: string;
+    fingerprint?: string;
+  }>(
+    '/logs:findQuery',
+    { time: line.time, node_name: line.nodeName, body: line.body },
+    config
+  );
+  return {
+    queryId: res.data.query_id ?? '',
+    serviceName: res.data.service_name ?? '',
+    serviceId: res.data.service_id ?? '',
+    fingerprint: res.data.fingerprint ?? '',
+  };
+};
+
 export const getLogFacets = async (filter: LogFilter): Promise<LogFacets> => {
   const res = await api.post<{
     node_names?: RawFacet[];

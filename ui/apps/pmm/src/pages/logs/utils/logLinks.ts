@@ -3,16 +3,11 @@ import {
   PMM_ASSISTANT_PATH,
   PMM_BASE_PATH,
   PMM_LOGS_PATH,
+  PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import { searchParamsFromFilter } from './logsFilter';
 
-/** Presets of database logs, the ones QAN has queries for. */
-export const DATABASE_PRESETS = [
-  'mysql_error',
-  'postgres',
-  'mongodb',
-  'syslog_mysql_systemd',
-];
+const PMM_QAN_PATH = `${PMM_NEW_NAV_PATH}/qan`;
 
 // The service type each database preset logs for, and that type's summary dashboard.
 const SERVICES: Record<string, { type: string; dashboard: string }> = {
@@ -59,29 +54,44 @@ export const dashboardUrl = (
   })}`;
 };
 
-const MIN_SEARCH = 10;
-const MAX_SEARCH = 80;
+// A PostgreSQL statement or execute line with a statement, as pmm-managed's statementOf reads it.
+const QUERY_LINE =
+  /^(?:duration: [0-9.]+ ms\s+)?(?:statement|execute [^:\n]*):[\s;]*[^\s;]/;
 
-/** The start of a logged PostgreSQL statement up to its first literal, which QAN fingerprints replace. */
-const statementSearch = (body: string) => {
-  const query = body.match(/^(?:statement|execute [^:]*):[ \t]*([^\n]*)/)?.[1];
-  const start = query
-    ?.split(/['"0-9]/, 1)[0]
-    .replace(/\W+$/, '')
-    .slice(0, MAX_SEARCH);
-  return start && start.length >= MIN_SEARCH ? start : undefined;
-};
+/** Whether a line logs a query QAN may have: a PostgreSQL statement. */
+export const isQueryLine = (line: LogLine) =>
+  line.preset === 'postgres' && QUERY_LINE.test(line.body);
 
-/** Grafana QAN for the line's node and window, searched for the line's statement when it logs one. */
-export const qanUrl = (line: LogLine, fromMs: number, toMs: number) => {
+/** What a QAN link opens: a known query, else the queries of a known service, else of the node. */
+export interface QanTarget {
+  nodeName: string;
+  serviceName?: string;
+  queryId?: string;
+}
+
+/** QAN for the window, in the native UI when it is enabled. */
+export const qanUrl = (
+  { nodeName, serviceName, queryId }: QanTarget,
+  fromMs: number,
+  toMs: number,
+  native: boolean
+) => {
+  const [label, value] = serviceName
+    ? ['service_name', serviceName]
+    : ['node_name', nodeName];
   const params = new URLSearchParams({
-    'var-node_name': line.nodeName,
+    [native ? `filter_${label}` : `var-${label}`]: value,
     from: String(fromMs),
     to: String(toMs),
   });
-  const search = statementSearch(line.body);
-  if (search) params.set('dimensionSearchText', search);
-  return `/graph/d/pmm-qan/pmm-query-analytics?${params}`;
+  if (queryId) {
+    params.set('filter_by', queryId);
+    params.set('query_selected', 'true');
+    params.set('details_tab', 'details');
+  }
+  return native
+    ? `${PMM_QAN_PATH}?${params}`
+    : `/graph/d/pmm-qan/pmm-query-analytics?${params}`;
 };
 
 export const assistantAskUrl = (

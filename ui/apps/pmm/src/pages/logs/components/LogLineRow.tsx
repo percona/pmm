@@ -15,10 +15,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { LogFilter, LogLine, severityClass, severityLabel } from 'api/logs';
 import { MONO, severityColor } from '../logsTheme';
 import { useManagedServices } from 'hooks/api/useServices';
+import { useLogQuery } from 'hooks/api/useLogs';
+import { useSettings } from 'contexts/settings';
 import {
   assistantAskUrl,
   dashboardUrl,
-  DATABASE_PRESETS,
+  isQueryLine,
   lineLink,
   qanUrl,
   serviceTypeOf,
@@ -91,6 +93,7 @@ export const LogLineRow: FC<LogLineRowProps> = ({
   onFilterChange,
 }) => {
   const { palette } = useTheme();
+  const { settings } = useSettings();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState<'line' | 'link' | null>(null);
   useEffect(() => {
@@ -119,9 +122,14 @@ export const LogLineRow: FC<LogLineRowProps> = ({
     {},
     { enabled: open && !!serviceType, staleTime: 60_000 }
   );
-  const service = services.data?.services.find(
-    (s) => s.nodeName === line.nodeName && s.serviceType === serviceType
-  );
+  const queryLine = isQueryLine(line);
+  const query = useLogQuery(line, open && queryLine).data;
+  // The query's service is exact; a node may run more than one service of the type.
+  const serviceName =
+    query?.serviceName ||
+    services.data?.services.find(
+      (s) => s.nodeName === line.nodeName && s.serviceType === serviceType
+    )?.serviceName;
   const json = detailJson(line);
   const attributes = [
     ...(line.severityText && line.severityText !== label
@@ -331,22 +339,31 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                   size="small"
                   variant="outlined"
                   component={RouterLink}
-                  to={dashboardUrl(line, from, to, service?.serviceName)}
+                  to={dashboardUrl(line, from, to, serviceName)}
                   target="_blank"
                   rel="noopener"
                 >
                   Open dashboard
                 </Button>
-                {DATABASE_PRESETS.includes(line.preset) && (
+                {queryLine && (
                   <Button
                     size="small"
                     variant="outlined"
                     component={RouterLink}
-                    to={qanUrl(line, from, to)}
+                    to={qanUrl(
+                      {
+                        nodeName: line.nodeName,
+                        serviceName,
+                        queryId: query?.queryId,
+                      },
+                      from,
+                      to,
+                      !!settings?.nativeQanEnabled
+                    )}
                     target="_blank"
                     rel="noopener"
                   >
-                    Open QAN
+                    {query?.queryId ? 'Open query in QAN' : 'Open QAN'}
                   </Button>
                 )}
                 <Button size="small" onClick={() => copy('line', line.body)}>

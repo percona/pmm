@@ -11,11 +11,14 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import { lineKey } from '../utils/logDisplay';
 import { LogsLinesTab } from './LogsLinesTab';
 
-const { searchLogs, getLogContext, getLogPatterns } = vi.hoisted(() => ({
-  searchLogs: vi.fn(),
-  getLogContext: vi.fn(),
-  getLogPatterns: vi.fn(),
-}));
+const { searchLogs, getLogContext, getLogPatterns, findLogQuery } = vi.hoisted(
+  () => ({
+    searchLogs: vi.fn(),
+    getLogContext: vi.fn(),
+    getLogPatterns: vi.fn(),
+    findLogQuery: vi.fn(),
+  })
+);
 
 const { listManagedServices } = vi.hoisted(() => ({
   listManagedServices: vi.fn(),
@@ -33,6 +36,7 @@ vi.mock('api/logs', async (importOriginal) => ({
   getLogVolume: vi.fn(),
   getLogPatterns,
   getLogFacets: vi.fn(),
+  findLogQuery,
 }));
 
 const line = (body: string, preset = 'postgres'): LogLine => ({
@@ -85,6 +89,12 @@ describe('LogsLinesTab', () => {
     vi.clearAllMocks();
     listManagedServices.mockResolvedValue({ services: [] });
     getLogPatterns.mockResolvedValue([pattern]);
+    findLogQuery.mockResolvedValue({
+      queryId: '',
+      serviceName: '',
+      serviceId: '',
+      fingerprint: '',
+    });
   });
 
   it('shows a logfmt line by its message', async () => {
@@ -178,9 +188,13 @@ describe('LogsLinesTab', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows actions and offers QAN only for database logs', async () => {
+  it('shows actions and offers QAN only for lines that log a query', async () => {
     searchLogs.mockResolvedValue({
-      lines: [line('pg line'), line('nginx line', 'nginx_access')],
+      lines: [
+        line('pg line'),
+        line('statement: SELECT 1'),
+        line('nginx line', 'nginx_access'),
+      ],
     });
     renderTab();
     fireEvent.click(await screen.findByText('pg line'));
@@ -188,7 +202,7 @@ describe('LogsLinesTab', () => {
     expect(within(pg).getByText('Show context')).toBeInTheDocument();
     expect(within(pg).getByText('Ask Assistant')).toBeInTheDocument();
     expect(within(pg).getByText('Open dashboard')).toBeInTheDocument();
-    expect(within(pg).getByText('Open QAN')).toBeInTheDocument();
+    expect(within(pg).queryByText('Open QAN')).not.toBeInTheDocument();
     expect(within(pg).getByText('pid')).toBeInTheDocument();
     expect(within(pg).getByText('42')).toBeInTheDocument();
     expect(within(pg).queryByText('user')).not.toBeInTheDocument();
@@ -196,11 +210,18 @@ describe('LogsLinesTab', () => {
     const rows = screen.getAllByTestId('log-line-row');
     fireEvent.click(rows[0]);
     fireEvent.click(rows[1]);
+    const statement = screen.getByTestId('log-line-details');
+    expect(within(statement).getByText('Open QAN')).toBeInTheDocument();
+
+    fireEvent.click(rows[1]);
+    fireEvent.click(rows[2]);
     const nginx = screen.getByTestId('log-line-details');
     expect(within(nginx).queryByText('Open QAN')).not.toBeInTheDocument();
+    // Only the statement line is looked up.
+    expect(findLogQuery).toHaveBeenCalledTimes(1);
   });
 
-  it('opens the service dashboard and QAN in new tabs', async () => {
+  it('opens the service dashboard and its QAN in new tabs', async () => {
     listManagedServices.mockResolvedValue({
       services: [
         { serviceName: 'other-pg', serviceType: 'postgresql', nodeName: 'x' },
@@ -211,9 +232,9 @@ describe('LogsLinesTab', () => {
         },
       ],
     });
-    searchLogs.mockResolvedValue({ lines: [line('pg line')] });
+    searchLogs.mockResolvedValue({ lines: [line('statement: SELECT 1')] });
     renderTab();
-    fireEvent.click(await screen.findByText('pg line'));
+    fireEvent.click(await screen.findByText('statement: SELECT 1'));
     const dashboard = await screen.findByRole('link', {
       name: 'Open dashboard',
     });
@@ -229,9 +250,42 @@ describe('LogsLinesTab', () => {
     const qan = screen.getByRole('link', { name: 'Open QAN' });
     expect(qan).toHaveAttribute(
       'href',
-      expect.stringContaining('/graph/d/pmm-qan/pmm-query-analytics')
+      expect.stringContaining(
+        '/graph/d/pmm-qan/pmm-query-analytics?var-service_name=pg-svc'
+      )
     );
     expect(qan).toHaveAttribute('target', '_blank');
+  });
+
+  it('opens the logged query in QAN when QAN has it', async () => {
+    findLogQuery.mockResolvedValue({
+      queryId: 'q1',
+      serviceName: 'pg-tcp',
+      serviceId: 's1',
+      fingerprint: 'SELECT $1',
+    });
+    const statement = line('statement: SELECT 1');
+    searchLogs.mockResolvedValue({ lines: [statement] });
+    renderTab();
+    fireEvent.click(await screen.findByText('statement: SELECT 1'));
+    const qan = await screen.findByRole('link', {
+      name: 'Open query in QAN',
+    });
+    expect(qan).toHaveAttribute(
+      'href',
+      expect.stringContaining('var-service_name=pg-tcp')
+    );
+    expect(qan).toHaveAttribute(
+      'href',
+      expect.stringContaining('filter_by=q1&query_selected=true')
+    );
+    expect(
+      screen.getByRole('link', { name: 'Open dashboard' })
+    ).toHaveAttribute(
+      'href',
+      expect.stringContaining('var-service_name=pg-tcp')
+    );
+    expect(findLogQuery).toHaveBeenCalledWith(statement);
   });
 
   it('highlights the anchor line in the context dialog', async () => {

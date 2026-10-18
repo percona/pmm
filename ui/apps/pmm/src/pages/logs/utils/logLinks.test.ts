@@ -1,8 +1,8 @@
 import { LogLine } from 'api/logs';
 import {
   assistantAskUrl,
-  DATABASE_PRESETS,
   dashboardUrl,
+  isQueryLine,
   lineLink,
   qanUrl,
   serviceTypeOf,
@@ -47,28 +47,58 @@ describe('logLinks', () => {
     expect(serviceTypeOf('nginx_error')).toBeUndefined();
   });
 
-  it('links to Grafana QAN filtered by node for the window', () => {
-    expect(qanUrl({ ...line, body: 'checkpoint starting' }, from, to)).toBe(
-      '/graph/d/pmm-qan/pmm-query-analytics?var-node_name=pg-node&from=1792232100000&to=1792233900000'
+  it('opens the query in Grafana QAN, filtered by its service', () => {
+    expect(
+      qanUrl(
+        { nodeName: 'pg-node', serviceName: 'pg-svc', queryId: 'q1' },
+        from,
+        to,
+        false
+      )
+    ).toBe(
+      '/graph/d/pmm-qan/pmm-query-analytics?var-service_name=pg-svc&from=1792232100000&to=1792233900000&filter_by=q1&query_selected=true&details_tab=details'
     );
   });
 
-  it('searches QAN for the start of a logged statement', () => {
-    const search = (body: string) =>
-      new URLSearchParams(
-        qanUrl({ ...line, body }, from, to).split('?')[1]
-      ).get('dimensionSearchText');
+  it('opens the query in native QAN when it is enabled', () => {
     expect(
-      search(
-        'statement: SELECT id, customer_id FROM orders WHERE id = 1098292;'
+      qanUrl(
+        { nodeName: 'pg-node', serviceName: 'pg-svc', queryId: 'q1' },
+        from,
+        to,
+        true
       )
-    ).toBe('SELECT id, customer_id FROM orders WHERE id');
-    expect(search('execute <unnamed>: SELECT pg_database_size($1)')).toBe(
-      'SELECT pg_database_size'
+    ).toBe(
+      '/qan?filter_service_name=pg-svc&from=1792232100000&to=1792233900000&filter_by=q1&query_selected=true&details_tab=details'
     );
-    expect(search('statement: ;')).toBeNull();
-    // QAN keeps a query's line breaks, so a query starting on the next line is not searched.
-    expect(search('statement: \n\t\tSELECT\n\t\t  datid')).toBeNull();
+  });
+
+  it('lists the queries of the service, or of the node, without a known query', () => {
+    expect(
+      qanUrl({ nodeName: 'pg-node', serviceName: 'pg-svc' }, from, to, false)
+    ).toBe(
+      '/graph/d/pmm-qan/pmm-query-analytics?var-service_name=pg-svc&from=1792232100000&to=1792233900000'
+    );
+    expect(qanUrl({ nodeName: 'pg-node' }, from, to, true)).toBe(
+      '/qan?filter_node_name=pg-node&from=1792232100000&to=1792233900000'
+    );
+  });
+
+  it('knows which lines log a query', () => {
+    const logsQuery = (body: string, preset = 'postgres') =>
+      isQueryLine({ ...line, body, preset });
+    expect(logsQuery('statement: SELECT 1')).toBe(true);
+    expect(
+      logsQuery('duration: 1003.112 ms  statement: SELECT pg_sleep(1)')
+    ).toBe(true);
+    expect(logsQuery('execute <unnamed>: SELECT pg_database_size($1)')).toBe(
+      true
+    );
+    expect(logsQuery('statement: \n\t\tSELECT\n\t\t  datid')).toBe(true);
+    expect(logsQuery('statement: ;')).toBe(false);
+    expect(logsQuery('duration: 0.512 ms')).toBe(false);
+    expect(logsQuery('deadlock detected')).toBe(false);
+    expect(logsQuery('statement: SELECT 1', 'mysql_error')).toBe(false);
   });
 
   it('asks the Assistant about the line', () => {
@@ -79,15 +109,6 @@ describe('logLinks', () => {
     expect(ask).toContain('pg-node');
     expect(ask).toContain('2026-10-17T10:15:00.000Z');
     expect(ask).toContain('2026-10-17T10:45:00.000Z');
-  });
-
-  it('lists the database presets', () => {
-    expect(DATABASE_PRESETS).toEqual([
-      'mysql_error',
-      'postgres',
-      'mongodb',
-      'syslog_mysql_systemd',
-    ]);
   });
 
   it('links to the Logs page five minutes around a line, keeping the filters', () => {
