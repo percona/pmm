@@ -2237,3 +2237,250 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLogFacetsResponseValidationError{}
+
+// Validate checks the field values on FindLogQueryRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FindLogQueryRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FindLogQueryRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FindLogQueryRequestMultiError, or nil if none found.
+func (m *FindLogQueryRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FindLogQueryRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetTime() == nil {
+		err := FindLogQueryRequestValidationError{
+			field:  "Time",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
+		err := FindLogQueryRequestValidationError{
+			field:  "NodeName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetBody()); l < 1 || l > 65536 {
+		err := FindLogQueryRequestValidationError{
+			field:  "Body",
+			reason: "value length must be between 1 and 65536 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return FindLogQueryRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// FindLogQueryRequestMultiError is an error wrapping multiple validation
+// errors returned by FindLogQueryRequest.ValidateAll() if the designated
+// constraints aren't met.
+type FindLogQueryRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FindLogQueryRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FindLogQueryRequestMultiError) AllErrors() []error { return m }
+
+// FindLogQueryRequestValidationError is the validation error returned by
+// FindLogQueryRequest.Validate if the designated constraints aren't met.
+type FindLogQueryRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FindLogQueryRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FindLogQueryRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FindLogQueryRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FindLogQueryRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FindLogQueryRequestValidationError) ErrorName() string {
+	return "FindLogQueryRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FindLogQueryRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFindLogQueryRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = FindLogQueryRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FindLogQueryRequestValidationError{}
+
+// Validate checks the field values on FindLogQueryResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FindLogQueryResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FindLogQueryResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FindLogQueryResponseMultiError, or nil if none found.
+func (m *FindLogQueryResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FindLogQueryResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for QueryId
+
+	// no validation rules for ServiceName
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Fingerprint
+
+	if len(errors) > 0 {
+		return FindLogQueryResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// FindLogQueryResponseMultiError is an error wrapping multiple validation
+// errors returned by FindLogQueryResponse.ValidateAll() if the designated
+// constraints aren't met.
+type FindLogQueryResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FindLogQueryResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FindLogQueryResponseMultiError) AllErrors() []error { return m }
+
+// FindLogQueryResponseValidationError is the validation error returned by
+// FindLogQueryResponse.Validate if the designated constraints aren't met.
+type FindLogQueryResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FindLogQueryResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FindLogQueryResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FindLogQueryResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FindLogQueryResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FindLogQueryResponseValidationError) ErrorName() string {
+	return "FindLogQueryResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FindLogQueryResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFindLogQueryResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = FindLogQueryResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FindLogQueryResponseValidationError{}

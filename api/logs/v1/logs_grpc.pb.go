@@ -24,6 +24,7 @@ const (
 	LogsService_GetLogVolume_FullMethodName   = "/logs.v1.LogsService/GetLogVolume"
 	LogsService_GetLogPatterns_FullMethodName = "/logs.v1.LogsService/GetLogPatterns"
 	LogsService_GetLogContext_FullMethodName  = "/logs.v1.LogsService/GetLogContext"
+	LogsService_FindLogQuery_FullMethodName   = "/logs.v1.LogsService/FindLogQuery"
 	LogsService_GetLogFacets_FullMethodName   = "/logs.v1.LogsService/GetLogFacets"
 )
 
@@ -41,6 +42,8 @@ type LogsServiceClient interface {
 	GetLogPatterns(ctx context.Context, in *GetLogPatternsRequest, opts ...grpc.CallOption) (*GetLogPatternsResponse, error)
 	// GetLogContext returns the lines around one line of a file.
 	GetLogContext(ctx context.Context, in *GetLogContextRequest, opts ...grpc.CallOption) (*GetLogContextResponse, error)
+	// FindLogQuery finds the QAN query a PostgreSQL log line ran.
+	FindLogQuery(ctx context.Context, in *FindLogQueryRequest, opts ...grpc.CallOption) (*FindLogQueryResponse, error)
 	// GetLogFacets returns the nodes, sources and presets with lines in the time range.
 	GetLogFacets(ctx context.Context, in *GetLogFacetsRequest, opts ...grpc.CallOption) (*GetLogFacetsResponse, error)
 }
@@ -93,6 +96,16 @@ func (c *logsServiceClient) GetLogContext(ctx context.Context, in *GetLogContext
 	return out, nil
 }
 
+func (c *logsServiceClient) FindLogQuery(ctx context.Context, in *FindLogQueryRequest, opts ...grpc.CallOption) (*FindLogQueryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindLogQueryResponse)
+	err := c.cc.Invoke(ctx, LogsService_FindLogQuery_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *logsServiceClient) GetLogFacets(ctx context.Context, in *GetLogFacetsRequest, opts ...grpc.CallOption) (*GetLogFacetsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetLogFacetsResponse)
@@ -117,6 +130,8 @@ type LogsServiceServer interface {
 	GetLogPatterns(context.Context, *GetLogPatternsRequest) (*GetLogPatternsResponse, error)
 	// GetLogContext returns the lines around one line of a file.
 	GetLogContext(context.Context, *GetLogContextRequest) (*GetLogContextResponse, error)
+	// FindLogQuery finds the QAN query a PostgreSQL log line ran.
+	FindLogQuery(context.Context, *FindLogQueryRequest) (*FindLogQueryResponse, error)
 	// GetLogFacets returns the nodes, sources and presets with lines in the time range.
 	GetLogFacets(context.Context, *GetLogFacetsRequest) (*GetLogFacetsResponse, error)
 	mustEmbedUnimplementedLogsServiceServer()
@@ -143,6 +158,10 @@ func (UnimplementedLogsServiceServer) GetLogPatterns(context.Context, *GetLogPat
 
 func (UnimplementedLogsServiceServer) GetLogContext(context.Context, *GetLogContextRequest) (*GetLogContextResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetLogContext not implemented")
+}
+
+func (UnimplementedLogsServiceServer) FindLogQuery(context.Context, *FindLogQueryRequest) (*FindLogQueryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindLogQuery not implemented")
 }
 
 func (UnimplementedLogsServiceServer) GetLogFacets(context.Context, *GetLogFacetsRequest) (*GetLogFacetsResponse, error) {
@@ -241,6 +260,24 @@ func _LogsService_GetLogContext_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogsService_FindLogQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindLogQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogsServiceServer).FindLogQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LogsService_FindLogQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogsServiceServer).FindLogQuery(ctx, req.(*FindLogQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LogsService_GetLogFacets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLogFacetsRequest)
 	if err := dec(in); err != nil {
@@ -281,6 +318,10 @@ var LogsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLogContext",
 			Handler:    _LogsService_GetLogContext_Handler,
+		},
+		{
+			MethodName: "FindLogQuery",
+			Handler:    _LogsService_FindLogQuery_Handler,
 		},
 		{
 			MethodName: "GetLogFacets",

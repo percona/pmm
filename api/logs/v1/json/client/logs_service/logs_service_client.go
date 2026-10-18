@@ -51,6 +51,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	FindLogQuery(params *FindLogQueryParams, opts ...ClientOption) (*FindLogQueryOK, error)
+
 	GetLogContext(params *GetLogContextParams, opts ...ClientOption) (*GetLogContextOK, error)
 
 	GetLogFacets(params *GetLogFacetsParams, opts ...ClientOption) (*GetLogFacetsOK, error)
@@ -62,6 +64,50 @@ type ClientService interface {
 	SearchLogs(params *SearchLogsParams, opts ...ClientOption) (*SearchLogsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+FindLogQuery finds a log line s QAN query
+
+Matches the statement of a PostgreSQL log line against the QAN fingerprints of its node within 30 minutes of the line, ignoring literals, placeholders, comments, case and spacing.
+*/
+func (a *Client) FindLogQuery(params *FindLogQueryParams, opts ...ClientOption) (*FindLogQueryOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewFindLogQueryParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "FindLogQuery",
+		Method:             "POST",
+		PathPattern:        "/v1/logs:findQuery",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &FindLogQueryReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*FindLogQueryOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*FindLogQueryDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

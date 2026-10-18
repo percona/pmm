@@ -157,6 +157,28 @@ message GetLogFacetsResponse {
   repeated Facet presets = 3;
 }
 
+message FindLogQueryRequest {
+  // Time of the line.
+  google.protobuf.Timestamp time = 1 [(validate.rules).timestamp.required = true];
+  // Node of the line.
+  string node_name = 2 [(validate.rules).string.min_len = 1];
+  // Body of the line, such as "statement: SELECT ..." from a PostgreSQL log.
+  string body = 3 [(validate.rules).string = {
+    min_len: 1
+    max_len: 65536
+  }];
+}
+
+message FindLogQueryResponse {
+  // QAN query ID; empty when no QAN query matches the line.
+  string query_id = 1;
+  // QAN service with the most executions of the query around the line's time.
+  string service_name = 2;
+  string service_id = 3;
+  // QAN fingerprint of the query.
+  string fingerprint = 4;
+}
+
 // LogsService reads the logs PMM collects.
 service LogsService {
   // SearchLogs returns log lines, newest first, one page at a time.
@@ -204,6 +226,18 @@ service LogsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get log context"
       description: "Returns the lines before and after a line of the same node and file."
+    };
+  }
+
+  // FindLogQuery finds the QAN query a PostgreSQL log line ran.
+  rpc FindLogQuery(FindLogQueryRequest) returns (FindLogQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:findQuery"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Find a log line's QAN query"
+      description: "Matches the statement of a PostgreSQL log line against the QAN fingerprints of its node within 30 minutes of the line, ignoring literals, placeholders, comments, case and spacing."
     };
   }
 

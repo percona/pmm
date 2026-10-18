@@ -15,6 +15,104 @@
     "version": "v1"
   },
   "paths": {
+    "/v1/logs:findQuery": {
+      "post": {
+        "description": "Matches the statement of a PostgreSQL log line against the QAN fingerprints of its node within 30 minutes of the line, ignoring literals, placeholders, comments, case and spacing.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Find a log line's QAN query",
+        "operationId": "FindLogQuery",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "description": "Time of the line.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node of the line.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "body": {
+                  "description": "Body of the line, such as \"statement: SELECT ...\" from a PostgreSQL log.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "query_id": {
+                  "description": "QAN query ID; empty when no QAN query matches the line.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_name": {
+                  "description": "QAN service with the most executions of the query around the line's time.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "service_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "fingerprint": {
+                  "description": "QAN fingerprint of the query.",
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/logs:getContext": {
       "post": {
         "description": "Returns the lines before and after a line of the same node and file.",
