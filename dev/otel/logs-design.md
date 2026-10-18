@@ -434,11 +434,15 @@ pattern. Rows written before the preset tag existed match no preset filter.
 pmm-managed builds parameterized ClickHouse SQL; the browser never sends SQL. Queries run with
 `max_execution_time = 30` and `readonly = 1`.
 
-Pattern = message with variable parts replaced, applied in this order: quoted strings → `'?'`, UUIDs, hex ≥ 8 chars,
-IPv4 addresses, numbers → `?`; then the first 200 characters (`managed/otel/patterns.go`). `otel.logs.PatternHash` is a
+Pattern = message with variable parts replaced, applied in this order (`managed/otel/patterns.go`): logfmt `msg="…"`
+values are unquoted, also one nested escaped level, so their text stays; quoted strings → `'?'`; timestamps, UUIDs,
+hex ≥ 8 chars, IPv4 addresses, underscore-joined numbers (ClickHouse part names), numbers with a unit (`4048ms`) and
+numbers → `?`; lists of masked values collapse to one; then the first 200 characters. `otel.logs.PatternHash` is a
 MATERIALIZED `cityHash64` of that expression, so masking runs once per line at insert. `GetLogPatterns` groups by the
-hash and masks only the sample lines it returns; the pattern filter compares hashes. Parts written before the column
-existed compute it on read until they expire or `ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash` runs.
+hash and masks only the sample lines it returns; the pattern filter compares hashes. pmm-managed sets the column's
+expression at startup, which rewrites no data: parts written before the column existed, or before the rules changed,
+keep computing or holding the old value until they expire or `ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash`
+runs.
 
 The OpenTelemetry `drain` processor (alpha) was measured against the hash on adre-pmm7 on 2026-10-18 and not adopted.
 The test replayed 2.2 M lines (6 h) through otelcol-contrib 0.163.1 and ran one hour live (0.37 M lines):
@@ -455,8 +459,10 @@ The test replayed 2.2 M lines (6 h) through otelcol-contrib 0.163.1 and ran one 
 - Each processor costs about 25 µs of CPU per line; at 75 lines/s the live collector used 6–7% of a core with and
   without it.
 
-Masking underscore-joined numbers, timestamps and numbers with units, and keeping logfmt `msg` text, should close most
-of the gap without Drain's state; that is untested.
+The rules above came out of this test. On a later 6 h window (2.3 M lines) they give 933 patterns where the earlier
+rules gave 28,921 (ClickHouse server 16,119 → 57, Grafana 11,808 → 176, MySQL error logs 231 → 12), while the logfmt
+components gain the messages they had merged (pmm-managed 56 → 130). They cost 4.2 µs of CPU per line on one core,
+against 2.0 µs for the earlier rules.
 
 ### 3.3 Access control
 
