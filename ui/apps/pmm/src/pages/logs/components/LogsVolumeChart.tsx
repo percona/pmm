@@ -152,9 +152,16 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
     !!drag && i >= Math.min(...drag) && i <= Math.max(...drag);
 
   const overlayCount = (b: VolumeBucket) => overlay?.counts.get(b.start) ?? 0;
+  // The pattern has its own scale: a few lines a minute would vanish under busy bars.
+  const overlayMax = roundUp(Math.max(0, ...buckets.map(overlayCount)));
   const overlayPoints = buckets
-    .map((b, i) => `${i + 0.5},${max - Math.min(max, overlayCount(b))}`)
+    .map((b, i) => `${i + 0.5},${overlayMax - overlayCount(b)}`)
     .join(' ');
+  const plotSx = {
+    position: 'relative',
+    ml: `${AXIS_WIDTH}px`,
+    mr: overlay ? `${AXIS_WIDTH}px` : 0,
+  } as const;
   const markerPct =
     overlay?.markerMs !== undefined &&
     overlay.markerMs >= first &&
@@ -172,7 +179,12 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
       <Stack
         direction="row"
         alignItems="center"
-        sx={{ mb: collapsed ? 0 : 1, gap: 2.5, flexWrap: 'wrap' }}
+        sx={{
+          mb: collapsed ? 0 : 1,
+          gap: 2.5,
+          flexWrap: 'nowrap',
+          minWidth: 0,
+        }}
       >
         {totals.map((c) => (
           <Typography
@@ -188,6 +200,8 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
               onClick: () => onSelectClass(c.key),
             })}
             sx={{
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
               px: 1,
               py: 0.25,
               ml: -1,
@@ -240,6 +254,8 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
             title={overlay.label}
             data-testid="logs-volume-overlay-chip"
             sx={{
+              minWidth: 0,
+              flexShrink: 1,
               maxWidth: 420,
               ...MONO,
               fontSize: 12,
@@ -262,7 +278,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ ml: onBack ? 0 : 'auto' }}
+          sx={{ ml: onBack ? 0 : 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}
         >
           Drag across bars to zoom · {formatStep(stepMs)} per bar
         </Typography>
@@ -277,9 +293,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
       </Stack>
       {!collapsed && (
         <>
-          <Box
-            sx={{ position: 'relative', height: HEIGHT, ml: `${AXIS_WIDTH}px` }}
-          >
+          <Box sx={{ ...plotSx, height: HEIGHT }}>
             {[max, max / 2, 0].map((value, i) => (
               <Box
                 key={value}
@@ -306,6 +320,24 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
                 >
                   {compact.format(value)}
                 </Typography>
+                {overlay && (
+                  <Typography
+                    variant="caption"
+                    data-testid={
+                      i === 0 ? 'logs-volume-overlay-max' : undefined
+                    }
+                    sx={{
+                      position: 'absolute',
+                      left: '100%',
+                      ml: 1,
+                      transform: 'translateY(-50%)',
+                      fontVariantNumeric: 'tabular-nums',
+                      color: palette.primary.main,
+                    }}
+                  >
+                    {compact.format((overlayMax * (2 - i)) / 2)}
+                  </Typography>
+                )}
               </Box>
             ))}
             <Stack
@@ -339,6 +371,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
                     onMouseDown={() => setDrag([i, i])}
                     onMouseEnter={() => drag && setDrag([drag[0], i])}
                     onMouseUp={finish}
+                    style={overlay ? { opacity: 0.35 } : undefined}
                     sx={{
                       flex: 1,
                       minWidth: 0,
@@ -364,7 +397,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
               <Box
                 component="svg"
                 data-testid="logs-volume-overlay"
-                viewBox={`0 0 ${buckets.length} ${max}`}
+                viewBox={`0 0 ${buckets.length} ${overlayMax}`}
                 preserveAspectRatio="none"
                 sx={{
                   position: 'absolute',
@@ -376,7 +409,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
                 }}
               >
                 <polygon
-                  points={`0.5,${max} ${overlayPoints} ${buckets.length - 0.5},${max}`}
+                  points={`0.5,${overlayMax} ${overlayPoints} ${buckets.length - 0.5},${overlayMax}`}
                   fill={alpha(palette.primary.main, 0.25)}
                 />
                 <polyline
@@ -404,7 +437,7 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
               />
             )}
           </Box>
-          <Box sx={{ position: 'relative', height: 22, ml: `${AXIS_WIDTH}px` }}>
+          <Box sx={{ ...plotSx, height: 22 }}>
             {ticks.map((i) => (
               <Typography
                 key={i}

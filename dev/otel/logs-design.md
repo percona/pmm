@@ -476,13 +476,20 @@ sets `X-Proxy-Filter` for users with LBAC filters; when that header is present t
 Route `/pmm-ui/logs`, a top-level **Logs** item in the left menu. Built with MUI and `@percona/peak-ui`; no new
 dependencies.
 
+The filter bar and the chart stay pinned; only the lines or patterns below them scroll. The page has no heading.
+
 - **Filter bar:** the time-range control from native QAN, node and source pickers filled from `GetLogFacets`, log type
-  (preset), minimum severity, search box. Filters live in the URL, so alert links open the right view.
-- **Volume chart:** bars stacked by severity, drawn like QAN's sparklines; drag to zoom the time range.
-- **Lines tab:** time, node, source, severity (coloured), message. Expanding a row shows
-  its attributes, **Show context**, **Ask Assistant** (opens the Assistant chat with the line and time window as
-  context), **Open dashboard** (the node's dashboard at that time) and **Open QAN** (when the row has a service).
-  **Load older** fetches the next page.
+  (preset), minimum severity, search box. Filters live in the URL, so alert links open the right view; hidden patterns
+  are `hide=<pattern hash>` and show as one chip.
+- **Volume chart:** bars stacked by severity, drawn like QAN's sparklines; drag to zoom the time range; collapsible.
+  The last opened line's pattern is drawn over the dimmed bars on its own scale (right axis), with a marker at the
+  line's time and a chip that clears it.
+- **Lines tab:** time, node, source, severity (coloured), message; a logfmt line shows its `msg` followed by its other
+  fields. Expanding a row shows the line's pattern with its count in the range and against the previous one, first and
+  last seen, and the three sources with the most of it (`GetLogPatterns` with the line's `pattern_hash`), **Show only
+  this pattern**, **Hide this pattern**, its attributes, **Show context**, **Ask Assistant** (opens the Assistant chat
+  with the line and time window as context), **Open dashboard** (the node's dashboard at that time), **Open QAN**
+  (when the row has a service), **Copy line** and **Copy link**. Older lines load as the list reaches its end.
 - **Patterns tab:** pattern, count, severity, first and last seen, `new` badge; clicking one filters Lines by it.
 - **Empty state:** when nothing is collected, a link to Settings → OTEL → Log collectors.
 

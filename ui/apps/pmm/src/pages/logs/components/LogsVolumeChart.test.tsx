@@ -126,6 +126,13 @@ describe('LogsVolumeChart', () => {
       </TestWrapper>
     );
     expect(screen.getByTestId('logs-volume-overlay')).toBeInTheDocument();
+    // The pattern has its own scale, so a small pattern under busy bars still shows.
+    expect(screen.getByTestId('logs-volume-overlay-max')).toHaveTextContent(
+      '4'
+    );
+    expect(screen.getAllByTestId('logs-volume-bucket')[0]).toHaveStyle({
+      opacity: '0.35',
+    });
     expect(screen.getByTestId('logs-volume-marker')).toHaveStyle({
       left: '43.75%',
     });
