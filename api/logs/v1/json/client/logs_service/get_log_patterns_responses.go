@@ -653,6 +653,15 @@ type GetLogPatternsOKBodyPatternsItems0 struct {
 
 	// True when the pattern did not occur in the preceding range of the same length.
 	IsNew bool `json:"is_new,omitempty"`
+
+	// Hash of the pattern; filter with pattern_hash.
+	PatternHash string `json:"pattern_hash,omitempty"`
+
+	// Lines with this pattern in the preceding range of the same length.
+	PreviousCount string `json:"previous_count,omitempty"`
+
+	// Up to three sources with the most lines of this pattern; only set when the filter has a pattern or pattern hash.
+	TopSources []string `json:"top_sources"`
 }
 
 // Validate validates this get log patterns OK body patterns items0
@@ -756,6 +765,12 @@ type GetLogPatternsParamsBodyFilter struct {
 
 	// No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
 	ExcludeNodeNames []string `json:"exclude_node_names"`
+
+	// Only lines with this pattern hash, as returned with a line or pattern.
+	PatternHash string `json:"pattern_hash,omitempty"`
+
+	// No lines with these pattern hashes.
+	ExcludePatternHashes []string `json:"exclude_pattern_hashes"`
 }
 
 // Validate validates this get log patterns params body filter

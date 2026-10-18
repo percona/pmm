@@ -58,6 +58,9 @@ type Filter struct {
 	MaxSeverity      int32
 	Text             string
 	Pattern          string
+	PatternHash      uint64
+	// ExcludePatternHashes hides lines of these patterns.
+	ExcludePatternHashes []uint64
 }
 
 // lineHash identifies a line among those with the same Timestamp; lines it cannot tell apart look identical.
@@ -146,17 +149,26 @@ func buildWhere(f Filter) (string, []any) {
 		conds = append(conds, "PatternHash = cityHash64(?)")
 		args = append(args, f.Pattern)
 	}
+	if f.PatternHash != 0 {
+		conds = append(conds, "PatternHash = ?")
+		args = append(args, f.PatternHash)
+	}
+	if len(f.ExcludePatternHashes) > 0 {
+		conds = append(conds, "PatternHash NOT IN ?")
+		args = append(args, f.ExcludePatternHashes)
+	}
 	return strings.Join(conds, " AND "), args
 }
 
 // lineColumnNames are the names lineColumns gives the columns of a log line.
-const lineColumnNames = "Timestamp, node_name, ServiceName, preset, file_name, SeverityNumber, SeverityText, body, body_truncated, LogAttributes"
+const lineColumnNames = "Timestamp, node_name, ServiceName, preset, file_name, SeverityNumber, SeverityText, body, body_truncated, " +
+	"LogAttributes, PatternHash"
 
 // lineColumns returns the columns of a log line with the body cut to bodyLimit characters.
 func lineColumns(bodyLimit int) string {
 	return fmt.Sprintf("Timestamp, ResourceAttributes['node_name'] AS node_name, ServiceName, LogAttributes['log.preset'] AS preset, "+
 		"LogAttributes['log.file.name'] AS file_name, SeverityNumber, SeverityText, substringUTF8(Body, 1, %d) AS body, "+
-		"lengthUTF8(Body) > %d AS body_truncated, LogAttributes", bodyLimit, bodyLimit)
+		"lengthUTF8(Body) > %d AS body_truncated, LogAttributes, PatternHash", bodyLimit, bodyLimit)
 }
 
 // pageSize returns the search page size for a requested limit.
@@ -221,17 +233,22 @@ func patternsQuery(f Filter) (string, []any) {
 		Start: prev.Start, End: f.Start,
 		NodeNames: f.NodeNames, ExcludeNodeNames: f.ExcludeNodeNames, Sources: f.Sources, Presets: f.Presets,
 	})
+	// The top sources cost about a fifth more over many patterns, so they are counted only for one.
+	topSources, innerTopSources := "CAST([], 'Array(String)') AS top_sources", ""
+	if f.Pattern != "" || f.PatternHash != 0 {
+		topSources, innerTopSources = "top_sources", ", topKIf(3)(ServiceName, cur) AS top_sources"
+	}
 	// Lines are grouped by the PatternHash stored at insert; only the returned patterns are masked, from a sample line.
-	q := fmt.Sprintf("SELECT %s AS p, current, previous, "+
+	q := fmt.Sprintf("SELECT %s AS p, PatternHash, current, previous, "+
 		"previous = 0 AND (SELECT count() FROM (SELECT 1 FROM otel.logs WHERE %s LIMIT 1)) > 0 AS is_new, "+
-		"max_severity, first_seen, last_seen, substringUTF8(body, 1, %d) AS sample FROM ("+
+		"max_severity, first_seen, last_seen, substringUTF8(body, 1, %d) AS sample, %s FROM ("+
 		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT PatternHash, "+
 		"countIf(cur) AS current, countIf(NOT cur) AS previous, "+
 		"maxIf(SeverityNumber, cur) AS max_severity, minIf(Timestamp, cur) AS first_seen, maxIf(Timestamp, cur) AS last_seen, "+
-		"anyIf(Body, cur) AS body "+
+		"anyIf(Body, cur) AS body%s "+
 		"FROM otel.logs WHERE %s GROUP BY PatternHash"+
 		") WHERE current > 0 ORDER BY current DESC, p LIMIT 50",
-		otel.PatternExpr("body"), baseWhere, listBodyLimit, where)
+		otel.PatternExpr("body"), baseWhere, listBodyLimit, topSources, innerTopSources, where)
 	args = append(append(baseArgs, f.Start.UnixNano()), args...)
 	return q + querySettings, args
 }

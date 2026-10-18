@@ -633,6 +633,9 @@ type GetLogContextOKBodyLinesItems0 struct {
 
 	// attributes
 	Attributes map[string]string `json:"attributes,omitempty"`
+
+	// Hash of the line's pattern; filter with pattern_hash.
+	PatternHash string `json:"pattern_hash,omitempty"`
 }
 
 // Validate validates this get log context OK body lines items0

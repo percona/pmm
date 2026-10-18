@@ -42,7 +42,7 @@ func (passthrough) ConvertValue(v any) (driver.Value, error) {
 
 var lineCols = []string{
 	"Timestamp", "node_name", "ServiceName", "preset", "file_name",
-	"SeverityNumber", "SeverityText", "body", "body_truncated", "LogAttributes",
+	"SeverityNumber", "SeverityText", "body", "body_truncated", "LogAttributes", "PatternHash",
 }
 
 func newTestService(t *testing.T) (*Service, sqlmock.Sqlmock) {
@@ -74,9 +74,9 @@ func TestSearchLogs(t *testing.T) {
 	rows := func() *sqlmock.Rows {
 		return mock.NewRows(append(lineCols, "h")).
 			AddRow(t1, "pmm-server", "pmm-managed", "pmm_managed", "pmm-managed.log", int32(17), "error", "boom", true,
-				map[string]string{"component": "grpc"}, uint64(18446744073709551615)).
+				map[string]string{"component": "grpc"}, uint64(31), uint64(18446744073709551615)).
 			AddRow(t2, "pmm-server", "pmm-managed", "pmm_managed", "pmm-managed.log", int32(9), "info", "ok", false,
-				map[string]string{}, uint64(7))
+				map[string]string{}, uint64(32), uint64(7))
 	}
 
 	q, _ := searchQuery(f, nil, 2)
@@ -95,6 +95,7 @@ func TestSearchLogs(t *testing.T) {
 		Body:           "boom",
 		BodyTruncated:  true,
 		Attributes:     map[string]string{"component": "grpc"},
+		PatternHash:    31,
 	}, res.Lines[0])
 	assert.Equal(t, Cursor{Time: t2, Hash: 7, Skip: 1}.Encode(), res.NextCursor)
 
@@ -115,7 +116,7 @@ func TestSearchLogs_IdenticalLines(t *testing.T) {
 	f := Filter{Start: testStart, End: testEnd}
 	t1, t2 := testStart.Add(2*time.Minute), testStart.Add(time.Minute)
 	row := func(rows *sqlmock.Rows, ts time.Time, h uint64) *sqlmock.Rows {
-		return rows.AddRow(ts, "n", "s", "postgres", "f", int32(9), "LOG", "statement: COMMIT", false, map[string]string{}, h)
+		return rows.AddRow(ts, "n", "s", "postgres", "f", int32(9), "LOG", "statement: COMMIT", false, map[string]string{}, uint64(1), h)
 	}
 
 	// The page ends with two identical lines: the cursor skips both.
@@ -160,12 +161,18 @@ func TestGetLogVolume(t *testing.T) {
 
 func TestGetLogPatterns(t *testing.T) {
 	s, mock := newTestService(t)
-	q, _ := patternsQuery(Filter{Start: testStart, End: testEnd})
+	q, _ := patternsQuery(Filter{Start: testStart, End: testEnd, PatternHash: 18446744073709551615, ExcludePatternHashes: []uint64{5}})
 	first, last := testStart.Add(time.Minute), testStart.Add(2*time.Minute)
-	mock.ExpectQuery(q).WillReturnRows(mock.NewRows([]string{"p", "current", "previous", "is_new", "max_severity", "first_seen", "last_seen", "sample"}).
-		AddRow("deadlock detected", uint64(12), uint64(0), true, int32(17), first, last, "deadlock detected").
-		AddRow("checkpoint starting: ?", uint64(3), uint64(4), false, int32(9), first, last, "checkpoint starting: time"))
-	res, err := s.GetLogPatterns(t.Context(), &logsv1.GetLogPatternsRequest{Filter: testLogFilter()})
+	cols := []string{"p", "PatternHash", "current", "previous", "is_new", "max_severity", "first_seen", "last_seen", "sample", "top_sources"}
+	mock.ExpectQuery(q).WillReturnRows(mock.NewRows(cols).
+		AddRow("deadlock detected", uint64(18446744073709551615), uint64(12), uint64(0), true, int32(17), first, last, "deadlock detected",
+			[]string{"pg1", "pg2"}).
+		AddRow("checkpoint starting: ?", uint64(8), uint64(3), uint64(4), false, int32(9), first, last, "checkpoint starting: time",
+			[]string{}))
+	f := testLogFilter()
+	f.PatternHash = 18446744073709551615
+	f.ExcludePatternHashes = []uint64{5}
+	res, err := s.GetLogPatterns(t.Context(), &logsv1.GetLogPatternsRequest{Filter: f})
 	require.NoError(t, err)
 	require.Len(t, res.Patterns, 2)
 	assert.Equal(t, &logsv1.LogPattern{
@@ -176,8 +183,12 @@ func TestGetLogPatterns(t *testing.T) {
 		LastSeen:          timestamppb.New(last),
 		Sample:            "deadlock detected",
 		IsNew:             true,
+		PatternHash:       18446744073709551615,
+		TopSources:        []string{"pg1", "pg2"},
 	}, res.Patterns[0])
 	assert.False(t, res.Patterns[1].IsNew)
+	assert.Equal(t, int64(4), res.Patterns[1].PreviousCount)
+	assert.Empty(t, res.Patterns[1].TopSources)
 }
 
 func TestGetLogContext(t *testing.T) {
@@ -186,7 +197,7 @@ func TestGetLogContext(t *testing.T) {
 	q, _ := contextQuery(at, "node1", "postgresql.log", "node1", 50)
 	rows := mock.NewRows(lineCols)
 	for i, ts := range []time.Time{at.Add(-time.Second), at, at, at.Add(time.Second)} {
-		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", string(rune('a'+i)), false, map[string]string{})
+		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", string(rune('a'+i)), false, map[string]string{}, uint64(1))
 	}
 	mock.ExpectQuery(q).WillReturnRows(rows)
 	res, err := s.GetLogContext(t.Context(), &logsv1.GetLogContextRequest{
@@ -203,7 +214,7 @@ func TestGetLogContext(t *testing.T) {
 	q, _ = contextQuery(at, "node1", "postgresql.log", "", 50)
 	rows = mock.NewRows(lineCols)
 	for _, ts := range []time.Time{at.Add(-2 * time.Second), at.Add(-time.Second), at.Add(time.Second)} {
-		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", "x", false, map[string]string{})
+		rows.AddRow(ts, "node1", "node1", "postgres", "postgresql.log", int32(9), "LOG", "x", false, map[string]string{}, uint64(1))
 	}
 	mock.ExpectQuery(q).WillReturnRows(rows)
 	res, err = s.GetLogContext(t.Context(), &logsv1.GetLogContextRequest{Time: timestamppb.New(at), NodeName: "node1", FileName: "postgresql.log"})

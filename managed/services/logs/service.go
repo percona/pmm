@@ -65,16 +65,18 @@ func start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
 		return Filter{}, err
 	}
 	res := Filter{
-		Start:            f.GetStart().AsTime(),
-		End:              f.GetEnd().AsTime(),
-		NodeNames:        f.GetNodeNames(),
-		ExcludeNodeNames: f.GetExcludeNodeNames(),
-		Sources:          f.GetSources(),
-		Presets:          f.GetPresets(),
-		MinSeverity:      f.GetMinSeverity(),
-		MaxSeverity:      f.GetMaxSeverity(),
-		Text:             f.GetText(),
-		Pattern:          f.GetPattern(),
+		Start:                f.GetStart().AsTime(),
+		End:                  f.GetEnd().AsTime(),
+		NodeNames:            f.GetNodeNames(),
+		ExcludeNodeNames:     f.GetExcludeNodeNames(),
+		Sources:              f.GetSources(),
+		Presets:              f.GetPresets(),
+		MinSeverity:          f.GetMinSeverity(),
+		MaxSeverity:          f.GetMaxSeverity(),
+		Text:                 f.GetText(),
+		Pattern:              f.GetPattern(),
+		PatternHash:          f.GetPatternHash(),
+		ExcludePatternHashes: f.GetExcludePatternHashes(),
 	}
 	if res.End.Before(res.Start) {
 		return Filter{}, status.Error(codes.InvalidArgument, "The end of the time range is before its start.")
@@ -127,7 +129,7 @@ func scanLine(rows *sql.Rows, extra ...any) (*logsv1.LogLine, error) {
 	)
 	dest := append([]any{
 		&ts, &l.NodeName, &l.Source, &l.Preset, &l.FileName, &l.SeverityNumber, &l.SeverityText,
-		&l.Body, &l.BodyTruncated, &l.Attributes,
+		&l.Body, &l.BodyTruncated, &l.Attributes, &l.PatternHash,
 	}, extra...)
 	err := rows.Scan(dest...)
 	if err != nil {
@@ -228,11 +230,13 @@ func (s *Service) GetLogPatterns(ctx context.Context, req *logsv1.GetLogPatterns
 			current, previous uint64
 			first, last       time.Time
 		)
-		err := rows.Scan(&p.Pattern, &current, &previous, &p.IsNew, &p.MaxSeverityNumber, &first, &last, &p.Sample)
+		err := rows.Scan(&p.Pattern, &p.PatternHash, &current, &previous, &p.IsNew, &p.MaxSeverityNumber, &first, &last, &p.Sample,
+			&p.TopSources)
 		if err != nil {
 			return err
 		}
 		p.Count = int64(current)
+		p.PreviousCount = int64(previous)
 		p.FirstSeen = timestamppb.New(first)
 		p.LastSeen = timestamppb.New(last)
 		res.Patterns = append(res.Patterns, &p)

@@ -76,6 +76,31 @@ func TestBuildWhere_All(t *testing.T) {
 	}, args)
 }
 
+func TestBuildWhere_PatternHashes(t *testing.T) {
+	where, args := buildWhere(Filter{Start: testStart, End: testEnd, PatternHash: 42, ExcludePatternHashes: []uint64{7, 9}})
+	assert.Equal(t, testTimeWhere+" AND PatternHash = ? AND PatternHash NOT IN ?", where)
+	assert.Equal(t, []any{uint64(42), []uint64{7, 9}}, args[len(args)-2:])
+}
+
+func TestLineColumns_PatternHash(t *testing.T) {
+	assert.True(t, strings.HasSuffix(lineColumns(10), ", PatternHash"), lineColumns(10))
+	assert.True(t, strings.HasSuffix(lineColumnNames, ", PatternHash"), lineColumnNames)
+}
+
+func TestPatternsQuery_TopSources(t *testing.T) {
+	q, _ := patternsQuery(Filter{Start: testStart, End: testEnd})
+	assert.Contains(t, q, "SELECT "+otel.PatternExpr("body")+" AS p, PatternHash, current, previous, ")
+	assert.Contains(t, q, " AS sample, CAST([], 'Array(String)') AS top_sources FROM (")
+	for _, f := range []Filter{
+		{Start: testStart, End: testEnd, PatternHash: 42},
+		{Start: testStart, End: testEnd, Pattern: "x"},
+	} {
+		q, _ = patternsQuery(f)
+		assert.Contains(t, q, " AS sample, top_sources FROM (")
+		assert.Contains(t, q, "topKIf(3)(ServiceName, cur) AS top_sources FROM otel.logs")
+	}
+}
+
 func TestBuildWhere_TextLiteral(t *testing.T) {
 	text := `50%_off "x" \d+`
 	where, args := buildWhere(Filter{Start: testStart, End: testEnd, Text: text})

@@ -916,6 +916,12 @@ type GetLogFacetsParamsBodyFilter struct {
 
 	// No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
 	ExcludeNodeNames []string `json:"exclude_node_names"`
+
+	// Only lines with this pattern hash, as returned with a line or pattern.
+	PatternHash string `json:"pattern_hash,omitempty"`
+
+	// No lines with these pattern hashes.
+	ExcludePatternHashes []string `json:"exclude_pattern_hashes"`
 }
 
 // Validate validates this get log facets params body filter

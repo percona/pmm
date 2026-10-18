@@ -50,8 +50,12 @@ type LogFilter struct {
 	MaxSeverity int32 `protobuf:"varint,9,opt,name=max_severity,json=maxSeverity,proto3" json:"max_severity,omitempty"`
 	// No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
 	ExcludeNodeNames []string `protobuf:"bytes,10,rep,name=exclude_node_names,json=excludeNodeNames,proto3" json:"exclude_node_names,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Only lines with this pattern hash, as returned with a line or pattern.
+	PatternHash uint64 `protobuf:"varint,11,opt,name=pattern_hash,json=patternHash,proto3" json:"pattern_hash,omitempty"`
+	// No lines with these pattern hashes.
+	ExcludePatternHashes []uint64 `protobuf:"varint,12,rep,packed,name=exclude_pattern_hashes,json=excludePatternHashes,proto3" json:"exclude_pattern_hashes,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *LogFilter) Reset() {
@@ -154,6 +158,20 @@ func (x *LogFilter) GetExcludeNodeNames() []string {
 	return nil
 }
 
+func (x *LogFilter) GetPatternHash() uint64 {
+	if x != nil {
+		return x.PatternHash
+	}
+	return 0
+}
+
+func (x *LogFilter) GetExcludePatternHashes() []uint64 {
+	if x != nil {
+		return x.ExcludePatternHashes
+	}
+	return nil
+}
+
 // LogLine is one log entry.
 type LogLine struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -169,6 +187,8 @@ type LogLine struct {
 	// True when body was cut.
 	BodyTruncated bool              `protobuf:"varint,9,opt,name=body_truncated,json=bodyTruncated,proto3" json:"body_truncated,omitempty"`
 	Attributes    map[string]string `protobuf:"bytes,10,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Hash of the line's pattern; filter with pattern_hash.
+	PatternHash   uint64 `protobuf:"varint,11,opt,name=pattern_hash,json=patternHash,proto3" json:"pattern_hash,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,6 +293,13 @@ func (x *LogLine) GetAttributes() map[string]string {
 	return nil
 }
 
+func (x *LogLine) GetPatternHash() uint64 {
+	if x != nil {
+		return x.PatternHash
+	}
+	return 0
+}
+
 // VolumeBucket counts lines per severity class in one time bucket.
 type VolumeBucket struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -362,7 +389,13 @@ type LogPattern struct {
 	// One line with this pattern.
 	Sample string `protobuf:"bytes,6,opt,name=sample,proto3" json:"sample,omitempty"`
 	// True when the pattern did not occur in the preceding range of the same length.
-	IsNew         bool `protobuf:"varint,7,opt,name=is_new,json=isNew,proto3" json:"is_new,omitempty"`
+	IsNew bool `protobuf:"varint,7,opt,name=is_new,json=isNew,proto3" json:"is_new,omitempty"`
+	// Hash of the pattern; filter with pattern_hash.
+	PatternHash uint64 `protobuf:"varint,8,opt,name=pattern_hash,json=patternHash,proto3" json:"pattern_hash,omitempty"`
+	// Lines with this pattern in the preceding range of the same length.
+	PreviousCount int64 `protobuf:"varint,9,opt,name=previous_count,json=previousCount,proto3" json:"previous_count,omitempty"`
+	// Up to three sources with the most lines of this pattern; only set when the filter has a pattern or pattern hash.
+	TopSources    []string `protobuf:"bytes,10,rep,name=top_sources,json=topSources,proto3" json:"top_sources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -444,6 +477,27 @@ func (x *LogPattern) GetIsNew() bool {
 		return x.IsNew
 	}
 	return false
+}
+
+func (x *LogPattern) GetPatternHash() uint64 {
+	if x != nil {
+		return x.PatternHash
+	}
+	return 0
+}
+
+func (x *LogPattern) GetPreviousCount() int64 {
+	if x != nil {
+		return x.PreviousCount
+	}
+	return 0
+}
+
+func (x *LogPattern) GetTopSources() []string {
+	if x != nil {
+		return x.TopSources
+	}
+	return nil
 }
 
 // Facet is one filter value with its line count.
@@ -1042,7 +1096,7 @@ var File_logs_v1_logs_proto protoreflect.FileDescriptor
 
 const file_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xf4\x02\n" +
+	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xcd\x03\n" +
 	"\tLogFilter\x12:\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x05start\x126\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x03end\x12\x1d\n" +
@@ -1055,7 +1109,9 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\apattern\x18\b \x01(\tR\apattern\x12!\n" +
 	"\fmax_severity\x18\t \x01(\x05R\vmaxSeverity\x12,\n" +
 	"\x12exclude_node_names\x18\n" +
-	" \x03(\tR\x10excludeNodeNames\"\xad\x03\n" +
+	" \x03(\tR\x10excludeNodeNames\x12!\n" +
+	"\fpattern_hash\x18\v \x01(\x04R\vpatternHash\x124\n" +
+	"\x16exclude_pattern_hashes\x18\f \x03(\x04R\x14excludePatternHashes\"\xd0\x03\n" +
 	"\aLogLine\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x16\n" +
@@ -1069,7 +1125,8 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
 	"attributes\x18\n" +
 	" \x03(\v2 .logs.v1.LogLine.AttributesEntryR\n" +
-	"attributes\x1a=\n" +
+	"attributes\x12!\n" +
+	"\fpattern_hash\x18\v \x01(\x04R\vpatternHash\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9a\x01\n" +
@@ -1078,7 +1135,7 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\x05error\x18\x02 \x01(\x03R\x05error\x12\x18\n" +
 	"\awarning\x18\x03 \x01(\x03R\awarning\x12\x12\n" +
 	"\x04info\x18\x04 \x01(\x03R\x04info\x12\x14\n" +
-	"\x05other\x18\x05 \x01(\x03R\x05other\"\x8f\x02\n" +
+	"\x05other\x18\x05 \x01(\x03R\x05other\"\xfa\x02\n" +
 	"\n" +
 	"LogPattern\x12\x18\n" +
 	"\apattern\x18\x01 \x01(\tR\apattern\x12\x14\n" +
@@ -1088,7 +1145,12 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"first_seen\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tfirstSeen\x127\n" +
 	"\tlast_seen\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\x12\x16\n" +
 	"\x06sample\x18\x06 \x01(\tR\x06sample\x12\x15\n" +
-	"\x06is_new\x18\a \x01(\bR\x05isNew\"3\n" +
+	"\x06is_new\x18\a \x01(\bR\x05isNew\x12!\n" +
+	"\fpattern_hash\x18\b \x01(\x04R\vpatternHash\x12%\n" +
+	"\x0eprevious_count\x18\t \x01(\x03R\rpreviousCount\x12\x1f\n" +
+	"\vtop_sources\x18\n" +
+	" \x03(\tR\n" +
+	"topSources\"3\n" +
 	"\x05Facet\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\"\x83\x01\n" +

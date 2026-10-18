@@ -87,6 +87,8 @@ func (m *LogFilter) validate(all bool) error {
 
 	// no validation rules for MaxSeverity
 
+	// no validation rules for PatternHash
+
 	if len(errors) > 0 {
 		return LogFilterMultiError(errors)
 	}
@@ -232,6 +234,8 @@ func (m *LogLine) validate(all bool) error {
 	// no validation rules for BodyTruncated
 
 	// no validation rules for Attributes
+
+	// no validation rules for PatternHash
 
 	if len(errors) > 0 {
 		return LogLineMultiError(errors)
@@ -537,6 +541,10 @@ func (m *LogPattern) validate(all bool) error {
 	// no validation rules for Sample
 
 	// no validation rules for IsNew
+
+	// no validation rules for PatternHash
+
+	// no validation rules for PreviousCount
 
 	if len(errors) > 0 {
 		return LogPatternMultiError(errors)
