@@ -184,6 +184,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		if len(paths) == 0 {
 			continue
 		}
+		// The deprecated filelog alias, not file_log: collectors before 0.149.0 reject file_log.
 		receiverID := "filelog/preset_" + sanitizePresetName(preset)
 		receivers = append(receivers, receiverID)
 		var quoted []string

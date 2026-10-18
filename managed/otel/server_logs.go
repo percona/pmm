@@ -86,6 +86,7 @@ func BuildServerLogs(presets []*models.LogParserPreset, node ServerNode) ServerL
 	for _, f := range serverLogFiles {
 		path := ServerLogDir + "/" + f.name
 		stem := strings.TrimSuffix(f.name, ".log")
+		// The read positions in ServerLogStorage are keyed by this ID; renaming filelog to file_log would drop them.
 		id := "filelog/srv_" + sanitizePresetName(stem)
 		ids = append(ids, id)
 		known = append(known, path)
