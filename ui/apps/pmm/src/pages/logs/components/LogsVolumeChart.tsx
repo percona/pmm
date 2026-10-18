@@ -1,8 +1,12 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   alpha,
   Box,
   Button,
+  Chip,
+  IconButton,
   Paper,
   Stack,
   Tooltip,
@@ -11,7 +15,16 @@ import {
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { SeverityClass, VolumeBucket } from 'api/logs';
-import { severityColor } from '../logsTheme';
+import { MONO, severityColor } from '../logsTheme';
+
+/** One pattern drawn over the bars, with the time of the line it came from. */
+export interface ChartOverlay {
+  /** Lines of the pattern per bucket, keyed by the bucket's start. */
+  counts: Map<string, number>;
+  label: string;
+  markerMs?: number;
+  onClear: () => void;
+}
 
 interface LogsVolumeChartProps {
   buckets: VolumeBucket[];
@@ -24,6 +37,7 @@ interface LogsVolumeChartProps {
   selectedClass?: SeverityClass;
   /** Filters to a class clicked in the legend; legend entries are buttons only when set. */
   onSelectClass?: (cls: SeverityClass) => void;
+  overlay?: ChartOverlay;
 }
 
 const CLASSES: { key: SeverityClass; label: string }[] = [
@@ -33,7 +47,25 @@ const CLASSES: { key: SeverityClass; label: string }[] = [
   { key: 'other', label: 'Other' },
 ];
 
-const HEIGHT = 120;
+const HEIGHT = 80;
+const COLLAPSED_KEY = 'pmm-logs-chart-collapsed';
+
+// A per-viewer preference; storage may be unavailable.
+const readCollapsed = () => {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const writeCollapsed = (collapsed: boolean) => {
+  try {
+    localStorage.setItem(COLLAPSED_KEY, collapsed ? '1' : '0');
+  } catch {
+    // Not remembered.
+  }
+};
 const AXIS_WIDTH = 40;
 const MAX_TIME_LABELS = 6;
 const DAY_MS = 24 * 60 * 60_000;
@@ -76,9 +108,15 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
   onBack,
   selectedClass,
   onSelectClass,
+  overlay,
 }) => {
   const { palette } = useTheme();
   const [drag, setDrag] = useState<[number, number] | null>(null);
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const toggleCollapsed = () => {
+    writeCollapsed(!collapsed);
+    setCollapsed(!collapsed);
+  };
   const stepMs = parseFloat(step) * 1000;
   const total = (b: VolumeBucket) => b.error + b.warning + b.info + b.other;
   const max = roundUp(Math.max(0, ...buckets.map(total)));
@@ -113,16 +151,28 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
   const inDrag = (i: number) =>
     !!drag && i >= Math.min(...drag) && i <= Math.max(...drag);
 
+  const overlayCount = (b: VolumeBucket) => overlay?.counts.get(b.start) ?? 0;
+  const overlayPoints = buckets
+    .map((b, i) => `${i + 0.5},${max - Math.min(max, overlayCount(b))}`)
+    .join(' ');
+  const markerPct =
+    overlay?.markerMs !== undefined &&
+    overlay.markerMs >= first &&
+    overlay.markerMs <= last &&
+    last > first
+      ? ((overlay.markerMs - first) / (last - first)) * 100
+      : undefined;
+
   return (
     <Paper
       variant="outlined"
       data-testid="logs-volume-chart"
-      sx={{ p: 2, pb: 1, borderRadius: 3, userSelect: 'none' }}
+      sx={{ px: 2, py: 1, borderRadius: 3, userSelect: 'none', flexShrink: 0 }}
     >
       <Stack
         direction="row"
         alignItems="center"
-        sx={{ mb: 1.5, gap: 2.5, flexWrap: 'wrap' }}
+        sx={{ mb: collapsed ? 0 : 1, gap: 2.5, flexWrap: 'wrap' }}
       >
         {totals.map((c) => (
           <Typography
@@ -182,6 +232,23 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
             </Box>
           </Typography>
         ))}
+        {overlay && (
+          <Chip
+            size="small"
+            label={`Showing: ${overlay.label}`}
+            onDelete={overlay.onClear}
+            title={overlay.label}
+            data-testid="logs-volume-overlay-chip"
+            sx={{
+              maxWidth: 420,
+              ...MONO,
+              fontSize: 12,
+              color: palette.primary.main,
+              borderColor: palette.primary.main,
+            }}
+            variant="outlined"
+          />
+        )}
         {onBack && (
           <Button
             size="small"
@@ -199,104 +266,166 @@ export const LogsVolumeChart: FC<LogsVolumeChartProps> = ({
         >
           Drag across bars to zoom · {formatStep(stepMs)} per bar
         </Typography>
-      </Stack>
-      <Box sx={{ position: 'relative', height: HEIGHT, ml: `${AXIS_WIDTH}px` }}>
-        {[max, max / 2, 0].map((value, i) => (
-          <Box
-            key={value}
-            sx={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: `${i * 50}%`,
-              borderTop: '1px dashed',
-              borderColor: 'divider',
-            }}
-          >
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              data-testid="logs-volume-count-label"
-              sx={{
-                position: 'absolute',
-                right: '100%',
-                mr: 1,
-                transform: 'translateY(-50%)',
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {compact.format(value)}
-            </Typography>
-          </Box>
-        ))}
-        <Stack
-          direction="row"
-          alignItems="flex-end"
-          sx={{ position: 'absolute', inset: 0, gap: '2px' }}
+        <IconButton
+          size="small"
+          aria-label={collapsed ? 'Show chart' : 'Hide chart'}
+          onClick={toggleCollapsed}
+          sx={{ ml: -1.5 }}
         >
-          {buckets.map((b, i) => (
-            <Tooltip
-              key={b.start}
-              placement="top"
-              title={
-                <>
-                  <div>{formatTime(Date.parse(b.start))}</div>
-                  {CLASSES.map((c) => (
-                    <div key={c.key}>
-                      {c.label}: {b[c.key].toLocaleString()}
-                    </div>
-                  ))}
-                </>
-              }
-            >
-              <Stack
-                data-testid="logs-volume-bucket"
-                direction="column-reverse"
-                onMouseDown={() => setDrag([i, i])}
-                onMouseEnter={() => drag && setDrag([drag[0], i])}
-                onMouseUp={finish}
+          {collapsed ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+        </IconButton>
+      </Stack>
+      {!collapsed && (
+        <>
+          <Box
+            sx={{ position: 'relative', height: HEIGHT, ml: `${AXIS_WIDTH}px` }}
+          >
+            {[max, max / 2, 0].map((value, i) => (
+              <Box
+                key={value}
                 sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  height: '100%',
-                  cursor: 'crosshair',
-                  bgcolor: inDrag(i) ? 'action.selected' : 'transparent',
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: `${i * 50}%`,
+                  borderTop: '1px dashed',
+                  borderColor: 'divider',
                 }}
               >
-                {CLASSES.map((c) => (
-                  <Box
-                    key={c.key}
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  data-testid="logs-volume-count-label"
+                  sx={{
+                    position: 'absolute',
+                    right: '100%',
+                    mr: 1,
+                    transform: 'translateY(-50%)',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {compact.format(value)}
+                </Typography>
+              </Box>
+            ))}
+            <Stack
+              direction="row"
+              alignItems="flex-end"
+              sx={{ position: 'absolute', inset: 0, gap: '2px' }}
+            >
+              {buckets.map((b, i) => (
+                <Tooltip
+                  key={b.start}
+                  placement="top"
+                  title={
+                    <>
+                      <div>{formatTime(Date.parse(b.start))}</div>
+                      {CLASSES.map((c) => (
+                        <div key={c.key}>
+                          {c.label}: {b[c.key].toLocaleString()}
+                        </div>
+                      ))}
+                      {overlay && (
+                        <div>
+                          This pattern: {overlayCount(b).toLocaleString()}
+                        </div>
+                      )}
+                    </>
+                  }
+                >
+                  <Stack
+                    data-testid="logs-volume-bucket"
+                    direction="column-reverse"
+                    onMouseDown={() => setDrag([i, i])}
+                    onMouseEnter={() => drag && setDrag([drag[0], i])}
+                    onMouseUp={finish}
                     sx={{
-                      height: `${(b[c.key] / max) * 100}%`,
-                      bgcolor: severityColor(c.key, palette.mode),
+                      flex: 1,
+                      minWidth: 0,
+                      height: '100%',
+                      cursor: 'crosshair',
+                      bgcolor: inDrag(i) ? 'action.selected' : 'transparent',
                     }}
-                  />
-                ))}
-              </Stack>
-            </Tooltip>
-          ))}
-        </Stack>
-      </Box>
-      <Box sx={{ position: 'relative', height: 22, ml: `${AXIS_WIDTH}px` }}>
-        {ticks.map((i) => (
-          <Typography
-            key={i}
-            variant="caption"
-            color="text.secondary"
-            data-testid="logs-volume-time-label"
-            sx={{
-              position: 'absolute',
-              top: 4,
-              left: `${((i + 0.5) / buckets.length) * 100}%`,
-              transform: 'translateX(-50%)',
-              whiteSpace: 'nowrap',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {tickFormat(Date.parse(buckets[i].start))}
-          </Typography>
-        ))}
-      </Box>
+                  >
+                    {CLASSES.map((c) => (
+                      <Box
+                        key={c.key}
+                        sx={{
+                          height: `${(b[c.key] / max) * 100}%`,
+                          bgcolor: severityColor(c.key, palette.mode),
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                </Tooltip>
+              ))}
+            </Stack>
+            {overlay && (
+              <Box
+                component="svg"
+                data-testid="logs-volume-overlay"
+                viewBox={`0 0 ${buckets.length} ${max}`}
+                preserveAspectRatio="none"
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'none',
+                  overflow: 'visible',
+                }}
+              >
+                <polygon
+                  points={`0.5,${max} ${overlayPoints} ${buckets.length - 0.5},${max}`}
+                  fill={alpha(palette.primary.main, 0.25)}
+                />
+                <polyline
+                  points={overlayPoints}
+                  fill="none"
+                  stroke={palette.primary.main}
+                  strokeWidth={2}
+                  vectorEffect="non-scaling-stroke"
+                />
+              </Box>
+            )}
+            {markerPct !== undefined && (
+              <Box
+                data-testid="logs-volume-marker"
+                title="The opened line"
+                style={{ left: `${markerPct}%` }}
+                sx={{
+                  position: 'absolute',
+                  top: -4,
+                  bottom: 0,
+                  borderLeft: '2px dashed',
+                  borderColor: palette.primary.main,
+                  pointerEvents: 'none',
+                }}
+              />
+            )}
+          </Box>
+          <Box sx={{ position: 'relative', height: 22, ml: `${AXIS_WIDTH}px` }}>
+            {ticks.map((i) => (
+              <Typography
+                key={i}
+                variant="caption"
+                color="text.secondary"
+                data-testid="logs-volume-time-label"
+                sx={{
+                  position: 'absolute',
+                  top: 4,
+                  left: `${((i + 0.5) / buckets.length) * 100}%`,
+                  transform: 'translateX(-50%)',
+                  whiteSpace: 'nowrap',
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {tickFormat(Date.parse(buckets[i].start))}
+              </Typography>
+            ))}
+          </Box>
+        </>
+      )}
     </Paper>
   );
 };

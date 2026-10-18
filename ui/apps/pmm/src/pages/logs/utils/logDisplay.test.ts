@@ -1,5 +1,5 @@
 import { LogLine } from 'api/logs';
-import { detailJson, previewText } from './logDisplay';
+import { detailJson, logfmtParts, previewText } from './logDisplay';
 
 const line = (body: string, attr?: object): LogLine => ({
   time: '2026-10-17T10:30:00.000Z',
@@ -12,6 +12,7 @@ const line = (body: string, attr?: object): LogLine => ({
   body,
   bodyTruncated: false,
   attributes: attr ? { attr: JSON.stringify(attr) } : {},
+  patternHash: '',
 });
 
 describe('previewText', () => {
@@ -99,5 +100,53 @@ describe('detailJson', () => {
 
   it('is empty without attr', () => {
     expect(detailJson(line('statement: ;'))).toBe('');
+  });
+});
+
+describe('logfmtParts', () => {
+  it('leads with the message and drops the time and level the columns show', () => {
+    expect(
+      logfmtParts(
+        line(
+          'time="2026-10-18T20:02:09.268+00:00" level=info msg="Configuration reloaded." component=victoriametrics'
+        )
+      )
+    ).toEqual({
+      message: 'Configuration reloaded.',
+      fields: 'component=victoriametrics',
+    });
+  });
+
+  it('unescapes a message that holds a nested logfmt line', () => {
+    expect(
+      logfmtParts(
+        line(
+          'time="2026-10-18T17:54:47.422+00:00" level=info msg="level=INFO msg=\\"Excluded databases\\"" agentID=87ed component=agent-process'
+        )
+      )
+    ).toEqual({
+      message: 'level=INFO msg="Excluded databases"',
+      fields: 'agentID=87ed component=agent-process',
+    });
+  });
+
+  it('reads Grafana lines, whose time key is t', () => {
+    expect(
+      logfmtParts(
+        line(
+          'logger=dashboard-service t=2026-10-18T19:24:14.49Z level=info msg="No last resource version found" orgID=1'
+        )
+      )
+    ).toEqual({
+      message: 'No last resource version found',
+      fields: 'logger=dashboard-service orgID=1',
+    });
+  });
+
+  it('leaves lines that are not logfmt alone', () => {
+    expect(
+      logfmtParts(line('statement: SELECT 1 WHERE msg=1'))
+    ).toBeUndefined();
+    expect(logfmtParts(line('level=info component=x'))).toBeUndefined();
   });
 });

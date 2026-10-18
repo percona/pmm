@@ -10,20 +10,22 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { LogLine, severityClass, severityLabel } from 'api/logs';
+import { LogFilter, LogLine, severityClass, severityLabel } from 'api/logs';
 import { MONO, severityColor } from '../logsTheme';
 import { useManagedServices } from 'hooks/api/useServices';
 import {
   assistantAskUrl,
   dashboardUrl,
   DATABASE_PRESETS,
+  lineLink,
   qanUrl,
   serviceTypeOf,
 } from '../utils/logLinks';
-import { detailJson, previewText } from '../utils/logDisplay';
+import { detailJson, logfmtParts, previewText } from '../utils/logDisplay';
 import { timeOfDay } from '../utils/logTime';
+import { LogPatternSummary } from './LogPatternSummary';
 
 const LINK_WINDOW_MS = 15 * 60_000;
 const COLUMNS = 4;
@@ -66,17 +68,48 @@ const ellipsis = {
 
 interface LogLineRowProps {
   line: LogLine;
+  /** The page's filter: the range of the pattern counts and the copied link. */
+  filter: LogFilter;
   highlightText?: string;
   onShowContext: (line: LogLine) => void;
+  /** Whether the chart follows this line. */
+  focused?: boolean;
+  /** Makes the chart follow a line, or no line. */
+  onFocus?: (line: LogLine | null) => void;
+  onFilterChange?: (next: LogFilter) => void;
 }
+
+const COPIED_MS = 1500;
 
 export const LogLineRow: FC<LogLineRowProps> = ({
   line,
+  filter,
   highlightText,
   onShowContext,
+  focused,
+  onFocus,
+  onFilterChange,
 }) => {
   const { palette } = useTheme();
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState<'line' | 'link' | null>(null);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(null), COPIED_MS);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  // The clipboard is missing outside secure contexts.
+  const copy = (what: 'line' | 'link', text: string) =>
+    Promise.resolve(navigator.clipboard?.writeText(text)).then(
+      () => setCopied(what),
+      () => undefined
+    );
+  const toggle = () => {
+    setOpen(!open);
+    if (!open) onFocus?.(line);
+    else if (focused) onFocus?.(null);
+  };
+  const logfmt = logfmtParts(line);
   const ms = Date.parse(line.time);
   const [from, to] = [ms - LINK_WINDOW_MS, ms + LINK_WINDOW_MS];
   const color = severityColor(severityClass(line.severityNumber), palette.mode);
@@ -107,13 +140,18 @@ export const LogLineRow: FC<LogLineRowProps> = ({
     <>
       <TableRow
         hover
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
         sx={{
           cursor: 'pointer',
-          bgcolor: open ? 'action.hover' : undefined,
+          bgcolor: focused
+            ? alpha(palette.primary.main, 0.12)
+            : open
+              ? 'action.hover'
+              : undefined,
           '& td': { py: 0.75, borderColor: 'divider' },
         }}
         data-testid="log-line-row"
+        aria-selected={focused}
       >
         <TableCell
           sx={{
@@ -153,11 +191,29 @@ export const LogLineRow: FC<LogLineRowProps> = ({
           )}
         </TableCell>
         <TableCell sx={{ ...MONO, maxWidth: 0, width: '100%', ...ellipsis }}>
-          {highlight(previewText(line), highlightText)}
+          {logfmt ? (
+            <>
+              {highlight(logfmt.message, highlightText)}
+              {logfmt.fields && ' '}
+              {logfmt.fields && (
+                <Box component="span" sx={{ color: 'text.secondary', ml: 1 }}>
+                  {highlight(logfmt.fields, highlightText)}
+                </Box>
+              )}
+            </>
+          ) : (
+            highlight(previewText(line), highlightText)
+          )}
         </TableCell>
       </TableRow>
       {open && (
-        <TableRow sx={{ bgcolor: 'action.hover' }}>
+        <TableRow
+          sx={{
+            bgcolor: focused
+              ? alpha(palette.primary.main, 0.06)
+              : 'action.hover',
+          }}
+        >
           <TableCell
             colSpan={COLUMNS}
             data-testid="log-line-details"
@@ -211,6 +267,11 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                   truncated — open context for the full line
                 </Typography>
               )}
+              <LogPatternSummary
+                line={line}
+                filter={filter}
+                onFilterChange={onFilterChange}
+              />
               {attributes.length > 0 && (
                 <Box
                   sx={{
@@ -240,7 +301,7 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                   ))}
                 </Box>
               )}
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                 <Button
                   size="small"
                   variant="outlined"
@@ -248,6 +309,15 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                 >
                   Show context
                 </Button>
+                {onFocus && !focused && (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => onFocus(line)}
+                  >
+                    Show on chart
+                  </Button>
+                )}
                 <Button
                   size="small"
                   variant="contained"
@@ -279,6 +349,17 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                     Open QAN
                   </Button>
                 )}
+                <Button size="small" onClick={() => copy('line', line.body)}>
+                  {copied === 'line' ? 'Copied' : 'Copy line'}
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() =>
+                    copy('link', lineLink(filter, line, window.location.origin))
+                  }
+                >
+                  {copied === 'link' ? 'Copied' : 'Copy link'}
+                </Button>
               </Stack>
             </Stack>
           </TableCell>

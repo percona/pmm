@@ -1,5 +1,10 @@
-import { LogLine } from 'api/logs';
-import { PMM_ASSISTANT_PATH } from 'lib/constants';
+import { LogFilter, LogLine } from 'api/logs';
+import {
+  PMM_ASSISTANT_PATH,
+  PMM_BASE_PATH,
+  PMM_LOGS_PATH,
+} from 'lib/constants';
+import { searchParamsFromFilter } from './logsFilter';
 
 /** Presets of database logs, the ones QAN has queries for. */
 export const DATABASE_PRESETS = [
@@ -89,4 +94,17 @@ export const assistantAskUrl = (
     `(${line.fileName}, ${line.time}) and look for related problems between ` +
     `${new Date(fromMs).toISOString()} and ${new Date(toMs).toISOString()}:\n\n${line.body}`;
   return `${PMM_ASSISTANT_PATH}?${new URLSearchParams({ ask })}`;
+};
+
+const LINE_LINK_WINDOW_MS = 5 * 60_000;
+
+/** An absolute link to the Logs page five minutes either side of a line, with the page's other filters. */
+export const lineLink = (filter: LogFilter, line: LogLine, origin: string) => {
+  const ms = Date.parse(line.time);
+  const params = searchParamsFromFilter({
+    ...filter,
+    start: new Date(ms - LINE_LINK_WINDOW_MS).toISOString(),
+    end: new Date(ms + LINE_LINK_WINDOW_MS).toISOString(),
+  });
+  return `${origin}${PMM_BASE_PATH}${PMM_LOGS_PATH}/lines?${params}`;
 };

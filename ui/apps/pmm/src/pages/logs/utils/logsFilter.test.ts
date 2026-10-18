@@ -1,5 +1,6 @@
 import {
   filterFromSearchParams,
+  hasFilters,
   rangeFromSearchParams,
   searchParamsFromFilter,
   severityClassOf,
@@ -11,7 +12,7 @@ const now = new Date('2026-10-17T12:00:00Z');
 describe('logsFilter', () => {
   it('round-trips every key', () => {
     const params = new URLSearchParams(
-      'from=1760695200000&to=1760698800000&node=n1&node=n2&exclude_node=pmm-server&source=pmm-managed&preset=postgres&preset=mysql_error&severity=13&severity_max=16&q=deadlock&pattern=connection+%3F'
+      'from=1760695200000&to=1760698800000&node=n1&node=n2&exclude_node=pmm-server&source=pmm-managed&preset=postgres&preset=mysql_error&severity=13&severity_max=16&q=deadlock&pattern=connection+%3F&hide=7&hide=18446744073709551615'
     );
     const filter = filterFromSearchParams(params, now);
     expect(filter).toEqual({
@@ -25,6 +26,7 @@ describe('logsFilter', () => {
       maxSeverity: 16,
       text: 'deadlock',
       pattern: 'connection ?',
+      excludePatternHashes: ['7', '18446744073709551615'],
     });
     expect(rangeFromSearchParams(params)).toBeUndefined();
     expect(searchParamsFromFilter(filter).toString()).toBe(params.toString());
@@ -74,6 +76,13 @@ describe('logsFilter', () => {
       minSeverity: 17,
     });
     expect(severityClassOf({ ...base, minSeverity: 13 })).toBeUndefined();
+  });
+
+  it('counts hidden patterns as a filter', () => {
+    expect(hasFilters({ start: 's', end: 'e' })).toBe(false);
+    expect(
+      hasFilters({ start: 's', end: 'e', excludePatternHashes: ['7'] })
+    ).toBe(true);
   });
 
   it('ignores an unknown severity', () => {

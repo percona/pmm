@@ -29,7 +29,8 @@ export const hasFilters = (f: LogFilter) =>
     f.minSeverity ||
     f.maxSeverity ||
     f.text ||
-    f.pattern
+    f.pattern ||
+    f.excludePatternHashes
   );
 
 const isQuickRange = (v: string | null): v is QuickRange =>
@@ -70,6 +71,7 @@ export const filterFromSearchParams = (
     excludeNodeNames: 'exclude_node',
     sources: 'source',
     presets: 'preset',
+    excludePatternHashes: 'hide',
   } as const;
   for (const [field, key] of Object.entries(lists)) {
     const values = params.getAll(key).filter(Boolean);
@@ -112,6 +114,7 @@ export const searchParamsFromFilter = (
   }
   if (filter.text) params.set('q', filter.text);
   if (filter.pattern) params.set('pattern', filter.pattern);
+  filter.excludePatternHashes?.forEach((v) => params.append('hide', v));
   return params;
 };
 

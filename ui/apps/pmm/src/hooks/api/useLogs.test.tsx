@@ -27,6 +27,7 @@ const line = (body: string): LogLine => ({
   body,
   bodyTruncated: false,
   attributes: {},
+  patternHash: '',
 });
 
 const wrapper = ({ children }: { children: ReactNode }) =>

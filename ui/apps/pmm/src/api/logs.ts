@@ -12,6 +12,10 @@ export interface LogFilter {
   maxSeverity?: number;
   text?: string;
   pattern?: string;
+  /** Exact pattern, as returned with a line or pattern; uint64 as a decimal string. */
+  patternHash?: string;
+  /** Patterns to hide. */
+  excludePatternHashes?: string[];
 }
 
 export interface LogLine {
@@ -25,6 +29,8 @@ export interface LogLine {
   body: string;
   bodyTruncated: boolean;
   attributes: Record<string, string>;
+  /** The line's pattern; uint64 as a decimal string. */
+  patternHash: string;
 }
 
 export interface VolumeBucket {
@@ -43,6 +49,11 @@ export interface LogPattern {
   lastSeen: string;
   sample: string;
   isNew: boolean;
+  patternHash: string;
+  /** Lines in the preceding range of the same length. */
+  previousCount: number;
+  /** Sources with the most lines; only set when the filter selects one pattern. */
+  topSources: string[];
 }
 
 export interface LogFacet {
@@ -86,6 +97,7 @@ interface RawLogLine {
   body?: string;
   body_truncated?: boolean;
   attributes?: Record<string, string>;
+  pattern_hash?: string;
 }
 
 interface RawFacet {
@@ -110,6 +122,8 @@ const toRawFilter = (f: LogFilter) => ({
   exclude_node_names: f.excludeNodeNames,
   text: f.text,
   pattern: f.pattern,
+  pattern_hash: f.patternHash,
+  exclude_pattern_hashes: f.excludePatternHashes,
 });
 
 const toLogLine = (l: RawLogLine): LogLine => ({
@@ -123,6 +137,7 @@ const toLogLine = (l: RawLogLine): LogLine => ({
   body: l.body ?? '',
   bodyTruncated: !!l.body_truncated,
   attributes: l.attributes ?? {},
+  patternHash: l.pattern_hash ?? '',
 });
 
 const toFacets = (facets?: RawFacet[]): LogFacet[] =>
@@ -184,6 +199,9 @@ export const getLogPatterns = async (
       last_seen: string;
       sample?: string;
       is_new?: boolean;
+      pattern_hash?: string;
+      previous_count?: string;
+      top_sources?: string[];
     }[];
   }>('/logs:getPatterns', { filter: toRawFilter(filter) }, config);
   return (res.data.patterns ?? []).map((p) => ({
@@ -194,6 +212,9 @@ export const getLogPatterns = async (
     lastSeen: p.last_seen,
     sample: p.sample ?? '',
     isNew: !!p.is_new,
+    patternHash: p.pattern_hash ?? '',
+    previousCount: Number(p.previous_count ?? 0),
+    topSources: p.top_sources ?? [],
   }));
 };
 

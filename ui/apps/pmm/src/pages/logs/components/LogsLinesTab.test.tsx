@@ -8,11 +8,13 @@ import {
 import { LogLine } from 'api/logs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
+import { lineKey } from '../utils/logDisplay';
 import { LogsLinesTab } from './LogsLinesTab';
 
-const { searchLogs, getLogContext } = vi.hoisted(() => ({
+const { searchLogs, getLogContext, getLogPatterns } = vi.hoisted(() => ({
   searchLogs: vi.fn(),
   getLogContext: vi.fn(),
+  getLogPatterns: vi.fn(),
 }));
 
 const { listManagedServices } = vi.hoisted(() => ({
@@ -29,7 +31,7 @@ vi.mock('api/logs', async (importOriginal) => ({
   searchLogs,
   getLogContext,
   getLogVolume: vi.fn(),
-  getLogPatterns: vi.fn(),
+  getLogPatterns,
   getLogFacets: vi.fn(),
 }));
 
@@ -44,6 +46,7 @@ const line = (body: string, preset = 'postgres'): LogLine => ({
   body,
   bodyTruncated: false,
   attributes: { pid: '42', user: '' },
+  patternHash: '5',
 });
 
 // Local time with milliseconds, written out independently of the page's helper.
@@ -55,19 +58,110 @@ const filter = {
   end: '2026-10-17T11:00:00.000Z',
 };
 
-const renderTab = () =>
+const renderTab = (props: Partial<Parameters<typeof LogsLinesTab>[0]> = {}) =>
   render(
     wrapWithQueryProvider(
       <TestWrapper>
-        <LogsLinesTab filter={filter} />
+        <LogsLinesTab filter={filter} {...props} />
       </TestWrapper>
     )
   );
+
+const pattern = {
+  pattern: 'deadlock detected on ?',
+  count: 120,
+  previousCount: 40,
+  maxSeverityNumber: 17,
+  firstSeen: '2026-10-17T10:02:00.000Z',
+  lastSeen: '2026-10-17T10:58:00.000Z',
+  sample: 'deadlock detected on 1',
+  isNew: false,
+  patternHash: '5',
+  topSources: ['pg-node', 'pg-2'],
+};
 
 describe('LogsLinesTab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     listManagedServices.mockResolvedValue({ services: [] });
+    getLogPatterns.mockResolvedValue([pattern]);
+  });
+
+  it('shows a logfmt line by its message', async () => {
+    searchLogs.mockResolvedValue({
+      lines: [
+        line(
+          'time="2026-10-17T10:30:00.000+00:00" level=info msg="Configuration reloaded." component=victoriametrics',
+          'pmm_managed'
+        ),
+      ],
+    });
+    renderTab();
+    const row = await screen.findByTestId('log-line-row');
+    expect(row).toHaveTextContent(
+      'Configuration reloaded. component=victoriametrics'
+    );
+    expect(row).not.toHaveTextContent('time=');
+  });
+
+  it("shows how often the line's pattern was logged", async () => {
+    searchLogs.mockResolvedValue({ lines: [line('deadlock detected on 7')] });
+    renderTab();
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    const summary = await screen.findByTestId('log-pattern-summary');
+    await waitFor(() => expect(summary).toHaveTextContent('120 lines'));
+    expect(summary).toHaveTextContent('deadlock detected on ?');
+    expect(summary).toHaveTextContent('3× the previous range');
+    expect(summary).toHaveTextContent('pg-node, pg-2');
+    expect(getLogPatterns).toHaveBeenCalledWith({
+      ...filter,
+      patternHash: '5',
+    });
+  });
+
+  it('puts the opened line on the chart and takes it off when closed', async () => {
+    const onFocus = vi.fn();
+    const l = line('deadlock detected on 7');
+    searchLogs.mockResolvedValue({ lines: [l] });
+    renderTab({ onFocus, focusedKey: lineKey(l) });
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    expect(onFocus).toHaveBeenLastCalledWith(l);
+    fireEvent.click(screen.getByTestId('log-line-row'));
+    expect(onFocus).toHaveBeenLastCalledWith(null);
+  });
+
+  it("filters to the line's pattern or hides it", async () => {
+    const onFilterChange = vi.fn();
+    searchLogs.mockResolvedValue({ lines: [line('deadlock detected on 7')] });
+    renderTab({ onFilterChange });
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    await screen.findByText('120 lines', { exact: false });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Show only this pattern' })
+    );
+    expect(onFilterChange).toHaveBeenLastCalledWith({
+      ...filter,
+      pattern: 'deadlock detected on ?',
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Hide this pattern' }));
+    expect(onFilterChange).toHaveBeenLastCalledWith({
+      ...filter,
+      excludePatternHashes: ['5'],
+    });
+  });
+
+  it('copies the line and a link to it', async () => {
+    searchLogs.mockResolvedValue({ lines: [line('deadlock detected on 7')] });
+    renderTab();
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    fireEvent.click(screen.getByRole('button', { name: 'Copy line' }));
+    expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
+      'deadlock detected on 7'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+    expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
+      expect.stringContaining('/pmm-ui/logs/lines?from=')
+    );
   });
 
   it('loads older lines page by page', async () => {

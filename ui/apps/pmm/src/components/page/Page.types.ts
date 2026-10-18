@@ -3,6 +3,8 @@ import { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {
   title?: string;
+  /** Sets the document title without showing the page heading. */
+  hideTitle?: boolean;
   footer?: ReactNode;
   topBar?: ReactNode;
   /** Use full horizontal width instead of the default ~1000px centered column (e.g. ADRE chat). */

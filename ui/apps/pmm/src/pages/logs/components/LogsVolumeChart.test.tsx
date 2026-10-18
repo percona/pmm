@@ -107,4 +107,44 @@ describe('LogsVolumeChart', () => {
     fireEvent.click(screen.getByTestId('logs-volume-total-error'));
     expect(onSelectClass).toHaveBeenCalledWith('error');
   });
+
+  it("overlays the focused line's pattern and clears it from its chip", () => {
+    const onClear = vi.fn();
+    render(
+      <TestWrapper>
+        <LogsVolumeChart
+          buckets={buckets}
+          step="60s"
+          onZoom={vi.fn()}
+          overlay={{
+            counts: new Map([[buckets[3].start, 4]]),
+            label: 'deadlock detected',
+            markerMs: start + 3 * 60_000 + 30_000,
+            onClear,
+          }}
+        />
+      </TestWrapper>
+    );
+    expect(screen.getByTestId('logs-volume-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('logs-volume-marker')).toHaveStyle({
+      left: '43.75%',
+    });
+    const chip = screen.getByTestId('logs-volume-overlay-chip');
+    expect(chip).toHaveTextContent('Showing: deadlock detected');
+    fireEvent.click(screen.getByTestId('CancelIcon'));
+    expect(onClear).toHaveBeenCalled();
+  });
+
+  it('collapses to the legend and expands again', () => {
+    render(
+      <TestWrapper>
+        <LogsVolumeChart buckets={buckets} step="60s" onZoom={vi.fn()} />
+      </TestWrapper>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Hide chart' }));
+    expect(screen.queryAllByTestId('logs-volume-bucket')).toHaveLength(0);
+    expect(screen.getByTestId('logs-volume-total-error')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Show chart' }));
+    expect(screen.getAllByTestId('logs-volume-bucket')).toHaveLength(8);
+  });
 });

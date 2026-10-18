@@ -172,4 +172,17 @@ describe('LogsFilterBar', () => {
       expect(onChange).toHaveBeenCalledWith({ ...filter, text: 'lock' }, '1h')
     );
   });
+
+  it('shows hidden patterns and shows them again', () => {
+    const onChange = renderBar({
+      filter: { ...filter, excludePatternHashes: ['7', '9'] },
+    });
+    const chip = screen.getByTestId('logs-filter-hidden-patterns');
+    expect(chip).toHaveTextContent('2 hidden patterns');
+    fireEvent.click(screen.getByTestId('CancelIcon'));
+    expect(onChange).toHaveBeenCalledWith(
+      { ...filter, excludePatternHashes: undefined },
+      '1h'
+    );
+  });
 });

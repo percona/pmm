@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
@@ -72,6 +72,88 @@ describe('LogsPage', () => {
       'true'
     );
     expect(await screen.findByTestId('logs-volume-chart')).toBeInTheDocument();
+  });
+
+  it('has no Logs heading but keeps the document title', async () => {
+    renderPage();
+    await screen.findByTestId('logs-filter-bar');
+    expect(screen.queryByRole('heading', { name: 'Logs' })).toBeNull();
+    expect(document.title).toContain('Logs');
+  });
+
+  it('follows the opened line on the chart until its chip is cleared', async () => {
+    searchLogs.mockResolvedValue({
+      lines: [
+        {
+          time: '2026-10-17T10:00:30.000Z',
+          nodeName: 'pg-node',
+          source: 'pg-node',
+          preset: 'postgres',
+          fileName: 'postgresql.log',
+          severityNumber: 17,
+          severityText: 'ERROR',
+          body: 'deadlock detected on 7',
+          bodyTruncated: false,
+          attributes: {},
+          patternHash: '5',
+        },
+      ],
+    });
+    getLogPatterns.mockResolvedValue([
+      {
+        pattern: 'deadlock detected on ?',
+        count: 3,
+        previousCount: 0,
+        maxSeverityNumber: 17,
+        firstSeen: '2026-10-17T10:00:30.000Z',
+        lastSeen: '2026-10-17T10:00:30.000Z',
+        sample: 'deadlock detected on 7',
+        isNew: true,
+        patternHash: '5',
+        topSources: ['pg-node'],
+      },
+    ]);
+    renderPage('/logs?range=1h');
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    await waitFor(() =>
+      expect(getLogVolume).toHaveBeenCalledWith(
+        expect.objectContaining({ patternHash: '5' })
+      )
+    );
+    const chip = await screen.findByTestId('logs-volume-overlay-chip');
+    expect(chip).toHaveTextContent('Showing: deadlock detected on ?');
+    fireEvent.click(
+      chip.querySelector('[data-testid="CancelIcon"]') as Element
+    );
+    expect(
+      screen.queryByTestId('logs-volume-overlay-chip')
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides a pattern from a line', async () => {
+    searchLogs.mockResolvedValue({
+      lines: [
+        {
+          time: '2026-10-17T10:00:30.000Z',
+          nodeName: 'pg-node',
+          source: 'pg-node',
+          preset: 'postgres',
+          fileName: 'postgresql.log',
+          severityNumber: 17,
+          severityText: 'ERROR',
+          body: 'deadlock detected on 7',
+          bodyTruncated: false,
+          attributes: {},
+          patternHash: '5',
+        },
+      ],
+    });
+    renderPage('/logs?range=1h');
+    fireEvent.click(await screen.findByText('deadlock detected on 7'));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Hide this pattern' })
+    );
+    expect(screen.getByTestId('location')).toHaveTextContent('hide=5');
   });
 
   it('counts the matching lines on the Lines tab', async () => {

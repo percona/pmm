@@ -1,4 +1,9 @@
-import { searchLogs, severityClass, severityLabel } from './logs';
+import {
+  getLogPatterns,
+  searchLogs,
+  severityClass,
+  severityLabel,
+} from './logs';
 
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
 
@@ -51,6 +56,7 @@ describe('searchLogs', () => {
               'log.file.name': 'pmm-managed.log',
               request_id: 'r1',
             },
+            pattern_hash: '18446744073709551615',
           },
         ],
         next_cursor: 'c1',
@@ -64,6 +70,8 @@ describe('searchLogs', () => {
         minSeverity: 13,
         maxSeverity: 16,
         excludeNodeNames: ['pmm-server'],
+        patternHash: '42',
+        excludePatternHashes: ['7', '9'],
       },
       'c0',
       100
@@ -78,6 +86,8 @@ describe('searchLogs', () => {
           min_severity: 13,
           max_severity: 16,
           exclude_node_names: ['pmm-server'],
+          pattern_hash: '42',
+          exclude_pattern_hashes: ['7', '9'],
         },
         cursor: 'c0',
         limit: 100,
@@ -97,9 +107,54 @@ describe('searchLogs', () => {
           body: 'boom',
           bodyTruncated: true,
           attributes: { 'log.file.name': 'pmm-managed.log', request_id: 'r1' },
+          patternHash: '18446744073709551615',
         },
       ],
       nextCursor: 'c1',
+    });
+  });
+});
+
+describe('getLogPatterns', () => {
+  it('maps the hash, the previous count and the top sources', async () => {
+    post.mockResolvedValue({
+      data: {
+        patterns: [
+          {
+            pattern: 'deadlock detected',
+            count: '12',
+            previous_count: '4',
+            pattern_hash: '18446744073709551615',
+            top_sources: ['pg1'],
+            first_seen: '2026-10-17T10:00:00Z',
+            last_seen: '2026-10-17T10:05:00Z',
+          },
+          {
+            pattern: 'checkpoint',
+            first_seen: '2026-10-17T10:00:00Z',
+            last_seen: '2026-10-17T10:05:00Z',
+          },
+        ],
+      },
+    });
+
+    const [first, second] = await getLogPatterns({
+      start: '2026-10-17T09:00:00Z',
+      end: '2026-10-17T10:00:00Z',
+    });
+
+    expect(first).toMatchObject({
+      pattern: 'deadlock detected',
+      count: 12,
+      previousCount: 4,
+      patternHash: '18446744073709551615',
+      topSources: ['pg1'],
+    });
+    expect(second).toMatchObject({
+      count: 0,
+      previousCount: 0,
+      patternHash: '',
+      topSources: [],
     });
   });
 });

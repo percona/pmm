@@ -20,6 +20,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
+  hideTitle,
   topBar,
   footer,
   children,
@@ -78,7 +79,7 @@ export const Page: FC<PageProps> = ({
         })}
       >
         {topBar}
-        {!!title && <Typography variant="h2">{title}</Typography>}
+        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         {user?.isAuthorized && hasAccess ? (
           fullWidth ? (
             <Box

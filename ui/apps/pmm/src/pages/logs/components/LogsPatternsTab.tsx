@@ -76,7 +76,11 @@ export const LogsPatternsTab: FC<LogsPatternsTabProps> = ({
   )} before this range`;
 
   return (
-    <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'clip' }}>
+    <Paper
+      variant="outlined"
+      // Scrolls on its own under the pinned filters and chart; the header sticks to its top.
+      sx={{ borderRadius: 3, overflow: 'auto', minHeight: 0 }}
+    >
       <Table
         size="small"
         stickyHeader

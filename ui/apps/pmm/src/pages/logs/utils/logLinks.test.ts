@@ -3,6 +3,7 @@ import {
   assistantAskUrl,
   DATABASE_PRESETS,
   dashboardUrl,
+  lineLink,
   qanUrl,
   serviceTypeOf,
 } from './logLinks';
@@ -18,6 +19,7 @@ const line: LogLine = {
   body: 'deadlock detected',
   bodyTruncated: false,
   attributes: {},
+  patternHash: '',
 };
 const from = 1792232100000;
 const to = 1792233900000;
@@ -86,5 +88,21 @@ describe('logLinks', () => {
       'mongodb',
       'syslog_mysql_systemd',
     ]);
+  });
+
+  it('links to the Logs page five minutes around a line, keeping the filters', () => {
+    expect(
+      lineLink(
+        {
+          start: '2026-10-17T09:00:00.000Z',
+          end: '2026-10-17T11:00:00.000Z',
+          sources: ['pg-node'],
+        },
+        line,
+        'https://pmm.example'
+      )
+    ).toBe(
+      'https://pmm.example/pmm-ui/logs/lines?from=1792232700000&to=1792233300000&source=pg-node'
+    );
   });
 });

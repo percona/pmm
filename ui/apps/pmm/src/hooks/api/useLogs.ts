@@ -14,6 +14,8 @@ export const LOGS_KEYS = {
   search: (f: LogFilter) => ['logs', 'search', f] as const,
   volume: (f: LogFilter) => ['logs', 'volume', f] as const,
   patterns: (f: LogFilter) => ['logs', 'patterns', f] as const,
+  pattern: (start: string, end: string, patternHash?: string) =>
+    ['logs', 'pattern', start, end, patternHash] as const,
   facets: (start: string, end: string) =>
     ['logs', 'facets', start, end] as const,
   context: (line: LogLine | null) =>
@@ -29,10 +31,24 @@ export const useLogSearch = (filter: LogFilter) =>
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
-export const useLogVolume = (filter: LogFilter) =>
+export const useLogVolume = (filter: LogFilter, enabled = true) =>
   useQuery({
     queryKey: LOGS_KEYS.volume(filter),
     queryFn: () => getLogVolume(filter),
+    enabled,
+  });
+
+/** One pattern's counts in the time range, across all nodes and sources; null when it has no lines there. */
+export const useLogPatternDetails = (
+  start: string,
+  end: string,
+  patternHash?: string
+) =>
+  useQuery({
+    queryKey: LOGS_KEYS.pattern(start, end, patternHash),
+    queryFn: async () =>
+      (await getLogPatterns({ start, end, patternHash }))[0] ?? null,
+    enabled: !!patternHash,
   });
 
 export const useLogPatterns = (filter: LogFilter, enabled: boolean) =>

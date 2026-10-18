@@ -457,6 +457,18 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
             data-testid="logs-filter-pattern"
           />
         )}
+        {!!filter.excludePatternHashes?.length && (
+          <Chip
+            label={`${filter.excludePatternHashes.length} hidden ${
+              filter.excludePatternHashes.length === 1 ? 'pattern' : 'patterns'
+            }`}
+            onDelete={() =>
+              onChange({ ...filter, excludePatternHashes: undefined }, range)
+            }
+            title="Show the hidden patterns again"
+            data-testid="logs-filter-hidden-patterns"
+          />
+        )}
       </Stack>
     </Stack>
   );

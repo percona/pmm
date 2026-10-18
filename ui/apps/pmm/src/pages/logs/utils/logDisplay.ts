@@ -85,3 +85,38 @@ export const detailJson = (line: LogLine): string => {
   const attr = parseAttr(line);
   return attr ? JSON.stringify(attr, null, 2) : '';
 };
+
+// One logfmt key=value pair; a quoted value may hold escaped quotes.
+const LOGFMT_PAIR = /([A-Za-z_][\w.-]*)=("(?:[^"\\]|\\.)*"|[^\s"]*)/g;
+// Keys the time and level columns already show, and the message itself.
+const LOGFMT_SKIP = new Set(['time', 't', 'ts', 'level', 'lvl', 'msg']);
+
+const unquote = (value: string): string => {
+  if (!value.startsWith('"')) return value;
+  try {
+    return JSON.parse(value) as string;
+  } catch {
+    return value.slice(1, -1);
+  }
+};
+
+/** A logfmt line's msg and its other fields, for lines that start with key=value and have a msg. */
+export const logfmtParts = (
+  line: LogLine
+): { message: string; fields: string } | undefined => {
+  const pairs = [...line.body.matchAll(LOGFMT_PAIR)];
+  if (!pairs.length || pairs[0].index !== 0) return undefined;
+  const msg = pairs.find((p) => p[1] === 'msg');
+  if (!msg) return undefined;
+  return {
+    message: unquote(msg[2]),
+    fields: pairs
+      .filter((p) => !LOGFMT_SKIP.has(p[1]))
+      .map((p) => p[0])
+      .join(' '),
+  };
+};
+
+/** Identifies a line across page loads, for the line the chart follows. */
+export const lineKey = (line: LogLine): string =>
+  [line.time, line.nodeName, line.fileName, line.patternHash].join('|');
