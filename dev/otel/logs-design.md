@@ -423,6 +423,7 @@ Built next (2026-10-17), without rules: no rule filter, rule chips or Rules tab 
 | `GetLogPatterns` | `POST /v1/logs:getPatterns` | Top 50 patterns: count, max severity, first and last seen, one sample, `new` when absent from the previous window of equal length |
 | `GetLogContext` | `POST /v1/logs:getContext` | ±50 lines from the same node and file around one entry |
 | `GetLogFacets` | `POST /v1/logs:getFacets` | Distinct node names, sources (`ServiceName`) and presets in the range with line counts, top 200 each, for the pickers |
+| `FindLogQuery` | `POST /v1/logs:findQuery` | The QAN query (query ID, service, fingerprint) a PostgreSQL statement line ran, or none |
 
 Every request takes the same filter: time range (required; default 1 h, maximum the retention), node names, sources
 (`ServiceName`: the component for PMM Server's own logs, the node name for agent logs until log sources are tied to
@@ -464,6 +465,17 @@ rules gave 28,921 (ClickHouse server 16,119 → 57, Grafana 11,808 → 176, MySQ
 components gain the messages they had merged (pmm-managed 56 → 130). They cost 4.2 µs of CPU per line on one core,
 against 2.0 µs for the earlier rules.
 
+`FindLogQuery` matches a PostgreSQL `statement:`, `execute …:` or `duration: … statement:` line to a QAN fingerprint
+by text (`managed/services/logs/qan.go`). PostgreSQL's `%Q` log prefix is no help: statement lines log `qid=0`, and
+services monitored through pg_stat_monitor store its own query ID in QAN, not the core one. It reads the node's
+PostgreSQL queries in `pmm.metrics` 30 minutes either side of the line, most executed first, and normalizes both
+sides: comments and case go, literals, `$n`, `true`, `false`, `null` and the `extract` field become `?`, lists of `?`
+collapse. Fingerprints of 1024 characters or more match as a prefix, since pg_stat_monitor cuts them at
+`pgsm_query_max_len` (1024 at least) and pmm-agent at its maximum query length (2048 by default; a setting under
+1024 leaves its cut fingerprints unmatched). On adre-pmm7 on 2026-10-18 this matched 98 of 100 statement patterns,
+99.9% of statement lines other than `statement: ;`; the miss differs from QAN's text only in a column alias, which
+PostgreSQL leaves out of the query ID.
+
 ### 3.3 Access control
 
 Viewers read logs. Log rows carry no environment or cluster labels, so LBAC filters cannot be
@@ -488,8 +500,10 @@ The filter bar and the chart stay pinned; only the lines or patterns below them 
   fields. Expanding a row shows the line's pattern with its count in the range and against the previous one, first and
   last seen, and the three sources with the most of it (`GetLogPatterns` with the line's `pattern_hash`), **Show only
   this pattern**, **Hide this pattern**, its attributes, **Show context**, **Ask Assistant** (opens the Assistant chat
-  with the line and time window as context), **Open dashboard** (the node's dashboard at that time), **Open QAN**
-  (when the row has a service), **Copy line** and **Copy link**. Older lines load as the list reaches its end.
+  with the line and time window as context), **Open dashboard** (the service's or node's dashboard at
+  that time), **Open QAN** (PostgreSQL statement lines only: the query's details in QAN, native when enabled, found
+  by `FindLogQuery` when the row opens; without a match, QAN for the service, or for the node when it runs more than
+  one PostgreSQL service), **Copy line** and **Copy link**. Older lines load as the list reaches its end.
 - **Patterns tab:** pattern, count, severity, first and last seen, `new` badge; clicking one filters Lines by it.
 - **Empty state:** when nothing is collected, a link to Settings → OTEL → Log collectors.
 
@@ -517,6 +531,7 @@ Part 3 (Part 2B's checks are in 2B.10):
 ## Not in v1
 
 - Mapping a log file to one service when a node runs several.
+- QAN links from MySQL slow-log and MongoDB slow-query lines.
 - Rules spanning several lines or entries (same PID within 1 s); would need scheduled queries.
 - LBAC for logs (needs labels on log rows).
 - Live tail; saved searches; log-derived dashboards in Grafana.
