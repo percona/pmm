@@ -19,6 +19,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -90,6 +91,24 @@ func TestBuildOtelCollectorConfigYAML_ServiceName(t *testing.T) {
 	require.Contains(t, yaml, fromService)
 	require.Contains(t, yaml, fromNode)
 	require.Less(t, strings.Index(yaml, fromService), strings.Index(yaml, fromNode), "service_name wins over node_name")
+}
+
+func TestBuildOtelCollectorConfigYAML_PostgresHeaders(t *testing.T) {
+	t.Parallel()
+
+	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7, 7, 90, otel.ServerLogs{})
+	assert.Contains(t, yaml, `replace_pattern(log.body, "(?m)^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)? \\S+ \\[\\d+\\] (?:\\S+@\\S+ )?(DETAIL|HINT|CONTEXT|STATEMENT|QUERY|LOCATION):", "$$1:") where log.attributes["log.preset"] == "postgres"`)
+
+	// OTTL's replace_pattern uses Go's regexp, so this is what the collector does to a joined entry.
+	body := "execute <unnamed>: SELECT pg_database_size($1)\n" +
+		"2026-10-17 21:59:31.311 GMT [349071] DETAIL:  Parameters: $1 = 'shop'\n" +
+		"2026-10-17 21:59:31.311 GMT [349071] pmm@postgres HINT:  See the server log.\n" +
+		"\t\tFROM pg_database 2026-10-17 12:00:00 GMT [1] LOG:  not a header"
+	assert.Equal(t, "execute <unnamed>: SELECT pg_database_size($1)\n"+
+		"DETAIL:  Parameters: $1 = 'shop'\n"+
+		"HINT:  See the server log.\n"+
+		"\t\tFROM pg_database 2026-10-17 12:00:00 GMT [1] LOG:  not a header",
+		regexp.MustCompile(postgresHeaderPattern).ReplaceAllString(body, "$1:"))
 }
 
 type renderedOtelConfig struct {

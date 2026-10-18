@@ -22,6 +22,10 @@ import (
 	"github.com/percona/pmm/managed/otel"
 )
 
+// postgresHeaderPattern matches the header PostgreSQL repeats on DETAIL, HINT and similar lines joined to their entry.
+const postgresHeaderPattern = `(?m)^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)? \S+ \[\d+\] (?:\S+@\S+ )?` +
+	`(DETAIL|HINT|CONTEXT|STATEMENT|QUERY|LOCATION):`
+
 // buildOtelCollectorConfigYAML returns the server-side otel-collector config YAML.
 // OTLP receives logs, traces, and metrics; serverLogs adds filelog receivers for PMM Server's own logs to the logs
 // pipeline. Separate ClickHouse exporter instances apply TTL per signal.
@@ -124,6 +128,7 @@ receivers:
       - set(resource.attributes["pmm_source"], resource.attributes["node_name"]) where resource.attributes["node_name"] != nil
       - set(resource.attributes["service.name"], resource.attributes["service_name"]) where resource.attributes["service.name"] == nil and resource.attributes["service_name"] != nil
       - set(resource.attributes["service.name"], resource.attributes["node_name"]) where resource.attributes["service.name"] == nil and resource.attributes["node_name"] != nil
+      - replace_pattern(log.body, "` + strings.ReplaceAll(postgresHeaderPattern, `\`, `\\`) + `", "$$1:") where log.attributes["log.preset"] == "postgres"
   batch:
     timeout: 1s
     send_batch_size: 1024
