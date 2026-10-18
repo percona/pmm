@@ -257,6 +257,38 @@ describe('LogsLinesTab', () => {
     expect(qan).toHaveAttribute('target', '_blank');
   });
 
+  it('links the node when it runs more than one service of the type', async () => {
+    listManagedServices.mockResolvedValue({
+      services: [
+        {
+          serviceName: 'pg-tcp',
+          serviceType: 'postgresql',
+          nodeName: 'pg-node',
+        },
+        {
+          serviceName: 'pg-socket',
+          serviceType: 'postgresql',
+          nodeName: 'pg-node',
+        },
+      ],
+    });
+    searchLogs.mockResolvedValue({ lines: [line('statement: SELECT 1')] });
+    renderTab();
+    fireEvent.click(await screen.findByText('statement: SELECT 1'));
+    await waitFor(() => expect(listManagedServices).toHaveBeenCalled());
+    await waitFor(() => expect(findLogQuery).toHaveBeenCalled());
+    expect(screen.getByRole('link', { name: 'Open QAN' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('?var-node_name=pg-node&')
+    );
+    expect(
+      screen.getByRole('link', { name: 'Open dashboard' })
+    ).toHaveAttribute(
+      'href',
+      expect.stringContaining('node-summary?var-node_name=pg-node')
+    );
+  });
+
   it('opens the logged query in QAN when QAN has it', async () => {
     findLogQuery.mockResolvedValue({
       queryId: 'q1',

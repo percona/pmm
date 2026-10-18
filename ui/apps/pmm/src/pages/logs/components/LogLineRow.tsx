@@ -124,12 +124,13 @@ export const LogLineRow: FC<LogLineRowProps> = ({
   );
   const queryLine = isQueryLine(line);
   const query = useLogQuery(line, open && queryLine).data;
-  // The query's service is exact; a node may run more than one service of the type.
+  // The query's service is exact; else the node's service of the type, when it runs only one.
+  const nodeServices = services.data?.services.filter(
+    (s) => s.nodeName === line.nodeName && s.serviceType === serviceType
+  );
   const serviceName =
     query?.serviceName ||
-    services.data?.services.find(
-      (s) => s.nodeName === line.nodeName && s.serviceType === serviceType
-    )?.serviceName;
+    (nodeServices?.length === 1 ? nodeServices[0].serviceName : undefined);
   const json = detailJson(line);
   const attributes = [
     ...(line.severityText && line.severityText !== label
@@ -355,6 +356,7 @@ export const LogLineRow: FC<LogLineRowProps> = ({
                         nodeName: line.nodeName,
                         serviceName,
                         queryId: query?.queryId,
+                        fingerprint: query?.fingerprint,
                       },
                       from,
                       to,

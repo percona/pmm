@@ -50,7 +50,12 @@ describe('logLinks', () => {
   it('opens the query in Grafana QAN, filtered by its service', () => {
     expect(
       qanUrl(
-        { nodeName: 'pg-node', serviceName: 'pg-svc', queryId: 'q1' },
+        {
+          nodeName: 'pg-node',
+          serviceName: 'pg-svc',
+          queryId: 'q1',
+          fingerprint: 'SELECT $1',
+        },
         from,
         to,
         false
@@ -63,13 +68,18 @@ describe('logLinks', () => {
   it('opens the query in native QAN when it is enabled', () => {
     expect(
       qanUrl(
-        { nodeName: 'pg-node', serviceName: 'pg-svc', queryId: 'q1' },
+        {
+          nodeName: 'pg-node',
+          serviceName: 'pg-svc',
+          queryId: 'q1',
+          fingerprint: 'SELECT $1',
+        },
         from,
         to,
         true
       )
     ).toBe(
-      '/qan?filter_service_name=pg-svc&from=1792232100000&to=1792233900000&filter_by=q1&query_selected=true&details_tab=details'
+      '/qan?filter_service_name=pg-svc&from=1792232100000&to=1792233900000&filter_by=q1&query_selected=true&details_tab=details&fingerprint=SELECT+%241'
     );
   });
 

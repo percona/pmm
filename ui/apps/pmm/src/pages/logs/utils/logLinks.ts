@@ -67,11 +67,12 @@ export interface QanTarget {
   nodeName: string;
   serviceName?: string;
   queryId?: string;
+  fingerprint?: string;
 }
 
 /** QAN for the window, in the native UI when it is enabled. */
 export const qanUrl = (
-  { nodeName, serviceName, queryId }: QanTarget,
+  { nodeName, serviceName, queryId, fingerprint }: QanTarget,
   fromMs: number,
   toMs: number,
   native: boolean
@@ -88,6 +89,8 @@ export const qanUrl = (
     params.set('filter_by', queryId);
     params.set('query_selected', 'true');
     params.set('details_tab', 'details');
+    // Native QAN shows the details of the fingerprint in the URL, as its own rows link them.
+    if (native && fingerprint) params.set('fingerprint', fingerprint);
   }
   return native
     ? `${PMM_QAN_PATH}?${params}`
