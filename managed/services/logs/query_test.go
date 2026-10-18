@@ -195,6 +195,8 @@ func TestPatterns_UseStoredHash(t *testing.T) {
 	where, args := buildWhere(Filter{Start: testStart, End: testEnd, Pattern: "x"})
 	assert.True(t, strings.HasSuffix(where, " AND PatternHash = cityHash64(?)"), where)
 	assert.Equal(t, "x", args[len(args)-1])
+	// clickhouse-go switches to {name:Type} query parameters, and rejects our ? arguments, when the query matches this.
+	assert.NotRegexp(t, "{.+:.+}", q)
 }
 
 func TestContextQuery(t *testing.T) {

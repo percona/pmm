@@ -45,7 +45,8 @@ func PatternExpr(column string) string {
 	return "substringUTF8(" + expr + ", 1, 200)"
 }
 
-// sqlString quotes a constant as a ClickHouse string literal.
+// sqlString quotes a constant as a ClickHouse string literal. A colon is written as \x3A: clickhouse-go reads
+// any {…:…} in a query as a {name:Type} parameter and then rejects positional arguments.
 func sqlString(s string) string {
-	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(s) + "'"
+	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`, `:`, `\x3A`).Replace(s) + "'"
 }
