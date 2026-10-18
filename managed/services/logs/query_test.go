@@ -17,13 +17,14 @@ package logs
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/otel"
 )
 
 var (
@@ -61,7 +62,7 @@ func TestBuildWhere_All(t *testing.T) {
 		" AND SeverityNumber >= ?"+
 		" AND SeverityNumber <= ?"+
 		" AND positionCaseInsensitiveUTF8(Body, ?) > 0"+
-		" AND "+PatternExpr("Body")+" = ?", where)
+		" AND PatternHash = cityHash64(?)", where)
 	assert.Equal(t, []any{
 		testStart.Unix(), testEnd.Unix(), testStart.UnixNano(), testEnd.UnixNano(),
 		[]string{"pmm-managed"},
@@ -185,33 +186,15 @@ func TestPatternsQuery_PreviousWindow(t *testing.T) {
 	assert.Contains(t, q, ") WHERE current > 0 ORDER BY current DESC, p LIMIT 50")
 }
 
-// TestPatternRules applies the masking rules with Go's RE2, the engine of ClickHouse's replaceRegexpAll.
-func TestPatternRules(t *testing.T) {
-	mask := func(s string) string {
-		for _, r := range patternRules {
-			s = regexp.MustCompile(r[0]).ReplaceAllLiteralString(s, r[1])
-		}
-		return s
-	}
-	for in, want := range map[string]string{
-		"connection authenticated: identity='pmm' method=md5 (/etc/postgresql/17/main/pg_hba.conf:4)": "connection authenticated: identity='?' method=md5 (/etc/postgresql/?/main/pg_hba.conf:?)",
-		"process 48211 still waiting for ShareLock on transaction 9912044 after 1000.087 ms":          "process ? still waiting for ShareLock on transaction ? after ? ms",
-		"execute <unnamed>: SELECT pg_database_size($1)":                                              "execute <unnamed>: SELECT pg_database_size($?)",
-		"connection received: host=10.30.51.101 port=53068":                                           "connection received: host=? port=?",
-		"Applied op on rs103 shard":                                                                   "Applied op on rs103 shard",
-	} {
-		assert.Equal(t, want, mask(in))
-	}
-}
-
-func TestPatternExpr_Shared(t *testing.T) {
-	expr := PatternExpr("Body")
+func TestPatterns_UseStoredHash(t *testing.T) {
 	q, _ := patternsQuery(Filter{Start: testStart, End: testEnd})
-	assert.Contains(t, q, expr+" AS p")
-	where, _ := buildWhere(Filter{Start: testStart, End: testEnd, Pattern: "x"})
-	assert.Contains(t, where, expr+" = ?")
-	assert.True(t, strings.HasPrefix(expr, "substringUTF8("), expr)
-	assert.True(t, strings.HasSuffix(expr, ", 1, 200)"), expr)
+	assert.Contains(t, q, "GROUP BY PatternHash")
+	// Only the returned patterns are masked, from a sample line, instead of every line in the range.
+	assert.Contains(t, q, otel.PatternExpr("body")+" AS p")
+	assert.NotContains(t, q, otel.PatternExpr("Body"))
+	where, args := buildWhere(Filter{Start: testStart, End: testEnd, Pattern: "x"})
+	assert.True(t, strings.HasSuffix(where, " AND PatternHash = cityHash64(?)"), where)
+	assert.Equal(t, "x", args[len(args)-1])
 }
 
 func TestContextQuery(t *testing.T) {

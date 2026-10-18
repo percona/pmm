@@ -23,6 +23,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/percona/pmm/managed/otel"
 )
 
 const (
@@ -101,30 +103,6 @@ func DecodeCursor(s string) (Cursor, error) {
 	return Cursor{Time: time.Unix(0, n).UTC(), Hash: h, Skip: skip}, nil
 }
 
-// patternRules replace the variable parts of a line, in order: quoted strings, UUIDs, hex IDs, IPv4 addresses and
-// whole numbers; a number inside a word (md5, rs103) is part of the word.
-var patternRules = [][2]string{
-	{`'[^']*'|"[^"]*"`, `'?'`},
-	{`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`, `?`},
-	{`\b[0-9a-fA-F]{8,}\b`, `?`},
-	{`\b[0-9]{1,3}(\.[0-9]{1,3}){3}\b`, `?`},
-	{`\b[0-9]+(\.[0-9]+)?\b`, `?`},
-}
-
-// PatternExpr returns the ClickHouse expression that turns column into its pattern; GetLogPatterns and the pattern filter both use it.
-func PatternExpr(column string) string {
-	expr := column
-	for _, r := range patternRules {
-		expr = "replaceRegexpAll(" + expr + ", " + sqlString(r[0]) + ", " + sqlString(r[1]) + ")"
-	}
-	return "substringUTF8(" + expr + ", 1, 200)"
-}
-
-// sqlString quotes a constant as a ClickHouse string literal.
-func sqlString(s string) string {
-	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(s) + "'"
-}
-
 // timeWhere returns the conditions selecting [start, end]; TimestampTime prunes by the primary key and partition.
 func timeWhere(start, end time.Time) (string, []any) {
 	return "TimestampTime BETWEEN toDateTime(?) AND toDateTime(?) AND " +
@@ -165,7 +143,7 @@ func buildWhere(f Filter) (string, []any) {
 		args = append(args, f.Text)
 	}
 	if f.Pattern != "" {
-		conds = append(conds, PatternExpr("Body")+" = ?")
+		conds = append(conds, "PatternHash = cityHash64(?)")
 		args = append(args, f.Pattern)
 	}
 	return strings.Join(conds, " AND "), args
@@ -243,16 +221,17 @@ func patternsQuery(f Filter) (string, []any) {
 		Start: prev.Start, End: f.Start,
 		NodeNames: f.NodeNames, ExcludeNodeNames: f.ExcludeNodeNames, Sources: f.Sources, Presets: f.Presets,
 	})
-	q := fmt.Sprintf("SELECT p, current, previous, "+
+	// Lines are grouped by the PatternHash stored at insert; only the returned patterns are masked, from a sample line.
+	q := fmt.Sprintf("SELECT %s AS p, current, previous, "+
 		"previous = 0 AND (SELECT count() FROM (SELECT 1 FROM otel.logs WHERE %s LIMIT 1)) > 0 AS is_new, "+
-		"max_severity, first_seen, last_seen, sample FROM ("+
-		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT %s AS p, "+
+		"max_severity, first_seen, last_seen, substringUTF8(body, 1, %d) AS sample FROM ("+
+		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT PatternHash, "+
 		"countIf(cur) AS current, countIf(NOT cur) AS previous, "+
 		"maxIf(SeverityNumber, cur) AS max_severity, minIf(Timestamp, cur) AS first_seen, maxIf(Timestamp, cur) AS last_seen, "+
-		"substringUTF8(anyIf(Body, cur), 1, %d) AS sample "+
-		"FROM otel.logs WHERE %s GROUP BY p"+
+		"anyIf(Body, cur) AS body "+
+		"FROM otel.logs WHERE %s GROUP BY PatternHash"+
 		") WHERE current > 0 ORDER BY current DESC, p LIMIT 50",
-		baseWhere, PatternExpr("Body"), listBodyLimit, where)
+		otel.PatternExpr("body"), baseWhere, listBodyLimit, where)
 	args = append(append(baseArgs, f.Start.UnixNano()), args...)
 	return q + querySettings, args
 }

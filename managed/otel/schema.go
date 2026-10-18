@@ -53,8 +53,36 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
 	}
 	logrus.Debug("OTEL schema: database otel ensured")
 
-	tableEngine := TableEngine()
-	createTable := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS otel.logs
+	err = ensureLogsTable(ctx, db, TableEngine(), retentionDays)
+	if err != nil {
+		return err
+	}
+	logrus.Debug("OTEL schema: table otel.logs ensured")
+	return nil
+}
+
+// patternHashColumn stores each line's pattern hash at insert, so pattern queries skip the masking regexes.
+var patternHashColumn = "PatternHash UInt64 MATERIALIZED cityHash64(" + PatternExpr("Body") + ") CODEC(ZSTD(1))"
+
+// ensureLogsTable creates otel.logs, or gives an existing one the PatternHash column of this version's masking rules.
+// Parts written before a change keep their hashes until they age out.
+func ensureLogsTable(ctx context.Context, db *sql.DB, tableEngine string, retentionDays int) error {
+	for _, q := range []string{
+		logsTableDDL(tableEngine, retentionDays),
+		"ALTER TABLE otel.logs ADD COLUMN IF NOT EXISTS " + patternHashColumn,
+		"ALTER TABLE otel.logs MODIFY COLUMN " + patternHashColumn,
+	} {
+		_, err := db.ExecContext(ctx, q)
+		if err != nil {
+			return fmt.Errorf("ensure table otel.logs: %w", err)
+		}
+	}
+	return nil
+}
+
+// logsTableDDL creates otel.logs; the ClickHouse exporter writes to it with create_schema off.
+func logsTableDDL(tableEngine string, retentionDays int) string {
+	return fmt.Sprintf(`CREATE TABLE IF NOT EXISTS otel.logs
 (
     Timestamp DateTime64(9) CODEC(Delta(8), ZSTD(1)),
     TimestampTime DateTime DEFAULT toDateTime(Timestamp),
@@ -72,6 +100,7 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
     ScopeVersion LowCardinality(String) CODEC(ZSTD(1)),
     ScopeAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
     LogAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
+    %s,
     INDEX idx_trace_id TraceId TYPE bloom_filter(0.001) GRANULARITY 1,
     INDEX idx_body Body TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 8,
     INDEX idx_res_attr_key mapKeys(ResourceAttributes) TYPE bloom_filter(0.01) GRANULARITY 1,
@@ -84,13 +113,7 @@ PARTITION BY toDate(TimestampTime)
 PRIMARY KEY (ServiceName, TimestampTime)
 ORDER BY (ServiceName, TimestampTime, Timestamp, TraceId)
 TTL TimestampTime + toIntervalDay(%d)
-SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine, retentionDays)
-
-	if _, err := db.ExecContext(ctx, createTable); err != nil { //nolint:noinlineerr
-		return fmt.Errorf("create table otel.logs: %w", err)
-	}
-	logrus.Debug("OTEL schema: table otel.logs ensured")
-	return nil
+SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, patternHashColumn, tableEngine, retentionDays)
 }
 
 // EnsureOtelSchemaFromEnv creates the OTEL schema using PMM ClickHouse env vars (same as pmm-managed main).
