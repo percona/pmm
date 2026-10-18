@@ -63,7 +63,7 @@ export const LogsLinesTab: FC<{ filter: LogFilter }> = ({ filter }) => {
             <TableRow>
               <TableCell>Time</TableCell>
               <TableCell>Level</TableCell>
-              <TableCell>Node · Source</TableCell>
+              <TableCell>Node · Service</TableCell>
               <TableCell>Message</TableCell>
             </TableRow>
           </TableHead>

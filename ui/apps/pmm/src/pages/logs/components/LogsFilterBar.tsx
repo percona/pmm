@@ -246,6 +246,11 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
   const [text, setText] = useState(filter.text ?? '');
   const [timeAnchor, setTimeAnchor] = useState<HTMLElement | null>(null);
   const hidesServer = !!filter.excludeNodeNames?.includes(PMM_SERVER_NODE);
+  // Collectors without a service.name get the node name, which the Node filter already offers.
+  const nodeNames = new Set(facets?.nodeNames.map((f) => f.value));
+  const services = (facets?.sources ?? []).filter(
+    (f) => !nodeNames.has(f.value)
+  );
 
   useEffect(() => setText(filter.text ?? ''), [filter.text]);
 
@@ -382,13 +387,15 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
           onChange={(nodeNames) => onChange({ ...filter, nodeNames }, range)}
           testId="logs-filter-node"
         />
-        <FacetFilter
-          label="Source"
-          facets={facets?.sources}
-          value={filter.sources}
-          onChange={(sources) => onChange({ ...filter, sources }, range)}
-          testId="logs-filter-source"
-        />
+        {(services.length > 0 || !!filter.sources) && (
+          <FacetFilter
+            label="Service"
+            facets={services}
+            value={filter.sources}
+            onChange={(sources) => onChange({ ...filter, sources }, range)}
+            testId="logs-filter-source"
+          />
+        )}
         <FacetFilter
           label="Log type"
           facets={facets?.presets}

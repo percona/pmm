@@ -12,7 +12,10 @@ const facets = {
     { value: 'pg-1', count: 12 },
     { value: 'mongo-1', count: 3 },
   ],
-  sources: [],
+  sources: [
+    { value: 'pg-1', count: 12 },
+    { value: 'pmm-managed', count: 7 },
+  ],
   presets: [],
 };
 
@@ -39,10 +42,38 @@ describe('LogsFilterBar', () => {
   it('shows each filter value inside its button', () => {
     renderBar({ filter: { ...filter, nodeNames: ['pg-1'], minSeverity: 13 } });
     expect(screen.getByRole('button', { name: 'Node pg-1' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Source Any' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Service Any' })).toBeVisible();
     expect(
       screen.getByRole('button', { name: 'Severity Warning and above' })
     ).toBeVisible();
+  });
+
+  it('offers only services that are not node names', () => {
+    renderBar();
+    fireEvent.click(screen.getByRole('button', { name: 'Service Any' }));
+    expect(
+      screen.getByRole('option', { name: 'pmm-managed (7)' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: 'pg-1 (12)' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the Service filter when every service is a node name', () => {
+    renderBar({
+      facets: { ...facets, sources: [{ value: 'pg-1', count: 12 }] },
+    });
+    expect(
+      screen.queryByRole('button', { name: /^Service/ })
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps a selected service visible', () => {
+    renderBar({
+      filter: { ...filter, sources: ['pg-1'] },
+      facets: { ...facets, sources: [{ value: 'pg-1', count: 12 }] },
+    });
+    expect(screen.getByRole('button', { name: 'Service pg-1' })).toBeVisible();
   });
 
   it('switches to a quick range', () => {

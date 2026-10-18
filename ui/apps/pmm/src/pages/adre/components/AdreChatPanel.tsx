@@ -53,6 +53,9 @@ import {
 } from 'utils/adreChatUiPreferences';
 
 export const AdreChatPanel: FC = () => {
+  const [searchParams] = useSearchParams();
+  // A question from another page starts its own chat instead of joining the last one.
+  const [startFresh] = useState(() => searchParams.has('ask'));
   const { data: models = [], status: modelsQueryStatus } = useAdreModels();
   const {
     response,
@@ -74,8 +77,7 @@ export const AdreChatPanel: FC = () => {
     runSearch,
     scrollToMessageId,
     clearScrollToMessage,
-  } = useAdreChat();
-  const [searchParams] = useSearchParams();
+  } = useAdreChat({ startFresh });
   // Other pages link here with ?ask= to suggest a question; it is not sent until the user does.
   const [ask, setAsk] = useState(() => searchParams.get('ask') ?? '');
   const [model, setModel] = useState('');

@@ -33,6 +33,8 @@ export type AdreChatContext = 'default' | 'qan-aside';
 export interface UseAdreChatOptions {
   /** Embedded contexts use a separate session key and skip global conversation auto-select. */
   context?: AdreChatContext;
+  /** Opens no earlier conversation, so the first message starts a new one. */
+  startFresh?: boolean;
 }
 
 function sessionKeyForContext(context: AdreChatContext): string {
@@ -89,6 +91,7 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
   const chatContext = options.context ?? 'default';
   const sessionStorageKey = sessionKeyForContext(chatContext);
   const isolatedSession = chatContext === 'qan-aside';
+  const startFresh = !!options.startFresh;
 
   const { data: settings } = useAdreSettings();
   const { enqueueSnackbar } = useSnackbar();
@@ -263,6 +266,10 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
         });
         if (gen !== adreInitGenRef.current) return;
         setConversations(rows ?? []);
+        if (startFresh) {
+          clearActiveConversation();
+          return;
+        }
 
         const raw = sessionStorage.getItem(sessionStorageKey);
         if (raw) {
@@ -290,6 +297,7 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
     enqueueSnackbar,
     sessionStorageKey,
     isolatedSession,
+    startFresh,
   ]);
 
   const runSearch = useCallback(
