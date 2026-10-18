@@ -47,11 +47,11 @@ This option works well for production environments that can tolerate a few minut
 
 ### When to consider PMM HA Cluster
 
-Consider upgrading to [Kubernetes / OpenShift HA Cluster](HA-clustered.md) when you:
+Consider upgrading to [Kubernetes/OpenShift HA Cluster](HA-clustered.md) when you:
 
-- require **zero-downtime monitoring** (< 30 second failover)
+- need **faster failover** (5–10 seconds with HA Cluster versus 2–5 minutes with a single instance)
 - have **expert Kubernetes or OpenShift skills** to manage complex deployments
-- need **multiple active PMM instances** for load distribution
+- want **automatic failover routing** without manual intervention
 
 ### When to use Docker instead
 

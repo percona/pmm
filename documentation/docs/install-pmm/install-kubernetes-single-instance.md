@@ -512,7 +512,7 @@ metadata:
 spec:
   volumeSnapshotClassName: csi-snapclass
   source:
-    persistentVolumeClaimName: pmm-storage
+    persistentVolumeClaimName: pmm-storage-pmm-0
 EOF
 
 # Verify snapshot
@@ -553,7 +553,6 @@ helm upgrade pmm percona/pmm \
 
 ### Upgrade PMM
 
-Perform zero-downtime upgrades:
 ```sh
 # Update Helm repository
 helm repo update percona
@@ -566,17 +565,17 @@ helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml
 
-# Or upgrade to specific version
+# Or upgrade to a specific chart version
 helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml \
-  --version 3.5.0
+  --version <chart-version>
 
 # Monitor upgrade progress
 kubectl rollout status statefulset -n monitoring pmm
 ```
 
-The StatefulSet ensures zero-downtime rolling updates with health checks.
+The pod restarts during the upgrade, so expect a brief monitoring interruption (2-5 minutes) while Kubernetes reschedules it.
 
 ### Rollback upgrade
 

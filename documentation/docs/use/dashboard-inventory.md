@@ -180,6 +180,7 @@ To remove items from the inventory:
 
 ### PMM HA Cluster nodes
 
-PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from **Inventory** page. Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
+PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from the **Inventory** page. 
+Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
 
 To add or remove replicas, [use `helm upgrade`](../install-pmm/install-HA-clustered.md#scale-pmm-server-replicas).

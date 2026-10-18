@@ -1115,6 +1115,8 @@ After a failover or an upgrade, check the PMM Server nodes in **Inventory** to s
 
 2. In the **Node Name** column, check the badge next to each node name:
 
+    ![Leader and Follower badges in the Inventory node list](../images/leader_status.png)
+
     - **Leader**: the node that serves the PMM UI and API, and runs cluster-wide tasks such as advisor checks and scheduled backups
     - **Follower**: a standby node that can become the leader if the current leader fails
 
@@ -1133,7 +1135,7 @@ Backups are turned off by default. To back up PMM HA to S3-compatible storage or
 
 #### Scale PMM server replicas
 
-PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from **Inventory** page. 
+PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from the **Inventory** page. 
 
 Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
 
@@ -1384,14 +1386,6 @@ kubectl describe pod <pod-name> -n pmm
 kubectl patch <resource-type> <resource-name> -n pmm \
   -p '{"metadata":{"finalizers":[]}}' --type=merge
 ```
-
-## Known issues
-
-We are aware of the following known issues:
-
-| Issue | Impact | Workaround |
-|-------|--------|------------|
-| **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: Inconsistent PostgreSQL service count | The Inventory page shows 4-5 PostgreSQL services instead of the expected 6 | No workaround — cosmetic only |
 
 ### Scaling limitations
 
