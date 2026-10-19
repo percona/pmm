@@ -62,7 +62,10 @@ export interface ClusterModel {
   /** `${environment ?? ''}/${name}` */
   key: string;
   environment?: string;
+  /** PMM's cluster label, else the replica set or service name the services group by. */
   name: string;
+  /** PMM's cluster label; absent when the services carry none, so doors leave var-cluster out. */
+  label?: string;
   kind: 'sharded' | 'replicaSet' | 'standalone';
   routers: MemberModel[];
   config?: SetModel;
@@ -126,7 +129,12 @@ export const groupClusters = (
 ): ClusterModel[] => {
   const groups = new Map<
     string,
-    { environment?: string; name: string; members: MemberModel[] }
+    {
+      environment?: string;
+      name: string;
+      label?: string;
+      members: MemberModel[];
+    }
   >();
   const standalones: ClusterModel[] = [];
 
@@ -153,12 +161,13 @@ export const groupClusters = (
       members: [],
     };
 
+    group.label ??= service.cluster || undefined;
     group.members.push(member);
     groups.set(key, group);
   }
 
   const clusters = [...groups.entries()].flatMap(
-    ([key, { environment, name, members }]): ClusterModel[] => {
+    ([key, { environment, name, label, members }]): ClusterModel[] => {
       const routers = members.filter((member) => member.router);
       const sets = new Map<string, SetModel>();
       const unplaced: MemberModel[] = [];
@@ -198,6 +207,7 @@ export const groupClusters = (
           key: clusterKey(environment, member.service.serviceName),
           environment,
           name: unplaced.length === 1 ? name : member.service.serviceName,
+          ...(label ? { label } : {}),
           kind: 'standalone',
           routers: [],
           sets: [],
@@ -213,6 +223,7 @@ export const groupClusters = (
           key,
           environment,
           name,
+          ...(label ? { label } : {}),
           kind: sharded ? 'sharded' : 'replicaSet',
           routers,
           config,
@@ -291,9 +302,9 @@ export interface TreeOptions {
   omClusterIds?: Record<string, string>;
 }
 
-const placeOf = (cluster: ClusterModel): MongoPlace => ({
+export const placeOf = (cluster: ClusterModel): MongoPlace => ({
   environment: cluster.environment,
-  cluster: cluster.name,
+  cluster: cluster.label,
 });
 
 const notApplicable = (reason: string): HubMeasure => ({

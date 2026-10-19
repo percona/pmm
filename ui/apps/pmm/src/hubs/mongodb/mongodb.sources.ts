@@ -149,6 +149,12 @@ export const toAlertInputs = (
   const clusters = new Set(
     services.flatMap((service) => (service.cluster ? [service.cluster] : []))
   );
+  // Set alerts of services without a cluster label carry only the set's name.
+  const replicaSets = new Set(
+    services.flatMap((service) =>
+      service.replicationSet ? [service.replicationSet] : []
+    )
+  );
 
   return (response?.data.groups ?? []).flatMap((group) =>
     (group.rules ?? []).flatMap((rule) =>
@@ -158,15 +164,16 @@ export const toAlertInputs = (
           ? isFiring(alert.state)
           : rule.state === 'firing';
         const serviceName = labels.service_name || labels.service;
+        const replicaSet = labels.rs_nm || labels.set || labels.replication_set;
         const mongo =
           labels.service_type === 'mongodb' ||
           (!!serviceName && serviceNames.has(serviceName)) ||
-          (!!labels.cluster && clusters.has(labels.cluster));
+          (!!labels.cluster && clusters.has(labels.cluster)) ||
+          (!!replicaSet && replicaSets.has(replicaSet));
 
         if (!firing || !mongo) {
           return [];
         }
-        const replicaSet = labels.rs_nm || labels.set || labels.replication_set;
 
         return [
           {

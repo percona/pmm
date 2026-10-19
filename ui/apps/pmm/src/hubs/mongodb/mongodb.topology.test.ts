@@ -84,6 +84,29 @@ describe('groupClusters', () => {
 
     expect(clusters).toHaveLength(1);
     expect(clusters[0]).toMatchObject({ name: 'rs0', kind: 'replicaSet' });
+    expect(clusters[0].label).toBeUndefined();
+  });
+
+  it('opens an unlabelled cluster’s dashboards without a cluster variable no series has', () => {
+    const { services, metrics } = replicaSet('rs0', { cluster: '' });
+    const [node] = buildClusterTree(
+      groupClusters(
+        services.map(({ cluster: _cluster, ...rest }) => rest),
+        metrics
+      ),
+      { capabilities: { operations: false } }
+    );
+    const doors = [
+      node.doors.name.to,
+      ...node.doors.menu.map((door) => door.to),
+      ...(node.children ?? []).flatMap((child) => [
+        child.doors.name.to,
+        ...child.doors.menu.map((door) => door.to),
+      ]),
+    ];
+
+    expect(node.doors.name.to).toContain('var-rs_nm=rs0');
+    doors.forEach((to) => expect(to).not.toContain('var-cluster'));
   });
 
   it('makes an unlabelled service its own standalone', () => {

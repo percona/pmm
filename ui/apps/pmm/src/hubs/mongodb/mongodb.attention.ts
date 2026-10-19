@@ -9,7 +9,6 @@ import {
   incident,
   instanceSummary,
   MONGO_PATHS,
-  type MongoPlace,
   oplogDetails,
   queryQan,
   replsetSummary,
@@ -31,6 +30,7 @@ import {
   clusterMembers,
   memberLagLevel,
   type MemberModel,
+  placeOf,
   primaryOf,
   primaryOplogLevel,
   type SetModel,
@@ -86,11 +86,6 @@ const duration = (seconds: number) => formatCompactDuration(seconds) || '0s';
 
 const isoFromSeconds = (seconds?: number) =>
   seconds === undefined ? undefined : new Date(seconds * 1000).toISOString();
-
-const placeOf = (cluster: ClusterModel): MongoPlace => ({
-  environment: cluster.environment,
-  cluster: cluster.name,
-});
 
 /** "billing · prod" for a replica set, "orders › orders-shard1 · prod" inside a sharded cluster. */
 const whereOf = (cluster: ClusterModel, inner?: string) =>

@@ -9,7 +9,7 @@ import type {
 import { backupStatus, listDashboard, MONGO_PATHS } from './mongodb.doors';
 import { Messages } from './mongodb.messages';
 import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
-import { type ClusterModel, clusterMembers } from './mongodb.topology';
+import { type ClusterModel, clusterMembers, placeOf } from './mongodb.topology';
 import type { MongoBackupsInput, MongoMetrics } from './mongodb.types';
 
 type Artifact = MongoBackupsInput['artifacts'][number];
@@ -99,10 +99,7 @@ const doors = ({
 const rowDoors = (cluster: ClusterModel): HubBackupRow['doors'] => {
   const dashboard: HubDoor = {
     label: cluster.name,
-    to: backupStatus({
-      environment: cluster.environment,
-      cluster: cluster.name,
-    }),
+    to: backupStatus(placeOf(cluster)),
   };
 
   return {
@@ -308,7 +305,8 @@ const pbmHint = (
     .filter(
       (cluster) =>
         cluster.kind !== 'standalone' &&
-        metrics?.pbmConfiguredByCluster[cluster.name] === false
+        !!cluster.label &&
+        metrics?.pbmConfiguredByCluster[cluster.label] === false
     )
     .map((cluster) => cluster.name)
     .sort((a, b) => a.localeCompare(b));

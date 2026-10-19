@@ -230,6 +230,31 @@ describe('toAlertInputs', () => {
     expect(result[2].replicaSet).toBe('orders-shard1');
   });
 
+  it('recognises a set alert by the replica set alone, for services without a cluster label', () => {
+    const unlabelled = services.map(({ cluster: _cluster, ...rest }) => rest);
+    const result = toAlertInputs(
+      rules([
+        {
+          state: 'Alerting',
+          labels: {
+            alertname: 'MongoDB replica set has no primary',
+            template_name: 'pmm_mongodb_replset_no_primary',
+            rs_nm: 'billing',
+          },
+        },
+        {
+          state: 'Alerting',
+          labels: { alertname: 'other', rs_nm: 'unknown-set' },
+        },
+      ]),
+      unlabelled
+    );
+
+    expect(result.map((alert) => [alert.name, alert.replicaSet])).toEqual([
+      ['MongoDB replica set has no primary', 'billing'],
+    ]);
+  });
+
   it('drops alerts that are not firing', () => {
     expect(
       toAlertInputs(
