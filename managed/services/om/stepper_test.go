@@ -365,39 +365,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
 	})
 
-	t.Run("records the run as registered, so the sweep stops revisiting it", func(t *testing.T) {
-		db := storeTestDB(t)
-		node00, _ := registerTestNode(t, db, "node00")
-		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
-			RunID:           "run-abc",
-			MongoDBUsername: "admin",
-			MongoDBPassword: "secret",
-			KeyFile:         "keyfile-content",
-		}))
-
-		stub := newSEPStub(t, http.StatusOK,
-			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
-		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
-			WithProbeSource(stub.server.URL, "test-token")
-
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
-			ID:             "run-abc",
-			Status:         bootstrapRunSucceeded,
-			ReplicaSetName: "rs-test",
-			Port:           27017,
-			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
-		})
-
-		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
-		require.NoError(t, err, "an unlabelled run gets its row on completion")
-		assert.NotNil(t, config.RegisteredAt)
-
-		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
-		require.NoError(t, err)
-		assert.Contains(t, registered, "run-abc")
-	})
-
-	t.Run("registers each host on the run's port", func(t *testing.T) {
+	t.Run("registers each host on the run's port and records the run, so the sweep stops revisiting it", func(t *testing.T) {
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -425,6 +393,14 @@ func TestCompleteSucceededRun(t *testing.T) {
 		require.Len(t, services, 1)
 		require.NotNil(t, services[0].Port)
 		assert.Equal(t, uint16(27018), *services[0].Port)
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
+		require.NoError(t, err, "an unlabelled run gets its row on completion")
+		assert.NotNil(t, config.RegisteredAt)
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.Contains(t, registered, "run-abc")
 	})
 
 	t.Run("leaves a run whose host the inventory app has not seen for the next tick", func(t *testing.T) {

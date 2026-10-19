@@ -18,6 +18,7 @@ package om
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"gopkg.in/reform.v1"
 
@@ -35,6 +36,11 @@ func pushMetricsFor(pmmAgentID string) bool {
 func (s *Service) registerBootstrapHost(
 	ctx context.Context, nodeID, host, replicaSetName string, port uint32, environment, cluster, username, password string,
 ) error {
+	if port == 0 || port > math.MaxUint16 {
+		return fmt.Errorf("the run reports an invalid port %d; cannot register the mongod on node %s", port, nodeID)
+	}
+	servicePort := uint16(port)
+
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to find a pmm-agent on node %s: %w", nodeID, err)
@@ -71,7 +77,7 @@ func (s *Service) registerBootstrapHost(
 			Cluster:        cluster,
 			ReplicationSet: replicaSetName,
 			Address:        &address,
-			Port:           new(uint16(port)), //nolint:gosec // the API caps the port at 65535
+			Port:           &servicePort,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to add the MongoDB service: %w", err)

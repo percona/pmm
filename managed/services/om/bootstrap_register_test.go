@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -48,22 +49,7 @@ func registerTestNode(t *testing.T, db *reform.DB, nodeName string) (string, str
 }
 
 func TestRegisterBootstrapHost(t *testing.T) {
-	t.Run("registers a service and an exporter agent for the node", func(t *testing.T) {
-		db := storeTestDB(t)
-		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
-		nodeID, _ := registerTestNode(t, db, "node00")
-
-		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret")
-		require.NoError(t, err)
-
-		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
-		require.NoError(t, err)
-		require.Len(t, services, 1)
-		assert.Equal(t, "node00-mongod", services[0].ServiceName)
-		assert.Equal(t, "rs-test", services[0].ReplicationSet)
-	})
-
-	t.Run("registers the service on the port mongod was installed on", func(t *testing.T) {
+	t.Run("registers a service on the given port and an exporter agent for the node", func(t *testing.T) {
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
@@ -74,6 +60,8 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 		require.NoError(t, err)
 		require.Len(t, services, 1)
+		assert.Equal(t, "node00-mongod", services[0].ServiceName)
+		assert.Equal(t, "rs-test", services[0].ReplicationSet)
 		require.NotNil(t, services[0].Port)
 		assert.Equal(t, uint16(27018), *services[0].Port)
 	})
@@ -116,15 +104,17 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		node01, _ := registerTestNode(t, db, "node01")
 		node02, _ := registerTestNode(t, db, "node02")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node00, "node00", "rs-test", 27017, "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node01, "node01", "rs-test", 27017, "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node02, "node02", "rs-test", 27017, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node00, "node00", "rs-test", 27018, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node01, "node01", "rs-test", 27018, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node02, "node02", "rs-test", 27018, "", "", "admin", "secret"))
 
 		for _, nodeID := range []string{node00, node01, node02} {
 			services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 			require.NoError(t, err)
 			require.Lenf(t, services, 1, "node %s should have exactly one registered service", nodeID)
 			assert.Equal(t, "rs-test", services[0].ReplicationSet)
+			require.NotNil(t, services[0].Port)
+			assert.Equal(t, uint16(27018), *services[0].Port)
 		}
 	})
 
@@ -209,5 +199,20 @@ func TestRegisterBootstrapHost(t *testing.T) {
 
 		err = svc.registerBootstrapHost(t.Context(), node.NodeID, "node-without-agent", "rs-test", 27017, "", "", "admin", "secret")
 		assert.Error(t, err)
+	})
+
+	t.Run("refuses a port that does not fit a TCP port", func(t *testing.T) {
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+
+		for _, port := range []uint32{0, math.MaxUint16 + 1 + 27017} {
+			err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", port, "", "", "admin", "secret")
+			require.ErrorContains(t, err, "invalid port")
+		}
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
+		require.NoError(t, err)
+		assert.Empty(t, services)
 	})
 }
