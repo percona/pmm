@@ -95,7 +95,7 @@ jobs:
 
             Most changes need no documentation; then return an empty list.
           claude_args: |
-            --model claude-opus-5
+            --model claude-opus-5-5
             --add-dir ${{ runner.temp }}/docs-coverage
             --allowedTools Read,Grep,Glob
             --json-schema '{"type":"object","properties":{"findings":{"type":"array","items":{"type":"object","properties":{"page":{"type":"string","description":"Path of the page under documentation/docs, or where a new page belongs"},"symbol":{"type":"string","description":"The flag, variable, endpoint, setting, or other name from the diff"},"reason":{"type":"string","description":"One sentence on what the page is missing or gets wrong"}},"required":["page","symbol","reason"]}}},"required":["findings"]}'

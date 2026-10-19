@@ -53,4 +53,4 @@ jobs:
           # Pinned so review behaviour does not shift when the action changes
           # its own default model.
           claude_args: |
-            --model claude-opus-5
+            --model claude-opus-5-5
