@@ -42,7 +42,7 @@ type LogsServiceClient interface {
 	GetLogPatterns(ctx context.Context, in *GetLogPatternsRequest, opts ...grpc.CallOption) (*GetLogPatternsResponse, error)
 	// GetLogContext returns the lines around one line of a file.
 	GetLogContext(ctx context.Context, in *GetLogContextRequest, opts ...grpc.CallOption) (*GetLogContextResponse, error)
-	// FindLogQuery finds the QAN query a PostgreSQL log line ran.
+	// FindLogQuery finds the QAN query a PostgreSQL statement or MongoDB slow-query line ran.
 	FindLogQuery(ctx context.Context, in *FindLogQueryRequest, opts ...grpc.CallOption) (*FindLogQueryResponse, error)
 	// GetLogFacets returns the nodes, sources and presets with lines in the time range.
 	GetLogFacets(ctx context.Context, in *GetLogFacetsRequest, opts ...grpc.CallOption) (*GetLogFacetsResponse, error)
@@ -130,7 +130,7 @@ type LogsServiceServer interface {
 	GetLogPatterns(context.Context, *GetLogPatternsRequest) (*GetLogPatternsResponse, error)
 	// GetLogContext returns the lines around one line of a file.
 	GetLogContext(context.Context, *GetLogContextRequest) (*GetLogContextResponse, error)
-	// FindLogQuery finds the QAN query a PostgreSQL log line ran.
+	// FindLogQuery finds the QAN query a PostgreSQL statement or MongoDB slow-query line ran.
 	FindLogQuery(context.Context, *FindLogQueryRequest) (*FindLogQueryResponse, error)
 	// GetLogFacets returns the nodes, sources and presets with lines in the time range.
 	GetLogFacets(context.Context, *GetLogFacetsRequest) (*GetLogFacetsResponse, error)

@@ -105,11 +105,14 @@ func findQueryQuery(nodeName string, at time.Time) (string, []any) {
 		[]any{nodeName, at.Add(-queryWindow).Unix(), at.Add(queryWindow).Unix()}
 }
 
-// FindLogQuery finds the QAN query a PostgreSQL log line ran.
+// FindLogQuery finds the QAN query a PostgreSQL statement or MongoDB slow-query line ran.
 func (s *Service) FindLogQuery(ctx context.Context, req *logsv1.FindLogQueryRequest) (*logsv1.FindLogQueryResponse, error) {
 	err := checkLBAC(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if attr := req.GetAttributes()["attr"]; attr != "" && req.Body == "Slow query" {
+		return s.findMongoQuery(ctx, req, attr)
 	}
 	res := &logsv1.FindLogQueryResponse{}
 	stmt := statementOf(req.Body)

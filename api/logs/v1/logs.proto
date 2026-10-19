@@ -172,11 +172,13 @@ message FindLogQueryRequest {
   google.protobuf.Timestamp time = 1 [(validate.rules).timestamp.required = true];
   // Node of the line.
   string node_name = 2 [(validate.rules).string.min_len = 1];
-  // Body of the line, such as "statement: SELECT ..." from a PostgreSQL log.
+  // Body of the line, such as "statement: SELECT ..." from a PostgreSQL log or "Slow query" from a MongoDB log.
   string body = 3 [(validate.rules).string = {
     min_len: 1
     max_len: 65536
   }];
+  // Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.
+  map<string, string> attributes = 4;
 }
 
 message FindLogQueryResponse {
@@ -239,7 +241,7 @@ service LogsService {
     };
   }
 
-  // FindLogQuery finds the QAN query a PostgreSQL log line ran.
+  // FindLogQuery finds the QAN query a PostgreSQL statement or MongoDB slow-query line ran.
   rpc FindLogQuery(FindLogQueryRequest) returns (FindLogQueryResponse) {
     option (google.api.http) = {
       post: "/v1/logs:findQuery"

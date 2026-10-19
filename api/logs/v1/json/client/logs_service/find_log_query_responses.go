@@ -197,8 +197,11 @@ type FindLogQueryBody struct {
 	// Node of the line.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Body of the line, such as "statement: SELECT ..." from a PostgreSQL log.
+	// Body of the line, such as "statement: SELECT ..." from a PostgreSQL log or "Slow query" from a MongoDB log.
 	Body string `json:"body,omitempty"`
+
+	// Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.
+	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
 // Validate validates this find log query body

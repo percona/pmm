@@ -2395,6 +2395,8 @@ func (m *FindLogQueryRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for Attributes
+
 	if len(errors) > 0 {
 		return FindLogQueryRequestMultiError(errors)
 	}

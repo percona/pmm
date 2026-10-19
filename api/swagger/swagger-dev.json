@@ -21877,9 +21877,17 @@
                   "x-order": 1
                 },
                 "body": {
-                  "description": "Body of the line, such as \"statement: SELECT ...\" from a PostgreSQL log.",
+                  "description": "Body of the line, such as \"statement: SELECT ...\" from a PostgreSQL log or \"Slow query\" from a MongoDB log.",
                   "type": "string",
                   "x-order": 2
+                },
+                "attributes": {
+                  "description": "Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }

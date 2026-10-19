@@ -1150,8 +1150,10 @@ type FindLogQueryRequest struct {
 	Time *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=time,proto3" json:"time,omitempty"`
 	// Node of the line.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Body of the line, such as "statement: SELECT ..." from a PostgreSQL log.
-	Body          string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
+	// Body of the line, such as "statement: SELECT ..." from a PostgreSQL log or "Slow query" from a MongoDB log.
+	Body string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
+	// Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.
+	Attributes    map[string]string `protobuf:"bytes,4,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1205,6 +1207,13 @@ func (x *FindLogQueryRequest) GetBody() string {
 		return x.Body
 	}
 	return ""
+}
+
+func (x *FindLogQueryRequest) GetAttributes() map[string]string {
+	if x != nil {
+		return x.Attributes
+	}
+	return nil
 }
 
 type FindLogQueryResponse struct {
@@ -1379,11 +1388,17 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\apresets\x18\x03 \x03(\v2\x0e.logs.v1.FacetR\apresets\x12*\n" +
 	"\bclusters\x18\x04 \x03(\v2\x0e.logs.v1.FacetR\bclusters\x122\n" +
 	"\fenvironments\x18\x05 \x03(\v2\x0e.logs.v1.FacetR\fenvironments\x129\n" +
-	"\x10replication_sets\x18\x06 \x03(\v2\x0e.logs.v1.FacetR\x0freplicationSets\"\x96\x01\n" +
+	"\x10replication_sets\x18\x06 \x03(\v2\x0e.logs.v1.FacetR\x0freplicationSets\"\xa3\x02\n" +
 	"\x13FindLogQueryRequest\x128\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x04time\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x1f\n" +
-	"\x04body\x18\x03 \x01(\tB\v\xfaB\br\x06\x10\x01\x18\x80\x80\x04R\x04body\"\x95\x01\n" +
+	"\x04body\x18\x03 \x01(\tB\v\xfaB\br\x06\x10\x01\x18\x80\x80\x04R\x04body\x12L\n" +
+	"\n" +
+	"attributes\x18\x04 \x03(\v2,.logs.v1.FindLogQueryRequest.AttributesEntryR\n" +
+	"attributes\x1a=\n" +
+	"\x0fAttributesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x95\x01\n" +
 	"\x14FindLogQueryResponse\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12!\n" +
 	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12\x1d\n" +
@@ -1414,7 +1429,7 @@ func file_logs_v1_logs_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_logs_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+	file_logs_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 	file_logs_v1_logs_proto_goTypes  = []any{
 		(*LogFilter)(nil),              // 0: logs.v1.LogFilter
 		(*LogLine)(nil),                // 1: logs.v1.LogLine
@@ -1434,26 +1449,27 @@ var (
 		(*FindLogQueryRequest)(nil),    // 15: logs.v1.FindLogQueryRequest
 		(*FindLogQueryResponse)(nil),   // 16: logs.v1.FindLogQueryResponse
 		nil,                            // 17: logs.v1.LogLine.AttributesEntry
-		(*timestamppb.Timestamp)(nil),  // 18: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),    // 19: google.protobuf.Duration
+		nil,                            // 18: logs.v1.FindLogQueryRequest.AttributesEntry
+		(*timestamppb.Timestamp)(nil),  // 19: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),    // 20: google.protobuf.Duration
 	}
 )
 var file_logs_v1_logs_proto_depIdxs = []int32{
-	18, // 0: logs.v1.LogFilter.start:type_name -> google.protobuf.Timestamp
-	18, // 1: logs.v1.LogFilter.end:type_name -> google.protobuf.Timestamp
-	18, // 2: logs.v1.LogLine.time:type_name -> google.protobuf.Timestamp
+	19, // 0: logs.v1.LogFilter.start:type_name -> google.protobuf.Timestamp
+	19, // 1: logs.v1.LogFilter.end:type_name -> google.protobuf.Timestamp
+	19, // 2: logs.v1.LogLine.time:type_name -> google.protobuf.Timestamp
 	17, // 3: logs.v1.LogLine.attributes:type_name -> logs.v1.LogLine.AttributesEntry
-	18, // 4: logs.v1.VolumeBucket.start:type_name -> google.protobuf.Timestamp
-	18, // 5: logs.v1.LogPattern.first_seen:type_name -> google.protobuf.Timestamp
-	18, // 6: logs.v1.LogPattern.last_seen:type_name -> google.protobuf.Timestamp
+	19, // 4: logs.v1.VolumeBucket.start:type_name -> google.protobuf.Timestamp
+	19, // 5: logs.v1.LogPattern.first_seen:type_name -> google.protobuf.Timestamp
+	19, // 6: logs.v1.LogPattern.last_seen:type_name -> google.protobuf.Timestamp
 	0,  // 7: logs.v1.SearchLogsRequest.filter:type_name -> logs.v1.LogFilter
 	1,  // 8: logs.v1.SearchLogsResponse.lines:type_name -> logs.v1.LogLine
 	0,  // 9: logs.v1.GetLogVolumeRequest.filter:type_name -> logs.v1.LogFilter
 	2,  // 10: logs.v1.GetLogVolumeResponse.buckets:type_name -> logs.v1.VolumeBucket
-	19, // 11: logs.v1.GetLogVolumeResponse.step:type_name -> google.protobuf.Duration
+	20, // 11: logs.v1.GetLogVolumeResponse.step:type_name -> google.protobuf.Duration
 	0,  // 12: logs.v1.GetLogPatternsRequest.filter:type_name -> logs.v1.LogFilter
 	3,  // 13: logs.v1.GetLogPatternsResponse.patterns:type_name -> logs.v1.LogPattern
-	18, // 14: logs.v1.GetLogContextRequest.time:type_name -> google.protobuf.Timestamp
+	19, // 14: logs.v1.GetLogContextRequest.time:type_name -> google.protobuf.Timestamp
 	1,  // 15: logs.v1.GetLogContextResponse.lines:type_name -> logs.v1.LogLine
 	0,  // 16: logs.v1.GetLogFacetsRequest.filter:type_name -> logs.v1.LogFilter
 	4,  // 17: logs.v1.GetLogFacetsResponse.node_names:type_name -> logs.v1.Facet
@@ -1462,24 +1478,25 @@ var file_logs_v1_logs_proto_depIdxs = []int32{
 	4,  // 20: logs.v1.GetLogFacetsResponse.clusters:type_name -> logs.v1.Facet
 	4,  // 21: logs.v1.GetLogFacetsResponse.environments:type_name -> logs.v1.Facet
 	4,  // 22: logs.v1.GetLogFacetsResponse.replication_sets:type_name -> logs.v1.Facet
-	18, // 23: logs.v1.FindLogQueryRequest.time:type_name -> google.protobuf.Timestamp
-	5,  // 24: logs.v1.LogsService.SearchLogs:input_type -> logs.v1.SearchLogsRequest
-	7,  // 25: logs.v1.LogsService.GetLogVolume:input_type -> logs.v1.GetLogVolumeRequest
-	9,  // 26: logs.v1.LogsService.GetLogPatterns:input_type -> logs.v1.GetLogPatternsRequest
-	11, // 27: logs.v1.LogsService.GetLogContext:input_type -> logs.v1.GetLogContextRequest
-	15, // 28: logs.v1.LogsService.FindLogQuery:input_type -> logs.v1.FindLogQueryRequest
-	13, // 29: logs.v1.LogsService.GetLogFacets:input_type -> logs.v1.GetLogFacetsRequest
-	6,  // 30: logs.v1.LogsService.SearchLogs:output_type -> logs.v1.SearchLogsResponse
-	8,  // 31: logs.v1.LogsService.GetLogVolume:output_type -> logs.v1.GetLogVolumeResponse
-	10, // 32: logs.v1.LogsService.GetLogPatterns:output_type -> logs.v1.GetLogPatternsResponse
-	12, // 33: logs.v1.LogsService.GetLogContext:output_type -> logs.v1.GetLogContextResponse
-	16, // 34: logs.v1.LogsService.FindLogQuery:output_type -> logs.v1.FindLogQueryResponse
-	14, // 35: logs.v1.LogsService.GetLogFacets:output_type -> logs.v1.GetLogFacetsResponse
-	30, // [30:36] is the sub-list for method output_type
-	24, // [24:30] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	19, // 23: logs.v1.FindLogQueryRequest.time:type_name -> google.protobuf.Timestamp
+	18, // 24: logs.v1.FindLogQueryRequest.attributes:type_name -> logs.v1.FindLogQueryRequest.AttributesEntry
+	5,  // 25: logs.v1.LogsService.SearchLogs:input_type -> logs.v1.SearchLogsRequest
+	7,  // 26: logs.v1.LogsService.GetLogVolume:input_type -> logs.v1.GetLogVolumeRequest
+	9,  // 27: logs.v1.LogsService.GetLogPatterns:input_type -> logs.v1.GetLogPatternsRequest
+	11, // 28: logs.v1.LogsService.GetLogContext:input_type -> logs.v1.GetLogContextRequest
+	15, // 29: logs.v1.LogsService.FindLogQuery:input_type -> logs.v1.FindLogQueryRequest
+	13, // 30: logs.v1.LogsService.GetLogFacets:input_type -> logs.v1.GetLogFacetsRequest
+	6,  // 31: logs.v1.LogsService.SearchLogs:output_type -> logs.v1.SearchLogsResponse
+	8,  // 32: logs.v1.LogsService.GetLogVolume:output_type -> logs.v1.GetLogVolumeResponse
+	10, // 33: logs.v1.LogsService.GetLogPatterns:output_type -> logs.v1.GetLogPatternsResponse
+	12, // 34: logs.v1.LogsService.GetLogContext:output_type -> logs.v1.GetLogContextResponse
+	16, // 35: logs.v1.LogsService.FindLogQuery:output_type -> logs.v1.FindLogQueryResponse
+	14, // 36: logs.v1.LogsService.GetLogFacets:output_type -> logs.v1.GetLogFacetsResponse
+	31, // [31:37] is the sub-list for method output_type
+	25, // [25:31] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_logs_v1_logs_proto_init() }
@@ -1493,7 +1510,7 @@ func file_logs_v1_logs_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_logs_v1_logs_proto_rawDesc), len(file_logs_v1_logs_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
