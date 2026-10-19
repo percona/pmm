@@ -428,7 +428,15 @@ Built next (2026-10-17), without rules: no rule filter, rule chips or Rules tab 
 Every request takes the same filter: time range (required; default 1 h, maximum the retention), node names, sources
 (`ServiceName`: the component for PMM Server's own logs, the node name for agent logs until log sources are tied to
 services), presets, minimum severity, text (case-insensitive contains, served by the `tokenbf` index on `Body`),
-pattern. Rows written before the preset tag existed match no preset filter.
+pattern, and the clusters, environments and replication sets of services. Rows written before the preset tag existed
+match no preset filter.
+
+Log lines carry their node, not their service, so the service labels are resolved when a request comes in: pmm-managed
+reads the labeled services and their nodes from the inventory, keeps the services with one of the requested values of
+each label given, and filters lines by those services' nodes; labels no service has select no lines. A node running
+services of two clusters shows its lines under both, and PMM Server's own logs belong to no cluster. Reading the
+inventory per request follows label changes and works for lines written before them, with no change to collection.
+`GetLogFacets` lists each label value with the lines of its services' nodes.
 
 ### 3.2 Queries
 
@@ -490,8 +498,9 @@ dependencies.
 
 The filter bar and the chart stay pinned; only the lines or patterns below them scroll. The page has no heading.
 
-- **Filter bar:** the time-range control from native QAN, node and source pickers filled from `GetLogFacets`, log type
-  (preset), minimum severity, search box. Filters live in the URL, so alert links open the right view; hidden patterns
+- **Filter bar:** the time-range control from native QAN, node and source pickers filled from `GetLogFacets`, cluster,
+  environment and replication set pickers shown when the inventory has such labels, log type (preset), minimum
+  severity, search box. Filters live in the URL, so alert links open the right view; hidden patterns
   are `hide=<pattern hash>` and show as one chip.
 - **Volume chart:** bars stacked by severity, drawn like QAN's sparklines; drag to zoom the time range; collapsible.
   The last opened line's pattern is drawn over the dimmed bars on its own scale (right axis), with a marker at the

@@ -188,6 +188,21 @@ const FacetFilter: FC<FacetFilterProps> = ({
   );
 };
 
+// Service labels, shown when the inventory has them; they filter lines by the nodes of the labeled services.
+const LABELS = [
+  {
+    key: 'environments',
+    label: 'Environment',
+    testId: 'logs-filter-environment',
+  },
+  { key: 'clusters', label: 'Cluster', testId: 'logs-filter-cluster' },
+  {
+    key: 'replicationSets',
+    label: 'Replication set',
+    testId: 'logs-filter-replication-set',
+  },
+] as const;
+
 // What the Severity button says for a filter that selects one class.
 const CLASS_LABELS: Record<SeverityClass, string> = {
   error: 'Error and above',
@@ -380,6 +395,18 @@ export const LogsFilterBar: FC<LogsFilterBarProps> = ({
         alignItems="center"
         sx={{ flexWrap: 'wrap', rowGap: 1 }}
       >
+        {LABELS.map(({ key, label, testId }) =>
+          facets?.[key].length || filter[key] ? (
+            <FacetFilter
+              key={key}
+              label={label}
+              facets={facets?.[key]}
+              value={filter[key]}
+              onChange={(value) => onChange({ ...filter, [key]: value }, range)}
+              testId={testId}
+            />
+          ) : null
+        )}
         <FacetFilter
           label="Node"
           facets={facets?.nodeNames}

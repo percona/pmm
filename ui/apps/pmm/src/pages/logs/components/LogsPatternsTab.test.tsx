@@ -10,9 +10,14 @@ vi.mock('api/logs', async (importOriginal) => ({
   ...(await importOriginal<typeof import('api/logs')>()),
   getLogPatterns,
   getLogVolume: vi.fn().mockResolvedValue({ buckets: [], step: '60s' }),
-  getLogFacets: vi
-    .fn()
-    .mockResolvedValue({ nodeNames: [], sources: [], presets: [] }),
+  getLogFacets: vi.fn().mockResolvedValue({
+    nodeNames: [],
+    sources: [],
+    presets: [],
+    clusters: [],
+    environments: [],
+    replicationSets: [],
+  }),
   searchLogs: vi.fn().mockResolvedValue({ lines: [] }),
   getLogContext: vi.fn(),
 }));

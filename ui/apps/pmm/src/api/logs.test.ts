@@ -1,5 +1,6 @@
 import {
   findLogQuery,
+  getLogFacets,
   getLogPatterns,
   searchLogs,
   severityClass,
@@ -218,5 +219,48 @@ describe('findLogQuery', () => {
       patternHash: '',
     });
     expect(query.queryId).toBe('');
+  });
+});
+
+describe('getLogFacets', () => {
+  it('sends the service labels and maps their facets', async () => {
+    post.mockResolvedValue({
+      data: {
+        node_names: [{ value: 'rs101', count: '40' }],
+        clusters: [{ value: 'sharded', count: '40' }],
+        environments: [{ value: 'prod', count: '7' }],
+        replication_sets: [{ value: 'rs1', count: '40' }],
+      },
+    });
+
+    const facets = await getLogFacets({
+      start: '2026-10-17T09:00:00Z',
+      end: '2026-10-17T10:00:00Z',
+      clusters: ['sharded'],
+      environments: ['prod'],
+      replicationSets: ['rs1'],
+    });
+
+    expect(post).toHaveBeenCalledWith(
+      '/logs:getFacets',
+      {
+        filter: {
+          start: '2026-10-17T09:00:00Z',
+          end: '2026-10-17T10:00:00Z',
+          clusters: ['sharded'],
+          environments: ['prod'],
+          replication_sets: ['rs1'],
+        },
+      },
+      expect.anything()
+    );
+    expect(facets).toEqual({
+      nodeNames: [{ value: 'rs101', count: 40 }],
+      sources: [],
+      presets: [],
+      clusters: [{ value: 'sharded', count: 40 }],
+      environments: [{ value: 'prod', count: 7 }],
+      replicationSets: [{ value: 'rs1', count: 40 }],
+    });
   });
 });

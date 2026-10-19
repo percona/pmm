@@ -59,7 +59,14 @@ describe('LogsPage', () => {
       ],
       step: '60s',
     });
-    getLogFacets.mockResolvedValue({ nodeNames: [], sources: [], presets: [] });
+    getLogFacets.mockResolvedValue({
+      nodeNames: [],
+      sources: [],
+      presets: [],
+      clusters: [],
+      environments: [],
+      replicationSets: [],
+    });
     searchLogs.mockResolvedValue({ lines: [] });
     getLogPatterns.mockResolvedValue([]);
   });

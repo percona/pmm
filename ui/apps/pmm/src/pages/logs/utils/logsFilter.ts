@@ -26,6 +26,9 @@ export const hasFilters = (f: LogFilter) =>
     f.nodeNames ||
     f.sources ||
     f.presets ||
+    f.clusters ||
+    f.environments ||
+    f.replicationSets ||
     f.minSeverity ||
     f.maxSeverity ||
     f.text ||
@@ -71,6 +74,9 @@ export const filterFromSearchParams = (
     excludeNodeNames: 'exclude_node',
     sources: 'source',
     presets: 'preset',
+    clusters: 'cluster',
+    environments: 'environment',
+    replicationSets: 'replication_set',
     excludePatternHashes: 'hide',
   } as const;
   for (const [field, key] of Object.entries(lists)) {
@@ -108,6 +114,9 @@ export const searchParamsFromFilter = (
   filter.excludeNodeNames?.forEach((v) => params.append('exclude_node', v));
   filter.sources?.forEach((v) => params.append('source', v));
   filter.presets?.forEach((v) => params.append('preset', v));
+  filter.clusters?.forEach((v) => params.append('cluster', v));
+  filter.environments?.forEach((v) => params.append('environment', v));
+  filter.replicationSets?.forEach((v) => params.append('replication_set', v));
   if (filter.minSeverity) params.set('severity', String(filter.minSeverity));
   if (filter.maxSeverity) {
     params.set('severity_max', String(filter.maxSeverity));

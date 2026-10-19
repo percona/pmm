@@ -12,7 +12,7 @@ const now = new Date('2026-10-17T12:00:00Z');
 describe('logsFilter', () => {
   it('round-trips every key', () => {
     const params = new URLSearchParams(
-      'from=1760695200000&to=1760698800000&node=n1&node=n2&exclude_node=pmm-server&source=pmm-managed&preset=postgres&preset=mysql_error&severity=13&severity_max=16&q=deadlock&pattern=connection+%3F&hide=7&hide=18446744073709551615'
+      'from=1760695200000&to=1760698800000&node=n1&node=n2&exclude_node=pmm-server&source=pmm-managed&preset=postgres&preset=mysql_error&cluster=sharded&environment=prod&replication_set=rs1&replication_set=rs2&severity=13&severity_max=16&q=deadlock&pattern=connection+%3F&hide=7&hide=18446744073709551615'
     );
     const filter = filterFromSearchParams(params, now);
     expect(filter).toEqual({
@@ -22,6 +22,9 @@ describe('logsFilter', () => {
       excludeNodeNames: ['pmm-server'],
       sources: ['pmm-managed'],
       presets: ['postgres', 'mysql_error'],
+      clusters: ['sharded'],
+      environments: ['prod'],
+      replicationSets: ['rs1', 'rs2'],
       minSeverity: 13,
       maxSeverity: 16,
       text: 'deadlock',
@@ -76,6 +79,13 @@ describe('logsFilter', () => {
       minSeverity: 17,
     });
     expect(severityClassOf({ ...base, minSeverity: 13 })).toBeUndefined();
+  });
+
+  it('counts service labels as filters', () => {
+    const range = { start: now.toISOString(), end: now.toISOString() };
+    expect(hasFilters({ ...range, clusters: ['sharded'] })).toBe(true);
+    expect(hasFilters({ ...range, environments: ['prod'] })).toBe(true);
+    expect(hasFilters({ ...range, replicationSets: ['rs1'] })).toBe(true);
   });
 
   it('counts hidden patterns as a filter', () => {

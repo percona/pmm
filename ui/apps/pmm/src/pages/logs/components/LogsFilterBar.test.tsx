@@ -17,6 +17,9 @@ const facets = {
     { value: 'pmm-managed', count: 7 },
   ],
   presets: [],
+  clusters: [{ value: 'sharded', count: 40 }],
+  environments: [],
+  replicationSets: [],
 };
 
 const renderBar = (
@@ -74,6 +77,26 @@ describe('LogsFilterBar', () => {
       facets: { ...facets, sources: [{ value: 'pg-1', count: 12 }] },
     });
     expect(screen.getByRole('button', { name: 'Service pg-1' })).toBeVisible();
+  });
+
+  it('filters by a cluster picked from the Cluster button', () => {
+    const onChange = renderBar();
+    fireEvent.click(screen.getByRole('button', { name: 'Cluster Any' }));
+    fireEvent.click(screen.getByRole('option', { name: 'sharded (40)' }));
+    expect(onChange).toHaveBeenCalledWith(
+      { ...filter, clusters: ['sharded'] },
+      '1h'
+    );
+  });
+
+  it('shows a label filter only when it has values or is set', () => {
+    renderBar({ filter: { ...filter, replicationSets: ['rs1'] } });
+    expect(
+      screen.queryByRole('button', { name: /^Environment/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Replication set rs1' })
+    ).toBeVisible();
   });
 
   it('switches to a quick range', () => {

@@ -16,6 +16,10 @@ export interface LogFilter {
   patternHash?: string;
   /** Patterns to hide. */
   excludePatternHashes?: string[];
+  /** Lines of the nodes running services with these labels. */
+  clusters?: string[];
+  environments?: string[];
+  replicationSets?: string[];
 }
 
 export interface LogLine {
@@ -65,6 +69,9 @@ export interface LogFacets {
   nodeNames: LogFacet[];
   sources: LogFacet[];
   presets: LogFacet[];
+  clusters: LogFacet[];
+  environments: LogFacet[];
+  replicationSets: LogFacet[];
 }
 
 export type SeverityClass = 'error' | 'warning' | 'info' | 'other';
@@ -124,6 +131,9 @@ const toRawFilter = (f: LogFilter) => ({
   pattern: f.pattern,
   pattern_hash: f.patternHash,
   exclude_pattern_hashes: f.excludePatternHashes,
+  clusters: f.clusters,
+  environments: f.environments,
+  replication_sets: f.replicationSets,
 });
 
 const toLogLine = (l: RawLogLine): LogLine => ({
@@ -268,10 +278,16 @@ export const getLogFacets = async (filter: LogFilter): Promise<LogFacets> => {
     node_names?: RawFacet[];
     sources?: RawFacet[];
     presets?: RawFacet[];
+    clusters?: RawFacet[];
+    environments?: RawFacet[];
+    replication_sets?: RawFacet[];
   }>('/logs:getFacets', { filter: toRawFilter(filter) }, config);
   return {
     nodeNames: toFacets(res.data.node_names),
     sources: toFacets(res.data.sources),
     presets: toFacets(res.data.presets),
+    clusters: toFacets(res.data.clusters),
+    environments: toFacets(res.data.environments),
+    replicationSets: toFacets(res.data.replication_sets),
   };
 };
