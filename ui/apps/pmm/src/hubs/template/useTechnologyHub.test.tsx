@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import type { Settings } from 'types/settings.types';
 import type { User } from 'types/user.types';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
@@ -95,7 +95,11 @@ const renderTechnologyHub = (
   }: { path?: string; user?: User; settings?: Partial<Settings> } = {}
 ) =>
   renderHook(
-    () => ({ hub: useTechnologyHub(config), location: useLocation() }),
+    () => ({
+      hub: useTechnologyHub(config),
+      location: useLocation(),
+      navigationType: useNavigationType(),
+    }),
     {
       wrapper: ({ children }: PropsWithChildren) => (
         <TestWrapper
@@ -264,6 +268,8 @@ describe('useTechnologyHub', () => {
     );
     expect(result.current.location.hash).toBe('');
     expect(result.current.hub.params.environment).toBe('prod');
+    // Back leaves the page instead of stepping through each filter.
+    expect(result.current.navigationType).toBe('REPLACE');
 
     act(() =>
       result.current.hub.setParams({ environment: null, scenario: 'live' })
