@@ -51,7 +51,8 @@ func LogTable(t *testing.T, structs []reform.Struct) {
 		for i, v := range str.Values() {
 			res[i] = spew.Sprint(v)
 		}
-		fmt.Fprintf(w, "%s\n", strings.Join(res, "\t"))
+		_, err = fmt.Fprintf(w, "%s\n", strings.Join(res, "\t"))
+		require.NoError(t, err)
 	}
 
 	require.NoError(t, w.Flush())
