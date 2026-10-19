@@ -31,7 +31,7 @@ const down = (
   );
 };
 
-/** One of every attention kind on the shared estate, as design section 6.3 lists them. */
+/** One of every attention kind on the shared estate: design section 6.3's list and a recovering config server member. */
 export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   const snapshot = healthySnapshot(now, ops);
   const metrics = snapshot.metrics;
@@ -43,6 +43,13 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   down(snapshot, 'orders-shard2-m2', now, 12 * MINUTE_MS);
 
   if (metrics) {
+    const recovering = serviceId('orders-cfg-m3');
+
+    metrics.self[recovering] = {
+      ...metrics.self[recovering],
+      state: 'RECOVERING',
+    };
+    delete metrics.lag[recovering];
     metrics.lag[serviceId('orders-shard1-m3')] = { now: 40, sustained: 38 };
     metrics.oplogWindow[serviceId('orders-shard2-m1')] = 3 * 3600;
     metrics.oplogFill[serviceId('orders-shard2-m1')] = 0.96;

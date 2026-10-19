@@ -23,6 +23,7 @@ import {
 import {
   compareHealth,
   hasNoPrimary,
+  isNotServing,
   lagLevel,
   type MemberVerdict,
   memberHealth,
@@ -471,7 +472,10 @@ const memberType = (member: MemberModel) => {
     case 'ARBITER':
       return Messages.types.arbiter;
     default:
-      return Messages.types.member;
+      return (
+        (member.state && Messages.memberStates[member.state]) ||
+        Messages.types.member
+      );
   }
 };
 
@@ -529,14 +533,15 @@ const memberNode = (
           oplogWindow: notApplicable(Messages.measures.standaloneOplog),
         };
   const since = memberSince(member);
+  const notServing = isNotServing(member);
 
   return {
     id: `member:${serviceId}`,
     kind: 'member',
     name: serviceName,
     type: memberType(member),
-    health: memberHealth(member.verdict),
-    showHealth: member.verdict !== 'up',
+    health: notServing ? 'degraded' : memberHealth(member.verdict),
+    showHealth: member.verdict !== 'up' || notServing,
     ...(since ? { since } : {}),
     measures,
     doors: {

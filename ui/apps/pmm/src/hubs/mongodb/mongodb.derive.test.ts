@@ -41,7 +41,7 @@ describe('deriveMongoHub status', () => {
       needAttention: 3,
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
-    expect(attention).toHaveLength(10);
+    expect(attention).toHaveLength(11);
   });
 
   it('says nothing is monitored for an empty estate', () => {

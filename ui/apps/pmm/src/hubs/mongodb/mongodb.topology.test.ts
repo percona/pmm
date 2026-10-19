@@ -221,6 +221,33 @@ describe('buildClusterTree', () => {
     });
   });
 
+  it('shows an up member that is not serving as Degraded with its state', () => {
+    const snapshot = healthySnapshot(NOW, false);
+    const id = 'svc-billing-m3';
+
+    if (snapshot.metrics) {
+      snapshot.metrics.self[id] = {
+        ...snapshot.metrics.self[id],
+        state: 'RECOVERING',
+      };
+      delete snapshot.metrics.lag[id];
+    }
+    const nodes = tree(snapshot);
+
+    expect(find(nodes, 'billing-m3')).toMatchObject({
+      type: 'Recovering',
+      health: 'degraded',
+      showHealth: true,
+    });
+    expect(find(nodes, 'billing')).toMatchObject({
+      health: 'degraded',
+      members: { up: 3, total: 3, noData: 0 },
+    });
+    expect(expandedProblems(nodes)).toMatchObject({
+      'cluster:prod/billing': true,
+    });
+  });
+
   it('marks billing Down with no primary, 1 of 3 members up', () => {
     const billing = find(tree(wrongSnapshot(NOW, false)), 'billing');
 
@@ -308,6 +335,7 @@ describe('buildClusterTree', () => {
     expect(expanded).toEqual({
       'cluster:prod/billing': true,
       'cluster:prod/orders': true,
+      'set:prod/orders/orders-cfg': true,
       'set:prod/orders/orders-shard1': true,
       'set:prod/orders/orders-shard2': true,
     });

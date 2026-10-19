@@ -34,6 +34,13 @@ export const Messages = {
     router: 'Router',
     member: 'Member',
   },
+  /** Type words for member states that serve nothing; any other state reads "Member". */
+  memberStates: {
+    STARTUP: 'Starting up',
+    STARTUP2: 'Initial sync',
+    RECOVERING: 'Recovering',
+    ROLLBACK: 'Rolling back',
+  } as Partial<Record<string, string>>,
   routersName: 'Routers (mongos)',
   columns: {
     lag: {
@@ -119,6 +126,8 @@ export const Messages = {
       `${down} of ${total} members down`,
     memberDown: (member: string) => `${member} is down`,
     memberNoData: (member: string) => `PMM gets no data from ${member}`,
+    notServing: (member: string, state: string) =>
+      `${member} is ${state}, it can't serve reads`,
     backupFailed: (cluster: string, name: string) =>
       `${cluster} ${name} failed`,
     backupFallbackName: 'backup',

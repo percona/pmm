@@ -89,7 +89,7 @@ describe('fixtures', () => {
       expect([...kinds].sort()).toEqual([...MONGODB_ATTENTION_ORDER].sort());
     });
 
-    it('ranks exactly as the design, 10 rows with Operations off and 12 on', () => {
+    it('ranks every kind, 11 rows with Operations off and 13 on', () => {
       const off = view('wrong', false).attention;
       const on = view('wrong', true).attention;
 
@@ -100,6 +100,7 @@ describe('fixtures', () => {
         'backupFailed',
         'pitrStopped',
         'oplogShort',
+        'memberNotServing',
         'behind',
         'alert',
         'querySlower',
@@ -111,11 +112,11 @@ describe('fixtures', () => {
         'operationsFailed',
       ]);
       expect(
-        on.slice(10).every((item) => item.door.preview === 'developer')
+        on.slice(11).every((item) => item.door.preview === 'developer')
       ).toBe(true);
     });
 
-    it('shows the first five and folds 5 more off, 7 more on', () => {
+    it('shows the first five and folds 6 more off, 8 more on', () => {
       const off = capAttention(view('wrong', false).attention, 5);
       const on = capAttention(view('wrong', true).attention, 5);
 
@@ -126,8 +127,8 @@ describe('fixtures', () => {
         'backupFailed',
         'pitrStopped',
       ]);
-      expect(off.hidden).toHaveLength(5);
-      expect(on.hidden).toHaveLength(7);
+      expect(off.hidden).toHaveLength(6);
+      expect(on.hidden).toHaveLength(8);
     });
 
     it('matches the design’s tree and status line', () => {

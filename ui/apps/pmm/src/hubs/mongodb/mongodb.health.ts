@@ -54,6 +54,15 @@ export interface SetMemberHealthInput {
   state?: string;
 }
 
+// The states of a member that holds, replicates or votes on data as it should.
+const SERVING_STATES = new Set(['PRIMARY', 'SECONDARY', 'ARBITER']);
+
+/** Up but in a state such as RECOVERING, STARTUP2 or ROLLBACK, so it serves no reads and keeps no copy current. */
+export const isNotServing = (member: SetMemberHealthInput): boolean =>
+  member.verdict === 'up' &&
+  !!member.state &&
+  !SERVING_STATES.has(member.state);
+
 /** At least one member answers and none of them is primary, so the set takes no writes. */
 export const hasNoPrimary = (members: SetMemberHealthInput[]): boolean =>
   members.some((member) => member.verdict === 'up') &&
@@ -87,7 +96,7 @@ export const setHealth = ({
     return 'noData';
   }
   if (
-    members.some((member) => member.verdict !== 'up') ||
+    members.some((member) => member.verdict !== 'up' || isNotServing(member)) ||
     lagLevels.some(isPastWarning) ||
     isPastWarning(primaryOplogLevel)
   ) {

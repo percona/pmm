@@ -196,6 +196,60 @@ describe('member rows', () => {
   });
 });
 
+describe('members that are up but not serving', () => {
+  it.each(['RECOVERING', 'STARTUP2', 'ROLLBACK'])(
+    'warns about a %s member and opens its set',
+    (state) => {
+      const set = replicaSet('rs');
+      const m3 = set.services[2].serviceId;
+
+      set.metrics.self[m3] = { ...set.metrics.self[m3], state };
+      delete set.metrics.lag[m3];
+
+      expect(items(input(set.services, set.metrics))).toEqual([
+        {
+          id: `memberNotServing:${m3}`,
+          kind: 'memberNotServing',
+          severity: 'warning',
+          title: `rs-m3 is ${state}, it can't serve reads`,
+          where: 'rs · prod',
+          door: {
+            label: 'Open ReplSet summary',
+            to: '/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-environment=prod&var-cluster=rs&var-rs_nm=rs',
+            context: 'for rs',
+          },
+        },
+      ]);
+    }
+  );
+
+  it('merges the unusual state alert of its set', () => {
+    const set = replicaSet('rs');
+    const m3 = set.services[2].serviceId;
+
+    set.metrics.self[m3] = { ...set.metrics.self[m3], state: 'RECOVERING' };
+
+    expect(
+      items(
+        input(set.services, set.metrics, {
+          alerts: [
+            {
+              name: 'MongoDB member is in Unusual state',
+              templateName: 'pmm_mongodb_unusual_state',
+              severity: 'critical',
+              cluster: 'rs',
+              replicaSet: 'rs',
+              activeAt: new Date(NOW).toISOString(),
+            },
+          ],
+        })
+      )
+    ).toMatchObject([
+      { kind: 'memberNotServing', severity: 'error', source: 'alert' },
+    ]);
+  });
+});
+
 describe('alerts', () => {
   const downSecondary = () => {
     const set = replicaSet('rs');
@@ -433,6 +487,11 @@ describe('the things-wrong estate', () => {
         'oplogShort',
         'warning',
         'orders-shard2 oplog window is 3h and the oplog is full',
+      ],
+      [
+        'memberNotServing',
+        'warning',
+        "orders-cfg-m3 is RECOVERING, it can't serve reads",
       ],
       ['behind', 'warning', 'orders-shard1-m3 is 40s behind its primary'],
       ['alert', 'warning', 'MongoDB restarted (orders-shard1-m1)'],

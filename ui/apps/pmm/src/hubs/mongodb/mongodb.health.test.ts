@@ -5,6 +5,7 @@ import { healthySnapshot } from './fixtures/healthy';
 import { wrongSnapshot } from './fixtures/wrong';
 import {
   hasNoPrimary,
+  isNotServing,
   lagLevel,
   memberVerdict,
   oplogLevel,
@@ -124,6 +125,33 @@ describe('setHealth', () => {
 
   it('is no data without members', () => {
     expect(setHealth({ members: [], lagLevels: [] })).toBe('noData');
+  });
+
+  it.each(['RECOVERING', 'STARTUP2', 'ROLLBACK'])(
+    'is degraded, never healthy, while a member is up but %s',
+    (state) => {
+      expect(
+        setHealth({
+          members: [primary, up, { verdict: 'up', state }],
+          ...healthyLevels,
+        })
+      ).toBe('degraded');
+    }
+  );
+});
+
+describe('isNotServing', () => {
+  it('flags an up member outside primary, secondary and arbiter', () => {
+    expect(isNotServing({ verdict: 'up', state: 'RECOVERING' })).toBe(true);
+    expect(isNotServing({ verdict: 'up', state: 'STARTUP2' })).toBe(true);
+    expect(isNotServing(primary)).toBe(false);
+    expect(isNotServing(up)).toBe(false);
+    expect(isNotServing({ verdict: 'up', state: 'ARBITER' })).toBe(false);
+  });
+
+  it('leaves a member without a reported state, or not up, to its verdict', () => {
+    expect(isNotServing({ verdict: 'up' })).toBe(false);
+    expect(isNotServing({ verdict: 'down', state: 'RECOVERING' })).toBe(false);
   });
 });
 

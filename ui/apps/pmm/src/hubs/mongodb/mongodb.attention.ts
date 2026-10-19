@@ -25,7 +25,7 @@ import {
   runningAge,
   type SlowerQuery,
 } from './mongodb.queries';
-import { routersHealth } from './mongodb.health';
+import { isNotServing, routersHealth } from './mongodb.health';
 import {
   type ClusterModel,
   clusterMembers,
@@ -47,6 +47,7 @@ export const MONGODB_ATTENTION_ORDER = [
   'backupFailed',
   'pitrStopped',
   'oplogShort',
+  'memberNotServing',
   'behind',
   'alert',
   'querySlower',
@@ -246,6 +247,32 @@ const memberEntries = (cluster: ClusterModel): AttentionEntry[] => {
       if (noPrimary && member.verdict === 'down') {
         return;
       }
+      if (isNotServing(member) && member.state) {
+        const { serviceId, serviceName } = member.service;
+
+        entries.push({
+          item: {
+            id: `memberNotServing:${serviceId}`,
+            kind: 'memberNotServing',
+            severity: severityOfHealth(setDown),
+            title: Messages.attention.notServing(serviceName, member.state),
+            where: whereOf(cluster, inner),
+            door: {
+              label: Messages.doors.replsetSummary,
+              to: replsetSummary(place, set.name),
+              context: Messages.doors.forSubject(set.name),
+            },
+          },
+          subject: {
+            clusterKey: cluster.key,
+            cluster: cluster.name,
+            set: set.name,
+            serviceNames: [serviceName],
+          },
+        });
+
+        return;
+      }
       pushMember(
         member,
         severityOfHealth(setDown),
@@ -389,6 +416,7 @@ const MERGES: Record<string, string[]> = {
   pmm_mongodb_oplog_window: ['oplogShort'],
   pmm_mongodb_pbm_backup_failed: ['backupFailed'],
   pmm_mongodb_pbm_backup_stale: ['backupFailed'],
+  pmm_mongodb_unusual_state: ['memberNotServing'],
 };
 
 const sameCluster = (alert: MongoAlertInput, subject: Subject) =>
@@ -409,6 +437,7 @@ const matches = (alert: MongoAlertInput, entry: AttentionEntry): boolean => {
         : !!alert.serviceName &&
             subject.serviceNames.includes(alert.serviceName);
     case 'behind':
+    case 'memberNotServing':
       return !!alert.replicaSet && alert.replicaSet === subject.set;
     case 'oplogShort':
       return (
