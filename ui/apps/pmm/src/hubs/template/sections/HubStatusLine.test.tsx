@@ -6,6 +6,9 @@ import { HubStatusLine } from './HubStatusLine';
 
 const STATUS = testView().status;
 
+// The sentence after the icon, whose accessible name also counts as text content.
+const sentence = () => screen.getByTestId('hub-status-line').lastElementChild;
+
 const renderLine = (status: Partial<HubStatus> = {}, loading = false) =>
   renderHub(
     <HubStatusLine
@@ -30,7 +33,7 @@ describe('HubStatusLine', () => {
       },
     });
 
-    expect(screen.getByTestId('hub-status-line')).toHaveTextContent(
+    expect(sentence()).toHaveTextContent(
       /^3 clusters in prod · 3 need attention · last good backup 6h ago of billing$/
     );
     expect(
@@ -104,6 +107,45 @@ describe('HubStatusLine', () => {
     renderLine({ lastGoodBackup });
 
     expect(screen.getByTestId('hub-status-line')).toHaveTextContent(text);
+  });
+
+  it('counts the rows no cluster accounts for, and links them', () => {
+    renderLine({
+      state: 'healthy',
+      needAttention: 0,
+      otherIssues: 2,
+      attentionSeverity: 'warning',
+    });
+
+    expect(sentence()).toHaveTextContent(
+      /^3 clusters · none need attention · 2 other issues · last good backup/
+    );
+    expect(
+      screen.getByRole('link', { name: '2 other issues' })
+    ).toHaveAttribute('href', '/mongodb#needs-attention');
+  });
+
+  it('names the estate’s health on its icon, so it is not color alone', () => {
+    renderLine({ state: 'degraded', attentionSeverity: 'warning' });
+
+    expect(screen.getByRole('img', { name: 'Degraded' })).toBeInTheDocument();
+  });
+
+  it('takes the icon from a row worse than the clusters’ health', () => {
+    renderLine({
+      state: 'healthy',
+      needAttention: 1,
+      attentionSeverity: 'error',
+    });
+
+    expect(screen.getByRole('img', { name: 'Error' })).toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Healthy' })).toBeNull();
+  });
+
+  it('keeps the health icon when no row is worse', () => {
+    renderLine({ state: 'down', attentionSeverity: 'warning' });
+
+    expect(screen.getByRole('img', { name: 'Down' })).toBeInTheDocument();
   });
 
   it('says nothing is monitored on an empty estate, with no doors', () => {

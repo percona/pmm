@@ -203,6 +203,8 @@ export const testView = (
     state: 'down',
     clusters: 3,
     needAttention: 3,
+    otherIssues: 0,
+    attentionSeverity: 'error',
     lastGoodBackup: { at: minutesAgo(360), cluster: 'billing' },
     checkedAt: minutesAgo(0),
     doors: {

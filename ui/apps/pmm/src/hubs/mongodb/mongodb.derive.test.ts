@@ -26,10 +26,39 @@ describe('deriveMongoHub status', () => {
       state: 'healthy',
       clusters: 3,
       needAttention: 0,
+      otherIssues: 0,
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
       checkedAt: new Date(NOW).toISOString(),
     });
+    expect(status.attentionSeverity).toBeUndefined();
     expect(attention).toEqual([]);
+  });
+
+  it('carries the worst row severity and counts rows outside any cluster', () => {
+    const snapshot = healthySnapshot(NOW, true);
+
+    snapshot.alerts = [
+      {
+        name: 'MongoDB restarted',
+        templateName: 'pmm_mongodb_restarted',
+        severity: 'critical',
+        serviceName: 'billing-m1',
+        cluster: 'billing',
+        environment: 'prod',
+        activeAt: hours(1),
+      },
+    ];
+    snapshot.qan = wrongSnapshot(NOW, true).qan;
+    snapshot.operations = wrongSnapshot(NOW, true).operations;
+
+    expect(
+      derive(snapshot, { scenario: 'healthy', operations: true }).status
+    ).toMatchObject({
+      state: 'healthy',
+      needAttention: 1,
+      otherIssues: 3,
+      attentionSeverity: 'error',
+    });
   });
 
   it('counts the clusters that need attention, not the rows', () => {
@@ -39,6 +68,8 @@ describe('deriveMongoHub status', () => {
       state: 'down',
       clusters: 3,
       needAttention: 3,
+      otherIssues: 1,
+      attentionSeverity: 'error',
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
     expect(attention).toHaveLength(11);

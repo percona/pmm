@@ -1,4 +1,4 @@
-import { rankAttention } from 'hubs/template/hub.attention';
+import { higherSeverity, rankAttention } from 'hubs/template/hub.attention';
 import { ALERTS_PATH } from 'hubs/template/hub.doors';
 import {
   environmentOptions,
@@ -188,13 +188,22 @@ export const deriveMongoHub = (
       .map((node) => node.id.replace(/^cluster:/, ''))
   );
 
+  let otherIssues = 0;
+
   entries.forEach((entry) => {
     const key = clusterKeyOf(entry, clusterByService, models);
 
     if (key) {
       troubled.add(key);
+    } else {
+      otherIssues += 1;
     }
   });
+  const attentionSeverity = entries.reduce<HubStatus['attentionSeverity']>(
+    (worst, { item }) =>
+      worst ? higherSeverity(worst, item.severity) : item.severity,
+    undefined
+  );
 
   // Nothing monitored at all; a filter that matches nothing is not an empty estate.
   const empty =
@@ -205,6 +214,8 @@ export const deriveMongoHub = (
     state: statusState({ empty, metricsOk, shown: services.length, clusters }),
     clusters: models.length,
     needAttention: metricsOk ? troubled.size : null,
+    otherIssues,
+    ...(attentionSeverity ? { attentionSeverity } : {}),
     lastGoodBackup: backups.lastGoodBackup,
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {

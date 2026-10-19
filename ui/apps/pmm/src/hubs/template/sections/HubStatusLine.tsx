@@ -19,6 +19,38 @@ const SEVERITY: Record<HubStatus['state'], StatusIconSeverity> = {
   empty: 'indeterminate',
 };
 
+// Worst first: unknown outranks info and success, never a warning.
+const ICON_RANK: StatusIconSeverity[] = [
+  'error',
+  'warning',
+  'indeterminate',
+  'info',
+  'success',
+];
+
+/** The worse of the estate's health and its most severe attention row, with the word that names it. */
+const statusIcon = ({
+  state,
+  attentionSeverity,
+}: HubStatus): { severity: StatusIconSeverity; word?: string } => {
+  const health = SEVERITY[state];
+
+  if (
+    attentionSeverity &&
+    ICON_RANK.indexOf(attentionSeverity) < ICON_RANK.indexOf(health)
+  ) {
+    return {
+      severity: attentionSeverity,
+      word: Messages.attention.severity[attentionSeverity],
+    };
+  }
+
+  return {
+    severity: health,
+    word: state === 'empty' ? undefined : Messages.health[state],
+  };
+};
+
 export interface HubStatusLineProps {
   status: HubStatus;
   /** Technology name, such as "MongoDB". */
@@ -86,6 +118,19 @@ const attentionFigure = (status: HubStatus): ReactNode => {
   );
 };
 
+const otherIssuesFigure = (status: HubStatus): ReactNode[] =>
+  status.needAttention != null && status.otherIssues > 0
+    ? [
+        <DoorLink
+          key="otherIssues"
+          door={status.doors.attention}
+          underline="always"
+        >
+          {Messages.status.otherIssues(status.otherIssues)}
+        </DoorLink>,
+      ]
+    : [];
+
 /** One sentence on the whole estate; each figure opens what it counts. */
 export const HubStatusLine: FC<HubStatusLineProps> = ({
   status,
@@ -109,8 +154,11 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
               {Messages.status.clusters(status.clusters, unit)}
             </DoorLink>,
             attentionFigure(status),
+            ...otherIssuesFigure(status),
             backupFigure(status, canSetUpBackup),
           ];
+
+  const icon = statusIcon(status);
 
   return (
     <Box
@@ -118,7 +166,12 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
       data-testid="hub-status-line"
     >
       <LoadableChildren loading={loading} skeletonProps={{ width: 22 }}>
-        <StatusIcon size="small" severity={SEVERITY[status.state]} />
+        <StatusIcon
+          size="small"
+          severity={icon.severity}
+          // The sentence says it for an empty estate or an unmatched filter; elsewhere only the icon does.
+          titleAccess={matchesNothing ? undefined : icon.word}
+        />
       </LoadableChildren>
       <Box component="span" sx={{ minWidth: 0 }}>
         <LoadableChildren loading={loading} skeletonProps={{ width: 320 }}>
