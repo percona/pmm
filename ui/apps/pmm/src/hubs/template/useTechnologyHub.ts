@@ -113,9 +113,9 @@ export const useTechnologyHub = <TSnapshot>(
     return {
       run: fixtureRun,
       now,
-      snapshot: config.fixtures[scenario](now, operations),
+      snapshot: config.fixtures[scenario](now, operations, params.environment),
     };
-  }, [config, scenario, operations, fixtureRun]);
+  }, [config, scenario, operations, params.environment, fixtureRun]);
 
   const tick = useNow(HUB_NOW_TICK_MS);
   const now = fixture ? Math.max(tick, fixture.now) : tick;

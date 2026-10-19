@@ -304,9 +304,10 @@ export interface TechnologyHubConfig<TSnapshot> {
   /** Kinds, highest priority first. */
   attentionOrder: string[];
   useLiveSnapshot: (ctx: HubLiveContext) => HubLiveResult<TSnapshot>;
+  /** Sample data per state, built as live sources answer for that environment filter. */
   fixtures: Record<
     Exclude<HubScenario, 'live'>,
-    (now: number, ops: boolean) => TSnapshot
+    (now: number, ops: boolean, environment: string | null) => TSnapshot
   >;
   derive: (snapshot: TSnapshot, ctx: HubDeriveContext) => HubViewModel;
 }

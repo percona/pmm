@@ -511,6 +511,30 @@ describe('toOperationsInput', () => {
   });
 });
 
+describe('toOperationsInput installs', () => {
+  const install = (run_id: string, environment?: string) => ({
+    run_id,
+    status: 'failed' as const,
+    hosts: [{ host: run_id }],
+    replica_set_name: 'rs-new',
+    started_at: '2026-10-19T11:00:00Z',
+    finished_at: '2026-10-19T11:40:00Z',
+    ...(environment ? { environment } : {}),
+  });
+  const runs = [install('prod-host', 'prod'), install('bare-host')];
+  const targets = (environment: string | null) =>
+    toOperationsInput(RECORDED_TOPOLOGY, [], runs, environment).failedRuns.map(
+      (run) => run.target
+    );
+
+  it('keeps only the failed installs of the selected environment', () => {
+    expect(targets(null)).toEqual(['prod-host', 'bare-host']);
+    expect(targets('prod')).toEqual(['prod-host']);
+    expect(targets('staging')).toEqual([]);
+    expect(targets(HUB_NO_ENVIRONMENT)).toEqual(['bare-host']);
+  });
+});
+
 describe('readRecentDashboards', () => {
   afterEach(() => localStorage.clear());
 

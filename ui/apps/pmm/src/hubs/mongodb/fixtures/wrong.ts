@@ -154,8 +154,6 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   if (snapshot.operations) {
     snapshot.operations = {
       ...snapshot.operations,
-      // Operations counts the silent standalone as down.
-      summary: { ...snapshot.operations.summary, up: 11 },
       failedRuns: [
         {
           id: 'run-install-pmm-client',

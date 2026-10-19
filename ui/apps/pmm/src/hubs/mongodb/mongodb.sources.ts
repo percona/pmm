@@ -372,7 +372,11 @@ export const toOperationsInput = (
           ]
         : []),
       ...bootstrapRuns
-        .filter((run) => FAILED_INSTALL.has(run.status))
+        .filter(
+          (run) =>
+            FAILED_INSTALL.has(run.status) &&
+            matchesEnvironment(run.environment, environment)
+        )
         .map((run) => ({
           id: run.run_id,
           kind: 'install' as const,

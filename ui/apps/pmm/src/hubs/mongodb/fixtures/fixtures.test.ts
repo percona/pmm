@@ -15,7 +15,7 @@ const view = (
   role: (typeof ROLES)[number] = 'admin'
 ) =>
   deriveMongoHub(
-    MONGODB_FIXTURES[scenario](NOW, operations),
+    MONGODB_FIXTURES[scenario](NOW, operations, null),
     deriveContext({ scenario, operations, role })
   );
 
@@ -175,6 +175,23 @@ describe('fixtures', () => {
       expect(result.apps[0].summary?.text).toBe(
         '3 schedules · 1 failed in the last 24h'
       );
+    });
+
+    it('narrows queries, Operations counts and installs to the environment like live data', () => {
+      const staging = deriveMongoHub(
+        MONGODB_FIXTURES.wrong(NOW, true, 'staging'),
+        deriveContext({ operations: true, environment: 'staging' })
+      );
+
+      expect(staging.clusters.map((node) => node.name)).toEqual(['reports']);
+      expect(staging.queries.slower).toEqual([]);
+      expect(staging.apps[0].summary?.text).toBe(
+        '0 of 1 services up · last scan 4m ago'
+      );
+      expect(staging.attention.map((item) => item.title)).toEqual([
+        'PMM gets no data from reports',
+        'Scan failed on 2 nodes',
+      ]);
     });
 
     it('reads the orders backup as failed after an old success', () => {
