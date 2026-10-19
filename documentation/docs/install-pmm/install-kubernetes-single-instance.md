@@ -1,6 +1,6 @@
 # Install PMM on a Kubernetes single instance
 
-Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. Not sure this is the right setup for you? [Choose a deployment option](HA.md) before you start.
+Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. If 2–5 minutes of monitoring downtime during pod rescheduling is not acceptable, consider [PMM HA Cluster](install-HA-clustered.md) instead.
 
 ## Prerequisites
 
@@ -187,6 +187,8 @@ pod/pmm-0   1/1   Running   0   2m
 
 ## Configure PMM Server
 
+After installation, set the admin password, expose the service externally, choose a storage class, adjust data retention, and set resource limits to match your environment.
+
 ### Change admin password
 
 After first login, immediately change the default password:
@@ -282,9 +284,8 @@ By default, PMM Server is only accessible inside the cluster. To reach it from a
 
     **Best for**: Production environments with existing ingress controller
 
-    !!! note "Prerequisites"
-        Ensure you have an ingress controller (e.g., NGINX, Traefik) and cert-manager installed in your cluster.
-        
+    **Prerequisites**: An ingress controller (e.g., NGINX, Traefik) and cert-manager installed in your cluster.
+
     Use Ingress for advanced routing, SSL termination, and custom domain names:
     {.power-number}
 
@@ -519,6 +520,8 @@ kubectl exec -n monitoring -l app=pmm -- df -h /srv
 
 ### Backup and restore
 
+Back up the persistent volume using Kubernetes VolumeSnapshots. Restoring creates a new PVC from the snapshot and updates the Helm deployment to use it.
+
 **Create backup**
 ```sh
 # Create VolumeSnapshot (requires CSI driver with snapshot support)
@@ -572,6 +575,8 @@ helm upgrade pmm percona/pmm \
 
 ### Upgrade PMM
 
+The pod restarts during the upgrade, so expect a brief monitoring interruption (2-5 minutes) while Kubernetes reschedules it.
+
 ```sh
 # Update Helm repository
 helm repo update percona
@@ -594,7 +599,6 @@ helm upgrade pmm percona/pmm \
 kubectl rollout status statefulset -n monitoring pmm
 ```
 
-The pod restarts during the upgrade, so expect a brief monitoring interruption (2-5 minutes) while Kubernetes reschedules it.
 
 ### Rollback upgrade
 
