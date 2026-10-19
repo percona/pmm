@@ -5,8 +5,20 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting, addSection, addSepApps } from './navigation.utils';
-import { SEP_ATW_PATH, SEP_MYSQL_BACKUPS_PATH } from 'lib/constants';
+import {
+  addAlerting,
+  addSection,
+  addExtensionsApps,
+  addDashboardItems,
+  addOm,
+} from './navigation.utils';
+import { NAV_MONGO } from './navigation.constants';
+import { ServiceType } from 'types/services.types';
+import {
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
+import { PreviewChip } from 'components/preview-chip';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -102,32 +114,39 @@ describe('addAlerting', () => {
   });
 });
 
-describe('addSepApps', () => {
-  it('returns one Management section instead of two flat entries', () => {
-    const items = addSepApps();
+describe('addExtensionsApps', () => {
+  it('returns one Apps section instead of two flat entries', () => {
+    const items = addExtensionsApps();
 
     expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: 'management', text: 'Management' });
+    expect(items[0]).toMatchObject({ id: 'management', text: 'Apps' });
+  });
+
+  it('marks the section as a tech preview', () => {
+    expect(addExtensionsApps()[0]).toMatchObject({
+      badgeAlwaysVisible: true,
+      badge: { type: PreviewChip, props: { level: 'tech' } },
+    });
   });
 
   it('gives the section no page of its own', () => {
-    expect(addSepApps()[0].url).toBeUndefined();
+    expect(addExtensionsApps()[0].url).toBeUndefined();
   });
 
   it('keeps each app url and matches on the children', () => {
-    const children = addSepApps()[0].children || [];
+    const children = addExtensionsApps()[0].children || [];
 
     expect(children.map((child) => child.id)).toEqual([
-      'sep-mysql-backups',
-      'sep-atw',
+      'extensions-mysql-backups',
+      'extensions-atw',
     ]);
     expect(children[0]).toMatchObject({
-      url: SEP_MYSQL_BACKUPS_PATH,
-      matches: [SEP_MYSQL_BACKUPS_PATH],
+      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+      matches: ['*'],
     });
     expect(children[1]).toMatchObject({
-      url: SEP_ATW_PATH,
-      matches: [SEP_ATW_PATH],
+      url: EXTENSIONS_ATW_PATH,
+      matches: ['*'],
     });
   });
 });
@@ -141,5 +160,49 @@ describe('addSection', () => {
 
   it('contributes nothing rather than an empty expandable shell', () => {
     expect(addSection({ id: 'section' }, [])).toEqual([]);
+  });
+});
+
+describe('addOm', () => {
+  it('is the Operations item, marked as a Preview', () => {
+    const om = addOm();
+
+    expect(om.text).toBe('Operations');
+    expect(om.badge).toMatchObject({ label: 'Preview' });
+    expect(om.badgeAlwaysVisible).toBe(true);
+  });
+});
+
+describe('addDashboardItems', () => {
+  const mongoMenu = (items: ReturnType<typeof addDashboardItems>) =>
+    items.find((item) => item.id === NAV_MONGO.id);
+
+  it('nests the extras at the end of the MongoDB menu', () => {
+    const menu = mongoMenu(
+      addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()])
+    );
+
+    expect(menu?.children?.at(-1)?.id).toBe('om');
+    expect(menu?.children?.length).toBe((NAV_MONGO.children?.length ?? 0) + 1);
+  });
+
+  it('leaves the shared MongoDB constant untouched', () => {
+    const before = NAV_MONGO.children?.length;
+
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+
+    expect(NAV_MONGO.children?.length).toBe(before);
+  });
+
+  it('keeps the MongoDB menu for the extras when no MongoDB is monitored', () => {
+    const menu = mongoMenu(addDashboardItems([], [], undefined, [addOm()]));
+
+    expect(menu?.children?.map((c) => c.id)).toEqual(['om']);
+    expect(menu?.url).toBe(addOm().url);
+  });
+
+  it('has no MongoDB menu with neither MongoDB nor extras', () => {
+    expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
   });
 });

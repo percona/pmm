@@ -33,10 +33,12 @@ export const Settings: FC = () => {
   });
   const navigate = useNavigate();
   const showSshKeyTab = version?.distributionMethod === DistributionMethod.ami;
+  const showServiceNowTab = settings?.extensionsEnabled === true;
+  const isExtensionsDisabled = settings?.extensionsEnabled === false;
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
-      <Page title={Messages.title} surface="paper">
+      <Page title={Messages.title}>
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="settings-loading" />
         </Stack>
@@ -50,8 +52,12 @@ export const Settings: FC = () => {
     return <Navigate to="/settings" replace />;
   }
 
+  if (isExtensionsDisabled && tab === 'servicenow-connection') {
+    return <Navigate to="/settings" replace />;
+  }
+
   return (
-    <Page title={Messages.title} surface="paper" roles={[OrgRole.Admin]}>
+    <Page title={Messages.title} roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="settings-tabs"
@@ -78,11 +84,13 @@ export const Settings: FC = () => {
               label={Messages.tabs.ssh}
             />
           )}
-          <Tab
-            data-testid="settings-tab-servicenow"
-            value="servicenow-connection"
-            label={Messages.tabs.serviceNow}
-          />
+          {showServiceNowTab && (
+            <Tab
+              data-testid="settings-tab-servicenow"
+              value="servicenow-connection"
+              label={Messages.tabs.serviceNow}
+            />
+          )}
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">

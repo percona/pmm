@@ -1020,6 +1020,11 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
 	// Enum: ["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]
 	Type *string `json:"type,omitempty"`
 
+	// Whether this parameter's threshold can be overridden per target without editing the
+	// rule. Only set for templates that support it; the scopes it may be set at are
+	// reported per rule by ListThresholds.
+	Overridable bool `json:"overridable,omitempty"`
+
 	// bool
 	Bool *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool `json:"bool,omitempty"`
 
