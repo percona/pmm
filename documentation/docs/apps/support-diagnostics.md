@@ -13,10 +13,43 @@ Use **Support Diagnostics** when Percona Support asks you to run diagnostics on 
 
 Use **[PMM Dump](../../docs/troubleshoot/pmm_dump.md)** when Percona Support asks for monitoring data from PMM itself, such as metrics or dashboards.
 
-## Before you start
+## Prerequisites
 
-- PMM Client 3.10.0 or later must be installed on the monitored host.
-- You must have an open support case in Percona's ServiceNow.
+Before you start, make sure that:
+
+- PMM Client 3.10.0 or later is installed on the monitored host.
+- You have an open support case in Percona's ServiceNow.
+- PMM is [connected to Percona's ServiceNow](#connect-pmm-to-servicenow).
+
+## Connect PMM to ServiceNow
+
+Support Diagnostics uploads results to your support case through Percona's ServiceNow. PMM needs two credentials for this connection: a client token and a REST API key. You connect once per PMM instance, and every PMM user can then send diagnostics to your organization's support cases.
+
+### Generate the credentials
+
+Generate both credentials on the **Percona Token Management** page of the Percona Support portal:
+{.power-number}
+
+1. Sign in to the Percona Support portal and open [**Percona Token Management**](https://percona.service-now.com/percona?id=percona_token_page).
+2. In **Token type**, select **Percona Connector**.
+3. Click **Generate client token**. The **Your client token** dialog shows the **Client token** and the **REST API key**.
+4. Copy both values and store them securely. The dialog shows them only once.
+
+!!! hint "No access to the Percona Support portal?"
+    [Open a Percona Support ticket](https://per.co.na/support) to request the credentials. Percona Support generates them for you and sends them over a secure channel. Anyone in your organization with portal access can also generate them and pass them to the PMM administrator.
+
+### Enter the credentials in PMM
+
+You must be a PMM administrator to connect PMM to ServiceNow. To enter the credentials:
+{.power-number}
+
+1. Go to **Configuration > Settings** and open the **ServiceNow connection** tab.
+2. Paste the REST API key into **ServiceNow API key**.
+3. Paste the client token into **Client token**.
+4. Leave **ServiceNow endpoint (optional)** empty, unless Percona Support gave you a different endpoint.
+5. Click **Verify and connect**. The tab shows **ServiceNow connected**.
+
+To confirm that PMM can reach ServiceNow with the saved credentials, click **Test connection**. If the credentials have expired or were revoked, generate new ones and click **Renew credentials** to replace them.
 
 ## Run a diagnostic collection
 
