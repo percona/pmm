@@ -129,7 +129,7 @@ describe('ResultsPane', () => {
     // An empty pane is not news: plain text, not an info alert.
     expect(
       screen
-        .getByText(/Run snippets from the Collect pane/i)
+        .getByText(/Run diagnostic scripts from Collect/i)
         .closest('[role="alert"]')
     ).toBeNull();
   });
