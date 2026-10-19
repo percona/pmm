@@ -7,16 +7,19 @@ import {
 import { createAnonymousUser } from 'contexts/user/user.utils';
 import {
   addAlerting,
-  addDashboardItems,
   addSection,
   addExtensionsApps,
+  addDashboardItems,
+  addOm,
 } from './navigation.utils';
+import { NAV_MONGO } from './navigation.constants';
+import { ServiceType } from 'types/services.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
-import { ServiceType } from 'types/services.types';
+import { PreviewChip } from 'components/preview-chip';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -113,11 +116,18 @@ describe('addAlerting', () => {
 });
 
 describe('addExtensionsApps', () => {
-  it('returns one Management section instead of two flat entries', () => {
+  it('returns one Apps section instead of two flat entries', () => {
     const items = addExtensionsApps();
 
     expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: 'management', text: 'Management' });
+    expect(items[0]).toMatchObject({ id: 'management', text: 'Apps' });
+  });
+
+  it('marks the section as a tech preview', () => {
+    expect(addExtensionsApps()[0]).toMatchObject({
+      badgeAlwaysVisible: true,
+      badge: { type: PreviewChip, props: { level: 'tech' } },
+    });
   });
 
   it('gives the section no page of its own', () => {
@@ -154,19 +164,53 @@ describe('addSection', () => {
   });
 });
 
+describe('addOm', () => {
+  it('is the Operations item, marked as a Preview', () => {
+    const om = addOm();
+
+    expect(om.text).toBe('Operations');
+    expect(om.badge).toMatchObject({ label: 'Preview' });
+    expect(om.badgeAlwaysVisible).toBe(true);
+  });
+});
+
 describe('addDashboardItems', () => {
-  const mongoChildIds = (types: ServiceType[]) =>
-    addDashboardItems(types, [])
-      .find((item) => item.id === 'mongo')
-      ?.children?.map((c) => c.id);
+  const mongoMenu = (items: ReturnType<typeof addDashboardItems>) =>
+    items.find((item) => item.id === NAV_MONGO.id);
+
+  it('nests the extras at the end of the MongoDB menu', () => {
+    const menu = mongoMenu(
+      addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()])
+    );
+
+    expect(menu?.children?.at(-1)?.id).toBe('om');
+    expect(menu?.children?.length).toBe((NAV_MONGO.children?.length ?? 0) + 1);
+  });
+
+  it('leaves the shared MongoDB constant untouched', () => {
+    const before = NAV_MONGO.children?.length;
+
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+
+    expect(NAV_MONGO.children?.length).toBe(before);
+  });
+
+  it('keeps the MongoDB menu for the extras when no MongoDB is monitored', () => {
+    const menu = mongoMenu(addDashboardItems([], [], undefined, [addOm()]));
+
+    expect(menu?.children?.map((c) => c.id)).toEqual(['om']);
+    expect(menu?.url).toBe(addOm().url);
+  });
+
+  it('has no MongoDB menu with neither MongoDB nor extras', () => {
+    expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
+  });
 
   it('links the ClusterSync dashboard from the MongoDB section', () => {
-    const mongo = addDashboardItems([ServiceType.mongodb], []).find(
-      (item) => item.id === 'mongo'
-    );
-    const clusterSync = mongo?.children?.find(
-      (c) => c.id === 'mongo-clustersync-details'
-    );
+    const clusterSync = mongoMenu(
+      addDashboardItems([ServiceType.mongodb], [])
+    )?.children?.find((c) => c.id === 'mongo-clustersync-details');
 
     expect(clusterSync).toEqual({
       id: 'mongo-clustersync-details',
@@ -176,6 +220,9 @@ describe('addDashboardItems', () => {
   });
 
   it('shows the MongoDB section, and so ClusterSync, only with a MongoDB service', () => {
+    const mongoChildIds = (types: ServiceType[]) =>
+      mongoMenu(addDashboardItems(types, []))?.children?.map((c) => c.id);
+
     expect(mongoChildIds([ServiceType.external])).toBeUndefined();
     expect(mongoChildIds([ServiceType.mongodb])).toContain(
       'mongo-clustersync-details'

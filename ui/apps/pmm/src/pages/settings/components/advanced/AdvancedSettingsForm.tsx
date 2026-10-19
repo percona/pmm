@@ -26,9 +26,11 @@ import {
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
   STT_CHECK_INTERVALS,
+  DEVELOPER_PREVIEW_DOC_URL,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
+import { OM_PATH, PMM_BASE_PATH } from 'lib/constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
@@ -67,8 +69,13 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const { handleSubmit, reset, resetField, watch, setValue } = methods;
 
+  // Keyed on the saved value, not the draft: otherwise flipping it off would disable
+  // the switch before Apply and leave no way back.
+  const omSwitchBlocked = !settings.extensionsEnabled && !settings.omEnabled;
+
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
+  const m = Messages.advanced;
 
   useEffect(() => {
     reset(toFormValues(settings));
@@ -83,11 +90,30 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [retentionLockedByHa, resetField]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
+    const omJustEnabled = values.openManager && !settings.omEnabled;
     await updateSettings(
       toPayload(values, loadedRetention, retentionLockedByHa),
       {
         onSuccess: () => {
-          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          enqueueSnackbar(
+            omJustEnabled ? (
+              <>
+                {m.openManagerEnabled}{' '}
+                {/* Plain href: SnackbarProvider is mounted outside RouterProvider, so a
+                    routed link has no router context here. */}
+                <Link
+                  href={`${PMM_BASE_PATH}${OM_PATH}`}
+                  color="inherit"
+                  underline="always"
+                >
+                  {m.openManagerEnabledAction}
+                </Link>
+              </>
+            ) : (
+              Messages.service.success
+            ),
+            { variant: 'success' }
+          );
           reset(values);
         },
         onError: (error) => {
@@ -99,8 +125,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
       }
     );
   };
-
-  const m = Messages.advanced;
 
   return (
     <FormProvider {...methods}>
@@ -437,6 +461,59 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
+          </Stack>
+        </Stack>
+
+        <Stack gap={2}>
+          <SettingsFieldLabel
+            data-testid="advanced-developer-preview"
+            label={
+              <>
+                <WarningIcon
+                  color="warning"
+                  sx={{ fontSize: 26, verticalAlign: '-6px' }}
+                />{' '}
+                {m.developerPreviewLegend}
+              </>
+            }
+            description={
+              <>
+                {m.developerPreviewDescription}
+                <strong>{m.developerPreviewWarning}</strong>
+                {m.developerPreviewDescriptionSuffix}{' '}
+              </>
+            }
+            readMoreLink={DEVELOPER_PREVIEW_DOC_URL}
+            readMoreText={m.developerPreviewLinkText}
+          />
+          <Stack
+            gap={0.5}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+            data-testid="advanced-open-manager"
+          >
+            {/* `labelCaption` keeps the help tied to the control for a screen reader. */}
+            <SwitchInput
+              name="openManager"
+              label={m.openManagerLabel}
+              labelCaption={m.openManagerTooltip}
+              switchFieldProps={{ disabled: omSwitchBlocked }}
+            />
+            {/* `validateEnableOm` refuses this server-side; stating it here turns a
+                failed save into a precondition the reader can act on. */}
+            {omSwitchBlocked && (
+              <Typography
+                variant="caption"
+                color="warning.main"
+                maxWidth={MAX_LABEL_WIDTH}
+                data-testid="advanced-open-manager-blocked"
+              >
+                {m.openManagerRequiresExtensions}
+              </Typography>
+            )}
           </Stack>
         </Stack>
 
