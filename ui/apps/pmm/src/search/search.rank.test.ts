@@ -107,6 +107,24 @@ describe('buildSearchGroups', () => {
     ]);
   });
 
+  it('ranks the MongoDB hub for "mongodb" and the overview dashboard for "mongodb overview"', () => {
+    const index = staticIndexFor();
+    const first = (query: string) => groupsFor(index, query)[0].items[0];
+
+    expect(first('mongodb')).toMatchObject({
+      id: 'page:mongo',
+      label: 'MongoDB',
+      to: '/mongodb',
+    });
+    expect(first('mongo').id).toBe('page:mongo');
+    expect(first('mongodb overview')).toMatchObject({
+      id: 'dashboard:mongodb-instance-overview',
+      to: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
+    });
+    expect(first('replica set').id).toBe('page:mongo');
+    expect(first('sharded').id).toBe('page:mongo');
+  });
+
   it('ranks a sub-technology’s own dashboards above those its alias only names', () => {
     const index = staticIndexFor();
     const dashboardsFor = (query: string) =>

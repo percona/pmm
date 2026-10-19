@@ -1,6 +1,7 @@
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  MONGODB_HUB_PATH,
   PROTOTYPE_PLACEHOLDER_PATH,
 } from 'lib/constants';
 import { HAInfo } from 'types/ha.types';
@@ -96,6 +97,41 @@ describe('buildProposedNavTree', () => {
     expect(mysql?.url).toBe(
       '/graph/d/mysql-instance-overview/mysql-instances-overview'
     );
+  });
+
+  it('opens the MongoDB hub and keeps MongoDB highlighted on it and on its dashboards', () => {
+    const tree = build();
+
+    expect(findById(tree, 'mongo')?.url).toBe(MONGODB_HUB_PATH);
+    expect(findActiveNavItem(tree, MONGODB_HUB_PATH)?.id).toBe('mongo');
+    expect(
+      findActiveNavItem(
+        tree,
+        '/graph/d/mongodb-instance-overview/mongodb-instances-overview'
+      )?.id
+    ).toBe('mongo');
+    expect(
+      findActiveNavItem(
+        tree,
+        '/graph/d/mongodb-replicaset-summary/mongodb-replset-summary'
+      )?.id
+    ).toBe('mongo');
+  });
+
+  it('keeps the other technologies on their overview dashboards', () => {
+    const tree = build();
+
+    expect(findById(tree, 'postgre')?.url).toBe(
+      '/graph/d/postgresql-instance-overview/postgresql-instances-overview'
+    );
+    expect(findById(tree, 'system')?.url).toBe(
+      '/graph/d/node-instance-overview/nodes-overview'
+    );
+    expect(
+      ['mysql', 'postgre', 'valkey', 'system'].map(
+        (id) => findById(tree, id)?.matches?.includes(MONGODB_HUB_PATH) ?? false
+      )
+    ).toEqual([false, false, false, false]);
   });
 
   it('keeps a technology highlighted on any of its dashboards', () => {

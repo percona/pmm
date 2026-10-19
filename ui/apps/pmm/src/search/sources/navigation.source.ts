@@ -188,11 +188,13 @@ export const flattenNavTree = (
   return { pages, actions, starredDashboards };
 };
 
-// The dashboards behind each technology entry, which the proposed sidebar no longer lists.
-export const technologyDashboards = (): SearchItem[] =>
+// The dashboards behind each technology entry, which the proposed sidebar no longer lists, except one the entry itself opens.
+export const technologyDashboards = (navTree: NavItem[]): SearchItem[] =>
   TECHNOLOGIES.flatMap((tech) => {
     const techText = tech.text ?? '';
-    const techKey = canonicalKey(tech.url);
+    const techKey = canonicalKey(
+      navTree.find((item) => item.id === tech.id)?.url
+    );
     const aliases = TECH_ALIASES[tech.id] ?? [];
     const dashboards: SearchItem[] = [];
 

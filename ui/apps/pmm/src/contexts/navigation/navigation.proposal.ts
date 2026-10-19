@@ -7,6 +7,7 @@ import { ColorMode } from '@pmm/shared';
 import { PreviewChip } from 'components/preview-chip';
 import { createElement } from 'react';
 import { CombinedSettings } from 'contexts/settings';
+import { withHubPage } from 'hubs/hubs.paths';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
@@ -117,9 +118,7 @@ const dashboardUrls = (items: NavItem[] = []): string[] =>
     ...dashboardUrls(item.children),
   ]);
 
-// One entry per technology, meant to open a hub page. Until hubs exist it opens
-// the technology's overview dashboard and stays highlighted on any of its
-// dashboards, which still live in `navigation.constants`.
+// One entry per technology: its hub when one exists, else its overview dashboard, highlighted on any of its dashboards in `navigation.constants`.
 const technology = ({ id, text, icon, url, children }: NavItem): NavItem => ({
   id,
   text,
@@ -134,7 +133,9 @@ export const NAV_TECHNOLOGIES: NavItem[] = [
   NAV_POSTGRESQL,
   NAV_VALKEY,
   NAV_OS,
-].map(technology);
+]
+  .map(technology)
+  .map(withHubPage);
 
 export const NAV_ALERTS_ENTRY: NavItem = {
   ...NAV_ALERTS,

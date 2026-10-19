@@ -34,7 +34,7 @@ export const buildStaticIndex = (
     settingsItems(context),
     actionItems(context),
     helpItems(context),
-    technologyDashboards(),
+    technologyDashboards(navTree),
     nav.starredDashboards,
   ]);
 };

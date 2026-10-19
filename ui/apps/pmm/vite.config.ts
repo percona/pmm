@@ -166,6 +166,12 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
+      // VictoriaMetrics behind vmproxy, which applies label-based access control.
+      '/prometheus': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
       [EXTENSIONS_BASE_PATH]: extensionsProxy(),
     },
     host: '0.0.0.0',
