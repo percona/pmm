@@ -31,6 +31,8 @@ export interface HubHeaderProps {
   updatedAt: number;
   refetch: () => void;
   loading: boolean;
+  /** What the signed-in user has, for the prototype switches. */
+  access: { admin: boolean; operations: boolean };
 }
 
 /** The page's h1, status line and actions, then its filter and freshness row. */
@@ -43,6 +45,7 @@ export const HubHeader: FC<HubHeaderProps> = ({
   updatedAt,
   refetch,
   loading,
+  access,
 }) => {
   const { environment } = view;
   const hasActions = !!(view.actions.addService || view.actions.install);
@@ -125,7 +128,13 @@ export const HubHeader: FC<HubHeaderProps> = ({
             </Box>
           </Box>
           <Box sx={{ ml: 'auto' }}>
-            <PrototypeMenu params={params} setParams={setParams} />
+            <PrototypeMenu
+              params={params}
+              setParams={setParams}
+              role={view.role}
+              operations={view.capabilities.operations}
+              access={access}
+            />
           </Box>
         </>
       }

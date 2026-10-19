@@ -156,5 +156,9 @@ export const Messages = {
       admin: 'Admin',
       viewer: 'Viewer',
     } satisfies Record<HubRoleMode, string>,
+    hints: {
+      sampleOnly: 'Sample data only',
+      adminOnly: 'Admins only',
+    },
   },
 };

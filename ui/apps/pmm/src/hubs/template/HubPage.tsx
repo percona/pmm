@@ -39,8 +39,15 @@ export interface HubPageProps<TSnapshot> {
 
 /** A technology hub: status, what needs attention, the estate, and the ways into it. */
 export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
-  const { view, params, setParams, refetch, updatedAt, isInitialLoading } =
-    useTechnologyHub(config);
+  const {
+    view,
+    params,
+    setParams,
+    refetch,
+    updatedAt,
+    isInitialLoading,
+    access,
+  } = useTechnologyHub(config);
   const { messages } = config;
 
   useSectionFocus();
@@ -57,6 +64,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           updatedAt={updatedAt}
           refetch={refetch}
           loading={isInitialLoading}
+          access={access}
         />
         {view.status.state !== 'empty' &&
           !(view.environment.matchesNothing && !view.attention.length) && (

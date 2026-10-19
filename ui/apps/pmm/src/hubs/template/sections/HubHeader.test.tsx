@@ -11,6 +11,8 @@ const MESSAGES = {
   unit: { cluster: ['cluster', 'clusters'] },
 } as HubMessages;
 
+const ACCESS = { admin: true, operations: true };
+
 const PARAMS: HubParams = {
   environment: null,
   scenario: 'wrong',
@@ -32,6 +34,7 @@ const renderHeader = (view: Partial<HubViewModel> = {}) => {
       updatedAt={Date.now() - 20_000}
       refetch={refetch}
       loading={false}
+      access={ACCESS}
     />
   );
 
@@ -155,6 +158,7 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
         updatedAt={updatedAt}
         refetch={refetch}
         loading={false}
+        access={ACCESS}
       />
     );
     const before = Date.now() - 20_000;

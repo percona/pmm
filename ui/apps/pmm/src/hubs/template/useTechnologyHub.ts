@@ -59,6 +59,8 @@ export interface TechnologyHub {
   /** Newest source update, or the sample data's clock. */
   updatedAt: number;
   isInitialLoading: boolean;
+  /** What the signed-in user has, which the prototype switches lower but never raise on live data. */
+  access: { admin: boolean; operations: boolean };
 }
 
 /** A hub's view from the URL, the signed-in user and either live sources or sample data. */
@@ -74,11 +76,12 @@ export const useTechnologyHub = <TSnapshot>(
   const live = scenario === 'live';
 
   const isPMMAdmin = !!user?.isPMMAdmin;
+  const operationsForUser = isPMMAdmin && settings?.omEnabled === true;
   const role = resolveHubRole(params, isPMMAdmin);
-  const operations = resolveHubOperations(
-    params,
-    role,
-    isPMMAdmin && settings?.omEnabled === true
+  const operations = resolveHubOperations(params, role, operationsForUser);
+  const access = useMemo(
+    () => ({ admin: isPMMAdmin, operations: operationsForUser }),
+    [isPMMAdmin, operationsForUser]
   );
   const backupManagementEnabled = settings?.backupManagementEnabled === true;
   const extensionsEnabled = settings?.extensionsEnabled === true;
@@ -183,5 +186,6 @@ export const useTechnologyHub = <TSnapshot>(
     refetch: live ? liveResult.refetch : refreshFixture,
     updatedAt,
     isInitialLoading,
+    access,
   };
 };

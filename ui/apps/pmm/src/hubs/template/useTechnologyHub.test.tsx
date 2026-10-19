@@ -147,12 +147,16 @@ describe('useTechnologyHub', () => {
     });
     expect(result.current.hub.updatedAt).toBe(3_000);
     expect(result.current.hub.isInitialLoading).toBe(false);
+    expect(result.current.hub.access).toEqual({
+      admin: true,
+      operations: true,
+    });
   });
 
   it('never raises a live user above what they have', () => {
     const { config, useLiveSnapshot } = makeConfig();
 
-    renderTechnologyHub(config, {
+    const { result } = renderTechnologyHub(config, {
       path: '/mongodb?hubOps=on&hubRole=admin',
       user: TEST_USER_VIEWER,
       settings: { omEnabled: true },
@@ -161,6 +165,10 @@ describe('useTechnologyHub', () => {
     expect(useLiveSnapshot).toHaveBeenLastCalledWith(
       expect.objectContaining({ operations: false, role: 'viewer' })
     );
+    expect(result.current.hub.access).toEqual({
+      admin: false,
+      operations: false,
+    });
   });
 
   it('lets a live admin look as a viewer, without Operations', () => {
