@@ -2,6 +2,9 @@
 
 Upgrade a [PMM HA Cluster](../install-pmm/HA-clustered.md) deployed with the `percona/pmm-ha` chart (three pods) when you want to move to a new PMM release. For single-instance deployments using the `percona/pmm` chart, see [Upgrade PMM Server using Helm](upgrade_helm.md) instead.
 
+!!! caution "Available from PMM 3.10.0"
+    In-place Helm upgrades for HA clusters are available starting with PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0. This process does not apply to earlier versions.
+
 ## How PMM HA Helm upgrades work
 
 The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. HAProxy, PostgreSQL, VictoriaMetrics, ClickHouse, and the operators are not restarted and remain running throughout.

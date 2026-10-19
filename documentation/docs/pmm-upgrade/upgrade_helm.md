@@ -1,6 +1,9 @@
 # Upgrade PMM Server using Helm
 
-This topic covers the single-instance `percona/pmm` chart. If you deployed [PMM HA Cluster](../install-pmm/HA-clustered.md) with the `percona/pmm-ha` chart, [upgrade it with Helm](upgrade_helm_ha.md) instead, because its release name, chart and rolling update work differently.
+This topic covers the single-instance `percona/pmm` chart. If you deployed [PMM HA Cluster](../install-pmm/HA-clustered.md) with the `percona/pmm-ha` chart, [upgrade it with Helm](upgrade_helm_ha.md) instead.
+
+!!! caution "Available from PMM 3.10.0"
+    In-place Helm upgrades for HA clusters are available starting with PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0. This process does not apply to earlier versions.
 
 Percona releases new chart versions to update containers when:
 
