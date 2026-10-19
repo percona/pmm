@@ -15,7 +15,6 @@ import Divider from '@mui/material/Divider';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Drawer from '@mui/material/Drawer';
@@ -24,6 +23,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import { type MRT_ColumnDef, type MRT_Row } from 'material-react-table';
 import Chip from '../chip';
+import PeakEmptyState from '../empty-state';
 import Table from './table';
 import type { TableProps } from './table.types';
 import { useNavigableRows } from './useNavigableRows';
@@ -197,25 +197,6 @@ const RowActionsMenu = ({ row }: { row: MRT_Row<Server> }) => {
   );
 };
 
-const EmptyStateIllustration = () => (
-  <Stack
-    direction="column"
-    alignItems="center"
-    justifyContent="center"
-    gap={1}
-    sx={{ width: '100%', py: 6, color: 'text.secondary' }}
-  >
-    <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
-    <Typography variant="subtitle1">Nothing to show here yet</Typography>
-    <Typography variant="body2">
-      Connect a service to start seeing servers in this table.
-    </Typography>
-    <Button size="small" variant="outlined" startIcon={<AddOutlinedIcon />} sx={{ mt: 1 }}>
-      Add service
-    </Button>
-  </Stack>
-);
-
 const meta = {
   title: 'Data display/Table',
   component: Table,
@@ -273,7 +254,7 @@ const meta = {
     emptyState: {
       control: false,
       description:
-        '**Peak UI prop.** React node that fully replaces the default empty-state alert. See the [Empty state — custom illustration](?path=/story/data-display-table--empty-state-custom) story.',
+        '**Peak UI prop.** React node that fully replaces the default empty-state alert; pass an `EmptyState`. See the [Empty state — custom](?path=/story/data-display-table--empty-state-custom) story.',
       table: { category: 'Empty state' },
     },
     enableTopToolbar: {
@@ -849,12 +830,12 @@ export const EmptyState: Story = {
 };
 
 export const EmptyStateCustom: Story = {
-  name: 'Empty state — custom illustration',
+  name: 'Empty state — custom',
   parameters: {
     docs: {
       description: {
         story:
-          'The `emptyState` prop accepts any React node and replaces the default alert entirely.',
+          'The `emptyState` prop accepts any React node and replaces the default alert entirely. Pass an `EmptyState` at small size: what the table shows, why it is empty, and the way forward.',
       },
     },
   },
@@ -862,7 +843,18 @@ export const EmptyStateCustom: Story = {
     tableName: 'empty-state-custom-table',
     columns: baseColumns,
     data: [],
-    emptyState: <EmptyStateIllustration />,
+    emptyState: (
+      <PeakEmptyState
+        size="small"
+        title="No servers yet"
+        description="Connect a service to start seeing servers in this table."
+        actions={
+          <Button size="small" variant="outlined" startIcon={<AddOutlinedIcon />}>
+            Add service
+          </Button>
+        }
+      />
+    ),
   },
 };
 
