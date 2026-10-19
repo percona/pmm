@@ -76,6 +76,9 @@ message AddPostgreSQLServiceParams {
   MetricsMode metrics_mode = 24;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 25;
+  // List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions.
+  // A collector that the exporter runs by default needs no entry. A name can't be in both lists.
+  repeated string enable_collectors = 35;
   // TLS CA certificate.
   string tls_ca = 26;
   // TLS Certifcate.
@@ -155,6 +158,8 @@ message UpdatePostgreSQLServiceParams {
   optional MetricsMode metrics_mode = 22;
   // Replace the list of collector names to disable in this exporter.
   common.StringArray disable_collectors = 23;
+  // Replace the list of postgres_exporter collector names to enable in this exporter.
+  common.StringArray enable_collectors = 30;
   // Limit for auto discovery.
   optional int32 auto_discovery_limit = 24;
   // Maximum number of connections that exporter can open to the database instance.
