@@ -423,7 +423,7 @@ Built next (2026-10-17), without rules: no rule filter, rule chips or Rules tab 
 | `GetLogPatterns` | `POST /v1/logs:getPatterns` | Top 50 patterns: count, max severity, first and last seen, one sample, `new` when absent from the previous window of equal length |
 | `GetLogContext` | `POST /v1/logs:getContext` | ±50 lines from the same node and file around one entry |
 | `GetLogFacets` | `POST /v1/logs:getFacets` | Distinct node names, sources (`ServiceName`) and presets in the range with line counts, top 200 each, for the pickers |
-| `FindLogQuery` | `POST /v1/logs:findQuery` | The QAN query (query ID, service, fingerprint) a PostgreSQL statement line ran, or none |
+| `FindLogQuery` | `POST /v1/logs:findQuery` | The QAN query (query ID, service, fingerprint) a PostgreSQL statement or MongoDB slow-query line ran, or none |
 
 Every request takes the same filter: time range (required; default 1 h, maximum the retention), node names, sources
 (`ServiceName`: the component for PMM Server's own logs, the node name for agent logs until log sources are tied to
@@ -448,10 +448,12 @@ values are unquoted, also one nested escaped level, so their text stays; quoted 
 hex ≥ 8 chars, IPv4 addresses, underscore-joined numbers (ClickHouse part names), numbers with a unit (`4048ms`) and
 numbers → `?`; lists of masked values collapse to one; then the first 200 characters. `otel.logs.PatternHash` is a
 MATERIALIZED `cityHash64` of that expression, so masking runs once per line at insert. `GetLogPatterns` groups by the
-hash and masks only the sample lines it returns; the pattern filter compares hashes. pmm-managed sets the column's
-expression at startup, which rewrites no data: parts written before the column existed, or before the rules changed,
-keep computing or holding the old value until they expire or `ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash`
-runs.
+hash and masks only the sample lines it returns; the pattern filter compares hashes. The column's comment names the
+masking rules (`pattern rules` and a hash of the expression). When pmm-managed starts with other rules, it sets the new
+expression, starts `ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash`, a background mutation that rewrites the
+stored hashes, and then writes the new name, so a failed step is retried at the next start. On adre-pmm7 the mutation
+finished within 20 s; until it does, older lines keep the old hashes. Several pmm-managed instances starting together
+may each start the mutation.
 
 The OpenTelemetry `drain` processor (alpha) was measured against the hash on adre-pmm7 on 2026-10-18 and not adopted.
 The test replayed 2.2 M lines (6 h) through otelcol-contrib 0.163.1 and ran one hour live (0.37 M lines):
@@ -484,6 +486,16 @@ collapse. Fingerprints of 1024 characters or more match as a prefix, since pg_st
 99.9% of statement lines other than `statement: ;`; the miss differs from QAN's text only in a column alias, which
 PostgreSQL leaves out of the query ID.
 
+For a MongoDB `Slow query` line, `FindLogQuery` computes the query ID the profiler would (`mongo.go`): it rebuilds the
+system.profile document from the entry's `attr` and hashes op, namespace and fingerprint with MD5, using pmm-agent's
+fingerprinter, which pmm-managed imports so both compute the same ID (a shared package would be the cleaner home). The
+collector sorts `attr`'s keys, so the command is told by its fields: `find` is the op `query`, `getMore` is
+`getmore`, and an `update` or `delete` command stands for its first statement, which the profiler records as an
+`update` or `remove`. The ID is then looked up for the node in `pmm.metrics` 30 minutes either side of the line. On
+adre-pmm7 on 2026-10-19, 243 of 400 sampled slow-query lines matched, 123 of 133 in the application's database. The
+misses are internal commands: config server writes that log no statements, `$collStats` stages whose key order the
+sorted `attr` loses, and PMM's own getMore on `system.profile`, whose QAN fingerprint has fields the log leaves out.
+
 ### 3.3 Access control
 
 Viewers read logs. Log rows carry no environment or cluster labels, so LBAC filters cannot be
@@ -510,9 +522,9 @@ The filter bar and the chart stay pinned; only the lines or patterns below them 
   last seen, and the three sources with the most of it (`GetLogPatterns` with the line's `pattern_hash`), **Show only
   this pattern**, **Hide this pattern**, its attributes, **Show context**, **Ask Assistant** (opens the Assistant chat
   with the line and time window as context), **Open dashboard** (the service's or node's dashboard at
-  that time), **Open QAN** (PostgreSQL statement lines only: the query's details in QAN, native when enabled, found
-  by `FindLogQuery` when the row opens; without a match, QAN for the service, or for the node when it runs more than
-  one PostgreSQL service), **Copy line** and **Copy link**. Older lines load as the list reaches its end.
+  that time), **Open QAN** (PostgreSQL statement and MongoDB slow-query lines only: the query's details in QAN, native
+  when enabled, found by `FindLogQuery` when the row opens; without a match, QAN for the service, or for the node when
+  it runs more than one service of the type), **Copy line** and **Copy link**. Older lines load as the list reaches its end.
 - **Patterns tab:** pattern, count, severity, first and last seen, `new` badge; clicking one filters Lines by it.
 - **Empty state:** when nothing is collected, a link to Settings → OTEL → Log collectors.
 
@@ -540,7 +552,8 @@ Part 3 (Part 2B's checks are in 2B.10):
 ## Not in v1
 
 - Mapping a log file to one service when a node runs several.
-- QAN links from MySQL slow-log and MongoDB slow-query lines.
+- QAN links from MySQL lines: only the error log is collected, whose deadlock reports carry statements, and the
+  performance schema's query IDs cannot be computed outside MySQL.
 - Rules spanning several lines or entries (same PID within 1 s); would need scheduled queries.
 - LBAC for logs (needs labels on log rows).
 - Live tail; saved searches; log-derived dashboards in Grafana.
