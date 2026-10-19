@@ -311,7 +311,8 @@ export const toRtaQueries = (queries: QueryData[]): RtaQueryInput[] =>
       ...(databaseName && collection
         ? { namespace: `${databaseName}.${collection}` }
         : {}),
-      durationMs: query.queryExecutionDurationMs ?? 0,
+      // useRealtimeQueries stores seconds in this field, whatever its name says.
+      durationMs: (query.queryExecutionDurationMs ?? 0) * 1000,
     };
   });
 

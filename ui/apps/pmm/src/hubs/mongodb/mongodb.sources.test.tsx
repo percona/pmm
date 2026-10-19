@@ -45,6 +45,7 @@ import {
   toServiceInputs,
   useMongoLiveSnapshot,
 } from './mongodb.sources';
+import { findRunningQueries, runningAge } from './mongodb.queries';
 
 vi.mock('api/alerting', () => ({ getPrometheusAlertRules: vi.fn() }));
 vi.mock('api/rta', () => ({
@@ -410,7 +411,7 @@ describe('QAN', () => {
 });
 
 describe('toRtaQueries', () => {
-  it('names the operation and namespace', () => {
+  it('names the operation and namespace, and reads the duration in seconds', () => {
     expect(
       toRtaQueries([
         {
@@ -418,7 +419,7 @@ describe('toRtaQueries', () => {
           serviceName: 'orders-shard1-m1',
           queryId: 'r1',
           queryText: 'db.orders.aggregate([])',
-          queryExecutionDurationMs: 840000,
+          queryExecutionDurationMs: 840,
           queryCollectTime: '',
           clientAddress: '',
           queryRawJson: '',
@@ -759,6 +760,61 @@ describe('useMongoLiveSnapshot', () => {
     expect(result.current.snapshot.backups).toBeNull();
     expect(result.current.sources.dashboards).toEqual({ status: 'loading' });
     expect(result.current.snapshot.dashboards).toBeNull();
+  });
+
+  it('flags a query RTA reports as running for 14 minutes', async () => {
+    const service = RECORDED_SERVICES[5];
+
+    vi.mocked(getRunningSessions).mockResolvedValue([
+      {
+        serviceId: service.serviceId,
+        serviceName: service.serviceName,
+        clusterName: 'orders',
+        startTime: '',
+        status: RealtimeSessionStatus.running,
+      },
+    ]);
+    vi.mocked(searchQueries).mockResolvedValue({
+      queries: [
+        {
+          serviceId: service.serviceId,
+          serviceName: service.serviceName,
+          queryId: 'r1',
+          queryText: 'db.orders.aggregate([])',
+          queryExecutionDuration: '840s',
+          queryCollectTime: '',
+          clientAddress: '',
+          queryRawJson: '',
+          mongoDbPayload: {
+            dbInstanceAddress: '',
+            clientAppName: '',
+            databaseName: 'shop',
+            collection: 'orders',
+            operationStartTime: '',
+            planSummary: '',
+            operation: 'aggregate',
+            username: '',
+          },
+        },
+      ],
+    });
+
+    const { result } = renderLive();
+
+    await waitFor(() =>
+      expect(result.current.snapshot.realtime?.queries).toHaveLength(1)
+    );
+
+    const running = findRunningQueries(
+      result.current.snapshot.realtime ?? {
+        sessionServiceIds: [],
+        queries: [],
+      },
+      toServiceInputs(RECORDED_SERVICES)
+    );
+
+    expect(running).toHaveLength(1);
+    expect(runningAge(running[0].query)).toBe('14m');
   });
 
   it('reads running queries only for MongoDB services with a running session', async () => {
