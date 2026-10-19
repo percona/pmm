@@ -83,13 +83,15 @@ describe('ClustersTable', () => {
     renderTable();
 
     expect(
-      screen.getByRole('link', { name: 'billing-m1' })
+      screen.getByRole('link', { name: 'billing-m1 in billing' })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'orders-shard1-m3' })
+      screen.getByRole('link', {
+        name: 'orders-shard1-m3 in orders › orders-shard1',
+      })
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: 'orders-mongos' })
+      screen.queryByRole('link', { name: /^orders-mongos in / })
     ).not.toBeInTheDocument();
   });
 
@@ -103,7 +105,7 @@ describe('ClustersTable', () => {
     fireEvent.click(collapse);
 
     expect(
-      screen.queryByRole('link', { name: 'billing-m1' })
+      screen.queryByRole('link', { name: 'billing-m1 in billing' })
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Expand billing' })
@@ -111,6 +113,29 @@ describe('ClustersTable', () => {
     expect(
       screen.getByRole('button', { name: 'Expand Routers (mongos)' })
     ).toBeInTheDocument();
+  });
+
+  it('says whether each branch is expanded, and nothing on a leaf', () => {
+    renderTable();
+
+    const billing = screen.getByRole('button', { name: 'Collapse billing' });
+
+    expect(billing).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('button', { name: 'Expand Routers (mongos)' })
+    ).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(billing);
+
+    expect(
+      screen.getByRole('button', { name: 'Expand billing' })
+    ).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      closestTo(
+        screen.getByRole('link', { name: 'reports' }),
+        'tr'
+      ).querySelector('button')
+    ).not.toHaveAttribute('aria-expanded');
   });
 
   it('hides the expand button of a row with nothing below it', () => {
@@ -130,7 +155,7 @@ describe('ClustersTable', () => {
       '/graph/d/summary?var-name=billing'
     );
     expect(
-      screen.getByRole('link', { name: 'billing-m1' })
+      screen.getByRole('link', { name: 'billing-m1 in billing' })
     ).toBeInTheDocument();
   });
 
@@ -140,7 +165,9 @@ describe('ClustersTable', () => {
     fireEvent.click(screen.getByText('Sharded cluster'));
 
     expect(
-      screen.queryByRole('link', { name: 'orders-shard1-m3' })
+      screen.queryByRole('link', {
+        name: 'orders-shard1-m3 in orders › orders-shard1',
+      })
     ).not.toBeInTheDocument();
   });
 
@@ -171,11 +198,11 @@ describe('ClustersTable', () => {
     renderTable();
 
     const down = closestTo(
-      screen.getByRole('link', { name: 'billing-m1' }),
+      screen.getByRole('link', { name: 'billing-m1 in billing' }),
       'tr'
     );
     const up = closestTo(
-      screen.getByRole('link', { name: 'billing-m3' }),
+      screen.getByRole('link', { name: 'billing-m3 in billing' }),
       'tr'
     );
 

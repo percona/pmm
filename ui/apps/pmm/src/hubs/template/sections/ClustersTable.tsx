@@ -128,6 +128,7 @@ export const ClustersTable: FC<ClustersTableProps> = ({
         'aria-label': (row.getIsExpanded()
           ? Messages.clusters.collapse
           : Messages.clusters.expand)(row.original.name),
+        'aria-expanded': row.getCanExpand() ? row.getIsExpanded() : undefined,
         // The name cell indents each level, so the buttons stay in one column; a member has none.
         sx: {
           height: EXPAND_BUTTON,

@@ -44,9 +44,20 @@ export const clusterColumns = (
         .filter(Boolean)
         .join(' · ');
 
+      // The indent shows the level; the link says it for assistive tech.
+      const parents = row.getParentRows().map((parent) => parent.original.name);
+      const door = parents.length
+        ? {
+            ...node.doors.name,
+            context: Messages.clusters.inParent(
+              Messages.clusters.path(parents)
+            ),
+          }
+        : node.doors.name;
+
       return (
         <Box sx={{ pl: row.depth * 2, minWidth: 0 }}>
-          <DoorLink door={node.doors.name} color="inherit">
+          <DoorLink door={door} color="inherit">
             {node.name}
           </DoorLink>
           {folded && caption && (

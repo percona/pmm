@@ -84,6 +84,8 @@ export const Messages = {
     },
     membersNoData: (count: number) => ` · ${count} no data`,
     expandColumn: 'Expand',
+    inParent: (path: string) => `in ${path}`,
+    path: (names: string[]) => names.join(' › '),
     expand: (name: string) => `Expand ${name}`,
     collapse: (name: string) => `Collapse ${name}`,
   },
