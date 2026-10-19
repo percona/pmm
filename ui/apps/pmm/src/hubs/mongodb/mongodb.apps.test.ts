@@ -89,6 +89,21 @@ describe('deriveApps', () => {
     );
   });
 
+  it('makes each backups figure a door', () => {
+    expect(
+      deriveApps(
+        input({ backups: { ...input().backups, failedRecently: 1 } })
+      )[1].summary?.doors
+    ).toEqual([
+      { label: '2 schedules', to: '/graph/backup/scheduled' },
+      { label: '1 failed in the last 24h', to: '/graph/backup/inventory' },
+    ]);
+    expect(deriveApps(input())[1].summary?.doors?.[1]).toEqual({
+      label: 'last good backup 6h ago',
+      to: '/graph/backup/inventory',
+    });
+  });
+
   it('links the MongoDB backups pages and Diagnostics', () => {
     const apps = deriveApps(input());
 

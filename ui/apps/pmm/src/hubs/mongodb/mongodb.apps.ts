@@ -79,14 +79,23 @@ const backupsSummary = (
   if (notSetUp) {
     return { text: Messages.apps.backupsNotSetUp };
   }
-  const second =
+  const scheduled = page(
+    Messages.apps.schedules(schedules),
+    MONGO_PATHS.backupScheduled
+  );
+  const backups = page(
     failedRecently > 0
       ? Messages.apps.failedRecently(failedRecently)
       : typeof lastGoodBackup === 'object'
         ? Messages.apps.lastGood(formatAge(lastGoodBackup.at, now))
-        : Messages.apps.noGoodBackup;
+        : Messages.apps.noGoodBackup,
+    MONGO_PATHS.backupInventory
+  );
 
-  return { text: Messages.where([Messages.apps.schedules(schedules), second]) };
+  return {
+    text: Messages.where([scheduled.label, backups.label]),
+    doors: [scheduled, backups],
+  };
 };
 
 /** Operations (admins with it on), MongoDB backups, then Diagnostics with PMM Extensions on; the card title carries Operations' Preview chip. */
