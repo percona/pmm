@@ -20,6 +20,10 @@ export interface InvestigationListItem {
   id: string;
   title: string;
   status: string;
+  severity?: string;
+  /** Root cause once the report has one, else the summary. */
+  summary?: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
   /** Backend may return snake_case */

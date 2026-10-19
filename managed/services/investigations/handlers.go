@@ -222,36 +222,53 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to list investigations")
 		return
 	}
-	type item struct {
-		ID          string `json:"id"`
-		Title       string `json:"title"`
-		Status      string `json:"status"`
-		CreatedAt   string `json:"created_at"`
-		UpdatedAt   string `json:"updated_at"`
-		TimeFrom    string `json:"time_from,omitempty"`
-		TimeTo      string `json:"time_to,omitempty"`
-		SourceType  string `json:"source_type,omitempty"`
-		NodeName    string `json:"node_name,omitempty"`
-		ServiceName string `json:"service_name,omitempty"`
-	}
-	out := make([]item, len(list))
+	out := make([]investigationListItem, len(list))
 	for i, inv := range list {
-		nodeName, serviceName := configNodeService(inv)
-		out[i] = item{
-			ID:          inv.ID,
-			Title:       inv.Title,
-			Status:      inv.Status,
-			CreatedAt:   inv.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-			UpdatedAt:   inv.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-			TimeFrom:    inv.TimeFrom.Format("2006-01-02T15:04:05Z07:00"),
-			TimeTo:      inv.TimeTo.Format("2006-01-02T15:04:05Z07:00"),
-			SourceType:  inv.SourceType,
-			NodeName:    nodeName,
-			ServiceName: serviceName,
-		}
+		out[i] = newListItem(inv)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(out) //nolint:errchkjson // response already committed
+}
+
+// investigationListItem is one row of GET /v1/investigations.
+type investigationListItem struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Status      string `json:"status"`
+	Severity    string `json:"severity,omitempty"`
+	Summary     string `json:"summary,omitempty"`
+	CreatedBy   string `json:"created_by,omitempty"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	TimeFrom    string `json:"time_from,omitempty"`
+	TimeTo      string `json:"time_to,omitempty"`
+	SourceType  string `json:"source_type,omitempty"`
+	NodeName    string `json:"node_name,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// newListItem leads a row with the root cause once the report has one, else the summary.
+func newListItem(inv *models.Investigation) investigationListItem {
+	nodeName, serviceName := configNodeService(inv)
+	summary := inv.RootCauseSummary
+	if summary == "" {
+		summary = inv.Summary
+	}
+	return investigationListItem{
+		ID:          inv.ID,
+		Title:       inv.Title,
+		Status:      inv.Status,
+		Severity:    inv.Severity,
+		Summary:     summary,
+		CreatedBy:   inv.CreatedBy,
+		CreatedAt:   inv.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   inv.UpdatedAt.Format(time.RFC3339),
+		TimeFrom:    inv.TimeFrom.Format(time.RFC3339),
+		TimeTo:      inv.TimeTo.Format(time.RFC3339),
+		SourceType:  inv.SourceType,
+		NodeName:    nodeName,
+		ServiceName: serviceName,
+	}
 }
 
 // CreateInvestigation handles POST /v1/investigations.

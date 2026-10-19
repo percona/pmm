@@ -66,7 +66,13 @@ import {
   InvestigationChat,
   InvestigationComments,
 } from './components/InvestigationConversation';
+import { StatusPill } from './components/StatusPill';
 import { adreColors, headingFont } from 'components/adre/adreAnswerSx';
+import {
+  accentButtonSx,
+  pillButtonSx,
+  sourceLabel,
+} from './investigationStyles';
 
 const STATUS_OPTIONS = [
   'open',
@@ -78,28 +84,6 @@ const STATUS_OPTIONS = [
   'resolved',
   'archived',
 ] as const;
-
-const STATUS_STYLES: Record<string, { color: string; bg: string }> = {
-  open: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
-  in_progress: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
-  investigating: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
-  running: { color: '#CFCBFF', bg: 'rgba(182,178,255,0.14)' },
-  completed: { color: '#86EFAC', bg: 'rgba(134,239,172,0.12)' },
-  resolved: { color: '#86EFAC', bg: 'rgba(134,239,172,0.12)' },
-  failed: { color: '#FCA5A5', bg: 'rgba(248,113,113,0.14)' },
-  archived: { color: '#A9A7B0', bg: 'rgba(255,255,255,0.06)' },
-};
-
-const pillButtonSx = {
-  height: 36,
-  px: 2,
-  borderRadius: 999,
-  textTransform: 'none',
-  fontSize: 13,
-  fontWeight: 500,
-  color: adreColors.text,
-  borderColor: 'rgba(255,255,255,0.16)',
-} as const;
 
 const railCardSx = {
   p: 2.25,
@@ -496,17 +480,11 @@ const InvestigationDetailPage: FC = () => {
     (inv as { cluster_name?: string }).cluster_name ??
     fetchedAlertMeta.clusterName;
   const severity = inv.severity || fetchedAlertMeta.severity;
-  const source =
-    inv.sourceType === 'alert'
-      ? 'Alert'
-      : inv.sourceType === 'chat'
-        ? 'Assistant chat'
-        : 'User request';
+  const source = sourceLabel(inv.sourceType);
   // The server refuses to re-run a finished investigation.
   const runBlocked = ['completed', 'failed', 'resolved', 'archived'].includes(
     inv.status
   );
-  const status = STATUS_STYLES[inv.status] ?? STATUS_STYLES.open;
 
   const moveBlock = (from: InvestigationBlock, to: InvestigationBlock) =>
     patchBlock.mutate(
@@ -696,13 +674,7 @@ const InvestigationDetailPage: FC = () => {
                           })
                         }
                         disabled={postRun.isPending || isRunning || runBlocked}
-                        sx={{
-                          ...pillButtonSx,
-                          border: 0,
-                          bgcolor: adreColors.accent,
-                          color: adreColors.panel,
-                          '&:hover': { bgcolor: '#C9C6FF' },
-                        }}
+                        sx={accentButtonSx}
                       >
                         {isRunning ? 'Running…' : 'Run investigation'}
                       </Button>
@@ -717,36 +689,7 @@ const InvestigationDetailPage: FC = () => {
                 gap={1.25}
                 sx={{ fontSize: 13, color: adreColors.secondary }}
               >
-                <Box
-                  component="span"
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 0.75,
-                    px: 1.25,
-                    py: 0.25,
-                    borderRadius: 999,
-                    bgcolor: status.bg,
-                    color: status.color,
-                    fontSize: 12,
-                    fontWeight: 500,
-                  }}
-                >
-                  {isRunning ? (
-                    <CircularProgress size={10} sx={{ color: 'inherit' }} />
-                  ) : (
-                    <Box
-                      component="span"
-                      sx={{
-                        width: 7,
-                        height: 7,
-                        borderRadius: '50%',
-                        bgcolor: 'currentColor',
-                      }}
-                    />
-                  )}
-                  {inv.status.replace('_', ' ')}
-                </Box>
+                <StatusPill status={inv.status} running={isRunning} />
                 <span>{source}</span>
                 {timeRange && <span>· {timeRange}</span>}
                 {serviceName && <span>· {serviceName}</span>}
