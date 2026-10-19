@@ -79,6 +79,7 @@ type AddPostgreSQLCommand struct {
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples   bool              `negatable:"" name:"disable-queryexamples" help:"Disable collection of query examples"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	EnableCollectors       []string          `help:"Comma-separated list of collector names to enable in exporter that it doesn't run by default, e.g. long_running_transactions"`
 	ExposeExporter         bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AutoDiscoveryLimit     int32             `placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 	MaxExporterConnections int32             `placeholder:"NUMBER" help:"Maximum number of connections to PostgreSQL instance that exporter can use (default: server-defined)"`
@@ -213,6 +214,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 				MetricsMode:            cmd.MetricsMode.EnumValue(),
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
+				EnableCollectors:       commands.ParseDisableCollectors(cmd.EnableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
 				LogLevel:               cmd.LogLevel.EnumValue(),
