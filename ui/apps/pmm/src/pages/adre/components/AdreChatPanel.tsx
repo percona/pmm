@@ -64,7 +64,9 @@ import {
 } from 'utils/adreChatUiPreferences';
 
 const PAGE_BG = '#121114';
-const CONTENT_WIDTH = 780;
+const CONTENT_WIDTH = 960;
+// The side panels shrink toward their minimums before the chat gets narrower than this.
+const CHAT_MIN_WIDTH = 360;
 
 const MODES = [
   {
@@ -420,8 +422,8 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
         <>
           <Box
             sx={{
-              flex: { xs: '0 0 auto', md: `0 0 ${layout.chatsWidth}px` },
-              width: { md: layout.chatsWidth },
+              flex: { xs: '0 0 auto', md: `0 1 ${layout.chatsWidth}px` },
+              minWidth: { md: CHATS_WIDTH.min },
               maxHeight: { xs: 'min(36vh, 260px)', md: 'none' },
               minHeight: 0,
               display: 'flex',
@@ -457,7 +459,14 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
         </>
       )}
 
-      <Stack sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+      <Stack
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: { xs: 0, md: CHAT_MIN_WIDTH },
+          overflow: 'hidden',
+        }}
+      >
         {!railVisible && alerts.length > 0 && (
           <Box
             sx={{
@@ -769,7 +778,13 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
               inputProps={{ 'aria-label': 'Message the Assistant' }}
               sx={{ fontSize: 15, lineHeight: 1.5 }}
             />
-            <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              gap={1}
+              sx={{ mt: 1 }}
+            >
               <Box
                 role="group"
                 aria-label="Chat mode"
@@ -822,6 +837,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                     fontSize: 13,
                     fontWeight: 400,
                     color: '#A9A7B0',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {model || 'Default model'}
@@ -906,8 +922,8 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
               component="aside"
               aria-label="Answer details"
               sx={{
-                flex: `0 0 ${layout.railWidth}px`,
-                width: layout.railWidth,
+                flex: `0 1 ${layout.railWidth}px`,
+                minWidth: RAIL_WIDTH.min,
                 minHeight: 0,
                 overflowY: 'auto',
                 boxSizing: 'border-box',
