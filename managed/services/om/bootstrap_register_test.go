@@ -53,7 +53,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
 
-		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret")
+		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret")
 		require.NoError(t, err)
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
@@ -63,12 +63,27 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		assert.Equal(t, "rs-test", services[0].ReplicationSet)
 	})
 
+	t.Run("registers the service on the port mongod was installed on", func(t *testing.T) {
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+
+		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27018, "", "", "admin", "secret")
+		require.NoError(t, err)
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
+		require.NoError(t, err)
+		require.Len(t, services, 1)
+		require.NotNil(t, services[0].Port)
+		assert.Equal(t, uint16(27018), *services[0].Port)
+	})
+
 	t.Run("labels the service with the given environment and cluster", func(t *testing.T) {
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
 
-		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "staging", "orders", "admin", "secret")
+		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "staging", "orders", "admin", "secret")
 		require.NoError(t, err)
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
@@ -83,7 +98,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
 
-		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret")
+		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret")
 		require.NoError(t, err)
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
@@ -101,9 +116,9 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		node01, _ := registerTestNode(t, db, "node01")
 		node02, _ := registerTestNode(t, db, "node02")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node00, "node00", "rs-test", "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node01, "node01", "rs-test", "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), node02, "node02", "rs-test", "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node00, "node00", "rs-test", 27017, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node01, "node01", "rs-test", 27017, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), node02, "node02", "rs-test", 27017, "", "", "admin", "secret"))
 
 		for _, nodeID := range []string{node00, node01, node02} {
 			services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
@@ -118,8 +133,8 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 		require.NoError(t, err)
@@ -131,7 +146,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 		require.NoError(t, err)
@@ -156,7 +171,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
 		nodeID, pmmAgentID := registerTestNode(t, db, "node00")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
 
 		assert.Equal(t, []string{pmmAgentID}, updater.requested)
 	})
@@ -168,8 +183,8 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
 		nodeID, pmmAgentID := registerTestNode(t, db, "node00")
 
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
-		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
 
 		assert.Equal(t, []string{pmmAgentID, pmmAgentID}, updater.requested)
 	})
@@ -180,7 +195,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		nodeID, _ := registerTestNode(t, db, "node00")
 
 		assert.NotPanics(t, func() {
-			require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+			require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
 		})
 	})
 
@@ -192,7 +207,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = svc.registerBootstrapHost(t.Context(), node.NodeID, "node-without-agent", "rs-test", "", "", "admin", "secret")
+		err = svc.registerBootstrapHost(t.Context(), node.NodeID, "node-without-agent", "rs-test", 27017, "", "", "admin", "secret")
 		assert.Error(t, err)
 	})
 }

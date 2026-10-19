@@ -24,9 +24,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// mongodExporterPort is the default port of the mongod that bootstrap installs.
-const mongodExporterPort = 27017
-
 // pushMetricsFor mirrors AddService's default metrics mode: push, except for pmm-agent on PMM Server.
 // Pull would need PMM Server to reach the host's ephemeral exporter port.
 func pushMetricsFor(pmmAgentID string) bool {
@@ -35,7 +32,9 @@ func pushMetricsFor(pmmAgentID string) bool {
 
 // registerBootstrapHost is idempotent. Service names are keyed on host, not replica set name,
 // because names must be unique across PMM and every member shares the replica set name.
-func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, replicaSetName, environment, cluster, username, password string) error {
+func (s *Service) registerBootstrapHost(
+	ctx context.Context, nodeID, host, replicaSetName string, port uint32, environment, cluster, username, password string,
+) error {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to find a pmm-agent on node %s: %w", nodeID, err)
@@ -72,7 +71,7 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 			Cluster:        cluster,
 			ReplicationSet: replicaSetName,
 			Address:        &address,
-			Port:           new(uint16(mongodExporterPort)),
+			Port:           new(uint16(port)), //nolint:gosec // the API caps the port at 65535
 		})
 		if err != nil {
 			return fmt.Errorf("failed to add the MongoDB service: %w", err)
