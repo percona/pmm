@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Tooltip } from '@percona/peak-ui';
+import { PreviewChip } from 'components/preview-chip';
 import { PREVIEW_LEVEL_TOOLTIP } from 'components/preview-chip/PreviewChip.constants';
 import type { FC, ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -44,12 +45,24 @@ const SectionDoor: FC<{ door: HubDoor }> = ({ door }) => {
     .filter(Boolean)
     .join(' ');
 
-  return (
+  const button = (
     <Tooltip title={name}>
       <IconButton component={RouterLink} to={door.to} aria-label={name}>
         <ArrowForwardRounded />
       </IconButton>
     </Tooltip>
+  );
+
+  // The badge travels with every Operations door; the button's name already says it.
+  return door.preview ? (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex' }}>
+        <PreviewChip level={door.preview} />
+      </Box>
+      {button}
+    </Box>
+  ) : (
+    button
   );
 };
 
