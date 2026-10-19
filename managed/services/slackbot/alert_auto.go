@@ -134,9 +134,9 @@ func (n *SlackNotifier) PostInvestigationReport(ctx context.Context, inv *models
 	link := n.investigationLink(inv)
 	var body string
 	if inv.Status == "failed" {
-		body = fmt.Sprintf("❌ Investigation failed for *%s*.", inv.Title)
+		body = fmt.Sprintf("❌ Investigation failed for **%s**.", inv.Title)
 		if link != "" {
-			body += " — " + link
+			body += " [Open the investigation](" + link + ")"
 		}
 	} else {
 		body = buildReportSummary(inv, link)
@@ -151,9 +151,10 @@ func (n *SlackNotifier) PostInvestigationReport(ctx context.Context, inv *models
 
 	// Scraped from a Slack alert message → reply in that alert's thread. Post each chunk and continue
 	// past a failed chunk so one transient error doesn't truncate the rest (mirrors postAnswer).
+	chunks := chunkMarkdownForSlack(body)
 	if channel, threadTS := slackThreadRef(inv); channel != "" && threadTS != "" {
-		for _, chunk := range chunkForSlack(body) {
-			postThreadLine(ctx, n.l, api, channel, threadTS, chunk)
+		for _, chunk := range chunks {
+			postMarkdown(ctx, n.l, api, channel, threadTS, chunk)
 		}
 		return
 	}
@@ -165,12 +166,9 @@ func (n *SlackNotifier) PostInvestigationReport(ctx context.Context, inv *models
 		n.l.Debugf("PostInvestigationReport: get settings for channel fallback: %v", err)
 		return
 	}
-	chunks := chunkForSlack(body)
 	for _, ch := range settings.Adre.SlackAutoInvestigateChannels {
 		for _, chunk := range chunks {
-			if _, _, err := api.PostMessageContext(ctx, ch, slack.MsgOptionText(chunk, false)); err != nil {
-				n.l.Debugf("PostMessage (report) to %s: %v", ch, err)
-			}
+			postMarkdown(ctx, n.l, api, ch, "", chunk)
 		}
 	}
 }
@@ -186,18 +184,18 @@ func stripSlackMentions(s string) string {
 	return slackMentionRE.ReplaceAllString(s, "")
 }
 
-// buildReportSummary renders a concise Slack summary of a completed investigation: root cause +
-// resolution (or the summary as a fallback) + a link to the full report in the UI.
+// buildReportSummary renders a concise markdown summary of a completed investigation for Slack: root
+// cause + resolution (or the summary as a fallback) + a link to the full report in the UI.
 func buildReportSummary(inv *models.Investigation, link string) string {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("✅ Investigation complete: *%s*\n", inv.Title))
+	fmt.Fprintf(&b, "✅ Investigation complete: **%s**\n", inv.Title)
 	rootCause := strings.TrimSpace(inv.RootCauseSummary)
 	resolution := strings.TrimSpace(inv.ResolutionSummary)
 	if rootCause != "" {
-		b.WriteString("\n*Root cause:* " + rootCause + "\n")
+		b.WriteString("\n**Root cause:** " + rootCause + "\n")
 	}
 	if resolution != "" {
-		b.WriteString("\n*Resolution:* " + resolution + "\n")
+		b.WriteString("\n**Resolution:** " + resolution + "\n")
 	}
 	if rootCause == "" && resolution == "" {
 		if s := strings.TrimSpace(inv.Summary); s != "" {
@@ -205,7 +203,7 @@ func buildReportSummary(inv *models.Investigation, link string) string {
 		}
 	}
 	if link != "" {
-		b.WriteString("\nFull report: " + link)
+		b.WriteString("\n[Full report](" + link + ")")
 	}
 	return strings.TrimSpace(b.String())
 }

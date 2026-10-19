@@ -60,3 +60,44 @@ func TestChunkForSlack(t *testing.T) {
 		assert.LessOrEqual(t, len(c), slackMaxMessageLen)
 	}
 }
+
+func TestChunkMarkdownForSlack(t *testing.T) {
+	t.Parallel()
+
+	assert.Nil(t, chunkMarkdownForSlack("\n\n"))
+	assert.Equal(t, []string{"## Summary\nall good"}, chunkMarkdownForSlack("\n## Summary\nall good\n"))
+
+	// A report of paragraphs, tables and code blocks with blank lines inside the code: each message
+	// stays within the limit and keeps its tables and code blocks whole.
+	table := "| Service | Node |\n|---|---|\n" + strings.Repeat("| ps_pmm_replication_8_4_1 | ps_pmm_replication_8_4_1 |\n", 20)
+	code := "```sql\nSELECT 1;\n\nSELECT 2;\n```"
+	parts := make([]string, 0, 120)
+	for range 40 {
+		parts = append(parts, "### Part\nSome prose about this part of the inventory.", table, code)
+	}
+	md := strings.Join(parts, "\n\n")
+	require.Greater(t, len(md), slackMaxMarkdownLen)
+
+	chunks := chunkMarkdownForSlack(md)
+	require.Greater(t, len(chunks), 1)
+	assert.Equal(t, md, strings.Join(chunks, "\n\n"), "splitting must only happen at blank lines")
+	for _, c := range chunks {
+		assert.LessOrEqual(t, len(c), slackMaxMarkdownLen)
+		assert.Equal(t, 0, strings.Count(c, "```")%2, "code block cut in two")
+		assert.True(t, strings.HasPrefix(c, "### Part") || strings.HasPrefix(c, "| Service") || strings.HasPrefix(c, "```sql"),
+			"message starts mid-block: %.40s", c)
+	}
+
+	// A code block with blank lines crosses the limit → the cut goes before the block, not inside it.
+	prose := strings.Repeat("prose line\n", 820)
+	block := "```sql\n" + strings.Repeat("SELECT 1;\n\n", 200) + "```"
+	chunks = chunkMarkdownForSlack(prose + "\n" + block)
+	require.Len(t, chunks, 2)
+	assert.Equal(t, strings.TrimRight(prose, "\n"), chunks[0])
+	assert.Equal(t, block, chunks[1])
+
+	// No blank line to cut at → the plain split still keeps each message within the limit.
+	for _, c := range chunkMarkdownForSlack(strings.Repeat("line\n", slackMaxMarkdownLen)) {
+		assert.LessOrEqual(t, len(c), slackMaxMarkdownLen)
+	}
+}

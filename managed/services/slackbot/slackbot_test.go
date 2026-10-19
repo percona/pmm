@@ -21,6 +21,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestStripMentions(t *testing.T) {
@@ -53,11 +55,38 @@ func TestFormatAnswerForSlack(t *testing.T) {
 	assert.Contains(t, out, "https://pmm.example.com/v1/grafana/render/blob/")
 }
 
-func TestFormatAnswerForSlack_markdownLinkToSlackMrkdwn(t *testing.T) {
+func TestFormatAnswerForSlack_keepsMarkdownLinks(t *testing.T) {
 	raw := `Here is the graph. [Open in Grafana](https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53)`
-	out := FormatAnswerForSlack(raw, "", false)
-	assert.NotContains(t, out, "[Open in Grafana]")
-	assert.Contains(t, out, "<https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53|Open in Grafana>")
+	assert.Equal(t, raw, FormatAnswerForSlack(raw, "", false))
+}
+
+func TestSlackMrkdwn(t *testing.T) {
+	md := "## Summary\nThis PMM has **14 nodes**. [Open in Grafana](https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53)\n### MySQL (2) ##\n| a | b |"
+	assert.Equal(t,
+		"*Summary*\nThis PMM has *14 nodes*. <https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53|Open in Grafana>\n*MySQL (2)*\n| a | b |",
+		slackMrkdwn(md))
+}
+
+func TestNotificationText(t *testing.T) {
+	assert.Equal(t, "This PMM has 14 nodes and 15 services.",
+		notificationText("## Summary\n\nThis PMM has **14 nodes** and `15` services.\n\n| a | b |"))
+	assert.Equal(t, "Restart the agent", notificationText("```sql\nSELECT 1;\n```\n- [Restart the agent](https://x/y)"))
+	assert.Equal(t, "PMM Assistant", notificationText("| a | b |\n|---|---|"))
+
+	long := notificationText(strings.Repeat("word ", 100))
+	assert.True(t, strings.HasSuffix(long, "…"))
+	assert.LessOrEqual(t, len([]rune(long)), slackNotificationLen+1)
+}
+
+func TestBuildReportSummary(t *testing.T) {
+	inv := &models.Investigation{
+		Title: "Alert: replication stopped", RootCauseSummary: "A script writes to the replica.",
+		ResolutionSummary: "Set super_read_only.",
+	}
+	assert.Equal(t,
+		"✅ Investigation complete: **Alert: replication stopped**\n\n**Root cause:** A script writes to the replica.\n\n"+
+			"**Resolution:** Set super_read_only.\n\n[Full report](https://pmm.example.com/pmm-ui/investigations/inv1)",
+		buildReportSummary(inv, "https://pmm.example.com/pmm-ui/investigations/inv1"))
 }
 
 func TestSlackEventDedupe(t *testing.T) {

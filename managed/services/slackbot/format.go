@@ -34,7 +34,7 @@ func chunkForSlack(text string) []string {
 	}
 	var chunks []string
 	for len(text) > slackMaxMessageLen {
-		cut := slackSplitIndex(text)
+		cut := splitIndex(text, slackMaxMessageLen)
 		chunks = append(chunks, strings.TrimRight(text[:cut], "\n"))
 		text = strings.TrimLeft(text[cut:], "\n")
 	}
@@ -44,22 +44,65 @@ func chunkForSlack(text string) []string {
 	return chunks
 }
 
-// slackSplitIndex returns a byte index (<= slackMaxMessageLen) to cut at: the last blank line, else
-// the last newline, else a hard cut backed up to a UTF-8 rune boundary. Only called when the input
-// is longer than slackMaxMessageLen.
-func slackSplitIndex(s string) int {
-	window := s[:slackMaxMessageLen]
+// splitIndex returns a byte index (<= limit) to cut at: the last blank line, else the last newline,
+// else a hard cut backed up to a UTF-8 rune boundary. Only called when the input is longer than limit.
+func splitIndex(s string, limit int) int {
+	window := s[:limit]
 	if i := strings.LastIndex(window, "\n\n"); i > 0 {
 		return i
 	}
 	if i := strings.LastIndex(window, "\n"); i > 0 {
 		return i
 	}
-	limit := slackMaxMessageLen
 	for limit > 0 && !utf8.RuneStart(s[limit]) {
 		limit--
 	}
 	return limit
+}
+
+// slackMaxMarkdownLen is the byte cap for one message's markdown block: Slack allows 12,000 characters
+// of markdown per message, and the margin covers the escaping Slack applies.
+const slackMaxMarkdownLen = 10000
+
+// chunkMarkdownForSlack splits markdown into messages within slackMaxMarkdownLen, cutting at a blank
+// line outside code blocks so tables and code arrive whole. Returns nil for empty input.
+func chunkMarkdownForSlack(md string) []string {
+	md = strings.Trim(md, "\n")
+	var chunks []string
+	for len(md) > slackMaxMarkdownLen {
+		cut := markdownSplitIndex(md)
+		chunks = append(chunks, strings.TrimRight(md[:cut], "\n"))
+		md = strings.TrimLeft(md[cut:], "\n")
+	}
+	if md != "" {
+		chunks = append(chunks, md)
+	}
+	return chunks
+}
+
+// markdownSplitIndex returns the last blank line outside a code fence within slackMaxMarkdownLen,
+// else the plain split.
+func markdownSplitIndex(s string) int {
+	inFence := false
+	cut := 0
+	for i := 0; i < slackMaxMarkdownLen; {
+		end := strings.IndexByte(s[i:], '\n')
+		if end < 0 || i+end >= slackMaxMarkdownLen {
+			break
+		}
+		line := strings.TrimSpace(s[i : i+end])
+		if strings.HasPrefix(line, "```") {
+			inFence = !inFence
+		}
+		if line == "" && !inFence && i > 0 {
+			cut = i
+		}
+		i += end + 1
+	}
+	if cut > 0 {
+		return cut
+	}
+	return splitIndex(s, slackMaxMarkdownLen)
 }
 
 var (
@@ -72,8 +115,9 @@ var (
 // ADRE/Holmes emits Markdown links [label](https://...). Slack mrkdwn uses <https://...|label> instead.
 var mdHTTPSLinkRE = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]+)\)`)
 
-// FormatAnswerForSlack converts ADRE markdown-ish output to plain text suitable for Slack chat.update.
-// When hideImageLinks is true, strips markdown images and raw blob URLs that were uploaded as files.
+// FormatAnswerForSlack cleans ADRE markdown for a Slack markdown block: drops tool directives and makes
+// blob links absolute. When hideImageLinks is true, strips markdown images and raw blob URLs that were
+// uploaded as files.
 func FormatAnswerForSlack(raw, publicBase string, hideImageLinks bool) string {
 	if raw == "" {
 		return raw
@@ -92,8 +136,51 @@ func FormatAnswerForSlack(raw, publicBase string, hideImageLinks bool) string {
 		text = strings.ReplaceAll(text, "](/v1/grafana/render/blob/", "]("+base+"/v1/grafana/render/blob/")
 		text = strings.ReplaceAll(text, "(/v1/grafana/render/blob/", "("+base+"/v1/grafana/render/blob/")
 	}
-	text = markdownHTTPSLinksToSlackMrkdwn(text)
 	return strings.TrimSpace(text)
+}
+
+var (
+	mdHeadingRE = regexp.MustCompile(`(?m)^#{1,6}[ \t]+(.+?)[ \t#]*$`)
+	mdBoldRE    = regexp.MustCompile(`\*\*(.+?)\*\*`)
+)
+
+// slackMrkdwn rewrites markdown into Slack's older mrkdwn for plain-text messages: links, headings and
+// bold. Tables stay as written.
+func slackMrkdwn(md string) string {
+	text := markdownHTTPSLinksToSlackMrkdwn(md)
+	text = mdBoldRE.ReplaceAllString(text, "*$1*")
+	return mdHeadingRE.ReplaceAllString(text, "*$1*")
+}
+
+// slackNotificationLen caps the plain text Slack shows in notifications for a message sent as blocks.
+const slackNotificationLen = 150
+
+var mdLinkLabelRE = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`)
+
+// notificationText is the plain line Slack shows in notifications and previews: the first line of
+// prose, without markdown.
+func notificationText(md string) string {
+	inFence := false
+	for line := range strings.SplitSeq(md, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "```") {
+			inFence = !inFence
+			continue
+		}
+		if inFence || line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "|") || strings.HasPrefix(line, "!") {
+			continue
+		}
+		line = mdLinkLabelRE.ReplaceAllString(line, "$1")
+		line = strings.NewReplacer("**", "", "__", "", "`", "").Replace(line)
+		line = strings.TrimLeft(line, "-*> ")
+		if r := []rune(line); len(r) > slackNotificationLen {
+			line = strings.TrimSpace(string(r[:slackNotificationLen])) + "…"
+		}
+		if line != "" {
+			return line
+		}
+	}
+	return "PMM Assistant"
 }
 
 // markdownHTTPSLinksToSlackMrkdwn turns [label](https://host/path) into <https://host/path|label> for Slack mrkdwn.

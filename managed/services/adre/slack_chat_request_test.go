@@ -16,6 +16,7 @@
 package adre
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,4 +42,13 @@ func TestBuildSlackChatRequestPrependsSystemWhenMissing(t *testing.T) {
 	first, ok := req.ConversationHistory[0].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, "system", first["role"])
+}
+
+func TestBuildSlackChatRequestAddsSlackGuidance(t *testing.T) {
+	s := &models.Settings{}
+	s.Adre.ChatPrompt = "Custom chat prompt."
+
+	req := BuildSlackChatRequest(s, "ask", nil, "Extra guidance.")
+	assert.True(t, strings.HasPrefix(req.AdditionalSystemPrompt, "Custom chat prompt."))
+	assert.True(t, strings.HasSuffix(req.AdditionalSystemPrompt, "\n\n"+SlackAnswerGuidance+"\n\nExtra guidance."))
 }

@@ -516,11 +516,30 @@ func handleTurn(
 	postAnswer(ctx, api, log, channelID, threadTS, thinkingTS, formatted)
 }
 
-// postAnswer replaces the "Thinking…" placeholder with the answer. Slack rejects over-long messages
-// (msg_too_long), so long investigation reports are split into chunks: the first edits the
-// placeholder, the rest are posted as threaded replies. If the edit fails for any reason, the first
-// chunk is re-posted as a fresh reply so the result is never silently dropped (stuck on "Thinking…").
+// postAnswer replaces the "Thinking…" placeholder with the answer as a Slack markdown block; a long
+// answer continues in further thread replies. If Slack refuses the block, the answer goes out as
+// mrkdwn text instead, so it is never stuck on "Thinking…".
 func postAnswer(ctx context.Context, api *slack.Client, log *logrus.Entry, channelID, threadTS, thinkingTS, answer string) {
+	chunks := chunkMarkdownForSlack(answer)
+	if len(chunks) == 0 {
+		postTextAnswer(ctx, api, log, channelID, threadTS, thinkingTS, answer)
+		return
+	}
+	//nolint:dogsled // slack-go returns (channelID, ts, text, error); we only need err
+	_, _, _, err := api.UpdateMessageContext(ctx, channelID, thinkingTS, markdownMessage(chunks[0])...)
+	if err != nil {
+		log.Warnf("UpdateMessage with markdown: %v", err)
+		postTextAnswer(ctx, api, log, channelID, threadTS, thinkingTS, slackMrkdwn(answer))
+		return
+	}
+	for _, c := range chunks[1:] {
+		postMarkdown(ctx, log, api, channelID, threadTS, c)
+	}
+}
+
+// postTextAnswer replaces the placeholder with plain text split to Slack's text limit. If the edit fails,
+// the first chunk is re-posted as a fresh reply so the answer is not dropped.
+func postTextAnswer(ctx context.Context, api *slack.Client, log *logrus.Entry, channelID, threadTS, thinkingTS, answer string) {
 	chunks := chunkForSlack(answer)
 	if len(chunks) == 0 {
 		chunks = []string{" "}
@@ -533,6 +552,38 @@ func postAnswer(ctx context.Context, api *slack.Client, log *logrus.Entry, chann
 	}
 	for _, c := range chunks[1:] {
 		postThreadLine(ctx, log, api, channelID, threadTS, c)
+	}
+}
+
+// markdownMessage sends md as a markdown block, with its first line as the notification text.
+func markdownMessage(md string) []slack.MsgOption {
+	return []slack.MsgOption{
+		slack.MsgOptionText(notificationText(md), false),
+		slack.MsgOptionBlocks(slack.NewMarkdownBlock("", md)),
+	}
+}
+
+// postMarkdown posts md as one markdown-block message, in a thread when threadTS is set; if Slack refuses
+// the block, it posts the same content as mrkdwn text.
+func postMarkdown(ctx context.Context, log *logrus.Entry, api *slack.Client, channelID, threadTS, md string) {
+	opts := markdownMessage(md)
+	if threadTS != "" {
+		opts = append(opts, slack.MsgOptionTS(threadTS))
+	}
+	_, _, err := api.PostMessageContext(ctx, channelID, opts...)
+	if err == nil {
+		return
+	}
+	log.Warnf("PostMessage with markdown to %s: %v", channelID, err)
+	for _, c := range chunkForSlack(slackMrkdwn(md)) {
+		textOpts := []slack.MsgOption{slack.MsgOptionText(c, false)}
+		if threadTS != "" {
+			textOpts = append(textOpts, slack.MsgOptionTS(threadTS))
+		}
+		_, _, err := api.PostMessageContext(ctx, channelID, textOpts...)
+		if err != nil {
+			log.Debugf("PostMessage to %s: %v", channelID, err)
+		}
 	}
 }
 
