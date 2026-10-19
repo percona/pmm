@@ -81,4 +81,4 @@ After PMM Server restarts, the rules in that set no longer appear in **Alerts > 
 
 If you turn the set back on later, any silences you set still apply. Alerts that were firing before you turned the set off start over and notify you again once their `for` duration has passed.
 
-To remove both sets together with all Percona alert templates, [disable Percona Alerting](disable_alerts.md) instead. This takes effect immediately without a restart.
+To remove both sets together with all Percona alert templates, [disable Percona Alerting](disable_alerts.md) instead. This doesn't require a PMM Server restart, but PMM can take a few minutes to apply the change.
