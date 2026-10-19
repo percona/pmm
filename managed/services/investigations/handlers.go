@@ -64,6 +64,9 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:
 	segments := strings.Split(path, "/")
 
 	switch {
+	case path == "similar" && r.Method == http.MethodGet:
+		h.FindSimilarInvestigations(w, r)
+		return
 	case path == "":
 		switch r.Method {
 		case http.MethodGet:
@@ -109,6 +112,9 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:
 			default:
 				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			}
+			return
+		case len(segments) == 2 && segments[1] == "similar" && r.Method == http.MethodGet:
+			h.GetSimilarInvestigations(w, r, id)
 			return
 		case len(segments) == 2 && segments[1] == "timeline":
 			switch r.Method {

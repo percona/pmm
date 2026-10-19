@@ -19,6 +19,7 @@ vi.mock('hooks/api/useAdre', () => ({
 }));
 
 vi.mock('hooks/api/useInvestigations', () => ({
+  useSimilarToIncident: () => ({ data: [] }),
   useCreateInvestigation: () => ({ mutate: vi.fn(), isPending: false }),
   useCreateInvestigationFromChat: () => ({
     mutate: fromChat,

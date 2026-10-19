@@ -207,6 +207,47 @@ export const getInvestigation = async (id: string): Promise<Investigation> => {
   return res.data;
 };
 
+/** A past investigation that looks like the current incident, with why and how it ended. */
+export interface SimilarInvestigation {
+  id: string;
+  title: string;
+  status: string;
+  createdAt: string;
+  summary: string;
+  rootCauseSummary: string;
+  resolutionSummary: string;
+  score: number;
+  reasons: string[];
+}
+
+/** An incident with no investigation yet, such as a firing alert. */
+export interface SimilarQuery {
+  alertname?: string;
+  service_name?: string;
+  node_name?: string;
+  cluster?: string;
+  q?: string;
+}
+
+export const getSimilarInvestigations = async (
+  id: string
+): Promise<SimilarInvestigation[]> => {
+  const res = await api.get<{ similar: SimilarInvestigation[] | null }>(
+    `/investigations/${id}/similar`
+  );
+  return res.data.similar ?? [];
+};
+
+export const findSimilarInvestigations = async (
+  params: SimilarQuery
+): Promise<SimilarInvestigation[]> => {
+  const res = await api.get<{ similar: SimilarInvestigation[] | null }>(
+    '/investigations/similar',
+    { params }
+  );
+  return res.data.similar ?? [];
+};
+
 /** Turns an Assistant chat into an investigation, or finds the one already made from it. */
 export const createInvestigationFromChat = async (
   conversationId: number

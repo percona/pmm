@@ -4,6 +4,7 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import { AdreContextRail } from './AdreContextRail';
 
 vi.mock('hooks/api/useInvestigations', () => ({
+  useSimilarToIncident: () => ({ data: [] }),
   useCreateInvestigation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 

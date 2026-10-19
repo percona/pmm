@@ -1,8 +1,12 @@
-import { Box, Button, Checkbox, Stack, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Link, Stack, Typography } from '@mui/material';
 import { FC, Fragment, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAdreAlerts, getAlertMetadataFromLabels } from 'api/adre';
-import { useCreateInvestigation } from 'hooks/api/useInvestigations';
+import {
+  useCreateInvestigation,
+  useSimilarToIncident,
+} from 'hooks/api/useInvestigations';
+import { formatSeenDate } from 'pages/investigations/components/seenBefore.utils';
 import { useSnackbar } from 'notistack';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
@@ -25,6 +29,40 @@ const severityColor = (severity: string) => {
   }
   if (s === 'warning') return '#FCD34D';
   return '#A9A7B0';
+};
+
+/** The past investigation an alert looks like, if any. */
+const AlertSeenBefore: FC<{ labels?: Record<string, string> }> = ({
+  labels,
+}) => {
+  const { nodeName, serviceName, clusterName } =
+    getAlertMetadataFromLabels(labels);
+  const query = {
+    alertname: labels?.alertname,
+    service_name: serviceName,
+    node_name: nodeName,
+    cluster: clusterName,
+  };
+  const { data = [] } = useSimilarToIncident(
+    query,
+    !!(query.alertname || query.service_name || query.node_name)
+  );
+  const [top] = data;
+  if (!top) return null;
+  return (
+    <Typography sx={{ fontSize: 12, color: '#A9A7B0' }}>
+      Seen before:{' '}
+      <Link
+        component={RouterLink}
+        to={`${PMM_NEW_NAV_PATH}/investigations/${top.id}`}
+        sx={{ color: '#CFCBFF' }}
+      >
+        {top.title}
+      </Link>
+      {` · ${formatSeenDate(top.createdAt)}`}
+      {data.length > 1 ? ` · +${data.length - 1} more` : ''}
+    </Typography>
+  );
 };
 
 /** Unique key for an alert (fingerprint if set, else label+index). */
@@ -284,6 +322,7 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({
                     ))}
                   </Box>
                 )}
+                <AlertSeenBefore labels={a.labels} />
               </Stack>
             </Box>
           );

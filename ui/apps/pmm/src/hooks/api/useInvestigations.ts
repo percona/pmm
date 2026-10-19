@@ -4,6 +4,8 @@ import {
   getInvestigation,
   createInvestigation,
   createInvestigationFromChat,
+  findSimilarInvestigations,
+  getSimilarInvestigations,
   patchInvestigation,
   deleteInvestigation,
   getInvestigationComments,
@@ -19,6 +21,7 @@ import {
   type PatchInvestigationBody,
   type CreateCommentBody,
   type PatchBlockBody,
+  type SimilarQuery,
 } from 'api/investigations';
 
 export const INVESTIGATIONS_KEYS = {
@@ -84,6 +87,21 @@ export const useCreateInvestigation = () => {
       queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all }),
   });
 };
+
+export const useSimilarInvestigations = (id: string | undefined) =>
+  useQuery({
+    queryKey: [...INVESTIGATIONS_KEYS.all, 'similar', id],
+    queryFn: () => getSimilarInvestigations(id ?? ''),
+    enabled: !!id,
+  });
+
+export const useSimilarToIncident = (query: SimilarQuery, enabled = true) =>
+  useQuery({
+    queryKey: [...INVESTIGATIONS_KEYS.all, 'similar-to', query],
+    queryFn: () => findSimilarInvestigations(query),
+    enabled,
+    staleTime: 60_000,
+  });
 
 export const useCreateInvestigationFromChat = () => {
   const queryClient = useQueryClient();

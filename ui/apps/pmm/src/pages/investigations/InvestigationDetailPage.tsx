@@ -34,6 +34,7 @@ import {
   useInvestigationComments,
   useInvestigationMessages,
   useInvestigationTimeline,
+  useSimilarInvestigations,
   usePostInvestigationComment,
   usePostInvestigationChat,
   usePostInvestigationRun,
@@ -62,6 +63,7 @@ import {
 } from 'utils/holmesUsageFormat';
 import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
+import { SeenBefore } from './components/SeenBefore';
 
 const STATUS_OPTIONS = [
   'open',
@@ -154,6 +156,7 @@ const InvestigationDetailPage: FC = () => {
     { refetchInterval: isRunning ? 5000 : false }
   );
   const { data: timelineEvents = [] } = useInvestigationTimeline(id);
+  const { data: similar = [] } = useSimilarInvestigations(id);
   const postComment = usePostInvestigationComment(id ?? '');
   const postChat = usePostInvestigationChat(id ?? '');
   const postRun = usePostInvestigationRun(id ?? '');
@@ -688,7 +691,12 @@ const InvestigationDetailPage: FC = () => {
           )}
           {inv.sourceType && (
             <Typography variant="body2" color="text.secondary">
-              Source: {inv.sourceType === 'alert' ? 'Alert' : 'User request'}
+              Source:{' '}
+              {inv.sourceType === 'alert'
+                ? 'Alert'
+                : inv.sourceType === 'chat'
+                  ? 'Assistant chat'
+                  : 'User request'}
             </Typography>
           )}
           {(inv.nodeName ??
@@ -732,6 +740,8 @@ const InvestigationDetailPage: FC = () => {
             </Typography>
           )}
         </Stack>
+
+        <SeenBefore items={similar} />
 
         {/* Timeline */}
         <TimelineSection events={timelineEvents} />

@@ -330,6 +330,47 @@ toolsets:
               prompt: |
                 Summarize Assistant chat search hits. Preserve conversation_id and message_id; quote short snippets when useful. Be concise.
 
+  pmm-investigations:
+    description: |
+      Past PMM investigations (incident reports) with their root cause and resolution. Same auth as pmm-inventory (PMM_URL, PMM_API_TOKEN Bearer). Use to check whether an alert or problem happened before and how it was resolved.
+    tags:
+      - core
+    tools:
+      - name: pmm_similar_investigations
+        description: "Find past investigations that look like an incident: the same alert, service, node or cluster, or a similar description. Returns up to 5, closest first, with id, title, status, created_at, summary, root_cause_summary, resolution_summary, score and reasons. Give at least one parameter."
+        command: |
+          set -euo pipefail
+          PMM_URL="${PMM_URL%/}"
+          ALERT={{ alertname | default('') }}
+          SERVICE={{ service_name | default('') }}
+          NODE={{ node_name | default('') }}
+          CLUSTER={{ cluster | default('') }}
+          TEXT={{ text | default('') }}
+          for v in ALERT SERVICE NODE CLUSTER TEXT; do
+            if [ "${!v}" = None ]; then printf -v "$v" '%s' ''; fi
+          done
+          curl -s -k -G "${PMM_URL}/v1/investigations/similar" \
+            --data-urlencode "alertname=$ALERT" --data-urlencode "service_name=$SERVICE" \
+            --data-urlencode "node_name=$NODE" --data-urlencode "cluster=$CLUSTER" \
+            --data-urlencode "q=$TEXT" \
+            -H "Authorization: Bearer $PMM_API_TOKEN" | jq .
+        parameters:
+          alertname:
+            description: "The alert's alertname label."
+            required: false
+          service_name:
+            description: "Inventory service_name."
+            required: false
+          node_name:
+            description: "Inventory node_name."
+            required: false
+          cluster:
+            description: "Cluster label."
+            required: false
+          text:
+            description: "A short description of the problem, such as error messages or symptoms."
+            required: false
+
   pmm-observability:
     description: |
       PMM Observability Map + metrics snapshot APIs for scoped metric discovery and Tier-1 statistical summaries.

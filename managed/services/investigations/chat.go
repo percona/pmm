@@ -274,6 +274,11 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	}
 
 	ctxStr := buildInvestigationContext(inv)
+	similar, err := h.findSimilar(incidentOf(inv), inv.ID, inv.CreatedAt)
+	if err != nil {
+		h.l.Warnf("findSimilar: %v", err)
+	}
+	ctxStr += similarContext(similar)
 	invPrompt := adre.WithKubernetesGuidance(h.db, adre.ResolveChatSystemPrompt(settings, "investigation"))
 	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(h.db, h.l))
 	ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
