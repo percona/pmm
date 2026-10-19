@@ -89,7 +89,7 @@ jobs:
             user-facing behaviour has no page at all. Do not report:
             - what the diff already updates under documentation/
             - a missing release-note entry, unless the page for the version it ships in already
-              exists under documentation/docs/release-notes/; that page is created on the release branch
+              exists under documentation/docs/release-notes/
             - PMM_DEV_* and PMM_TEST_* variables, which are not for end users
             - refactors, tests, CI, or build changes with no user-visible effect
             - style, typos, or gaps that existed before this change
