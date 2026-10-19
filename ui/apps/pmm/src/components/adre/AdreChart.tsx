@@ -145,6 +145,10 @@ const AdreChart: FC<{ spec: ChartSpec }> = ({ spec }) => {
               {
                 data: data.times.map((t) => new Date(t)),
                 scaleType: 'time',
+                ...(range && {
+                  min: new Date(range.from),
+                  max: new Date(range.to),
+                }),
                 valueFormatter: (d: Date) => utcTime(d),
               },
             ]}
