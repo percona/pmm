@@ -1,6 +1,6 @@
 # Troubleshoot a Kubernetes single instance
 
-Use this page when your PMM pod is not running, not accessible, or not persisting data. For problems that aren't specific to this deployment, such as dashboards, agents, or queries on an otherwise healthy server, see [Troubleshoot PMM](index.md).
+Use this page when your PMM pod is not running, not accessible, or not persisting data. If your pod is running and you're troubleshooting dashboards, agents, or queries, the [PMM troubleshooting guide](index.md) is where to start.
 
 ## Pod stuck in Pending state
 

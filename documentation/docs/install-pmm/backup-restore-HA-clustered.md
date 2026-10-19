@@ -227,6 +227,7 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
 ```
 
 <a id="restore-in-place"></a>
+<a id="restore-into-another-namespace"></a>
 
 === "Restore in place"
 
@@ -245,8 +246,6 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
     ```
 
     For long restores where session interruption is a concern, run the restore as a Kubernetes Job instead. The chart includes an example Job definition in `examples/restore-job.yaml`.
-
-<a id="restore-into-another-namespace"></a>
 
 === "Restore into another namespace"
 
@@ -284,6 +283,8 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
     The restore also resets the PMM Client pods in the new namespace so they register again, and lists them in its summary. External PMM Clients keep working after you point them at the new installation.
 
 ## Limitations
+
+Before you set up backups or run a restore, check these version, storage, and availability constraints:
 
 - You can only restore a backup into a PMM HA installation running the same PMM version.
 - Turning on backups restarts the ClickHouse, VictoriaMetrics, and PMM Server pods.

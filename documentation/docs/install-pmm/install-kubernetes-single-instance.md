@@ -589,7 +589,7 @@ helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml
 
-# Or upgrade to a specific chart version
+# Or upgrade to a specific configOverrideschart version
 helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml \
