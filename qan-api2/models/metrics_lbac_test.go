@@ -38,6 +38,7 @@ func TestMetricsLBAC(t *testing.T) {
 		return strings.Split(value, ",")[0]
 	})
 	m := NewMetrics(db)
+	r := NewReporter(db)
 
 	from, err := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	require.NoError(t, err)
@@ -177,6 +178,73 @@ func TestMetricsLBAC(t *testing.T) {
 			plan, err := m.SelectQueryPlan(ctx, planQueryID, serviceID)
 			require.NoError(t, err)
 			assert.Equal(t, want, plan.QueryPlan, "service_id '%s'", serviceID)
+		}
+	})
+
+	// headersToLbacFilter returns "" both for "no filter" and on error, so a path that
+	// drops the error runs unfiltered. Every path must fail on a filter that doesn't parse.
+	t.Run("UnparsableFilterFailsEveryPath", func(t *testing.T) {
+		t.Parallel()
+		ctx := setup(t, `["service_id=\"service_id1\""]`) // no braces
+		for path, call := range map[string]func() error{
+			"Get": func() error {
+				_, err := m.Get(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+				return err
+			},
+			"SelectSparklines": func() error {
+				_, err := m.SelectSparklines(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil)
+				return err
+			},
+			"SelectQueryExamples": func() error {
+				_, err := m.SelectQueryExamples(ctx, from, to, queryID, "queryid", 10, nil, nil)
+				return err
+			},
+			"SelectObjectDetailsLabels": func() error {
+				_, err := m.SelectObjectDetailsLabels(ctx, from, to, queryID, "queryid")
+				return err
+			},
+			"SelectHistogram": func() error {
+				_, err := m.SelectHistogram(ctx, planFrom.Unix(), planTo.Unix(), nil, nil, planQueryID)
+				return err
+			},
+			"GetSelectedQueryMetadata": func() error {
+				_, err := m.GetSelectedQueryMetadata(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+				return err
+			},
+			"GetFingerprintByQueryID": func() error {
+				_, err := m.GetFingerprintByQueryID(ctx, queryID)
+				return err
+			},
+			"SelectQueryPlan": func() error {
+				_, err := m.SelectQueryPlan(ctx, planQueryID, "service_id1")
+				return err
+			},
+			"SchemaByQueryID": func() error {
+				_, err := m.SchemaByQueryID(ctx, "service_id1", queryID)
+				return err
+			},
+			"ExplainFingerprintByQueryID": func() error {
+				_, err := m.ExplainFingerprintByQueryID(ctx, "service_id1", queryID)
+				return err
+			},
+			"QueryExists": func() error {
+				_, err := m.QueryExists(ctx, "service_id1", "SELECT 1")
+				return err
+			},
+			"Reporter.Select": func() error {
+				_, err := r.Select(ctx, from.Unix(), to.Unix(), nil, nil, "queryid", "load", "", 0, 10, nil, nil, nil)
+				return err
+			},
+			"Reporter.SelectSparklines": func() error {
+				_, err := r.SelectSparklines(ctx, queryID, from.Unix(), to.Unix(), nil, nil, "queryid", "load", false)
+				return err
+			},
+			"Reporter.SelectFilters": func() error {
+				_, err := r.SelectFilters(ctx, from.Unix(), to.Unix(), "load", nil, nil)
+				return err
+			},
+		} {
+			assert.ErrorContains(t, call(), "failed to parse metric selector", path)
 		}
 	})
 }
