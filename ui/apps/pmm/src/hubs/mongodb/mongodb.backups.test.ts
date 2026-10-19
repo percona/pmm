@@ -183,6 +183,22 @@ describe('deriveBackups', () => {
     );
   });
 
+  it('says PITR has not started, never On, before its schedule makes an artifact', () => {
+    const snapshot = healthySnapshot(NOW, false);
+
+    if (snapshot.backups) {
+      snapshot.backups.artifacts = snapshot.backups.artifacts.filter(
+        (artifact) => artifact.mode !== 'pitr'
+      );
+    }
+    const { backups, findings } = derive(snapshot);
+
+    expect(backups.rows.find((row) => row.cluster === 'billing')?.pitr).toBe(
+      'notStarted'
+    );
+    expect(findings).toEqual([]);
+  });
+
   it('turns PITR off when its schedule is disabled', () => {
     const snapshot = healthySnapshot(NOW, false);
 

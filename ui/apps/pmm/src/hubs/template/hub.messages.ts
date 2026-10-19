@@ -109,6 +109,7 @@ export const Messages = {
       on: 'On',
       off: 'Off',
       stopped: 'Stopped',
+      notStarted: 'Not started',
     },
     notApplicable: 'Not applicable',
     featureOff: 'Backup management is off.',

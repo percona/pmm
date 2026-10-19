@@ -236,7 +236,11 @@ export const deriveBackups = ({
     } else if (schedules.some((s) => s.mode === 'pitr' && s.enabled)) {
       const latestPitr = newest(own.filter((a) => a.mode === 'pitr'));
 
-      pitr = !latestPitr || FINE_PITR.has(latestPitr.status) ? 'on' : 'stopped';
+      pitr = !latestPitr
+        ? 'notStarted'
+        : FINE_PITR.has(latestPitr.status)
+          ? 'on'
+          : 'stopped';
 
       if (pitr === 'stopped' && latestPitr) {
         findings.push({

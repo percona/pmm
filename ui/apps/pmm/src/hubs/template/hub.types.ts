@@ -137,7 +137,8 @@ export interface HubBackupRow {
   lastGood: { at: string; level: HubLevel } | null;
   /** Newest failure after the last success. */
   failedAt?: string;
-  pitr: 'on' | 'off' | 'stopped' | 'notApplicable';
+  /** notStarted: an enabled schedule that has no artifact yet, so nothing says it works. */
+  pitr: 'on' | 'off' | 'stopped' | 'notStarted' | 'notApplicable';
   nextRun?: string;
   doors: { cluster: HubDoor; lastGood: HubDoor; schedule: HubDoor };
 }
