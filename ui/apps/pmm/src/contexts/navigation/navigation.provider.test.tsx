@@ -3,7 +3,11 @@ import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
 import { User } from 'types/user.types';
-import { SEP_ATW_PATH, SEP_MYSQL_BACKUPS_PATH } from 'lib/constants';
+import {
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
+} from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
@@ -39,7 +43,11 @@ vi.mock('hooks/theme', () => ({
 const renderNavTree = (
   user: User = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
-  settings?: { sepEnabled?: boolean; backupManagementEnabled?: boolean }
+  settings?: {
+    extensionsEnabled?: boolean;
+    backupManagementEnabled?: boolean;
+    omEnabled?: boolean;
+  }
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
@@ -54,7 +62,8 @@ const renderNavTree = (
           {
             settings: {
               backupManagementEnabled: true,
-              sepEnabled: true,
+              extensionsEnabled: true,
+              omEnabled: true,
               ...settings,
             },
           }
@@ -70,7 +79,7 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
 describe('NavigationProvider', () => {
-  describe('Management section', () => {
+  describe('Apps section', () => {
     it.each([
       ['admin', TEST_USER_ADMIN],
       ['editor', TEST_USER_EDITOR],
@@ -80,19 +89,19 @@ describe('NavigationProvider', () => {
       const management = findById(navTree, 'management');
 
       expect(management).toBeDefined();
-      expect(management?.text).toBe('Management');
+      expect(management?.text).toBe('Apps');
       expect(management?.url).toBeUndefined();
       expect(management?.children?.map((child) => child.id)).toEqual([
-        'sep-mysql-backups',
-        'sep-atw',
+        'extensions-mysql-backups',
+        'extensions-atw',
       ]);
     });
 
-    it('does not leave the SEP apps as top-level entries', () => {
+    it('does not leave the PMM Extensions apps as top-level entries', () => {
       const ids = renderNavTree().map((item) => item.id);
 
-      expect(ids).not.toContain('sep-atw');
-      expect(ids).not.toContain('sep-mysql-backups');
+      expect(ids).not.toContain('extensions-atw');
+      expect(ids).not.toContain('extensions-mysql-backups');
     });
 
     it('preserves each child url, matches and icon', () => {
@@ -101,15 +110,15 @@ describe('NavigationProvider', () => {
 
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
-        url: SEP_MYSQL_BACKUPS_PATH,
-        matches: [SEP_MYSQL_BACKUPS_PATH],
+        url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+        matches: ['*'],
       });
       expect(mysqlBackups?.icon).toBeDefined();
 
       expect(atw).toMatchObject({
         text: 'Support diagnostics',
-        url: SEP_ATW_PATH,
-        matches: [SEP_ATW_PATH],
+        url: EXTENSIONS_ATW_PATH,
+        matches: ['*'],
       });
       expect(atw?.icon).toBeDefined();
     });
@@ -118,7 +127,7 @@ describe('NavigationProvider', () => {
       const ids = renderNavTree().map((item) => item.id);
       // Only the block the section joins is pinned: asserting the whole tree
       // would break on any unrelated nav addition without telling us anything
-      // about where Management landed.
+      // about where Apps landed.
       const block = ids.slice(ids.indexOf('inventory-divider'));
 
       expect(block).toEqual([
@@ -134,15 +143,15 @@ describe('NavigationProvider', () => {
       ]);
     });
 
-    it('is withheld from anonymous, which has no SEP session to exchange', () => {
+    it('is withheld from anonymous, which has no side-car session to exchange', () => {
       const ids = renderNavTree(TEST_USER_ANONYMOUS).map((item) => item.id);
 
       expect(ids).not.toContain('management');
     });
 
-    it('is withheld when SEP is disabled in server settings', () => {
+    it('is withheld when PMM Extensions is disabled in server settings', () => {
       const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
-        sepEnabled: false,
+        extensionsEnabled: false,
       }).map((item) => item.id);
 
       expect(ids).not.toContain('management');
@@ -160,11 +169,61 @@ describe('NavigationProvider', () => {
     });
   });
 
-  describe('deep links into a SEP app', () => {
+  describe('Operations (OpenManager)', () => {
+    const mongoChildIds = (navTree: NavItem[]) =>
+      findById(navTree, 'mongo')?.children?.map((child) => child.id);
+
+    it('is nested in the MongoDB menu, not a top-level entry', () => {
+      const navTree = renderNavTree();
+
+      expect(navTree.map((item) => item.id)).not.toContain('om');
+      // No MongoDB service is monitored here, so the menu exists for OM alone.
+      expect(mongoChildIds(navTree)).toEqual(['om']);
+    });
+
+    it('is withheld when the switch is off', () => {
+      // Gated on its own settings flag rather than on the PMM Extensions group:
+      // it is served by pmm-managed (PMM-15360).
+      const navTree = renderNavTree(TEST_USER_ADMIN, undefined, {
+        omEnabled: false,
+      });
+
+      expect(findById(navTree, 'mongo')).toBeUndefined();
+    });
+
+    it('is withheld from a non-admin', () => {
+      expect(
+        findById(renderNavTree(TEST_USER_EDITOR), 'mongo')
+      ).toBeUndefined();
+    });
+
     it.each([
-      ['sep-atw', SEP_ATW_PATH],
-      ['sep-mysql-backups', SEP_MYSQL_BACKUPS_PATH],
-    ])('marks %s active and keeps it inside Management', (childId, path) => {
+      ['om-fleet', OM_PATH],
+      ['om-nodes', `${OM_PATH}/nodes`],
+      ['om-automations', `${OM_PATH}/automations`],
+      ['om-settings', `${OM_PATH}/settings`],
+    ])('marks %s active inside the MongoDB menu', (childId, path) => {
+      const navTree = renderNavTree(TEST_USER_ADMIN, {
+        initialEntries: [path],
+      });
+      const om = findById(findById(navTree, 'mongo')?.children ?? [], 'om');
+      const active = findActiveNavItem(navTree, path);
+
+      expect(active?.id).toBe(childId);
+      expect(om?.children).toContain(active);
+    });
+  });
+
+  describe('deep links into a PMM Extensions app', () => {
+    it.each([
+      ['extensions-atw', EXTENSIONS_ATW_PATH],
+      ['extensions-atw', `${EXTENSIONS_ATW_PATH}/runs/abc`],
+      ['extensions-mysql-backups', EXTENSIONS_MYSQL_BACKUPS_PATH],
+      [
+        'extensions-mysql-backups',
+        `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`,
+      ],
+    ])('marks %s active and keeps it inside Apps for %s', (childId, path) => {
       const navTree = renderNavTree(TEST_USER_VIEWER, {
         initialEntries: [path],
       });

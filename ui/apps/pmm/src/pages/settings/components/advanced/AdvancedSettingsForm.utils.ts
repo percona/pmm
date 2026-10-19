@@ -24,10 +24,17 @@ export const toFormValues = (
   ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
   azureDiscover: settings.azurediscoverEnabled,
   accessControl: settings.enableAccessControl,
+  openManager: settings.omEnabled,
 });
 
+// Retention is sent only when it differs from the value loaded from the server and the field is
+// not locked. Echoing an unchanged value back can be stale, and in high availability the server
+// refuses any retention that differs from the stored one. The lock is checked as well because it
+// can arrive after the user has typed into the field, which then cannot be changed back.
 export const toPayload = (
-  values: AdvancedSettingsFormValues
+  values: AdvancedSettingsFormValues,
+  loadedRetention?: string,
+  retentionLocked = false
 ): UpdateSettingsPayload => {
   const dataRetention = `${Math.round(parseFloat(values.retention) * SECONDS_IN_DAY)}s`;
   const advisorRunIntervals = values.stt
@@ -39,7 +46,9 @@ export const toPayload = (
     : undefined;
 
   return {
-    dataRetention,
+    ...(retentionLocked || values.retention === loadedRetention
+      ? {}
+      : { dataRetention }),
     pmmPublicAddress: values.publicAddress,
     enableTelemetry: values.telemetry,
     enableUpdates: values.updates,
@@ -50,5 +59,6 @@ export const toPayload = (
     advisorRunIntervals,
     enableAzurediscover: values.azureDiscover,
     enableAccessControl: values.accessControl,
+    enableOm: values.openManager,
   };
 };
