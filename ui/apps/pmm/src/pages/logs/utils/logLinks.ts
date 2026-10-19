@@ -58,9 +58,12 @@ export const dashboardUrl = (
 const QUERY_LINE =
   /^(?:duration: [0-9.]+ ms\s+)?(?:statement|execute [^:\n]*):[\s;]*[^\s;]/;
 
-/** Whether a line logs a query QAN may have: a PostgreSQL statement. */
+/** Whether a line logs a query QAN may have: a PostgreSQL statement or a MongoDB slow query, whose attr holds it. */
 export const isQueryLine = (line: LogLine) =>
-  line.preset === 'postgres' && QUERY_LINE.test(line.body);
+  (line.preset === 'postgres' && QUERY_LINE.test(line.body)) ||
+  (line.preset === 'mongodb' &&
+    line.body === 'Slow query' &&
+    !!line.attributes.attr);
 
 /** What a QAN link opens: a known query, else the queries of a known service, else of the node. */
 export interface QanTarget {

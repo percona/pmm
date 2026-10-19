@@ -262,7 +262,15 @@ export const findLogQuery = async (line: LogLine): Promise<LogQuery> => {
     fingerprint?: string;
   }>(
     '/logs:findQuery',
-    { time: line.time, node_name: line.nodeName, body: line.body },
+    {
+      time: line.time,
+      node_name: line.nodeName,
+      body: line.body,
+      // A MongoDB slow query logs its operation in attr.
+      attributes: line.attributes.attr
+        ? { attr: line.attributes.attr }
+        : undefined,
+    },
     config
   );
   return {

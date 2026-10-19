@@ -203,6 +203,33 @@ describe('findLogQuery', () => {
     });
   });
 
+  it("sends a MongoDB line's attr", async () => {
+    post.mockResolvedValue({ data: {} });
+    await findLogQuery({
+      time: '2026-10-17T10:30:00.000Z',
+      nodeName: 'rs101',
+      source: 'rs101',
+      preset: 'mongodb',
+      fileName: 'mongod.log',
+      severityNumber: 9,
+      severityText: 'I',
+      body: 'Slow query',
+      bodyTruncated: false,
+      attributes: { attr: '{"type":"update"}', c: 'WRITE' },
+      patternHash: '',
+    });
+    expect(post).toHaveBeenCalledWith(
+      '/logs:findQuery',
+      {
+        time: '2026-10-17T10:30:00.000Z',
+        node_name: 'rs101',
+        body: 'Slow query',
+        attributes: { attr: '{"type":"update"}' },
+      },
+      expect.anything()
+    );
+  });
+
   it('has an empty query id when QAN has none', async () => {
     post.mockResolvedValue({ data: {} });
     const query = await findLogQuery({

@@ -109,6 +109,20 @@ describe('logLinks', () => {
     expect(logsQuery('duration: 0.512 ms')).toBe(false);
     expect(logsQuery('deadlock detected')).toBe(false);
     expect(logsQuery('statement: SELECT 1', 'mysql_error')).toBe(false);
+
+    // A MongoDB slow query logs its operation in attr.
+    const slow = { ...line, preset: 'mongodb', body: 'Slow query' };
+    expect(
+      isQueryLine({ ...slow, attributes: { attr: '{"type":"update"}' } })
+    ).toBe(true);
+    expect(isQueryLine(slow)).toBe(false);
+    expect(
+      isQueryLine({
+        ...slow,
+        body: 'Connection accepted',
+        attributes: { attr: '{}' },
+      })
+    ).toBe(false);
   });
 
   it('asks the Assistant about the line', () => {
