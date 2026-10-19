@@ -51,7 +51,7 @@ const AlertSeenBefore: FC<{ labels?: Record<string, string> }> = ({
   if (!top) return null;
   return (
     <Typography sx={{ fontSize: 12, color: '#A9A7B0' }}>
-      Seen before:{' '}
+      {`Seen before (${top.reasons.join(', ').toLowerCase()}): `}
       <Link
         component={RouterLink}
         to={`${PMM_NEW_NAV_PATH}/investigations/${top.id}`}

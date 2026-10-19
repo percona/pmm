@@ -52,11 +52,13 @@ describe('AdreAlertsPanel', () => {
                 id: 'i1',
                 title: 'Alert: PMM agent down',
                 createdAt: '2026-10-16T13:00:00Z',
+                reasons: ['Same alert', 'Same node'],
               },
               {
                 id: 'i2',
                 title: 'Alert: PMM agent down',
                 createdAt: '2026-10-15T13:00:00Z',
+                reasons: ['Same node'],
               },
             ]
           : [],
@@ -74,6 +76,9 @@ describe('AdreAlertsPanel', () => {
     );
     const seen = screen.getAllByText(/^Seen before/);
     expect(seen).toHaveLength(1);
+    expect(seen[0]).toHaveTextContent(
+      /^Seen before \(same alert, same node\): Alert: PMM agent down/
+    );
     expect(seen[0]).toHaveTextContent('+1 more');
     expect(
       screen.getByRole('link', { name: 'Alert: PMM agent down' })

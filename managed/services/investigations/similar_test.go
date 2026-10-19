@@ -101,3 +101,18 @@ func TestSimilarContext(t *testing.T) {
 	assert.Contains(t, text, "Alert: C")
 	assert.NotContains(t, text, "Alert: D", "the three closest are enough context")
 }
+
+func TestSimilarDescriptionAgainstTheShorterText(t *testing.T) {
+	now := time.Date(2026, 10, 19, 12, 0, 0, 0, time.UTC)
+	report := alertInvestigation(t, "old", "MySQL replication SQL thread stopped", "ps-8.4-2", "ps-node-2", now.Add(-72*time.Hour),
+		"The replica is writable (read_only=0). A client or script writes to both the source and the replica. It inserted id 900001 "+
+			"into shop.customers directly on the replica in the same minute as on the source, so the replicated Write_rows event "+
+			"failed with duplicate key error 1062.")
+
+	got := similarInvestigations(incident("", "", "", "", "MySQL replication SQL thread stopped"), []*models.Investigation{report}, "", now)
+
+	require.Len(t, got, 1, "a one-line title still matches the long report it names")
+	assert.Equal(t, []string{"Similar description"}, got[0].Reasons)
+	assert.Empty(t, similarInvestigations(incident("", "", "", "", "MySQL replica lag"), []*models.Investigation{report}, "", now),
+		"two shared words are not enough")
+}

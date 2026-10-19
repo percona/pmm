@@ -18,7 +18,6 @@ package investigations
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"regexp"
 	"slices"
@@ -34,11 +33,11 @@ const (
 	similarMaxResults = 5
 	// A shared node alone qualifies: that host had trouble before.
 	similarMinScore = 2.0
-	// A share of distinct words from which two descriptions count as similar.
-	similarTextMin = 0.15
-	// Text adds up to this many points, ten per unit of word overlap.
-	similarTextMax    = 4.0
-	similarTextWeight = 10.0
+	// Descriptions count as similar from this share of the shorter one's words, and this many words.
+	similarTextMin       = 0.3
+	similarTextMinShared = 3
+	// What a full overlap is worth; a text-only match needs half the shorter description's words.
+	similarTextWeight = 4.0
 	// The closest past incidents an investigation run is told about, and how much of each.
 	similarContextMax   = 3
 	similarContextRunes = 300
@@ -153,11 +152,11 @@ func similarity(a, b incidentKey) (float64, []string) {
 			shared++
 		}
 	}
-	union := len(a.words) + len(b.words) - shared
-	if union > 0 {
-		jaccard := float64(shared) / float64(union)
-		if jaccard >= similarTextMin {
-			score += math.Min(similarTextMax, similarTextWeight*jaccard)
+	// Overlap counts against the shorter description, so a one-line alert title can match a long report.
+	if shorter := min(len(a.words), len(b.words)); shared >= similarTextMinShared && shorter > 0 {
+		overlap := float64(shared) / float64(shorter)
+		if overlap >= similarTextMin {
+			score += similarTextWeight * overlap
 			reasons = append(reasons, "Similar description")
 		}
 	}
