@@ -29,8 +29,7 @@ jobs:
     if: >-
       !github.event.pull_request.draft &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      !endsWith(github.actor, '[bot]') &&
-      !contains(github.event.pull_request.labels.*.name, 'no docs')
+      !endsWith(github.actor, '[bot]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -140,7 +139,7 @@ jobs:
                   marker,
                   '### Documentation coverage',
                   '',
-                  'These pages may need updating for this change. This check is advisory; add the `no docs` label to skip it.',
+                  'These pages may need updating for this change. This check is advisory.',
                   '',
                   ...findings.map(f => `- ${code(f.page)} (${code(f.symbol)}): ${line(f.reason)}`),
                   '',
