@@ -199,6 +199,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 			"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/medium-resolution",
+			"--collector.wal",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--no-collector.locks",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
@@ -234,6 +235,7 @@ func (s *PostgresExporterConfigTestSuite) TestEnabledCollectors() {
 		"--collect.custom_query.mr",
 		"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/medium-resolution",
 		"--collector.long_running_transactions",
+		"--collector.wal",
 		"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 		"--no-collector.replication",
 		"--web.listen-address=0.0.0.0:{{ .listen_port }}",
@@ -247,6 +249,13 @@ func (s *PostgresExporterConfigTestSuite) TestEnabledCollectors() {
 	s.Require().NoError(err, "Failed to create exporter config")
 	s.Require().Contains(actual.Args, "--collector.stat_io")
 	requireNoDuplicateFlags(s.T(), actual.Args)
+
+	// PMM runs wal unless it is disabled; the exporter doesn't run it by default.
+	s.exporter.ExporterOptions.DisabledCollectors = []string{"wal"}
+	actual, err = postgresExporterConfig(s.node, nil, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
+	s.Require().NoError(err, "Failed to create exporter config")
+	s.Require().NotContains(actual.Args, "--collector.wal")
+	s.Require().NotContains(actual.Args, "--no-collector.wal")
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSDefault() {
@@ -471,6 +480,7 @@ func TestMaxConnections(t *testing.T) {
 			"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collector.wal",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfig }}",
@@ -655,6 +665,7 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collector.wal",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfig }}",

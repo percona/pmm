@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,6 +37,13 @@ var (
 	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
 	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
+
+// pmmEnabledPostgresExporterCollectors are the collectors that PMM runs although postgres_exporter doesn't by
+// default. Disabling one of them turns it off.
+var pmmEnabledPostgresExporterCollectors = []string{
+	// pg_wal_segments and pg_wal_size_bytes; pg_ls_waldir needs a superuser or a member of pg_monitor.
+	"wal",
+}
 
 const defaultAutoDiscoveryDatabaseLimit = 50
 
@@ -100,7 +108,7 @@ func postgresExporterConfig(node, serviceNode *models.Node, service *models.Serv
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 	args = append(args, collectors.PostgresExporterCollectorArgs(
-		exporter.ExporterOptions.EnabledCollectors,
+		slices.Concat(pmmEnabledPostgresExporterCollectors, exporter.ExporterOptions.EnabledCollectors),
 		exporter.ExporterOptions.DisabledCollectors,
 		pmmAgentVersion,
 	)...)
