@@ -92,6 +92,12 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     pmm-admin update postgresql postgresql-prod --password=new_secret_pass
     ```
 
+- Turn on PostgreSQL collectors that postgres_exporter doesn't run by default. The list replaces the stored one, and `--enable-collectors=` clears it:
+
+    ```bash
+    pmm-admin update postgresql postgresql-prod --enable-collectors=long_running_transactions,stat_io
+    ```
+
 - Read new credentials from a file, which keeps the password out of the shell history:
 
     ```bash
