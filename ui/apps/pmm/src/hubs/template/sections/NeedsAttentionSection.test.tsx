@@ -177,6 +177,22 @@ describe('NeedsAttentionSection', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
+  it('moves focus to the first row Show more reveals, which sits above it', () => {
+    renderSection();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show 2 more' }));
+
+    expect(
+      closestTo(screen.getByText('orders-shard2 oplog window is 3h'), 'li')
+    ).toHaveFocus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show fewer' }));
+
+    expect(
+      screen.getByRole('button', { name: /^Show 2 more/ })
+    ).toBeInTheDocument();
+  });
+
   it('never shows the calm line while loading', () => {
     renderSection([], { status: 'loading' });
 

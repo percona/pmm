@@ -8,7 +8,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { StatusIcon } from '@percona/peak-ui';
-import { type FC, useId, useState } from 'react';
+import { type FC, type Ref, useEffect, useId, useRef, useState } from 'react';
 import { capAttention } from '../hub.attention';
 import { Messages } from '../hub.messages';
 import type { HubAttentionItem, HubDoor, HubSectionState } from '../hub.types';
@@ -27,16 +27,24 @@ export interface NeedsAttentionSectionProps {
   onRetry: () => void;
 }
 
-const AttentionRow: FC<{ item: HubAttentionItem; divider: boolean }> = ({
-  item,
-  divider,
-}) => {
+const AttentionRow: FC<{
+  item: HubAttentionItem;
+  divider: boolean;
+  /** Set on the first row Show more reveals, which then takes focus. */
+  rowRef?: Ref<HTMLLIElement>;
+}> = ({ item, divider, rowRef }) => {
   const secondary = [item.detail, item.where, formatSince(item.since)]
     .filter(Boolean)
     .join(' · ');
 
   return (
-    <ListItem divider={divider} alignItems="flex-start" sx={{ gap: 2 }}>
+    <ListItem
+      ref={rowRef}
+      tabIndex={rowRef ? -1 : undefined}
+      divider={divider}
+      alignItems="flex-start"
+      sx={{ gap: 2 }}
+    >
       <ListItemIcon sx={{ minWidth: 0 }}>
         <StatusIcon
           size="small"
@@ -79,6 +87,16 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
   const restId = useId();
   const [expanded, setExpanded] = useState(false);
   const { visible, hidden } = capAttention(items, ATTENTION_CAP);
+  // The revealed rows sit above the button, so focus moves to them instead of past them.
+  const firstRevealed = useRef<HTMLLIElement>(null);
+  const revealing = useRef(false);
+
+  useEffect(() => {
+    if (expanded && revealing.current) {
+      revealing.current = false;
+      firstRevealed.current?.focus();
+    }
+  }, [expanded]);
 
   return (
     <HubSection
@@ -114,8 +132,13 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
               <>
                 <Collapse in={expanded} id={restId}>
                   <List disablePadding>
-                    {hidden.map((item) => (
-                      <AttentionRow key={item.id} item={item} divider />
+                    {hidden.map((item, index) => (
+                      <AttentionRow
+                        key={item.id}
+                        item={item}
+                        divider
+                        rowRef={index === 0 ? firstRevealed : undefined}
+                      />
                     ))}
                   </List>
                 </Collapse>
@@ -125,7 +148,10 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
                     variant="text"
                     aria-expanded={expanded}
                     aria-controls={restId}
-                    onClick={() => setExpanded((open) => !open)}
+                    onClick={() => {
+                      revealing.current = !expanded;
+                      setExpanded(!expanded);
+                    }}
                   >
                     {expanded
                       ? Messages.attention.showFewer
