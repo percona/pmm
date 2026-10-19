@@ -73,6 +73,9 @@ const backupsSummary = (
   if (featureOff) {
     return { text: Messages.apps.backupsOff };
   }
+  if (lastGoodBackup === 'unknown') {
+    return { text: Messages.apps.backupsUnknown };
+  }
   if (notSetUp) {
     return { text: Messages.apps.backupsNotSetUp };
   }

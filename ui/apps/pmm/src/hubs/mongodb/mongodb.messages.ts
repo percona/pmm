@@ -190,6 +190,7 @@ export const Messages = {
     failedRecently: (count: number) => `${count} failed in the last 24h`,
     backupsOff: 'Backup management is off',
     backupsNotSetUp: 'No backups set up yet',
+    backupsUnknown: 'Backup status unknown',
     diagnostics: 'Diagnostics',
     diagnosticsSummary:
       'Diagnostic checks for MongoDB replication and performance',

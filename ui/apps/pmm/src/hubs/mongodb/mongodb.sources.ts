@@ -579,9 +579,11 @@ export const useMongoLiveSnapshot = ({
       services: inventory.isError ? null : services,
       metrics: metrics.isError ? null : (metrics.data ?? EMPTY_METRICS),
       alerts: alerts.isError ? null : toAlertInputs(alerts.data, services),
-      backups: backups.isError
-        ? null
-        : (backups.data ?? toBackupsInput(backupsEnabled, [], [])),
+      backups: !backupsEnabled
+        ? toBackupsInput(false, [], [])
+        : backups.isError
+          ? null
+          : (backups.data ?? null),
       qan: qan.isError ? null : (qan.data ?? { current: [], baseline: [] }),
       realtime:
         sessions.isError || realtime.isError
@@ -601,9 +603,10 @@ export const useMongoLiveSnapshot = ({
               environment
             )
           : null,
-      dashboards: catalog.isError
-        ? null
-        : { catalog: catalog.data ?? [], recent: recent.data ?? [] },
+      dashboards:
+        catalog.isError || !catalog.data
+          ? null
+          : { catalog: catalog.data, recent: recent.data ?? [] },
     };
   }, [
     sources,

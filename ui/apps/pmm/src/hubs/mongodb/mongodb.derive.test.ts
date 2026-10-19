@@ -356,6 +356,33 @@ describe('deriveMongoHub sections', () => {
     ).toEqual({ status: 'error', source: 'metrics' });
   });
 
+  it('states nothing about backups it could not read', () => {
+    const snapshot = healthySnapshot(NOW, false);
+
+    // Without PBM configured, only a backup the hub can see recommends Backup status.
+    if (snapshot.metrics) {
+      snapshot.metrics.pbmConfiguredByCluster = {};
+    }
+    const view = derive(
+      { ...snapshot, backups: null },
+      {
+        scenario: 'healthy',
+        sources: sourcesWith('ready', {
+          backups: { status: 'error', message: 'Request failed with 403' },
+        }),
+      }
+    );
+
+    expect(view.status.lastGoodBackup).toBe('unknown');
+    expect(view.backups.state).toBe('unknown');
+    expect(view.apps.find((app) => app.id === 'backups')?.summary).toEqual({
+      text: 'Backup status unknown',
+    });
+    expect(view.dashboards.recommended.map((link) => link.label)).not.toContain(
+      'Backup status'
+    );
+  });
+
   it('never reads an empty estate while the inventory is still loading', () => {
     expect(
       derive(emptySnapshot(NOW, false), {

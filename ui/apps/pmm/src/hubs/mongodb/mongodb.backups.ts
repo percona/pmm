@@ -157,7 +157,7 @@ export const deriveBackups = ({
   });
 
   if (!input) {
-    return empty('ok', 'unknown');
+    return empty('unknown', 'unknown');
   }
   if (!input.enabled) {
     return empty('featureOff', 'featureOff');

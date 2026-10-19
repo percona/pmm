@@ -143,7 +143,8 @@ export interface HubBackupRow {
 }
 
 export interface HubBackups {
-  state: 'ok' | 'notSetUp' | 'featureOff' | 'noServices';
+  /** unknown: the source failed or has not answered, so nothing can be said. */
+  state: 'ok' | 'notSetUp' | 'featureOff' | 'noServices' | 'unknown';
   /** Problems first, then no backup, then by name. */
   rows: HubBackupRow[];
   /** "PBM is not configured on billing, orders" */

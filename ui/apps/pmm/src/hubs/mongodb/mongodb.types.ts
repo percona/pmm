@@ -14,11 +14,13 @@ export interface MongoSnapshot {
   services: MongoServiceInput[] | null;
   metrics: MongoMetrics | null;
   alerts: MongoAlertInput[] | null;
+  /** Null also while the source has not answered yet. */
   backups: MongoBackupsInput | null;
   qan: { current: QanRowInput[]; baseline: QanRowInput[] } | null;
   realtime: { sessionServiceIds: string[]; queries: RtaQueryInput[] } | null;
   /** Null when Operations is off or failed. */
   operations: MongoOperationsInput | null;
+  /** Null also while the catalog has not answered yet. */
   dashboards: {
     catalog: DashboardHit[];
     recent: Array<{ uid: string; visitedAt?: string }>;

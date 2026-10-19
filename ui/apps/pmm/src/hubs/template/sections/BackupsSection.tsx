@@ -166,6 +166,9 @@ export const BackupsSection: FC<BackupsSectionProps> = ({
 
   const body = (() => {
     switch (backups.state) {
+      // The section's warning says why there is nothing to show.
+      case 'unknown':
+        return null;
       case 'featureOff':
         return (
           <Alert

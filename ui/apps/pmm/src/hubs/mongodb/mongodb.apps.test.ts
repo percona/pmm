@@ -84,6 +84,9 @@ describe('deriveApps', () => {
     );
     expect(backupsOf({ featureOff: true })).toBe('Backup management is off');
     expect(backupsOf({ notSetUp: true })).toBe('No backups set up yet');
+    expect(backupsOf({ lastGoodBackup: 'unknown', schedules: 0 })).toBe(
+      'Backup status unknown'
+    );
   });
 
   it('links the MongoDB backups pages and Diagnostics', () => {

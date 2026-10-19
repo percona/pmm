@@ -721,6 +721,22 @@ describe('useMongoLiveSnapshot', () => {
     });
   });
 
+  it('says nothing about backups or dashboards before they answer', async () => {
+    vi.mocked(listArtifacts).mockReturnValue(new Promise(() => {}));
+    vi.mocked(searchDashboards).mockReturnValue(new Promise(() => {}));
+
+    const { result } = renderLive();
+
+    await waitFor(() =>
+      expect(result.current.sources.inventory.status).toBe('ready')
+    );
+
+    expect(result.current.sources.backups).toEqual({ status: 'loading' });
+    expect(result.current.snapshot.backups).toBeNull();
+    expect(result.current.sources.dashboards).toEqual({ status: 'loading' });
+    expect(result.current.snapshot.dashboards).toBeNull();
+  });
+
   it('reads running queries only for MongoDB services with a running session', async () => {
     vi.mocked(getRunningSessions).mockResolvedValue([
       {

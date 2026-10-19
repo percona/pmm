@@ -249,8 +249,10 @@ describe('deriveBackups', () => {
 
   it('knows nothing when the source failed', () => {
     expect(derive(withBackups(null))).toMatchObject({
-      backups: { state: 'ok', rows: [] },
+      backups: { state: 'unknown', rows: [] },
       lastGoodBackup: 'unknown',
+      schedules: 0,
+      failedRecently: 0,
     });
   });
 });
