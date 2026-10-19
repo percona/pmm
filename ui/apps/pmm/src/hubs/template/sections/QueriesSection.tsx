@@ -38,27 +38,23 @@ const QueryRow: FC<{ row: HubQueryRow; divider: boolean }> = ({
       }}
     >
       <Box sx={{ flex: '1 1 240px', minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-          <Tooltip title={row.text} describeChild>
-            <Typography
-              variant="body2"
-              noWrap
-              tabIndex={0}
-              // Peak's inline code breaks spaces; the row shows one line and the tooltip the rest.
-              sx={[
-                { minWidth: 0, '& code': { whiteSpace: 'nowrap' } },
-                focusableText,
-              ]}
-            >
-              <code>{row.text}</code>
-            </Typography>
-          </Tooltip>
-          <Typography variant="body2" sx={{ flexShrink: 0 }}>
-            {row.headline}
+        {/* The query has the first line to itself, so as much of it shows as the row allows. */}
+        <Tooltip title={row.text} describeChild>
+          <Typography
+            variant="body2"
+            noWrap
+            tabIndex={0}
+            // Peak's inline code breaks spaces; the row shows one line and the tooltip the rest.
+            sx={[{ '& code': { whiteSpace: 'nowrap' } }, focusableText]}
+          >
+            <code>{row.text}</code>
           </Typography>
-        </Box>
+        </Tooltip>
         <Typography variant="body2" color="text.secondary">
-          {row.detail}
+          <Box component="span" sx={{ color: 'text.primary' }}>
+            {row.headline}
+          </Box>
+          {` · ${row.detail}`}
         </Typography>
       </Box>
       <DoorButton door={row.door} />
