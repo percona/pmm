@@ -83,14 +83,15 @@ export const clusterColumns = (
     id: 'environment',
     header: Messages.clusters.columns.environment,
     accessorFn: (node) => node.environment ?? '',
-    size: 115,
+    size: 109,
     Cell: ({ row }) => (row.depth === 0 ? row.original.environment : null),
   },
   {
     id: 'health',
     header: Messages.clusters.columns.health,
     accessorKey: 'health',
-    size: 134,
+    // Fits the widest health, "No data for 23h 59m".
+    size: 150,
     Cell: ({ row }) => {
       const node = row.original;
 
@@ -142,7 +143,7 @@ export const clusterColumns = (
     id: column.id,
     header: column.header,
     accessorFn: (node) => node.measures[column.id]?.kind ?? null,
-    size: 130,
+    size: 125,
     Header: () => (
       <Tooltip title={column.description} describeChild>
         <Box component="span" tabIndex={0} sx={focusableText}>

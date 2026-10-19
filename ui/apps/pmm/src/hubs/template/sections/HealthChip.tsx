@@ -32,12 +32,20 @@ export const HealthChip: FC<HealthChipProps> = ({ health, since, detail }) => {
   return (
     <Box
       component="span"
-      sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}
+      // Bounded by its cell, so a long age ellipsizes instead of running past the edge.
+      sx={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 0.75,
+        minWidth: 0,
+        maxWidth: '100%',
+      }}
     >
       <Chip
         size="small"
         label={word}
         data-testid="hub-health"
+        sx={{ flexShrink: 0 }}
         {...CHIP[health]}
       />
       {age != null && (
