@@ -48,7 +48,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
@@ -162,15 +161,11 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseEnumNumbers:  false,
-			EmitUnpopulated: false, // PMM-14566
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: false, // PMM-14566
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
@@ -212,7 +207,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	err := server.Shutdown(ctx) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close() //nolint:errcheck
+		_ = server.Close()
 	}
 	cancel()
 }
@@ -254,7 +249,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, _ = rw.Write(buf.Bytes())
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
