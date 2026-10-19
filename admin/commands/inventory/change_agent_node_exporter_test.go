@@ -263,6 +263,63 @@ Configuration changes applied:
 		assert.JSONEq(t, expectedJSON, capturedRequestBody)
 	})
 
+	// Kong splits "--disable-collectors=cpu, meminfo" on the comma without trimming, and an untrimmed
+	// name matches no collector on the server, so the flag has to be trimmed before it is sent.
+	t.Run("KongParsingTrimsDisableCollectors", func(t *testing.T) {
+		agentID := "test-agent-untrimmed"
+
+		var capturedRequestBody string
+
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentNodeExporterCommand
+		parser := kong.Must(&cmd)
+
+		_, err := parser.Parse([]string{agentID, "--disable-collectors=cpu, meminfo"})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"cpu", " meminfo"}, cmd.DisableCollectors)
+
+		_, err = cmd.RunCmd()
+		require.NoError(t, err)
+
+		expectedJSON := `{
+			"node_exporter": {
+				"disable_collectors": ["cpu", "meminfo"]
+			}
+		}`
+		assert.JSONEq(t, expectedJSON, capturedRequestBody)
+	})
+
+	// An empty value clears the stored list, which the server tells apart from "no change" by the
+	// empty slice, so trimming must not collapse it to null.
+	t.Run("KongParsingKeepsEmptyDisableCollectors", func(t *testing.T) {
+		agentID := "test-agent-clear"
+
+		var capturedRequestBody string
+
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentNodeExporterCommand
+		parser := kong.Must(&cmd)
+
+		_, err := parser.Parse([]string{agentID, "--disable-collectors="})
+		require.NoError(t, err)
+		require.NotNil(t, cmd.DisableCollectors)
+		assert.Empty(t, cmd.DisableCollectors)
+
+		_, err = cmd.RunCmd()
+		require.NoError(t, err)
+
+		expectedJSON := `{
+			"node_exporter": {
+				"disable_collectors": []
+			}
+		}`
+		assert.JSONEq(t, expectedJSON, capturedRequestBody)
+	})
+
 	t.Run("KongParsingErrorCases", func(t *testing.T) {
 		t.Run("MissingRequiredArgument", func(t *testing.T) {
 			var cmd ChangeAgentNodeExporterCommand

@@ -18,10 +18,7 @@ package apitests
 
 import (
 	"context"
-	"crypto/tls"
 	"flag"
-	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -44,7 +41,8 @@ import (
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
-	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/utils/apitransport"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 //nolint:gochecknoglobals
@@ -57,6 +55,9 @@ var (
 
 	// ServerInsecureTLS indicates whether TLS cert verification shall be skipped when connecting to PMM Server.
 	ServerInsecureTLS bool
+
+	// HTTPClient is a plain HTTP client for PMM Server that honours ServerInsecureTLS, unlike http.DefaultClient.
+	HTTPClient *http.Client
 
 	// Hostname contains local hostname that is used for generating test data.
 	Hostname string
@@ -71,49 +72,18 @@ var (
 	RunAdvisorTests bool
 )
 
-// NginxError is an error type for nginx HTML response.
-type NginxError string
-
-// Error implements error interface.
-func (e *NginxError) Error() string {
-	return "response from nginx: " + string(*e)
-}
-
-// GoString implements fmt.GoStringer interface.
-func (e *NginxError) GoString() string {
-	return fmt.Sprintf("NginxError(%q)", string(*e))
-}
-
 // Transport returns configured Swagger transport for given URL.
 func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	transport := httptransport.New(baseURL.Host, baseURL.Path, []string{baseURL.Scheme})
-	if u := baseURL.User; u != nil {
-		password, _ := u.Password()
-		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
-	}
+	apitransport.SetAuth(transport, baseURL.User)
 	transport.SetLogger(logrus.WithField("component", "client"))
 	transport.SetDebug(logrus.GetLevel() >= logrus.DebugLevel)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
-		b, _ := io.ReadAll(reader)
-		return new(NginxError(b))
-	})
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
-		runtime.HTMLMime:    errorConsumer,
-		runtime.TextMime:    errorConsumer,
-		runtime.DefaultMime: errorConsumer,
-	}
+	transport.Consumers = servererror.Consumers(nil)
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if baseURL.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = baseURL.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
-	}
+	apitransport.Configure(transport, baseURL.Scheme, baseURL.Hostname(), insecureTLS)
 
 	return transport
 }
@@ -202,6 +172,7 @@ func init() {
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
+	HTTPClient = &http.Client{Transport: transport.Transport}
 
 	// do not run tests if server is not available
 	logrus.Info("Checking PMM Server availability...")
@@ -213,9 +184,3 @@ func init() {
 
 	logrus.Info("PMM Server is ready.")
 }
-
-// check interfaces.
-var (
-	_ error          = (*NginxError)(nil)
-	_ fmt.GoStringer = (*NginxError)(nil)
-)

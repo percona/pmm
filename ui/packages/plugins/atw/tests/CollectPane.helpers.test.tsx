@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { SectionField } from '@sep/api';
+import type { SectionField } from '@pmm-extensions/api';
 import {
   buildBatchPayload,
   fieldDeclaresGate,

@@ -20,8 +20,8 @@
       "persistent": true,
       "passThroughEnv": [
         "PMM_SERVER_URL",
-        "PMM_DEV_SEP_BACKEND_URL",
-        "PMM_DEV_SEP_INTERNAL_TOKEN"
+        "PMM_DEV_EXTENSIONS_BACKEND_URL",
+        "PMM_DEV_EXTENSIONS_INTERNAL_TOKEN"
       ]
     },
     "format": {

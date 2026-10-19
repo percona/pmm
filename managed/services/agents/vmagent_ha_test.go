@@ -1,0 +1,299 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package agents
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/managed/models"
+)
+
+// legacyChartCreds injects the vmauth credential under the VMAGENT_ passthrough names, as pmm-ha
+// chart releases before the PMM_HA_VM_* keys did. Kept because that shape exists during a chart
+// and server upgrade window, and because an operator can still inject the pair deliberately.
+func legacyChartCreds(t *testing.T) {
+	t.Helper()
+	t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
+	t.Setenv(envRemoteWritePassword, "vm-password")
+}
+
+func TestHARemoteWrite(t *testing.T) {
+	vmCreds := remoteWrite{username: "victoriametrics_pmm", password: "vm-password", source: credentialVMURL}
+
+	t.Run("clients write to their PMM Server address with the VM credential", func(t *testing.T) {
+		want := vmCreds
+		want.url = serverProxyWriteURL
+		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), false))
+	})
+
+	t.Run("the server agent writes to vmauth directly", func(t *testing.T) {
+		want := vmCreds
+		want.url = testVMAuthWrite
+		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), true))
+	})
+
+	t.Run("a VM URL without credentials yields pairs without any credential", func(t *testing.T) {
+		assert.Equal(t, remoteWrite{url: serverProxyWriteURL, source: credentialNone}, haRemoteWrite(newVMParams(t, testVMAuthNoCreds), false))
+		assert.Equal(t, remoteWrite{url: testVMAuthWrite, source: credentialNone}, haRemoteWrite(newVMParams(t, testVMAuthNoCreds), true))
+	})
+
+	t.Run("an internal VM URL falls back to the standalone pair", func(t *testing.T) {
+		params := newVMParams(t, models.VMBaseURL)
+		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, false))
+		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, true))
+	})
+}
+
+func TestHARemoteWriteWarning(t *testing.T) {
+	clearVMAgentEnv(t)
+
+	t.Run("internal VM URL is unsupported in HA", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, models.VMBaseURL)), "not supported")
+	})
+
+	t.Run("external VM URL with credentials is fine", func(t *testing.T) {
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuth)))
+	})
+
+	t.Run("external VM URL without credentials and nothing injected warns", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("injected credentials satisfy a credential-less URL", func(t *testing.T) {
+		legacyChartCreds(t)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("half an injected pair does not satisfy a credential-less URL", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("an empty injected pair does not satisfy a credential-less URL", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "")
+		t.Setenv(envRemoteWritePassword, "")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("another vmagent authentication method satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_bearerToken", "token")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("an additive method does not let half an injected pair satisfy a credential-less URL", func(t *testing.T) {
+		// The additive method composes with the pair rather than replacing it, so the lone half
+		// stays incomplete and PMM still withholds its own credential for it.
+		t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("a header that authenticates nothing does not satisfy a credential-less URL", func(t *testing.T) {
+		// The shape the warning exists for: the operator sets a tenant identifier, nothing
+		// authenticates the writes, and reporting the header as a credential would leave them
+		// with no warning and no metrics.
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("a header that authenticates nothing still reports half a credential", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)), "only half a credential")
+	})
+
+	t.Run("an Authorization header satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_headers", "Authorization: Bearer token")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("a client certificate satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_tlsCertFile", "/run/secrets/client.pem")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("an injected write URL with its own credentials takes PMM_VM_URL out of the write path", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, "https://collector:secret@collector.example.com/api/v1/write")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("an injected write URL without credentials is left to environment validation", func(t *testing.T) {
+		// ParseEnvVars emits the URL-only warning for this shape; a second warning about PMM_VM_URL
+		// would point the operator at a URL nobody writes to.
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("a URL with only a username warns about the half credential", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)), "only half a credential")
+	})
+
+	t.Run("a URL with only a password warns about the half credential", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, "http://:vm-password@pmm-ha-vmauth.pmm.svc.cluster.local:8427/")), "only half a credential")
+	})
+
+	t.Run("injected credentials satisfy a half credential in the URL", func(t *testing.T) {
+		legacyChartCreds(t)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)))
+	})
+}
+
+func TestHARemoteWriteInfo(t *testing.T) {
+	clearVMAgentEnv(t)
+
+	t.Run("internal VM URL is left to the warning", func(t *testing.T) {
+		assert.Empty(t, HARemoteWriteInfo(newVMParams(t, models.VMBaseURL)))
+	})
+
+	t.Run("external VM URL describes the PMM Server write path", func(t *testing.T) {
+		info := HARemoteWriteInfo(newVMParams(t, testVMAuth))
+		assert.Contains(t, info, "/victoriametrics/api/v1/write")
+		assert.NotContains(t, info, "vm-password")
+	})
+
+	t.Run("an injected write URL describes the redirect instead", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		info := HARemoteWriteInfo(newVMParams(t, testVMAuth))
+		assert.Contains(t, info, "VMAGENT_remoteWrite_url")
+		assert.NotContains(t, info, "/victoriametrics/api/v1/write")
+	})
+}
+
+func TestVMAgentHA(t *testing.T) {
+	clearVMAgentEnv(t)
+	client := vmAgentDeployment{haEnabled: true}
+	server := vmAgentDeployment{haEnabled: true, isServerAgent: true}
+	build := func(t *testing.T, vmURL string, d vmAgentDeployment) ([]string, []string) {
+		t.Helper()
+		actual := vmAgentConfig(testLogger(), "", newVMParams(t, vmURL), d)
+		return actual.Env, actual.Args
+	}
+
+	t.Run("clients write via their PMM Server address with the VM credential", func(t *testing.T) {
+		env, args := build(t, testVMAuth, client)
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+		assertNoServerCredentialTemplates(t, env)
+		assertNotAnywhere(t, nil, args, "basicAuth.")
+	})
+
+	t.Run("legacy chart credentials under VMAGENT_ names are the same credential", func(t *testing.T) {
+		legacyChartCreds(t)
+		env, _ := build(t, testVMAuth, client)
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+		assertNoServerCredentialTemplates(t, env)
+	})
+
+	t.Run("injected URL with the VM credential: all-in-cluster fleets write to vmauth directly", func(t *testing.T) {
+		legacyChartCreds(t)
+		t.Setenv(envRemoteWriteURL, testVMAuthWrite)
+		env, _ := build(t, testVMAuth, client)
+		assertEnv(t, env, envRemoteWriteURL, testVMAuthWrite)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+	})
+
+	t.Run("injected URL alone emits no credential", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		env, args := build(t, testVMAuth, client)
+		assertEnv(t, env, envRemoteWriteURL, testInjectedURL)
+		assertCredentials(t, env, "", "")
+		assertNotAnywhere(t, env, args, "vm-password")
+	})
+
+	t.Run("tuning variables pass through unchanged", func(t *testing.T) {
+		t.Setenv("VMAGENT_loggerLevel", "WARN")
+		t.Setenv("VMAGENT_remoteWrite_maxDiskUsagePerURL", "52428800")
+		env, _ := build(t, testVMAuth, client)
+		assertEnv(t, env, "VMAGENT_loggerLevel", "WARN")
+		assertEnv(t, env, "VMAGENT_remoteWrite_maxDiskUsagePerURL", "52428800")
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+	})
+
+	t.Run("an operator credential different from the URL's wins", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "other-user")
+		t.Setenv(envRemoteWritePassword, "other-pass")
+		env, args := build(t, testVMAuth, client)
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, "other-user", "other-pass")
+		assertNotAnywhere(t, env, args, "vm-password")
+	})
+
+	t.Run("half an injected pair is sent alone, not completed with the VM credential", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "other-user")
+		env, args := build(t, testVMAuth, client)
+		assertCredentials(t, env, "other-user", "")
+		assertNotAnywhere(t, env, args, "vm-password")
+	})
+
+	t.Run("the server agent writes to vmauth directly with the VM credential", func(t *testing.T) {
+		env, args := build(t, testVMAuth, server)
+		assertEnv(t, env, envRemoteWriteURL, testVMAuthWrite)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+		assertNoServerCredentialTemplates(t, env)
+		assertNotAnywhere(t, nil, args, "basicAuth.")
+		url, _ := envValue(env, envRemoteWriteURL)
+		assert.NotContains(t, url, "@")
+	})
+
+	t.Run("the server agent follows an injected URL too", func(t *testing.T) {
+		legacyChartCreds(t)
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		env, _ := build(t, testVMAuth, server)
+		assertEnv(t, env, envRemoteWriteURL, testInjectedURL)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+	})
+
+	t.Run("a VM URL without credentials emits none and no PMM templates", func(t *testing.T) {
+		// HARemoteWriteWarning reports this shape at startup; the output must still be well-formed.
+		for _, d := range []vmAgentDeployment{client, server} {
+			env, _ := build(t, testVMAuthNoCreds, d)
+			assertCredentials(t, env, "", "")
+			assertNoServerCredentialTemplates(t, env)
+		}
+	})
+
+	t.Run("internal VM URL: clients get the standalone pair", func(t *testing.T) {
+		env, _ := build(t, models.VMBaseURL, client)
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, serverUsernameTmpl, serverPasswordTmpl)
+	})
+
+	t.Run("Kubernetes service-link noise passes through without affecting routing", func(t *testing.T) {
+		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
+		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_PORT", "8429")
+		env, _ := build(t, testVMAuth, client)
+		assertEnv(t, env, "VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
+		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
+		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+	})
+
+	t.Run("no HA agent receives a PMM Server credential template with an external VM URL", func(t *testing.T) {
+		for _, vmURL := range []string{testVMAuth, testVMAuthNoCreds} {
+			for _, d := range []vmAgentDeployment{client, server} {
+				env, _ := build(t, vmURL, d)
+				assertNoServerCredentialTemplates(t, env)
+			}
+		}
+		legacyChartCreds(t)
+		for _, d := range []vmAgentDeployment{client, server} {
+			env, _ := build(t, testVMAuth, d)
+			assertNoServerCredentialTemplates(t, env)
+		}
+	})
+}

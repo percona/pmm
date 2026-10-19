@@ -1,9 +1,12 @@
 import {
+  PMM_LOGIN_URL,
+  PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
-  SEP_ATW_PATH,
-  SEP_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
+import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -15,13 +18,13 @@ import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
-import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import Restore from '@mui/icons-material/Restore';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -785,8 +788,10 @@ export const NAV_SIGN_OUT: NavItem = {
   id: 'sign-out',
   icon: Logout,
   text: 'Sign out',
-  url: '/graph/logout',
+  url: PMM_LOGOUT_URL,
   target: '_self',
+  // Leaving on purpose should not drop the user back on that page at the next login.
+  onClick: clearReturnTo,
 };
 
 export const NAV_HELP: NavItem = {
@@ -800,8 +805,18 @@ export const NAV_SIGN_IN: NavItem = {
   id: 'sign-in',
   icon: LoginOutlinedIcon,
   text: 'Sign in',
-  url: '/graph/login',
+  url: PMM_LOGIN_URL,
   target: '_self',
+  // Remembers the page the way an involuntary bounce through redirectToLogin() does. Stays a real
+  // anchor: /graph/login is exempt from the nginx redirect and must not enter the router.
+  //
+  // Cleared first because the bounce guard only makes sense for involuntary cycles - under
+  // anonymous access this click often lands seconds after the shell restored this very page,
+  // which is exactly the state the guard refuses.
+  onClick: () => {
+    clearReturnTo();
+    saveReturnTo();
+  },
 };
 
 /**
@@ -829,13 +844,14 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
   id: 'high-availability',
   icon: CirclesExtIcon,
   text: 'PMM HA',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
-  id: 'high-availability-leader',
-  text: 'Leader:',
-  type: 'menu-text',
+export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
+  id: 'high-availability-overview',
+  icon: PageviewOutlined,
+  text: 'Overview',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
@@ -846,29 +862,29 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 };
 
 //
-// Management
+// Apps
 //
-// Section grouping the SEP apps. It has no page of its own: a collapsible nav
+// Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
 // item takes its link from its first child, so the header opens whichever app
 // leads the group.
 export const NAV_MANAGEMENT: NavItem = {
   id: 'management',
   icon: AppsRounded,
-  text: 'Management',
+  text: 'Apps',
 };
 
-export const NAV_SEP_ATW: NavItem = {
-  id: 'sep-atw',
+export const NAV_EXTENSIONS_ATW: NavItem = {
+  id: 'extensions-atw',
   icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
-  url: SEP_ATW_PATH,
-  matches: [SEP_ATW_PATH],
+  url: EXTENSIONS_ATW_PATH,
+  matches: ['*'],
 };
 
-export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
-  id: 'sep-mysql-backups',
+export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
+  id: 'extensions-mysql-backups',
   icon: Restore,
   text: 'MySQL Backups',
-  url: SEP_MYSQL_BACKUPS_PATH,
-  matches: [SEP_MYSQL_BACKUPS_PATH],
+  url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+  matches: ['*'],
 };

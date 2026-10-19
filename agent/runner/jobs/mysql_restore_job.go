@@ -182,14 +182,14 @@ func (j *MySQLRestoreJob) binariesInstalled() error {
 	return nil
 }
 
-func prepareRestoreCommands( //nolint:nonamedreturns
+func prepareRestoreCommands(
 	ctx context.Context,
 	folder string,
 	config *BackupLocationConfig,
 	targetDirectory string,
 	stderr io.Writer,
 	stdout io.Writer,
-) (xbcloud, xbstream *exec.Cmd, _ error) {
+) (*exec.Cmd, *exec.Cmd, error) {
 	xbcloudCmd := exec.CommandContext( //nolint:gosec
 		ctx,
 		xbcloudBin,

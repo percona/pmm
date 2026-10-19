@@ -87,11 +87,11 @@
     # created root:root, which pmm-server cannot write to. Group-writable like the
     # other /srv directories, so an arbitrary runtime uid in group 0 can still write.
     # Setgid so the files written here belong to group 0 whatever that uid's primary
-    # group is - the SEP container joins group 0 to read them. Docker carries the bit
+    # group is - the side-car joins group 0 to read them. Docker carries the bit
     # into a fresh named volume mounted at this path.
-    - name: Create the SEP directory
+    - name: Create the PMM Extensions directory
       file:
-        path: /srv/sep
+        path: /srv/extensions
         state: directory
         owner: pmm
         group: root

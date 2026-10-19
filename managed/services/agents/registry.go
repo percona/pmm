@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -46,6 +47,9 @@ const (
 	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
 	// done probing and can never take over. See PMM-15310.
 	staleConnectionProbeTimeout = 2 * time.Second
+
+	// Bounds persisting the connection status in HA, which is done while holding the registry lock.
+	connectionStatusTimeout = 5 * time.Second
 )
 
 var (
@@ -102,6 +106,7 @@ type Registry struct {
 	connectionCache    map[string]struct{}
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
+	rebuildMu          sync.Mutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -184,17 +189,15 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: check cache first, then database
-	if !time.Now().After(r.connectionCacheTTL) {
-		r.cacheMu.RLock()
-		_, exists := r.connectionCache[pmmAgentID]
-		r.cacheMu.RUnlock()
-		if exists {
-			return true
+	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query.
+	if r.connectionCacheExpired() {
+		r.rebuildMu.Lock()
+		// Concurrent callers share a single rebuild.
+		if r.connectionCacheExpired() {
+			r.rebuildConnectionCache()
 		}
+		r.rebuildMu.Unlock()
 	}
-
-	r.rebuildConnectionCache()
 
 	r.cacheMu.RLock()
 	_, exists := r.connectionCache[pmmAgentID]
@@ -203,13 +206,20 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return exists
 }
 
+func (r *Registry) connectionCacheExpired() bool {
+	r.cacheMu.RLock()
+	defer r.cacheMu.RUnlock()
+
+	return time.Now().After(r.connectionCacheTTL)
+}
+
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
-	_ = r.db.InTransaction(func(tx *reform.TX) error {
+	// Fetch pmm-agents from the database.
+	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
@@ -223,9 +233,15 @@ func (r *Registry) rebuildConnectionCache() {
 
 		return nil
 	})
+	if err != nil {
+		logrus.WithField("component", "agents/registry").Errorf("Failed to rebuild the connection cache: %v", err)
+	}
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	// On error, keep the last snapshot and still wait for the TTL, so a failing database is not queried on every call.
+	if err == nil {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
 	r.cacheMu.Unlock()
 }
@@ -315,7 +331,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = true
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -374,7 +390,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 	}
 
 	agent.Version = &md.Version
-	err = q.Update(agent)
+	err = q.UpdateColumns(agent, "version", "updated_at")
 	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
@@ -418,7 +434,13 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	// Only persist connection status when HA is enabled
 	if r.haService.Params().Enabled {
 		l := logger.Get(ctx)
-		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+
+		// The caller's context is usually the one of the stream that just ended, so it is already
+		// canceled; the status must be persisted anyway, or other nodes see the agent as connected.
+		dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusTimeout)
+		defer cancel()
+
+		err := r.db.InTransactionContext(dbCtx, nil, func(tx *reform.TX) error {
 			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
 			if err != nil {
 				// Agent might have been deleted, which is fine
@@ -428,7 +450,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = false
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}

@@ -1,114 +1,227 @@
-# Percona Monitoring and Management
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/pmm-logo-dark.png">
+    <img src="documentation/docs/assets/pmm-logo.png" width="360" alt="Percona Monitoring and Management">
+  </picture>
+</p>
 
-[![CI](https://github.com/percona/pmm/actions/workflows/main.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/main.yml)
-[![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
-[![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/percona/pmm/badge)](https://scorecard.dev/viewer/?uri=github.com/percona/pmm)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9702/badge)](https://www.bestpractices.dev/projects/9702)
-[![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
+<h3 align="center">Find the slow query, not just the slow server.</h3>
 
-![PMM](documentation/docs/assets/pmm-logo.png)
+<p align="center">
+  Open source monitoring and query analytics for MySQL, PostgreSQL, MongoDB and Valkey/Redis.<br>
+  Self-hosted, and every feature is open source: there is no paid edition.
+</p>
 
-## Percona Monitoring and Management
+<p align="center">
+  <a href="https://github.com/percona/pmm/releases/latest"><img src="https://img.shields.io/github/v/release/percona/pmm" alt="Latest release"></a>
+  <a href="https://hub.docker.com/r/percona/pmm-server"><img src="https://img.shields.io/docker/pulls/percona/pmm-server" alt="Docker pulls"></a>
+  <a href="#license"><img src="https://img.shields.io/badge/license-AGPL--3.0%20%7C%20Apache--2.0-green" alt="License: AGPL-3.0 | Apache-2.0"></a>
+  <a href="https://forums.percona.com/c/percona-monitoring-and-management-pmm"><img src="https://img.shields.io/discourse/topics?server=https%3A%2F%2Fforums.percona.com&label=forum" alt="Forum topics"></a>
+  <a href="https://github.com/percona/pmm"><img src="https://img.shields.io/github/stars/percona/pmm?style=social" alt="GitHub stars"></a>
+</p>
 
-A **single pane of glass** to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, Valkey, and Redis databases.
+<p align="center">
+  <b><a href="https://pmmdemo.percona.com/">▶ Try the live demo</a></b> ·
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/index.html">Docs</a> ·
+  <a href="https://forums.percona.com/c/percona-monitoring-and-management-pmm">Forum</a>
+</p>
 
-[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is the best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
-PMM helps users to:
-* Reduce Complexity
-* Optimize Database Performance
-* Improve Data Security
+![PMM: from a CPU spike to the PostgreSQL query behind it](.github/readme/pmm-hero.gif)
 
+<p align="center"><sub>From a CPU spike on the node to the PostgreSQL query behind it.</sub></p>
 
-See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-management/3/index.html) for more information.
+<p align="center">
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html"><img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html"><img src="https://img.shields.io/badge/Percona%20Server-4479A1?style=for-the-badge" alt="Percona Server"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html"><img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="MariaDB"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/postgresql.html"><img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html"><img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/valkey-redis.html"><img src="https://img.shields.io/badge/Valkey-6983FF?style=for-the-badge" alt="Valkey"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/valkey-redis.html"><img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/proxysql.html"><img src="https://img.shields.io/badge/ProxySQL-5B6B7A?style=for-the-badge" alt="ProxySQL"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/haproxy.html"><img src="https://img.shields.io/badge/HAProxy-106DA9?style=for-the-badge" alt="HAProxy"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/aws.html"><img src="https://img.shields.io/badge/Amazon%20RDS%20%2F%20Aurora-527FFF?style=for-the-badge" alt="Amazon RDS / Aurora"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/azure.html"><img src="https://img.shields.io/badge/Azure-0078D4?style=for-the-badge" alt="Azure"></a>
+  <a href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/google.html"><img src="https://img.shields.io/badge/Google%20Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud"></a>
+</p>
 
-## Use cases
+<p align="center"><sub>Supported versions follow the <a href="https://www.percona.com/services/policies/percona-services-lifecycle-policy/">Percona lifecycle policy</a>.</sub></p>
 
-* Monitor your database performance with customizable dashboards and real-time alerting.
-* Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
-* Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
-* Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
+## Quickstart
 
-## Architecture
+**1. Start PMM Server** (needs Docker; the script installs it if it's missing)
 
-![Overall Architecture](./documentation/docs/images/arch/C_S_Architecture.jpg "Client Server Architecture")
-
-![PMM Server](./documentation/docs/images/arch/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
-
-![PMM Client](./documentation/docs/images/arch/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
-
-## Installation
-
-There are different installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
-
-But in a nutshell:
-
-1. Download PMM server Docker image:
-```bash
-$ docker pull percona/pmm-server:3
+```sh
+curl -fsSL https://www.percona.com/get/pmm | /bin/bash
 ```
-2. Create the data volume container:
-```bash
-$ docker volume create pmm-data
+
+Open `https://<server-ip>` and log in as `admin` / `admin`, then set a new password.
+
+**2. Connect a database** (on the database host; Debian/Ubuntu shown)
+
+```sh
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+sudo dpkg -i percona-release_latest.generic_all.deb
+sudo percona-release enable pmm3-client release
+sudo apt update && sudo apt install -y pmm-client
+
+sudo pmm-admin config --server-insecure-tls --server-url=https://admin:<password>@<server-ip>:443
+sudo pmm-admin add mysql --username=pmm --password=<pass> --query-source=perfschema
 ```
-3. Run PMM Server container:
-```bash
-$ docker run --detach --restart always \
-  --publish 443:8443 \
-  --volume pmm-data:/srv \
-  --name pmm-server \
-  percona/pmm-server:3
-```
-4. Start a web browser and type the server name or IP address of the PMM server host (defaults to https://localhost).
 
-<img src="./documentation/docs/images/PMM_Login.png" width="280" alt="PMM Login Page" />
+This assumes a fresh server with its self-signed certificate. For production, use a trusted certificate (drop `--server-insecure-tls`) and register with a [service account token](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html) instead of the admin password.
 
-Enter the username and password. The defaults are username: **admin** and password: **admin**
+Open **Query Analytics** and your queries appear within a minute. The `pmm` database user needs [these privileges](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html). Guides for RHEL, Docker, [PostgreSQL, MongoDB, Valkey/Redis, Amazon RDS/Aurora, Azure and Google Cloud](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/index.html) are in the [full quickstart](https://docs.percona.com/percona-monitoring-and-management/3/quickstart/quickstart.html).
 
-# Need help?
+<sub>Other ways to run PMM Server: [Docker](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/index.html) · [Podman](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/index.html) · [Kubernetes (Helm)](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/helm/index.html) · [AWS Marketplace](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.html)</sub>
 
-| **Commercial Support** | **Community Support** |
-|:-----------------------|:----------------------|
-| **Enterprise-grade support** for mission-critical monitoring deployments with Percona Monitoring and Management. <br/><br/>Get expert guidance for complex monitoring scenarios across hybrid environments—from cloud providers to bare metal infrastructures. | Connect with our engineers and community members to troubleshoot issues, share best practices, and discuss monitoring strategies. |
-| **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)** |
+## Product tour
 
+<details open>
+<summary><b>Query Analytics: find the queries that cost the most</b></summary>
 
-## How to get involved
+Every query ranked by load, with examples, EXPLAIN plans and table stats. See the [Query Analytics docs](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/index.html).
 
-We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
+![Query Analytics: queries ranked by load, with per-query metrics](documentation/docs/images/PMM_Query_Analytics_Tabs_Details.jpg)
 
-If you’re looking for information about how you can contribute, we have [contribution guidelines](CONTRIBUTING.md) across all our repositories in `CONTRIBUTING.md` files. Some of them may just link to the main project’s repository’s contribution guidelines.
+</details>
 
-We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com).
+<details>
+<summary><b>Dashboards for every layer: node → instance → query</b></summary>
 
-## Submitting bug reports
+For MySQL, PostgreSQL, MongoDB, Valkey/Redis, ProxySQL and HAProxy. Built on Grafana.
 
-If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://perconadev.atlassian.net) issue tracker. Some of related projects also have GitHub Issues enabled, so you could also submit there.
+<table>
+  <tr>
+    <th>MySQL</th>
+    <th>PostgreSQL</th>
+    <th>Valkey / Redis</th>
+  </tr>
+  <tr>
+    <td><img src="documentation/docs/images/PMM_MySQL_Instances_Overview.jpg" width="260" alt="MySQL Instances Overview dashboard"></td>
+    <td><img src="documentation/docs/images/PMM_PostgreSQL_Instances_Overview.jpg" width="260" alt="PostgreSQL Instances Overview dashboard"></td>
+    <td><img src="documentation/docs/images/Valkey_Overview_Dashboard.png" width="260" alt="Valkey/Redis Overview dashboard"></td>
+  </tr>
+</table>
 
-Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
+</details>
 
-If there is no existing report, submit a report following these steps:
+<details>
+<summary><b>Advisors: automatic checks for security, configuration and performance</b></summary>
 
-1. [Sign in to Percona JIRA](https://perconadev.atlassian.net). You will need to create an account if you do not have one.
-2. From the top navigation bar, anywhere in Jira, click **Create**. 
-3. Select Percona Monitoring and Management (PMM) from the **Project** drop-down menu. 
-4. Fill in the fields of **Summary**, **Description**, **Steps To Reproduce**, and **Affects Version** to the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
+![Advisor checks: failed checks by severity](documentation/docs/images/FailedChecks.png)
 
-An excellent resource is [Elika Etemad's article on filing good bug reports](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/).
+</details>
 
-As a general rule of thumb, please try to create bug reports that are:
+<details>
+<summary><b>Alerting: ready-made templates, any Grafana contact point</b></summary>
 
-- *Reproducible* - Include steps to reproduce the problem.
-- *Specific* - Include as much detail as possible: which version, what environment, etc.
-- *Unique* - Do not duplicate existing tickets.
+![Alert status list with firing and silenced alerts](documentation/docs/images/Alert_status.png)
 
+</details>
 
-## Licensing
+<details>
+<summary><b>Backup and restore: MongoDB with point-in-time recovery, MySQL in Technical Preview</b></summary>
 
-Percona is dedicated to **keeping open source open**. Wherever possible, we strive to apply a permissive license to both our software and documentation. 
+![MongoDB Backup Details dashboard](documentation/docs/images/BackupDetails_Dashboard.png)
 
-PMM components are licensed under the following open source licenses:
+</details>
+
+**Runs where your databases run**: bare metal, VMs, Kubernetes, Amazon RDS/Aurora, Azure and Google Cloud.
+
+## Why PMM?
+
+|                                          | PMM               | Prometheus + Grafana, self-built | Hosted DB monitoring |
+|------------------------------------------|-------------------|----------------------------------|----------------------|
+| Per-query analytics                      | Built in          | Build it yourself                | Yes                  |
+| DB dashboards, advisors, alert templates | Built in          | Assemble by hand                 | Yes                  |
+| Where your data lives                    | Your servers      | Your servers                     | Vendor cloud         |
+| Cost                                     | Free, open source | Free + your time                 | Per host, per month  |
+
+### Compared with tools you know
+
+**Prometheus + exporters**<br>
+Good if you want to assemble it yourself. PMM ships the exporters, curated dashboards, query analytics, advisors and alert templates as one install with one upgrade path.
+
+**Datadog Database Monitoring**<br>
+SaaS, priced per database host. PMM is self-hosted, so query text and samples stay on your servers.
+
+**pganalyze**<br>
+Commercial and PostgreSQL only. PMM covers PostgreSQL, MySQL, MongoDB and Valkey in one tool.
+
+## How it works
+
+**PMM Server** (Grafana, VictoriaMetrics, ClickHouse, PostgreSQL) stores metrics and query data. **PMM Client** (`pmm-agent` plus exporters) runs next to each database and sends them. Details are in the [architecture reference](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
+
+<details>
+<summary>Architecture diagrams</summary>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/C_S_Architecture-dark.png">
+  <img alt="Overall Architecture" title="Client Server Architecture" src="./documentation/docs/images/arch/C_S_Architecture-light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Server-Component-Based-View-dark.png">
+  <img alt="PMM Server" title="PMM Server Architecture" src="./documentation/docs/images/arch/PMM-Server-Component-Based-View-light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Client-Component-Based-View-dark.png">
+  <img alt="PMM Client" title="PMM Client Architecture" src="./documentation/docs/images/arch/PMM-Client-Component-Based-View-light.png">
+</picture>
+
+</details>
+
+## FAQ
+
+<details>
+<summary><b>How is PMM different from Prometheus + Grafana?</b></summary>
+
+PMM is built on Grafana and VictoriaMetrics (PromQL-compatible) and adds the database parts: exporters configured for you, query analytics stored in ClickHouse, curated dashboards, advisors, alert templates and backups. It installs and upgrades as one product.
+
+</details>
+
+<details>
+<summary><b>Will it slow down my database?</b></summary>
+
+The client reads statistics the database already collects (Performance Schema or the slow log, `pg_stat_statements` or `pg_stat_monitor`, the MongoDB profiler or log), and you choose the query source for each service. See [choosing a query source](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html).
+
+</details>
+
+<details>
+<summary><b>Can I monitor Amazon RDS, Aurora or Azure without access to the host?</b></summary>
+
+Yes. Add the instance from the PMM web interface; nothing is installed on the database host. For RDS, PMM also reads Enhanced Monitoring metrics through the AWS API. See [Connect Amazon RDS](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/aws.html).
+
+</details>
+
+<details>
+<summary><b>Is any feature paid?</b></summary>
+
+No. Every feature is in the open source release. Percona sells [support](https://hubs.ly/Q02_Fs100), not features.
+
+</details>
+
+<details>
+<summary><b>How do I upgrade?</b></summary>
+
+PMM Server: pull the new image for Docker or Podman, or run `helm upgrade` for Helm. PMM Client: your package manager. See the [upgrade guide](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html).
+
+</details>
+
+## Community and support
+
+- **Questions and ideas**: [Percona Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)
+- **Bugs**: [PMM on Jira](https://perconadev.atlassian.net/issues/?jql=project=PMM). See [how to report a bug](CONTRIBUTING.md#submitting-a-bug).
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md) · [good first issues](https://github.com/percona/pmm/labels/good%20first%20issue)
+- **Commercial support**: [Percona Support](https://hubs.ly/Q02_Fs100) for production deployments
+
+If PMM saves you time, give the repo a ⭐. It helps other DBAs find it.
+
+## License
+
 - PMM Server: [GNU AGPLv3](./LICENSE)
 - PMM Client: [Apache 2.0](./agent/LICENSE)
 - PMM Documentation: [GNU AGPLv3](./documentation/LICENSE)

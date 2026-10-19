@@ -34,7 +34,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useDebouncedValue } from '@sep/framework';
+import { useDebouncedValue } from '@pmm-extensions/framework';
 import {
   sendJobDetail,
   useAtwCaseSearch,
