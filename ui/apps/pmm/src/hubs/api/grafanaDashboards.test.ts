@@ -6,7 +6,7 @@ import {
   searchDashboards,
 } from './grafanaDashboards';
 
-// Two hits recorded from pmm-proto's `GET /graph/api/search?type=dash-db&query=MongoDB`.
+// Two hits as Grafana's `GET /graph/api/search?type=dash-db&query=MongoDB` returns them.
 const HITS = [
   {
     id: 41,

@@ -188,7 +188,7 @@ describe('groupClusters', () => {
     expect(cluster.routers.map((member) => member.verdict)).toEqual(['noData']);
   });
 
-  it('reads the live stack’s shape: one router, one config member, two shards, a replica set and a standalone', () => {
+  it('reads a recorded estate: one router, one config member, two shards, a replica set and a standalone', () => {
     const metrics = parseMongoMetrics(
       Object.fromEntries(
         MONGO_QUERY_IDS.map((id) => [

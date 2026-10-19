@@ -11,7 +11,7 @@ const jsonResponse = (body: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json' },
   });
 
-// Recorded from pmm-proto on 2026-10-19.
+// A vector as VictoriaMetrics answers an instant query.
 const SHARDS_BODY = {
   status: 'success',
   data: {

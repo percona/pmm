@@ -6,7 +6,7 @@ import type {
   MongoServiceInput,
 } from '../mongodb.types';
 
-// The live pmm-proto names, so doors land on real dashboards; orders-mongos-2 and orders-cfg-m2/m3 are sample-only.
+// The recorded estate's names (recorded.ts), so doors land on dashboards with data; orders-mongos-2 and orders-cfg-m2/m3 exist only here.
 
 export const MINUTE_MS = 60 * 1000;
 export const HOUR_MS = 60 * MINUTE_MS;

@@ -2,7 +2,7 @@ import type { OmInventoryRun, OmTopologyResponse } from '@pmm/plugins-om';
 import { type ManagedService, ServiceStatus } from 'types/services.types';
 import type { MongoQueryId } from '../mongodb.promql';
 
-// pmm-proto, 2026-10-19: recorded vectors and Operations data; services rebuilt from the topology (the management API timed out).
+// PMM 3.10 answers for one estate: a sharded cluster (one router, one config member, two shards), a replica set and a standalone.
 
 export const RECORDED_SERVICES: ManagedService[] = [
   {
@@ -641,7 +641,7 @@ export const RECORDED_SERVICE_NAMES: Record<string, string> = {
   '3cd945ea-aff6-420c-b648-0bdcad31d004': 'reports',
 };
 
-// Collected while VictoriaMetrics restarted, so Operations reports every service down.
+// Operations reports every service of this topology down.
 export const RECORDED_TOPOLOGY: OmTopologyResponse = {
   snapshot: {
     generated_at: '2026-10-19T15:56:29.403945551Z',

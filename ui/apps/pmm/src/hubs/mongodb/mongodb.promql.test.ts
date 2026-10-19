@@ -79,7 +79,7 @@ describe('parseMongoMetrics', () => {
   const CFG = 'c125d425-10bb-4be3-ab03-8ee3c006c00e';
   const SHARD2_M3 = '20a3e890-ca31-4231-8445-97761381f714';
 
-  it('keys everything by service id from the live stack', () => {
+  it('keys everything by service id', () => {
     const metrics = parseMongoMetrics(recorded());
 
     expect(Object.keys(metrics.up)).toHaveLength(12);

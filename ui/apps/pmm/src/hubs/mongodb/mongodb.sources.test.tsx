@@ -355,7 +355,7 @@ describe('toBackupsInput', () => {
     });
   });
 
-  it('reads the empty answers pmm-proto gives', () => {
+  it('reads empty artifact and schedule lists', () => {
     expect(toBackupsInput(true, [], [])).toEqual({
       enabled: true,
       artifacts: [],
@@ -483,7 +483,7 @@ describe('toOperationsInput', () => {
         'prod/orders': '39dc72734db365ae',
         'staging/reports': '40cbf687d4830aa8',
       },
-      // Collected during a VictoriaMetrics restart: Operations counted every service down.
+      // This topology lists every service down.
       summary: { services: 12, up: 0, lastScanAt: '2026-10-19T15:42:14Z' },
       failedRuns: [
         {
