@@ -9,6 +9,7 @@ import type {
 export const Messages = {
   sampleData: 'Sample data',
   refresh: 'Refresh',
+  refreshed: 'Updated just now',
   updated: (age: string) => `Updated ${age}`,
   environment: {
     label: 'Environment',

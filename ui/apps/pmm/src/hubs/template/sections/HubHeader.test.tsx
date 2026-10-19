@@ -143,6 +143,40 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     expect(setParams).toHaveBeenCalledWith({ environment: null });
   });
 
+  it('tells assistive tech when a refresh it asked for has landed', () => {
+    const refetch = vi.fn();
+    const header = (updatedAt: number) => (
+      <HubHeader
+        view={testView()}
+        icon={PerconaMoIcon}
+        messages={MESSAGES}
+        params={PARAMS}
+        setParams={vi.fn()}
+        updatedAt={updatedAt}
+        refetch={refetch}
+        loading={false}
+      />
+    );
+    const before = Date.now() - 20_000;
+    const { rerender } = renderHub(header(before));
+    // renderHub's location probe is an <output>, which is a status too.
+    const [status] = screen
+      .getAllByRole('status')
+      .filter((element) => element.tagName !== 'OUTPUT');
+
+    expect(status).toHaveTextContent('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    rerender(header(before));
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(status).toHaveTextContent('');
+
+    rerender(header(Date.now()));
+
+    expect(status).toHaveTextContent('Updated just now');
+  });
+
   it('says how fresh the data is and refreshes every source', () => {
     const { refetch } = renderHeader();
 

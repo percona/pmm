@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Chip, PageHeader, Tooltip } from '@percona/peak-ui';
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import { Messages } from '../hub.messages';
 import type {
   HubIcon,
@@ -17,6 +17,7 @@ import { HubActions } from './HubActions';
 import { HubStatusLine } from './HubStatusLine';
 import { LiveAge } from './LiveAge';
 import { PrototypeMenu } from './PrototypeMenu';
+import { visuallyHidden } from './hub.sx';
 
 // A Select needs a string value; "every environment" is the URL's absent param.
 const ALL_ENVIRONMENTS = '__all__';
@@ -45,6 +46,9 @@ export const HubHeader: FC<HubHeaderProps> = ({
 }) => {
   const { environment } = view;
   const hasActions = !!(view.actions.addService || view.actions.install);
+  // The update time when Refresh was pressed; a newer one means that refresh landed.
+  const [refreshedFrom, setRefreshedFrom] = useState<number | null>(null);
+  const refreshed = refreshedFrom !== null && updatedAt > refreshedFrom;
 
   return (
     <PageHeader
@@ -108,11 +112,17 @@ export const HubHeader: FC<HubHeaderProps> = ({
               <IconButton
                 size="small"
                 aria-label={Messages.refresh}
-                onClick={refetch}
+                onClick={() => {
+                  setRefreshedFrom(updatedAt);
+                  refetch();
+                }}
               >
                 <RefreshRounded />
               </IconButton>
             </Tooltip>
+            <Box component="span" role="status" sx={visuallyHidden}>
+              {refreshed ? Messages.refreshed : ''}
+            </Box>
           </Box>
           <Box sx={{ ml: 'auto' }}>
             <PrototypeMenu params={params} setParams={setParams} />
