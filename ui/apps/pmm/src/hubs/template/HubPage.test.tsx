@@ -215,6 +215,14 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     expect(within(clusters).queryByRole('link')).toBeNull();
   });
 
+  it('survives a malformed hash in a pasted link', async () => {
+    renderHub(<HubRoute />, { path: '/mongodb?hubState=healthy#100%' });
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'MongoDB' })
+    ).toBeInTheDocument();
+  });
+
   it('keeps a filter that matches nothing visible and undoable', async () => {
     renderHub(<HubRoute />, {
       path: '/mongodb?environment=qa&hubState=healthy',

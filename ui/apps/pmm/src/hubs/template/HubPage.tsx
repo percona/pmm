@@ -12,6 +12,15 @@ import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
 import { QueriesSection } from './sections/QueriesSection';
 import { useTechnologyHub } from './useTechnologyHub';
 
+// A pasted or cut link can hold a lone "%", which decodeURIComponent throws on.
+const sectionId = (hash: string) => {
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return hash.slice(1);
+  }
+};
+
 // A door to `#clusters` and the like lands on that section and moves focus to its heading.
 const useSectionFocus = () => {
   const { hash, key } = useLocation();
@@ -21,7 +30,7 @@ const useSectionFocus = () => {
       return;
     }
 
-    const section = document.getElementById(decodeURIComponent(hash.slice(1)));
+    const section = document.getElementById(sectionId(hash));
     const heading = section?.querySelector<HTMLElement>('h2');
 
     if (!section || !heading) {
