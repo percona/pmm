@@ -78,7 +78,9 @@ export const ClustersTable: FC<ClustersTableProps> = ({
       getRowId={(node) => node.id}
       getSubRows={(node) => node.children}
       enableExpanding
-      hideExpandAllIcon
+      // Every way in is a link or button; focusable cells would only add stops, and an expand-all on Enter.
+      enableExpandAll={false}
+      enableKeyboardShortcuts={false}
       enablePagination={false}
       // Rows arrive worst first; sorting would break the tree.
       enableSorting={false}
@@ -102,7 +104,15 @@ export const ClustersTable: FC<ClustersTableProps> = ({
       initialState={{ density: 'compact', expanded }}
       state={{ columnVisibility: narrow ? NARROW_HIDDEN : WIDE_VISIBLE }}
       displayColumnDefOptions={{
-        'mrt-row-expand': { size: EXPAND_BUTTON + 16, grow: false },
+        'mrt-row-expand': {
+          size: EXPAND_BUTTON + 16,
+          grow: false,
+          Header: () => (
+            <Box component="span" sx={visuallyHidden}>
+              {Messages.clusters.expandColumn}
+            </Box>
+          ),
+        },
       }}
       muiTableProps={{ 'aria-label': label }}
       muiTablePaperProps={{

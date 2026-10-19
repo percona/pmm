@@ -54,6 +54,31 @@ describe('ClustersTable', () => {
     ).toBeInTheDocument();
   });
 
+  it('makes no cell a tab stop, so Tab goes from link to button', () => {
+    renderTable();
+
+    const table = screen.getByRole('table', { name: 'MongoDB clusters' });
+
+    expect(table.querySelectorAll('td[tabindex], th[tabindex]')).toHaveLength(
+      0
+    );
+  });
+
+  it('names the expand column and offers no hidden expand-all', () => {
+    renderTable();
+
+    const [expandHeader] = screen.getAllByRole('columnheader');
+
+    expect(expandHeader).toHaveTextContent('Expand');
+    expect(within(expandHeader).queryByRole('button')).toBeNull();
+
+    const before = screen.getAllByRole('row').length;
+
+    fireEvent.keyDown(expandHeader, { key: 'Enter' });
+
+    expect(screen.getAllByRole('row')).toHaveLength(before);
+  });
+
   it('opens the problem path on load and keeps healthy branches folded', () => {
     renderTable();
 

@@ -83,6 +83,7 @@ export const Messages = {
       members: 'Members up',
     },
     membersNoData: (count: number) => ` · ${count} no data`,
+    expandColumn: 'Expand',
     expand: (name: string) => `Expand ${name}`,
     collapse: (name: string) => `Collapse ${name}`,
   },

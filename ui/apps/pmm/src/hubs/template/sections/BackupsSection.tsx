@@ -228,6 +228,8 @@ export const BackupsSection: FC<BackupsSectionProps> = ({
               data={backups.rows}
               columns={COLUMNS}
               getRowId={(row) => row.id}
+              // Every way in is a link; focusable cells would only add stops.
+              enableKeyboardShortcuts={false}
               enablePagination={false}
               enableSorting={false}
               enableColumnActions={false}
