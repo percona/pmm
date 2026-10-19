@@ -247,18 +247,22 @@ type investigationListItem struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// newListItem leads a row with the root cause once the report has one, else the summary.
+// newListItem leads a row with the root cause once the report has one, else the summary; severity falls back to the alert's.
 func newListItem(inv *models.Investigation) investigationListItem {
 	nodeName, serviceName := configNodeService(inv)
 	summary := inv.RootCauseSummary
 	if summary == "" {
 		summary = inv.Summary
 	}
+	severity := inv.Severity
+	if severity == "" {
+		severity = alertLabels(investigationConfigMap(inv))["severity"]
+	}
 	return investigationListItem{
 		ID:          inv.ID,
 		Title:       inv.Title,
 		Status:      inv.Status,
-		Severity:    inv.Severity,
+		Severity:    severity,
 		Summary:     summary,
 		CreatedBy:   inv.CreatedBy,
 		CreatedAt:   inv.CreatedAt.Format(time.RFC3339),

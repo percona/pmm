@@ -43,4 +43,8 @@ func TestNewListItem(t *testing.T) {
 
 	inv.RootCauseSummary = ""
 	assert.Equal(t, "Replication stopped.", newListItem(inv).Summary)
+
+	inv.Severity = ""
+	inv.Config = []byte(`{"alert_snapshot":"[{\"labels\":{\"severity\":\"warning\"}}]"}`)
+	assert.Equal(t, "warning", newListItem(inv).Severity)
 }

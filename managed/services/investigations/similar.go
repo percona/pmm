@@ -102,6 +102,16 @@ func incident(alertname, service, node, cluster, text string) incidentKey {
 	}
 }
 
+// alertLabels returns the labels of the first alert in an investigation's config snapshot.
+func alertLabels(cfg map[string]any) map[string]string {
+	snapshot, _ := cfg["alert_snapshot"].(string)
+	var alerts []alertSnapshotEntry
+	if json.Unmarshal([]byte(snapshot), &alerts) != nil || len(alerts) == 0 {
+		return nil
+	}
+	return alerts[0].Labels
+}
+
 // incidentOf reads an investigation's alert labels and inventory names from its config, and its words from what it says.
 func incidentOf(inv *models.Investigation) incidentKey {
 	cfg := investigationConfigMap(inv)
@@ -109,11 +119,7 @@ func incidentOf(inv *models.Investigation) incidentKey {
 		v, _ := cfg[key].(string)
 		return v
 	}
-	var labels map[string]string
-	var alerts []alertSnapshotEntry
-	if json.Unmarshal([]byte(str("alert_snapshot")), &alerts) == nil && len(alerts) > 0 {
-		labels = alerts[0].Labels
-	}
+	labels := alertLabels(cfg)
 	first := func(values ...string) string {
 		for _, v := range values {
 			if strings.TrimSpace(v) != "" {
