@@ -1,10 +1,12 @@
 import React, {
-  FC, useCallback, useEffect, useMemo, useRef, useState,
+  FC, MouseEvent, useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
-import { Button, Spinner } from '@grafana/ui';
-import { css } from '@emotion/css';
-import highlight from 'highlight.js';
+import {
+  Button, Spinner, useStyles, useStyles2,
+} from '@grafana/ui';
+import { cx } from '@emotion/css';
 import { SERVICE_ID_PREFIX } from 'shared/core';
+import { getStyles as getHighlightStyles } from 'shared/components/Hightlight/Highlight.styles';
 import { showErrorNotification, showSuccessNotification } from 'shared/components/helpers/notification-manager';
 import { stripPrefix } from '../database-models/utils';
 import { QueryExampleResponseItem } from '../Details.types';
@@ -15,6 +17,10 @@ import {
   fetchQanInsightsCache,
 } from './AiInsights.service';
 import { OVERLAY_LOADER_SIZE } from '../Details.constants';
+import { renderAnalysis } from './AiInsights.markdown';
+import { getStyles } from './AiInsights.styles';
+
+const COPIED_MS = 1500;
 
 export interface AiInsightsProps {
   queryId?: string;
@@ -24,98 +30,6 @@ export interface AiInsightsProps {
   examples: QueryExampleResponseItem[];
   examplesLoading: boolean;
 }
-
-const getStyles = () => ({
-  container: css`
-    padding: 12px;
-    min-height: 120px;
-  `,
-  loadingContainer: css`
-    padding: 12px;
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  `,
-  message: css`
-    color: inherit;
-    white-space: pre-wrap;
-    word-break: break-word;
-  `,
-  analysis: css`
-    word-break: break-word;
-    max-height: 400px;
-    overflow: auto;
-    font-family: inherit;
-    font-size: 13px;
-    line-height: 1.6;
-
-    h1, h2, h3, h4 {
-      margin: 12px 0 6px;
-      font-weight: 600;
-    }
-    h1 { font-size: 18px; }
-    h2 { font-size: 16px; }
-    h3 { font-size: 14px; }
-
-    p { margin: 4px 0 8px; }
-
-    ul, ol {
-      margin: 4px 0 8px;
-      padding-left: 20px;
-    }
-
-    pre {
-      background: rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      padding: 10px 12px;
-      overflow-x: auto;
-      margin: 6px 0 10px;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    code {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 12px;
-    }
-
-    code:not(pre code) {
-      background: rgba(0, 0, 0, 0.1);
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-
-    strong { font-weight: 600; }
-    em { font-style: italic; }
-  `,
-  error: css`
-    color: var(--error-text-color, #e02f44);
-  `,
-  header: css`
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-  `,
-  headerActions: css`
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  `,
-  ticketCreated: css`
-    font-size: 12px;
-    color: var(--success-text-color, #37872d);
-    margin-bottom: 8px;
-  `,
-  cachedAt: css`
-    font-size: 11px;
-    opacity: 0.7;
-  `,
-});
 
 const formatElapsed = (seconds: number): string => {
   if (seconds < 60) {
@@ -145,105 +59,6 @@ const formatTimestamp = (iso: string): string => {
   }
 };
 
-/**
- * Lightweight markdown-to-HTML for environments without react-markdown.
- * Handles fenced code blocks (with highlight.js), headers, bold, italic,
- * inline code, unordered/ordered lists, and paragraphs.
- */
-const markdownToHtml = (md: string): string => {
-  const lines = md.split('\n');
-  const out: string[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-    const fenceMatch = line.match(/^```(\w*)/);
-    const headerMatch = line.match(/^(#{1,4})\s+(.*)/);
-    const isUnorderedList = /^\s*[-*]\s+/.test(line);
-    const isOrderedList = /^\s*\d+\.\s+/.test(line);
-    const isEmpty = line.trim() === '';
-
-    if (fenceMatch != null) {
-      const lang = fenceMatch[1] || '';
-      const codeLines: string[] = [];
-
-      i += 1;
-
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i]);
-        i += 1;
-      }
-
-      if (i < lines.length && lines[i].startsWith('```')) {
-        i += 1;
-      }
-
-      const raw = codeLines.join('\n');
-      let highlighted: string;
-
-      try {
-        highlighted = lang && highlight.getLanguage(lang)
-          ? highlight.highlight(raw, { language: lang }).value
-          : highlight.highlightAuto(raw).value;
-      } catch {
-        highlighted = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      }
-
-      out.push(`<pre><code class="hljs${lang ? ` language-${lang}` : ''}">${highlighted}</code></pre>`);
-    } else if (headerMatch != null) {
-      const level = headerMatch[1].length;
-      const text = headerMatch[2];
-
-      out.push(`<h${level}>${inlineFormat(text)}</h${level}>`);
-      i += 1;
-    } else if (isUnorderedList) {
-      out.push('<ul>');
-
-      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-        const content = lines[i].replace(/^\s*[-*]\s+/, '');
-
-        out.push(`<li>${inlineFormat(content)}</li>`);
-        i += 1;
-      }
-
-      out.push('</ul>');
-    } else if (isOrderedList) {
-      out.push('<ol>');
-
-      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
-        const content = lines[i].replace(/^\s*\d+\.\s+/, '');
-
-        out.push(`<li>${inlineFormat(content)}</li>`);
-        i += 1;
-      }
-
-      out.push('</ol>');
-    } else if (isEmpty) {
-      i += 1;
-    } else {
-      out.push(`<p>${inlineFormat(line)}</p>`);
-      i += 1;
-    }
-  }
-
-  return out.join('\n');
-};
-
-const escapeHtml = (s: string): string => s
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
-
-const inlineFormat = (text: string): string => {
-  const escaped = escapeHtml(text);
-
-  return escaped
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
-};
-
 export const AiInsights: FC<AiInsightsProps> = ({
   queryId,
   from,
@@ -261,7 +76,8 @@ export const AiInsights: FC<AiInsightsProps> = ({
   const [ticketLabel, setTicketLabel] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const runOnceRef = useRef(false);
-  const styles = getStyles();
+  const styles = useStyles2(getStyles);
+  const highlightStyles = useStyles(getHighlightStyles);
 
   const firstExample = useMemo(
     () => examples?.find((e) => e.service_id && (e.example || e.explain_fingerprint)),
@@ -371,9 +187,27 @@ export const AiInsights: FC<AiInsightsProps> = ({
   }, [examplesLoading, firstExample, serviceId, queryText, queryId]);
 
   const analysisHtml = useMemo(
-    () => (analysis ? markdownToHtml(analysis) : ''),
+    () => (analysis ? renderAnalysis(analysis) : ''),
     [analysis],
   );
+
+  // Code blocks are rendered HTML, so their copy buttons are handled here.
+  const handleAnalysisClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    const button = (e.target as HTMLElement).closest('button[data-copy-code]');
+    const code = button?.closest('.ai-code')?.querySelector('pre code');
+
+    if (!button || !code) return;
+
+    // The clipboard is missing outside secure contexts.
+    Promise.resolve(navigator.clipboard?.writeText(code.textContent ?? '')).then(() => {
+      button.setAttribute('data-copied', '');
+      button.textContent = 'Copied';
+      setTimeout(() => {
+        button.removeAttribute('data-copied');
+        button.textContent = 'Copy';
+      }, COPIED_MS);
+    }, () => undefined);
+  }, []);
 
   const handleCopyAnalysis = useCallback(async () => {
     if (!analysis) return;
@@ -442,11 +276,7 @@ export const AiInsights: FC<AiInsightsProps> = ({
   }
 
   if (error) {
-    return (
-      <div className={styles.container}>
-        <p className={styles.error}>{error}</p>
-      </div>
-    );
+    return <p className={styles.error}>{error}</p>;
   }
 
   if (analysis) {
@@ -459,6 +289,7 @@ export const AiInsights: FC<AiInsightsProps> = ({
           <div className={styles.headerActions}>
             <Button
               variant="secondary"
+              fill="text"
               size="sm"
               icon="copy"
               onClick={() => {
@@ -469,6 +300,7 @@ export const AiInsights: FC<AiInsightsProps> = ({
             </Button>
             <Button
               variant="secondary"
+              fill="text"
               size="sm"
               icon="share-alt"
               onClick={() => {
@@ -482,12 +314,13 @@ export const AiInsights: FC<AiInsightsProps> = ({
             </Button>
             <Button
               variant="secondary"
+              fill="text"
               size="sm"
               icon="sync"
               onClick={() => runAnalysis(true)}
               disabled={apiLoading}
             >
-              Re-run Analysis
+              {Messages.tabs.aiInsights.rerun}
             </Button>
           </div>
         </div>
@@ -496,8 +329,14 @@ export const AiInsights: FC<AiInsightsProps> = ({
             {`${Messages.tabs.aiInsights.ticketCreated}: ${ticketLabel}`}
           </div>
         ) : null}
-        {/* eslint-disable-next-line react/no-danger */}
-        <div className={styles.analysis} dangerouslySetInnerHTML={{ __html: analysisHtml }} />
+        {/* Clicks are handled for the copy buttons inside the code blocks. */}
+        <div
+          className={cx(styles.analysis, highlightStyles.highlightWrapper)}
+          onClick={handleAnalysisClick}
+          // Sanitized in renderAnalysis.
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: analysisHtml }}
+        />
       </div>
     );
   }

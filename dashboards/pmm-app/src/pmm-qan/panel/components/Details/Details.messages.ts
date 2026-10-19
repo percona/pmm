@@ -45,6 +45,7 @@ export const Messages = {
       ticketCreated: 'ServiceNow ticket created',
       copySuccess: 'Analysis copied to clipboard',
       copyFailed: 'Could not copy to clipboard',
+      rerun: 'Re-run analysis',
     },
   },
 };
