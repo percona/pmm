@@ -116,10 +116,17 @@ describe('Operations doors carry Preview', () => {
     expect(manageDoor().to).toBe('/operations?tab=clusters');
   });
 
-  it('a failed run opens in Automations, expanded', () => {
+  it('a failed run opens in Automations, expanded, named after its run', () => {
     expect(automationsDoor('scan', 'run 1')).toEqual({
       label: 'Open Automations',
       to: '/operations/automations?tab=scans&expand=run%201',
+      context: 'for the scan',
+      preview: 'developer',
+    });
+    expect(automationsDoor('install', 'b1', 'pmm-client')).toEqual({
+      label: 'Open Automations',
+      to: '/operations/automations?tab=installs&expand=b1',
+      context: 'for the install on pmm-client',
       preview: 'developer',
     });
   });

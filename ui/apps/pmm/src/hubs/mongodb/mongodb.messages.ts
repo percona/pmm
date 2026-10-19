@@ -119,6 +119,8 @@ export const Messages = {
     realtime: 'Real-time queries',
     queryAnalyticsLink: 'Query analytics',
     forSubject: (name: string) => `for ${name}`,
+    forInstall: (target: string) => `for the install on ${target}`,
+    forScan: 'for the scan',
   },
   attention: {
     noPrimary: (rs: string) => `${rs} has no primary, it can't take writes`,

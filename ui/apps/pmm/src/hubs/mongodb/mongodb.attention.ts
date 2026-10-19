@@ -590,7 +590,7 @@ const operationsEntries = (
                 : Messages.attention.scanFailedNoCount,
           where: Messages.apps.operations,
           since: run.finishedAt,
-          door: automationsDoor(run.kind, run.id),
+          door: automationsDoor(run.kind, run.id, run.target),
           source: 'operations',
         },
         subject: { serviceNames: [] },

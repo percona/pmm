@@ -152,15 +152,21 @@ export const runningDoor = (
   context: Messages.doors.forSubject(serviceName),
 });
 
+/** A failed run in Automations, named after its run so two of them never share a name. */
 export const automationsDoor = (
   kind: 'install' | 'scan',
-  runId: string
+  runId: string,
+  target = ''
 ): HubDoor => ({
   label: Messages.doors.openAutomations,
   to: withQuery(MONGO_PATHS.operationsAutomations, {
     tab: kind === 'install' ? 'installs' : 'scans',
     expand: runId,
   }),
+  context:
+    kind === 'install'
+      ? Messages.doors.forInstall(target)
+      : Messages.doors.forScan,
   preview: 'developer',
 });
 
