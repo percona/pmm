@@ -1,6 +1,7 @@
-import { Box, Card, CardContent, Link, Typography } from '@mui/material';
+import { Box, Link, Typography } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
+import { BlockFrame } from './BlockFrame';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import {
   toSameOriginUrl,
@@ -193,47 +194,40 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const renderImageSrc = imageUrl ?? null;
 
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        {block.title && (
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-            {block.title}
-          </Typography>
-        )}
-        {renderImageSrc && (
-          <PanelImageWithFetch
-            src={renderImageSrc}
-            alt={block.title || 'Grafana panel'}
-            href={href}
-          />
-        )}
-        {embedSrc && (
-          <iframe
-            src={embedSrc}
-            title={block.title || 'Grafana panel'}
-            style={{
-              width: '100%',
-              height: 250,
-              border: 0,
-            }}
-            loading="lazy"
-          />
-        )}
-        {href ? (
-          <Link
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ display: 'block', mt: 1 }}
-          >
-            Open panel in Grafana
-          </Link>
-        ) : !embedSrc && !renderImageSrc ? (
-          <Typography variant="body2" color="text.secondary">
-            Panel (dashboard_uid or panel_id not set)
-          </Typography>
-        ) : null}
-      </CardContent>
-    </Card>
+    <BlockFrame title={block.title}>
+      {renderImageSrc && (
+        <PanelImageWithFetch
+          src={renderImageSrc}
+          alt={block.title || 'Grafana panel'}
+          href={href}
+        />
+      )}
+      {embedSrc && (
+        <iframe
+          src={embedSrc}
+          title={block.title || 'Grafana panel'}
+          style={{
+            width: '100%',
+            height: 250,
+            border: 0,
+          }}
+          loading="lazy"
+        />
+      )}
+      {href ? (
+        <Link
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ display: 'block', mt: 1 }}
+        >
+          Open panel in Grafana
+        </Link>
+      ) : !embedSrc && !renderImageSrc ? (
+        <Typography variant="body2" color="text.secondary">
+          Panel (dashboard_uid or panel_id not set)
+        </Typography>
+      ) : null}
+    </BlockFrame>
   );
 };

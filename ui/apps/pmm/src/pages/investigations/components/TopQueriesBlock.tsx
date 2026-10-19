@@ -1,6 +1,6 @@
-import { Card, CardContent, Typography } from '@mui/material';
 import { FC } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
+import { BlockFrame, BlockPre } from './BlockFrame';
 
 export const TopQueriesBlock: FC<{ block: InvestigationBlock }> = ({
   block,
@@ -17,23 +17,8 @@ export const TopQueriesBlock: FC<{ block: InvestigationBlock }> = ({
     block.title ??
     '';
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      {block.title && (
-        <CardContent sx={{ pb: 0 }}>
-          <Typography variant="subtitle1" fontWeight={600}>
-            {block.title}
-          </Typography>
-        </CardContent>
-      )}
-      <CardContent>
-        <Typography
-          variant="body2"
-          component="pre"
-          sx={{ whiteSpace: 'pre-wrap', overflow: 'auto', maxHeight: 400 }}
-        >
-          {text || '(No queries)'}
-        </Typography>
-      </CardContent>
-    </Card>
+    <BlockFrame title={block.title}>
+      <BlockPre>{text || '(No queries)'}</BlockPre>
+    </BlockFrame>
   );
 };

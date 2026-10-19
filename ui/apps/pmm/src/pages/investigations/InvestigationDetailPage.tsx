@@ -6,14 +6,12 @@ import {
   CardContent,
   Chip,
   CircularProgress,
-  Divider,
-  FormControl,
   IconButton,
+  Link,
   MenuItem,
   Select,
   Stack,
   Snackbar,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -25,8 +23,8 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { FC, useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { FC, Fragment, useState, useEffect, useRef } from 'react';
+import { Link as RouterLink, useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Page } from 'components/page';
 import {
@@ -54,7 +52,6 @@ import {
   getAlertMetadataFromLabels,
   type AlertMetadataFromLabels,
 } from 'api/adre';
-import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
   aggregateInvestigationUsage,
   formatTokensWithCached,
@@ -64,6 +61,12 @@ import {
 import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
 import { SeenBefore } from './components/SeenBefore';
+import { InvestigationLead } from './components/InvestigationLead';
+import {
+  InvestigationChat,
+  InvestigationComments,
+} from './components/InvestigationConversation';
+import { adreColors, headingFont } from 'components/adre/adreAnswerSx';
 
 const STATUS_OPTIONS = [
   'open',
@@ -75,6 +78,52 @@ const STATUS_OPTIONS = [
   'resolved',
   'archived',
 ] as const;
+
+const STATUS_STYLES: Record<string, { color: string; bg: string }> = {
+  open: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+  in_progress: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+  investigating: { color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+  running: { color: '#CFCBFF', bg: 'rgba(182,178,255,0.14)' },
+  completed: { color: '#86EFAC', bg: 'rgba(134,239,172,0.12)' },
+  resolved: { color: '#86EFAC', bg: 'rgba(134,239,172,0.12)' },
+  failed: { color: '#FCA5A5', bg: 'rgba(248,113,113,0.14)' },
+  archived: { color: '#A9A7B0', bg: 'rgba(255,255,255,0.06)' },
+};
+
+const pillButtonSx = {
+  height: 36,
+  px: 2,
+  borderRadius: 999,
+  textTransform: 'none',
+  fontSize: 13,
+  fontWeight: 500,
+  color: adreColors.text,
+  borderColor: 'rgba(255,255,255,0.16)',
+} as const;
+
+const railCardSx = {
+  p: 2.25,
+  borderRadius: '16px',
+  bgcolor: adreColors.panel,
+  border: `1px solid ${adreColors.divider}`,
+} as const;
+
+const railTitleSx = {
+  fontFamily: headingFont,
+  fontSize: 14,
+  fontWeight: 600,
+  mb: 1.25,
+} as const;
+
+const railActionSx = {
+  justifyContent: 'flex-start',
+  px: 1,
+  fontSize: 13,
+  fontWeight: 400,
+  textTransform: 'none',
+  color: adreColors.body,
+  '& .MuiButton-startIcon': { color: adreColors.secondary },
+} as const;
 
 function investigationUserRequest(inv: Investigation): string {
   const fromApi = (inv.userRequest ?? inv.user_request ?? '').trim();
@@ -102,11 +151,28 @@ const BlockWithActions: FC<{
   onDelete: () => void;
   isPending: boolean;
 }> = ({ block, index, total, onMoveUp, onMoveDown, onDelete, isPending }) => (
-  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 2 }}>
-    <Box sx={{ flex: 1, minWidth: 0 }}>
-      <BlockRenderer block={block} />
-    </Box>
-    <Stack direction="row" sx={{ mt: 1 }} spacing={0}>
+  <Box
+    sx={{
+      position: 'relative',
+      py: 2.5,
+      borderTop: index > 0 ? `1px solid ${adreColors.divider}` : 0,
+      '&:hover .block-actions, &:focus-within .block-actions': { opacity: 1 },
+    }}
+  >
+    <BlockRenderer block={block} />
+    <Stack
+      className="block-actions"
+      direction="row"
+      sx={{
+        position: 'absolute',
+        top: 16,
+        right: 0,
+        opacity: 0,
+        transition: 'opacity 120ms',
+        '@media (hover: none)': { opacity: 1 },
+        '& .MuiIconButton-root': { color: adreColors.secondary },
+      }}
+    >
       <IconButton
         size="small"
         aria-label="Move block up"
@@ -128,7 +194,6 @@ const BlockWithActions: FC<{
         aria-label="Delete block"
         onClick={onDelete}
         disabled={isPending}
-        color="error"
       >
         <DeleteOutlineIcon fontSize="small" />
       </IconButton>
@@ -178,7 +243,6 @@ const InvestigationDetailPage: FC = () => {
   );
   const [fetchedAlertMeta, setFetchedAlertMeta] =
     useState<AlertMetadataFromLabels>({});
-  const [showEvidence, setShowEvidence] = useState(false);
   const prevStatusRef = useRef<string | undefined>();
 
   const showError = (msg: string) => {
@@ -392,7 +456,9 @@ const InvestigationDetailPage: FC = () => {
   const timeTo = inv.timeTo ?? (inv as { time_to?: string }).time_to;
   const timeRange =
     timeFrom && timeTo
-      ? `${new Date(timeFrom).toLocaleString()} — ${new Date(timeTo).toLocaleString()}`
+      ? Date.parse(timeFrom) === Date.parse(timeTo)
+        ? new Date(timeFrom).toLocaleString()
+        : `${new Date(timeFrom).toLocaleString()} — ${new Date(timeTo).toLocaleString()}`
       : null;
 
   const usageSummary = aggregateInvestigationUsage({
@@ -408,667 +474,520 @@ const InvestigationDetailPage: FC = () => {
 
   const showUsageLoading = usageLoading && !usageSummary.hasUsage;
 
+  const userRequest = investigationUserRequest(inv);
+  // A new investigation keeps its request as its summary; show it once.
+  const leadSummary =
+    userRequest && (inv.summary ?? '').trim() === userRequest
+      ? ''
+      : (inv.summary ?? '');
+  const sortedBlocks = [...(inv.blocks ?? [])].sort(
+    (a, b) => a.position - b.position
+  );
+  const nodeName =
+    inv.nodeName ??
+    (inv as { node_name?: string }).node_name ??
+    fetchedAlertMeta.nodeName;
+  const serviceName =
+    inv.serviceName ??
+    (inv as { service_name?: string }).service_name ??
+    fetchedAlertMeta.serviceName;
+  const clusterName =
+    inv.clusterName ??
+    (inv as { cluster_name?: string }).cluster_name ??
+    fetchedAlertMeta.clusterName;
+  const severity = inv.severity || fetchedAlertMeta.severity;
+  const source =
+    inv.sourceType === 'alert'
+      ? 'Alert'
+      : inv.sourceType === 'chat'
+        ? 'Assistant chat'
+        : 'User request';
+  // The server refuses to re-run a finished investigation.
+  const runBlocked = ['completed', 'failed', 'resolved', 'archived'].includes(
+    inv.status
+  );
+  const status = STATUS_STYLES[inv.status] ?? STATUS_STYLES.open;
+
+  const moveBlock = (from: InvestigationBlock, to: InvestigationBlock) =>
+    patchBlock.mutate(
+      { blockId: from.id, body: { position: to.position } },
+      {
+        onSuccess: () =>
+          patchBlock.mutate({
+            blockId: to.id,
+            body: { position: from.position },
+          }),
+      }
+    );
+
+  const ticketId = inv.servicenowTicketId ?? inv.servicenow_ticket_id;
+  const ticketNumber =
+    inv.servicenowTicketNumber ?? inv.servicenow_ticket_number;
+  const snConfigured =
+    adreSettings?.servicenowConfigured ??
+    adreSettings?.servicenow_configured ??
+    false;
+  const ticketHref = (() => {
+    if (!ticketId) return '';
+    try {
+      const origin = new URL(
+        adreSettings?.servicenowUrl ?? adreSettings?.servicenow_url ?? ''
+      ).origin;
+      return `${origin}/nav_to.do?uri=incident.do?sys_id=${ticketId}`;
+    } catch {
+      return '';
+    }
+  })();
+
+  const details = [
+    ['Source', source],
+    ['Window', timeRange],
+    ['Severity', severity],
+    ['Node', nodeName],
+    ['Service', serviceName],
+    ['Cluster', clusterName],
+    ['Created', new Date(inv.createdAt).toLocaleString()],
+    ['Created by', inv.createdBy],
+  ].filter((d): d is [string, string] => !!d[1]);
+
   return (
     <Page
       title={inv.title || 'Investigation'}
-      topBar={
-        <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
-          <IconButton
-            size="small"
-            onClick={() => navigate(`${PMM_NEW_NAV_PATH}/investigations`)}
-            aria-label="Back to list"
+      hideTitle
+      fullWidth
+      footer={null}
+    >
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          bgcolor: adreColors.page,
+          color: adreColors.text,
+          borderRadius: 1,
+        }}
+      >
+        <Box
+          sx={{
+            maxWidth: 1320,
+            mx: 'auto',
+            px: { xs: 2, md: 4 },
+            py: { xs: 2.5, md: 3.5 },
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            gap: 4,
+          }}
+        >
+          <Stack
+            component="article"
+            gap={4}
+            sx={{ flex: '999 1 620px', minWidth: 0, maxWidth: 920 }}
           >
-            <ArrowBackIcon />
-          </IconButton>
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <Select
-              value={
-                STATUS_OPTIONS.includes(
-                  inv.status as (typeof STATUS_OPTIONS)[number]
-                )
-                  ? inv.status
-                  : 'open'
-              }
-              onChange={(e) =>
-                patchInv.mutate({ status: e.target.value as string })
-              }
-              displayEmpty
-              disabled={patchInv.isPending || isRunning}
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <MenuItem key={s} value={s}>
-                  {s.replace('_', ' ')}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {inv.severity && (
-            <Chip label={inv.severity} size="small" variant="outlined" />
-          )}
-          <Box sx={{ flex: 1 }} />
-          <Button
-            size="small"
-            startIcon={<ContentCopyIcon />}
-            onClick={handleCopyLink}
-          >
-            {copyDone ? 'Copied!' : 'Copy link'}
-          </Button>
-          <Button
-            size="small"
-            startIcon={<PictureAsPdfIcon />}
-            onClick={() =>
-              id &&
-              window.open(
-                getInvestigationExportPdfUrl(id),
-                '_blank',
-                'noopener,noreferrer'
-              )
-            }
-          >
-            Export PDF
-          </Button>
-          <Button
-            size="small"
-            startIcon={<ContentCopyIcon />}
-            onClick={() => void handleCopyMarkdown()}
-          >
-            Copy markdown
-          </Button>
-          <Button
-            size="small"
-            startIcon={<DataObjectIcon />}
-            onClick={() => void handleCopyEvidenceJson()}
-          >
-            Copy JSON evidence
-          </Button>
-          {(() => {
-            const ticketId = inv.servicenowTicketId ?? inv.servicenow_ticket_id;
-            const ticketNumber =
-              inv.servicenowTicketNumber ?? inv.servicenow_ticket_number;
-            const snConfigured =
-              adreSettings?.servicenowConfigured ??
-              adreSettings?.servicenow_configured ??
-              false;
-            if (ticketId) {
-              const snApiUrl =
-                adreSettings?.servicenowUrl ??
-                adreSettings?.servicenow_url ??
-                '';
-              let instanceUrl = '';
-              try {
-                const u = new URL(snApiUrl);
-                instanceUrl = u.origin;
-              } catch {
-                /* ignore */
-              }
-              const label = ticketNumber || ticketId;
-              const href = instanceUrl
-                ? `${instanceUrl}/nav_to.do?uri=incident.do?sys_id=${ticketId}`
-                : '';
-              return (
-                <Chip
-                  icon={<CheckCircleOutlineIcon />}
-                  label={`ServiceNow: ${label}`}
-                  color="success"
-                  size="small"
-                  variant="outlined"
-                  clickable={!!href}
-                  onClick={
-                    href
-                      ? () => window.open(href, '_blank', 'noopener,noreferrer')
-                      : undefined
-                  }
-                />
-              );
-            }
-            return (
-              <Tooltip
-                title={
-                  snConfigured
-                    ? ''
-                    : 'Configure ServiceNow in the Assistant configuration'
-                }
+            <Stack component="header" gap={1.5}>
+              <Link
+                component={RouterLink}
+                to={`${PMM_NEW_NAV_PATH}/investigations`}
+                sx={{
+                  alignSelf: 'flex-start',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  fontSize: 13,
+                  color: adreColors.secondary,
+                  textDecoration: 'none',
+                  '&:hover': { color: adreColors.text },
+                }}
               >
-                <span>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="success"
-                    disabled={!snConfigured || createSNTicket.isPending}
-                    onClick={() =>
-                      id &&
-                      createSNTicket.mutate(undefined, {
-                        onError: (err) =>
-                          showError(`ServiceNow: ${getErrorMessage(err)}`),
-                        onSuccess: (data) =>
-                          showSuccess(
-                            `ServiceNow ticket created: ${data.ticket_number || data.ticket_id}`
-                          ),
-                      })
+                <ArrowBackIcon sx={{ fontSize: 16 }} />
+                Investigations
+              </Link>
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                alignItems="flex-start"
+                justifyContent="space-between"
+                gap={2}
+              >
+                <Typography
+                  component="h1"
+                  sx={{
+                    flex: '1 1 360px',
+                    minWidth: 0,
+                    fontFamily: headingFont,
+                    fontSize: { xs: 22, md: 26 },
+                    fontWeight: 600,
+                    lineHeight: 1.3,
+                    overflowWrap: 'anywhere',
+                  }}
+                >
+                  {inv.title || 'Investigation'}
+                </Typography>
+                <Stack direction="row" gap={1} flexWrap="wrap">
+                  {ticketId ? (
+                    <Chip
+                      icon={<CheckCircleOutlineIcon />}
+                      label={`ServiceNow: ${ticketNumber || ticketId}`}
+                      color="success"
+                      size="small"
+                      variant="outlined"
+                      clickable={!!ticketHref}
+                      onClick={
+                        ticketHref
+                          ? () =>
+                              window.open(
+                                ticketHref,
+                                '_blank',
+                                'noopener,noreferrer'
+                              )
+                          : undefined
+                      }
+                      sx={{ height: 36, borderRadius: 999 }}
+                    />
+                  ) : (
+                    <Tooltip
+                      title={
+                        snConfigured
+                          ? ''
+                          : 'Configure ServiceNow in the Assistant configuration'
+                      }
+                    >
+                      <span>
+                        <Button
+                          variant="outlined"
+                          disabled={!snConfigured || createSNTicket.isPending}
+                          onClick={() =>
+                            createSNTicket.mutate(undefined, {
+                              onError: (err) =>
+                                showError(
+                                  `ServiceNow: ${getErrorMessage(err)}`
+                                ),
+                              onSuccess: (data) =>
+                                showSuccess(
+                                  `ServiceNow ticket created: ${data.ticket_number || data.ticket_id}`
+                                ),
+                            })
+                          }
+                          sx={pillButtonSx}
+                        >
+                          {createSNTicket.isPending
+                            ? 'Creating…'
+                            : 'Create ServiceNow ticket'}
+                        </Button>
+                      </span>
+                    </Tooltip>
+                  )}
+                  <Tooltip
+                    title={
+                      runBlocked
+                        ? `This investigation is ${inv.status}; create a new one to analyze again.`
+                        : ''
                     }
                   >
-                    {createSNTicket.isPending
-                      ? 'Creating…'
-                      : 'Create ServiceNow Ticket'}
-                  </Button>
-                </span>
-              </Tooltip>
-            );
-          })()}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() =>
-              id &&
-              postRun.mutate(undefined, {
-                onError: (err) =>
-                  showError(`Run failed: ${getErrorMessage(err)}`),
-                onSuccess: () => setIsRunning(true),
-              })
-            }
-            disabled={postRun.isPending || isRunning}
-          >
-            {isRunning ? 'Running…' : 'Run investigation'}
-          </Button>
-        </Stack>
-      }
-    >
-      {/* flexShrink:0 keeps the Page's flex column from squishing these cards.
-          MUI Card defaults to overflow:hidden, so a shrunk card clips its
-          content instead of letting the page scroll. */}
-      <Box sx={{ flexShrink: 0 }}>
-        {/* Running banner */}
-        {isRunning && (
-          <Alert
-            severity="info"
-            icon={<CircularProgress size={20} />}
-            sx={{ mb: 2 }}
-          >
-            Investigation is running. Results will appear automatically when
-            complete.
-          </Alert>
-        )}
-        {(() => {
-          const userRequest = investigationUserRequest(inv);
-          if (!userRequest) {
-            return null;
-          }
-          return (
-            <>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Your request
-              </Typography>
-              <Card variant="outlined" sx={{ mb: 2 }}>
-                <CardContent>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                    <span>
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        onClick={() =>
+                          postRun.mutate(undefined, {
+                            onError: (err) =>
+                              showError(`Run failed: ${getErrorMessage(err)}`),
+                            onSuccess: () => setIsRunning(true),
+                          })
+                        }
+                        disabled={postRun.isPending || isRunning || runBlocked}
+                        sx={{
+                          ...pillButtonSx,
+                          border: 0,
+                          bgcolor: adreColors.accent,
+                          color: adreColors.panel,
+                          '&:hover': { bgcolor: '#C9C6FF' },
+                        }}
+                      >
+                        {isRunning ? 'Running…' : 'Run investigation'}
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </Stack>
+              </Stack>
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                alignItems="center"
+                gap={1.25}
+                sx={{ fontSize: 13, color: adreColors.secondary }}
+              >
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    px: 1.25,
+                    py: 0.25,
+                    borderRadius: 999,
+                    bgcolor: status.bg,
+                    color: status.color,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                >
+                  {isRunning ? (
+                    <CircularProgress size={10} sx={{ color: 'inherit' }} />
+                  ) : (
+                    <Box
+                      component="span"
+                      sx={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: '50%',
+                        bgcolor: 'currentColor',
+                      }}
+                    />
+                  )}
+                  {inv.status.replace('_', ' ')}
+                </Box>
+                <span>{source}</span>
+                {timeRange && <span>· {timeRange}</span>}
+                {serviceName && <span>· {serviceName}</span>}
+              </Stack>
+              {userRequest && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography sx={{ fontSize: 12, color: adreColors.muted }}>
+                    Request
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 16,
+                      color: adreColors.text,
+                      whiteSpace: 'pre-wrap',
+                      overflowWrap: 'anywhere',
+                    }}
+                  >
                     {userRequest}
                   </Typography>
-                </CardContent>
-              </Card>
-            </>
-          );
-        })()}
-        {/* Summary (fallback only — superseded by the Summary report block when present) */}
-        {inv.summary && !hasReportBlocks && (
-          <>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Summary
-            </Typography>
-            <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>
-              <CardContent>
-                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {inv.summary}
-                </Typography>
-              </CardContent>
-            </Card>
-          </>
-        )}
-        <Card variant="outlined" sx={{ mb: 2 }}>
-          <CardContent>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{ mb: 1 }}
-            >
-              <Typography variant="subtitle2">
-                Confidence: {(inv.confidence || 'medium').toUpperCase()} (
-                {inv.confidenceScore ?? 0})
-              </Typography>
-              <Button size="small" onClick={() => setShowEvidence((v) => !v)}>
-                {showEvidence
-                  ? 'Hide evidence map'
-                  : `Show evidence map (${inv.evidence?.length ?? 0})`}
-              </Button>
+                </Box>
+              )}
             </Stack>
-            {!!inv.confidenceRationale && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: showEvidence ? 1 : 0 }}
-              >
-                {inv.confidenceRationale}
-              </Typography>
+
+            <InvestigationLead
+              inv={inv}
+              summary={leadSummary}
+              detail={hasReportBlocks ? undefined : inv.summaryDetailed}
+              running={isRunning}
+            />
+
+            <SeenBefore items={similar} />
+
+            <TimelineSection events={timelineEvents} />
+
+            {sortedBlocks.length > 0 && (
+              <Box component="section" aria-label="Report">
+                <Typography
+                  component="h2"
+                  sx={{
+                    fontFamily: headingFont,
+                    fontSize: 18,
+                    fontWeight: 600,
+                    mb: 0.5,
+                  }}
+                >
+                  Report
+                </Typography>
+                {sortedBlocks.map((block, index, sorted) => (
+                  <BlockWithActions
+                    key={block.id}
+                    block={block}
+                    index={index}
+                    total={sorted.length}
+                    onMoveUp={() =>
+                      index > 0 && moveBlock(block, sorted[index - 1])
+                    }
+                    onMoveDown={() =>
+                      index < sorted.length - 1 &&
+                      moveBlock(block, sorted[index + 1])
+                    }
+                    onDelete={() => deleteBlock.mutate(block.id)}
+                    isPending={patchBlock.isPending || deleteBlock.isPending}
+                  />
+                ))}
+              </Box>
             )}
-            {showEvidence &&
-              (inv.evidence?.length ? (
-                <Stack spacing={1}>
-                  {inv.evidence.map((e, idx) => (
-                    <Card key={`${e.id || idx}`} variant="outlined">
-                      <CardContent>
-                        <Typography variant="subtitle2">
-                          {e.claim || 'Claim'}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {e.kind} · {e.source_tool} · {e.source_ref}
-                        </Typography>
-                        {!!e.excerpt && (
-                          <Typography
-                            variant="body2"
-                            sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}
-                          >
-                            {e.excerpt}
-                          </Typography>
-                        )}
-                      </CardContent>
-                    </Card>
+
+            <InvestigationChat
+              messages={messages}
+              value={chatText}
+              onChange={setChatText}
+              onSend={handleSendChat}
+              sending={postChat.isPending}
+            />
+
+            <InvestigationComments
+              comments={comments}
+              value={commentText}
+              onChange={setCommentText}
+              onAdd={handleAddComment}
+              adding={postComment.isPending}
+            />
+          </Stack>
+
+          <Stack
+            component="aside"
+            aria-label="Investigation details"
+            gap={2}
+            sx={{ flex: '1 1 300px', minWidth: 0, maxWidth: { lg: 340 } }}
+          >
+            <Box sx={railCardSx}>
+              <Typography component="h2" sx={railTitleSx}>
+                Share and export
+              </Typography>
+              <Stack sx={{ mx: -1 }}>
+                <Button
+                  startIcon={<ContentCopyIcon />}
+                  onClick={handleCopyLink}
+                  sx={railActionSx}
+                >
+                  {copyDone ? 'Copied!' : 'Copy link'}
+                </Button>
+                <Button
+                  startIcon={<PictureAsPdfIcon />}
+                  onClick={() =>
+                    window.open(
+                      getInvestigationExportPdfUrl(inv.id),
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }
+                  sx={railActionSx}
+                >
+                  Export PDF
+                </Button>
+                <Button
+                  startIcon={<ContentCopyIcon />}
+                  onClick={() => void handleCopyMarkdown()}
+                  sx={railActionSx}
+                >
+                  Copy markdown
+                </Button>
+                <Button
+                  startIcon={<DataObjectIcon />}
+                  onClick={() => void handleCopyEvidenceJson()}
+                  sx={railActionSx}
+                >
+                  Copy JSON evidence
+                </Button>
+              </Stack>
+            </Box>
+
+            <Box sx={railCardSx}>
+              <Typography component="h2" sx={railTitleSx}>
+                Details
+              </Typography>
+              <Select
+                size="small"
+                fullWidth
+                value={
+                  STATUS_OPTIONS.includes(
+                    inv.status as (typeof STATUS_OPTIONS)[number]
+                  )
+                    ? inv.status
+                    : 'open'
+                }
+                onChange={(e) =>
+                  patchInv.mutate({ status: e.target.value as string })
+                }
+                disabled={patchInv.isPending || isRunning}
+                inputProps={{ 'aria-label': 'Status' }}
+                sx={{
+                  mb: 1.75,
+                  fontSize: 14,
+                  color: adreColors.text,
+                  bgcolor: adreColors.card,
+                  '& fieldset': { borderColor: adreColors.border },
+                }}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s.replace('_', ' ')}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Box
+                component="dl"
+                sx={{
+                  m: 0,
+                  display: 'grid',
+                  gridTemplateColumns: '84px minmax(0, 1fr)',
+                  rowGap: 0.75,
+                  fontSize: 13,
+                  '& dt': { color: adreColors.muted },
+                  '& dd': {
+                    m: 0,
+                    color: adreColors.body,
+                    overflowWrap: 'anywhere',
+                  },
+                }}
+              >
+                {details.map(([label, value]) => (
+                  <Fragment key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </Fragment>
+                ))}
+              </Box>
+            </Box>
+
+            <Box sx={railCardSx}>
+              <Typography component="h2" sx={railTitleSx}>
+                AI usage
+              </Typography>
+              {showUsageLoading ? (
+                <Stack direction="row" gap={1} alignItems="center">
+                  <CircularProgress size={14} />
+                  <Typography sx={{ fontSize: 13, color: adreColors.muted }}>
+                    Loading usage…
+                  </Typography>
+                </Stack>
+              ) : usageSummary.hasUsage ? (
+                <Stack gap={1}>
+                  <Typography sx={{ fontSize: 14 }}>
+                    {usageSummary.callCount}{' '}
+                    {usageSummary.callCount === 1 ? 'call' : 'calls'} ·{' '}
+                    {formatTokensWithCached(
+                      usageSummary.totalTokens,
+                      usageSummary.totalCached > 0
+                        ? usageSummary.totalCached
+                        : undefined
+                    )}{' '}
+                    · {formatUsdCost(usageSummary.totalCost)}
+                  </Typography>
+                  {usageSummary.steps.map((step) => (
+                    <Box
+                      key={step.id}
+                      sx={{ fontSize: 12, color: adreColors.secondary }}
+                    >
+                      <Box component="span" sx={{ color: adreColors.body }}>
+                        {HOLMES_FEATURE_LABELS[step.feature] ?? step.feature}
+                      </Box>
+                      {` · ${step.model || 'default'} · ${formatTokensWithCached(step.totalTokens, step.cachedTokens)} · ${formatUsdCost(step.totalCost)}`}
+                      <Box sx={{ color: adreColors.muted }}>
+                        {step.createdAt
+                          ? new Date(step.createdAt).toLocaleString()
+                          : '—'}
+                      </Box>
+                    </Box>
                   ))}
                 </Stack>
               ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No evidence entries available.
+                <Typography sx={{ fontSize: 13, color: adreColors.muted }}>
+                  {isRunning
+                    ? 'Usage shows here as the AI calls finish.'
+                    : 'No AI usage yet.'}
                 </Typography>
-              ))}
-          </CardContent>
-        </Card>
-
-        {/* Metadata row */}
-        <Stack direction="row" flexWrap="wrap" gap={2} sx={{ mb: 2 }}>
-          {timeRange && (
-            <Typography variant="body2" color="text.secondary">
-              Time range: {timeRange}
-            </Typography>
-          )}
-          {inv.sourceType && (
-            <Typography variant="body2" color="text.secondary">
-              Source:{' '}
-              {inv.sourceType === 'alert'
-                ? 'Alert'
-                : inv.sourceType === 'chat'
-                  ? 'Assistant chat'
-                  : 'User request'}
-            </Typography>
-          )}
-          {(inv.nodeName ??
-            (inv as { node_name?: string }).node_name ??
-            fetchedAlertMeta.nodeName) && (
-            <Typography variant="body2" color="text.secondary">
-              Node:{' '}
-              {inv.nodeName ??
-                (inv as { node_name?: string }).node_name ??
-                fetchedAlertMeta.nodeName}
-            </Typography>
-          )}
-          {(inv.serviceName ??
-            (inv as { service_name?: string }).service_name ??
-            fetchedAlertMeta.serviceName) && (
-            <Typography variant="body2" color="text.secondary">
-              Service:{' '}
-              {inv.serviceName ??
-                (inv as { service_name?: string }).service_name ??
-                fetchedAlertMeta.serviceName}
-            </Typography>
-          )}
-          {(inv.clusterName ??
-            (inv as { cluster_name?: string }).cluster_name ??
-            fetchedAlertMeta.clusterName) && (
-            <Typography variant="body2" color="text.secondary">
-              Cluster:{' '}
-              {inv.clusterName ??
-                (inv as { cluster_name?: string }).cluster_name ??
-                fetchedAlertMeta.clusterName}
-            </Typography>
-          )}
-          {(inv.severity ??
-            (inv as { severity?: string }).severity ??
-            fetchedAlertMeta.severity) && (
-            <Typography variant="body2" color="text.secondary">
-              Severity:{' '}
-              {inv.severity ??
-                (inv as { severity?: string }).severity ??
-                fetchedAlertMeta.severity}
-            </Typography>
-          )}
-        </Stack>
-
-        <SeenBefore items={similar} />
-
-        {/* Timeline */}
-        <TimelineSection events={timelineEvents} />
-
-        {/* Report body: blocks */}
-        {inv.blocks && inv.blocks.length > 0 && (
-          <>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Report
-            </Typography>
-            {[...inv.blocks]
-              .sort((a, b) => a.position - b.position)
-              .map((block, index, sorted) => (
-                <BlockWithActions
-                  key={block.id}
-                  block={block}
-                  index={index}
-                  total={sorted.length}
-                  onMoveUp={() => {
-                    if (index <= 0) return;
-                    const prev = sorted[index - 1];
-                    patchBlock.mutate(
-                      { blockId: block.id, body: { position: prev.position } },
-                      {
-                        onSuccess: () =>
-                          patchBlock.mutate({
-                            blockId: prev.id,
-                            body: { position: block.position },
-                          }),
-                      }
-                    );
-                  }}
-                  onMoveDown={() => {
-                    if (index >= sorted.length - 1) return;
-                    const next = sorted[index + 1];
-                    patchBlock.mutate(
-                      { blockId: block.id, body: { position: next.position } },
-                      {
-                        onSuccess: () =>
-                          patchBlock.mutate({
-                            blockId: next.id,
-                            body: { position: block.position },
-                          }),
-                      }
-                    );
-                  }}
-                  onDelete={() => deleteBlock.mutate(block.id)}
-                  isPending={patchBlock.isPending || deleteBlock.isPending}
-                />
-              ))}
-          </>
-        )}
-
-        {/* Detailed summary (fallback only — superseded by the report blocks when present) */}
-        {!hasReportBlocks &&
-          (inv.summaryDetailed ||
-            inv.rootCauseSummary ||
-            inv.resolutionSummary) && (
-            <>
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-                Detailed summary
-              </Typography>
-              <Card variant="outlined" sx={{ mb: 2 }}>
-                <CardContent>
-                  {inv.summaryDetailed && (
-                    <Typography
-                      variant="body2"
-                      sx={{ whiteSpace: 'pre-wrap', mb: 1 }}
-                    >
-                      {inv.summaryDetailed}
-                    </Typography>
-                  )}
-                  {inv.rootCauseSummary && (
-                    <>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Root cause
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ whiteSpace: 'pre-wrap', mb: 1 }}
-                      >
-                        {inv.rootCauseSummary}
-                      </Typography>
-                    </>
-                  )}
-                  {inv.resolutionSummary && (
-                    <>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Resolution
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ whiteSpace: 'pre-wrap' }}
-                      >
-                        {inv.resolutionSummary}
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </>
-          )}
-
-        <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-          Usage details
-        </Typography>
-        <Card variant="outlined" sx={{ mb: 2 }}>
-          <CardContent sx={{ py: 2 }}>
-            {showUsageLoading ? (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <CircularProgress size={16} />
-                <Typography variant="body2" color="text.secondary">
-                  Loading usage…
-                </Typography>
-              </Stack>
-            ) : usageSummary.hasUsage ? (
-              <>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: usageSummary.steps.length > 0 ? 1.5 : 0 }}
-                >
-                  {usageSummary.callCount}{' '}
-                  {usageSummary.callCount === 1 ? 'call' : 'calls'} ·{' '}
-                  {formatTokensWithCached(
-                    usageSummary.totalTokens,
-                    usageSummary.totalCached > 0
-                      ? usageSummary.totalCached
-                      : undefined
-                  )}{' '}
-                  · {formatUsdCost(usageSummary.totalCost)}
-                </Typography>
-                {usageSummary.steps.length > 0 ? (
-                  <Stack spacing={0.75}>
-                    {usageSummary.steps.map((step) => (
-                      <Stack
-                        key={step.id}
-                        direction={{ xs: 'column', sm: 'row' }}
-                        spacing={{ xs: 0.25, sm: 2 }}
-                        sx={{ py: 0.25 }}
-                      >
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ minWidth: 140 }}
-                        >
-                          {step.createdAt
-                            ? new Date(step.createdAt).toLocaleString()
-                            : '—'}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ minWidth: 120 }}
-                        >
-                          {HOLMES_FEATURE_LABELS[step.feature] ?? step.feature}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ minWidth: 80 }}
-                        >
-                          {step.model || 'default'}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatTokensWithCached(
-                            step.totalTokens,
-                            step.cachedTokens
-                          )}{' '}
-                          · {formatUsdCost(step.totalCost)}
-                        </Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    {isRunning
-                      ? 'Investigation in progress — per-step breakdown will appear as AI calls complete.'
-                      : 'Per-step breakdown will appear after AI calls complete.'}
-                  </Typography>
-                )}
-              </>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                {isRunning
-                  ? 'Investigation in progress — usage will appear when AI calls complete.'
-                  : 'No AI usage recorded yet. Run the investigation or send a chat message to generate usage data.'}
-              </Typography>
-            )}
-          </CardContent>
-        </Card>
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Comments */}
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Comments
-        </Typography>
-        <Stack spacing={2}>
-          {comments.map((c) => (
-            <Card key={c.id} variant="outlined">
-              <CardContent>
-                <Typography variant="caption" color="text.secondary">
-                  {c.author || 'Anonymous'} ·{' '}
-                  {new Date(c.createdAt).toLocaleString()}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}
-                >
-                  {c.content}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
-          <Card variant="outlined">
-            <CardContent>
-              <TextField
-                fullWidth
-                multiline
-                minRows={2}
-                placeholder="Add a comment..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                size="small"
-                onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddComment();
-                  }
-                }}
-              />
-              <Button
-                variant="contained"
-                size="small"
-                sx={{ mt: 1 }}
-                onClick={handleAddComment}
-                disabled={!commentText.trim() || postComment.isPending}
-              >
-                Add comment
-              </Button>
-            </CardContent>
-          </Card>
-        </Stack>
-
-        <Divider sx={{ my: 3 }} />
-
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Chat
-        </Typography>
-        <Stack spacing={2}>
-          {messages.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No messages yet. Ask a question about this investigation.
-            </Typography>
-          ) : (
-            [...messages]
-              .filter((m) => m.role === 'user' || m.role === 'assistant')
-              .reverse()
-              .map((m) => (
-                <Card
-                  key={m.id}
-                  variant="outlined"
-                  sx={{
-                    alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '85%',
-                    bgcolor: m.role === 'user' ? 'action.hover' : undefined,
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="caption" color="text.secondary">
-                      {m.role === 'user' ? 'You' : 'Assistant'}
-                      {' · '}
-                      {new Date(m.createdAt).toLocaleString()}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}
-                    >
-                      {m.content}
-                    </Typography>
-                    {m.role === 'assistant' ? (
-                      <HolmesUsageFooter
-                        usage={{
-                          model: m.model,
-                          promptTokens: m.promptTokens ?? m.prompt_tokens,
-                          completionTokens:
-                            m.completionTokens ?? m.completion_tokens,
-                          totalTokens: m.totalTokens ?? m.total_tokens,
-                          cachedTokens: m.cachedTokens ?? m.cached_tokens,
-                          totalCost: m.totalCost ?? m.total_cost,
-                        }}
-                        align="left"
-                      />
-                    ) : null}
-                  </CardContent>
-                </Card>
-              ))
-          )}
-          <Card variant="outlined">
-            <CardContent>
-              <TextField
-                fullWidth
-                multiline
-                minRows={2}
-                placeholder="Ask about this investigation..."
-                value={chatText}
-                onChange={(e) => setChatText(e.target.value)}
-                size="small"
-                onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSendChat();
-                  }
-                }}
-              />
-              <Button
-                variant="contained"
-                size="small"
-                sx={{ mt: 1 }}
-                onClick={handleSendChat}
-                disabled={!chatText.trim() || postChat.isPending}
-              >
-                {postChat.isPending ? 'Sending…' : 'Send'}
-              </Button>
-            </CardContent>
-          </Card>
-        </Stack>
+              )}
+            </Box>
+          </Stack>
+        </Box>
         <Snackbar
           open={snackMessage != null}
           autoHideDuration={6000}

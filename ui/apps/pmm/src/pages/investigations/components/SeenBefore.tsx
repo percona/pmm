@@ -1,15 +1,8 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Link,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import type { SimilarInvestigation } from 'api/investigations';
+import { adreColors, headingFont } from 'components/adre/adreAnswerSx';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { formatSeenDate } from './seenBefore.utils';
 
@@ -26,8 +19,17 @@ export const SeenBefore: FC<{ items: SimilarInvestigation[] }> = ({
 }) => {
   if (!items.length) return null;
   return (
-    <Box component="section" aria-label="Seen before" sx={{ mb: 2 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
+    <Box component="section" aria-label="Seen before">
+      <Typography
+        component="h2"
+        sx={{
+          fontFamily: headingFont,
+          fontSize: 18,
+          fontWeight: 600,
+          color: adreColors.text,
+          mb: 1.5,
+        }}
+      >
         Seen before
       </Typography>
       <Stack gap={1}>
@@ -39,45 +41,61 @@ export const SeenBefore: FC<{ items: SimilarInvestigation[] }> = ({
             ['Resolution', s.resolutionSummary],
           ].filter(([, text]) => !!text);
           return (
-            <Card key={s.id} variant="outlined">
-              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  flexWrap="wrap"
-                  gap={1}
-                  sx={{ mb: outcome.length ? 0.75 : 0 }}
+            <Box
+              key={s.id}
+              sx={{
+                p: 1.75,
+                borderRadius: '12px',
+                bgcolor: adreColors.card,
+                border: `1px solid ${adreColors.border}`,
+              }}
+            >
+              <Stack
+                direction="row"
+                alignItems="center"
+                flexWrap="wrap"
+                gap={1}
+                sx={{ mb: outcome.length ? 0.75 : 0 }}
+              >
+                <Link
+                  component={RouterLink}
+                  to={`${PMM_NEW_NAV_PATH}/investigations/${s.id}`}
+                  sx={{ fontWeight: 500, color: adreColors.accentText }}
                 >
-                  <Link
-                    component={RouterLink}
-                    to={`${PMM_NEW_NAV_PATH}/investigations/${s.id}`}
-                    sx={{ fontWeight: 500 }}
+                  {s.title}
+                </Link>
+                <Typography sx={{ fontSize: 12, color: adreColors.muted }}>
+                  {formatSeenDate(s.createdAt)} · {s.status}
+                </Typography>
+                {s.reasons.map((r) => (
+                  <Box
+                    key={r}
+                    component="span"
+                    sx={{
+                      px: 1,
+                      borderRadius: 999,
+                      fontSize: 12,
+                      color: adreColors.secondary,
+                      border: `1px solid ${adreColors.border}`,
+                    }}
                   >
-                    {s.title}
-                  </Link>
-                  <Typography variant="body2" color="text.secondary">
-                    {formatSeenDate(s.createdAt)} · {s.status}
-                  </Typography>
-                  {s.reasons.map((r) => (
-                    <Chip key={r} size="small" label={r} variant="outlined" />
-                  ))}
-                </Stack>
-                {outcome.map(([label, text]) => (
-                  <Typography
-                    key={label}
-                    variant="body2"
-                    color="text.secondary"
-                    sx={clampSx}
-                    title={text}
-                  >
-                    <Box component="strong" sx={{ color: 'text.primary' }}>
-                      {label}:
-                    </Box>{' '}
-                    {text}
-                  </Typography>
+                    {r}
+                  </Box>
                 ))}
-              </CardContent>
-            </Card>
+              </Stack>
+              {outcome.map(([label, text]) => (
+                <Typography
+                  key={label}
+                  title={text}
+                  sx={{ ...clampSx, fontSize: 13, color: adreColors.secondary }}
+                >
+                  <Box component="strong" sx={{ color: adreColors.text }}>
+                    {label}:
+                  </Box>{' '}
+                  {text}
+                </Typography>
+              ))}
+            </Box>
           );
         })}
       </Stack>

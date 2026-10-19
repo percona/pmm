@@ -298,7 +298,8 @@ func (h *Handlers) InvestigationFromChat(
 			l.Warnf("CreateInvestigationBlock: %v", err)
 		}
 	}
-	// The chat carries on in the investigation's own chat.
+	// The chat carries on in the investigation's own chat. Without a model the copies do not count as the
+	// investigation's AI calls: the chat paid for them.
 	for _, m := range msgs {
 		if m.Role != "user" && m.Role != "assistant" {
 			continue
@@ -308,7 +309,6 @@ func (h *Handlers) InvestigationFromChat(
 			InvestigationID: inv.ID,
 			Role:            m.Role,
 			Content:         m.Content,
-			Model:           m.Model,
 			CreatedAt:       m.CreatedAt,
 		})
 		if err != nil {
