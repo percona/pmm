@@ -248,8 +248,11 @@ export const deriveMongoHub = (
       selected: filter,
       options: environmentOptions(
         allServices.map((service) => service.environment),
-        Messages.noEnvironment
+        Messages.noEnvironment,
+        filter
       ),
+      matchesNothing:
+        filter !== null && allServices.length > 0 && services.length === 0,
     },
     status,
     attention: rankAttention(

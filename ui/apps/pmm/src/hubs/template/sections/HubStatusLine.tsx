@@ -27,6 +27,8 @@ export interface HubStatusLineProps {
   unit: [string, string];
   /** Whether the reader can set up a backup, which an estate without any then offers. */
   canSetUpBackup?: boolean;
+  /** The environment filter matches no service, so there is nothing to count. */
+  matchesNothing?: boolean;
   loading?: boolean;
 }
 
@@ -90,22 +92,25 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
   name,
   unit,
   canSetUpBackup = false,
+  matchesNothing = false,
   loading = false,
 }) => {
   const figures: ReactNode[] =
     status.state === 'empty'
       ? [Messages.status.empty(name)]
-      : [
-          <DoorLink
-            key="clusters"
-            door={status.doors.clusters}
-            underline="always"
-          >
-            {Messages.status.clusters(status.clusters, unit)}
-          </DoorLink>,
-          attentionFigure(status),
-          backupFigure(status, canSetUpBackup),
-        ];
+      : matchesNothing
+        ? [Messages.environment.nothing(name)]
+        : [
+            <DoorLink
+              key="clusters"
+              door={status.doors.clusters}
+              underline="always"
+            >
+              {Messages.status.clusters(status.clusters, unit)}
+            </DoorLink>,
+            attentionFigure(status),
+            backupFigure(status, canSetUpBackup),
+          ];
 
   return (
     <Box

@@ -1,5 +1,5 @@
 import { describe } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { hasPeakHub, renderHub } from '../testUtils';
 import { HubRoute } from './HubRoute';
@@ -213,5 +213,46 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       )
     ).toBeInTheDocument();
     expect(within(clusters).queryByRole('link')).toBeNull();
+  });
+
+  it('keeps a filter that matches nothing visible and undoable', async () => {
+    renderHub(<HubRoute />, {
+      path: '/mongodb?environment=qa&hubState=healthy',
+      user: TEST_USER_ADMIN,
+      settings: { backupManagementEnabled: true },
+    });
+
+    expect(await screen.findByTestId('hub-status-line')).toHaveTextContent(
+      'No MongoDB in this environment'
+    );
+    expect(
+      screen.getByRole('combobox', { name: 'Environment' })
+    ).toHaveTextContent('qa');
+    expect(region('Needs attention')).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Start monitoring MongoDB' })
+    ).toBeNull();
+    expect(
+      within(screen.getByRole('region', { name: 'Backups' })).getByText(
+        'No MongoDB service is in this environment.'
+      )
+    ).toBeInTheDocument();
+
+    const clusters = screen.getByRole('region', { name: 'Clusters' });
+
+    expect(
+      within(clusters).getByRole('heading', {
+        level: 3,
+        name: 'No matching clusters',
+      })
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(clusters).getByRole('button', { name: 'Show all environments' })
+    );
+
+    expect(screen.getByTestId('hub-location')).toHaveTextContent(
+      /^\/mongodb\?hubState=healthy$/
+    );
   });
 });

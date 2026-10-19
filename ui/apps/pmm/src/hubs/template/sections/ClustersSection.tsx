@@ -1,5 +1,10 @@
+import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import { EmptyState, RadarIllustration } from '@percona/peak-ui';
+import {
+  EmptyState,
+  NothingFoundIllustration,
+  RadarIllustration,
+} from '@percona/peak-ui';
 import type { FC } from 'react';
 import { Messages } from '../hub.messages';
 import type { HubMessages, HubTreeColumn, HubViewModel } from '../hub.types';
@@ -12,6 +17,8 @@ export interface ClustersSectionProps {
   treeColumns: HubTreeColumn[];
   messages: HubMessages;
   onRetry: () => void;
+  /** Clears the environment filter. */
+  onShowAllEnvironments: () => void;
 }
 
 /** Clusters: the full-width tree, or how to start when nothing is monitored. */
@@ -20,21 +27,23 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
   treeColumns,
   messages,
   onRetry,
+  onShowAllEnvironments,
 }) => {
   const { clusters } = view;
-  const empty = view.status.state === 'empty' || clusters.length === 0;
+  const empty = view.status.state === 'empty';
+  const { matchesNothing } = view.environment;
   const hasActions = !!(view.actions.addService || view.actions.install);
 
   return (
     <HubSection
       id="clusters"
       title={Messages.sections.clusters}
-      count={empty ? undefined : clusters.length}
+      count={empty || matchesNothing ? undefined : clusters.length}
       countLabel={Messages.sectionCount.clusters(
         clusters.length,
         messages.unit.cluster
       )}
-      door={empty ? undefined : view.sectionDoors.clusters}
+      door={empty || matchesNothing ? undefined : view.sectionDoors.clusters}
     >
       <SectionState state={view.sections.clusters} onRetry={onRetry}>
         {empty ? (
@@ -51,6 +60,25 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
               }
               actions={
                 hasActions ? <HubActions actions={view.actions} /> : undefined
+              }
+            />
+          </Paper>
+        ) : matchesNothing ? (
+          <Paper variant="outlined">
+            <EmptyState
+              size="small"
+              titleComponent="h3"
+              illustration={<NothingFoundIllustration />}
+              title={Messages.environment.noMatch(messages.unit.cluster[1])}
+              description={`${Messages.environment.noService(messages.name)} ${Messages.environment.pickAnother}`}
+              actions={
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={onShowAllEnvironments}
+                >
+                  {Messages.environment.showAll}
+                </Button>
               }
             />
           </Paper>

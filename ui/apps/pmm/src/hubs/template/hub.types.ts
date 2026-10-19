@@ -221,6 +221,8 @@ export interface HubViewModel {
     selected: string | null;
     /** Each environment, then "No environment"; the select adds "All environments" itself. */
     options: Array<{ value: string; label: string }>;
+    /** A filter is set and no service is in it, which is not an empty estate. */
+    matchesNothing: boolean;
   };
   status: HubStatus;
   /** Ranked, uncapped; the view applies the cap. */

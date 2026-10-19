@@ -158,17 +158,23 @@ export const matchesEnvironment = (
   return environment === filter;
 };
 
-/** Each environment alphabetically, then "No environment" when a service has none; the select adds "All environments" itself. */
+/** Each environment alphabetically, then "No environment" when a service has none, keeping a selected one no service has; the select adds "All environments" itself. */
 export const environmentOptions = (
   environments: Array<string | undefined | null>,
-  noEnvironmentLabel: string
+  noEnvironmentLabel: string,
+  selected: string | null = null
 ): Array<{ value: string; label: string }> => {
   const named = [
-    ...new Set(environments.filter((env): env is string => !!env)),
+    ...new Set(
+      [
+        ...environments,
+        selected === HUB_NO_ENVIRONMENT ? null : selected,
+      ].filter((env): env is string => !!env)
+    ),
   ].sort((a, b) => a.localeCompare(b));
   const options = named.map((value) => ({ value, label: value }));
 
-  return environments.some((env) => !env)
+  return environments.some((env) => !env) || selected === HUB_NO_ENVIRONMENT
     ? [...options, { value: HUB_NO_ENVIRONMENT, label: noEnvironmentLabel }]
     : options;
 };

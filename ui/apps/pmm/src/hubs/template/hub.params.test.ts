@@ -252,4 +252,17 @@ describe('environmentOptions', () => {
   it('is empty for no services', () => {
     expect(environmentOptions([], 'No environment')).toEqual([]);
   });
+
+  it('keeps a selected environment that no service has', () => {
+    expect(environmentOptions(['prod'], 'No environment', 'staging')).toEqual([
+      { value: 'prod', label: 'prod' },
+      { value: 'staging', label: 'staging' },
+    ]);
+    expect(
+      environmentOptions(['prod'], 'No environment', HUB_NO_ENVIRONMENT)
+    ).toEqual([
+      { value: 'prod', label: 'prod' },
+      { value: HUB_NO_ENVIRONMENT, label: 'No environment' },
+    ]);
+  });
 });

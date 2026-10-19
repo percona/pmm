@@ -13,6 +13,11 @@ export const Messages = {
   environment: {
     label: 'Environment',
     all: 'All environments',
+    showAll: 'Show all environments',
+    nothing: (name: string) => `No ${name} in this environment`,
+    noMatch: (unit: string) => `No matching ${unit}`,
+    noService: (name: string) => `No ${name} service is in this environment.`,
+    pickAnother: 'Pick another one, or show them all.',
   },
   status: {
     empty: (name: string) => `No ${name} monitored yet`,

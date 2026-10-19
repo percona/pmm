@@ -112,12 +112,35 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
       environment: {
         selected: null,
         options: [{ value: 'prod', label: 'prod' }],
+        matchesNothing: false,
       },
     });
 
     expect(
       screen.queryByRole('combobox', { name: 'Environment' })
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the select while it filters, even to an environment no service has', () => {
+    const { setParams } = renderHeader({
+      environment: {
+        selected: 'staging',
+        options: [
+          { value: 'prod', label: 'prod' },
+          { value: 'staging', label: 'staging' },
+        ],
+        matchesNothing: true,
+      },
+    });
+
+    expect(screen.getByTestId('hub-status-line')).toHaveTextContent(
+      'No MongoDB in this environment'
+    );
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Environment' }));
+    fireEvent.click(screen.getByRole('option', { name: 'All environments' }));
+
+    expect(setParams).toHaveBeenCalledWith({ environment: null });
   });
 
   it('says how fresh the data is and refreshes every source', () => {

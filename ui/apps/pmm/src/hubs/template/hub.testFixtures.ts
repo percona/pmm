@@ -197,6 +197,7 @@ export const testView = (
       { value: 'prod', label: 'prod' },
       { value: 'staging', label: 'staging' },
     ],
+    matchesNothing: false,
   },
   status: {
     state: 'down',

@@ -58,20 +58,22 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           refetch={refetch}
           loading={isInitialLoading}
         />
-        {view.status.state !== 'empty' && (
-          <NeedsAttentionSection
-            items={view.attention}
-            state={view.sections.attention}
-            door={view.sectionDoors.attention}
-            checkedAt={view.status.checkedAt}
-            onRetry={refetch}
-          />
-        )}
+        {view.status.state !== 'empty' &&
+          !(view.environment.matchesNothing && !view.attention.length) && (
+            <NeedsAttentionSection
+              items={view.attention}
+              state={view.sections.attention}
+              door={view.sectionDoors.attention}
+              checkedAt={view.status.checkedAt}
+              onRetry={refetch}
+            />
+          )}
         <ClustersSection
           view={view}
           treeColumns={config.treeColumns}
           messages={messages}
           onRetry={refetch}
+          onShowAllEnvironments={() => setParams({ environment: null })}
         />
         <Box
           sx={{
@@ -89,6 +91,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
             backups={view.backups}
             state={view.sections.backups}
             messages={messages}
+            matchesNothing={view.environment.matchesNothing}
             onRetry={refetch}
           />
           <AppsSection
@@ -100,7 +103,9 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           <QueriesSection
             queries={view.queries}
             state={view.sections.queries}
-            empty={view.status.state === 'empty'}
+            empty={
+              view.status.state === 'empty' || view.environment.matchesNothing
+            }
             onRetry={refetch}
           />
           <DashboardsSection

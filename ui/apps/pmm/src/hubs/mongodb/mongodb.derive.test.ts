@@ -121,6 +121,7 @@ describe('deriveMongoHub environment filter', () => {
         { value: 'prod', label: 'prod' },
         { value: 'staging', label: 'staging' },
       ],
+      matchesNothing: false,
     });
   });
 
@@ -168,9 +169,29 @@ describe('deriveMongoHub environment filter', () => {
   });
 
   it('reads a filter that matches nothing as no data, not as empty', () => {
+    const view = derive(healthySnapshot(NOW, false), { environment: 'qa' });
+
+    expect(view.status).toMatchObject({ state: 'noData', clusters: 0 });
+    expect(view.environment).toEqual({
+      selected: 'qa',
+      options: [
+        { value: 'prod', label: 'prod' },
+        { value: 'qa', label: 'qa' },
+        { value: 'staging', label: 'staging' },
+      ],
+      matchesNothing: true,
+    });
+  });
+
+  it('matches something with services in the environment, and nothing in an empty estate', () => {
     expect(
-      derive(healthySnapshot(NOW, false), { environment: 'qa' }).status
-    ).toMatchObject({ state: 'noData', clusters: 0 });
+      derive(healthySnapshot(NOW, false), { environment: 'prod' }).environment
+        .matchesNothing
+    ).toBe(false);
+    expect(
+      derive(emptySnapshot(NOW, false), { environment: 'prod' }).environment
+        .matchesNothing
+    ).toBe(false);
   });
 });
 

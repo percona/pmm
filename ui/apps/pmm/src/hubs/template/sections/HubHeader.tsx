@@ -66,13 +66,15 @@ export const HubHeader: FC<HubHeaderProps> = ({
           name={messages.name}
           unit={messages.unit.cluster}
           canSetUpBackup={view.capabilities.setUpBackup}
+          matchesNothing={environment.matchesNothing}
           loading={loading}
         />
       }
       actions={hasActions ? <HubActions actions={view.actions} /> : undefined}
       toolbar={
         <>
-          {environment.options.length > 1 && (
+          {(environment.options.length > 1 ||
+            environment.selected !== null) && (
             <TextField
               select
               size="small"

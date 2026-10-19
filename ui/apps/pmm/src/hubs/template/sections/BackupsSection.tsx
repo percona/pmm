@@ -144,6 +144,8 @@ export interface BackupsSectionProps {
   backups: HubBackups;
   state: HubSectionState;
   messages: HubMessages;
+  /** The environment filter matches no service, so there is nothing to back up here. */
+  matchesNothing?: boolean;
   onRetry: () => void;
 }
 
@@ -153,6 +155,7 @@ export const BackupsSection: FC<BackupsSectionProps> = ({
   backups,
   state,
   messages,
+  matchesNothing = false,
   onRetry,
 }) => {
   const theme = useTheme();
@@ -177,7 +180,11 @@ export const BackupsSection: FC<BackupsSectionProps> = ({
           </Alert>
         );
       case 'noServices':
-        return (
+        return matchesNothing ? (
+          <Typography variant="body2" color="text.secondary">
+            {Messages.environment.noService(messages.name)}
+          </Typography>
+        ) : (
           <Paper variant="outlined">
             <EmptyState
               size="small"
