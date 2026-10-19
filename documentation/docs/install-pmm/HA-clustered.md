@@ -48,6 +48,8 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 
+<a id="check-if-your-platform-is-supported"></a>
+
 ### Check supported platforms
 
 PMM HA Cluster runs on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. Supported versions depend on the `pmm-ha` chart version, because each chart ships its own database operators.
