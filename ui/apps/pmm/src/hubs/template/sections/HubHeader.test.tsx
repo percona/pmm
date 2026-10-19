@@ -3,13 +3,20 @@ import { PerconaMoIcon } from '@percona/peak-ui';
 import { fireEvent, screen, within } from '@testing-library/react';
 import { hasPeakHub, renderHub } from '../../testUtils';
 import { testView } from '../hub.testFixtures';
-import type { HubMessages, HubViewModel } from '../hub.types';
+import type { HubMessages, HubParams, HubViewModel } from '../hub.types';
 import { HubHeader } from './HubHeader';
 
 const MESSAGES = {
   name: 'MongoDB',
   unit: { cluster: ['cluster', 'clusters'] },
 } as HubMessages;
+
+const PARAMS: HubParams = {
+  environment: null,
+  scenario: 'wrong',
+  ops: 'live',
+  role: 'live',
+};
 
 const renderHeader = (view: Partial<HubViewModel> = {}) => {
   const setParams = vi.fn();
@@ -20,6 +27,7 @@ const renderHeader = (view: Partial<HubViewModel> = {}) => {
       view={testView(view)}
       icon={PerconaMoIcon}
       messages={MESSAGES}
+      params={PARAMS}
       setParams={setParams}
       updatedAt={Date.now() - 20_000}
       refetch={refetch}

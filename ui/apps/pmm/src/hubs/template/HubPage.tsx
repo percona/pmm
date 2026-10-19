@@ -39,7 +39,7 @@ export interface HubPageProps<TSnapshot> {
 
 /** A technology hub: status, what needs attention, the estate, and the ways into it. */
 export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
-  const { view, setParams, refetch, updatedAt, isInitialLoading } =
+  const { view, params, setParams, refetch, updatedAt, isInitialLoading } =
     useTechnologyHub(config);
   const { messages } = config;
 
@@ -52,6 +52,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           view={view}
           icon={config.icon}
           messages={messages}
+          params={params}
           setParams={setParams}
           updatedAt={updatedAt}
           refetch={refetch}

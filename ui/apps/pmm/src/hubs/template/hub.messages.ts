@@ -1,4 +1,10 @@
-import type { HubHealth, HubSeverity } from './hub.types';
+import type {
+  HubHealth,
+  HubOpsMode,
+  HubRoleMode,
+  HubScenario,
+  HubSeverity,
+} from './hub.types';
 
 export const Messages = {
   sampleData: 'Sample data',
@@ -108,5 +114,33 @@ export const Messages = {
     forDevelopers: 'For developers',
     recent: 'Recently visited',
     recentEmpty: 'Dashboards you open appear here.',
+  },
+  prototype: {
+    trigger: (parts: string[]) => `Prototype: ${parts.join(' · ')}`,
+    groups: {
+      data: 'Data',
+      operations: 'Operations',
+      role: 'Signed in as',
+    },
+    scenario: {
+      live: 'Live',
+      empty: 'Empty',
+      healthy: 'Healthy',
+      wrong: 'Things wrong',
+    } satisfies Record<HubScenario, string>,
+    ops: {
+      live: 'As configured',
+      on: 'On',
+      off: 'Off',
+    } satisfies Record<HubOpsMode, string>,
+    opsSummary: {
+      on: 'Ops on',
+      off: 'Ops off',
+    } satisfies Record<Exclude<HubOpsMode, 'live'>, string>,
+    role: {
+      live: 'As signed in',
+      admin: 'Admin',
+      viewer: 'Viewer',
+    } satisfies Record<HubRoleMode, string>,
   },
 };

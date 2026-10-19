@@ -16,6 +16,7 @@ import type {
 import { HubActions } from './HubActions';
 import { HubStatusLine } from './HubStatusLine';
 import { LiveAge } from './LiveAge';
+import { PrototypeMenu } from './PrototypeMenu';
 
 // A Select needs a string value; "every environment" is the URL's absent param.
 const ALL_ENVIRONMENTS = '__all__';
@@ -24,6 +25,7 @@ export interface HubHeaderProps {
   view: HubViewModel;
   icon: HubIcon;
   messages: HubMessages;
+  params: HubParams;
   setParams: (next: Partial<HubParams>) => void;
   updatedAt: number;
   refetch: () => void;
@@ -35,6 +37,7 @@ export const HubHeader: FC<HubHeaderProps> = ({
   view,
   icon: Icon,
   messages,
+  params,
   setParams,
   updatedAt,
   refetch,
@@ -108,6 +111,9 @@ export const HubHeader: FC<HubHeaderProps> = ({
                 <RefreshRounded />
               </IconButton>
             </Tooltip>
+          </Box>
+          <Box sx={{ ml: 'auto' }}>
+            <PrototypeMenu params={params} setParams={setParams} />
           </Box>
         </>
       }
