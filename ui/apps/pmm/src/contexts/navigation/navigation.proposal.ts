@@ -118,7 +118,8 @@ const dashboardUrls = (items: NavItem[] = []): string[] =>
     ...dashboardUrls(item.children),
   ]);
 
-// One entry per technology: its hub when one exists, else its overview dashboard, highlighted on any of its dashboards in `navigation.constants`.
+// One entry per technology: its hub when one exists, else its overview
+// dashboard, highlighted on any of its dashboards in `navigation.constants`.
 const technology = ({ id, text, icon, url, children }: NavItem): NavItem => ({
   id,
   text,
