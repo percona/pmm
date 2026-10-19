@@ -470,7 +470,7 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 
 		_, err = io.Copy(fw, fr) //nolint:gosec
 		if err != nil {
-			fr.Close() //nolint:errcheck
+			_ = fr.Close()
 			return fmt.Errorf("failed to copy data to file %s: %w", file.Name, err)
 		}
 
