@@ -53,6 +53,8 @@ export const Messages = {
   sectionError: {
     fallback: 'Could not load this section.',
     retry: 'Retry',
+    alerts: (reason?: string) =>
+      `Firing alerts could not be read${reason ? ` (${reason})` : ''}, so none is listed here.`,
   },
   attention: {
     calm: (age: string) => `Nothing needs attention · checked ${age}`,

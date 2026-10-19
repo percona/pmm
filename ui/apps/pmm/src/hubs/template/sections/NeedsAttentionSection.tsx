@@ -90,12 +90,15 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
     >
       <SectionState state={state} onRetry={onRetry} skeletonRows={2}>
         {items.length === 0 ? (
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-            <StatusIcon size="small" severity="success" />
-            <Typography variant="body2" color="text.secondary">
-              <LiveAge at={checkedAt} format={Messages.attention.calm} />
-            </Typography>
-          </Box>
+          // A source that could not be read leaves nothing to vouch for.
+          state.status === 'error' ? null : (
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+              <StatusIcon size="small" severity="success" />
+              <Typography variant="body2" color="text.secondary">
+                <LiveAge at={checkedAt} format={Messages.attention.calm} />
+              </Typography>
+            </Box>
+          )
         ) : (
           <Paper variant="outlined">
             <List disablePadding>

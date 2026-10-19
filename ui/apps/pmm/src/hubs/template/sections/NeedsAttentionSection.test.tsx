@@ -203,4 +203,32 @@ describe('NeedsAttentionSection', () => {
 
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps its rows under the warning when only a supplementary source failed', () => {
+    renderSection(ITEMS.slice(0, 2), {
+      status: 'error',
+      source: 'alerts',
+      message: 'Firing alerts could not be read, so none is listed here.',
+      partial: true,
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Firing alerts could not be read'
+    );
+    expect(
+      screen.getByText("billing has no primary, it can't take writes")
+    ).toBeInTheDocument();
+  });
+
+  it('shows no calm line under a warning, with nothing else to list', () => {
+    renderSection([], {
+      status: 'error',
+      source: 'alerts',
+      message: 'Firing alerts could not be read, so none is listed here.',
+      partial: true,
+    });
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.queryByText(/Nothing needs attention/)).toBeNull();
+  });
 });

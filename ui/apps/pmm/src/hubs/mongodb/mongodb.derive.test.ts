@@ -315,6 +315,47 @@ describe('deriveMongoHub sections', () => {
     expect(sections.attention).toEqual({ status: 'ready' });
   });
 
+  it('keeps every derived attention row when only alerts failed', () => {
+    const view = derive(
+      { ...wrongSnapshot(NOW, false), alerts: null },
+      {
+        sources: sourcesWith('ready', {
+          alerts: {
+            status: 'error',
+            message: 'Request failed with status code 502',
+          },
+        }),
+      }
+    );
+
+    expect(view.sections.attention).toEqual({
+      status: 'error',
+      source: 'alerts',
+      message:
+        'Firing alerts could not be read (Request failed with status code 502), so none is listed here.',
+      partial: true,
+    });
+    expect(view.attention[0]).toMatchObject({
+      kind: 'noPrimary',
+      title: "billing has no primary, it can't take writes",
+    });
+    expect(view.attention.some((item) => item.kind === 'alert')).toBe(false);
+  });
+
+  it('fails the attention section outright when metrics failed', () => {
+    expect(
+      derive(
+        { ...wrongSnapshot(NOW, false), metrics: null, alerts: null },
+        {
+          sources: sourcesWith('ready', {
+            metrics: { status: 'error' },
+            alerts: { status: 'error' },
+          }),
+        }
+      ).sections.attention
+    ).toEqual({ status: 'error', source: 'metrics' });
+  });
+
   it('never reads an empty estate while the inventory is still loading', () => {
     expect(
       derive(emptySnapshot(NOW, false), {

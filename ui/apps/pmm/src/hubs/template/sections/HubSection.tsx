@@ -139,7 +139,7 @@ export const SectionState: FC<SectionStateProps> = ({
       </Alert>
     );
 
-    return keepChildrenOnError ? (
+    return keepChildrenOnError || state.partial ? (
       <>
         {warning}
         {children}

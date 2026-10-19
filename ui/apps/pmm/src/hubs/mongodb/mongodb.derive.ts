@@ -1,5 +1,6 @@
 import { higherSeverity, rankAttention } from 'hubs/template/hub.attention';
 import { ALERTS_PATH } from 'hubs/template/hub.doors';
+import { Messages as HubText } from 'hubs/template/hub.messages';
 import {
   environmentOptions,
   matchesEnvironment,
@@ -241,8 +242,18 @@ export const deriveMongoHub = (
     backups.backups.state === 'ok' ||
     Object.values(snapshot.metrics?.pbmConfiguredByCluster ?? {}).some(Boolean);
 
+  // Alerts add rows to what inventory and metrics already say, so their failure keeps those rows.
+  const attentionState = sectionState(sources, ['inventory', 'metrics']);
   const sections: Record<HubSectionId, HubSectionState> = {
-    attention: sectionState(sources, ['inventory', 'metrics', 'alerts']),
+    attention:
+      attentionState.status === 'ready' && sources.alerts?.status === 'error'
+        ? {
+            status: 'error',
+            source: 'alerts',
+            message: HubText.sectionError.alerts(sources.alerts.message),
+            partial: true,
+          }
+        : attentionState,
     clusters: sectionState(sources, ['inventory', 'metrics']),
     backups: sectionState(sources, ['inventory', 'backups']),
     queries: sectionState(sources, ['qan', 'realtime']),

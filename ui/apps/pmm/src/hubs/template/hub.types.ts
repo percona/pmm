@@ -214,6 +214,8 @@ export interface HubSectionState {
   status: 'ready' | 'loading' | 'error';
   message?: string;
   source?: HubSourceId;
+  /** The failed source is one of several, so the section still shows what the others gave. */
+  partial?: boolean;
 }
 
 export interface HubViewModel {
