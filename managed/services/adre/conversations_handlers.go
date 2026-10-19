@@ -160,6 +160,10 @@ func (h *Handlers) ServeConversationSubroutes(w http.ResponseWriter, r *http.Req
 		h.listMessages(w, r, id)
 		return
 	}
+	if len(parts) == 2 && parts[1] == "investigation" && r.Method == http.MethodPost {
+		h.postConversationInvestigation(w, r, id)
+		return
+	}
 	http.NotFound(w, r)
 }
 

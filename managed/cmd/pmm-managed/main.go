@@ -211,6 +211,7 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 
 func addAdreHandlers(ctx context.Context, mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
 	h := adre.NewHandlers(db, grafanaClient, vm, ch)
+	h.SetChatInvestigator(investigations.NewHandlers(db))
 	go h.SyncShippedDeployment(ctx)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

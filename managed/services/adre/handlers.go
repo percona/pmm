@@ -84,6 +84,8 @@ type Handlers struct {
 	reqTimeout    time.Duration
 	streamTimeout time.Duration
 	l             *logrus.Entry
+
+	chatInvestigator ChatInvestigator
 }
 
 // NewHandlers creates new ADRE HTTP handlers.

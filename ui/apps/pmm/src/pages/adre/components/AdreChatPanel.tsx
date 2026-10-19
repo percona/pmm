@@ -26,6 +26,9 @@ import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import KeyboardDoubleArrowLeft from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ManageSearch from '@mui/icons-material/ManageSearch';
+import { isAxiosError } from 'axios';
+import { useSnackbar } from 'notistack';
 import {
   FC,
   ReactNode,
@@ -36,7 +39,9 @@ import {
   useRef,
 } from 'react';
 import Markdown from 'react-markdown';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useCreateInvestigationFromChat } from 'hooks/api/useInvestigations';
+import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
@@ -340,6 +345,33 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
     ? progressSteps
     : (latest?.progressSteps ?? []);
 
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const fromChat = useCreateInvestigationFromChat();
+  const chatTitle = conversations.find((c) => c.id === conversationId)?.title;
+  const canInvestigate =
+    conversationId != null && !loading && !!latest && !latest.streaming;
+  const turnIntoInvestigation = () => {
+    if (conversationId == null) return;
+    fromChat.mutate(conversationId, {
+      onSuccess: ({ id, reused }) => {
+        if (reused) {
+          enqueueSnackbar('Opened the investigation made from this chat', {
+            variant: 'info',
+          });
+        }
+        navigate(`${PMM_NEW_NAV_PATH}/investigations/${id}`);
+      },
+      onError: (err) =>
+        enqueueSnackbar(
+          (isAxiosError<{ error?: string }>(err) &&
+            err.response?.data?.error) ||
+            'Failed to create the investigation',
+          { variant: 'error' }
+        ),
+    });
+  };
+
   return (
     <Box
       sx={{
@@ -466,6 +498,40 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                 <AdreAlertsPanel alerts={alerts} />
               </Box>
             </Collapse>
+          </Box>
+        )}
+        {canInvestigate && (
+          <Box
+            sx={{
+              px: { xs: 2, md: 5 },
+              py: 0.75,
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <Stack
+              role="toolbar"
+              aria-label="Chat actions"
+              direction="row"
+              alignItems="center"
+              gap={2}
+              sx={{ maxWidth: CONTENT_WIDTH, mx: 'auto' }}
+            >
+              <Typography
+                noWrap
+                sx={{ flex: 1, minWidth: 0, fontSize: 14, color: '#A9A7B0' }}
+              >
+                {chatTitle || 'Untitled chat'}
+              </Typography>
+              <Button
+                size="small"
+                startIcon={<ManageSearch />}
+                onClick={turnIntoInvestigation}
+                disabled={fromChat.isPending}
+                sx={{ flexShrink: 0, color: '#CFCBFF' }}
+              >
+                {fromChat.isPending ? 'Creating…' : 'Turn into investigation'}
+              </Button>
+            </Stack>
           </Box>
         )}
         {chatError ? (

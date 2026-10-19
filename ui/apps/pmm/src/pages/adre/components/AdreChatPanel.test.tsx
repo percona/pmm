@@ -1,13 +1,17 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { AdreChatPanel } from './AdreChatPanel';
 import type { AlertItem } from './AdreAlertsPanel';
 
-const { handleSend, chatOptions, chatState } = vi.hoisted(() => ({
+const { handleSend, chatOptions, chatState, fromChat } = vi.hoisted(() => ({
   handleSend: vi.fn(),
   chatOptions: vi.fn(),
-  chatState: { allMessages: [] as unknown[] },
+  chatState: {
+    allMessages: [] as unknown[],
+    conversationId: null as number | null,
+  },
+  fromChat: vi.fn(),
 }));
 
 vi.mock('hooks/api/useAdre', () => ({
@@ -16,6 +20,10 @@ vi.mock('hooks/api/useAdre', () => ({
 
 vi.mock('hooks/api/useInvestigations', () => ({
   useCreateInvestigation: () => ({ mutate: vi.fn(), isPending: false }),
+  useCreateInvestigationFromChat: () => ({
+    mutate: fromChat,
+    isPending: false,
+  }),
 }));
 
 vi.mock('hooks/useAdreChat', () => ({
@@ -31,8 +39,8 @@ vi.mock('hooks/useAdreChat', () => ({
       settings: undefined,
       chatError: null,
       handleSend,
-      conversationId: null,
-      conversations: [],
+      conversationId: chatState.conversationId,
+      conversations: [{ id: 5, title: 'Failed logins' }],
       conversationsLoading: false,
       newChat: vi.fn(),
       deleteConversation: vi.fn(),
@@ -88,9 +96,28 @@ const setWide = (wide: boolean) =>
 describe('AdreChatPanel', () => {
   beforeEach(() => {
     chatState.allMessages = [];
+    chatState.conversationId = null;
     localStorage.clear();
   });
   afterEach(() => vi.unstubAllGlobals());
+
+  it('turns an answered chat into an investigation', () => {
+    const { unmount } = renderPanel();
+    expect(
+      screen.queryByRole('toolbar', { name: 'Chat actions' })
+    ).not.toBeInTheDocument();
+    unmount();
+
+    chatState.allMessages = answered;
+    chatState.conversationId = 5;
+    renderPanel();
+    const toolbar = screen.getByRole('toolbar', { name: 'Chat actions' });
+    expect(toolbar).toHaveTextContent('Failed logins');
+    fireEvent.click(
+      within(toolbar).getByRole('button', { name: 'Turn into investigation' })
+    );
+    expect(fromChat).toHaveBeenCalledWith(5, expect.anything());
+  });
 
   it('prefills the question from ?ask= without sending it', () => {
     renderPanel('/assistant?ask=hello');

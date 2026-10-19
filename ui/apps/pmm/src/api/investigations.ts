@@ -207,6 +207,16 @@ export const getInvestigation = async (id: string): Promise<Investigation> => {
   return res.data;
 };
 
+/** Turns an Assistant chat into an investigation, or finds the one already made from it. */
+export const createInvestigationFromChat = async (
+  conversationId: number
+): Promise<{ id: string; reused: boolean }> => {
+  const res = await api.post<{ id: string; reused: boolean }>(
+    `/adre/conversations/${conversationId}/investigation`
+  );
+  return res.data;
+};
+
 export const createInvestigation = async (
   body: CreateInvestigationBody
 ): Promise<Investigation> => {

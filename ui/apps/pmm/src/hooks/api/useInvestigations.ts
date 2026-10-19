@@ -3,6 +3,7 @@ import {
   listInvestigations,
   getInvestigation,
   createInvestigation,
+  createInvestigationFromChat,
   patchInvestigation,
   deleteInvestigation,
   getInvestigationComments,
@@ -79,6 +80,16 @@ export const useCreateInvestigation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateInvestigationBody) => createInvestigation(body),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all }),
+  });
+};
+
+export const useCreateInvestigationFromChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (conversationId: number) =>
+      createInvestigationFromChat(conversationId),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all }),
   });

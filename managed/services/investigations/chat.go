@@ -332,84 +332,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	if formatErr == nil { //nolint:nestif
 		report, parseErr := ParseFormattedReport(formattedJSON)
 		if parseErr == nil {
-			preserveUserRequest(inv)
-			inv.Summary = report.Summary
-			inv.SummaryDetailed = report.SummaryDetailed
-			inv.RootCauseSummary = report.RootCauseSummary
-			inv.ResolutionSummary = report.ResolutionSummary
-			cfg := map[string]any{}
-			if len(inv.Config) > 0 {
-				_ = json.Unmarshal(inv.Config, &cfg)
-			}
-			cfg["confidence"] = confidencePayload{
-				Band:      report.Confidence,
-				Score:     report.ConfidenceScore,
-				Rationale: report.ConfidenceRationale,
-				Evidence:  report.Evidence,
-			}
-			b, mErr := json.Marshal(cfg)
-			if mErr == nil {
-				inv.Config = b
-			}
-			err := models.DeleteInvestigationBlocksForInvestigation(h.db, id)
-			if err != nil {
-				h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
-			}
-			err = models.DeleteInvestigationTimelineEventsForInvestigation(h.db, id)
-			if err != nil {
-				h.l.Warnf("DeleteInvestigationTimelineEventsForInvestigation: %v", err)
-			}
-			for pos, sec := range report.Sections {
-				blockType := sec.Type
-				switch blockType {
-				case BlockTypeMarkdown,
-					BlockTypeFinding,
-					BlockTypeRemediationSteps,
-					BlockTypeQueryResult,
-					BlockTypeLogsView,
-					BlockTypeSinglePanel,
-					BlockTypePanelGroup,
-					BlockTypeImage:
-				default:
-					blockType = BlockTypeMarkdown
-				}
-				dataJSON := buildBlockDataJSON(blockType, sec.Content)
-				block := &models.InvestigationBlock{
-					ID:              models.NewInvestigationID(),
-					InvestigationID: id,
-					Type:            blockType,
-					Title:           sec.Title,
-					Position:        pos,
-					DataJSON:        dataJSON,
-				}
-				err := models.CreateInvestigationBlock(h.db, block)
-				if err != nil {
-					h.l.Warnf("CreateInvestigationBlock: %v", err)
-				}
-			}
-			for _, te := range report.TimelineEvents {
-				if te.EventTime == "" || te.Title == "" {
-					continue
-				}
-				eventTime, err := time.Parse(time.RFC3339, te.EventTime)
-				if err != nil {
-					h.l.Warnf("Parse timeline event_time %q: %v", te.EventTime, err)
-					continue
-				}
-				event := &models.InvestigationTimelineEvent{
-					ID:              models.NewInvestigationID(),
-					InvestigationID: id,
-					EventTime:       eventTime,
-					Type:            te.Type,
-					Title:           te.Title,
-					Description:     te.Description,
-					Source:          "format",
-				}
-				teErr := models.CreateInvestigationTimelineEvent(h.db, event)
-				if teErr != nil {
-					h.l.Warnf("CreateInvestigationTimelineEvent: %v", teErr)
-				}
-			}
+			h.applyFormattedReport(inv, report, true)
 		} else {
 			h.l.Warnf("ParseFormattedReport: %v", parseErr)
 		}
@@ -450,6 +373,92 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	// auto-investigate output channels.
 	if h.reportNotifier != nil {
 		h.reportNotifier.PostInvestigationReport(ctx, inv)
+	}
+}
+
+// applyFormattedReport stores a formatted report on inv (saved by the caller) and adds its sections
+// and timeline; replace drops the investigation's earlier blocks and timeline first.
+func (h *Handlers) applyFormattedReport(inv *models.Investigation, report *FormattedReport, replace bool) {
+	id := inv.ID
+	preserveUserRequest(inv)
+	inv.Summary = report.Summary
+	inv.SummaryDetailed = report.SummaryDetailed
+	inv.RootCauseSummary = report.RootCauseSummary
+	inv.ResolutionSummary = report.ResolutionSummary
+	cfg := map[string]any{}
+	if len(inv.Config) > 0 {
+		_ = json.Unmarshal(inv.Config, &cfg)
+	}
+	cfg["confidence"] = confidencePayload{
+		Band:      report.Confidence,
+		Score:     report.ConfidenceScore,
+		Rationale: report.ConfidenceRationale,
+		Evidence:  report.Evidence,
+	}
+	b, mErr := json.Marshal(cfg)
+	if mErr == nil {
+		inv.Config = b
+	}
+	if replace {
+		err := models.DeleteInvestigationBlocksForInvestigation(h.db, id)
+		if err != nil {
+			h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
+		}
+		err = models.DeleteInvestigationTimelineEventsForInvestigation(h.db, id)
+		if err != nil {
+			h.l.Warnf("DeleteInvestigationTimelineEventsForInvestigation: %v", err)
+		}
+	}
+	for pos, sec := range report.Sections {
+		blockType := sec.Type
+		switch blockType {
+		case BlockTypeMarkdown,
+			BlockTypeFinding,
+			BlockTypeRemediationSteps,
+			BlockTypeQueryResult,
+			BlockTypeLogsView,
+			BlockTypeSinglePanel,
+			BlockTypePanelGroup,
+			BlockTypeImage:
+		default:
+			blockType = BlockTypeMarkdown
+		}
+		dataJSON := buildBlockDataJSON(blockType, sec.Content)
+		block := &models.InvestigationBlock{
+			ID:              models.NewInvestigationID(),
+			InvestigationID: id,
+			Type:            blockType,
+			Title:           sec.Title,
+			Position:        pos,
+			DataJSON:        dataJSON,
+		}
+		err := models.CreateInvestigationBlock(h.db, block)
+		if err != nil {
+			h.l.Warnf("CreateInvestigationBlock: %v", err)
+		}
+	}
+	for _, te := range report.TimelineEvents {
+		if te.EventTime == "" || te.Title == "" {
+			continue
+		}
+		eventTime, err := time.Parse(time.RFC3339, te.EventTime)
+		if err != nil {
+			h.l.Warnf("Parse timeline event_time %q: %v", te.EventTime, err)
+			continue
+		}
+		event := &models.InvestigationTimelineEvent{
+			ID:              models.NewInvestigationID(),
+			InvestigationID: id,
+			EventTime:       eventTime,
+			Type:            te.Type,
+			Title:           te.Title,
+			Description:     te.Description,
+			Source:          "format",
+		}
+		teErr := models.CreateInvestigationTimelineEvent(h.db, event)
+		if teErr != nil {
+			h.l.Warnf("CreateInvestigationTimelineEvent: %v", teErr)
+		}
 	}
 }
 

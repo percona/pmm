@@ -91,6 +91,20 @@ func FindLatestInvestigationByFingerprint(q *reform.DB, fingerprint string) (*In
 	return records[0].(*Investigation), nil //nolint:forcetypeassert // SelectAllFrom on InvestigationTable guarantees this type
 }
 
+// FindInvestigationBySource returns the latest investigation made from a source, such as an Assistant chat,
+// or nil if none.
+func FindInvestigationBySource(q *reform.DB, sourceType, sourceRef string) (*Investigation, error) {
+	records, err := q.SelectAllFrom(InvestigationTable, "WHERE source_type = $1 AND source_ref = $2 ORDER BY created_at DESC LIMIT 1",
+		sourceType, sourceRef)
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 {
+		return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
+	}
+	return records[0].(*Investigation), nil //nolint:forcetypeassert // SelectAllFrom on InvestigationTable guarantees this type
+}
+
 // CountAutoInvestigationsSince returns the number of auto-investigations (created_by =
 // 'auto-investigate') created at or after since. It backs a global, HA-safe, restart-safe hourly cap.
 func CountAutoInvestigationsSince(q *reform.DB, since time.Time) (int, error) {
