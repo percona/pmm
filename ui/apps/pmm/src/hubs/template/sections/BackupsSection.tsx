@@ -48,7 +48,14 @@ const LastGoodCell: FC<{ row: HubBackupRow }> = ({ row }) => {
 
   if (failedAt) {
     return (
-      <Box>
+      // A flex column, so the marker never sits on a text line that its icon would make taller.
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+        }}
+      >
         <Flagged>
           <DoorLink door={doors.lastGood} color="inherit">
             {Messages.backups.failed(formatAge(failedAt))}
