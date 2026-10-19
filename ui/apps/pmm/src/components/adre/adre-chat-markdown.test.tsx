@@ -84,3 +84,26 @@ describe('chat markdown charts', () => {
     expect(screen.queryByRole('button', { name: 'Copy code' })).toBeNull();
   });
 });
+
+describe('chat markdown tables', () => {
+  it('keeps header words whole', () => {
+    const table = '| Service | Status |\n|---|---|\n| ps-1 | RUNNING |\n';
+    render(
+      <TestWrapper>
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          components={getMarkdownComponents(table)}
+        >
+          {table}
+        </Markdown>
+      </TestWrapper>
+    );
+    expect(screen.getByRole('columnheader', { name: 'Status' })).toHaveStyle({
+      whiteSpace: 'nowrap',
+      wordBreak: 'normal',
+    });
+    expect(screen.getByRole('cell', { name: 'RUNNING' })).toHaveStyle({
+      overflowWrap: 'break-word',
+    });
+  });
+});

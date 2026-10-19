@@ -151,8 +151,9 @@ export function getMarkdownComponents(content: string) {
           borderColor: 'divider',
           bgcolor: 'action.hover',
           fontWeight: 600,
-          overflowWrap: 'anywhere',
-          wordBreak: 'break-word',
+          whiteSpace: 'nowrap',
+          overflowWrap: 'normal',
+          wordBreak: 'normal',
         }}
       >
         {children}
@@ -167,8 +168,9 @@ export function getMarkdownComponents(content: string) {
           border: 1,
           borderColor: 'divider',
           verticalAlign: 'top',
-          overflowWrap: 'anywhere',
-          wordBreak: 'break-word',
+          // break-word, unlike anywhere, does not shrink a column below its longest word.
+          overflowWrap: 'break-word',
+          wordBreak: 'normal',
         }}
       >
         {children}

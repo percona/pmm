@@ -102,6 +102,20 @@ describe('AdreChatPanel', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
+  it('sets your messages apart as bubbles on the right', () => {
+    chatState.allMessages = answered;
+    renderPanel();
+
+    const mine = screen.getByRole('article', { name: 'Your message' });
+    expect(mine).toHaveTextContent('Why does shop_app fail to log in?');
+    expect(mine).toHaveStyle({ alignSelf: 'flex-end' });
+    const answer = screen.getByRole('article', { name: 'Assistant answer' });
+    expect(answer).toHaveTextContent(
+      'Failed logins ran at about 100 a minute.'
+    );
+    expect(answer).not.toHaveStyle({ alignSelf: 'flex-end' });
+  });
+
   it('turns an answered chat into an investigation', () => {
     const { unmount } = renderPanel();
     expect(

@@ -27,6 +27,7 @@ import KeyboardDoubleArrowLeft from '@mui/icons-material/KeyboardDoubleArrowLeft
 import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ManageSearch from '@mui/icons-material/ManageSearch';
+import { NetworkIntelligenceIcon } from '@percona/peak-ui';
 import { isAxiosError } from 'axios';
 import { useSnackbar } from 'notistack';
 import {
@@ -85,10 +86,6 @@ const MODES = [
     description: 'Deeper analysis with tools and todo steps',
   },
 ] as const;
-
-// A question reads as a heading; pasted logs and long messages stay body text.
-const isShortQuestion = (text: string) =>
-  text.length <= 200 && !text.includes('\n');
 
 /** What is left of a collapsed side panel: a thin strip at the page's edge. */
 const EdgeStrip: FC<{ side: 'left' | 'right'; children: ReactNode }> = ({
@@ -523,42 +520,44 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                   return (
                     <Box
                       key={messageKey}
+                      component="article"
+                      aria-label="Your message"
                       data-adre-msg-id={
                         msg.serverMessageId != null
                           ? String(msg.serverMessageId)
                           : undefined
                       }
                       sx={{
-                        pt: idx > 0 ? 3 : 0,
-                        borderTop: idx > 0 ? 1 : 0,
-                        borderColor: 'rgba(255,255,255,0.08)',
+                        alignSelf: 'flex-end',
+                        maxWidth: { xs: '90%', md: '70%' },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        minWidth: 0,
                       }}
                     >
-                      <Typography sx={{ fontSize: 12, color: '#8E8C95' }}>
-                        {`You${time}`}
-                      </Typography>
-                      <Typography
-                        sx={
-                          isShortQuestion(msg.content)
-                            ? {
-                                mt: 0.75,
-                                fontFamily: 'Poppins, sans-serif',
-                                fontSize: 18,
-                                fontWeight: 500,
-                                lineHeight: 1.45,
-                                overflowWrap: 'anywhere',
-                              }
-                            : {
-                                mt: 0.75,
-                                fontSize: 15,
-                                lineHeight: 1.6,
-                                whiteSpace: 'pre-wrap',
-                                overflowWrap: 'anywhere',
-                              }
-                        }
+                      <Box
+                        sx={{
+                          px: 2,
+                          py: 1.25,
+                          borderRadius: '18px 18px 6px 18px',
+                          bgcolor: '#2A2930',
+                          color: '#F4F3F6',
+                          fontSize: 15,
+                          lineHeight: 1.55,
+                          whiteSpace: 'pre-wrap',
+                          overflowWrap: 'anywhere',
+                        }}
                       >
                         {msg.content}
-                      </Typography>
+                      </Box>
+                      {msg.timestamp && (
+                        <Typography
+                          sx={{ mt: 0.5, fontSize: 11, color: '#8E8C95' }}
+                        >
+                          {formatTimestamp(msg.timestamp)}
+                        </Typography>
+                      )}
                     </Box>
                   );
                 }
@@ -566,6 +565,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                   <Box
                     key={messageKey}
                     component="article"
+                    aria-label="Assistant answer"
                     data-adre-msg-id={
                       msg.serverMessageId != null
                         ? String(msg.serverMessageId)
@@ -579,9 +579,15 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                       justifyContent="space-between"
                       sx={{ mb: 1 }}
                     >
-                      <Typography sx={{ fontSize: 12, color: '#8E8C95' }}>
-                        {`Assistant${time}`}
-                      </Typography>
+                      <Stack direction="row" alignItems="center" gap={0.75}>
+                        <NetworkIntelligenceIcon
+                          aria-hidden
+                          sx={{ fontSize: 16, color: '#B6B2FF' }}
+                        />
+                        <Typography sx={{ fontSize: 12, color: '#8E8C95' }}>
+                          {`Assistant${time}`}
+                        </Typography>
+                      </Stack>
                       {messageText ? (
                         <IconButton
                           size="small"
