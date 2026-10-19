@@ -107,3 +107,32 @@ describe('chat markdown tables', () => {
     });
   });
 });
+
+describe('chat markdown panels', () => {
+  it('shows a panel image with its dashboard link as the live panel', () => {
+    const blob = `https://pmm.test/v1/grafana/render/blob/${'a'.repeat(64)}.png`;
+    const link =
+      'https://pmm.test/graph/d/mysql-instance-summary?from=1&to=2&var-service_name=ps-1&viewPanel=8';
+    const answer = `### Handlers\n![MySQL Handlers](${blob})\n[Open in Grafana](${link})\n`;
+    render(
+      <TestWrapper>
+        <Markdown
+          remarkPlugins={[remarkGfm, remarkCodeMeta]}
+          rehypePlugins={[rehypeRaw]}
+          components={getMarkdownComponents(answer)}
+        >
+          {answer}
+        </Markdown>
+      </TestWrapper>
+    );
+
+    expect(screen.getByTitle('MySQL Handlers')).toHaveAttribute(
+      'src',
+      '/graph/d-solo/mysql-instance-summary?from=1&to=2&var-service_name=ps-1&panelId=8&orgId=1&theme=dark'
+    );
+    expect(screen.queryByRole('img')).toBeNull();
+    expect(
+      screen.getAllByRole('link', { name: 'Open in Grafana' })
+    ).toHaveLength(1);
+  });
+});

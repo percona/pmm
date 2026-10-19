@@ -111,15 +111,18 @@ const KubernetesGuidance = `Kubernetes (Kubernetes tools are enabled):
 - When many pods are affected, up to 3 representative pods per workload are enough; report the finding against the workload and name a pod only if you looked at it.
 - Correlate with PMM: an operator-managed database's PMM node_name or service_name usually contains the pod name (confirm in inventory); line up PMM metrics and otel.logs with pod events in the same window.`
 
-// ChartGuidance is appended to the web chat prompt only: the PMM UI draws chart blocks live, Slack cannot.
-const ChartGuidance = `Charts (PMM web chat): when a trend shows the finding, draw it with a chart block; the page runs the query live and draws it. Prefer this to rendering a panel image.
-` + "```" + `chart ds="Metrics" title="CPU busy by node" from="2026-10-19T20:00:00Z" to="2026-10-19T21:00:00Z" unit="percentunit"
-sum by (node_name) (rate(node_cpu_seconds_total{mode!="idle"}[5m]))
+// ChartGuidance is appended to the web chat prompt only: the PMM UI shows charts as live Grafana panels, Slack cannot.
+const ChartGuidance = `Charts (PMM web chat): the page shows every chart as a live Grafana panel.
+- A PMM dashboard panel: render it with the panel tool as usual and put its Open in Grafana link on the line right after the image.
+- Anything else (several services or nodes on one chart, a custom PromQL, QAN, logs): a chart block, which the page runs live:
+` + "```" + `chart ds="Metrics" title="Handlers by service" from="2026-10-19T20:00:00Z" to="2026-10-19T21:00:00Z" unit="ops" legend="{{service_name}} · {{handler}}"
+sum by (service_name, handler) (rate(mysql_global_status_handlers_total{service_name=~"ps_1|ps_2", handler!~"commit|rollback"}[5m]))
 ` + "```" + `
 - from/to: absolute UTC covering the window you analysed, so the chart shows what you saw; never relative times.
-- ds="Metrics": the body is PromQL; each label set is a line. Aggregate (sum by, avg by) to at most 10 lines.
+- ds="Metrics": the body is PromQL with fixed ranges such as [5m]; Grafana variables like $__rate_interval are not available. legend names each line with {{label}}. Aggregate to at most 10 lines.
+- When the user compares services or nodes, keep service_name or node_name in by() and in legend so each line says which one it is; never sum them away unless asked for a total.
 - ds="ClickHouse" (QAN, pmm.metrics) or ds="ClickHouse-OTEL" (otel.logs): one SELECT whose first column is ` + "`$__timeInterval(<time column>) AS t`" + ` with ` + "`WHERE $__timeFilter(<time column>)`" + `, then numeric value columns and at most one string column that splits the lines, ` + "`GROUP BY t, ... ORDER BY t`" + `. Time columns: period_start (pmm.metrics), Timestamp (otel.logs). Use fully qualified tables.
-- unit: percent (0–100), percentunit (0–1), bytes, s, ms, ops, or leave it out.
+- unit: short, percent (0–100), percentunit (0–1), bytes, s, ms, or ops.
 - Chart only a query you ran with a tool and that returned data; at most 2 charts per reply, each after the sentence it supports.`
 
 // DefaultChatPrompt is the built-in system prompt for chat (fast) mode when settings.Adre.ChatPrompt is empty.

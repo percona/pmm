@@ -1,10 +1,13 @@
 import {
+  chartEmbedUrl,
   chartSpecFromBlock,
-  formatValue,
-  framesToSeries,
+  panelEmbedUrl,
+  panelLinksByImage,
   rangeMs,
-  type DataFrameJSON,
 } from './adreChart.utils';
+
+const params = (url: string) =>
+  Object.fromEntries(new URL(url, 'https://pmm.test').searchParams);
 
 describe('chartSpecFromBlock', () => {
   it('reads the attributes and the query', () => {
@@ -55,125 +58,88 @@ describe('rangeMs', () => {
   });
 });
 
-const timeField = { name: 'Time', type: 'time' };
+describe('chartEmbedUrl', () => {
+  const range = { from: 1000, to: 2000 };
 
-describe('framesToSeries', () => {
-  it('lines up Prometheus frames, one series per frame, named by labels', () => {
-    const frames: DataFrameJSON[] = [
+  it('passes a PromQL chart to the Metrics panel for its unit', () => {
+    const url = chartEmbedUrl(
       {
-        schema: {
-          fields: [
-            timeField,
-            { name: 'Value', type: 'number', labels: { node_name: 'ps-1' } },
-          ],
-        },
-        data: {
-          values: [
-            [1000, 2000],
-            [1, 2],
-          ],
-        },
+        ds: 'Metrics',
+        title: 'Handlers',
+        from: '',
+        to: '',
+        unit: 'ops',
+        legend: '{{service_name}} · {{handler}}',
+        query: 'sum by (handler) (rate(x{a=~"b|c\\\\d"}[5m]))',
       },
-      {
-        schema: {
-          fields: [
-            timeField,
-            { name: 'Value', type: 'number', labels: { node_name: 'ps-2' } },
-          ],
-        },
-        data: {
-          values: [
-            [2000, 3000],
-            [5, 6],
-          ],
-        },
-      },
-    ];
-
-    expect(framesToSeries(frames, 10)).toEqual({
-      times: [1000, 2000, 3000],
-      series: [
-        { label: 'ps-2', data: [null, 5, 6] },
-        { label: 'ps-1', data: [1, 2, null] },
-      ],
-      hidden: 0,
+      range
+    );
+    expect(url.startsWith('/graph/d-solo/pmm-assistant-chart/')).toBe(true);
+    expect(params(url)).toEqual({
+      orgId: '1',
+      panelId: '7',
+      from: '1000',
+      to: '2000',
+      theme: 'dark',
+      'var-ds': 'Metrics',
+      'var-title': 'Handlers',
+      'var-legend': '{{service_name}} · {{handler}}',
+      'var-query': 'sum by (handler) (rate(x{a=~"b|c\\\\d"}[5m]))',
     });
   });
 
-  it('splits a wide ClickHouse frame into its value columns and keeps the largest', () => {
-    const frames: DataFrameJSON[] = [
-      {
-        schema: {
-          fields: [
-            { name: 't', type: 'time' },
-            {
-              name: 'lines',
-              type: 'number',
-              labels: { SeverityText: 'ERROR' },
-            },
-            { name: 'lines', type: 'number', labels: { SeverityText: 'INFO' } },
-            { name: 'lines', type: 'number', labels: { SeverityText: 'WARN' } },
-          ],
+  it('passes SQL to the ClickHouse panel, and an unknown unit to the plain one', () => {
+    const p = params(
+      chartEmbedUrl(
+        {
+          ds: 'ClickHouse-OTEL',
+          from: '',
+          to: '',
+          unit: 'furlongs',
+          query: 'SELECT 1',
         },
-        data: {
-          values: [
-            [1000, 2000],
-            [3, 9],
-            [50, 40],
-            [1, 0],
-          ],
-        },
-      },
-    ];
-
-    expect(framesToSeries(frames, 2)).toEqual({
-      times: [1000, 2000],
-      series: [
-        { label: 'INFO', data: [50, 40] },
-        { label: 'ERROR', data: [3, 9] },
-      ],
-      hidden: 1,
-    });
-  });
-
-  it('names a series by all its labels when there are several, else by the field', () => {
-    const frames: DataFrameJSON[] = [
-      {
-        schema: {
-          fields: [
-            timeField,
-            {
-              name: 'Value',
-              type: 'number',
-              labels: { node_name: 'ps-1', mode: 'user' },
-            },
-            { name: 'total', type: 'number' },
-          ],
-        },
-        data: {
-          values: [[1000], [1], [2]],
-        },
-      },
-    ];
-
-    expect(framesToSeries(frames, 10).series.map((s) => s.label)).toEqual([
-      'total',
-      'node_name=ps-1, mode=user',
-    ]);
+        range
+      )
+    );
+    expect(p.panelId).toBe('11');
+    expect(p['var-chds']).toBe('ClickHouse-OTEL');
+    expect(p['var-ds']).toBeUndefined();
+    expect(p['var-title']).toBe('Chart');
   });
 });
 
-describe('formatValue', () => {
-  it('formats each unit the Assistant may pick', () => {
-    expect(formatValue(42.345, 'percent')).toBe('42.3%');
-    expect(formatValue(0.5, 'percentunit')).toBe('50.0%');
-    expect(formatValue(1536, 'bytes')).toBe('1.5 KiB');
-    expect(formatValue(3 * 1024 ** 3, 'bytes')).toBe('3.0 GiB');
-    expect(formatValue(0.25, 's')).toBe('250 ms');
-    expect(formatValue(12.5, 's')).toBe('12.5 s');
-    expect(formatValue(2500, 'ms')).toBe('2.5 s');
-    expect(formatValue(1200, 'ops')).toBe('1.2K/s');
-    expect(formatValue(1234567, undefined)).toBe('1.23M');
-    expect(formatValue(null, 's')).toBe('');
+const handlersLink =
+  'https://pmm.test/graph/d/mysql-instance-summary?from=1&to=2&var-service_name=ps-1&viewPanel=8';
+
+describe('panelEmbedUrl', () => {
+  it('turns a dashboard panel link into its embedded panel', () => {
+    const url = panelEmbedUrl(handlersLink);
+    expect(url?.startsWith('/graph/d-solo/mysql-instance-summary?')).toBe(true);
+    expect(params(url!)).toEqual({
+      from: '1',
+      to: '2',
+      'var-service_name': 'ps-1',
+      panelId: '8',
+      orgId: '1',
+      theme: 'dark',
+    });
+  });
+
+  it('needs a dashboard link that names a panel', () => {
+    expect(
+      panelEmbedUrl('https://pmm.test/graph/d/mysql-instance-summary?from=1')
+    ).toBeUndefined();
+    expect(
+      panelEmbedUrl('https://pmm.test/graph/explore?left=x')
+    ).toBeUndefined();
+  });
+});
+
+describe('panelLinksByImage', () => {
+  it('pairs each panel image with the dashboard link right after it', () => {
+    const blob =
+      'https://pmm.test/v1/grafana/render/blob/' + 'a'.repeat(64) + '.png';
+    const md = `### Handlers\n![MySQL Handlers](${blob})\n[Open in Grafana](${handlersLink})\n\nOther ![x](/img.png) [link](https://pmm.test/graph/d/home)`;
+    expect(panelLinksByImage(md)).toEqual(new Map([[blob, handlersLink]]));
   });
 });

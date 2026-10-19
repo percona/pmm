@@ -1,0 +1,911 @@
+{
+    "description": "Draws the charts in PMM Assistant answers: each panel takes its query, title and legend from URL variables. Not meant to be opened directly.",
+    "editable": false,
+    "id": null,
+    "panels": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: short",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: percent",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 10
+            },
+            "id": 2,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: percentunit",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: bytes",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 30
+            },
+            "id": 4,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: s",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 40
+            },
+            "id": 5,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: ms",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "ms"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 50
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Unit: ops",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 60
+            },
+            "id": 7,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "${query:raw}",
+                    "legendFormat": "${legend:raw}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: short",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 70
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: percent",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 80
+            },
+            "id": 12,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: percentunit",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 90
+            },
+            "id": 13,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: bytes",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 100
+            },
+            "id": 14,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: s",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 110
+            },
+            "id": 15,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: ms",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "ms"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 120
+            },
+            "id": 16,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "${chds}"
+            },
+            "description": "Unit: ops",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "fillOpacity": 10,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 130
+            },
+            "id": 17,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "editorType": "sql",
+                    "format": 0,
+                    "queryType": "timeseries",
+                    "rawSql": "${query:raw}",
+                    "refId": "A"
+                }
+            ],
+            "title": "${title}",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 39,
+    "tags": [
+        "pmm-internal"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "text": "",
+                    "value": ""
+                },
+                "hide": 2,
+                "label": "query",
+                "name": "query",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "",
+                        "value": ""
+                    }
+                ],
+                "query": "",
+                "type": "textbox"
+            },
+            {
+                "current": {
+                    "text": "Chart",
+                    "value": "Chart"
+                },
+                "hide": 2,
+                "label": "title",
+                "name": "title",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "Chart",
+                        "value": "Chart"
+                    }
+                ],
+                "query": "Chart",
+                "type": "textbox"
+            },
+            {
+                "current": {
+                    "text": "__auto",
+                    "value": "__auto"
+                },
+                "hide": 2,
+                "label": "legend",
+                "name": "legend",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "__auto",
+                        "value": "__auto"
+                    }
+                ],
+                "query": "__auto",
+                "type": "textbox"
+            },
+            {
+                "current": {
+                    "text": "Metrics",
+                    "value": "Metrics"
+                },
+                "hide": 2,
+                "label": "ds",
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "type": "datasource"
+            },
+            {
+                "current": {
+                    "text": "ClickHouse",
+                    "value": "ClickHouse"
+                },
+                "hide": 2,
+                "label": "chds",
+                "name": "chds",
+                "options": [],
+                "query": "grafana-clickhouse-datasource",
+                "refresh": 1,
+                "regex": "",
+                "type": "datasource"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timezone": "",
+    "title": "Assistant Chart",
+    "uid": "pmm-assistant-chart",
+    "version": 2
+}

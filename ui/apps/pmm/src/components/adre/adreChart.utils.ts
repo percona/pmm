@@ -1,3 +1,5 @@
+import { GRAFANA_SUB_PATH } from 'lib/constants';
+
 /** A chart the Assistant asked for: the query, which datasource runs it and over which window. */
 export interface ChartSpec {
   ds: string;
@@ -5,6 +7,7 @@ export interface ChartSpec {
   from: string;
   to: string;
   unit?: string;
+  legend?: string;
   query: string;
 }
 
@@ -27,6 +30,7 @@ export const chartSpecFromBlock = (
     from: attrs.from || 'now-1h',
     to: attrs.to || 'now',
     ...(attrs.unit && { unit: attrs.unit }),
+    ...(attrs.legend && { legend: attrs.legend }),
     query,
   };
 };
@@ -54,102 +58,75 @@ export const rangeMs = (from: string, to: string, now = Date.now()) => {
   return { from: f, to: t };
 };
 
-export interface DataFrameJSON {
-  schema: {
-    fields: {
-      name: string;
-      type: string;
-      labels?: Record<string, string>;
-      config?: { displayNameFromDS?: string };
-    }[];
-  };
-  data: { values: unknown[][] };
-}
+// Assistant_Chart.json has one panel per unit, since Grafana does not read a unit from a variable:
+// Metrics panels 1–7 and ClickHouse panels 11–17, in this order.
+const CHART_UNITS = [
+  'short',
+  'percent',
+  'percentunit',
+  'bytes',
+  's',
+  'ms',
+  'ops',
+];
+const CHART_DASHBOARD = `${GRAFANA_SUB_PATH}/d-solo/pmm-assistant-chart/assistant-chart`;
 
-export interface ChartSeries {
-  label: string;
-  data: (number | null)[];
-}
+const isClickHouse = (ds: string) => ds.startsWith('ClickHouse');
 
-const seriesLabel = (field: DataFrameJSON['schema']['fields'][number]) => {
-  const labels = Object.entries(field.labels ?? {});
-  if (labels.length === 1) return labels[0][1];
-  if (labels.length > 1) return labels.map(([k, v]) => `${k}=${v}`).join(', ');
-  return field.config?.displayNameFromDS ?? field.name;
+/** The query fields Explore takes for the chart's datasource. */
+export const chartExploreQuery = (spec: ChartSpec) =>
+  isClickHouse(spec.ds)
+    ? { rawSql: spec.query, editorType: 'sql', format: 0 }
+    : { expr: spec.query, range: true };
+
+/** The embedded Assistant Chart panel that draws spec over range. */
+export const chartEmbedUrl = (
+  spec: ChartSpec,
+  range: { from: number; to: number }
+) => {
+  const clickHouse = isClickHouse(spec.ds);
+  const unit = Math.max(0, CHART_UNITS.indexOf(spec.unit ?? 'short'));
+  const q = new URLSearchParams({
+    orgId: '1',
+    panelId: String((clickHouse ? 11 : 1) + unit),
+    from: String(range.from),
+    to: String(range.to),
+    theme: 'dark',
+    [clickHouse ? 'var-chds' : 'var-ds']: spec.ds,
+    'var-title': spec.title ?? 'Chart',
+    'var-query': spec.query,
+  });
+  if (spec.legend) q.set('var-legend', spec.legend);
+  return `${CHART_DASHBOARD}?${q}`;
 };
 
-const peak = (s: ChartSeries) =>
-  s.data.reduce<number>((m, v) => (v !== null && v > m ? v : m), -Infinity);
-
-/** Grafana data frames as series on one shared time axis, the largest first, at most maxSeries of them. */
-export const framesToSeries = (frames: DataFrameJSON[], maxSeries: number) => {
-  const columns: { label: string; points: Map<number, number> }[] = [];
-  const allTimes = new Set<number>();
-  for (const frame of frames) {
-    const fields = frame.schema.fields;
-    const timeIdx = fields.findIndex((f) => f.type === 'time');
-    if (timeIdx < 0) continue;
-    const times = frame.data.values[timeIdx] as number[];
-    times.forEach((t) => allTimes.add(t));
-    fields.forEach((field, i) => {
-      if (field.type !== 'number') return;
-      const values = frame.data.values[i] as (number | null)[];
-      const points = new Map<number, number>();
-      times.forEach((t, j) => {
-        const v = values[j];
-        if (typeof v === 'number' && Number.isFinite(v)) points.set(t, v);
-      });
-      columns.push({ label: seriesLabel(field), points });
-    });
+/** The embedded panel an Open in Grafana link points at (/graph/d/<uid>?viewPanel=N…), or undefined. */
+export const panelEmbedUrl = (href: string) => {
+  let u: URL;
+  try {
+    u = new URL(href, window.location.origin);
+  } catch {
+    return undefined;
   }
-  const times = [...allTimes].sort((a, b) => a - b);
-  const series = columns
-    .map(({ label, points }) => ({
-      label,
-      data: times.map((t) => points.get(t) ?? null),
-    }))
-    .sort((a, b) => peak(b) - peak(a));
-  return {
-    times,
-    series: series.slice(0, maxSeries),
-    hidden: Math.max(0, series.length - maxSeries),
-  };
+  const uid = /^\/graph\/d\/([^/]+)/.exec(u.pathname)?.[1];
+  const panel = u.searchParams.get('viewPanel')?.replace(/^panel-/, '');
+  if (!uid || !panel) return undefined;
+  const q = new URLSearchParams(u.searchParams);
+  q.delete('viewPanel');
+  q.set('panelId', panel);
+  q.set('orgId', q.get('orgId') ?? '1');
+  q.set('theme', 'dark');
+  return `${GRAFANA_SUB_PATH}/d-solo/${uid}?${q}`;
 };
 
-const compact = new Intl.NumberFormat('en', {
-  notation: 'compact',
-  maximumFractionDigits: 2,
-});
-const BYTE_UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+const IMAGE_THEN_LINK_RE =
+  /!\[[^\]]*\]\(([^)\s]+)\)\s*\[[^\]]*\]\(([^)\s]+)\)/g;
 
-/** A value in the chart's unit: percent (0–100), percentunit (0–1), bytes, s, ms, ops, or plain. */
-export const formatValue = (v: number | null, unit?: string): string => {
-  if (v === null) return '';
-  switch (unit) {
-    case 'percent':
-      return `${v.toFixed(1)}%`;
-    case 'percentunit':
-      return `${(v * 100).toFixed(1)}%`;
-    case 'bytes': {
-      let i = 0;
-      let n = Math.abs(v);
-      while (n >= 1024 && i < BYTE_UNITS.length - 1) {
-        n /= 1024;
-        i += 1;
-      }
-      return `${(Math.sign(v) * n).toFixed(n < 10 && i > 0 ? 1 : 0)} ${BYTE_UNITS[i]}`;
-    }
-    case 's':
-      return Math.abs(v) < 1
-        ? `${(v * 1000).toFixed(0)} ms`
-        : `${compact.format(v)} s`;
-    case 'ms':
-      return Math.abs(v) >= 1000
-        ? `${compact.format(v / 1000)} s`
-        : `${v.toFixed(0)} ms`;
-    case 'ops':
-      return `${compact.format(v)}/s`;
-    default:
-      return compact.format(v);
+/** Panel images and the Open in Grafana link that follows each, so the page can show the panel live instead. */
+export const panelLinksByImage = (content: string) => {
+  const pairs = new Map<string, string>();
+  for (const [, image, link] of content.matchAll(IMAGE_THEN_LINK_RE)) {
+    if (panelEmbedUrl(link)) pairs.set(image, link);
   }
+  return pairs;
 };

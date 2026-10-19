@@ -1,17 +1,21 @@
-import { Box, Link, Skeleton } from '@mui/material';
+import { Box, Link } from '@mui/material';
 import type { Element, ElementContent } from 'hast';
 import type { Nodes } from 'mdast';
 import {
   Children,
   ReactElement,
   ReactNode,
-  Suspense,
   cloneElement,
   isValidElement,
-  lazy,
 } from 'react';
 import { GrafanaPanelImage } from './adre-chat-markdown';
-import { chartSpecFromBlock } from './adreChart.utils';
+import AdreChart from './AdreChart';
+import {
+  chartSpecFromBlock,
+  panelEmbedUrl,
+  panelLinksByImage,
+} from './adreChart.utils';
+import { EmbedLink, GrafanaPanelEmbed } from './GrafanaPanelEmbed';
 import { AdreCodeBlock } from './adre-code-block';
 import {
   dashboardUrlFromRenderUrl,
@@ -23,8 +27,6 @@ import {
   toSameOriginUrl,
   withRenderCacheParam,
 } from './adre-chat-markdown.utils';
-
-const AdreChart = lazy(() => import('./AdreChart'));
 
 const hastText = (node: ElementContent): string =>
   node.type === 'text'
@@ -69,6 +71,9 @@ export function getMarkdownComponents(content: string) {
       .map(parseRenderImageUrlToPanelKey)
       .filter(Boolean)
   );
+  // A panel image followed by its Open in Grafana link shows as the live panel.
+  const livePanels = panelLinksByImage(content);
+  const livePanelLinks = new Set(livePanels.values());
 
   return {
     // Default <p> cannot contain block-level panel UI; browsers break the DOM and width
@@ -101,13 +106,7 @@ export function getMarkdownComponents(content: string) {
     ),
     pre: ({ children, node }: { children?: ReactNode; node?: Element }) => {
       const spec = chartSpecOf(node);
-      if (spec) {
-        return (
-          <Suspense fallback={<Skeleton variant="rounded" height={280} />}>
-            <AdreChart spec={spec} />
-          </Suspense>
-        );
-      }
+      if (spec) return <AdreChart spec={spec} />;
       return <AdreCodeBlock>{children}</AdreCodeBlock>;
     },
     // Each item carries its number, so lists split by code blocks keep counting from their start.
@@ -179,6 +178,7 @@ export function getMarkdownComponents(content: string) {
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
       const panelKey = href ? parseDashboardLinkToPanelKey(href) : null;
       if (panelKey !== null && panelKeysFromImages.has(panelKey)) return null;
+      if (href && livePanelLinks.has(href)) return null;
 
       return (
         <Link
@@ -196,6 +196,21 @@ export function getMarkdownComponents(content: string) {
       );
     },
     img: ({ src, alt }: { src?: string; alt?: string }) => {
+      const panelLink = src ? livePanels.get(src) : undefined;
+      const liveSrc = panelLink ? panelEmbedUrl(panelLink) : undefined;
+      if (panelLink && liveSrc) {
+        return (
+          <GrafanaPanelEmbed
+            src={liveSrc}
+            title={alt || 'Grafana panel'}
+            link={
+              <EmbedLink href={toGrafanaDashboardLink(panelLink)}>
+                Open in Grafana
+              </EmbedLink>
+            }
+          />
+        );
+      }
       if (src && isGrafanaRenderImageSrc(src)) {
         const imageSrc = toSameOriginUrl(withRenderCacheParam(src));
         const dashboardHref = dashboardUrlFromRenderUrl(src);
