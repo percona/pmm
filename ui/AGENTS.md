@@ -60,6 +60,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/sessions`    | RTA sessions list                                                       |
 | `/rta/overview`    | RTA overview                                                            |
 | `/prototype/:slug` | Placeholder for a proposed sidebar entry without a page yet (PMM-15353) |
+| `/mongodb`         | MongoDB hub, opened by the sidebar's MongoDB entry (PMM-15353)          |
 | `/graph/*`         | Grafana iframe                                                          |
 | `*`                | Page not found (`NotFoundPage`)                                         |
 
