@@ -14,6 +14,7 @@ import { Messages } from '../hub.messages';
 import type { HubAttentionItem, HubDoor, HubSectionState } from '../hub.types';
 import { DoorButton } from './DoorLink';
 import { HubSection, SectionState } from './HubSection';
+import { HUB_CONTAINER } from './hub.sx';
 import { formatSince } from './hub.time';
 import { LiveAge } from './LiveAge';
 
@@ -53,14 +54,19 @@ const AttentionRow: FC<{
         />
       </ListItemIcon>
       <Box
-        sx={{
+        sx={(theme) => ({
           flex: 1,
           minWidth: 0,
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'flex-start', md: 'center' },
-          gap: { xs: 0.5, md: 2 },
-        }}
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: 0.5,
+          [theme.containerQueries(HUB_CONTAINER).up('md')]: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 2,
+          },
+        })}
       >
         <ListItemText
           sx={{ my: 0, flex: 1, minWidth: 0 }}

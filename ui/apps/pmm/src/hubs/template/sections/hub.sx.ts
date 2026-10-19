@@ -12,3 +12,6 @@ export const focusableText = (theme: Theme) => ({
     outlineOffset: 2,
   },
 });
+
+/** The hub page's container name, for layouts that follow its width rather than the viewport's. */
+export const HUB_CONTAINER = 'hub';

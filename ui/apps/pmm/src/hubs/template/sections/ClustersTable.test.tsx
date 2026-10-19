@@ -251,6 +251,52 @@ describe('ClustersTable', () => {
     ).toBeInTheDocument();
   });
 
+  describe('by the width it has, not the viewport’s', () => {
+    const observeWidth = (width: number) => {
+      vi.stubGlobal(
+        'ResizeObserver',
+        class {
+          constructor(
+            private readonly callback: (
+              entries: Array<{ contentRect: { width: number } }>
+            ) => void
+          ) {}
+
+          observe() {
+            this.callback([{ contentRect: { width } }]);
+          }
+
+          disconnect() {}
+        }
+      );
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('folds in a frame narrower than the full tree, on a wide viewport', () => {
+      matchAllMedia(false);
+      observeWidth(910);
+      renderTable();
+
+      expect(
+        screen.queryByRole('columnheader', { name: 'Type' })
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('Replica set · prod · 1/3')).toBeInTheDocument();
+    });
+
+    it('shows every column in a frame wide enough, on a narrow viewport', () => {
+      matchAllMedia(true);
+      observeWidth(1200);
+      renderTable();
+
+      expect(
+        screen.getByRole('columnheader', { name: 'Type' })
+      ).toBeInTheDocument();
+    });
+  });
+
   it('describes each measure column in a tooltip its header can focus', async () => {
     renderTable();
 

@@ -15,8 +15,13 @@ import {
   WIDE_VISIBLE,
 } from './clustersTable.columns';
 import { visuallyHidden } from './hub.sx';
+import { useInlineSize } from './useInlineSize';
 
 const EXPAND_BUTTON = 40;
+const EXPAND_COLUMN = EXPAND_BUTTON + 16;
+// Peak Table's row actions column, and the outlined frame's two borders.
+const ACTIONS_COLUMN = 56;
+const FRAME_BORDERS = 2;
 
 // A link or button in a cell does its own thing; only a click on the row's plain area toggles it.
 const keepClickInCell = (event: MouseEvent<HTMLElement>) => {
@@ -67,76 +72,89 @@ export const ClustersTable: FC<ClustersTableProps> = ({
   label,
 }) => {
   const theme = useTheme();
-  const narrow = useMediaQuery(theme.breakpoints.down('md'));
+  const narrowViewport = useMediaQuery(theme.breakpoints.down('md'));
   const columns = useMemo(() => clusterColumns(treeColumns), [treeColumns]);
+  // The hub's own width decides, not the viewport's: the sidebar takes 289 px from md up.
+  const fullWidth = useMemo(
+    () =>
+      columns.reduce((sum, column) => sum + (column.size ?? 0), 0) +
+      EXPAND_COLUMN +
+      ACTIONS_COLUMN +
+      FRAME_BORDERS,
+    [columns]
+  );
+  const [frameRef, width] = useInlineSize<HTMLDivElement>();
+  const narrow = width === undefined ? narrowViewport : width < fullWidth;
 
   return (
-    <Table<HubTreeNode>
-      tableName={tableName}
-      data={clusters}
-      columns={columns}
-      getRowId={(node) => node.id}
-      getSubRows={(node) => node.children}
-      enableExpanding
-      // Every way in is a link or button; focusable cells would only add stops, and an expand-all on Enter.
-      enableExpandAll={false}
-      enableKeyboardShortcuts={false}
-      enablePagination={false}
-      // Rows arrive worst first; sorting would break the tree.
-      enableSorting={false}
-      enableColumnActions={false}
-      enableColumnFilters={false}
-      enableGlobalFilter={false}
-      enableHiding={false}
-      enableTopToolbar={false}
-      enableBottomToolbar={false}
-      enableRowActions
-      positionActionsColumn="last"
-      renderRowActionMenuItems={({ row, closeMenu }) =>
-        rowMenu(row.original.doors.menu, closeMenu)
-      }
-      enableRowHoverAction
-      rowHoverAction={(row) => {
-        if (row.getCanExpand()) {
-          row.toggleExpanded();
+    <Box ref={frameRef}>
+      <Table<HubTreeNode>
+        tableName={tableName}
+        data={clusters}
+        columns={columns}
+        getRowId={(node) => node.id}
+        getSubRows={(node) => node.children}
+        enableExpanding
+        // Every way in is a link or button; focusable cells would only add stops, and an expand-all on Enter.
+        enableExpandAll={false}
+        enableKeyboardShortcuts={false}
+        enablePagination={false}
+        // Rows arrive worst first; sorting would break the tree.
+        enableSorting={false}
+        enableColumnActions={false}
+        enableColumnFilters={false}
+        enableGlobalFilter={false}
+        enableHiding={false}
+        enableTopToolbar={false}
+        enableBottomToolbar={false}
+        enableRowActions
+        positionActionsColumn="last"
+        renderRowActionMenuItems={({ row, closeMenu }) =>
+          rowMenu(row.original.doors.menu, closeMenu)
         }
-      }}
-      initialState={{ density: 'compact', expanded }}
-      state={{ columnVisibility: narrow ? NARROW_HIDDEN : WIDE_VISIBLE }}
-      displayColumnDefOptions={{
-        'mrt-row-expand': {
-          size: EXPAND_BUTTON + 16,
-          grow: false,
-          Header: () => (
-            <Box component="span" sx={visuallyHidden}>
-              {Messages.clusters.expandColumn}
-            </Box>
-          ),
-        },
-      }}
-      muiTableProps={{ 'aria-label': label }}
-      muiTablePaperProps={{
-        variant: 'outlined',
-        sx: {
-          borderRadius: `${theme.shape.borderRadiusMd}px`,
-          overflow: 'hidden',
-        },
-      }}
-      muiTableContainerProps={{ sx: { borderBottom: 'none' } }}
-      muiTableBodyCellProps={{ onClick: keepClickInCell }}
-      muiExpandButtonProps={({ row }) => ({
-        'aria-label': (row.getIsExpanded()
-          ? Messages.clusters.collapse
-          : Messages.clusters.expand)(row.original.name),
-        'aria-expanded': row.getCanExpand() ? row.getIsExpanded() : undefined,
-        // The name cell indents each level, so the buttons stay in one column; a member has none.
-        sx: {
-          height: EXPAND_BUTTON,
-          width: EXPAND_BUTTON,
-          ml: 0,
-          visibility: row.getCanExpand() ? 'visible' : 'hidden',
-        },
-      })}
-    />
+        enableRowHoverAction
+        rowHoverAction={(row) => {
+          if (row.getCanExpand()) {
+            row.toggleExpanded();
+          }
+        }}
+        initialState={{ density: 'compact', expanded }}
+        state={{ columnVisibility: narrow ? NARROW_HIDDEN : WIDE_VISIBLE }}
+        displayColumnDefOptions={{
+          'mrt-row-expand': {
+            size: EXPAND_COLUMN,
+            grow: false,
+            Header: () => (
+              <Box component="span" sx={visuallyHidden}>
+                {Messages.clusters.expandColumn}
+              </Box>
+            ),
+          },
+        }}
+        muiTableProps={{ 'aria-label': label }}
+        muiTablePaperProps={{
+          variant: 'outlined',
+          sx: {
+            borderRadius: `${theme.shape.borderRadiusMd}px`,
+            overflow: 'hidden',
+          },
+        }}
+        muiTableContainerProps={{ sx: { borderBottom: 'none' } }}
+        muiTableBodyCellProps={{ onClick: keepClickInCell }}
+        muiExpandButtonProps={({ row }) => ({
+          'aria-label': (row.getIsExpanded()
+            ? Messages.clusters.collapse
+            : Messages.clusters.expand)(row.original.name),
+          'aria-expanded': row.getCanExpand() ? row.getIsExpanded() : undefined,
+          // The name cell indents each level, so the buttons stay in one column; a member has none.
+          sx: {
+            height: EXPAND_BUTTON,
+            width: EXPAND_BUTTON,
+            ml: 0,
+            visibility: row.getCanExpand() ? 'visible' : 'hidden',
+          },
+        })}
+      />
+    </Box>
   );
 };

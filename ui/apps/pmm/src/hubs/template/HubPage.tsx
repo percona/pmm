@@ -10,7 +10,11 @@ import { DashboardsSection } from './sections/DashboardsSection';
 import { HubHeader } from './sections/HubHeader';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
 import { QueriesSection } from './sections/QueriesSection';
+import { HUB_CONTAINER } from './sections/hub.sx';
 import { useTechnologyHub } from './useTechnologyHub';
+
+// Two columns once each half holds the 500 px backups table beside the 32 px gap.
+const TWO_COLUMNS_FROM = 1040;
 
 // A pasted or cut link can hold a lone "%", which decodeURIComponent throws on.
 const sectionId = (hash: string) => {
@@ -63,7 +67,16 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
 
   return (
     <Page title={messages.name} hideTitle maxWidth="full">
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+          // Sections lay out by the hub's width, which the sidebar narrows, not by the viewport's.
+          containerType: 'inline-size',
+          containerName: HUB_CONTAINER,
+        }}
+      >
         <HubHeader
           view={view}
           icon={config.icon}
@@ -93,15 +106,15 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           onShowAllEnvironments={() => setParams({ environment: null })}
         />
         <Box
-          sx={{
+          sx={(theme) => ({
             display: 'grid',
-            gridTemplateColumns: {
-              xs: 'minmax(0, 1fr)',
-              md: 'repeat(2, minmax(0, 1fr))',
+            gridTemplateColumns: 'minmax(0, 1fr)',
+            [theme.containerQueries(HUB_CONTAINER).up(TWO_COLUMNS_FROM)]: {
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
             },
             alignItems: 'start',
             gap: 4,
-          }}
+          })}
         >
           <BackupsSection
             technologyId={view.technology.id}
