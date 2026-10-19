@@ -27,9 +27,10 @@ const DoorExtras: FC<{ door: HubDoor }> = ({ door }) => (
       </Box>
     )}
     {door.preview && (
+      // No height of its own, like Peak's button icon slots, so the chip never makes a button taller.
       <Box
         component="span"
-        sx={{ display: 'inline-flex', ml: 1, verticalAlign: 'middle' }}
+        sx={{ display: 'inline-flex', alignItems: 'center', height: 0, ml: 1 }}
       >
         <PreviewChip level={door.preview} />
       </Box>
