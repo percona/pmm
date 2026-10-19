@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   ClickAwayListener,
   Collapse,
   Grow,
@@ -41,11 +40,7 @@ import { useSearchParams } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
-import {
-  useAdreChat,
-  formatTimestamp,
-  type ProgressStep,
-} from 'hooks/useAdreChat';
+import { useAdreChat, formatTimestamp } from 'hooks/useAdreChat';
 import { AdreConversationsSidebar } from './AdreConversationsSidebar';
 import { AdreAlertsPanel, type AlertItem } from './AdreAlertsPanel';
 import { AdreContextRail } from './AdreContextRail';
@@ -57,6 +52,7 @@ import {
 } from './useAdrePanelLayout';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
+import { AdreStepsList } from 'components/adre/AdreStepsList';
 import {
   loadAdreChatUiPreferences,
   saveAdreChatUiPreferences,
@@ -144,41 +140,6 @@ const answerSx = {
 // A question reads as a heading; pasted logs and long messages stay body text.
 const isShortQuestion = (text: string) =>
   text.length <= 200 && !text.includes('\n');
-
-/** Tool steps of an answer, running or done. */
-const StepsList: FC<{ steps: ProgressStep[]; working: boolean }> = ({
-  steps,
-  working,
-}) => (
-  <Stack component="ul" gap={0.75} sx={{ m: 0, p: 0, listStyle: 'none' }}>
-    {steps.map((step) => (
-      <Stack
-        component="li"
-        key={step.id}
-        direction="row"
-        gap={1}
-        sx={{ fontSize: 13, color: '#A9A7B0' }}
-      >
-        <Box sx={{ flex: '0 0 16px', mt: '2px', display: 'flex' }}>
-          {step.status === 'running' && working ? (
-            <CircularProgress size={13} aria-label="Running" />
-          ) : (
-            <Check aria-label="Done" sx={{ fontSize: 16, color: '#86EFAC' }} />
-          )}
-        </Box>
-        <Box sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-          <Box
-            component="span"
-            sx={{ fontFamily: 'Roboto Mono, monospace', color: '#D9D7DE' }}
-          >
-            {step.toolName}
-          </Box>
-          {step.description ? ` · ${step.description}` : ''}
-        </Box>
-      </Stack>
-    ))}
-  </Stack>
-);
 
 /** What is left of a collapsed side panel: a thin strip at the page's edge. */
 const EdgeStrip: FC<{ side: 'left' | 'right'; children: ReactNode }> = ({
@@ -679,7 +640,10 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                     )}
                     {!inRail && msg.streaming && progressSteps.length > 0 && (
                       <Box sx={{ mb: 1.5 }}>
-                        <StepsList steps={progressSteps} working={loading} />
+                        <AdreStepsList
+                          steps={progressSteps}
+                          working={loading}
+                        />
                       </Box>
                     )}
                     {!inRail &&
@@ -706,7 +670,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                           </Button>
                           <Collapse in={expandedProgressIdx === idx}>
                             <Box sx={{ pt: 1 }}>
-                              <StepsList
+                              <AdreStepsList
                                 steps={msg.progressSteps ?? []}
                                 working={false}
                               />

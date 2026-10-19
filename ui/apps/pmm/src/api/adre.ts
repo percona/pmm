@@ -305,7 +305,12 @@ export interface AdreStreamProgressEvent {
   toolName: string;
   description?: string;
   /** Present when type is 'tool_result'. */
-  result?: { status?: string; error?: string | null; data?: unknown };
+  result?: {
+    status?: string;
+    error?: string | null;
+    data?: unknown;
+    params?: Record<string, unknown>;
+  };
 }
 
 export interface AdreChatStreamOptions {

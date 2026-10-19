@@ -1,6 +1,6 @@
-import Check from '@mui/icons-material/Check';
-import { Box, CircularProgress, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { FC } from 'react';
+import { AdreStepsList } from 'components/adre/AdreStepsList';
 import type { ProgressStep } from 'hooks/useAdreChat';
 import { AdreAlertsPanel, type AlertItem } from './AdreAlertsPanel';
 
@@ -35,54 +35,7 @@ export const AdreContextRail: FC<AdreContextRailProps> = ({
           <Typography component="h2" sx={heading}>
             How this answer was made
           </Typography>
-          <Stack
-            component="ol"
-            gap={1.5}
-            sx={{ m: 0, p: 0, listStyle: 'none' }}
-          >
-            {steps.map((step) => (
-              <Stack component="li" key={step.id} direction="row" gap={1.25}>
-                <Box sx={{ flex: '0 0 16px', mt: '2px', display: 'flex' }}>
-                  {step.status === 'running' && working ? (
-                    <CircularProgress size={14} aria-label="Running" />
-                  ) : (
-                    <Check
-                      aria-label="Done"
-                      sx={{ fontSize: 16, color: '#86EFAC' }}
-                    />
-                  )}
-                </Box>
-                <Stack gap={0.25} sx={{ minWidth: 0 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: 'Roboto Mono, monospace',
-                      fontSize: 12,
-                      color: '#D9D7DE',
-                      overflowWrap: 'anywhere',
-                    }}
-                  >
-                    {step.toolName}
-                  </Typography>
-                  {step.description && (
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                        color: '#A9A7B0',
-                        overflowWrap: 'anywhere',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                      title={step.description}
-                    >
-                      {step.description}
-                    </Typography>
-                  )}
-                </Stack>
-              </Stack>
-            ))}
-          </Stack>
+          <AdreStepsList steps={steps} working={working} />
         </Stack>
       )}
       {alerts.length === 0 && steps.length === 0 && (

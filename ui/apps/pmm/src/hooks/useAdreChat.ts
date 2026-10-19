@@ -23,6 +23,7 @@ import { buildNativeQanPath } from 'utils/nativeQanNav';
 import { compactAdreAlertsForToolResult } from 'utils/adreAlertsCompact';
 import { PMM_ADRE_FRONTEND_TOOLS } from 'utils/adreFrontendTools';
 import { stripQanServiceId } from 'utils/qanServiceId';
+import { stepFromToolRow } from 'components/adre/adreToolSteps';
 
 /** Resume active conversation after navigation (not legacy chat import). */
 const SESSION_CONV_ID_KEY = 'pmm-adre-active-conversation-id';
@@ -48,6 +49,10 @@ export type ProgressStep = {
   toolName: string;
   description?: string;
   status: 'running' | 'done';
+  /** The arguments the tool ran with, such as its SQL or PromQL. */
+  params?: Record<string, unknown>;
+  failed?: boolean;
+  error?: string;
 };
 
 export interface ChatMessage {
@@ -61,22 +66,42 @@ export interface ChatMessage {
   usage?: HolmesUsage;
 }
 
-function mapServerRowsToChat(messages: AdreMessageRow[]): ChatMessage[] {
+// The tool rows of a turn, saved before or after its answer, become that answer's steps.
+export function mapServerRowsToChat(messages: AdreMessageRow[]): ChatMessage[] {
   const out: ChatMessage[] = [];
+  let answer: ChatMessage | undefined;
+  let earlySteps: ProgressStep[] = [];
   for (const m of messages) {
+    if (m.role === 'tool') {
+      const step = stepFromToolRow(m);
+      if (!step) continue;
+      if (answer)
+        answer.progressSteps = [...(answer.progressSteps ?? []), step];
+      else earlySteps.push(step);
+      continue;
+    }
     if (m.role !== 'user' && m.role !== 'assistant') continue;
     const usage = normalizeHolmesUsage(m);
     const hasUsage =
       usage.totalTokens != null ||
       usage.totalCost != null ||
       (usage.model != null && usage.model !== '');
-    out.push({
+    const msg: ChatMessage = {
       role: m.role as 'user' | 'assistant',
       content: m.content,
       timestamp: new Date(m.createdAt).getTime(),
       serverMessageId: m.id,
       usage: hasUsage ? usage : undefined,
-    });
+    };
+    if (m.role === 'user') {
+      answer = undefined;
+      earlySteps = [];
+    } else {
+      if (earlySteps.length) msg.progressSteps = earlySteps;
+      earlySteps = [];
+      answer = msg;
+    }
+    out.push(msg);
   }
   return out;
 }
@@ -398,8 +423,17 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
             progressStepsRef.current = next;
             setProgressSteps(next);
           } else {
+            const { params, status, error } = event.result ?? {};
             const next = progressStepsRef.current.map((s: ProgressStep) =>
-              s.id === event.id ? { ...s, status: 'done' as const } : s
+              s.id === event.id
+                ? {
+                    ...s,
+                    status: 'done' as const,
+                    ...(params && { params }),
+                    ...(status === 'error' && { failed: true }),
+                    ...(error && { error }),
+                  }
+                : s
             );
             progressStepsRef.current = next;
             setProgressSteps(next);
