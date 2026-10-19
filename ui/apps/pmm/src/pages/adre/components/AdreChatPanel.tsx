@@ -95,15 +95,10 @@ const answerSx = {
   '& strong': { color: '#F4F3F6' },
   '& ul': { pl: 2.75, my: 1 },
   '& li': { my: 0.75 },
-  '& ol': { listStyle: 'none', counterReset: 'adre-step', pl: 0, my: 1.5 },
-  '& ol > li': {
-    counterIncrement: 'adre-step',
-    position: 'relative',
-    pl: '40px',
-    my: 2,
-  },
+  '& ol': { listStyle: 'none', pl: 0, my: 1.5 },
+  '& ol > li': { position: 'relative', pl: '40px', my: 2 },
   '& ol > li::before': {
-    content: 'counter(adre-step)',
+    content: 'attr(data-n)',
     position: 'absolute',
     left: 0,
     top: 0,

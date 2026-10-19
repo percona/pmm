@@ -26,4 +26,18 @@ describe('chat markdown code blocks', () => {
       expect(screen.getByRole('button', { name: 'Copied' })).toBeInTheDocument()
     );
   });
+
+  it('numbers list items from where the list starts', () => {
+    const list = '4. **Move to SCRAM.**\n5. Log the client address.\n';
+    const { container } = render(
+      <TestWrapper>
+        <Markdown components={getMarkdownComponents(list)}>{list}</Markdown>
+      </TestWrapper>
+    );
+    const items = container.querySelectorAll('ol > li');
+    expect([...items].map((li) => li.getAttribute('data-n'))).toEqual([
+      '4',
+      '5',
+    ]);
+  });
 });

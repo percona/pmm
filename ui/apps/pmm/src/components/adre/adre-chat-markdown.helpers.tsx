@@ -1,5 +1,11 @@
 import { Box, Link } from '@mui/material';
-import { ReactNode } from 'react';
+import {
+  Children,
+  ReactElement,
+  ReactNode,
+  cloneElement,
+  isValidElement,
+} from 'react';
 import { GrafanaPanelImage } from './adre-chat-markdown';
 import { AdreCodeBlock } from './adre-code-block';
 import {
@@ -53,6 +59,22 @@ export function getMarkdownComponents(content: string) {
     pre: ({ children }: { children?: ReactNode }) => (
       <AdreCodeBlock>{children}</AdreCodeBlock>
     ),
+    // Each item carries its number, so lists split by code blocks keep counting from their start.
+    ol: ({ start, children }: { start?: number; children?: ReactNode }) => {
+      let n = (start ?? 1) - 1;
+      return (
+        <ol start={start}>
+          {Children.map(children, (child) => {
+            if (!isValidElement(child) || child.type !== 'li') return child;
+            n += 1;
+            return cloneElement(
+              child as ReactElement<Record<string, unknown>>,
+              { 'data-n': n }
+            );
+          })}
+        </ol>
+      );
+    },
     table: ({ children }: { children?: ReactNode }) => (
       <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>
         <Box
