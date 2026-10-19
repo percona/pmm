@@ -71,7 +71,7 @@ const MODES = [
   },
 ] as const;
 
-// An answer reads as a document: the first paragraph as its lead, numbered steps, and headings in Poppins.
+// An answer reads as a document: a highlighted lead, numbered steps, and headings in Poppins.
 const answerSx = {
   minWidth: 0,
   fontSize: 15,
@@ -112,7 +112,8 @@ const answerSx = {
     lineHeight: '26px',
     textAlign: 'center',
   },
-  '& > .adre-md-p:first-child': {
+  // The lead: the opening paragraph, or the one under an opening heading such as Summary.
+  '& > .adre-md-p:first-child, & > :is(h1, h2, h3):first-child + .adre-md-p': {
     px: 2.25,
     py: 2,
     mb: 2.5,
@@ -129,6 +130,10 @@ const answerSx = {
     borderLeft: '3px solid rgba(255,255,255,0.12)',
   },
 } as const;
+
+// A question reads as a heading; pasted logs and long messages stay body text.
+const isShortQuestion = (text: string) =>
+  text.length <= 200 && !text.includes('\n');
 
 /** Tool steps of an answer, running or done. */
 const StepsList: FC<{ steps: ProgressStep[]; working: boolean }> = ({
@@ -464,15 +469,24 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                         {`You${time}`}
                       </Typography>
                       <Typography
-                        sx={{
-                          mt: 0.75,
-                          fontFamily: 'Poppins, sans-serif',
-                          fontSize: msg.content.length > 200 ? 15 : 18,
-                          fontWeight: 500,
-                          lineHeight: 1.45,
-                          whiteSpace: 'pre-wrap',
-                          overflowWrap: 'anywhere',
-                        }}
+                        sx={
+                          isShortQuestion(msg.content)
+                            ? {
+                                mt: 0.75,
+                                fontFamily: 'Poppins, sans-serif',
+                                fontSize: 18,
+                                fontWeight: 500,
+                                lineHeight: 1.45,
+                                overflowWrap: 'anywhere',
+                              }
+                            : {
+                                mt: 0.75,
+                                fontSize: 15,
+                                lineHeight: 1.6,
+                                whiteSpace: 'pre-wrap',
+                                overflowWrap: 'anywhere',
+                              }
+                        }
                       >
                         {msg.content}
                       </Typography>
