@@ -43,13 +43,11 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "service1",
-					Name:        "mongo1",
-					ClusterName: "cluster1",
-					LocationID:  "loc",
-					Mode:        models.PITR,
-				},
+				ServiceID:   "service1",
+				Name:        "mongo1",
+				ClusterName: "cluster1",
+				LocationID:  "loc",
+				Mode:        models.PITR,
 			},
 		},
 		Disabled: false,
@@ -61,13 +59,11 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "service2",
-					Name:        "mongo2",
-					ClusterName: "cluster2",
-					LocationID:  "loc",
-					Mode:        models.Snapshot,
-				},
+				ServiceID:   "service2",
+				Name:        "mongo2",
+				ClusterName: "cluster2",
+				LocationID:  "loc",
+				Mode:        models.Snapshot,
 			},
 		},
 		Disabled: false,
@@ -206,10 +202,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 
 	location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name: "test_location",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/tmp",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/tmp",
 		},
 	})
 	require.NoError(t, err)
@@ -220,19 +214,17 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:     mongoSvc1.ServiceID,
-					LocationID:    location.ID,
-					Name:          "test",
-					Description:   "test backup task",
-					DataModel:     models.LogicalDataModel,
-					Mode:          models.Snapshot,
-					Retention:     7,
-					Retries:       3,
-					RetryInterval: 5 * time.Second,
-					ClusterName:   "cluster1",
-					Folder:        folder1,
-				},
+				ServiceID:     mongoSvc1.ServiceID,
+				LocationID:    location.ID,
+				Name:          "test",
+				Description:   "test backup task",
+				DataModel:     models.LogicalDataModel,
+				Mode:          models.Snapshot,
+				Retention:     7,
+				Retries:       3,
+				RetryInterval: 5 * time.Second,
+				ClusterName:   "cluster1",
+				Folder:        folder1,
 			},
 		},
 	})

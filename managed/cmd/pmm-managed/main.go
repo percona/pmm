@@ -72,6 +72,7 @@ import (
 	hav1 "github.com/percona/pmm/api/ha/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -94,6 +95,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
+	"github.com/percona/pmm/managed/services/om"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -106,6 +108,7 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -144,6 +147,14 @@ const (
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
+
+// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
+// running with a mismatched key.
+var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
+	Namespace: "pmm_managed",
+	Name:      "encryption_key_mismatch",
+	Help:      "1 if the local encryption key does not match the key the database was encrypted with, 0 otherwise.",
+})
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -234,6 +245,8 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
+
+	omService *om.Service
 }
 
 // parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
@@ -339,6 +352,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	hav1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
+	omv1.RegisterOmServiceServer(gRPCServer, deps.omService)
+
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
 	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, rtaStore)
@@ -441,6 +456,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterRestoreServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
+
+		omv1.RegisterOmServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -553,6 +570,7 @@ type setupDeps struct {
 	vmdb        *victoriametrics.Service
 	vmalert     *vmalert.Service
 	server      *server.Server
+	provisioner *alerting.Provisioner
 	l           *logrus.Entry
 }
 
@@ -575,6 +593,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		}
 		return false
 	}
+
+	// Runs after UpdateSettingsFromEnv above, which has already written grafana.ini and started
+	// Grafana, so the rules are usually applied by restarting it rather than by being in place
+	// first. Moving this earlier would avoid that restart but would read the settings before the
+	// environment has been applied to them, so the Percona Alerting gate could see a stale value.
+	// It only asks the provisioner's own goroutine for the work, because applying can mean waiting
+	// minutes for Grafana, and nothing here may hold up the servers that start after setup.
+	deps.l.Infof("Requesting provisioning of built-in alert rules...")
+	deps.provisioner.ProvisionAtStartup()
 
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
@@ -657,10 +684,33 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			l.Infof("Database migration completed.")
 			return
 		}
+		if errors.Is(err, models.ErrEncryptionKeyMismatch) {
+			// Only returned in HA: a standalone server migrates anyway and reports it later.
+			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+		}
 
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}
+}
+
+// checkEncryptionKey reports a standalone server whose encryption key does not match the
+// database. It keeps running, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots; HA nodes are stopped by migrateDB instead.
+func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
+	err := models.CheckEncryptionKey(db)
+	if err == nil {
+		return
+	}
+	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
+		l.Panicf("Failed to check encryption key: %+v", err)
+	}
+
+	mEncryptionKeyMismatch.Set(1)
+	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
+		"matching key is restored to %s, or the credentials of every affected Agent are re-entered "+
+		"and PMM Server is restarted.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.
@@ -688,6 +738,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
+
+	// Base URL only: each consumer appends its own /api/apps/<module> path.
+	// Optional; without it OM builds its document from PMM's own inventory and metrics alone.
+	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
+		Envar("PMM_EXTENSIONS_URL").String()
+	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
+		Envar("PMM_EXTENSIONS_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -731,6 +788,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
+		Bool()
+	// The built-in alert rules are rendered from the shipped templates while pmm-managed starts, so
+	// they are configured here rather than in the settings table: changing an environment variable
+	// means recreating the container, which is exactly when the rules are written anyway.
+	haAlertsEnabled := kingpin.Flag("enable-ha-alerts", "Provision the built-in High Availability alert rules").
+		Envar("PMM_ENABLE_HA_ALERTS").
+		Default("true").
+		Bool()
+	componentAlertsEnabled := kingpin.Flag("enable-component-alerts", "Provision the built-in alert rules for PMM Server's own components").
+		Envar("PMM_ENABLE_COMPONENT_ALERTS").
+		Default("true").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
@@ -819,10 +887,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var nodes []string
-	if *haPeers != "" {
-		nodes = strings.Split(*haPeers, ",")
-	}
+	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -927,6 +992,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+
+	prom.MustRegister(mEncryptionKeyMismatch)
+	checkEncryptionKey(l, db)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)
@@ -1057,6 +1125,22 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertThresholdMetricsCollector := alerting.NewAlertThresholdMetricsCollector(db)
+	prom.MustRegister(alertThresholdMetricsCollector)
+
+	alertingProvisioner := alerting.NewProvisioner(alerting.ProvisionerParams{
+		DB:                     db,
+		GrafanaCli:             grafanaClient,
+		Supervisord:            supervisord,
+		Leader:                 haService,
+		GrafanaDBAddr:          *postgresAddrF,
+		GrafanaDBSSLParams:     q.Encode(),
+		HAEnabled:              *haEnabled,
+		HAAlertsEnabled:        *haAlertsEnabled,
+		ComponentAlertsEnabled: *componentAlertsEnabled,
+	})
+	prom.MustRegister(alertingProvisioner.Collector())
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
@@ -1072,6 +1156,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
+
+	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
+	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
+	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithAgentRegistry(agentsRegistry)
+	omService.WithStateUpdater(agentsStateUpdater)
+	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -1089,6 +1181,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
+		OmService:            omService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1129,6 +1222,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb:        vmdb,
 		vmalert:     vmalert,
 		server:      server,
+		provisioner: alertingProvisioner,
 		l:           logrus.WithField("component", "setup"),
 	}
 	if !setup(ctx, deps) {
@@ -1183,6 +1277,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}))
 
 	wg.Go(func() {
+		alertingProvisioner.Run(ctx)
+	})
+
+	wg.Go(func() {
 		updater.Run(ctx)
 	})
 
@@ -1198,6 +1296,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only: each collection prunes the shared run history, so running it on every HA node
+	// would have nodes pruning each other's runs.
+	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
+		omService.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only: two nodes driving the same bootstrap run would double-dispatch every step.
+	// Separate from "om" so each runs on its own cadence and one failing does not stop the other.
+	haService.AddLeaderService(ha.NewContextService("om-bootstrap-stepper", func(ctx context.Context) error {
+		omService.RunBootstrapStepper(ctx)
 		return nil
 	}))
 
@@ -1233,6 +1345,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
+				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})
@@ -1263,6 +1376,31 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	})
 
 	wg.Wait()
+}
+
+// parseHAPeers splits the PMM_HA_PEERS value into node addresses, trimming surrounding
+// whitespace and dropping empty and duplicate entries. The peer list is expected to name
+// every node in the cluster, including this one, and its length is reported as
+// pmm_ha_expected_nodes. A trailing comma or a padded list would otherwise inflate that
+// count and make the node-unreachable and quorum alerts fire on a healthy cluster.
+func parseHAPeers(l *logrus.Entry, peers string) []string {
+	var nodes []string
+	seen := make(map[string]struct{})
+
+	for node := range strings.SplitSeq(peers, ",") {
+		node = strings.TrimSpace(node)
+		if node == "" {
+			continue
+		}
+		if _, ok := seen[node]; ok {
+			l.WithField("peer", node).Warn("Ignoring duplicate entry in PMM_HA_PEERS.")
+			continue
+		}
+		seen[node] = struct{}{}
+		nodes = append(nodes, node)
+	}
+
+	return nodes
 }
 
 func parseLoggerConfig(level string, debug, trace bool) logrus.Level {

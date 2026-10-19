@@ -112,7 +112,7 @@ function searchCalls(): { search?: string; limit?: number; offset?: number }[] {
 
 /** Type the term into the picker one key at a time, inside one debounce window. */
 async function typeSearch(term: string): Promise<HTMLElement> {
-  const input = await screen.findByRole('combobox', { name: 'Snippets' });
+  const input = await screen.findByRole('combobox', { name: 'Search scripts' });
   await userEvent.type(input, term);
   return input;
 }
@@ -178,8 +178,8 @@ describe('CollectPane snippet search', () => {
     mockApis();
     renderPane(<CollectPane incidentId="inc-1" />);
 
-    // The category listing resolves, so the pane has settled without a search.
-    await screen.findByRole('combobox', { name: 'Subcategory 1' });
+    // Search is on the pane on arrival; settle past the debounce with an empty box.
+    await screen.findByRole('combobox', { name: 'Search scripts' });
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     expect(searchCalls()).toHaveLength(0);
@@ -345,6 +345,69 @@ describe('CollectPane snippet search', () => {
     expect(screen.queryByText(/Showing the first/)).not.toBeInTheDocument();
   });
 
+  it('does not mix server search hits into an active category filter', async () => {
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return Promise.resolve({
+          data: {
+            items: [
+              {
+                name: 'diag/pg-lock.sh',
+                title: 'PostgreSQL Locks',
+                description: 'lock waits',
+              },
+              {
+                name: 'diag/mongo-lock.sh',
+                title: 'MongoDB Locks',
+                description: 'lock waits',
+              },
+            ],
+            total: 80,
+            offset: 0,
+            limit: 50,
+          },
+        });
+      }
+      return Promise.resolve({
+        data: [
+          {
+            category_root: 'MySQL',
+            parent_category: 'LOCKS',
+            parent_category_label: 'Locks',
+            category: 'DEADLOCKS',
+            category_label: 'Deadlocks',
+            snippet_count: 1,
+            snippets: [
+              {
+                name: 'diag/mysql-lock.sh',
+                title: 'MySQL Locks',
+                description: 'InnoDB lock waits',
+              },
+            ],
+          },
+        ],
+      });
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'MySQL (1)' })
+    );
+    await typeSearch('lock');
+
+    expect(
+      await screen.findByRole('option', { name: /MySQL Locks/ })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('option', { name: /PostgreSQL/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: /MongoDB/ })
+    ).not.toBeInTheDocument();
+    expect(searchCalls()).toHaveLength(0);
+    expect(screen.queryByText(/Showing the first/)).not.toBeInTheDocument();
+  });
+
   it('surfaces a failed search instead of leaving the picker silently empty', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.startsWith('/apps/atw/snippets/')) {
@@ -429,7 +492,7 @@ describe('CollectPane — write access', () => {
     );
   });
 
-  it('mounts a datetime-local picker when the merged schema declares datetime', async () => {
+  it('mounts the date-time picker when the merged schema declares datetime', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.startsWith('/apps/atw/snippets/')) {
         return Promise.resolve({
@@ -472,14 +535,24 @@ describe('CollectPane — write access', () => {
     );
     await userEvent.click(option);
 
+    // Script sections open collapsed (PMM-15511) and a collapsed shell mounts
+    // none of its children, so the picker exists only once it is expanded.
+    await userEvent.click(
+      await screen.findByRole(
+        'button',
+        { name: /PT Summary/, expanded: false },
+        { timeout: 3000 }
+      )
+    );
+
     const input = await screen.findByTestId(
-      'text-input-overrides.snip0.since',
+      'date-time-picker-overrides.snip0.since',
       undefined,
       { timeout: 3000 }
     );
-    expect(input).toHaveAttribute('type', 'datetime-local');
+    expect(input).not.toHaveAttribute('type', 'datetime-local');
     expect((input as HTMLInputElement).value).toMatch(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
+      /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/
     );
   });
 

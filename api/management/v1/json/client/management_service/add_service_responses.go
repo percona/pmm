@@ -7623,7 +7623,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -7638,7 +7638,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
 }
 
@@ -8540,6 +8540,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -11908,6 +11911,10 @@ type AddServiceParamsBodyRDS struct {
 	// List of collector names to disable in the PostgreSQL database exporter.
 	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `json:"postgresql_disable_collectors"`
+
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this add service params body RDS

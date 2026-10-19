@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -81,6 +82,17 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
+			{Name: "admin_username"},
+			{Name: "admin_password"},
 		},
 	},
 }
@@ -1198,6 +1210,102 @@ var databaseSchema = [][]string{
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
+	120: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+	},
+	122: {
+		`CREATE TABLE om_topology_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
+
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	123: {
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	124: {
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
+		)`,
+	},
+	125: {
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1235,7 +1343,9 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
+	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
+	// on the demoted primary (now a read-only replica) moves to the new primary.
+	db.SetConnMaxLifetime(5 * time.Minute) //nolint:mnd
 	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
@@ -1366,18 +1476,39 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" && settings.EncryptionKeyFingerprint != fingerprint {
+		return keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
+	}
+
 	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
 
 	encryptedItems := []string{}
+	for _, item := range settings.EncryptedItems {
+		if !slices.Contains(prepared, item) {
+			encryptedItems = append(encryptedItems, item)
+		}
+	}
 	if expectedState {
-		encryptedItems = prepared
+		encryptedItems = append(encryptedItems, prepared...)
+	}
+
+	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
+	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
+	// own key against.
+	if len(encryptedItems) == 0 {
+		fingerprint = ""
 	}
 
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems:           encryptedItems,
+		EncryptionKeyFingerprint: &fingerprint,
 	})
 	if err != nil {
 		return err
@@ -1507,7 +1638,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+		err := encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1533,6 +1664,28 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
+// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
+// database untouched.
+func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
+	err := VerifyEncryptionKey(tx)
+	switch {
+	case err == nil:
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
+		// A standalone server keeps booting and reports the mismatch once started. Columns not
+		// encrypted yet are left for the first start with a matching or adopted key.
+		adopted, err := adoptEncryptionKey(tx)
+		if err != nil || !adopted {
+			return err
+		}
+
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	default:
+		return err
+	}
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

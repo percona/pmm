@@ -149,15 +149,116 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDFromBareAddress", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Clients from before 3.4.0 send the DB instance identifier as the address and no
+		// instance_id. A bare address is the identifier, so they keep working.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test-db"})
+		require.NoError(t, err)
+		assert.Equal(t, "test-db", node.InstanceId)
+	})
+
+	t.Run("AddRemoteRDSNodeInstanceIDTrimmed", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: " test-db "})
+		require.NoError(t, err)
+		assert.Equal(t, "test-db", node.InstanceId)
+
+		// A blank identifier is not stored: it counts as omitted, so a bare address is used.
+		node, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "other-db", InstanceId: " "})
+		require.NoError(t, err)
+		assert.Equal(t, "other-db", node.InstanceId)
+
+		// With an endpoint address there is nothing to fall back to.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test3", Region: "test-region", Address: "test.abcdef.eu-north-1.rds.amazonaws.com", InstanceId: " ",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
+	t.Run("AddRemoteRDSNodeEndpointWithoutInstanceID", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// The first label of an endpoint is the identifier only for a standard instance
+		// endpoint, so an endpoint address needs an explicit instance_id.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test1", Region: "test-region", Address: "test.abcdef.eu-north-1.rds.amazonaws.com",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
+	t.Run("AddRemoteRDSNodeEmptyInstanceID", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Without an address there is nothing to derive the identifier from either.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region"})
+		expected := status.New(codes.InvalidArgument, "Empty DB instance identifier.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
+	t.Run("AddRemoteRDSNodeInstanceIDWithDots", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// A DB instance identifier is never an endpoint; endpoints contain dots.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test1", Region: "test-region", Address: "test",
+			InstanceId: "test.eu-north-1.rds.amazonaws.com",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier should not contain dots.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("AddRemoteRDSNodeNotUnique", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test", InstanceId: "test-instance-1"})
 		require.NoError(t, err)
 
-		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"})
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test", InstanceId: "test-instance-2"})
 		expected := status.New(codes.AlreadyExists, `Node with address "test" and region "test-region" already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+	})
+
+	t.Run("AddRemoteRDSNodeInstanceIDNotUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "test-instance"})
+		require.NoError(t, err)
+
+		// The same DB instance reached through another address is still the same instance.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "test-instance"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier test-instance and region test-region already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+
+		// DB instance identifiers are unique per region, not globally.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test3", Region: "other-region", Address: "test3", InstanceId: "test-instance"})
+		require.NoError(t, err)
+	})
+
+	t.Run("AddRemoteRDSNodeInstanceIDLowercased", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them
+		// exactly, so a mixed-case identifier would never scrape anything.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "MyDB"})
+		require.NoError(t, err)
+		assert.Equal(t, "mydb", node.InstanceId)
+
+		// The uniqueness check sees the same identifier whatever the case.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "mydb"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier mydb and region test-region already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
 
@@ -434,19 +535,21 @@ func TestAddNode(t *testing.T) {
 		assert.Equal(t, expectedNode4, addNodeResponse.GetRemoteAzureDatabase())
 
 		expectedNode5 := &inventoryv1.RemoteRDSNode{
-			NodeId:   nodeID5,
-			NodeName: "test-name5",
-			Region:   "test-region",
-			Az:       "test-region-az",
-			Address:  "test5",
+			NodeId:     nodeID5,
+			NodeName:   "test-name5",
+			Region:     "test-region",
+			Az:         "test-region-az",
+			Address:    "test5",
+			InstanceId: "test-instance5",
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
 			Node: &inventoryv1.AddNodeRequest_RemoteRds{
 				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{
-					NodeName: "test-name5",
-					Region:   "test-region",
-					Az:       "test-region-az",
-					Address:  "test5",
+					NodeName:   "test-name5",
+					Region:     "test-region",
+					Az:         "test-region-az",
+					Address:    "test5",
+					InstanceId: "test-instance5",
 				},
 			},
 		})
@@ -476,14 +579,14 @@ func TestAddNode(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
 			Node: &inventoryv1.AddNodeRequest_RemoteRds{
-				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"},
+				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test", InstanceId: "test-instance-1"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
 			Node: &inventoryv1.AddNodeRequest_RemoteRds{
-				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"},
+				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test", InstanceId: "test-instance-2"},
 			},
 		})
 		expected := status.New(codes.AlreadyExists, `Node with address "test" and region "test-region" already exists.`)

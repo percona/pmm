@@ -30,8 +30,6 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const postgresCloudConnectionTimeout = 5 * time.Second
-
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
@@ -61,7 +59,8 @@ func postgresExcludedDatabases() []string {
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
+// The node argument is the pmm-agent's Node, serviceNode is the monitored Service's Node.
+func postgresExporterConfig(node, serviceNode *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
@@ -134,8 +133,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	connectionTimeout := postgresExporterDialTimeout(node, exporter)
-	dsnParams.DialTimeout = connectionTimeout
+	dsnParams.DialTimeout = dbExporterDialTimeout(serviceNode, exporter)
 
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -158,19 +156,6 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	return res, nil
-}
-
-func postgresExporterDialTimeout(node *models.Node, exporter *models.Agent) time.Duration {
-	timeout := exporter.EffectiveDialTimeout()
-	if exporter.ExporterOptions.ConnectionTimeout != nil {
-		return roundUpToSecond(timeout)
-	}
-
-	if exporter.AzureOptions.ClientID != "" || (node != nil && node.NodeType == models.RemoteRDSNodeType) {
-		timeout = postgresCloudConnectionTimeout
-	}
-
-	return roundUpToSecond(timeout)
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
