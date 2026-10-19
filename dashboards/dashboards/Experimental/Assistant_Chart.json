@@ -8,7 +8,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: short",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -65,7 +64,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: percent",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -122,7 +120,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: percentunit",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -179,7 +176,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: bytes",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -236,7 +232,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: s",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -293,7 +288,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: ms",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -350,7 +344,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Unit: ops",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -407,7 +400,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: short",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -465,7 +457,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: percent",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -523,7 +514,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: percentunit",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -581,7 +571,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: bytes",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -639,7 +628,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: s",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -697,7 +685,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: ms",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -755,7 +742,6 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "${chds}"
             },
-            "description": "Unit: ops",
             "fieldConfig": {
                 "defaults": {
                     "color": {
