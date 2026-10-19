@@ -52,3 +52,10 @@ func TestBuildSlackChatRequestAddsSlackGuidance(t *testing.T) {
 	assert.True(t, strings.HasPrefix(req.AdditionalSystemPrompt, "Custom chat prompt."))
 	assert.True(t, strings.HasSuffix(req.AdditionalSystemPrompt, "\n\n"+SlackAnswerGuidance+"\n\nExtra guidance."))
 }
+
+func TestChartGuidanceIsForTheWebChatOnly(t *testing.T) {
+	s := &models.Settings{}
+
+	assert.True(t, strings.HasSuffix(webChatSystemPrompt(s, "fast"), "\n\n"+ChartGuidance))
+	assert.NotContains(t, BuildSlackChatRequest(s, "ask", nil, "").AdditionalSystemPrompt, ChartGuidance)
+}

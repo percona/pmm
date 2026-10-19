@@ -55,7 +55,10 @@ import {
   RAIL_WIDTH,
   useAdrePanelLayout,
 } from './useAdrePanelLayout';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
+import {
+  getMarkdownComponents,
+  remarkCodeMeta,
+} from 'components/adre/adre-chat-markdown.helpers';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import { AdreStepsList } from 'components/adre/AdreStepsList';
 import { answerSx } from 'components/adre/adreAnswerSx';
@@ -688,7 +691,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                     {messageText ? (
                       <Box sx={answerSx}>
                         <Markdown
-                          remarkPlugins={[remarkGfm]}
+                          remarkPlugins={[remarkGfm, remarkCodeMeta]}
                           rehypePlugins={[rehypeRaw]}
                           components={getMarkdownComponents(
                             msg.content || response || ''

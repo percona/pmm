@@ -51,7 +51,8 @@ const exploreTime = (v: unknown, fallback: string) => {
   return Number.isNaN(ms) ? fallback : String(ms);
 };
 
-const explore = (
+/** A Grafana Explore link that runs one query on the named datasource over the range. */
+export const explore = (
   datasource: string,
   query: Record<string, unknown>,
   range: { from: string; to: string }

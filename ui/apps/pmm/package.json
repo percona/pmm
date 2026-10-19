@@ -25,6 +25,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@mui/x-charts": "8.29.3",
     "@mui/x-date-pickers": "^7.5.0",
     "@percona/peak-ui": "1.0.25",
     "@pmm/shared": "*",

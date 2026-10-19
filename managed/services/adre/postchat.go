@@ -168,7 +168,7 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	req.ConversationHistory = hist
 	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
-	req.AdditionalSystemPrompt = WithKubernetesGuidance(h.db, ResolveChatSystemPrompt(settings, mode))
+	req.AdditionalSystemPrompt = WithKubernetesGuidance(h.db, webChatSystemPrompt(settings, mode))
 	// The page context rides on the question, not the system prompt, so the system prompt stays byte-identical
 	// across turns and pages and the provider's prompt cache keeps hitting.
 	if resuming {
@@ -397,4 +397,9 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 		}
 	}
 	h.maybeAutotitleConversation(convID, login, ask)
+}
+
+// webChatSystemPrompt is the chat prompt for the PMM web chat, which can draw chart blocks.
+func webChatSystemPrompt(settings *models.Settings, mode string) string {
+	return strings.TrimRight(ResolveChatSystemPrompt(settings, mode), "\n") + "\n\n" + ChartGuidance
 }

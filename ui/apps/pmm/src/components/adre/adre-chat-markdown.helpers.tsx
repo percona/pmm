@@ -1,12 +1,17 @@
-import { Box, Link } from '@mui/material';
+import { Box, Link, Skeleton } from '@mui/material';
+import type { Element, ElementContent } from 'hast';
+import type { Nodes } from 'mdast';
 import {
   Children,
   ReactElement,
   ReactNode,
+  Suspense,
   cloneElement,
   isValidElement,
+  lazy,
 } from 'react';
 import { GrafanaPanelImage } from './adre-chat-markdown';
+import { chartSpecFromBlock } from './adreChart.utils';
 import { AdreCodeBlock } from './adre-code-block';
 import {
   dashboardUrlFromRenderUrl,
@@ -18,6 +23,44 @@ import {
   toSameOriginUrl,
   withRenderCacheParam,
 } from './adre-chat-markdown.utils';
+
+const AdreChart = lazy(() => import('./AdreChart'));
+
+const hastText = (node: ElementContent): string =>
+  node.type === 'text'
+    ? node.value
+    : node.type === 'element'
+      ? node.children.map(hastText).join('')
+      : '';
+
+/** Keeps each code block's first-line attributes as a data-meta attribute, which rehype-raw keeps and code meta it drops. */
+export const remarkCodeMeta = () => (tree: Nodes) => {
+  const walk = (node: Nodes) => {
+    if (node.type === 'code' && node.meta) {
+      node.data = {
+        ...node.data,
+        hProperties: { ...node.data?.hProperties, dataMeta: node.meta },
+      };
+    }
+    if ('children' in node) node.children.forEach(walk);
+  };
+  walk(tree);
+};
+
+/** The chart a ```chart block asks for, from the code element inside the block's <pre>. */
+const chartSpecOf = (pre?: Element) => {
+  const code = pre?.children.find(
+    (c): c is Element => c.type === 'element' && c.tagName === 'code'
+  );
+  const classes = code?.properties?.className;
+  if (!code || !Array.isArray(classes) || !classes.includes('language-chart'))
+    return undefined;
+  const meta = code.properties.dataMeta ?? code.data?.meta;
+  return chartSpecFromBlock(
+    typeof meta === 'string' ? meta : undefined,
+    code.children.map(hastText).join('')
+  );
+};
 
 /** Returns markdown component overrides for rendering Grafana panel images, code blocks, and dashboard links within chat messages. */
 export function getMarkdownComponents(content: string) {
@@ -56,9 +99,17 @@ export function getMarkdownComponents(content: string) {
         {children}
       </Box>
     ),
-    pre: ({ children }: { children?: ReactNode }) => (
-      <AdreCodeBlock>{children}</AdreCodeBlock>
-    ),
+    pre: ({ children, node }: { children?: ReactNode; node?: Element }) => {
+      const spec = chartSpecOf(node);
+      if (spec) {
+        return (
+          <Suspense fallback={<Skeleton variant="rounded" height={280} />}>
+            <AdreChart spec={spec} />
+          </Suspense>
+        );
+      }
+      return <AdreCodeBlock>{children}</AdreCodeBlock>;
+    },
     // Each item carries its number, so lists split by code blocks keep counting from their start.
     ol: ({ start, children }: { start?: number; children?: ReactNode }) => {
       let n = (start ?? 1) - 1;

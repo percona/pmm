@@ -1,7 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 import { TestWrapper } from 'utils/testWrapper';
-import { getMarkdownComponents } from './adre-chat-markdown.helpers';
+import {
+  getMarkdownComponents,
+  remarkCodeMeta,
+} from './adre-chat-markdown.helpers';
+
+vi.mock('./AdreChart', () => ({
+  default: ({ spec }: { spec: unknown }) => (
+    <pre data-testid="chart-spec">{JSON.stringify(spec)}</pre>
+  ),
+}));
 
 const content =
   'Run this:\n\n```sql\nSELECT pg_reload_conf();\nSELECT 1;\n```\n';
@@ -39,5 +50,37 @@ describe('chat markdown code blocks', () => {
       '4',
       '5',
     ]);
+  });
+});
+
+describe('chat markdown charts', () => {
+  it('draws a chart block as a chart, with its attributes, like the chat renders it', async () => {
+    const answer =
+      'CPU rose at 20:40.\n\n```chart ds="Metrics" title="CPU busy" from="2026-10-19T20:00:00Z" to="2026-10-19T21:00:00Z" unit=percentunit\n' +
+      'sum by (node_name) (rate(node_cpu_seconds_total{mode!="idle"}[5m]))\n```\n';
+    render(
+      <TestWrapper>
+        <Markdown
+          remarkPlugins={[remarkGfm, remarkCodeMeta]}
+          rehypePlugins={[rehypeRaw]}
+          components={getMarkdownComponents(answer)}
+        >
+          {answer}
+        </Markdown>
+      </TestWrapper>
+    );
+
+    expect(
+      JSON.parse((await screen.findByTestId('chart-spec')).textContent ?? '')
+    ).toEqual({
+      ds: 'Metrics',
+      title: 'CPU busy',
+      from: '2026-10-19T20:00:00Z',
+      to: '2026-10-19T21:00:00Z',
+      unit: 'percentunit',
+      query:
+        'sum by (node_name) (rate(node_cpu_seconds_total{mode!="idle"}[5m]))',
+    });
+    expect(screen.queryByRole('button', { name: 'Copy code' })).toBeNull();
   });
 });
