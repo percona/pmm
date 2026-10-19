@@ -115,10 +115,18 @@ export const clusterColumns = (
         return null;
       }
 
+      // Beside plain text the door needs a cue of its own, as in the status line.
+      const sharesCell = members.noData > 0;
+
       return (
         <span>
           {doors.members ? (
-            <DoorLink door={doors.members} color="inherit">
+            <DoorLink
+              door={doors.members}
+              {...(sharesCell
+                ? { underline: 'always' as const }
+                : { color: 'inherit' })}
+            >
               {membersText(members)}
             </DoorLink>
           ) : (

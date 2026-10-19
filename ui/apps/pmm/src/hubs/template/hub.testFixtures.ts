@@ -153,7 +153,11 @@ export const TEST_CLUSTERS: HubTreeNode[] = [
     since: minutesAgo(9),
     members: { up: 0, total: 1, noData: 1 },
     measures: {},
-    doors: { name: summary('reports'), menu: [] },
+    doors: {
+      name: summary('reports'),
+      members: testDoor('0/1', '/graph/d/summary?var-name=reports'),
+      menu: [],
+    },
   },
 ];
 

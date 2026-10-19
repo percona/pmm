@@ -181,6 +181,10 @@ describe('ClustersTable', () => {
 
     expect(within(reports).getByText('No data')).toBeInTheDocument();
     expect(reports).toHaveTextContent('0/1 · 1 no data');
+    // A link beside plain text is underlined, not told apart by hover alone.
+    expect(within(reports).getByRole('link', { name: '0/1' })).toHaveClass(
+      'MuiLink-underlineAlways'
+    );
 
     const orders = closestTo(
       screen.getByRole('link', { name: 'orders' }),
