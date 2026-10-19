@@ -148,7 +148,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count(count by (service_name) ((max by (service_name) (up{service_name=~\"$service_name\"}) == 0) or (sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m])) >= 1) or (max by (service_name) ({__name__=~\"mongot_command_(search|vectorSearch)CommandTotalLatency_seconds\",service_name=~\"$service_name\",quantile=\"0.99\"}) >= 0.5) or (max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\"}) >= 60000) or (count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) > 0) or (100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"}) <= 15) or (100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0) >= 90))) or (count(max by (service_name) (up{service_name=~\"$service_name\"})) * 0)",
+          "expr": "count(count by (service_name) ((max by (service_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}) unless on (service_name) (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) == 1)) or (sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m])) >= 1) or (max by (service_name) ({__name__=~\"mongot_command_(search|vectorSearch)CommandTotalLatency_seconds\",service_name=~\"$service_name\",quantile=\"0.99\"}) >= 0.5) or (max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\"}) >= 60000) or (count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) > 0) or (100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"}) <= 15) or (100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0) >= 90))) or (count(max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"})) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -168,7 +168,7 @@
     {
       "type": "stat",
       "title": "Availability",
-      "description": "mongot services PMM cannot scrape. A hung or stopped mongot shows here (its own error counters stay at 0 while hung).",
+      "description": "mongot services PMM cannot scrape. A hung or stopped mongot shows here (its own error counters stay at 0 while hung). A service that stops reporting while still registered in PMM (pod gone, push mode) is counted once its last sample is 5 minutes old.",
       "datasource": "Metrics",
       "fieldConfig": {
         "defaults": {
@@ -235,7 +235,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count(max by (service_name) (up{service_name=~\"$service_name\"}) == 0) or (count(max by (service_name) (up{service_name=~\"$service_name\"})) * 0)",
+          "expr": "count(max by (service_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}) unless on (service_name) (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) == 1)) or (count(max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"})) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -315,7 +315,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "sum(sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m]))) or (count(max by (service_name) (up{service_name=~\"$service_name\"})) * 0)",
+          "expr": "sum(sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m]))) or (count(max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"})) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -540,7 +540,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "sum(count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1)) or (count(max by (service_name) (up{service_name=~\"$service_name\"}) == 1) * 0)",
+          "expr": "sum(count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1)) or (count(max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) == 1) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -1327,7 +1327,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "max by (service_name, node_name, replication_set) (up{service_name=~\"$service_name\"})",
+          "expr": "max by (service_name, node_name, replication_set) (up{service_name=~\"$service_name\",service_name!=\"\"}) or on (service_name) (0 * max by (service_name, node_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}))",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -1338,7 +1338,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count by (service_name) ((max by (service_name) (up{service_name=~\"$service_name\"}) == 0) or (sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m])) >= 1) or (max by (service_name) ({__name__=~\"mongot_command_(search|vectorSearch)CommandTotalLatency_seconds\",service_name=~\"$service_name\",quantile=\"0.99\"}) >= 0.5) or (max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\"}) >= 60000) or (count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) > 0) or (100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"}) <= 15) or (100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0) >= 90)) or (max by (service_name) (up{service_name=~\"$service_name\"}) * 0)",
+          "expr": "count by (service_name) ((max by (service_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}) unless on (service_name) (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) == 1)) or (sum by (service_name) (rate({__name__=~\"mongot_command_(search|vectorSearch|getMore)CommandFailure_total\",service_name=~\"$service_name\"}[5m])) >= 1) or (max by (service_name) ({__name__=~\"mongot_command_(search|vectorSearch)CommandTotalLatency_seconds\",service_name=~\"$service_name\",quantile=\"0.99\"}) >= 0.5) or (max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\"}) >= 60000) or (count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) > 0) or (100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"}) <= 15) or (100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0) >= 90)) or (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) * 0)",
           "legendFormat": "",
           "refId": "B",
           "interval": "$interval",
@@ -1382,7 +1382,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) or (max by (service_name) (up{service_name=~\"$service_name\"}) * 0)",
+          "expr": "count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",status!=\"STEADY\"} == 1) or (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) * 0)",
           "legendFormat": "",
           "refId": "F",
           "interval": "$interval",

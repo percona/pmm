@@ -70,7 +70,7 @@
     {
       "type": "stat",
       "title": "mongot Services Down",
-      "description": "Number of selected mongot services PMM cannot scrape (up == 0). See the Search Services table for which one.",
+      "description": "Number of selected mongot services PMM cannot scrape (up == 0). A service that stops reporting while still registered in PMM (pod gone, push mode) is counted once its last sample is 5 minutes old. See the Search Services table for which one.",
       "datasource": "Metrics",
       "fieldConfig": {
         "defaults": {
@@ -115,7 +115,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count(up{service_name=~\"$service_name\"} == 0) or (count(up{service_name=~\"$service_name\"}) * 0)",
+          "expr": "count(max by (service_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}) unless on (service_name) (max by (service_name) (up{service_name=~\"$service_name\",service_name!=\"\"}) == 1)) or (count(up{service_name=~\"$service_name\",service_name!=\"\"}) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -180,7 +180,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "count(mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\",status!=\"STEADY\"} == 1) or (count(up{service_name=~\"$service_name\"} == 1) * 0)",
+          "expr": "count(mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\",status!=\"STEADY\"} == 1) or (count(up{service_name=~\"$service_name\",service_name!=\"\"} == 1) * 0)",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -218,11 +218,11 @@
               },
               {
                 "color": "orange",
-                "value": 1000
+                "value": 10000
               },
               {
                 "color": "red",
-                "value": 10000
+                "value": 60000
               }
             ]
           }
@@ -291,7 +291,7 @@
               },
               {
                 "color": "green",
-                "value": 20
+                "value": 25
               }
             ]
           },
@@ -602,7 +602,7 @@
     {
       "type": "table",
       "title": "Search Services",
-      "description": "One row per mongot service with its node, cluster and replica set, and the signals that need attention. Status is whether PMM can scrape mongot's metrics endpoint. Per-service query rates are in the Query Performance row.",
+      "description": "One row per mongot service with its node, cluster and replica set, and the signals that need attention. Status is whether PMM can scrape mongot's metrics endpoint; a service still registered in PMM that stopped reporting shows as down. Per-service query rates are in the Query Performance row.",
       "datasource": "Metrics",
       "fieldConfig": {
         "defaults": {
@@ -735,11 +735,11 @@
                     },
                     {
                       "color": "orange",
-                      "value": 1000
+                      "value": 10000
                     },
                     {
                       "color": "red",
-                      "value": 10000
+                      "value": 60000
                     }
                   ]
                 }
@@ -839,7 +839,7 @@
                     },
                     {
                       "color": "transparent",
-                      "value": 20
+                      "value": 25
                     }
                   ]
                 }
@@ -978,7 +978,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "max by (service_name, node_name, cluster, replication_set) (up{service_name=~\"$service_name\"})",
+          "expr": "max by (service_name, node_name, cluster, replication_set) (up{service_name=~\"$service_name\",service_name!=\"\"}) or on (service_name) (0 * max by (service_name, node_name) (pmm_managed_inventory_agents{agent_type=\"external-exporter\",disabled=\"0\",service_name=~\"$service_name\"}))",
           "legendFormat": "",
           "refId": "A",
           "interval": "$interval",
@@ -3236,7 +3236,7 @@
         {
           "type": "timeseries",
           "title": "Search Stages Executed on mongod",
-          "description": "$search, $searchMeta and $vectorSearch aggregation stages executed by each mongod (from mongodb_exporter). If mongod runs search stages but mongot reports no commands, requests are not reaching mongot.",
+          "description": "$search, $searchMeta and $vectorSearch aggregation stages executed by each mongod (from mongodb_exporter). If mongod runs search stages but mongot reports no commands, requests are not reaching mongot. Register mongot with the same --environment, --cluster and --replication-set as its mongod, otherwise this row shows every mongod.",
           "datasource": "Metrics",
           "fieldConfig": {
             "defaults": {
@@ -5891,7 +5891,8 @@
           "text": "All",
           "value": "$__all"
         },
-        "options": []
+        "options": [],
+        "description": "mongod services matching the Environment, Cluster and Replica Set filters. Register mongot with the same --environment, --cluster and --replication-set as its mongod, otherwise every mongod is listed."
       },
       {
         "name": "index",
