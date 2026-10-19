@@ -31,7 +31,6 @@ const meta: Meta<typeof EmptyState> = {
   tags: ['autodocs', 'experimental'],
   parameters: {
     layout: 'padded',
-    controls: { exclude: ['illustration', 'actions'] },
     docs: {
       description: {
         component: [
@@ -73,6 +72,8 @@ const meta: Meta<typeof EmptyState> = {
       options: ['h2', 'h3', 'h4', 'p'],
       control: { type: 'select' },
     },
+    illustration: { control: false },
+    actions: { control: false },
   },
 };
 

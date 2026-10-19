@@ -10,8 +10,14 @@ export interface EmptyStateProps extends Omit<BoxProps, 'title' | 'children'> {
   illustration?: ReactNode;
   /** One or two MUI Buttons or Links; the first is the way forward. */
   actions?: ReactNode;
-  /** Element for the title; set it to fit the page outline. @default 'h3' */
+  /**
+   * Element for the title; set it to fit the page outline.
+   * @default 'h3'
+   */
   titleComponent?: ElementType;
-  /** small: inside a card, table or section (py 4, illustration 48px); medium: a page or a whole section (py 6, illustration 64px). @default 'medium' */
+  /**
+   * small: inside a card, table or section (py 4, illustration 48px); medium: a page or a whole section (py 6, illustration 64px).
+   * @default 'medium'
+   */
   size?: 'small' | 'medium';
 }
