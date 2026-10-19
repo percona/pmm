@@ -26,6 +26,7 @@ const FIGMA_LINES: Record<string, number[]> = {
 };
 
 // Off-pixel lines on main that peak-ui #70 restyles to Figma's 11/12px and 16/20px.
+// CONTRIBUTING and Foundations/Typography name the same exception; drop it from all three together.
 const PENDING_RESTYLE: Record<string, number> = { overline: 13.5, sectionHeading: 17.5 };
 
 type Style = Record<string, unknown>;
@@ -94,6 +95,13 @@ describe.each(THEMES)('%s theme typography', (themeName) => {
       const lines = allLines(theme);
       expect(lines.length).toBeGreaterThan(0);
       expect(lines.map((line) => offPixel(theme, line)).filter(Boolean)).toEqual([]);
+    });
+
+    it('pins only lines that are still off-pixel', () => {
+      const pinned = allLines(theme).filter(({ variant }) => variant in PENDING_RESTYLE);
+      expect(Object.fromEntries(pinned.map((line) => [line.variant, linePx(theme, line)]))).toEqual(
+        PENDING_RESTYLE
+      );
     });
 
     it.each(Object.entries(FIGMA_LINES))('gives %s the Figma line heights', (variant, expected) => {
