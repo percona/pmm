@@ -121,6 +121,7 @@ type ExporterOptions struct {
 	ExposeExporter     bool                `json:"expose_exporter"`
 	PushMetrics        bool                `json:"push_metrics"`
 	DisabledCollectors pq.StringArray      `json:"disabled_collectors"`
+	EnabledCollectors  pq.StringArray      `json:"enabled_collectors"`
 	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
 	MetricsPath        string              `json:"metrics_path"`
 	MetricsScheme      string              `json:"metrics_scheme"`
@@ -139,6 +140,7 @@ func (c ExporterOptions) IsEmpty() bool {
 	return !c.ExposeExporter &&
 		!c.PushMetrics &&
 		len(c.DisabledCollectors) == 0 &&
+		len(c.EnabledCollectors) == 0 &&
 		c.MetricsResolutions == nil &&
 		c.MetricsPath == "" &&
 		c.MetricsScheme == "" &&

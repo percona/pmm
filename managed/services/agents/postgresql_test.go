@@ -209,6 +209,46 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.Require().Equal(expected.Args, actual.Args)
 }
 
+func (s *PostgresExporterConfigTestSuite) TestEnabledCollectors() {
+	s.pmmAgentVersion = version.MustParse("3.5.0")
+	s.postgresql.Address = nil
+	s.postgresql.Port = nil
+	s.postgresql.Socket = new("/var/run/postgres")
+	s.exporter.ExporterOptions = models.ExporterOptions{
+		// locks runs by default, and the exporter of pmm-agent 3.5.0 has no stat_io.
+		EnabledCollectors:  []string{"long_running_transactions", "locks", "stat_io", "postmaster"},
+		DisabledCollectors: []string{"postmaster", "replication"},
+	}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+
+	actual, err := postgresExporterConfig(s.node, nil, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
+	s.Require().NoError(err, "Failed to create exporter config")
+
+	expected := []string{
+		"--auto-discover-databases",
+		"--collect.custom_query.hr",
+		"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/high-resolution",
+		"--collect.custom_query.lr",
+		"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/low-resolution",
+		"--collect.custom_query.mr",
+		"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/medium-resolution",
+		"--collector.long_running_transactions",
+		"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+		"--no-collector.replication",
+		"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+		"--web.config={{ .TextFiles.webConfig }}",
+	}
+	requireNoDuplicateFlags(s.T(), actual.Args)
+	s.Require().Equal(expected, actual.Args)
+
+	// The exporter of pmm-agent 3.6.0 has stat_io.
+	actual, err = postgresExporterConfig(s.node, nil, s.postgresql, s.exporter, exposeSecrets, version.MustParse("3.6.0"))
+	s.Require().NoError(err, "Failed to create exporter config")
+	s.Require().Contains(actual.Args, "--collector.stat_io")
+	requireNoDuplicateFlags(s.T(), actual.Args)
+}
+
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSDefault() {
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{}

@@ -34,23 +34,8 @@ var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
 	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
-	postgresExporterCollectorsVersion    = version.MustParse("2.41.0-0")
 	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
-
-var defaultPostgresExporterCollectors = []string{
-	"database",
-	"database_wraparound",
-	"extensions",
-	"locks",
-	"replication",
-	"replication_slot",
-	"stat_bgwriter",
-	"stat_database",
-	"stat_user_tables",
-	"statio_user_tables",
-	"wal",
-}
 
 const defaultAutoDiscoveryDatabaseLimit = 50
 
@@ -114,15 +99,11 @@ func postgresExporterConfig(node, serviceNode *models.Node, service *models.Serv
 	}
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
-
-	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
-			"--no-collector.",
-			defaultPostgresExporterCollectors,
-			exporter.ExporterOptions.DisabledCollectors,
-		)
-		args = append(args, disableCollectorArgs...)
-	}
+	args = append(args, collectors.PostgresExporterCollectorArgs(
+		exporter.ExporterOptions.EnabledCollectors,
+		exporter.ExporterOptions.DisabledCollectors,
+		pmmAgentVersion,
+	)...)
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 
