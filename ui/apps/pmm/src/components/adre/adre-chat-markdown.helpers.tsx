@@ -1,6 +1,7 @@
 import { Box, Link } from '@mui/material';
 import { ReactNode } from 'react';
 import { GrafanaPanelImage } from './adre-chat-markdown';
+import { AdreCodeBlock } from './adre-code-block';
 import {
   dashboardUrlFromRenderUrl,
   getRenderImageUrlsInContent,
@@ -24,7 +25,11 @@ export function getMarkdownComponents(content: string) {
     // Default <p> cannot contain block-level panel UI; browsers break the DOM and width
     // constraints fail, so wide panel images overflow the chat bubble.
     p: ({ children }: { children?: ReactNode }) => (
-      <Box component="div" sx={{ mb: 1.25, minWidth: 0, maxWidth: '100%' }}>
+      <Box
+        component="div"
+        className="adre-md-p"
+        sx={{ mb: 1.25, minWidth: 0, maxWidth: '100%' }}
+      >
         {children}
       </Box>
     ),
@@ -46,37 +51,7 @@ export function getMarkdownComponents(content: string) {
       </Box>
     ),
     pre: ({ children }: { children?: ReactNode }) => (
-      <Box
-        component="pre"
-        sx={(theme) => ({
-          maxWidth: '100%',
-          minWidth: 0,
-          overflowX: 'auto',
-          my: 1,
-          py: 1,
-          px: 1.5,
-          m: 0,
-          border: 2,
-          borderColor: 'divider',
-          borderRadius: Number(theme.shape.borderRadius) / 4,
-          bgcolor:
-            theme.palette.mode === 'dark'
-              ? theme.palette.grey[800]
-              : theme.palette.action.hover,
-          // Fenced code: undo the inline <code> chrome so the block reads as one preformatted unit.
-          '& code': {
-            display: 'block',
-            p: 0,
-            bgcolor: 'transparent',
-            borderRadius: 0,
-            whiteSpace: 'pre',
-            overflowWrap: 'normal',
-            fontSize: '0.8125rem',
-          },
-        })}
-      >
-        {children}
-      </Box>
+      <AdreCodeBlock>{children}</AdreCodeBlock>
     ),
     table: ({ children }: { children?: ReactNode }) => (
       <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>

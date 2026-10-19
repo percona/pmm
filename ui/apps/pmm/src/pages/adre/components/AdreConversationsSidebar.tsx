@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   IconButton,
   InputAdornment,
   List,
@@ -66,56 +65,53 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
 
   return (
     <Stack
+      component="nav"
+      aria-label="Chats"
+      gap={1.5}
       sx={{
         height: '100%',
         minHeight: 0,
+        px: 1.5,
+        py: 2.25,
+        boxSizing: 'border-box',
+        bgcolor: '#17161A',
         borderRight: { md: 1 },
-        borderColor: 'divider',
-        bgcolor: '#1a1a1a',
+        borderColor: 'rgba(255,255,255,0.06) !important',
       }}
     >
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ px: 1, py: 1, gap: 0.5 }}
+      <Button
+        variant="contained"
+        disableElevation
+        startIcon={<Add />}
+        onClick={() => void onNewChat()}
+        sx={{ flexShrink: 0, height: 40 }}
       >
-        <Typography variant="subtitle2" color="text.secondary" sx={{ pl: 0.5 }}>
-          Chats
-        </Typography>
-        <IconButton
-          size="small"
-          aria-label="New chat"
-          onClick={() => void onNewChat()}
-          color="primary"
-        >
-          <Add fontSize="small" />
-        </IconButton>
-      </Stack>
-      <Box sx={{ px: 1, pb: 1 }}>
-        <TextField
-          size="small"
-          fullWidth
-          placeholder="Search messages…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search fontSize="small" sx={{ color: 'text.secondary' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              bgcolor: '#252525',
-              '& fieldset': { borderColor: 'rgba(255,255,255,0.12)' },
-            },
-          }}
-        />
-      </Box>
-      <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        New chat
+      </Button>
+      <TextField
+        size="small"
+        fullWidth
+        placeholder="Search messages"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        inputProps={{ 'aria-label': 'Search messages' }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search fontSize="small" sx={{ color: '#8E8C95' }} />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          flexShrink: 0,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '10px',
+            bgcolor: 'transparent',
+            '& fieldset': { borderColor: 'rgba(255,255,255,0.08)' },
+          },
+        }}
+      />
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', mx: -0.5, px: 0.5 }}>
         {loading && conversations.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
             <CircularProgress size={22} />
@@ -130,7 +126,10 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
               No conversations yet. Start typing below.
             </Typography>
           ) : (
-            <List dense disablePadding>
+            <List
+              disablePadding
+              sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}
+            >
               {conversations.map((c) => {
                 const label = c.title?.trim() || `Chat ${c.id}`;
                 const sub =
@@ -139,13 +138,20 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                         new Date(c.lastMessageAt || c.updatedAt).getTime()
                       )
                     : '';
+                const selected = c.id === conversationId;
                 return (
                   <ListItem
                     key={c.id}
                     disablePadding
+                    sx={{
+                      '& .adre-chat-delete': { opacity: selected ? 1 : 0 },
+                      '&:hover .adre-chat-delete, &:focus-within .adre-chat-delete':
+                        { opacity: 1 },
+                    }}
                     secondaryAction={
                       <Tooltip title="Delete conversation">
                         <IconButton
+                          className="adre-chat-delete"
                           edge="end"
                           size="small"
                           aria-label={`Delete conversation ${label}`}
@@ -153,7 +159,7 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                             e.stopPropagation();
                             void onDeleteConversation(c.id);
                           }}
-                          sx={{ color: 'text.secondary', mr: 0.5 }}
+                          sx={{ color: '#A9A7B0', mr: 0.25 }}
                         >
                           <DeleteOutline fontSize="small" />
                         </IconButton>
@@ -161,18 +167,35 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
                     }
                   >
                     <ListItemButton
-                      selected={c.id === conversationId}
+                      selected={selected}
                       onClick={() => void onSelectConversation(c.id)}
-                      sx={{ pr: 6 }}
+                      sx={{
+                        pr: 5,
+                        py: 1,
+                        borderRadius: '10px',
+                        '&.Mui-selected, &.Mui-selected:hover': {
+                          bgcolor: 'rgba(182,178,255,0.12)',
+                        },
+                      }}
                     >
                       <ListItemText
                         primary={label}
                         secondary={sub}
+                        sx={{ my: 0 }}
                         primaryTypographyProps={{
                           noWrap: true,
-                          variant: 'body2',
+                          sx: {
+                            fontSize: 14,
+                            fontWeight: selected ? 500 : 400,
+                            color: selected ? '#F4F3F6' : '#D9D7DE',
+                          },
                         }}
-                        secondaryTypographyProps={{ variant: 'caption' }}
+                        secondaryTypographyProps={{
+                          sx: {
+                            fontSize: 12,
+                            color: selected ? '#B9B5E8' : '#8E8C95',
+                          },
+                        }}
                       />
                     </ListItemButton>
                   </ListItem>
@@ -227,17 +250,6 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
             No matching messages.
           </Typography>
         )}
-      </Box>
-      <Box sx={{ p: 1, borderTop: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-        <Button
-          fullWidth
-          size="small"
-          variant="outlined"
-          startIcon={<Add />}
-          onClick={() => void onNewChat()}
-        >
-          New chat
-        </Button>
       </Box>
     </Stack>
   );

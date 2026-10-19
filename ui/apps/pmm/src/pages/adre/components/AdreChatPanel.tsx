@@ -2,23 +2,24 @@ import {
   Alert,
   Box,
   Button,
-  ButtonGroup,
+  CircularProgress,
   ClickAwayListener,
   Collapse,
+  FormControlLabel,
   Grow,
+  IconButton,
+  InputBase,
   MenuItem,
   MenuList,
   Paper,
   Popper,
-  IconButton,
+  Radio,
+  RadioGroup,
   Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import HelpOutline from '@mui/icons-material/HelpOutline';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ContentCopy from '@mui/icons-material/ContentCopy';
@@ -44,6 +45,8 @@ import {
   type ProgressStep,
 } from 'hooks/useAdreChat';
 import { AdreConversationsSidebar } from './AdreConversationsSidebar';
+import { AdreAlertsPanel, type AlertItem } from './AdreAlertsPanel';
+import { AdreContextRail } from './AdreContextRail';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
@@ -52,7 +55,127 @@ import {
   defaultChatModeFromSettings,
 } from 'utils/adreChatUiPreferences';
 
-export const AdreChatPanel: FC = () => {
+const PAGE_BG = '#121114';
+const CONTENT_WIDTH = 780;
+
+const MODES = [
+  {
+    value: 'fast',
+    label: 'Fast',
+    description: 'Quick answers, lighter analysis',
+  },
+  {
+    value: 'investigation',
+    label: 'Investigation',
+    description: 'Deeper analysis with tools and todo steps',
+  },
+] as const;
+
+// An answer reads as a document: the first paragraph as its lead, numbered steps, and headings in Poppins.
+const answerSx = {
+  minWidth: 0,
+  fontSize: 15,
+  lineHeight: 1.65,
+  color: '#E9E7EE',
+  overflowWrap: 'anywhere',
+  wordBreak: 'break-word',
+  '& img': { maxWidth: '100%', height: 'auto', display: 'block' },
+  '& h1, & h2, & h3, & h4, & h5, & h6': {
+    fontFamily: 'Poppins, sans-serif',
+    fontWeight: 600,
+    color: '#F4F3F6',
+    lineHeight: 1.4,
+    mt: 3,
+    mb: 1,
+  },
+  '& h1': { fontSize: 20 },
+  '& h2': { fontSize: 18 },
+  '& h3, & h4, & h5, & h6': { fontSize: 16 },
+  '& > :first-child': { mt: 0 },
+  '& strong': { color: '#F4F3F6' },
+  '& ul': { pl: 2.75, my: 1 },
+  '& li': { my: 0.75 },
+  '& ol': { listStyle: 'none', counterReset: 'adre-step', pl: 0, my: 1.5 },
+  '& ol > li': {
+    counterIncrement: 'adre-step',
+    position: 'relative',
+    pl: '40px',
+    my: 2,
+  },
+  '& ol > li::before': {
+    content: 'counter(adre-step)',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 26,
+    height: 26,
+    borderRadius: '50%',
+    bgcolor: '#26252B',
+    color: '#CFCBFF',
+    fontSize: 13,
+    fontWeight: 500,
+    lineHeight: '26px',
+    textAlign: 'center',
+  },
+  '& > .adre-md-p:first-child': {
+    px: 2.25,
+    py: 2,
+    mb: 2.5,
+    borderRadius: '14px',
+    bgcolor: 'rgba(182,178,255,0.08)',
+    border: '1px solid rgba(182,178,255,0.2)',
+    color: '#ECEAF1',
+  },
+  '& blockquote': {
+    m: 0,
+    my: 1.5,
+    pl: 2,
+    color: '#A9A7B0',
+    borderLeft: '3px solid rgba(255,255,255,0.12)',
+  },
+} as const;
+
+/** Tool steps of an answer, running or done. */
+const StepsList: FC<{ steps: ProgressStep[]; working: boolean }> = ({
+  steps,
+  working,
+}) => (
+  <Stack component="ul" gap={0.75} sx={{ m: 0, p: 0, listStyle: 'none' }}>
+    {steps.map((step) => (
+      <Stack
+        component="li"
+        key={step.id}
+        direction="row"
+        gap={1}
+        sx={{ fontSize: 13, color: '#A9A7B0' }}
+      >
+        <Box sx={{ flex: '0 0 16px', mt: '2px', display: 'flex' }}>
+          {step.status === 'running' && working ? (
+            <CircularProgress size={13} aria-label="Running" />
+          ) : (
+            <Check aria-label="Done" sx={{ fontSize: 16, color: '#86EFAC' }} />
+          )}
+        </Box>
+        <Box sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+          <Box
+            component="span"
+            sx={{ fontFamily: 'Roboto Mono, monospace', color: '#D9D7DE' }}
+          >
+            {step.toolName}
+          </Box>
+          {step.description ? ` · ${step.description}` : ''}
+        </Box>
+      </Stack>
+    ))}
+  </Stack>
+);
+
+export interface AdreChatPanelProps {
+  /** Firing alerts, shown in the side panel or folded above the chat on narrow screens. */
+  alerts?: AlertItem[];
+}
+
+export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
   const [searchParams] = useSearchParams();
   // A question from another page starts its own chat instead of joining the last one.
   const [startFresh] = useState(() => searchParams.has('ask'));
@@ -210,7 +333,19 @@ export const AdreChatPanel: FC = () => {
     []
   );
 
-  const selectedModelLabel = model || 'Default';
+  const theme = useTheme();
+  // The side panel needs room; narrower screens keep each answer's steps with it.
+  const railVisible = useMediaQuery(theme.breakpoints.up('lg'));
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const latestAssistantIdx = allMessages
+    .map((m) => m.role)
+    .lastIndexOf('assistant');
+  const latest =
+    latestAssistantIdx >= 0 ? allMessages[latestAssistantIdx] : undefined;
+  const railSteps = latest?.streaming
+    ? progressSteps
+    : (latest?.progressSteps ?? []);
+  const railUsage = latest && !latest.streaming ? latest.usage : undefined;
 
   return (
     <Box
@@ -218,24 +353,19 @@ export const AdreChatPanel: FC = () => {
         flex: 1,
         minHeight: 0,
         width: '100%',
-        maxWidth: '100%',
         minWidth: 0,
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        gap: { xs: 1, md: 0 },
         overflow: 'hidden',
+        bgcolor: PAGE_BG,
+        color: '#F4F3F6',
       }}
     >
       <Box
         sx={{
-          flex: {
-            xs: '0 0 auto',
-            md: '0 1 clamp(200px, 22vw, 260px)',
-          },
-          width: { md: 'clamp(200px, 22vw, 260px)' },
-          maxWidth: { xs: '100%', md: '260px' },
-          minWidth: 0,
-          maxHeight: { xs: 'min(36vh, 220px)', md: 'none' },
+          flex: { xs: '0 0 auto', md: '0 0 260px' },
+          width: { md: 260 },
+          maxHeight: { xs: 'min(36vh, 260px)', md: 'none' },
           minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
@@ -254,518 +384,440 @@ export const AdreChatPanel: FC = () => {
           onSearch={runSearch}
         />
       </Box>
-      <Stack
-        gap={1}
-        sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}
-      >
-        {chatError ? <Alert severity="error">{chatError}</Alert> : null}
+
+      <Stack sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+        {!railVisible && alerts.length > 0 && (
+          <Box sx={{ px: { xs: 2, md: 5 }, pt: 2, flexShrink: 0 }}>
+            <Button
+              size="small"
+              aria-expanded={alertsOpen}
+              onClick={() => setAlertsOpen((open) => !open)}
+              endIcon={alertsOpen ? <ExpandLess /> : <ExpandMore />}
+              sx={{
+                borderRadius: 999,
+                px: 1.75,
+                bgcolor: 'rgba(248,113,113,0.14)',
+                color: '#FCA5A5',
+                '&:hover': { bgcolor: 'rgba(248,113,113,0.2)' },
+              }}
+            >
+              {`${alerts.length} firing ${alerts.length === 1 ? 'alert' : 'alerts'}`}
+            </Button>
+            <Collapse in={alertsOpen}>
+              <Box sx={{ pt: 1.5, maxWidth: 520 }}>
+                <AdreAlertsPanel alerts={alerts} />
+              </Box>
+            </Collapse>
+          </Box>
+        )}
+        {chatError ? (
+          <Alert severity="error" sx={{ mx: { xs: 2, md: 5 }, mt: 2 }}>
+            {chatError}
+          </Alert>
+        ) : null}
         <Box
           ref={containerRef}
           id="messages-container"
           sx={{
             flex: 1,
             minHeight: 0,
-            minWidth: 0,
             overflowY: 'auto',
             overflowX: 'hidden',
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            bgcolor: '#212121',
-            borderRadius: 1,
+            px: { xs: 2, md: 5 },
+            py: 4,
           }}
         >
-          {allMessages.length === 0 ? (
-            <Typography
-              color="text.secondary"
-              variant="body2"
-              sx={{ alignSelf: 'center', mt: 2 }}
-            >
-              Ask a question about your database environment...
-            </Typography>
-          ) : (
-            <Box
-              sx={{
-                maxWidth: '100%',
-                width: '100%',
-                minWidth: 0,
-                alignSelf: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-              }}
-            >
-              {allMessages.map((msg, idx) => {
+          <Stack
+            gap={3}
+            sx={{ maxWidth: CONTENT_WIDTH, mx: 'auto', minWidth: 0 }}
+          >
+            {allMessages.length === 0 ? (
+              <Typography
+                sx={{
+                  alignSelf: 'center',
+                  mt: 6,
+                  color: '#A9A7B0',
+                  fontSize: 15,
+                }}
+              >
+                Ask a question about your database environment...
+              </Typography>
+            ) : (
+              allMessages.map((msg, idx) => {
                 const messageKey = String(msg.serverMessageId ?? `row-${idx}`);
                 const messageText = (msg.content || response || '').trim();
+                const inRail = railVisible && idx === latestAssistantIdx;
+                const time = msg.timestamp
+                  ? ` · ${formatTimestamp(msg.timestamp)}`
+                  : '';
+                if (msg.role === 'user') {
+                  return (
+                    <Box
+                      key={messageKey}
+                      data-adre-msg-id={
+                        msg.serverMessageId != null
+                          ? String(msg.serverMessageId)
+                          : undefined
+                      }
+                      sx={{
+                        pt: idx > 0 ? 3 : 0,
+                        borderTop: idx > 0 ? 1 : 0,
+                        borderColor: 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <Typography sx={{ fontSize: 12, color: '#8E8C95' }}>
+                        {`You${time}`}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          mt: 0.75,
+                          fontFamily: 'Poppins, sans-serif',
+                          fontSize: msg.content.length > 200 ? 15 : 18,
+                          fontWeight: 500,
+                          lineHeight: 1.45,
+                          whiteSpace: 'pre-wrap',
+                          overflowWrap: 'anywhere',
+                        }}
+                      >
+                        {msg.content}
+                      </Typography>
+                    </Box>
+                  );
+                }
                 return (
                   <Box
                     key={messageKey}
+                    component="article"
                     data-adre-msg-id={
                       msg.serverMessageId != null
                         ? String(msg.serverMessageId)
                         : undefined
                     }
-                    sx={{
-                      display: 'flex',
-                      justifyContent:
-                        msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      alignSelf:
-                        msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      maxWidth: '100%',
-                      minWidth: 0,
-                    }}
+                    sx={{ minWidth: 0 }}
                   >
-                    <Box
-                      sx={{
-                        maxWidth: { xs: '92%', sm: '88%', md: '85%' },
-                        minWidth: 0,
-                        px: 2,
-                        py: 1.5,
-                        borderRadius: 2,
-                        '& img': {
-                          maxWidth: '100%',
-                          height: 'auto',
-                          display: 'block',
-                        },
-                        '& pre': { maxWidth: '100%', minWidth: 0 },
-                        ...(msg.role === 'user'
-                          ? {
-                              bgcolor: '#2d3748',
-                              color: 'text.primary',
-                            }
-                          : {
-                              bgcolor: 'rgba(255,255,255,0.05)',
-                              border: 1,
-                              borderColor: 'rgba(255,255,255,0.12)',
-                            }),
-                      }}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ mb: 1 }}
                     >
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        sx={{ mb: 0.5 }}
-                      >
-                        <Typography
-                          variant="caption"
-                          color={
-                            msg.role === 'user'
-                              ? 'text.secondary'
-                              : 'text.secondary'
+                      <Typography sx={{ fontSize: 12, color: '#8E8C95' }}>
+                        {`Assistant${time}`}
+                      </Typography>
+                      {messageText ? (
+                        <IconButton
+                          size="small"
+                          aria-label={
+                            copiedMessageKey === messageKey
+                              ? 'Copied'
+                              : 'Copy response'
                           }
-                          display="block"
-                          sx={{ fontSize: '0.7rem', opacity: 0.8 }}
-                        >
-                          {msg.role === 'user' ? 'You' : 'Assistant'}
-                          {msg.timestamp
-                            ? ` · ${formatTimestamp(msg.timestamp)}`
-                            : ''}
-                        </Typography>
-                        {msg.role === 'assistant' && messageText ? (
-                          <IconButton
-                            size="small"
-                            title={
+                          title={
+                            copiedMessageKey === messageKey
+                              ? 'Copied'
+                              : 'Copy response'
+                          }
+                          onClick={() =>
+                            copyAssistantMessage(messageKey, messageText)
+                          }
+                          sx={{
+                            color:
                               copiedMessageKey === messageKey
-                                ? 'Copied'
-                                : 'Copy response'
-                            }
-                            onClick={() =>
-                              copyAssistantMessage(messageKey, messageText)
-                            }
+                                ? 'success.light'
+                                : '#A9A7B0',
+                          }}
+                        >
+                          {copiedMessageKey === messageKey ? (
+                            <Check fontSize="inherit" />
+                          ) : (
+                            <ContentCopy fontSize="inherit" />
+                          )}
+                        </IconButton>
+                      ) : null}
+                    </Stack>
+                    {(msg.reasoning ?? (msg.streaming && reasoning)) && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            setExpandedReasoningIdx((prev: number | null) =>
+                              prev === idx ? null : idx
+                            )
+                          }
+                          startIcon={
+                            expandedReasoningIdx === idx ? (
+                              <ExpandLess />
+                            ) : (
+                              <ExpandMore />
+                            )
+                          }
+                          sx={{ color: '#A9A7B0', px: 1 }}
+                        >
+                          Reasoning
+                        </Button>
+                        <Collapse in={expandedReasoningIdx === idx}>
+                          <Typography
                             sx={{
-                              p: 0.25,
-                              color:
-                                copiedMessageKey === messageKey
-                                  ? 'success.light'
-                                  : 'text.secondary',
+                              mt: 1,
+                              fontSize: 14,
+                              color: '#A9A7B0',
+                              fontStyle: 'italic',
+                              whiteSpace: 'pre-wrap',
                             }}
                           >
-                            {copiedMessageKey === messageKey ? (
-                              <Check fontSize="inherit" />
-                            ) : (
-                              <ContentCopy fontSize="inherit" />
-                            )}
-                          </IconButton>
-                        ) : null}
-                      </Stack>
-                      {msg.role === 'user' ? (
-                        <Typography
-                          sx={{
-                            whiteSpace: 'pre-wrap',
-                            overflowWrap: 'anywhere',
-                            wordBreak: 'break-word',
-                          }}
-                        >
-                          {msg.content}
-                        </Typography>
-                      ) : (
-                        <Box
-                          sx={{
-                            minWidth: 0,
-                            overflowWrap: 'anywhere',
-                            wordBreak: 'break-word',
-                          }}
-                        >
-                          {(msg.reasoning ?? (msg.streaming && reasoning)) && (
-                            <>
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  setExpandedReasoningIdx(
-                                    (prev: number | null) =>
-                                      prev === idx ? null : idx
-                                  )
-                                }
-                                sx={{ p: 0, mr: 1 }}
-                              >
-                                {expandedReasoningIdx === idx ? (
-                                  <ExpandLess />
-                                ) : (
-                                  <ExpandMore />
-                                )}
-                              </IconButton>
-                              <Typography
-                                component="span"
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{ cursor: 'pointer' }}
-                                onClick={() =>
-                                  setExpandedReasoningIdx(
-                                    (prev: number | null) =>
-                                      prev === idx ? null : idx
-                                  )
-                                }
-                              >
-                                Reasoning
-                              </Typography>
-                              <Collapse in={expandedReasoningIdx === idx}>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{
-                                    mt: 1,
-                                    fontStyle: 'italic',
-                                    whiteSpace: 'pre-wrap',
-                                  }}
-                                >
-                                  {msg.reasoning ?? reasoning}
-                                </Typography>
-                              </Collapse>
-                              {(msg.content ?? response) && (
-                                <Box sx={{ mt: 1 }} />
-                              )}
-                            </>
-                          )}
-                          {msg.streaming && progressSteps.length > 0 && (
-                            <Box sx={{ mb: 1 }}>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                display="block"
-                                sx={{ mb: 0.5 }}
-                              >
-                                Progress
-                              </Typography>
-                              <Stack
-                                component="ul"
-                                sx={{ m: 0, pl: 2.5, listStyle: 'none' }}
-                              >
-                                {progressSteps.map((step: ProgressStep) => (
-                                  <Box
-                                    component="li"
-                                    key={step.id}
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'flex-start',
-                                      gap: 0.5,
-                                      py: 0.25,
-                                      fontSize: '0.8125rem',
-                                      color:
-                                        step.status === 'done'
-                                          ? 'text.secondary'
-                                          : 'text.primary',
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      variant="body2"
-                                      color="inherit"
-                                    >
-                                      {step.status === 'running' ? '⟳' : '✓'}{' '}
-                                      {step.toolName}
-                                    </Typography>
-                                    {step.description && (
-                                      <Typography
-                                        component="span"
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ flex: 1 }}
-                                      >
-                                        —{' '}
-                                        {step.description.length > 60
-                                          ? `${step.description.slice(0, 60)}…`
-                                          : step.description}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                ))}
-                              </Stack>
+                            {msg.reasoning ?? reasoning}
+                          </Typography>
+                        </Collapse>
+                      </Box>
+                    )}
+                    {!inRail && msg.streaming && progressSteps.length > 0 && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <StepsList steps={progressSteps} working={loading} />
+                      </Box>
+                    )}
+                    {!inRail &&
+                      !msg.streaming &&
+                      (msg.progressSteps?.length ?? 0) > 0 && (
+                        <Box sx={{ mb: 1.5 }}>
+                          <Button
+                            size="small"
+                            onClick={() =>
+                              setExpandedProgressIdx((prev: number | null) =>
+                                prev === idx ? null : idx
+                              )
+                            }
+                            startIcon={
+                              expandedProgressIdx === idx ? (
+                                <ExpandLess />
+                              ) : (
+                                <ExpandMore />
+                              )
+                            }
+                            sx={{ color: '#A9A7B0', px: 1 }}
+                          >
+                            {`Steps · ${msg.progressSteps?.length}`}
+                          </Button>
+                          <Collapse in={expandedProgressIdx === idx}>
+                            <Box sx={{ pt: 1 }}>
+                              <StepsList
+                                steps={msg.progressSteps ?? []}
+                                working={false}
+                              />
                             </Box>
-                          )}
-                          {!msg.streaming &&
-                            (msg.progressSteps?.length ?? 0) > 0 && (
-                              <Box sx={{ mb: 1 }}>
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    setExpandedProgressIdx(
-                                      (prev: number | null) =>
-                                        prev === idx ? null : idx
-                                    )
-                                  }
-                                  sx={{ p: 0, mr: 1 }}
-                                >
-                                  {expandedProgressIdx === idx ? (
-                                    <ExpandLess />
-                                  ) : (
-                                    <ExpandMore />
-                                  )}
-                                </IconButton>
-                                <Typography
-                                  component="span"
-                                  variant="caption"
-                                  color="text.secondary"
-                                  sx={{ cursor: 'pointer' }}
-                                  onClick={() =>
-                                    setExpandedProgressIdx(
-                                      (prev: number | null) =>
-                                        prev === idx ? null : idx
-                                    )
-                                  }
-                                >
-                                  Progress
-                                </Typography>
-                                <Collapse in={expandedProgressIdx === idx}>
-                                  <Stack
-                                    component="ul"
-                                    sx={{
-                                      m: 0,
-                                      pl: 2.5,
-                                      listStyle: 'none',
-                                      mt: 0.5,
-                                    }}
-                                  >
-                                    {(msg.progressSteps ?? []).map(
-                                      (step: ProgressStep) => (
-                                        <Box
-                                          component="li"
-                                          key={step.id}
-                                          sx={{
-                                            display: 'flex',
-                                            alignItems: 'flex-start',
-                                            gap: 0.5,
-                                            py: 0.25,
-                                            fontSize: '0.8125rem',
-                                            color: 'text.secondary',
-                                          }}
-                                        >
-                                          <Typography
-                                            component="span"
-                                            variant="body2"
-                                            color="inherit"
-                                          >
-                                            ✓ {step.toolName}
-                                          </Typography>
-                                          {step.description && (
-                                            <Typography
-                                              component="span"
-                                              variant="caption"
-                                              color="text.secondary"
-                                              sx={{ flex: 1 }}
-                                            >
-                                              —{' '}
-                                              {step.description.length > 60
-                                                ? `${step.description.slice(0, 60)}…`
-                                                : step.description}
-                                            </Typography>
-                                          )}
-                                        </Box>
-                                      )
-                                    )}
-                                  </Stack>
-                                </Collapse>
-                              </Box>
-                            )}
-                          {(msg.content || response || '').trim() ? (
-                            <Markdown
-                              remarkPlugins={[remarkGfm]}
-                              rehypePlugins={[rehypeRaw]}
-                              components={getMarkdownComponents(
-                                msg.content || response || ''
-                              )}
-                            >
-                              {msg.content || response}
-                            </Markdown>
-                          ) : msg.streaming && loading && !response ? (
-                            <Typography color="text.secondary" variant="body2">
-                              {progressSteps.length > 0
-                                ? 'Working…'
-                                : 'Typing...'}
-                            </Typography>
-                          ) : null}
-                          {!msg.streaming &&
-                          msg.role === 'assistant' &&
-                          msg.usage ? (
-                            <HolmesUsageFooter usage={msg.usage} />
-                          ) : null}
+                          </Collapse>
                         </Box>
                       )}
-                    </Box>
+                    {messageText ? (
+                      <Box sx={answerSx}>
+                        <Markdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeRaw]}
+                          components={getMarkdownComponents(
+                            msg.content || response || ''
+                          )}
+                        >
+                          {msg.content || response}
+                        </Markdown>
+                      </Box>
+                    ) : msg.streaming && loading && !response ? (
+                      <Typography sx={{ fontSize: 14, color: '#A9A7B0' }}>
+                        {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
+                      </Typography>
+                    ) : null}
+                    {!inRail && !msg.streaming && msg.usage ? (
+                      <HolmesUsageFooter usage={msg.usage} align="left" />
+                    ) : null}
                   </Box>
                 );
-              })}
-            </Box>
-          )}
-          <div ref={messagesEndRef} />
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </Stack>
         </Box>
-        <Stack sx={{ minWidth: 0, flexShrink: 0 }}>
-          <TextField
-            size="small"
-            placeholder="Message the Assistant..."
-            value={ask}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setAsk(e.target.value)
-            }
-            onKeyDown={(e: React.KeyboardEvent) =>
-              e.key === 'Enter' && !e.shiftKey && onSend()
-            }
-            fullWidth
-            multiline
-            minRows={2}
-            maxRows={6}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                bgcolor: '#1e1e1e',
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.12)' },
-              },
-            }}
-          />
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            flexWrap="wrap"
-            gap={1}
-            sx={{ mt: 0.75, minWidth: 0, rowGap: 1 }}
-          >
+
+        <Box
+          component="form"
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault();
+            void onSend();
+          }}
+          sx={{ flexShrink: 0, px: { xs: 2, md: 5 }, pb: 3, pt: 1 }}
+        >
+          <Stack gap={1.25} sx={{ maxWidth: CONTENT_WIDTH, mx: 'auto' }}>
+            <RadioGroup
+              row
+              aria-label="Chat mode"
+              value={mode}
+              onChange={(_, value) => {
+                if (loading) return;
+                setModePersist(value as 'fast' | 'investigation');
+              }}
+              sx={{ gap: 1, flexWrap: 'wrap' }}
+            >
+              {MODES.map((m) => (
+                <FormControlLabel
+                  key={m.value}
+                  value={m.value}
+                  disabled={loading}
+                  control={<Radio size="small" sx={{ p: 0.5 }} />}
+                  label={
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
+                        {m.label}
+                      </Typography>
+                      <Typography sx={{ fontSize: 12, color: '#A9A7B0' }}>
+                        {m.description}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    m: 0,
+                    flex: '1 1 220px',
+                    alignItems: 'flex-start',
+                    gap: 0.75,
+                    py: 1,
+                    pl: 0.75,
+                    pr: 1.5,
+                    borderRadius: '12px',
+                    border: 1,
+                    borderColor:
+                      mode === m.value
+                        ? 'rgba(182,178,255,0.45)'
+                        : 'rgba(255,255,255,0.08)',
+                    bgcolor:
+                      mode === m.value
+                        ? 'rgba(182,178,255,0.06)'
+                        : 'transparent',
+                  }}
+                />
+              ))}
+            </RadioGroup>
             <Stack
               direction="row"
-              alignItems="center"
-              gap={0.5}
-              sx={{ minWidth: 0, flexWrap: 'wrap' }}
+              alignItems="flex-end"
+              gap={1.25}
+              sx={{
+                p: '10px 10px 10px 16px',
+                borderRadius: '16px',
+                bgcolor: '#1D1C21',
+                border: 1,
+                borderColor: 'rgba(255,255,255,0.1)',
+              }}
             >
-              <ToggleButtonGroup
-                value={mode}
-                exclusive
-                size="small"
-                onChange={(_, value: 'fast' | 'investigation' | null) => {
-                  if (!value || loading) return;
-                  setModePersist(value);
+              <InputBase
+                multiline
+                minRows={2}
+                maxRows={6}
+                placeholder="Message the Assistant..."
+                value={ask}
+                onChange={(e) => setAsk(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    void onSend();
+                  }
                 }}
-                aria-label="Chat mode"
-              >
-                <ToggleButton value="fast" disabled={loading}>
-                  Fast
-                </ToggleButton>
-                <ToggleButton value="investigation" disabled={loading}>
-                  Investigation
-                </ToggleButton>
-              </ToggleButtonGroup>
-              <Tooltip
-                title={
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Chat Mode
-                    </Typography>
-                    <Typography variant="body2">
-                      Fast: quick answers, lighter analysis.
-                    </Typography>
-                    <Typography variant="body2">
-                      Investigation: deeper analysis with tools and todo steps.
-                    </Typography>
-                  </Box>
-                }
-                placement="top"
-              >
-                <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                  <HelpOutline fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-            <Box ref={modelAnchorRef} sx={{ flexShrink: 0, minWidth: 0 }}>
-              <ButtonGroup variant="contained" size="small" disableElevation>
+                inputProps={{ 'aria-label': 'Message the Assistant' }}
+                sx={{ flex: 1, minWidth: 0, fontSize: 15, lineHeight: 1.5 }}
+              />
+              <Box ref={modelAnchorRef} sx={{ flexShrink: 0 }}>
                 <Button
-                  onClick={onSend}
-                  disabled={loading || !ask.trim()}
-                  startIcon={<Send fontSize="small" />}
-                >
-                  {`Send (${selectedModelLabel})`}
-                </Button>
-                <Button
-                  size="small"
+                  variant="outlined"
+                  color="inherit"
                   onClick={() => setModelMenuOpen((open) => !open)}
                   disabled={loading}
                   aria-label="Select model"
+                  endIcon={<ArrowDropDownIcon />}
+                  sx={{
+                    height: 40,
+                    borderColor: 'rgba(255,255,255,0.12)',
+                    color: '#D9D7DE',
+                    fontWeight: 400,
+                  }}
                 >
-                  <ArrowDropDownIcon />
+                  {model || 'Default model'}
                 </Button>
-              </ButtonGroup>
-              <Popper
-                open={modelMenuOpen}
-                anchorEl={modelAnchorRef.current}
-                transition
-                placement="top-end"
+              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                disableElevation
+                disabled={loading || !ask.trim()}
+                endIcon={<Send fontSize="small" />}
+                sx={{ height: 40, flexShrink: 0 }}
               >
-                {({ TransitionProps }) => (
-                  <Grow {...TransitionProps}>
-                    <Paper elevation={6}>
-                      <ClickAwayListener
-                        onClickAway={() => setModelMenuOpen(false)}
-                      >
-                        <MenuList autoFocusItem={modelMenuOpen} dense>
-                          <MenuItem
-                            selected={model === ''}
-                            onClick={() => {
-                              setModelPersist('');
-                              setModelMenuOpen(false);
-                            }}
-                          >
-                            Default
-                          </MenuItem>
-                          {models.map((m: string) => (
-                            <MenuItem
-                              key={m}
-                              selected={model === m}
-                              onClick={() => {
-                                setModelPersist(m);
-                                setModelMenuOpen(false);
-                              }}
-                            >
-                              {m}
-                            </MenuItem>
-                          ))}
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-            </Box>
+                Send
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+          <Popper
+            open={modelMenuOpen}
+            anchorEl={modelAnchorRef.current}
+            transition
+            placement="top-end"
+          >
+            {({ TransitionProps }) => (
+              <Grow {...TransitionProps}>
+                <Paper elevation={6}>
+                  <ClickAwayListener
+                    onClickAway={() => setModelMenuOpen(false)}
+                  >
+                    <MenuList autoFocusItem={modelMenuOpen} dense>
+                      <MenuItem
+                        selected={model === ''}
+                        onClick={() => {
+                          setModelPersist('');
+                          setModelMenuOpen(false);
+                        }}
+                      >
+                        Default
+                      </MenuItem>
+                      {models.map((m: string) => (
+                        <MenuItem
+                          key={m}
+                          selected={model === m}
+                          onClick={() => {
+                            setModelPersist(m);
+                            setModelMenuOpen(false);
+                          }}
+                        >
+                          {m}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
+        </Box>
       </Stack>
+
+      {railVisible && (
+        <Box
+          component="aside"
+          aria-label="Answer details"
+          sx={{
+            flex: '0 0 340px',
+            width: 340,
+            minHeight: 0,
+            overflowY: 'auto',
+            boxSizing: 'border-box',
+            px: 2.5,
+            py: 3,
+            bgcolor: '#17161A',
+            borderLeft: 1,
+            borderColor: 'rgba(255,255,255,0.06)',
+          }}
+        >
+          <AdreContextRail
+            alerts={alerts}
+            steps={railSteps}
+            working={!!latest?.streaming && loading}
+            usage={railUsage}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

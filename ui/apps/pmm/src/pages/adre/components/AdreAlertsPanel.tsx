@@ -1,13 +1,5 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { FC, useState, useEffect } from 'react';
+import { Box, Button, Checkbox, Stack, Typography } from '@mui/material';
+import { FC, Fragment, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdreAlerts, getAlertMetadataFromLabels } from 'api/adre';
 import { useCreateInvestigation } from 'hooks/api/useInvestigations';
@@ -24,6 +16,16 @@ export interface AlertItem {
 export interface AdreAlertsPanelProps {
   alerts?: AlertItem[];
 }
+
+/** The color of an alert's severity label. */
+const severityColor = (severity: string) => {
+  const s = severity.toLowerCase();
+  if (s === 'critical' || s === 'error' || s === 'emergency' || s === 'alert') {
+    return '#FCA5A5';
+  }
+  if (s === 'warning') return '#FCD34D';
+  return '#A9A7B0';
+};
 
 /** Unique key for an alert (fingerprint if set, else label+index). */
 function getAlertKey(a: AlertItem, index: number): string {
@@ -120,141 +122,186 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({
     );
   };
 
+  const selectedCount = selected.size;
   return (
-    <Box
-      sx={{
-        height: '100%',
-        width: '100%',
-        maxWidth: '100%',
-        minWidth: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        p: 1.5,
-        borderLeft: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
-        boxSizing: 'border-box',
-      }}
-    >
-      <Typography
-        variant="subtitle2"
-        color="text.secondary"
-        sx={{ flexShrink: 0, mb: 1 }}
-      >
-        Firing alerts ({alerts.length})
-      </Typography>
-      <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
-        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-          {loadingAlerts ? (
-            <Typography variant="caption" color="text.secondary">
-              Loading...
-            </Typography>
-          ) : alerts.length === 0 ? (
-            <Typography variant="caption" color="text.secondary">
-              No firing alerts.
-            </Typography>
-          ) : (
-            <FormGroup sx={{ gap: 0 }}>
-              {alerts.map((a, index) => {
-                const key = getAlertKey(a, index);
-                const label =
-                  a.labels?.alertname ??
-                  a.annotations?.summary ??
-                  (a.fingerprint ? String(a.fingerprint) : key);
-                const { nodeName, serviceName } = getAlertMetadataFromLabels(
-                  a.labels
-                );
-                const severity = a.labels?.severity ?? a.labels?.Severity ?? '';
-                const schema = a.labels?.schema ?? a.labels?.database ?? '';
-                const queryID = a.labels?.query_id ?? a.labels?.queryid ?? '';
-                const shortFingerprint = (
-                  a.labels?.fingerprint ??
-                  a.fingerprint ??
-                  ''
-                ).toString();
-                const fingerprintHint = shortFingerprint
-                  ? shortFingerprint.length > 34
-                    ? `${shortFingerprint.slice(0, 34)}…`
-                    : shortFingerprint
-                  : '';
-                const details = [
-                  nodeName && `node=${nodeName}`,
-                  serviceName && `service=${serviceName}`,
-                  schema && `db=${schema}`,
-                  queryID && `qid=${queryID}`,
-                  severity && `sev=${severity}`,
-                  fingerprintHint && `fp=${fingerprintHint}`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ');
-                return (
-                  <FormControlLabel
-                    key={key}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={selected.has(key)}
-                        onChange={() => toggle(key)}
-                      />
-                    }
-                    label={
+    <Stack component="section" aria-label="Firing alerts" gap={1.25}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Typography
+          component="h2"
+          sx={{
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          Firing alerts
+        </Typography>
+        {alerts.length > 0 && (
+          <Box
+            component="span"
+            sx={{
+              px: 1,
+              borderRadius: 999,
+              bgcolor: 'rgba(248,113,113,0.14)',
+              color: '#FCA5A5',
+              fontSize: 12,
+              fontWeight: 500,
+            }}
+          >
+            {alerts.length}
+          </Box>
+        )}
+      </Stack>
+      {loadingAlerts ? (
+        <Typography variant="caption" color="text.secondary">
+          Loading...
+        </Typography>
+      ) : alerts.length === 0 ? (
+        <Typography variant="caption" color="text.secondary">
+          No firing alerts.
+        </Typography>
+      ) : (
+        alerts.map((a, index) => {
+          const key = getAlertKey(a, index);
+          const label =
+            a.labels?.alertname ??
+            a.annotations?.summary ??
+            (a.fingerprint ? String(a.fingerprint) : key);
+          const { nodeName, serviceName } = getAlertMetadataFromLabels(
+            a.labels
+          );
+          const severity = a.labels?.severity ?? a.labels?.Severity ?? '';
+          const fields = [
+            ['Node', nodeName],
+            ['Service', serviceName],
+            ['Database', a.labels?.schema ?? a.labels?.database],
+            ['Query ID', a.labels?.query_id ?? a.labels?.queryid],
+            ['Fingerprint', a.labels?.fingerprint ?? a.fingerprint],
+          ].filter((f): f is [string, string] => !!f[1]);
+          const checked = selected.has(key);
+          return (
+            <Box
+              key={key}
+              component="label"
+              sx={{
+                display: 'flex',
+                gap: 1,
+                p: 1.5,
+                pl: 0.75,
+                borderRadius: '12px',
+                bgcolor: '#1F1E23',
+                border: 1,
+                borderColor: checked
+                  ? 'rgba(182,178,255,0.45)'
+                  : 'rgba(255,255,255,0.08)',
+                cursor: 'pointer',
+              }}
+            >
+              <Checkbox
+                size="small"
+                checked={checked}
+                onChange={() => toggle(key)}
+                sx={{ p: 0.5, alignSelf: 'flex-start' }}
+              />
+              <Stack gap={1} sx={{ flex: 1, minWidth: 0 }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  gap={1}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 500,
+                      overflowWrap: 'anywhere',
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                  {severity && (
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      gap={0.75}
+                      sx={{
+                        flexShrink: 0,
+                        fontSize: 12,
+                        color: severityColor(severity),
+                      }}
+                    >
                       <Box
+                        component="span"
                         sx={{
-                          minWidth: 0,
-                          maxWidth: '100%',
-                          overflow: 'hidden',
+                          width: 7,
+                          height: 7,
+                          borderRadius: 999,
+                          bgcolor: 'currentColor',
                         }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontSize: '0.75rem',
-                            display: 'block',
-                            overflowWrap: 'anywhere',
-                            wordBreak: 'break-word',
-                          }}
-                        >
-                          {String(label).length > 40
-                            ? `${String(label).slice(0, 40)}…`
-                            : label}
-                        </Typography>
-                        {details && (
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{
-                              fontSize: '0.68rem',
-                              display: 'block',
-                              overflowWrap: 'anywhere',
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            {details}
-                          </Typography>
-                        )}
-                      </Box>
-                    }
+                      />
+                      {severity}
+                    </Stack>
+                  )}
+                </Stack>
+                {fields.length > 0 && (
+                  <Box
+                    component="dl"
                     sx={{
                       m: 0,
-                      py: 0.25,
-                      alignItems: 'flex-start',
-                      maxWidth: '100%',
+                      display: 'grid',
+                      gridTemplateColumns: '76px minmax(0, 1fr)',
+                      rowGap: 0.5,
+                      fontSize: 12,
+                      '& dt': { color: '#8E8C95' },
+                      '& dd': {
+                        m: 0,
+                        color: '#D9D7DE',
+                        overflowWrap: 'anywhere',
+                      },
                     }}
-                  />
-                );
-              })}
-            </FormGroup>
-          )}
-        </Box>
+                  >
+                    {fields.map(([name, value]) => (
+                      <Fragment key={name}>
+                        <dt>{name}</dt>
+                        <Box
+                          component="dd"
+                          sx={
+                            name === 'Fingerprint'
+                              ? {
+                                  fontFamily: 'Roboto Mono, monospace',
+                                  color: '#A9A7B0 !important',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }
+                              : undefined
+                          }
+                          title={name === 'Fingerprint' ? value : undefined}
+                        >
+                          {value}
+                        </Box>
+                      </Fragment>
+                    ))}
+                  </Box>
+                )}
+              </Stack>
+            </Box>
+          );
+        })
+      )}
+      {alerts.length > 0 && (
         <Button
-          variant="contained"
-          size="small"
+          variant="outlined"
           onClick={handleStartInvestigation}
-          disabled={createMutation.isPending || selected.size === 0}
-          sx={{ mt: 0.5, flexShrink: 0 }}
+          disabled={createMutation.isPending || selectedCount === 0}
         >
-          {createMutation.isPending ? 'Creating...' : 'Start investigation'}
+          {createMutation.isPending
+            ? 'Creating...'
+            : selectedCount === 0
+              ? 'Start investigation'
+              : `Start investigation (${selectedCount} ${selectedCount === 1 ? 'alert' : 'alerts'})`}
         </Button>
-      </Stack>
-    </Box>
+      )}
+    </Stack>
   );
 };

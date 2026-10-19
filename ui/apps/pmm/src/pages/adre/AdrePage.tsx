@@ -21,7 +21,7 @@ import {
 import { useUser } from 'contexts/user';
 import { PMM_ASSISTANT_CONFIG_URL } from 'lib/constants';
 import { AdreChatPanel } from './components/AdreChatPanel';
-import { AdreAlertsPanel, type AlertItem } from './components/AdreAlertsPanel';
+import { type AlertItem } from './components/AdreAlertsPanel';
 
 /** True when the error is an HTTP 403 (assumes axios-style error.response.status). */
 function isForbiddenError(err: unknown): boolean {
@@ -158,74 +158,18 @@ const AdrePage: FC = () => {
     <Page title="" fullWidth footer={null}>
       <Box
         sx={{
-          bgcolor: '#212121',
-          color: 'text.primary',
           flex: 1,
           width: '100%',
-          maxWidth: '100%',
           height: '100%',
-          maxHeight: '100%',
           minWidth: 0,
           minHeight: 0,
-          boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
-          py: 0.5,
-          borderRadius: 1,
           overflow: 'hidden',
-          '& .MuiCard-root': {
-            bgcolor: '#212121',
-            borderColor: 'rgba(255,255,255,0.12)',
-            color: 'inherit',
-          },
-          '& .MuiCardContent-root': { bgcolor: 'transparent' },
-          '& #messages-container': { bgcolor: '#1e1e1e' },
+          borderRadius: 1,
         }}
       >
-        <Stack
-          direction={{ xs: 'column', md: alerts.length > 0 ? 'row' : 'column' }}
-          gap={2}
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            minWidth: 0,
-            width: '100%',
-            maxWidth: '100%',
-            alignItems: 'stretch',
-            overflow: 'hidden',
-          }}
-        >
-          <Box
-            sx={{
-              flex: '1 1 0%',
-              minWidth: 0,
-              minHeight: 0,
-              maxWidth: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
-          >
-            <AdreChatPanel />
-          </Box>
-          {alerts.length > 0 && (
-            <Box
-              sx={{
-                flex: { xs: '0 0 auto', md: '0 0 260px' },
-                width: { xs: '100%', md: 260 },
-                maxWidth: '100%',
-                minWidth: 0,
-                minHeight: 0,
-                maxHeight: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-              }}
-            >
-              <AdreAlertsPanel alerts={alerts as AlertItem[]} />
-            </Box>
-          )}
-        </Stack>
+        <AdreChatPanel alerts={alerts as AlertItem[]} />
       </Box>
     </Page>
   );

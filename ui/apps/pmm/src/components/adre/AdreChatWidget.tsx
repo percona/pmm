@@ -40,6 +40,7 @@ import { PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import { buildGrafanaDashboardContext } from 'components/adre/grafana-context';
+import { showsAdreWidget } from './adreWidgetVisibility';
 
 interface ChatMessageBubbleProps {
   msg: ChatMessage & { streaming?: boolean };
@@ -354,9 +355,6 @@ export const AdreChatWidget: FC = () => {
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const chatViaLabel = isConfigured ? 'PMM Assistant' : 'Not configured';
-  const hideOnNativeQan =
-    location.pathname.includes('/qan') &&
-    !location.pathname.includes('/qan/ai-insights');
 
   const scrollToBottom = useCallback((instant?: boolean) => {
     const now = Date.now();
@@ -430,7 +428,7 @@ export const AdreChatWidget: FC = () => {
     grafanaDocumentTitle,
   ]);
 
-  if (!isConfigured || hideOnNativeQan) return null;
+  if (!isConfigured || !showsAdreWidget(location.pathname)) return null;
 
   return (
     <>
