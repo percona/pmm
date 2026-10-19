@@ -44,9 +44,8 @@ const AttentionRow: FC<{
       tabIndex={rowRef ? -1 : undefined}
       divider={divider}
       alignItems="flex-start"
-      sx={{ gap: 2 }}
     >
-      <ListItemIcon sx={{ minWidth: 0 }}>
+      <ListItemIcon>
         <StatusIcon
           size="small"
           severity={item.severity}

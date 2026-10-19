@@ -18,8 +18,8 @@ const QueryRow: FC<{ row: HubQueryRow; divider: boolean }> = ({
   row,
   divider,
 }) => (
-  <ListItem divider={divider} alignItems="flex-start" sx={{ gap: 2 }}>
-    <ListItemIcon sx={{ minWidth: 0 }}>
+  <ListItem divider={divider} alignItems="flex-start">
+    <ListItemIcon>
       <StatusIcon
         size="small"
         severity={row.severity}
