@@ -112,8 +112,9 @@ export interface HubAttentionItem {
 export interface HubStatus {
   /** Worst health; with attentionSeverity, drives the StatusIcon. */
   state: HubHealth | 'empty';
-  clusters: number;
-  /** Clusters with a problem or an attention row; null when metrics failed. */
+  /** Null when the inventory failed. */
+  clusters: number | null;
+  /** Clusters with a problem or an attention row; null when metrics or the inventory failed. */
   needAttention: number | null;
   /** Attention rows no cluster accounts for, such as a slower query or a failed install. */
   otherIssues: number;

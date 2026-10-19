@@ -76,6 +76,22 @@ describe('HubStatusLine', () => {
     ).toBeInTheDocument();
   });
 
+  it('reads dashes, not zero, when the inventory could not be asked', () => {
+    renderLine({
+      state: 'noData',
+      clusters: null,
+      needAttention: null,
+      lastGoodBackup: 'unknown',
+    });
+
+    expect(sentence()).toHaveTextContent(/^— clusters/);
+    expect(
+      screen.getByText('Could not count the clusters')
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /clusters/ })).toBeNull();
+    expect(screen.queryByText(/none need attention/)).toBeNull();
+  });
+
   it('offers to set up a backup when none is and the reader can', () => {
     renderHub(
       <HubStatusLine

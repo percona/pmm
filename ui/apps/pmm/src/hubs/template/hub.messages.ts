@@ -29,6 +29,9 @@ export const Messages = {
     noAttention: 'none need attention',
     otherIssues: (count: number) =>
       count === 1 ? '1 other issue' : `${count} other issues`,
+    clustersUnknown: ([, many]: [string, string]) => `— ${many}`,
+    clustersUnknownHidden: ([, many]: [string, string]) =>
+      `Could not count the ${many}`,
     attentionUnknown: '— need attention',
     attentionUnknownHidden: 'Could not check what needs attention',
     lastGoodBackup: (age: string) => `last good backup ${age}`,

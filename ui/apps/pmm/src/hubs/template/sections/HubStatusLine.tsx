@@ -146,13 +146,24 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
       : matchesNothing
         ? [Messages.environment.nothing(name)]
         : [
-            <DoorLink
-              key="clusters"
-              door={status.doors.clusters}
-              underline="always"
-            >
-              {Messages.status.clusters(status.clusters, unit)}
-            </DoorLink>,
+            status.clusters == null ? (
+              <Fragment key="clusters">
+                <span aria-hidden="true">
+                  {Messages.status.clustersUnknown(unit)}
+                </span>
+                <Box component="span" sx={visuallyHidden}>
+                  {Messages.status.clustersUnknownHidden(unit)}
+                </Box>
+              </Fragment>
+            ) : (
+              <DoorLink
+                key="clusters"
+                door={status.doors.clusters}
+                underline="always"
+              >
+                {Messages.status.clusters(status.clusters, unit)}
+              </DoorLink>
+            ),
             attentionFigure(status),
             ...otherIssuesFigure(status),
             backupFigure(status, canSetUpBackup),

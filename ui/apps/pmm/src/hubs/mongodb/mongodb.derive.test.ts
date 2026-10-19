@@ -112,6 +112,28 @@ describe('deriveMongoHub status', () => {
     ]);
   });
 
+  it('cannot count clusters, problems or backups when the inventory failed', () => {
+    const view = derive(
+      { ...wrongSnapshot(NOW, false), services: null },
+      {
+        sources: sourcesWith('ready', {
+          inventory: { status: 'error', message: 'Request failed with 502' },
+        }),
+      }
+    );
+
+    expect(view.status).toMatchObject({
+      state: 'noData',
+      clusters: null,
+      needAttention: null,
+      lastGoodBackup: 'unknown',
+    });
+    expect(view.sections.clusters).toMatchObject({
+      status: 'error',
+      source: 'inventory',
+    });
+  });
+
   it('links its figures back into the page, keeping the hub params', () => {
     const { status } = derive(wrongSnapshot(NOW, false), {
       environment: 'prod',

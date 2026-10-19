@@ -211,13 +211,15 @@ export const deriveMongoHub = (
     snapshot.services !== null &&
     !allServices.length &&
     sources.inventory?.status !== 'loading';
+  // Without the inventory there are no clusters to count or map backups to, which is not zero.
+  const inventoryOk = snapshot.services !== null;
   const status: HubStatus = {
     state: statusState({ empty, metricsOk, shown: services.length, clusters }),
-    clusters: models.length,
-    needAttention: metricsOk ? troubled.size : null,
+    clusters: inventoryOk ? models.length : null,
+    needAttention: metricsOk && inventoryOk ? troubled.size : null,
     otherIssues,
     ...(attentionSeverity ? { attentionSeverity } : {}),
-    lastGoodBackup: backups.lastGoodBackup,
+    lastGoodBackup: inventoryOk ? backups.lastGoodBackup : 'unknown',
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {
       clusters: {
