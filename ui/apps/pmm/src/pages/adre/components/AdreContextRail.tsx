@@ -2,11 +2,6 @@ import Check from '@mui/icons-material/Check';
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 import type { ProgressStep } from 'hooks/useAdreChat';
-import {
-  formatTokenCount,
-  formatUsdCost,
-  type HolmesUsageDisplay,
-} from 'utils/holmesUsageFormat';
 import { AdreAlertsPanel, type AlertItem } from './AdreAlertsPanel';
 
 export interface AdreContextRailProps {
@@ -14,7 +9,6 @@ export interface AdreContextRailProps {
   /** The latest answer's tool steps, live while it is written. */
   steps: ProgressStep[];
   working: boolean;
-  usage?: HolmesUsageDisplay;
 }
 
 const heading = {
@@ -23,20 +17,12 @@ const heading = {
   fontWeight: 600,
 } as const;
 
-/** The side panel of the Assistant page: firing alerts, then how the latest answer was made and what it cost. */
+/** The side panel of the Assistant page: firing alerts, then how the latest answer was made. */
 export const AdreContextRail: FC<AdreContextRailProps> = ({
   alerts,
   steps,
   working,
-  usage,
 }) => {
-  const tiles = [
-    ['Model', usage?.model],
-    ['Cost', formatUsdCost(usage?.totalCost)],
-    ['Tokens', formatTokenCount(usage?.totalTokens)],
-    ['Cached', formatTokenCount(usage?.cachedTokens)],
-  ].filter((t): t is [string, string] => !!t[1]);
-
   return (
     <Stack gap={3.5}>
       {alerts.length > 0 && <AdreAlertsPanel alerts={alerts} />}
@@ -99,46 +85,9 @@ export const AdreContextRail: FC<AdreContextRailProps> = ({
           </Stack>
         </Stack>
       )}
-      {tiles.length > 0 && (
-        <Box
-          component="section"
-          aria-label="Usage"
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: 1,
-          }}
-        >
-          {tiles.map(([name, value]) => (
-            <Box
-              key={name}
-              sx={{
-                px: 1.5,
-                py: 1.25,
-                borderRadius: '10px',
-                bgcolor: '#1F1E23',
-              }}
-            >
-              <Typography sx={{ fontSize: 11, color: '#8E8C95' }}>
-                {name}
-              </Typography>
-              <Typography
-                sx={{
-                  mt: 0.25,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  overflowWrap: 'anywhere',
-                }}
-              >
-                {value}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      )}
-      {alerts.length === 0 && steps.length === 0 && tiles.length === 0 && (
+      {alerts.length === 0 && steps.length === 0 && (
         <Typography sx={{ fontSize: 13, color: '#8E8C95' }}>
-          The steps and usage of the latest answer show here.
+          The steps of the latest answer show here.
         </Typography>
       )}
     </Stack>

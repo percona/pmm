@@ -5,7 +5,6 @@ import {
   CircularProgress,
   ClickAwayListener,
   Collapse,
-  FormControlLabel,
   Grow,
   IconButton,
   InputBase,
@@ -13,9 +12,8 @@ import {
   MenuList,
   Paper,
   Popper,
-  Radio,
-  RadioGroup,
   Stack,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -24,10 +22,14 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import Check from '@mui/icons-material/Check';
-import Send from '@mui/icons-material/Send';
+import Add from '@mui/icons-material/Add';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import KeyboardDoubleArrowLeft from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
   FC,
+  ReactNode,
   useState,
   useCallback,
   useEffect,
@@ -47,6 +49,12 @@ import {
 import { AdreConversationsSidebar } from './AdreConversationsSidebar';
 import { AdreAlertsPanel, type AlertItem } from './AdreAlertsPanel';
 import { AdreContextRail } from './AdreContextRail';
+import { ResizeHandle } from './ResizeHandle';
+import {
+  CHATS_WIDTH,
+  RAIL_WIDTH,
+  useAdrePanelLayout,
+} from './useAdrePanelLayout';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
@@ -167,6 +175,26 @@ const StepsList: FC<{ steps: ProgressStep[]; working: boolean }> = ({
         </Box>
       </Stack>
     ))}
+  </Stack>
+);
+
+/** What is left of a collapsed side panel: a thin strip at the page's edge. */
+const EdgeStrip: FC<{ side: 'left' | 'right'; children: ReactNode }> = ({
+  side,
+  children,
+}) => (
+  <Stack
+    alignItems="center"
+    gap={1}
+    sx={{
+      flex: '0 0 52px',
+      py: 2,
+      bgcolor: '#17161A',
+      [side === 'left' ? 'borderRight' : 'borderLeft']:
+        '1px solid rgba(255,255,255,0.06)',
+    }}
+  >
+    {children}
   </Stack>
 );
 
@@ -334,8 +362,11 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
   );
 
   const theme = useTheme();
-  // The side panel needs room; narrower screens keep each answer's steps with it.
+  // Side by side from md; the side panel needs room, so narrower screens keep each answer's steps with it.
+  const wide = useMediaQuery(theme.breakpoints.up('md'));
   const railVisible = useMediaQuery(theme.breakpoints.up('lg'));
+  const [layout, setLayout] = useAdrePanelLayout();
+  const firingLabel = `${alerts.length} firing ${alerts.length === 1 ? 'alert' : 'alerts'}`;
   const [alertsOpen, setAlertsOpen] = useState(false);
   const latestAssistantIdx = allMessages
     .map((m) => m.role)
@@ -345,7 +376,6 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
   const railSteps = latest?.streaming
     ? progressSteps
     : (latest?.progressSteps ?? []);
-  const railUsage = latest && !latest.streaming ? latest.usage : undefined;
 
   return (
     <Box
@@ -361,29 +391,71 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
         color: '#F4F3F6',
       }}
     >
-      <Box
-        sx={{
-          flex: { xs: '0 0 auto', md: '0 0 260px' },
-          width: { md: 260 },
-          maxHeight: { xs: 'min(36vh, 260px)', md: 'none' },
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        <AdreConversationsSidebar
-          conversationId={conversationId}
-          conversations={conversations}
-          loading={conversationsLoading}
-          searchHits={searchHits}
-          searchLoading={searchLoading}
-          onNewChat={newChat}
-          onDeleteConversation={deleteConversation}
-          onSelectConversation={selectConversation}
-          onSearch={runSearch}
-        />
-      </Box>
+      {wide && !layout.chatsOpen ? (
+        <EdgeStrip side="left">
+          <Tooltip title="Expand chats" placement="right">
+            <IconButton
+              aria-label="Expand chats"
+              onClick={() => setLayout({ chatsOpen: true })}
+              sx={{ color: '#A9A7B0' }}
+            >
+              <KeyboardDoubleArrowRight fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="New chat" placement="right">
+            <IconButton
+              aria-label="New chat"
+              onClick={() => void newChat()}
+              sx={{
+                bgcolor: 'rgba(182,178,255,0.14)',
+                color: '#CFCBFF',
+                '&:hover': { bgcolor: 'rgba(182,178,255,0.22)' },
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </EdgeStrip>
+      ) : (
+        <>
+          <Box
+            sx={{
+              flex: { xs: '0 0 auto', md: `0 0 ${layout.chatsWidth}px` },
+              width: { md: layout.chatsWidth },
+              maxHeight: { xs: 'min(36vh, 260px)', md: 'none' },
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            <AdreConversationsSidebar
+              conversationId={conversationId}
+              conversations={conversations}
+              loading={conversationsLoading}
+              searchHits={searchHits}
+              searchLoading={searchLoading}
+              onNewChat={newChat}
+              onDeleteConversation={deleteConversation}
+              onSelectConversation={selectConversation}
+              onSearch={runSearch}
+              onCollapse={
+                wide ? () => setLayout({ chatsOpen: false }) : undefined
+              }
+            />
+          </Box>
+          {wide && (
+            <ResizeHandle
+              side="left"
+              width={layout.chatsWidth}
+              min={CHATS_WIDTH.min}
+              max={CHATS_WIDTH.max}
+              onResize={(chatsWidth) => setLayout({ chatsWidth })}
+              label="Resize chats"
+            />
+          )}
+        </>
+      )}
 
       <Stack sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
         {!railVisible && alerts.length > 0 && (
@@ -410,7 +482,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                 '&:hover': { bgcolor: 'rgba(248,113,113,0.2)' },
               }}
             >
-              {`${alerts.length} firing ${alerts.length === 1 ? 'alert' : 'alerts'}`}
+              {firingLabel}
             </Button>
             <Collapse in={alertsOpen}>
               <Box
@@ -462,7 +534,8 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
               allMessages.map((msg, idx) => {
                 const messageKey = String(msg.serverMessageId ?? `row-${idx}`);
                 const messageText = (msg.content || response || '').trim();
-                const inRail = railVisible && idx === latestAssistantIdx;
+                const inRail =
+                  railVisible && layout.railOpen && idx === latestAssistantIdx;
                 const time = msg.timestamp
                   ? ` · ${formatTimestamp(msg.timestamp)}`
                   : '';
@@ -649,7 +722,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                         {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
                       </Typography>
                     ) : null}
-                    {!inRail && !msg.streaming && msg.usage ? (
+                    {!msg.streaming && msg.usage ? (
                       <HolmesUsageFooter usage={msg.usage} align="left" />
                     ) : null}
                   </Box>
@@ -668,113 +741,113 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
           }}
           sx={{ flexShrink: 0, px: { xs: 2, md: 5 }, pb: 3, pt: 1 }}
         >
-          <Stack gap={1.25} sx={{ maxWidth: CONTENT_WIDTH, mx: 'auto' }}>
-            <RadioGroup
-              row
-              aria-label="Chat mode"
-              value={mode}
-              onChange={(_, value) => {
-                if (loading) return;
-                setModePersist(value as 'fast' | 'investigation');
+          <Box
+            sx={{
+              maxWidth: CONTENT_WIDTH,
+              mx: 'auto',
+              p: '12px 10px 8px 16px',
+              borderRadius: '16px',
+              bgcolor: '#1D1C21',
+              border: 1,
+              borderColor: 'rgba(255,255,255,0.1)',
+            }}
+          >
+            <InputBase
+              multiline
+              fullWidth
+              minRows={2}
+              maxRows={8}
+              placeholder="Message the Assistant..."
+              value={ask}
+              onChange={(e) => setAsk(e.target.value)}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  void onSend();
+                }
               }}
-              sx={{ gap: 1, flexWrap: 'wrap' }}
-            >
-              {MODES.map((m) => (
-                <FormControlLabel
-                  key={m.value}
-                  value={m.value}
-                  disabled={loading}
-                  control={<Radio size="small" sx={{ p: 0.5 }} />}
-                  label={
-                    <Box>
-                      <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
-                        {m.label}
-                      </Typography>
-                      <Typography sx={{ fontSize: 12, color: '#A9A7B0' }}>
-                        {m.description}
-                      </Typography>
-                    </Box>
-                  }
-                  sx={{
-                    m: 0,
-                    flex: '1 1 190px',
-                    alignItems: 'flex-start',
-                    gap: 0.75,
-                    py: 1,
-                    pl: 0.75,
-                    pr: 1.5,
-                    borderRadius: '12px',
-                    border: 1,
-                    borderColor:
-                      mode === m.value
-                        ? 'rgba(182,178,255,0.45)'
-                        : 'rgba(255,255,255,0.08)',
-                    bgcolor:
-                      mode === m.value
-                        ? 'rgba(182,178,255,0.06)'
-                        : 'transparent',
-                  }}
-                />
-              ))}
-            </RadioGroup>
-            <Stack
-              direction="row"
-              alignItems="flex-end"
-              gap={1.25}
-              sx={{
-                p: '10px 10px 10px 16px',
-                borderRadius: '16px',
-                bgcolor: '#1D1C21',
-                border: 1,
-                borderColor: 'rgba(255,255,255,0.1)',
-              }}
-            >
-              <InputBase
-                multiline
-                minRows={2}
-                maxRows={6}
-                placeholder="Message the Assistant..."
-                value={ask}
-                onChange={(e) => setAsk(e.target.value)}
-                onKeyDown={(e: React.KeyboardEvent) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    void onSend();
-                  }
+              inputProps={{ 'aria-label': 'Message the Assistant' }}
+              sx={{ fontSize: 15, lineHeight: 1.5 }}
+            />
+            <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1 }}>
+              <Box
+                role="group"
+                aria-label="Chat mode"
+                sx={{
+                  display: 'flex',
+                  p: '3px',
+                  borderRadius: 999,
+                  bgcolor: '#141317',
                 }}
-                inputProps={{ 'aria-label': 'Message the Assistant' }}
-                sx={{ flex: 1, minWidth: 0, fontSize: 15, lineHeight: 1.5 }}
-              />
-              <Box ref={modelAnchorRef} sx={{ flexShrink: 0 }}>
+              >
+                {MODES.map((m) => (
+                  <Tooltip key={m.value} title={m.description}>
+                    <span>
+                      <Button
+                        size="small"
+                        aria-pressed={mode === m.value}
+                        disabled={loading}
+                        onClick={() => setModePersist(m.value)}
+                        sx={{
+                          minWidth: 0,
+                          height: 28,
+                          px: 1.5,
+                          fontSize: 13,
+                          fontWeight: mode === m.value ? 500 : 400,
+                          color: mode === m.value ? '#F4F3F6' : '#A9A7B0',
+                          bgcolor: mode === m.value ? '#2E2C36' : 'transparent',
+                          '&:hover': {
+                            bgcolor:
+                              mode === m.value
+                                ? '#2E2C36'
+                                : 'rgba(255,255,255,0.05)',
+                          },
+                        }}
+                      >
+                        {m.label}
+                      </Button>
+                    </span>
+                  </Tooltip>
+                ))}
+              </Box>
+              <Box ref={modelAnchorRef}>
                 <Button
-                  variant="outlined"
-                  color="inherit"
+                  size="small"
                   onClick={() => setModelMenuOpen((open) => !open)}
                   disabled={loading}
                   aria-label="Select model"
                   endIcon={<ArrowDropDownIcon />}
                   sx={{
-                    height: 40,
-                    borderColor: 'rgba(255,255,255,0.12)',
-                    color: '#D9D7DE',
+                    height: 32,
+                    fontSize: 13,
                     fontWeight: 400,
+                    color: '#A9A7B0',
                   }}
                 >
                   {model || 'Default model'}
                 </Button>
               </Box>
-              <Button
+              <Box sx={{ flex: 1 }} />
+              <IconButton
                 type="submit"
-                variant="contained"
-                disableElevation
+                aria-label="Send"
                 disabled={loading || !ask.trim()}
-                endIcon={<Send fontSize="small" />}
-                sx={{ height: 40, flexShrink: 0 }}
+                sx={{
+                  width: 38,
+                  height: 38,
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
+                  '&:hover': { bgcolor: 'primary.dark' },
+                  '&.Mui-disabled': {
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.3)',
+                  },
+                }}
               >
-                Send
-              </Button>
+                <ArrowUpward fontSize="small" />
+              </IconButton>
             </Stack>
-          </Stack>
+          </Box>
           <Popper
             open={modelMenuOpen}
             anchorEl={modelAnchorRef.current}
@@ -818,31 +891,82 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
         </Box>
       </Stack>
 
-      {railVisible && (
-        <Box
-          component="aside"
-          aria-label="Answer details"
-          sx={{
-            flex: '0 0 340px',
-            width: 340,
-            minHeight: 0,
-            overflowY: 'auto',
-            boxSizing: 'border-box',
-            px: 2.5,
-            py: 3,
-            bgcolor: '#17161A',
-            borderLeft: 1,
-            borderColor: 'rgba(255,255,255,0.06)',
-          }}
-        >
-          <AdreContextRail
-            alerts={alerts}
-            steps={railSteps}
-            working={!!latest?.streaming && loading}
-            usage={railUsage}
-          />
-        </Box>
-      )}
+      {railVisible &&
+        (layout.railOpen ? (
+          <>
+            <ResizeHandle
+              side="right"
+              width={layout.railWidth}
+              min={RAIL_WIDTH.min}
+              max={RAIL_WIDTH.max}
+              onResize={(railWidth) => setLayout({ railWidth })}
+              label="Resize side panel"
+            />
+            <Box
+              component="aside"
+              aria-label="Answer details"
+              sx={{
+                flex: `0 0 ${layout.railWidth}px`,
+                width: layout.railWidth,
+                minHeight: 0,
+                overflowY: 'auto',
+                boxSizing: 'border-box',
+                px: 2.5,
+                pt: 1.5,
+                pb: 3,
+                bgcolor: '#17161A',
+              }}
+            >
+              <Tooltip title="Collapse side panel">
+                <IconButton
+                  aria-label="Collapse side panel"
+                  onClick={() => setLayout({ railOpen: false })}
+                  sx={{ ml: -1, mb: 0.5, color: '#A9A7B0' }}
+                >
+                  <KeyboardDoubleArrowRight fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <AdreContextRail
+                alerts={alerts}
+                steps={railSteps}
+                working={!!latest?.streaming && loading}
+              />
+            </Box>
+          </>
+        ) : (
+          <EdgeStrip side="right">
+            <Tooltip title="Expand side panel" placement="left">
+              <IconButton
+                aria-label={
+                  alerts.length > 0
+                    ? `Expand side panel (${firingLabel})`
+                    : 'Expand side panel'
+                }
+                onClick={() => setLayout({ railOpen: true })}
+                sx={{ color: '#A9A7B0' }}
+              >
+                <KeyboardDoubleArrowLeft fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            {alerts.length > 0 && (
+              <Box
+                aria-hidden
+                sx={{
+                  minWidth: 22,
+                  px: 0.75,
+                  borderRadius: 999,
+                  bgcolor: 'rgba(248,113,113,0.14)',
+                  color: '#FCA5A5',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  textAlign: 'center',
+                }}
+              >
+                {alerts.length}
+              </Box>
+            )}
+          </EdgeStrip>
+        ))}
     </Box>
   );
 };

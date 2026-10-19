@@ -17,7 +17,7 @@ const renderRail = (props: Parameters<typeof AdreContextRail>[0]) =>
   );
 
 describe('AdreContextRail', () => {
-  it('shows how the latest answer was made and what it cost', () => {
+  it('shows how the latest answer was made', () => {
     renderRail({
       alerts: [],
       steps: [
@@ -29,29 +29,19 @@ describe('AdreContextRail', () => {
         },
       ],
       working: false,
-      usage: {
-        model: 'opus5',
-        totalTokens: 467900,
-        cachedTokens: 398800,
-        totalCost: 0.511,
-      },
     });
     expect(screen.getByText('How this answer was made')).toBeInTheDocument();
     expect(screen.getByText('pmm_logs_patterns')).toBeInTheDocument();
     expect(
       screen.getByText('pdpgsql_pmm_17_1, warnings and above')
     ).toBeInTheDocument();
-    expect(screen.getByText('opus5')).toBeInTheDocument();
-    expect(screen.getByText('$0.511')).toBeInTheDocument();
-    expect(screen.getByText('467.9k')).toBeInTheDocument();
-    expect(screen.getByText('398.8k')).toBeInTheDocument();
     expect(screen.queryByText('Firing alerts')).not.toBeInTheDocument();
   });
 
   it('says what it will show before the first answer', () => {
     renderRail({ alerts: [], steps: [], working: false });
     expect(
-      screen.getByText('The steps and usage of the latest answer show here.')
+      screen.getByText('The steps of the latest answer show here.')
     ).toBeInTheDocument();
   });
 

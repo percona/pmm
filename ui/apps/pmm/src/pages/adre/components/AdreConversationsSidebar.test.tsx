@@ -50,4 +50,16 @@ describe('AdreConversationsSidebar', () => {
     );
     expect(p.onDeleteConversation).toHaveBeenCalledWith(2);
   });
+
+  it('collapses to the side when it may', () => {
+    const p = props();
+    const onCollapse = vi.fn();
+    render(
+      <TestWrapper>
+        <AdreConversationsSidebar {...p} onCollapse={onCollapse} />
+      </TestWrapper>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse chats' }));
+    expect(onCollapse).toHaveBeenCalled();
+  });
 });

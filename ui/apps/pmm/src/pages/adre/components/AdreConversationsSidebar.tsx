@@ -1,5 +1,6 @@
 import Add from '@mui/icons-material/Add';
 import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import KeyboardDoubleArrowLeft from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import Search from '@mui/icons-material/Search';
 import {
   Box,
@@ -35,6 +36,8 @@ export interface AdreConversationsSidebarProps {
     options?: { focusMessageId?: number }
   ) => void | Promise<void>;
   onSearch: (q: string) => void | Promise<void>;
+  /** Folds the panel to the side; without it the panel has no collapse button. */
+  onCollapse?: () => void;
 }
 
 export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
@@ -47,6 +50,7 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
   onDeleteConversation,
   onSelectConversation,
   onSearch,
+  onCollapse,
 }) => {
   const { query, setQuery, clearQuery, searchPending } =
     useDebouncedAdreMessageSearch(searchLoading, onSearch);
@@ -79,15 +83,28 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
         borderColor: 'rgba(255,255,255,0.06) !important',
       }}
     >
-      <Button
-        variant="contained"
-        disableElevation
-        startIcon={<Add />}
-        onClick={() => void onNewChat()}
-        sx={{ flexShrink: 0, height: 40 }}
-      >
-        New chat
-      </Button>
+      <Stack direction="row" gap={0.75} sx={{ flexShrink: 0 }}>
+        <Button
+          variant="contained"
+          disableElevation
+          startIcon={<Add />}
+          onClick={() => void onNewChat()}
+          sx={{ flex: 1, height: 40 }}
+        >
+          New chat
+        </Button>
+        {onCollapse && (
+          <Tooltip title="Collapse chats">
+            <IconButton
+              aria-label="Collapse chats"
+              onClick={onCollapse}
+              sx={{ color: '#A9A7B0' }}
+            >
+              <KeyboardDoubleArrowLeft fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Stack>
       <TextField
         size="small"
         fullWidth
