@@ -1,7 +1,10 @@
 import { BottomPanelOpenIcon, Table, useNavigableRows } from '@percona/peak-ui';
 import { type MRT_Row } from 'material-react-table';
 import { FC, useMemo, useState } from 'react';
-import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';
+import {
+  ALERT_STATUS_COLUMNS,
+  ALERT_STATUS_URL_STATE_OPTIONS,
+} from './AlertStatusTable.constants';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { AlertStatusTableProps } from './AlertStatusTable.types';
@@ -25,6 +28,7 @@ import {
   createUnsilenceUrl,
   filterTriggeredAt,
   getTableRows,
+  reviveTriggeredAtFilter,
 } from './AlertStatusTable.utils';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
@@ -33,6 +37,7 @@ import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsAc
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
 import AlertsStatusEmptyState from './empty-state/AlertsStatusEmptyState';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 
 const AlertStatusTable: FC<AlertStatusTableProps> = ({
   rows,
@@ -50,22 +55,34 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
       }),
     [rows, groupByNodes, selectedState]
   );
-  const { tableProps } = useNavigableRows<AlertsTableRow>({
+  const { tableState: urlTableState, tableProps: urlTableProps } =
+    useTableUrlState(ALERT_STATUS_URL_STATE_OPTIONS);
+  const columnFilters = useMemo(
+    () => reviveTriggeredAtFilter(urlTableState.state.columnFilters),
+    [urlTableState.state.columnFilters]
+  );
+  const tableState = useMemo(
+    () => ({
+      ...urlTableState,
+      state: { ...urlTableState.state, columnFilters },
+    }),
+    [urlTableState, columnFilters]
+  );
+  const { tableProps: navigableTableProps } = useNavigableRows<AlertsTableRow>({
     data: tableRows,
     onChange: onNavigableRowsChange,
+    tableState,
   });
   const { user } = useUser();
 
   return (
     <Table
-      {...tableProps}
+      {...navigableTableProps}
+      {...urlTableProps}
+      state={{ ...urlTableProps.state, columnFilters }}
       tableName="alert-status"
       initialState={{
         expanded: true,
-        pagination: {
-          pageSize: 25,
-          pageIndex: 0,
-        },
       }}
       displayColumnDefOptions={{
         'mrt-row-expand': {

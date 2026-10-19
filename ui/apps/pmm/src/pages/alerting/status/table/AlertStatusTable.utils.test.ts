@@ -1,6 +1,9 @@
 import { type MRT_Row } from 'material-react-table';
 import { AlertsTableRow } from '../AlertsPage.types';
-import { filterTriggeredAt } from './AlertStatusTable.utils';
+import {
+  filterTriggeredAt,
+  reviveTriggeredAtFilter,
+} from './AlertStatusTable.utils';
 
 const createRow = (activeAt?: string) =>
   ({
@@ -78,6 +81,37 @@ describe('filterTriggeredAt', () => {
   it('treats invalid dates as unset bounds', () => {
     expect(filterTriggeredAt(row, 'activeAt', [new Date('invalid'), ''])).toBe(
       true
+    );
+  });
+});
+
+describe('reviveTriggeredAtFilter', () => {
+  it('turns ISO bounds read from the URL back into dates', () => {
+    expect(
+      reviveTriggeredAtFilter([
+        { id: 'activeAt', value: ['2026-04-15T12:00:00.000Z', ''] },
+      ])
+    ).toEqual([
+      { id: 'activeAt', value: [new Date('2026-04-15T12:00:00.000Z'), ''] },
+    ]);
+  });
+
+  it('empties a bound that is not a date', () => {
+    expect(
+      reviveTriggeredAtFilter([{ id: 'activeAt', value: ['soon', ''] }])
+    ).toEqual([{ id: 'activeAt', value: ['', ''] }]);
+  });
+
+  it('leaves other filters and Date bounds untouched', () => {
+    const from = new Date('2026-04-15T12:00:00.000Z');
+    const filters = [
+      { id: 'serviceName', value: '2026-04-15' },
+      { id: 'activeAt', value: [from, ''] },
+    ];
+
+    expect(reviveTriggeredAtFilter(filters)).toEqual(filters);
+    expect((reviveTriggeredAtFilter(filters)[1].value as unknown[])[0]).toBe(
+      from
     );
   });
 });

@@ -11,7 +11,9 @@ import {
   sortByState,
   sortByNode,
   sortByService,
+  TRIGGERED_AT_COLUMN_ID,
 } from './AlertStatusTable.utils';
+import type { UseTableUrlStateOptions } from 'hooks/utils/useTableUrlState';
 
 const ALERT_SEVERITY_OPTIONS = [
   { value: 'emergency', label: 'Emergency' },
@@ -98,7 +100,7 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
     },
   },
   {
-    id: 'activeAt',
+    id: TRIGGERED_AT_COLUMN_ID,
     accessorFn: (row) =>
       row.type === 'alert' && row.activeAt ? new Date(row.activeAt) : undefined,
     header: 'Triggered at',
@@ -111,3 +113,9 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
       ) : null,
   },
 ];
+
+// Column filters live in the URL (?f.<column id>=) so a link can open the table prefiltered.
+export const ALERT_STATUS_URL_STATE_OPTIONS: UseTableUrlStateOptions = {
+  sync: { sort: false, globalFilter: false, pagination: false },
+  defaults: { pagination: { pageIndex: 0, pageSize: 25 } },
+};
