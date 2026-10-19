@@ -872,7 +872,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 };
 
 //
-// Management
+// Apps
 //
 // Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
 // item takes its link from its first child, so the header opens whichever app
@@ -880,7 +880,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 export const NAV_MANAGEMENT: NavItem = {
   id: 'management',
   icon: AppsRounded,
-  text: 'Management',
+  text: 'Apps',
 };
 
 export const NAV_EXTENSIONS_ATW: NavItem = {
