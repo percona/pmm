@@ -1,0 +1,131 @@
+import Box from '@mui/material/Box';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { Table } from '@percona/peak-ui';
+import { type FC, type MouseEvent, useMemo } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { PreviewChip } from 'components/preview-chip';
+import { Messages } from '../hub.messages';
+import type { HubDoor, HubTreeColumn, HubTreeNode } from '../hub.types';
+import {
+  clusterColumns,
+  NARROW_HIDDEN,
+  WIDE_VISIBLE,
+} from './clustersTable.columns';
+import { visuallyHidden } from './hub.sx';
+
+const EXPAND_BUTTON = 40;
+
+// A link or button in a cell does its own thing; only a click on the row's plain area toggles it.
+const keepClickInCell = (event: MouseEvent<HTMLElement>) => {
+  if ((event.target as HTMLElement).closest('a, button')) {
+    event.stopPropagation();
+  }
+};
+
+const rowMenu = (doors: HubDoor[], closeMenu: () => void) =>
+  doors.map((door) => (
+    <MenuItem
+      key={`${door.label}:${door.to}`}
+      component={RouterLink}
+      to={door.to}
+      onClick={(event) => {
+        event.stopPropagation();
+        closeMenu();
+      }}
+    >
+      <ListItemText>
+        {door.label}
+        {door.context && (
+          <Box component="span" sx={visuallyHidden}>
+            {` ${door.context}`}
+          </Box>
+        )}
+      </ListItemText>
+      {door.preview && <PreviewChip level={door.preview} />}
+    </MenuItem>
+  ));
+
+export interface ClustersTableProps {
+  /** Peak Table name, such as "hub-mongodb-clusters". */
+  tableName: string;
+  clusters: HubTreeNode[];
+  treeColumns: HubTreeColumn[];
+  expanded: Record<string, true>;
+  /** The table's accessible name, such as "MongoDB clusters". */
+  label: string;
+}
+
+/** The cluster tree: clusters, their shards or sets, and members, worst first. */
+export const ClustersTable: FC<ClustersTableProps> = ({
+  tableName,
+  clusters,
+  treeColumns,
+  expanded,
+  label,
+}) => {
+  const theme = useTheme();
+  const narrow = useMediaQuery(theme.breakpoints.down('md'));
+  const columns = useMemo(() => clusterColumns(treeColumns), [treeColumns]);
+
+  return (
+    <Table<HubTreeNode>
+      tableName={tableName}
+      data={clusters}
+      columns={columns}
+      getRowId={(node) => node.id}
+      getSubRows={(node) => node.children}
+      enableExpanding
+      hideExpandAllIcon
+      enablePagination={false}
+      // Rows arrive worst first; sorting would break the tree.
+      enableSorting={false}
+      enableColumnActions={false}
+      enableColumnFilters={false}
+      enableGlobalFilter={false}
+      enableHiding={false}
+      enableTopToolbar={false}
+      enableBottomToolbar={false}
+      enableRowActions
+      positionActionsColumn="last"
+      renderRowActionMenuItems={({ row, closeMenu }) =>
+        rowMenu(row.original.doors.menu, closeMenu)
+      }
+      enableRowHoverAction
+      rowHoverAction={(row) => {
+        if (row.getCanExpand()) {
+          row.toggleExpanded();
+        }
+      }}
+      initialState={{ density: 'compact', expanded }}
+      state={{ columnVisibility: narrow ? NARROW_HIDDEN : WIDE_VISIBLE }}
+      displayColumnDefOptions={{
+        'mrt-row-expand': { size: EXPAND_BUTTON + 16, grow: false },
+      }}
+      muiTableProps={{ 'aria-label': label }}
+      muiTablePaperProps={{
+        variant: 'outlined',
+        sx: {
+          borderRadius: `${theme.shape.borderRadiusMd}px`,
+          overflow: 'hidden',
+        },
+      }}
+      muiTableContainerProps={{ sx: { borderBottom: 'none' } }}
+      muiTableBodyCellProps={{ onClick: keepClickInCell }}
+      muiExpandButtonProps={({ row }) => ({
+        'aria-label': (row.getIsExpanded()
+          ? Messages.clusters.collapse
+          : Messages.clusters.expand)(row.original.name),
+        // The name cell indents each level, so the buttons stay in one column; a member has none.
+        sx: {
+          height: EXPAND_BUTTON,
+          width: EXPAND_BUTTON,
+          ml: 0,
+          visibility: row.getCanExpand() ? 'visible' : 'hidden',
+        },
+      })}
+    />
+  );
+};
