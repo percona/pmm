@@ -56,7 +56,15 @@ export const clusterColumns = (
         : node.doors.name;
 
       return (
-        <Box sx={{ pl: row.depth * 2, minWidth: 0 }}>
+        // Wraps rather than clips, so a long service name or the folded Members count stays whole.
+        <Box
+          sx={{
+            pl: row.depth * 2,
+            minWidth: 0,
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
+          }}
+        >
           <DoorLink door={door} color="inherit">
             {node.name}
           </DoorLink>
