@@ -88,6 +88,7 @@ const EMPTY_METRICS: MongoMetrics = {
   up: {},
   lastUpAt: {},
   self: {},
+  roles: {},
   lag: {},
   oplogWindow: {},
   oplogFill: {},

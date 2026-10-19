@@ -48,6 +48,8 @@ export interface MongoMetrics {
     string,
     { rsName: string; clRole?: 'configsvr' | 'shardsvr'; state: string }
   >;
+  /** Set and role seen in the last day, for placing a member that reports nothing now. */
+  roles: Record<string, { rsName: string; clRole?: 'configsvr' | 'shardsvr' }>;
   /** Seconds, secondaries only. */
   lag: Record<string, { now: number; sustained: number }>;
   /** Seconds. */

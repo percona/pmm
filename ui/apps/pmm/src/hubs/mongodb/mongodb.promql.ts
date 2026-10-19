@@ -5,8 +5,11 @@ import type { MongoMetrics } from './mongodb.types';
 
 export type MongoQueryId =
   | 'up'
+  | 'upSeen'
   | 'lastUp'
   | 'self'
+  | 'selfSeen'
+  | 'roles'
   | 'lag'
   | 'lagSustained'
   | 'oplogWindow'
@@ -16,8 +19,11 @@ export type MongoQueryId =
 
 export const MONGO_QUERY_IDS: MongoQueryId[] = [
   'up',
+  'upSeen',
   'lastUp',
   'self',
+  'selfSeen',
+  'roles',
   'lag',
   'lagSustained',
   'oplogWindow',
@@ -57,8 +63,13 @@ export const mongoQueries = (
 
   return {
     up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${m}}[1m]))`,
+    // A label that flips (cluster_role when mongod stops) leaves two series for a minute; the one seen last is the member now.
+    upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${m}}[1m]))`,
     lastUp: `max by (service_id) (tmax_over_time(mongodb_up{${m}}[24h]) and max_over_time(mongodb_up{${m}}[24h]) == 1)`,
     self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${m}}[1m]))`,
+    selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${m}}[1m]))`,
+    // Set and role a day back, so a set whose members are all down still lands where it belongs.
+    roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${m}}[24h]))`,
     lag: `max by (service_id) (last_over_time(${ownLag}[1m]))`,
     lagSustained: `min by (service_id) (min_over_time(${ownLag}[2m]))`,
     oplogWindow: `max by (service_id) (last_over_time(mongodb_mongod_replset_oplog_head_timestamp{${m}}[5m]) - last_over_time(mongodb_mongod_replset_oplog_tail_timestamp{${m}}[5m]))`,
@@ -86,11 +97,32 @@ const byLabel = (
   return values;
 };
 
+const UP_LABELS = ['service_id', 'cluster_role'];
+const SELF_LABELS = ['service_id', 'rs_nm', 'cl_role', 'member_state'];
+
+const seriesKey = (metric: Record<string, string>, labels: string[]) =>
+  labels.map((label) => metric[label] ?? '').join('\u0000');
+
+/** When each series was last seen, epoch seconds, by its labels. */
+const seenAt = (samples: PromSample[], labels: string[]) =>
+  new Map(
+    samples.map(({ metric, value }) => [seriesKey(metric, labels), value])
+  );
+
+/** True when `at` is known to be newer than `than`; false when older, undefined when either is unknown or they tie. */
+const isNewer = (at?: number, than?: number) =>
+  at === undefined || than === undefined || at === than ? undefined : at > than;
+
+const roleOf = (clRole?: string) =>
+  clRole === 'configsvr' || clRole === 'shardsvr' ? clRole : undefined;
+
 /** Folds the query results into the snapshot's metrics, every map keyed by service_id (or cluster). */
 export const parseMongoMetrics = (
   results: Record<MongoQueryId, PromSample[]>
 ): MongoMetrics => {
   const up: MongoMetrics['up'] = {};
+  const upSeen = seenAt(results.upSeen, UP_LABELS);
+  const upAt: Record<string, number | undefined> = {};
 
   for (const { metric, value } of results.up) {
     const id = metric.service_id;
@@ -99,15 +131,37 @@ export const parseMongoMetrics = (
       continue;
     }
     const clusterRole = metric.cluster_role === 'mongos' ? 'mongos' : 'mongod';
+    const reading = value >= 1 ? 1 : 0;
+    const at = upSeen.get(seriesKey(metric, UP_LABELS));
     const previous = up[id];
 
+    if (!previous) {
+      up[id] = { value: reading, clusterRole };
+      upAt[id] = at;
+      continue;
+    }
+    const newer = isNewer(at, upAt[id]);
+
     up[id] = {
-      value: value >= 1 || previous?.value === 1 ? 1 : 0,
-      clusterRole: previous?.clusterRole === 'mongos' ? 'mongos' : clusterRole,
+      // Without timestamps to tell them apart, any up series counts.
+      value:
+        newer === undefined
+          ? reading === 1 || previous.value === 1
+            ? 1
+            : 0
+          : newer
+            ? reading
+            : previous.value,
+      clusterRole: previous.clusterRole === 'mongos' ? 'mongos' : clusterRole,
     };
+    if (newer) {
+      upAt[id] = at;
+    }
   }
 
   const self: MongoMetrics['self'] = {};
+  const selfSeen = seenAt(results.selfSeen, SELF_LABELS);
+  const selfAt: Record<string, number | undefined> = {};
 
   for (const { metric } of results.self) {
     const id = metric.service_id;
@@ -115,16 +169,32 @@ export const parseMongoMetrics = (
     if (!id || !metric.rs_nm) {
       continue;
     }
-    const clRole =
-      metric.cl_role === 'configsvr' || metric.cl_role === 'shardsvr'
-        ? metric.cl_role
-        : undefined;
+    const at = selfSeen.get(seriesKey(metric, SELF_LABELS));
+
+    if (self[id] && isNewer(at, selfAt[id]) === false) {
+      continue;
+    }
+    const clRole = roleOf(metric.cl_role);
 
     self[id] = {
       rsName: metric.rs_nm,
       state: metric.member_state ?? '',
       ...(clRole ? { clRole } : {}),
     };
+    selfAt[id] = at;
+  }
+
+  const roles: MongoMetrics['roles'] = {};
+
+  for (const { metric } of results.roles) {
+    const id = metric.service_id;
+
+    if (!id || !metric.rs_nm) {
+      continue;
+    }
+    const clRole = roleOf(metric.cl_role);
+
+    roles[id] = { rsName: metric.rs_nm, ...(clRole ? { clRole } : {}) };
   }
 
   const lagNow = byLabel(results.lag, 'service_id');
@@ -139,6 +209,7 @@ export const parseMongoMetrics = (
     up,
     lastUpAt: byLabel(results.lastUp, 'service_id'),
     self,
+    roles,
     lag,
     oplogWindow: byLabel(results.oplogWindow, 'service_id'),
     oplogFill: byLabel(results.oplogFill, 'service_id'),

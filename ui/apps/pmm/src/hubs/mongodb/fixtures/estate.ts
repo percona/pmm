@@ -103,6 +103,7 @@ export const healthyMetrics = (now: number): MongoMetrics => {
     up: {},
     lastUpAt: {},
     self: {},
+    roles: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
@@ -120,12 +121,19 @@ export const healthyMetrics = (now: number): MongoMetrics => {
     };
     metrics.lastUpAt[id] = Math.floor(now / 1000);
     if (member.replicationSet && member.state) {
+      const clRole =
+        member.role === 'configsvr' || member.role === 'shardsvr'
+          ? member.role
+          : undefined;
+
       metrics.self[id] = {
         rsName: member.replicationSet,
         state: member.state,
-        ...(member.role === 'configsvr' || member.role === 'shardsvr'
-          ? { clRole: member.role }
-          : {}),
+        ...(clRole ? { clRole } : {}),
+      };
+      metrics.roles[id] = {
+        rsName: member.replicationSet,
+        ...(clRole ? { clRole } : {}),
       };
     }
     if (member.state === 'SECONDARY') {

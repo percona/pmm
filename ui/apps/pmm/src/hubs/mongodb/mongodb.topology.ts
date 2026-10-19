@@ -96,8 +96,14 @@ const toMember = (
 
 const setNameOf = (member: MemberModel, metrics: MongoMetrics | null) =>
   metrics?.self[member.service.serviceId]?.rsName ||
+  metrics?.roles[member.service.serviceId]?.rsName ||
   member.service.replicationSet ||
   undefined;
+
+// A member that is down reports no role, so the one it had in the last day places its set.
+const isConfigServer = (member: MemberModel, metrics: MongoMetrics | null) =>
+  (metrics?.self[member.service.serviceId]?.clRole ??
+    metrics?.roles[member.service.serviceId]?.clRole) === 'configsvr';
 
 /** Topology order: primary, secondaries, arbiters, then members without a reported state. */
 const STATE_ORDER: Record<string, number> = {
@@ -173,8 +179,7 @@ export const groupClusters = (
           members: [],
         };
 
-        set.config ||=
-          metrics?.self[member.service.serviceId]?.clRole === 'configsvr';
+        set.config ||= isConfigServer(member, metrics);
         set.members.push(member);
         sets.set(setName, set);
       }

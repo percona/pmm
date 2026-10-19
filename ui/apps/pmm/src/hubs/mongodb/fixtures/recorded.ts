@@ -223,10 +223,15 @@ export const RECORDED_SERVICES: ManagedService[] = [
   },
 ];
 
+type Vector = Array<{
+  metric: Record<string, string>;
+  value: [number, string];
+}>;
+
 /** Each hub query's `data.result`, as VictoriaMetrics answered it. */
-export const RECORDED_VECTORS: Record<
-  MongoQueryId,
-  Array<{ metric: Record<string, string>; value: [number, string] }>
+const VECTORS: Record<
+  Exclude<MongoQueryId, 'upSeen' | 'selfSeen' | 'roles'>,
+  Vector
 > = {
   up: [
     {
@@ -595,6 +600,30 @@ export const RECORDED_VECTORS: Record<
     { metric: { cluster: 'orders' }, value: [1792424605, '0'] },
     { metric: { cluster: 'reports' }, value: [1792424605, '0'] },
   ],
+};
+
+const lastUp = new Map(
+  VECTORS.lastUp.map(({ metric, value }) => [metric.service_id, value[1]])
+);
+
+// One series per member, so each was last seen when its member was last up.
+const seen = (vector: Vector): Vector =>
+  vector.map(({ metric, value: [time] }) => ({
+    metric,
+    value: [time, lastUp.get(metric.service_id) ?? String(time)],
+  }));
+
+/** Every hub query's answer; the seen-at times and day-long roles follow from the up and self series. */
+export const RECORDED_VECTORS: Record<MongoQueryId, Vector> = {
+  ...VECTORS,
+  upSeen: seen(VECTORS.up),
+  selfSeen: seen(VECTORS.self),
+  roles: VECTORS.self.map(({ metric, value }) => ({
+    metric: Object.fromEntries(
+      Object.entries(metric).filter(([label]) => label !== 'member_state')
+    ),
+    value,
+  })),
 };
 
 export const RECORDED_SERVICE_NAMES: Record<string, string> = {

@@ -15,8 +15,11 @@ describe('mongoQueries', () => {
   it('builds every query of the design for all environments', () => {
     expect(mongoQueries(null)).toEqual({
       up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${M}}[1m]))`,
+      upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${M}}[1m]))`,
       lastUp: `max by (service_id) (tmax_over_time(mongodb_up{${M}}[24h]) and max_over_time(mongodb_up{${M}}[24h]) == 1)`,
       self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${M}}[1m]))`,
+      selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${M}}[1m]))`,
+      roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${M}}[24h]))`,
       lag: `max by (service_id) (last_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[1m]))`,
       lagSustained: `min by (service_id) (min_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[2m]))`,
       oplogWindow: `max by (service_id) (last_over_time(mongodb_mongod_replset_oplog_head_timestamp{${M}}[5m]) - last_over_time(mongodb_mongod_replset_oplog_tail_timestamp{${M}}[5m]))`,
@@ -135,6 +138,61 @@ describe('parseMongoMetrics', () => {
     });
 
     expect(metrics.up.x).toEqual({ value: 1, clusterRole: 'mongos' });
+  });
+
+  const sample = (metric: Record<string, string>, value: number) => ({
+    metric,
+    value,
+    timestamp: 1000,
+  });
+
+  it('reads a member that just stopped as down, though its old series is still up', () => {
+    const stopped = { service_id: 'x', cluster_role: 'mongod' };
+    const now = { service_id: 'x' };
+    const metrics = parseMongoMetrics({
+      ...recorded(),
+      up: [sample(stopped, 1), sample(now, 0)],
+      upSeen: [sample(stopped, 900), sample(now, 950)],
+    });
+
+    expect(metrics.up.x).toEqual({ value: 0, clusterRole: 'mongod' });
+  });
+
+  it('reads a member that came back as up at once', () => {
+    const back = { service_id: 'x', cluster_role: 'mongod' };
+    const stopped = { service_id: 'x' };
+    const metrics = parseMongoMetrics({
+      ...recorded(),
+      up: [sample(back, 1), sample(stopped, 0)],
+      upSeen: [sample(back, 990), sample(stopped, 950)],
+    });
+
+    expect(metrics.up.x).toEqual({ value: 1, clusterRole: 'mongod' });
+  });
+
+  it('takes the member state seen last when an election leaves two series', () => {
+    const series = (member_state: string) => ({
+      service_id: 'x',
+      rs_nm: 'billing',
+      member_state,
+    });
+    const metrics = parseMongoMetrics({
+      ...recorded(),
+      self: [sample(series('PRIMARY'), 1), sample(series('SECONDARY'), 1)],
+      selfSeen: [
+        sample(series('PRIMARY'), 1208),
+        sample(series('SECONDARY'), 1183),
+      ],
+    });
+
+    expect(metrics.self.x).toEqual({ rsName: 'billing', state: 'PRIMARY' });
+  });
+
+  it('remembers the set and role of the last day', () => {
+    const { roles } = parseMongoMetrics(recorded());
+
+    expect(roles[CFG]).toEqual({ rsName: 'orders-cfg', clRole: 'configsvr' });
+    expect(roles[BILLING_M1]).toEqual({ rsName: 'billing' });
   });
 
   it('keeps a member that is down as 0', () => {

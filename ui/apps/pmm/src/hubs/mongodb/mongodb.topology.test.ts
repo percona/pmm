@@ -119,6 +119,39 @@ describe('groupClusters', () => {
     ]);
   });
 
+  it('keeps a config server set whose members are all down as config servers', () => {
+    const snapshot = healthySnapshot(NOW, false);
+    const metrics = snapshot.metrics ?? emptyMetrics();
+
+    ['orders-cfg-m1', 'orders-cfg-m2', 'orders-cfg-m3'].forEach((name) => {
+      const id = `svc-${name}`;
+
+      metrics.up[id] = { value: 0, clusterRole: 'mongod' };
+      delete metrics.self[id];
+    });
+    const [orders] = groupClusters(snapshot.services ?? [], metrics).filter(
+      (cluster) => cluster.name === 'orders'
+    );
+
+    expect(orders.config?.name).toBe('orders-cfg');
+    expect(orders.sets.map((set) => set.name)).toEqual([
+      'orders-shard1',
+      'orders-shard2',
+    ]);
+    expect(
+      names(find(tree({ ...snapshot, metrics }), 'orders')?.children)
+    ).toEqual([
+      'Routers (mongos)',
+      'orders-cfg',
+      'orders-shard1',
+      'orders-shard2',
+    ]);
+    expect(find(tree({ ...snapshot, metrics }), 'orders-cfg')).toMatchObject({
+      type: 'Config servers',
+      health: 'down',
+    });
+  });
+
   it('puts a silent member without a set into the routers of a sharded cluster', () => {
     const shard = replicaSet('s1', { cluster: 'c', clRole: 'shardsvr' });
     const shard2 = replicaSet('s2', { cluster: 'c', clRole: 'shardsvr' });

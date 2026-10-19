@@ -9,6 +9,7 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
     up: {},
     lastUpAt: {},
     self: {},
+    roles: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
