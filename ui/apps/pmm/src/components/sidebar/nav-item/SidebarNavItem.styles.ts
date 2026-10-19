@@ -1,6 +1,13 @@
 import { listItemTextClasses } from '@mui/material/ListItemText';
 import { Theme } from '@mui/material/styles';
+import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import { appearOnOpenMixin, drawerTransition } from '../drawer/Drawer.styles';
+
+// The rail row's height: NavItem's 24px icon line.
+const RAIL_LABEL_HEIGHT = 24;
+
+// A label's width while the drawer moves or is collapsed; the sidebar records it as the drawer closes.
+export const LABEL_WIDTH_VAR = '--sidebar-label-width';
 
 export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
   // Items change shape in step with the drawer's own width transition.
@@ -41,8 +48,26 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
         opacity: drawerOpen ? 1 : 0,
         transition: theme.transitions.create('opacity', drawerTiming),
       },
+
+      // A two-line label eases down to the rail's 24px icon row and back, in
+      // step with the drawer, instead of changing the item's height at once.
+      [`.${listItemTextClasses.primary}`]: {
+        maxHeight: drawerOpen ? '2lh' : RAIL_LABEL_HEIGHT,
+        transition: theme.transitions.create('max-height', drawerTiming),
+      },
     },
     itemEnd: drawerOpen ? { mr: itemEnd } : {},
+    // Until a label has been measured open (the page loaded collapsed), a
+    // top-level one assumes its open width, so the first opening keeps the
+    // line breaks it ends with: the drawer, less the item's end gap, its
+    // padding and the 24px icon (an icon-less label box starts 2px in).
+    labelWidthEstimate: (hasIcon: boolean, hasButton: boolean) => ({
+      [`.${listItemTextClasses.root}`]: {
+        [LABEL_WIDTH_VAR]: `calc(${DRAWER_WIDTH}px - ${theme.spacing(itemEnd)} - ${
+          hasIcon ? theme.spacing(5) : theme.spacing(0.25)
+        } - ${hasButton ? theme.spacing(5.5) : theme.spacing(2)})`,
+      },
+    }),
     // Expanded, top-level items run flush to the left edge and round off on
     // the right. Collapsed, they fill the rail as square rows, with padding
     // that centres the 24px icon.

@@ -10,6 +10,7 @@ import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { SidebarNavItem } from './nav-item';
+import { LABEL_WIDTH_VAR } from './nav-item/SidebarNavItem.styles';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import { listItemTextClasses } from '@mui/material/ListItemText';
@@ -51,11 +52,24 @@ export const Sidebar: FC = () => {
   };
 
   const toggleSidebar = useCallback(() => {
+    // Recorded only from a settled, open drawer: mid-animation widths would
+    // break labels into more lines.
+    if (navOpen && !animating) {
+      list
+        ?.querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
+        .forEach((label) =>
+          label.style.setProperty(
+            LABEL_WIDTH_VAR,
+            `${label.getBoundingClientRect().width}px`
+          )
+        );
+    }
+
     setNavOpen(!navOpen);
     // Labels hold a single line while the drawer moves. Nothing moves under
     // reduced motion, so they are free at once.
     setAnimating(!reduceMotion);
-  }, [navOpen, setNavOpen, reduceMotion]);
+  }, [navOpen, animating, list, setNavOpen, reduceMotion]);
 
   // Released when the paper's own width transition ends, not on a timer: the
   // transition starts only once React has re-rendered, which takes a moment.
@@ -134,12 +148,13 @@ export const Sidebar: FC = () => {
             },
             hiddenScrollbarMixin,
             scrollFadeMixin(canScrollUp, canScrollDown),
-            // Labels hold a single line while the drawer animates or is
-            // collapsed, so they slide out of view instead of rewrapping.
+            // Labels keep their expanded width, and so their line breaks,
+            // while the drawer animates or is collapsed: they slide out of
+            // view instead of rewrapping. A label never seen open holds one
+            // line.
             (animating || !navOpen) && {
               [`.${listItemTextClasses.root}`]: {
-                flexShrink: 0,
-                whiteSpace: 'nowrap',
+                flex: `0 0 var(${LABEL_WIDTH_VAR}, auto)`,
               },
             },
           ]}
