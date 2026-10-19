@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { getPrometheusAlertRules } from 'api/alerting';
 import { getRunningSessions, searchQueries } from 'api/rta';
@@ -769,6 +769,49 @@ describe('useMongoLiveSnapshot', () => {
       artifacts: [],
       scheduled: [],
     });
+  });
+
+  // TanStack's refetch() ignores `enabled`, so only the hook's own guards keep Refresh off these.
+  it('refreshes no Operations source with Operations off', async () => {
+    const { result } = renderLive();
+
+    await waitFor(() =>
+      expect(result.current.sources.inventory.status).toBe('ready')
+    );
+    vi.mocked(listManagedServicesQuietly).mockClear();
+
+    await act(async () => result.current.refetch());
+
+    expect(listManagedServicesQuietly).toHaveBeenCalled();
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('refreshes neither alerts nor backups when their features are off', async () => {
+    const { result } = renderLive(
+      {},
+      { alertingEnabled: false, backupManagementEnabled: false }
+    );
+
+    await waitFor(() =>
+      expect(result.current.sources.inventory.status).toBe('ready')
+    );
+
+    await act(async () => result.current.refetch());
+
+    expect(getPrometheusAlertRules).not.toHaveBeenCalled();
+    expect(listArtifacts).not.toHaveBeenCalled();
+  });
+
+  it('refreshes nothing for sample data', async () => {
+    const { result } = renderLive({ enabled: false });
+
+    await act(async () => result.current.refetch());
+
+    expect(listManagedServicesQuietly).not.toHaveBeenCalled();
+    expect(instantQuery).not.toHaveBeenCalled();
+    expect(getPrometheusAlertRules).not.toHaveBeenCalled();
+    expect(listArtifacts).not.toHaveBeenCalled();
+    expect(request).not.toHaveBeenCalled();
   });
 
   it('says nothing about backups or dashboards before they answer', async () => {
