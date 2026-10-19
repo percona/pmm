@@ -413,7 +413,14 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
               {`${alerts.length} firing ${alerts.length === 1 ? 'alert' : 'alerts'}`}
             </Button>
             <Collapse in={alertsOpen}>
-              <Box sx={{ pt: 1.5, maxWidth: 520 }}>
+              <Box
+                sx={{
+                  pt: 1.5,
+                  maxWidth: 520,
+                  maxHeight: '45vh',
+                  overflowY: 'auto',
+                }}
+              >
                 <AdreAlertsPanel alerts={alerts} />
               </Box>
             </Collapse>
