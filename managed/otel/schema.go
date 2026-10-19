@@ -18,7 +18,9 @@ package otel
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"net/url"
 
@@ -61,17 +63,47 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
 	return nil
 }
 
-// patternHashColumn stores each line's pattern hash at insert, so pattern queries skip the masking regexes.
-var patternHashColumn = "PatternHash UInt64 MATERIALIZED cityHash64(" + PatternExpr("Body") + ") CODEC(ZSTD(1))"
+var (
+	patternHashExpr = "cityHash64(" + PatternExpr("Body") + ")"
+	// This version's masking rules, named in PatternHash's comment so a change of rules is seen.
+	patternRulesComment = "pattern rules " + hashHex(patternHashExpr)
+	// Each line's pattern hash, stored at insert so pattern queries skip the masking regexes.
+	patternHashColumn = "PatternHash UInt64 MATERIALIZED " + patternHashExpr + " COMMENT '" + patternRulesComment + "' CODEC(ZSTD(1))"
+)
+
+// hashHex returns the first 8 bytes of s's SHA-256 in hex.
+func hashHex(s string) string {
+	sum := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(sum[:8])
+}
 
 // ensureLogsTable creates otel.logs, or gives an existing one the PatternHash column of this version's masking rules.
-// Parts written before a change keep their hashes until they age out.
+// When the rules changed, a background mutation rewrites the hashes stored with the old ones.
 func ensureLogsTable(ctx context.Context, db *sql.DB, tableEngine string, retentionDays int) error {
-	for _, q := range []string{
-		logsTableDDL(tableEngine, retentionDays),
-		"ALTER TABLE otel.logs ADD COLUMN IF NOT EXISTS " + patternHashColumn,
-		"ALTER TABLE otel.logs MODIFY COLUMN " + patternHashColumn,
-	} {
+	err := execAll(ctx, db, logsTableDDL(tableEngine, retentionDays), "ALTER TABLE otel.logs ADD COLUMN IF NOT EXISTS "+patternHashColumn)
+	if err != nil {
+		return err
+	}
+	var comment string
+	err = db.QueryRowContext(ctx, "SELECT comment FROM system.columns WHERE database = 'otel' AND table = 'logs' AND name = 'PatternHash'").
+		Scan(&comment)
+	if err != nil {
+		return fmt.Errorf("read the pattern rules of otel.logs: %w", err)
+	}
+	if comment == patternRulesComment {
+		return nil
+	}
+	logrus.Info("OTEL schema: the masking rules changed, rewriting the pattern hashes of otel.logs in the background.")
+	// The comment goes last, so a failed step is retried at the next start.
+	return execAll(ctx, db,
+		"ALTER TABLE otel.logs MODIFY COLUMN PatternHash UInt64 MATERIALIZED "+patternHashExpr+" CODEC(ZSTD(1))",
+		"ALTER TABLE otel.logs MATERIALIZE COLUMN PatternHash",
+		"ALTER TABLE otel.logs COMMENT COLUMN PatternHash '"+patternRulesComment+"'")
+}
+
+// execAll runs the statements in order and stops at the first error.
+func execAll(ctx context.Context, db *sql.DB, statements ...string) error {
+	for _, q := range statements {
 		_, err := db.ExecContext(ctx, q)
 		if err != nil {
 			return fmt.Errorf("ensure table otel.logs: %w", err)
