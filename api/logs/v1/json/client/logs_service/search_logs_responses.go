@@ -766,6 +766,15 @@ type SearchLogsParamsBodyFilter struct {
 
 	// No lines with these pattern hashes.
 	ExcludePatternHashes []string `json:"exclude_pattern_hashes"`
+
+	// Only lines from nodes running services in these clusters.
+	Clusters []string `json:"clusters"`
+
+	// Only lines from nodes running services in these environments.
+	Environments []string `json:"environments"`
+
+	// Only lines from nodes running services in these replication sets.
+	ReplicationSets []string `json:"replication_sets"`
 }
 
 // Validate validates this search logs params body filter

@@ -21232,6 +21232,30 @@
                         "format": "uint64"
                       },
                       "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -21302,6 +21326,64 @@
                     }
                   },
                   "x-order": 2
+                },
+                "clusters": {
+                  "description": "Lines of the nodes running services with each label; a node with services of several clusters counts for each.",
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "environments": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
+                "replication_sets": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -21440,6 +21522,30 @@
                         "format": "uint64"
                       },
                       "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -21657,6 +21763,30 @@
                         "format": "uint64"
                       },
                       "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -21848,6 +21978,30 @@
                         "format": "uint64"
                       },
                       "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
                     }
                   },
                   "x-order": 0

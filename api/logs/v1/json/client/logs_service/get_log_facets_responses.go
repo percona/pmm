@@ -528,6 +528,15 @@ type GetLogFacetsOKBody struct {
 
 	// presets
 	Presets []*GetLogFacetsOKBodyPresetsItems0 `json:"presets"`
+
+	// Lines of the nodes running services with each label; a node with services of several clusters counts for each.
+	Clusters []*GetLogFacetsOKBodyClustersItems0 `json:"clusters"`
+
+	// environments
+	Environments []*GetLogFacetsOKBodyEnvironmentsItems0 `json:"environments"`
+
+	// replication sets
+	ReplicationSets []*GetLogFacetsOKBodyReplicationSetsItems0 `json:"replication_sets"`
 }
 
 // Validate validates this get log facets OK body
@@ -543,6 +552,18 @@ func (o *GetLogFacetsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePresets(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateClusters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEnvironments(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateReplicationSets(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -642,6 +663,96 @@ func (o *GetLogFacetsOKBody) validatePresets(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetLogFacetsOKBody) validateClusters(formats strfmt.Registry) error {
+	if swag.IsZero(o.Clusters) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Clusters); i++ {
+		if swag.IsZero(o.Clusters[i]) { // not required
+			continue
+		}
+
+		if o.Clusters[i] != nil {
+			if err := o.Clusters[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "clusters" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "clusters" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetLogFacetsOKBody) validateEnvironments(formats strfmt.Registry) error {
+	if swag.IsZero(o.Environments) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Environments); i++ {
+		if swag.IsZero(o.Environments[i]) { // not required
+			continue
+		}
+
+		if o.Environments[i] != nil {
+			if err := o.Environments[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "environments" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "environments" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetLogFacetsOKBody) validateReplicationSets(formats strfmt.Registry) error {
+	if swag.IsZero(o.ReplicationSets) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ReplicationSets); i++ {
+		if swag.IsZero(o.ReplicationSets[i]) { // not required
+			continue
+		}
+
+		if o.ReplicationSets[i] != nil {
+			if err := o.ReplicationSets[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "replication_sets" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "replication_sets" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get log facets OK body based on the context it is used
 func (o *GetLogFacetsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -655,6 +766,18 @@ func (o *GetLogFacetsOKBody) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := o.contextValidatePresets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateClusters(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateEnvironments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateReplicationSets(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -742,6 +865,84 @@ func (o *GetLogFacetsOKBody) contextValidatePresets(ctx context.Context, formats
 	return nil
 }
 
+func (o *GetLogFacetsOKBody) contextValidateClusters(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Clusters); i++ {
+		if o.Clusters[i] != nil {
+
+			if swag.IsZero(o.Clusters[i]) { // not required
+				return nil
+			}
+
+			if err := o.Clusters[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "clusters" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "clusters" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *GetLogFacetsOKBody) contextValidateEnvironments(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Environments); i++ {
+		if o.Environments[i] != nil {
+
+			if swag.IsZero(o.Environments[i]) { // not required
+				return nil
+			}
+
+			if err := o.Environments[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "environments" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "environments" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *GetLogFacetsOKBody) contextValidateReplicationSets(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.ReplicationSets); i++ {
+		if o.ReplicationSets[i] != nil {
+
+			if swag.IsZero(o.ReplicationSets[i]) { // not required
+				return nil
+			}
+
+			if err := o.ReplicationSets[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getLogFacetsOk" + "." + "replication_sets" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getLogFacetsOk" + "." + "replication_sets" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetLogFacetsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -753,6 +954,86 @@ func (o *GetLogFacetsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetLogFacetsOKBody) UnmarshalBinary(b []byte) error {
 	var res GetLogFacetsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetLogFacetsOKBodyClustersItems0 Facet is one filter value with its line count.
+swagger:model GetLogFacetsOKBodyClustersItems0
+*/
+type GetLogFacetsOKBodyClustersItems0 struct {
+	// value
+	Value string `json:"value,omitempty"`
+
+	// count
+	Count string `json:"count,omitempty"`
+}
+
+// Validate validates this get log facets OK body clusters items0
+func (o *GetLogFacetsOKBodyClustersItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get log facets OK body clusters items0 based on context it is used
+func (o *GetLogFacetsOKBodyClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyClustersItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyClustersItems0) UnmarshalBinary(b []byte) error {
+	var res GetLogFacetsOKBodyClustersItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetLogFacetsOKBodyEnvironmentsItems0 Facet is one filter value with its line count.
+swagger:model GetLogFacetsOKBodyEnvironmentsItems0
+*/
+type GetLogFacetsOKBodyEnvironmentsItems0 struct {
+	// value
+	Value string `json:"value,omitempty"`
+
+	// count
+	Count string `json:"count,omitempty"`
+}
+
+// Validate validates this get log facets OK body environments items0
+func (o *GetLogFacetsOKBodyEnvironmentsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get log facets OK body environments items0 based on context it is used
+func (o *GetLogFacetsOKBodyEnvironmentsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyEnvironmentsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyEnvironmentsItems0) UnmarshalBinary(b []byte) error {
+	var res GetLogFacetsOKBodyEnvironmentsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -833,6 +1114,46 @@ func (o *GetLogFacetsOKBodyPresetsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetLogFacetsOKBodyPresetsItems0) UnmarshalBinary(b []byte) error {
 	var res GetLogFacetsOKBodyPresetsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetLogFacetsOKBodyReplicationSetsItems0 Facet is one filter value with its line count.
+swagger:model GetLogFacetsOKBodyReplicationSetsItems0
+*/
+type GetLogFacetsOKBodyReplicationSetsItems0 struct {
+	// value
+	Value string `json:"value,omitempty"`
+
+	// count
+	Count string `json:"count,omitempty"`
+}
+
+// Validate validates this get log facets OK body replication sets items0
+func (o *GetLogFacetsOKBodyReplicationSetsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get log facets OK body replication sets items0 based on context it is used
+func (o *GetLogFacetsOKBodyReplicationSetsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyReplicationSetsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetLogFacetsOKBodyReplicationSetsItems0) UnmarshalBinary(b []byte) error {
+	var res GetLogFacetsOKBodyReplicationSetsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -922,6 +1243,15 @@ type GetLogFacetsParamsBodyFilter struct {
 
 	// No lines with these pattern hashes.
 	ExcludePatternHashes []string `json:"exclude_pattern_hashes"`
+
+	// Only lines from nodes running services in these clusters.
+	Clusters []string `json:"clusters"`
+
+	// Only lines from nodes running services in these environments.
+	Environments []string `json:"environments"`
+
+	// Only lines from nodes running services in these replication sets.
+	ReplicationSets []string `json:"replication_sets"`
 }
 
 // Validate validates this get log facets params body filter

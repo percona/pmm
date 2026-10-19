@@ -54,8 +54,14 @@ type LogFilter struct {
 	PatternHash uint64 `protobuf:"varint,11,opt,name=pattern_hash,json=patternHash,proto3" json:"pattern_hash,omitempty"`
 	// No lines with these pattern hashes.
 	ExcludePatternHashes []uint64 `protobuf:"varint,12,rep,packed,name=exclude_pattern_hashes,json=excludePatternHashes,proto3" json:"exclude_pattern_hashes,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Only lines from nodes running services in these clusters.
+	Clusters []string `protobuf:"bytes,13,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	// Only lines from nodes running services in these environments.
+	Environments []string `protobuf:"bytes,14,rep,name=environments,proto3" json:"environments,omitempty"`
+	// Only lines from nodes running services in these replication sets.
+	ReplicationSets []string `protobuf:"bytes,15,rep,name=replication_sets,json=replicationSets,proto3" json:"replication_sets,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *LogFilter) Reset() {
@@ -168,6 +174,27 @@ func (x *LogFilter) GetPatternHash() uint64 {
 func (x *LogFilter) GetExcludePatternHashes() []uint64 {
 	if x != nil {
 		return x.ExcludePatternHashes
+	}
+	return nil
+}
+
+func (x *LogFilter) GetClusters() []string {
+	if x != nil {
+		return x.Clusters
+	}
+	return nil
+}
+
+func (x *LogFilter) GetEnvironments() []string {
+	if x != nil {
+		return x.Environments
+	}
+	return nil
+}
+
+func (x *LogFilter) GetReplicationSets() []string {
+	if x != nil {
+		return x.ReplicationSets
 	}
 	return nil
 }
@@ -1033,12 +1060,16 @@ func (x *GetLogFacetsRequest) GetFilter() *LogFilter {
 }
 
 type GetLogFacetsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeNames     []*Facet               `protobuf:"bytes,1,rep,name=node_names,json=nodeNames,proto3" json:"node_names,omitempty"`
-	Sources       []*Facet               `protobuf:"bytes,2,rep,name=sources,proto3" json:"sources,omitempty"`
-	Presets       []*Facet               `protobuf:"bytes,3,rep,name=presets,proto3" json:"presets,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	NodeNames []*Facet               `protobuf:"bytes,1,rep,name=node_names,json=nodeNames,proto3" json:"node_names,omitempty"`
+	Sources   []*Facet               `protobuf:"bytes,2,rep,name=sources,proto3" json:"sources,omitempty"`
+	Presets   []*Facet               `protobuf:"bytes,3,rep,name=presets,proto3" json:"presets,omitempty"`
+	// Lines of the nodes running services with each label; a node with services of several clusters counts for each.
+	Clusters        []*Facet `protobuf:"bytes,4,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	Environments    []*Facet `protobuf:"bytes,5,rep,name=environments,proto3" json:"environments,omitempty"`
+	ReplicationSets []*Facet `protobuf:"bytes,6,rep,name=replication_sets,json=replicationSets,proto3" json:"replication_sets,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetLogFacetsResponse) Reset() {
@@ -1088,6 +1119,27 @@ func (x *GetLogFacetsResponse) GetSources() []*Facet {
 func (x *GetLogFacetsResponse) GetPresets() []*Facet {
 	if x != nil {
 		return x.Presets
+	}
+	return nil
+}
+
+func (x *GetLogFacetsResponse) GetClusters() []*Facet {
+	if x != nil {
+		return x.Clusters
+	}
+	return nil
+}
+
+func (x *GetLogFacetsResponse) GetEnvironments() []*Facet {
+	if x != nil {
+		return x.Environments
+	}
+	return nil
+}
+
+func (x *GetLogFacetsResponse) GetReplicationSets() []*Facet {
+	if x != nil {
+		return x.ReplicationSets
 	}
 	return nil
 }
@@ -1230,7 +1282,7 @@ var File_logs_v1_logs_proto protoreflect.FileDescriptor
 
 const file_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xcd\x03\n" +
+	"\x12logs/v1/logs.proto\x12\alogs.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xb8\x04\n" +
 	"\tLogFilter\x12:\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x05start\x126\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x03end\x12\x1d\n" +
@@ -1245,7 +1297,10 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\x12exclude_node_names\x18\n" +
 	" \x03(\tR\x10excludeNodeNames\x12!\n" +
 	"\fpattern_hash\x18\v \x01(\x04R\vpatternHash\x124\n" +
-	"\x16exclude_pattern_hashes\x18\f \x03(\x04R\x14excludePatternHashes\"\xd0\x03\n" +
+	"\x16exclude_pattern_hashes\x18\f \x03(\x04R\x14excludePatternHashes\x12\x1a\n" +
+	"\bclusters\x18\r \x03(\tR\bclusters\x12\"\n" +
+	"\fenvironments\x18\x0e \x03(\tR\fenvironments\x12)\n" +
+	"\x10replication_sets\x18\x0f \x03(\tR\x0freplicationSets\"\xd0\x03\n" +
 	"\aLogLine\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x16\n" +
@@ -1316,12 +1371,15 @@ const file_logs_v1_logs_proto_rawDesc = "" +
 	"\x05lines\x18\x01 \x03(\v2\x10.logs.v1.LogLineR\x05lines\x12!\n" +
 	"\fanchor_index\x18\x02 \x01(\x05R\vanchorIndex\"K\n" +
 	"\x13GetLogFacetsRequest\x124\n" +
-	"\x06filter\x18\x01 \x01(\v2\x12.logs.v1.LogFilterB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x06filter\"\x99\x01\n" +
+	"\x06filter\x18\x01 \x01(\v2\x12.logs.v1.LogFilterB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x06filter\"\xb4\x02\n" +
 	"\x14GetLogFacetsResponse\x12-\n" +
 	"\n" +
 	"node_names\x18\x01 \x03(\v2\x0e.logs.v1.FacetR\tnodeNames\x12(\n" +
 	"\asources\x18\x02 \x03(\v2\x0e.logs.v1.FacetR\asources\x12(\n" +
-	"\apresets\x18\x03 \x03(\v2\x0e.logs.v1.FacetR\apresets\"\x96\x01\n" +
+	"\apresets\x18\x03 \x03(\v2\x0e.logs.v1.FacetR\apresets\x12*\n" +
+	"\bclusters\x18\x04 \x03(\v2\x0e.logs.v1.FacetR\bclusters\x122\n" +
+	"\fenvironments\x18\x05 \x03(\v2\x0e.logs.v1.FacetR\fenvironments\x129\n" +
+	"\x10replication_sets\x18\x06 \x03(\v2\x0e.logs.v1.FacetR\x0freplicationSets\"\x96\x01\n" +
 	"\x13FindLogQueryRequest\x128\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\x04time\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x1f\n" +
@@ -1401,24 +1459,27 @@ var file_logs_v1_logs_proto_depIdxs = []int32{
 	4,  // 17: logs.v1.GetLogFacetsResponse.node_names:type_name -> logs.v1.Facet
 	4,  // 18: logs.v1.GetLogFacetsResponse.sources:type_name -> logs.v1.Facet
 	4,  // 19: logs.v1.GetLogFacetsResponse.presets:type_name -> logs.v1.Facet
-	18, // 20: logs.v1.FindLogQueryRequest.time:type_name -> google.protobuf.Timestamp
-	5,  // 21: logs.v1.LogsService.SearchLogs:input_type -> logs.v1.SearchLogsRequest
-	7,  // 22: logs.v1.LogsService.GetLogVolume:input_type -> logs.v1.GetLogVolumeRequest
-	9,  // 23: logs.v1.LogsService.GetLogPatterns:input_type -> logs.v1.GetLogPatternsRequest
-	11, // 24: logs.v1.LogsService.GetLogContext:input_type -> logs.v1.GetLogContextRequest
-	15, // 25: logs.v1.LogsService.FindLogQuery:input_type -> logs.v1.FindLogQueryRequest
-	13, // 26: logs.v1.LogsService.GetLogFacets:input_type -> logs.v1.GetLogFacetsRequest
-	6,  // 27: logs.v1.LogsService.SearchLogs:output_type -> logs.v1.SearchLogsResponse
-	8,  // 28: logs.v1.LogsService.GetLogVolume:output_type -> logs.v1.GetLogVolumeResponse
-	10, // 29: logs.v1.LogsService.GetLogPatterns:output_type -> logs.v1.GetLogPatternsResponse
-	12, // 30: logs.v1.LogsService.GetLogContext:output_type -> logs.v1.GetLogContextResponse
-	16, // 31: logs.v1.LogsService.FindLogQuery:output_type -> logs.v1.FindLogQueryResponse
-	14, // 32: logs.v1.LogsService.GetLogFacets:output_type -> logs.v1.GetLogFacetsResponse
-	27, // [27:33] is the sub-list for method output_type
-	21, // [21:27] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	4,  // 20: logs.v1.GetLogFacetsResponse.clusters:type_name -> logs.v1.Facet
+	4,  // 21: logs.v1.GetLogFacetsResponse.environments:type_name -> logs.v1.Facet
+	4,  // 22: logs.v1.GetLogFacetsResponse.replication_sets:type_name -> logs.v1.Facet
+	18, // 23: logs.v1.FindLogQueryRequest.time:type_name -> google.protobuf.Timestamp
+	5,  // 24: logs.v1.LogsService.SearchLogs:input_type -> logs.v1.SearchLogsRequest
+	7,  // 25: logs.v1.LogsService.GetLogVolume:input_type -> logs.v1.GetLogVolumeRequest
+	9,  // 26: logs.v1.LogsService.GetLogPatterns:input_type -> logs.v1.GetLogPatternsRequest
+	11, // 27: logs.v1.LogsService.GetLogContext:input_type -> logs.v1.GetLogContextRequest
+	15, // 28: logs.v1.LogsService.FindLogQuery:input_type -> logs.v1.FindLogQueryRequest
+	13, // 29: logs.v1.LogsService.GetLogFacets:input_type -> logs.v1.GetLogFacetsRequest
+	6,  // 30: logs.v1.LogsService.SearchLogs:output_type -> logs.v1.SearchLogsResponse
+	8,  // 31: logs.v1.LogsService.GetLogVolume:output_type -> logs.v1.GetLogVolumeResponse
+	10, // 32: logs.v1.LogsService.GetLogPatterns:output_type -> logs.v1.GetLogPatternsResponse
+	12, // 33: logs.v1.LogsService.GetLogContext:output_type -> logs.v1.GetLogContextResponse
+	16, // 34: logs.v1.LogsService.FindLogQuery:output_type -> logs.v1.FindLogQueryResponse
+	14, // 35: logs.v1.LogsService.GetLogFacets:output_type -> logs.v1.GetLogFacetsResponse
+	30, // [30:36] is the sub-list for method output_type
+	24, // [24:30] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_logs_v1_logs_proto_init() }

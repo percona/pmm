@@ -397,7 +397,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
 	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
 
-	logsv1.RegisterLogsServiceServer(gRPCServer, logsservice.New(deps.otelClickhouse))
+	logsv1.RegisterLogsServiceServer(gRPCServer, logsservice.New(deps.otelClickhouse, deps.db))
 
 	// Start RTA store cleanup goroutine
 	go rtaStore.Run(ctx)

@@ -61,6 +61,9 @@ type Filter struct {
 	PatternHash      uint64
 	// ExcludePatternHashes hides lines of these patterns.
 	ExcludePatternHashes []uint64
+	// ByLabels keeps only lines of LabelNodes, the nodes running services with the requested labels; none when empty.
+	ByLabels   bool
+	LabelNodes []string
 }
 
 // lineHash identifies a line among those with the same Timestamp; lines it cannot tell apart look identical.
@@ -132,6 +135,14 @@ func buildWhere(f Filter) (string, []any) {
 	if len(f.ExcludeNodeNames) > 0 {
 		conds = append(conds, "ResourceAttributes['node_name'] NOT IN ?")
 		args = append(args, f.ExcludeNodeNames)
+	}
+	if f.ByLabels {
+		if len(f.LabelNodes) == 0 {
+			conds = append(conds, "0")
+		} else {
+			conds = append(conds, "ResourceAttributes['node_name'] IN ?")
+			args = append(args, f.LabelNodes)
+		}
 	}
 	if f.MinSeverity > 0 {
 		conds = append(conds, "SeverityNumber >= ?")
@@ -232,6 +243,7 @@ func patternsQuery(f Filter) (string, []any) {
 	baseWhere, baseArgs := buildWhere(Filter{
 		Start: prev.Start, End: f.Start,
 		NodeNames: f.NodeNames, ExcludeNodeNames: f.ExcludeNodeNames, Sources: f.Sources, Presets: f.Presets,
+		ByLabels: f.ByLabels, LabelNodes: f.LabelNodes,
 	})
 	// The top sources cost about a fifth more over many patterns, so they are counted only for one.
 	topSources, innerTopSources := "CAST([], 'Array(String)') AS top_sources", ""
@@ -283,4 +295,11 @@ func facetsQueries(f Filter) (string, string, string, []any) {
 			" GROUP BY v HAVING v != '' ORDER BY count() DESC LIMIT 200" + querySettings
 	}
 	return facet("ResourceAttributes['node_name']"), facet("ServiceName"), facet("LogAttributes['log.preset']"), args
+}
+
+// nodeCountsQuery counts the range's lines of each of the nodes.
+func nodeCountsQuery(f Filter, nodes []string) (string, []any) {
+	where, args := timeWhere(f.Start, f.End)
+	return "SELECT ResourceAttributes['node_name'] AS v, count() FROM otel.logs WHERE " + where +
+		" AND ResourceAttributes['node_name'] IN ? GROUP BY v" + querySettings, append(args, nodes)
 }

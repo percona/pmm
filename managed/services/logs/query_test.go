@@ -76,6 +76,29 @@ func TestBuildWhere_All(t *testing.T) {
 	}, args)
 }
 
+func TestBuildWhere_LabelNodes(t *testing.T) {
+	where, args := buildWhere(Filter{Start: testStart, End: testEnd, ByLabels: true, LabelNodes: []string{"rs101", "rs102"}})
+	assert.Equal(t, testTimeWhere+" AND ResourceAttributes['node_name'] IN ?", where)
+	assert.Equal(t, []string{"rs101", "rs102"}, args[len(args)-1])
+
+	// Labels no service has select no lines.
+	where, _ = buildWhere(Filter{Start: testStart, End: testEnd, ByLabels: true})
+	assert.Equal(t, testTimeWhere+" AND 0", where)
+}
+
+func TestPatternsQuery_LabelBaseline(t *testing.T) {
+	q, args := patternsQuery(Filter{Start: testStart, End: testEnd, ByLabels: true, LabelNodes: []string{"rs101"}})
+	assert.Equal(t, 2, strings.Count(q, "ResourceAttributes['node_name'] IN ?"), "the baseline has the same nodes")
+	assert.Contains(t, args, []string{"rs101"})
+}
+
+func TestNodeCountsQuery(t *testing.T) {
+	q, args := nodeCountsQuery(Filter{Start: testStart, End: testEnd}, []string{"rs101", "ps1"})
+	assert.Equal(t, "SELECT ResourceAttributes['node_name'] AS v, count() FROM otel.logs WHERE "+testTimeWhere+
+		" AND ResourceAttributes['node_name'] IN ? GROUP BY v"+querySettings, q)
+	assert.Equal(t, []string{"rs101", "ps1"}, args[len(args)-1])
+}
+
 func TestBuildWhere_PatternHashes(t *testing.T) {
 	where, args := buildWhere(Filter{Start: testStart, End: testEnd, PatternHash: 42, ExcludePatternHashes: []uint64{7, 9}})
 	assert.Equal(t, testTimeWhere+" AND PatternHash = ? AND PatternHash NOT IN ?", where)

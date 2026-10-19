@@ -29,6 +29,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	logsv1 "github.com/percona/pmm/api/logs/v1"
 )
@@ -47,14 +49,27 @@ var lineCols = []string{
 
 func newTestService(t *testing.T) (*Service, sqlmock.Sqlmock) {
 	t.Helper()
+	s, mock, _ := newTestServiceWithInventory(t)
+	return s, mock
+}
+
+// newTestServiceWithInventory returns the service with mocks of ClickHouse and of the inventory database.
+func newTestServiceWithInventory(t *testing.T) (*Service, sqlmock.Sqlmock, sqlmock.Sqlmock) {
+	t.Helper()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual), sqlmock.ValueConverterOption(passthrough{}))
+	require.NoError(t, err)
+	invDB, inv, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		assert.NoError(t, mock.ExpectationsWereMet())
+		assert.NoError(t, inv.ExpectationsWereMet())
 		_ = db.Close()
+		_ = invDB.Close()
 	})
-	return New(db), mock
+	return New(db, reform.NewDB(invDB, postgresql.Dialect, nil)), mock, inv
 }
+
+var labelCols = []string{"cluster", "environment", "replication_set", "node_name"}
 
 func testLogFilter() *logsv1.LogFilter {
 	return &logsv1.LogFilter{Start: timestamppb.New(testStart), End: timestamppb.New(testEnd)}
@@ -223,17 +238,57 @@ func TestGetLogContext(t *testing.T) {
 }
 
 func TestGetLogFacets(t *testing.T) {
-	s, mock := newTestService(t)
-	nodes, sources, presets, _ := facetsQueries(Filter{Start: testStart, End: testEnd})
+	s, mock, inv := newTestServiceWithInventory(t)
+	f := Filter{Start: testStart, End: testEnd}
+	nodes, sources, presets, _ := facetsQueries(f)
 	cols := []string{"v", "count()"}
 	mock.ExpectQuery(nodes).WillReturnRows(mock.NewRows(cols).AddRow("pmm-server", uint64(10)).AddRow("node1", uint64(5)))
 	mock.ExpectQuery(sources).WillReturnRows(mock.NewRows(cols).AddRow("pmm-managed", uint64(10)))
 	mock.ExpectQuery(presets).WillReturnRows(mock.NewRows(cols).AddRow("postgres", uint64(5)))
+	inv.ExpectQuery(labelsQuery).WillReturnRows(inv.NewRows(labelCols).
+		AddRow("prod-pg", "prod", "", "node1").
+		AddRow("prod-pg", "prod", "", "node2"))
+	counts, _ := nodeCountsQuery(f, []string{"node1", "node2"})
+	mock.ExpectQuery(counts).WillReturnRows(mock.NewRows(cols).AddRow("node1", uint64(5)))
 	res, err := s.GetLogFacets(t.Context(), &logsv1.GetLogFacetsRequest{Filter: testLogFilter()})
 	require.NoError(t, err)
 	assert.Equal(t, []*logsv1.Facet{{Value: "pmm-server", Count: 10}, {Value: "node1", Count: 5}}, res.NodeNames)
 	assert.Equal(t, []*logsv1.Facet{{Value: "pmm-managed", Count: 10}}, res.Sources)
 	assert.Equal(t, []*logsv1.Facet{{Value: "postgres", Count: 5}}, res.Presets)
+	assert.Equal(t, []*logsv1.Facet{{Value: "prod-pg", Count: 5}}, res.Clusters)
+	assert.Equal(t, []*logsv1.Facet{{Value: "prod", Count: 5}}, res.Environments)
+	assert.Empty(t, res.ReplicationSets)
+}
+
+func TestGetLogFacets_NoLabels(t *testing.T) {
+	s, mock, inv := newTestServiceWithInventory(t)
+	nodes, sources, presets, _ := facetsQueries(Filter{Start: testStart, End: testEnd})
+	cols := []string{"v", "count()"}
+	for _, q := range []string{nodes, sources, presets} {
+		mock.ExpectQuery(q).WillReturnRows(mock.NewRows(cols))
+	}
+	// Without labeled services ClickHouse is not asked for node counts.
+	inv.ExpectQuery(labelsQuery).WillReturnRows(inv.NewRows(labelCols))
+	res, err := s.GetLogFacets(t.Context(), &logsv1.GetLogFacetsRequest{Filter: testLogFilter()})
+	require.NoError(t, err)
+	assert.Empty(t, res.Clusters)
+}
+
+func TestSearchLogs_Labels(t *testing.T) {
+	s, mock, inv := newTestServiceWithInventory(t)
+	inv.ExpectQuery(labelsQuery).WillReturnRows(inv.NewRows(labelCols).
+		AddRow("sharded", "", "rs1", "rs101").
+		AddRow("ps", "", "", "ps1"))
+	q, _ := searchQuery(Filter{Start: testStart, End: testEnd, ByLabels: true, LabelNodes: []string{"rs101"}}, nil, 0)
+	mock.ExpectQuery(q).WillReturnRows(mock.NewRows(append(lineCols, "h")))
+	f := testLogFilter()
+	f.Clusters = []string{"sharded"}
+	_, err := s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: f})
+	require.NoError(t, err)
+
+	inv.ExpectQuery(labelsQuery).WillReturnError(errors.New("connection refused"))
+	_, err = s.SearchLogs(t.Context(), &logsv1.SearchLogsRequest{Filter: f})
+	requireCode(t, err, codes.Internal)
 }
 
 func TestLBACDenied(t *testing.T) {

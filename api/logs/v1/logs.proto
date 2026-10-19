@@ -34,6 +34,12 @@ message LogFilter {
   uint64 pattern_hash = 11;
   // No lines with these pattern hashes.
   repeated uint64 exclude_pattern_hashes = 12;
+  // Only lines from nodes running services in these clusters.
+  repeated string clusters = 13;
+  // Only lines from nodes running services in these environments.
+  repeated string environments = 14;
+  // Only lines from nodes running services in these replication sets.
+  repeated string replication_sets = 15;
 }
 
 // LogLine is one log entry.
@@ -155,6 +161,10 @@ message GetLogFacetsResponse {
   repeated Facet node_names = 1;
   repeated Facet sources = 2;
   repeated Facet presets = 3;
+  // Lines of the nodes running services with each label; a node with services of several clusters counts for each.
+  repeated Facet clusters = 4;
+  repeated Facet environments = 5;
+  repeated Facet replication_sets = 6;
 }
 
 message FindLogQueryRequest {

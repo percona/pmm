@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gopkg.in/reform.v1"
 
 	logsv1 "github.com/percona/pmm/api/logs/v1"
 )
@@ -38,13 +39,14 @@ const defaultContextLines = 50
 type Service struct {
 	logsv1.UnimplementedLogsServiceServer
 
-	db *sql.DB
-	l  *logrus.Entry
+	db  *sql.DB
+	inv *reform.DB
+	l   *logrus.Entry
 }
 
-// New returns a logs service reading from the ClickHouse otel database.
-func New(db *sql.DB) *Service {
-	return &Service{db: db, l: logrus.WithField("component", "logs")}
+// New returns a logs service reading lines from the ClickHouse otel database and service labels from the inventory.
+func New(db *sql.DB, inv *reform.DB) *Service {
+	return &Service{db: db, inv: inv, l: logrus.WithField("component", "logs")}
 }
 
 // checkLBAC refuses users with label-based access filters: log lines carry no labels to filter on.
@@ -58,8 +60,8 @@ func checkLBAC(ctx context.Context) error {
 	return nil
 }
 
-// start checks access and converts the request filter.
-func start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
+// start checks access and converts the request filter, resolving labels to the nodes of their services.
+func (s *Service) start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
 	err := checkLBAC(ctx)
 	if err != nil {
 		return Filter{}, err
@@ -87,6 +89,15 @@ func start(ctx context.Context, f *logsv1.LogFilter) (Filter, error) {
 	if res.End.Sub(res.Start) > maxRange {
 		return Filter{}, status.Errorf(codes.InvalidArgument, "The time range can be at most %d days.", maxRangeDays)
 	}
+	if len(f.GetClusters()) > 0 || len(f.GetEnvironments()) > 0 || len(f.GetReplicationSets()) > 0 {
+		var services []serviceLabels
+		services, err = s.labeledServices(ctx)
+		if err != nil {
+			return Filter{}, err
+		}
+		res.ByLabels = true
+		res.LabelNodes = labelNodes(services, f.GetClusters(), f.GetEnvironments(), f.GetReplicationSets())
+	}
 	return res, nil
 }
 
@@ -108,6 +119,14 @@ func (s *Service) query(ctx context.Context, q string, args []any, scan func(*sq
 		return s.queryError(err)
 	}
 	return nil
+}
+
+func (s *Service) inventoryError(err error) error {
+	if errors.Is(err, context.Canceled) {
+		return status.Error(codes.Canceled, "Request canceled.")
+	}
+	s.l.WithError(err).Error("Reading service labels failed.")
+	return status.Error(codes.Internal, "Failed to read service labels.")
 }
 
 func (s *Service) queryError(err error) error {
@@ -141,7 +160,7 @@ func scanLine(rows *sql.Rows, extra ...any) (*logsv1.LogLine, error) {
 
 // SearchLogs returns log lines, newest first, one page at a time.
 func (s *Service) SearchLogs(ctx context.Context, req *logsv1.SearchLogsRequest) (*logsv1.SearchLogsResponse, error) {
-	f, err := start(ctx, req.Filter)
+	f, err := s.start(ctx, req.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +205,7 @@ func (s *Service) SearchLogs(ctx context.Context, req *logsv1.SearchLogsRequest)
 
 // GetLogVolume returns line counts per severity class over time.
 func (s *Service) GetLogVolume(ctx context.Context, req *logsv1.GetLogVolumeRequest) (*logsv1.GetLogVolumeResponse, error) {
-	f, err := start(ctx, req.Filter)
+	f, err := s.start(ctx, req.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +237,7 @@ func (s *Service) GetLogVolume(ctx context.Context, req *logsv1.GetLogVolumeRequ
 
 // GetLogPatterns groups lines that differ only in values.
 func (s *Service) GetLogPatterns(ctx context.Context, req *logsv1.GetLogPatternsRequest) (*logsv1.GetLogPatternsResponse, error) {
-	f, err := start(ctx, req.Filter)
+	f, err := s.start(ctx, req.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +302,7 @@ func (s *Service) GetLogContext(ctx context.Context, req *logsv1.GetLogContextRe
 
 // GetLogFacets returns the nodes, sources and presets with lines in the time range.
 func (s *Service) GetLogFacets(ctx context.Context, req *logsv1.GetLogFacetsRequest) (*logsv1.GetLogFacetsResponse, error) {
-	f, err := start(ctx, req.Filter)
+	f, err := s.start(ctx, req.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +332,32 @@ func (s *Service) GetLogFacets(ctx context.Context, req *logsv1.GetLogFacetsRequ
 			return nil, err
 		}
 	}
+	services, err := s.labeledServices(ctx)
+	if err != nil {
+		return nil, err
+	}
+	labeled := labelNodes(services, nil, nil, nil)
+	if len(labeled) == 0 {
+		return res, nil
+	}
+	nodeLines := make(map[string]int64, len(labeled))
+	q, args := nodeCountsQuery(f, labeled)
+	err = s.query(ctx, q, args, func(rows *sql.Rows) error {
+		var (
+			node string
+			c    uint64
+		)
+		err := rows.Scan(&node, &c)
+		if err != nil {
+			return err
+		}
+		nodeLines[node] = int64(c)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	res.Clusters, res.Environments, res.ReplicationSets = labelFacets(services, nodeLines)
 	return res, nil
 }
 
