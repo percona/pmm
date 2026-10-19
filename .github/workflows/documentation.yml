@@ -119,7 +119,8 @@ jobs:
   main-has-fixes:
     name: Documentation fixes reached main
     needs: release
-    if: github.ref_type != 'tag'
+    # A push to an older release branch would otherwise be judged against the latest GA branch.
+    if: github.ref_type != 'tag' && (needs.release.outputs.publish == 'true' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.release.outputs.version }}

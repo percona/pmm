@@ -18,9 +18,6 @@ jobs:
       ((github.event.action == 'labeled' && github.event.label.name == 'doc-hotfix') ||
        (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'doc-hotfix')))
     runs-on: ubuntu-latest
-    concurrency:
-      group: doc-hotfix
-      cancel-in-progress: false
     permissions:
       contents: read
       pull-requests: write
@@ -64,24 +61,34 @@ jobs:
             echo "result=empty" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if git apply --check -R "$patch" 2>/dev/null; then
-            echo "result=present" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if ! git apply --index --3way "$patch"; then
-            echo "result=conflict" >> "$GITHUB_OUTPUT"
-            exit 1
-          fi
+          # No concurrency group: GitHub keeps only one pending run per group and cancels the rest,
+          # which silently dropped hotfixes merged close together. A push that loses the race
+          # re-applies on the new tip instead.
+          for attempt in 1 2 3; do
+            if [ "$attempt" -gt 1 ]; then
+              git fetch --depth=1 origin "$BRANCH"
+              git reset --hard FETCH_HEAD
+            fi
+            if git apply --check -R "$patch" 2>/dev/null; then
+              echo "result=present" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if ! git apply --index --3way "$patch"; then
+              echo "result=conflict" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
 
-          git commit --author="$(git log -1 --format='%an <%ae>' "$SHA")" \
-            -m "$(git log -1 --format=%s "$SHA")" \
-            -m "(cherry picked from commit $SHA)"
-          if ! git push origin "HEAD:$BRANCH"; then
-            echo "result=rejected" >> "$GITHUB_OUTPUT"
-            exit 1
-          fi
-          echo "result=pushed" >> "$GITHUB_OUTPUT"
-          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+            git commit --author="$(git log -1 --format='%an <%ae>' "$SHA")" \
+              -m "$(git log -1 --format=%s "$SHA")" \
+              -m "(cherry picked from commit $SHA)"
+            if git push origin "HEAD:$BRANCH"; then
+              echo "result=pushed" >> "$GITHUB_OUTPUT"
+              echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "result=rejected" >> "$GITHUB_OUTPUT"
+          exit 1
 
       - name: Report on the PR
         if: always() && steps.apply.outputs.result != ''
