@@ -15,7 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   ButtonBase,
@@ -62,6 +63,19 @@ import { OmError } from './components/OmError';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
+
+/** `?cluster=<OmCluster.id>`: the cluster a link from elsewhere in PMM opens Fleet on. */
+const FOCUS_CLUSTER_PARAM = 'cluster';
+
+const FOCUS_CLUSTER_ATTRIBUTE = 'data-focus-cluster';
+
+const FOCUSED_ROW_SX = {
+  '&:focus-visible': {
+    outline: '2px solid',
+    outlineColor: 'primary.main',
+    outlineOffset: -2,
+  },
+};
 
 /** `3 mongod · 1 Router`, in the document's own role order. */
 function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
@@ -282,7 +296,13 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
  * folding useful on an estate with more environments than fit on a screen, and a
  * header that hid its numbers would just be a heading.
  */
-const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
+const EnvironmentTable = ({
+  section,
+  focusClusterId,
+}: {
+  section: OmEnvironmentSection;
+  focusClusterId?: string;
+}) => {
   const [open, setOpen] = useState(true);
   const regionId = useId();
   const columns = useColumns();
@@ -314,9 +334,14 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     // the row order shifted between polls.
     getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
+    muiTableBodyRowProps: ({ row, isDetailPanel }) =>
+      !isDetailPanel && row.id === focusClusterId
+        ? { tabIndex: -1, [FOCUS_CLUSTER_ATTRIBUTE]: true, sx: FOCUSED_ROW_SX }
+        : {},
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
+      expanded: focusClusterId ? { [focusClusterId]: true } : {},
       // Trouble first: a degraded or down cluster leads its environment.
       sorting: [
         { id: 'health', desc: false },
@@ -324,6 +349,17 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
       ],
     },
   });
+
+  // On mount only: the asked-for row is in the first render, and later polls must not move focus.
+  useEffect(() => {
+    const row =
+      table.refs.tableContainerRef.current?.querySelector<HTMLElement>(
+        `[${FOCUS_CLUSTER_ATTRIBUTE}]`
+      );
+    row?.scrollIntoView({ block: 'center' });
+    row?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Stack gap={1}>
@@ -430,6 +466,8 @@ const Counts = ({
 export const FleetClustersTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
   const sections = useMemo(() => toEnvironmentSections(data), [data]);
+  const [params] = useSearchParams();
+  const focusClusterId = params.get(FOCUS_CLUSTER_PARAM) ?? undefined;
 
   if (isPending) {
     return <LinearProgress />;
@@ -477,6 +515,11 @@ export const FleetClustersTab = () => {
           <EnvironmentTable
             key={section.env_name ?? `unnamed-${index}`}
             section={section}
+            focusClusterId={
+              section.clusters.some(({ id }) => id === focusClusterId)
+                ? focusClusterId
+                : undefined
+            }
           />
         ))
       )}

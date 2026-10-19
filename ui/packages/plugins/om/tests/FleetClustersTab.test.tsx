@@ -17,7 +17,7 @@
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FLEET_NOT_COLLECTED } from '../src/constants';
 import { FleetClustersTab } from '../src/FleetClustersTab';
 import { cluster, mixedEstate, service, topology } from './fixtures';
@@ -29,9 +29,9 @@ vi.mock('../src/inventoryHooks', () => ({
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
 
-const renderPage = () =>
+const renderPage = (url = '/operations') =>
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[url]}>
       <FleetClustersTab />
     </MemoryRouter>
   );
@@ -240,6 +240,102 @@ describe('FleetClustersTab', () => {
       ]) {
         expect([RED, GREEN]).not.toContain(colourOf(screen.getByText(text)));
       }
+    });
+  });
+
+  describe('opened on ?cluster=<id>', () => {
+    const scrollIntoView = vi.fn();
+
+    beforeEach(() => {
+      scrollIntoView.mockClear();
+      // jsdom has no layout, so no scrollIntoView of its own.
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    afterEach(() => {
+      delete (Element.prototype as Partial<Element>).scrollIntoView;
+    });
+
+    const estateWithTwoEnvironments = () =>
+      topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'orders',
+              services: [service({ service_name: 'orders-1' })],
+            }),
+          ],
+        },
+        {
+          env_name: 'staging',
+          clusters: [
+            cluster({
+              name: 'reports',
+              services: [service({ service_name: 'reports-1' })],
+            }),
+            cluster({
+              name: 'billing',
+              services: [service({ service_name: 'billing-1' })],
+            }),
+          ],
+        },
+      ]);
+
+    it('unfolds that cluster, scrolls it into view and moves focus to it', () => {
+      const estate = estateWithTwoEnvironments();
+      const billing = estate.environments[1].clusters[1];
+      useOmTopology.mockReturnValue({
+        data: estate,
+        isPending: false,
+        isError: false,
+      });
+      renderPage(`/operations?tab=clusters&cluster=${billing.id}`);
+
+      const row = clusterRows().find((candidate) =>
+        candidate.textContent?.includes('billing')
+      );
+      expect(row).toHaveFocus();
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollIntoView.mock.contexts[0]).toBe(row);
+      expect(screen.getByRole('link', { name: 'billing-1' })).toBeVisible();
+      expect(screen.queryByRole('link', { name: 'reports-1' })).toBeNull();
+      expect(screen.queryByRole('link', { name: 'orders-1' })).toBeNull();
+    });
+
+    it('does not scroll again when the topology refetches', () => {
+      const estate = estateWithTwoEnvironments();
+      const billing = estate.environments[1].clusters[1];
+      useOmTopology.mockReturnValue({
+        data: estate,
+        isPending: false,
+        isError: false,
+      });
+      const { rerender } = renderPage(`/operations?cluster=${billing.id}`);
+
+      useOmTopology.mockReturnValue({
+        data: structuredClone(estate),
+        isPending: false,
+        isError: false,
+      });
+      rerender(
+        <MemoryRouter initialEntries={[`/operations?cluster=${billing.id}`]}>
+          <FleetClustersTab />
+        </MemoryRouter>
+      );
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+
+    it('does nothing for an id no cluster has', () => {
+      renderPage('/operations?tab=clusters&cluster=no-such-cluster');
+
+      expect(document.body).toHaveFocus();
+      expect(scrollIntoView).not.toHaveBeenCalled();
+      expect(screen.queryByRole('link', { name: 'orders-2' })).toBeNull();
+      expect(clusterRows().every((row) => !row.hasAttribute('tabindex'))).toBe(
+        true
+      );
     });
   });
 });
