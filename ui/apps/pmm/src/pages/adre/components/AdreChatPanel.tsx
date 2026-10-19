@@ -387,7 +387,16 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
 
       <Stack sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
         {!railVisible && alerts.length > 0 && (
-          <Box sx={{ px: { xs: 2, md: 5 }, pt: 2, flexShrink: 0 }}>
+          <Box
+            sx={{
+              px: { xs: 2, md: 5 },
+              pt: 2,
+              pb: alertsOpen ? 2 : 0,
+              flexShrink: 0,
+              borderBottom: alertsOpen ? 1 : 0,
+              borderColor: 'rgba(255,255,255,0.08)',
+            }}
+          >
             <Button
               size="small"
               aria-expanded={alertsOpen}
@@ -681,7 +690,7 @@ export const AdreChatPanel: FC<AdreChatPanelProps> = ({ alerts = [] }) => {
                   }
                   sx={{
                     m: 0,
-                    flex: '1 1 220px',
+                    flex: '1 1 190px',
                     alignItems: 'flex-start',
                     gap: 0.75,
                     py: 1,
