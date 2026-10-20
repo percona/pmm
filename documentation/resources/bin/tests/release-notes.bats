@@ -28,19 +28,17 @@ note() {
   [ "$status" -eq 0 ]
 }
 
-@test "check: a bad name or an empty note fails, README is skipped" {
+@test "check: a bad name or an empty note fails" {
   note "$notes" PMM-1.md
   note "$notes" PMM-2-bugfix.md
   note "$notes" pmm-3-fix.md
   note "$notes" PMM-4-fix.md ''
-  note "$notes" README.md '# Notes'
   run "$rn" check PMM-1-fix "$notes"/*.md
   [ "$status" -eq 1 ]
   [[ $output == *"PMM-1.md: name it PMM-<ticket>-<type>.md"* ]]
   [[ $output == *"PMM-2-bugfix.md: name it"* ]]
   [[ $output == *"pmm-3-fix.md: name it"* ]]
   [[ $output == *"PMM-4-fix.md: write the release note"* ]]
-  [[ $output != *"README"* ]]
 }
 
 @test "check: a note already published in its section fails" {
@@ -114,7 +112,7 @@ note() {
   ! grep -q 'browse/PMM-1)' "$page"
 }
 
-@test "build: a section the writer deleted is not added back, its note stays with a warning" {
+@test "build: a section the writer deleted is not added back, its note is deleted with a warning" {
   "$rn" build 3.11.0
   sed -i '/^## 📈 Improvements/d' "$page"
   note "$notes" PMM-1-improvement.md 'Faster.'
@@ -124,7 +122,7 @@ note() {
   [[ $output == *"PMM-1-improvement.md: 3.11.0.md has no '## 📈 Improvements' section"* ]]
   ! grep -q '^## 📈 Improvements' "$page"
   grep -q 'browse/PMM-2): Fixed it.' "$page"
-  [ -e "$notes/PMM-1-improvement.md" ]
+  [ ! -e "$notes/PMM-1-improvement.md" ]
 }
 
 @test "build: deletes each note it adds, from the release branch and from unreleased/" {

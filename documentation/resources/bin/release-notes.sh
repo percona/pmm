@@ -80,9 +80,6 @@ check() {
 
   for file in "$@"; do
     base=$(basename "$file")
-    if [ "$base" = README.md ]; then
-      continue
-    fi
     if ! [[ $base =~ $name ]]; then
       error "$base: name it PMM-<ticket>-<type>.md, where type is improvement, fix or known-issue"
       continue
@@ -98,7 +95,7 @@ check() {
     page=$pages/$version.md
     [ -f "$page" ] || die "release-notes/$version.md does not exist. Run the Release notes workflow for $version."
     for file in $(branch_notes "$version"); do
-      error "$(basename "$file") is still on pmm-$version: $version.md has no section for it, or the Release notes workflow has not run since it landed."
+      error "$(basename "$file") is still on pmm-$version. Run the Release notes workflow for $version."
     done
   fi
 
@@ -151,15 +148,15 @@ build() {
     if ! released "$file" > /dev/null; then
       [[ $(basename "$file") =~ $name ]]
       heading=${headings[${BASH_REMATCH[2]}]}
-      if ! grep -qxF "$heading" "$page"; then
-        echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note stays on pmm-$version"
-        continue
+      if grep -qxF "$heading" "$page"; then
+        entry=$(mktemp)
+        render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
+        insert "$page" "$heading" "$entry"
+        rm -f "$entry"
+        echo "$(basename "$file"): added"
+      else
+        echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note was deleted without being added"
       fi
-      entry=$(mktemp)
-      render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
-      insert "$page" "$heading" "$entry"
-      rm -f "$entry"
-      echo "$(basename "$file"): added"
     fi
     rm "$file"
   done
