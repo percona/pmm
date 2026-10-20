@@ -5,6 +5,7 @@ import {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
 } from 'react';
 import { TourProvider as ReactTourProvider, StepType } from '@reactour/tour';
 import { TourContext } from './tour.context';
@@ -39,6 +40,9 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<StepType[]>([]);
+  // Closing the tour re-runs the auto-start effect before the saved
+  // completion reaches user.info, which would restart the tour.
+  const alertingAutoStarted = useRef(false);
   const location = useLocation();
 
   const startTour = useCallback(
@@ -90,9 +94,11 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     if (
+      !alertingAutoStarted.current &&
       !user.info.alertingTourCompleted &&
       location.pathname.includes('/alerting')
     ) {
+      alertingAutoStarted.current = true;
       startTour('alerting');
     }
   }, [isOpen, location.pathname, user?.info, settings, startTour]);

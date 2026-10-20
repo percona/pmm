@@ -66,6 +66,20 @@ describe('TourProvider', () => {
     expect(screen.queryByTestId('tour-step-title')).not.toBeInTheDocument();
   });
 
+  it('stays closed while the saved completion has not reached user info yet', async () => {
+    mocks.updateUserInfo.mockResolvedValue({});
+    renderAtAlerting(TEST_USER_ADMIN);
+
+    fireEvent.click(await screen.findByTestId('tour-close-button'));
+
+    await waitFor(() =>
+      expect(screen.queryByTestId('tour-step-title')).not.toBeInTheDocument()
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(screen.queryByTestId('tour-step-title')).not.toBeInTheDocument();
+  });
+
   it('closes the tour when saving completion fails', async () => {
     mocks.updateUserInfo.mockRejectedValue(new Error('401'));
     renderAtAlerting(TEST_USER_ADMIN);
