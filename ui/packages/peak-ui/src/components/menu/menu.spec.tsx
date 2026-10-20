@@ -16,7 +16,7 @@ type StyleFn = (props: {
 
 const slotStyle = (
   theme: Theme,
-  component: 'MuiPopover' | 'MuiMenuItem' | 'MuiListSubheader',
+  component: 'MuiPopover' | 'MuiMenuItem' | 'MuiListItemButton' | 'MuiListSubheader',
   slot: string,
   ownerState: Record<string, unknown> = {}
 ) => {
@@ -54,6 +54,19 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
       expect(Object.keys(dense)).not.toContain(theme.breakpoints.up('sm'));
     });
 
+    it.each(['MuiMenuItem', 'MuiListItemButton'] as const)(
+      'tints %s hover, focus and selected states with the theme’s primary tokens',
+      (component) => {
+        const { primary } = theme.palette;
+
+        expect(slotStyle(theme, component, 'root', { dense: false })).toMatchObject({
+          '&:hover': { backgroundColor: primary.hover },
+          '&.Mui-focusVisible': { backgroundColor: primary.focus },
+          '&.Mui-selected': { backgroundColor: primary.selected },
+        });
+      }
+    );
+
     it('heads a run of rows with the overline', () => {
       expect(slotStyle(theme, 'MuiListSubheader', 'root')).toMatchObject({
         fontFamily: theme.typography.overline.fontFamily,
@@ -64,5 +77,14 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
         paddingBottom: theme.spacing(1),
       });
     });
+  });
+});
+
+describe.each(MODES)('Menu row states across themes — %s mode', (mode) => {
+  it('hovers neutral in Base and purple in PMM', () => {
+    const hover = (name: 'base' | 'pmm') =>
+      createTheme(getThemeOptions(name)(mode)).palette.primary.hover;
+
+    expect(hover('base')).not.toBe(hover('pmm'));
   });
 });
