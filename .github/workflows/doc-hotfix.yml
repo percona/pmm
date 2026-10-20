@@ -2,7 +2,6 @@ name: Documentation hotfix
 
 # A PR merged to main with the doc-hotfix label has its documentation changes copied to the
 # release branch of the latest GA version; that push republishes the site (documentation.yml).
-# The "[Doc] Release X.Y.Z" PR of release-notes.yml goes to pmm-X.Y.Z instead.
 on:
   pull_request_target:
     types: [closed, labeled]
@@ -27,16 +26,9 @@ jobs:
       PR: ${{ github.event.pull_request.number }}
 
     steps:
-      - name: Find the target release branch
+      - name: Find the latest GA version
         id: release
-        env:
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          if [[ $HEAD_REF =~ ^release-notes-([0-9]+\.[0-9]+\.[0-9]+)$ ]] && [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ]; then
-            echo "branch=pmm-${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           version=$(git ls-remote --tags --refs "https://github.com/${GITHUB_REPOSITORY}" 'v3.*' \
             | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
           if [ -z "$version" ]; then

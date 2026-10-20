@@ -24,7 +24,7 @@ note() {
   note "$notes" PMM-1-fix.md
   note "$notes" PMM-2-improvement.md
   note "$notes" PMM-3-known-issue.md 'Slow\n\nIt is slow.'
-  run "$rn" check PMM-1-fix "$notes"/PMM-*.md
+  run "$rn" check "$notes"/PMM-*.md
   [ "$status" -eq 0 ]
 }
 
@@ -33,7 +33,7 @@ note() {
   note "$notes" PMM-2-bugfix.md
   note "$notes" pmm-3-fix.md
   note "$notes" PMM-4-fix.md ''
-  run "$rn" check PMM-1-fix "$notes"/*.md
+  run "$rn" check "$notes"/*.md
   [ "$status" -eq 1 ]
   [[ $output == *"PMM-1.md: name it PMM-<ticket>-<type>.md"* ]]
   [[ $output == *"PMM-2-bugfix.md: name it"* ]]
@@ -46,7 +46,7 @@ note() {
   "$rn" build 3.11.0
   note "$unreleased" PMM-1-fix.md
   note "$unreleased" PMM-1-known-issue.md 'Still slow\n\nIt is slow.'
-  run "$rn" check PMM-9-fix "$unreleased/PMM-1-fix.md" "$unreleased/PMM-1-known-issue.md"
+  run "$rn" check "$unreleased/PMM-1-fix.md" "$unreleased/PMM-1-known-issue.md"
   [ "$status" -eq 1 ]
   [[ $output == *"PMM-1-fix.md: already published in 3.11.0.md"* ]]
   [[ $output != *"PMM-1-known-issue.md"* ]]
@@ -148,19 +148,4 @@ note() {
   ! grep -q 'browse/PMM-1)' "$page"
   [ ! -e "$notes/PMM-1-fix.md" ]
   [ ! -e "$unreleased/PMM-1-fix.md" ]
-}
-
-@test "check: release PR passes once every note on the branch is added" {
-  note "$notes" PMM-1-fix.md
-  "$rn" build 3.11.0
-  run "$rn" check release-notes-3.11.0
-  [ "$status" -eq 0 ]
-}
-
-@test "check: release PR fails while a note is left on the branch" {
-  "$rn" build 3.11.0
-  note "$notes" PMM-1-fix.md
-  run "$rn" check release-notes-3.11.0
-  [ "$status" -eq 1 ]
-  [[ $output == *"PMM-1-fix.md is still on pmm-3.11.0"* ]]
 }

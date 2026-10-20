@@ -2,15 +2,14 @@
 # Release notes waiting in documentation/docs/release-notes/unreleased/, one file per entry named
 # PMM-<ticket>-<type>.md. A note ships in the release cut from the branch it is on.
 #
-#   release-notes.sh check HEAD_BRANCH [FILE...]
-#       Checks the notes a PR adds or changes. On the release-notes-X.Y.Z PR it also fails
-#       while a note is left on pmm-X.Y.Z.
+#   release-notes.sh check [FILE...]
+#       Checks the notes a PR adds or changes.
 #   release-notes.sh build VERSION
 #       Adds the pmm-VERSION notes to VERSION.md, creating it from the template, and deletes each
 #       note it adds from NOTES_DIR and from unreleased/. A note is added once: an entry or a
 #       section the writer deletes stays deleted, and a note already in any release page is only deleted.
 #
-# NOTES_DIR is unreleased/ in a checkout of pmm-VERSION; without it, check reads origin/pmm-VERSION.
+# NOTES_DIR is unreleased/ in a checkout of pmm-VERSION.
 # DOC_DIR replaces the documentation/ directory.
 
 set -o errexit -o nounset -o pipefail
@@ -27,11 +26,6 @@ declare -A headings=(
   [known-issue]="## 🔶 Known issues"
 )
 
-die() {
-  echo "::error::$*"
-  exit 1
-}
-
 error() {
   echo "::error::$*"
   errors=$((errors + 1))
@@ -45,17 +39,6 @@ notes() {
       echo "$file"
     fi
   done
-}
-
-branch_notes() {
-  local dir=${NOTES_DIR:-}
-  if [ -z "$dir" ]; then
-    dir=$(mktemp -d)
-    if git cat-file -e "origin/pmm-$1:documentation/docs/release-notes/unreleased" 2> /dev/null; then
-      git archive "origin/pmm-$1" documentation/docs/release-notes/unreleased | tar -x -C "$dir" --strip-components=4
-    fi
-  fi
-  notes "$dir"
 }
 
 # released NOTE prints the release page that has the note's ticket in the section of its type.
@@ -74,8 +57,7 @@ released() {
 }
 
 check() {
-  local head=$1 file base version page
-  shift
+  local file base page
   errors=0
 
   for file in "$@"; do
@@ -89,15 +71,6 @@ check() {
       error "$base: already published in $(basename "$page"). Delete this note."
     fi
   done
-
-  if [[ $head =~ ^release-notes-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-    version=${BASH_REMATCH[1]}
-    page=$pages/$version.md
-    [ -f "$page" ] || die "release-notes/$version.md does not exist. Run the Release notes workflow for $version."
-    for file in $(branch_notes "$version"); do
-      error "$(basename "$file") is still on pmm-$version. Run the Release notes workflow for $version."
-    done
-  fi
 
   [ "$errors" -eq 0 ] || exit 1
   echo "Release notes are fine."
@@ -144,7 +117,7 @@ build() {
     echo "Created $(basename "$page") from the template"
   fi
 
-  for file in $(branch_notes "$version"); do
+  for file in $(notes "${NOTES_DIR:?set NOTES_DIR to unreleased/ in a checkout of pmm-$version}"); do
     if ! released "$file" > /dev/null; then
       [[ $(basename "$file") =~ $name ]]
       heading=${headings[${BASH_REMATCH[2]}]}
@@ -174,7 +147,7 @@ case ${1:-} in
     "$@"
     ;;
   *)
-    echo "Usage: $0 check HEAD_BRANCH [FILE...] | build VERSION" >&2
+    echo "Usage: $0 check [FILE...] | build VERSION" >&2
     exit 2
     ;;
 esac
