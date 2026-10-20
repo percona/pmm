@@ -97,7 +97,7 @@ To run a MySQL backup:
 4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
 5. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
 6. (Optional) check **Alert on failure** to receive an alert if the backup task fails.
-7. Click **Create MySQL Backups** to save the task. 
+7. Click **Create backup** to save the task.
 8. Click the task's row to open its detail page.
 9. (Optional) Click **Edit** to change the task's configuration before running it, for example, to switch the execution host, turn on compression or encryption, or add upload destinations.
 10. Click **Execute** to run the task immediately. To run it on a recurring schedule instead, see [Schedule a backup](#schedule-a-backup).
