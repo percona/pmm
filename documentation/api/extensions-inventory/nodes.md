@@ -14,7 +14,7 @@ Returns the executor hosts available for task execution, enriched with display n
 GET /extensions/api/extensions/hosts/
 ```
 
-Returns a list of all executor hosts. Use the `id` field as the `target` when executing a task.
+Returns a list of all executor hosts. Use the `id` field as the execution host when you create a task.
 
 **Response fields:**
 
