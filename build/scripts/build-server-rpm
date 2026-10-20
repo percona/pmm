@@ -19,7 +19,7 @@ fi
 # set it to e.g. 3.10.0-v3-1a2b3c4. Keep those in DEV, so release builds never reuse them.
 if [ -n "$RPM_EPOCH" ]; then
     cache_prefix=PR-BUILDS
-elif [[ ${full_pmm_version} != "${pmm_base_version}" ]] && [[ $1 == pmm-managed || $1 == percona-qan-api2 || $1 == vmproxy ]]; then
+elif [ "${full_pmm_version}" != "${pmm_base_version}" ] && [[ $1 =~ ^(pmm-managed|percona-qan-api2|vmproxy)$ ]]; then
     cache_prefix=DEV
 else
     cache_prefix=RELEASE
