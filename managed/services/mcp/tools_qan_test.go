@@ -17,7 +17,9 @@ package mcp
 
 import (
 	"context"
+	"io"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -150,12 +152,9 @@ func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 	assert.Contains(t, text, "SELECT `id` FROM `o'neil` WHERE `id` = ?")
 
 	// Unfiltered, the engine is QAN's only SQL engine in the window; with
-	// none or several, or when QAN cannot tell, the fingerprint is withheld.
-	for file, want := range map[string]string{
-		"filters_mysql.json": "SELECT `id` FROM `o'neil` WHERE `id` = ?",
-		"filters_mixed.json": withheldFingerprint,
-		"":                   withheldFingerprint,
-	} {
+	// several, or when QAN cannot tell, one more report decides per row. The
+	// fake answers it with the same row, so all of that query's calls are MySQL.
+	for file, reports := range map[string]int{"filters_mysql.json": 1, "filters_mixed.json": 2, "": 2} {
 		routes := qanRoutes()
 		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_quoted_identifier.json"}
 		if file != "" {
@@ -165,8 +164,9 @@ func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 		session := connect(t, newQANService(t, fake, false))
 		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
 		require.False(t, isError, text)
-		assert.Contains(t, text, want, file)
+		assert.Contains(t, text, "SELECT `id` FROM `o'neil` WHERE `id` = ?", file)
 		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getFilters"), 1, file)
+		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), reports, file)
 	}
 
 	// Fingerprints that read the same under both quotings need no engine.
@@ -187,7 +187,7 @@ func TestTopQueriesTool(t *testing.T) {
 	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql", "period_from": "now-1h"})
 	assert.False(t, isError)
 	assert.Equal(t, strings.Join([]string{
-		"Top 2 queries (order_by=load):",
+		"Rows 1-2 of 2 (group_by=queryid, order_by=load):",
 		"",
 		"1. [QID-AAA] load=0.42 calls=1200 total=88.5s avg=0.073s",
 		"   SELECT * FROM `customers` WHERE `email` = ?",
@@ -450,4 +450,186 @@ func TestKeyMetricsMongoDB(t *testing.T) {
 	})
 	assert.Equal(t, "calls=50, query_time_sum=2.5, query_time_avg=0.05, docs_examined_avg=10000, docs_returned_avg=1, "+
 		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
+}
+
+// TestTopQueriesReportInputs pins the getReport body that each input produces,
+// and the header, paging and columns of a report not grouped by queryid.
+func TestTopQueriesReportInputs(t *testing.T) {
+	t.Parallel()
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_by_user.json"}
+	fake := newFakePMM(t, routes)
+	session := connect(t, newQANService(t, fake, false))
+
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{
+		"service_name": "shop-mysql", "group_by": "username", "labels": map[string]any{"client_host": []string{"10.0.0.5"}},
+		"columns": []string{"rows_examined", "full_scan", "rows_examined"}, "order_by": "-rows_examined",
+		"offset": 10, "limit": 2, "search": "app",
+	})
+	require.False(t, isError, text)
+	assert.Equal(t, strings.Join([]string{
+		"Rows 11-12 of 14 (group_by=username, order_by=-rows_examined):",
+		"",
+		"11. [app] load=0.4 calls=700 total=120s avg=0.171s rows_examined_avg=100 full_scan=12",
+		"12. [(empty)] load=0.1 calls=200 total=30s avg=0.15s rows_examined_avg=0 full_scan=0",
+		"",
+		"[Open this workload in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+			"from=" + ms(testNow.Add(-time.Hour)) + "&to=" + ms(testNow) + "&var-service_name=shop-mysql)",
+	}, "\n"), text)
+
+	body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo("/v1/qan/metrics:getReport")[0])
+	assert.Equal(t, "username", body.GroupBy)
+	assert.Equal(t, "-rows_examined", body.OrderBy)
+	assert.Equal(t, "rows_examined", body.MainMetric)
+	assert.Equal(t, []string{"load", "num_queries", "query_time", "rows_examined", "full_scan"}, body.Columns)
+	assert.EqualValues(t, 10, body.Offset)
+	assert.EqualValues(t, 2, body.Limit)
+	assert.Equal(t, "app", body.Search)
+	require.Len(t, body.Labels, 2)
+	assert.Equal(t, "client_host", body.Labels[0].Key)
+	assert.Equal(t, []string{"10.0.0.5"}, body.Labels[0].Value)
+	assert.Equal(t, "service_name", body.Labels[1].Key)
+	assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getFilters"), "no fingerprints, so no engine lookup")
+
+	t.Run("OrderColumnIsAdded", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+		_, isError := callText(t, session, "pmm_top_queries", map[string]any{"order_by": "lock_time"})
+		require.False(t, isError)
+		body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo("/v1/qan/metrics:getReport")[0])
+		assert.Equal(t, "lock_time", body.OrderBy, "no - means ascending")
+		assert.Equal(t, []string{"load", "num_queries", "query_time", "lock_time"}, body.Columns)
+	})
+
+	t.Run("PastTheEnd", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_past_end.json"}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"offset": 50})
+		require.False(t, isError)
+		assert.Equal(t, "No rows at offset 50; the report has 14.", text)
+	})
+
+	t.Run("Validation", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+		for _, tc := range []struct {
+			args   map[string]any
+			prefix string
+		}{
+			{map[string]any{"group_by": "service_id"}, "group_by must be one of"},
+			{map[string]any{"columns": []string{"rows_examined", "nope"}}, "unknown column 'nope'"},
+			{map[string]any{"columns": []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"}}, "columns takes at most 10"},
+			{map[string]any{"order_by": "-nope"}, "order_by must be"},
+			{map[string]any{"offset": -1}, "offset must be 0 or more"},
+			{map[string]any{"search": strings.Repeat("x", 201)}, "search must be at most 200"},
+			{map[string]any{"labels": map[string]any{"user name": []string{"a"}}}, "label name 'user name'"},
+			{map[string]any{"labels": map[string]any{"username": []string{}}}, "labels.username needs at least one value"},
+			{map[string]any{"labels": map[string]any{"username": []string{"o'neil"}}}, "labels.username must not contain"},
+			{map[string]any{"service_name": "a", "labels": map[string]any{"service_name": []string{"b"}}}, "service_name and labels.service_name disagree"},
+		} {
+			text, isError := callText(t, session, "pmm_top_queries", tc.args)
+			assert.True(t, isError, "%v", tc.args)
+			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
+		}
+		assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getReport"))
+	})
+}
+
+// mixedEngineReports answers getReport with the unfiltered report, or with its
+// MySQL-only version when the request filters on service_type; status, when set,
+// is the answer to that second request instead.
+func mixedEngineReports(t *testing.T, status int) *fakePMM {
+	t.Helper()
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_mixed.json"}
+	fake := newFakePMM(t, routes)
+	prev := fake.server.Config.Handler
+	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		if req.URL.Path != "/v1/qan/metrics:getReport" {
+			prev.ServeHTTP(rw, req)
+			return
+		}
+		body, _ := io.ReadAll(req.Body)
+		fake.mu.Lock()
+		fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, header: req.Header.Clone(), body: body})
+		fake.mu.Unlock()
+
+		file := "report_mixed_engines.json"
+		if strings.Contains(string(body), `"service_type"`) {
+			if status != 0 {
+				rw.WriteHeader(status)
+				return
+			}
+			file = "report_mixed_engines_mysql.json"
+		}
+		rw.Header().Set("Content-Type", "application/json")
+		_, _ = rw.Write(readFixture(t, file))
+	})
+	return fake
+}
+
+// fingerprintOf returns the fingerprint line under the row of a queryid.
+func fingerprintOf(t *testing.T, text, queryID string) string {
+	t.Helper()
+
+	lines := strings.Split(text, "\n")
+	i := slices.IndexFunc(lines, func(l string) bool { return strings.Contains(l, "["+queryID+"]") })
+	require.GreaterOrEqual(t, i, 0, text)
+	require.Less(t, i+1, len(lines), text)
+	return strings.TrimPrefix(lines[i+1], "   ")
+}
+
+// TestTopQueriesEnginePerRow pins the per-row engine of an unfiltered report over
+// MySQL and PostgreSQL: one more report, filtered to MySQL, decides each row.
+func TestTopQueriesEnginePerRow(t *testing.T) {
+	t.Parallel()
+
+	fake := mixedEngineReports(t, 0)
+	session := connect(t, newQANService(t, fake, false))
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Equal(t, "SELECT `id` FROM `o'neil` WHERE `id` = ?", fingerprintOf(t, text, "Q-MY"))
+	assert.Equal(t, `SELECT "id" FROM "users" WHERE "email" = $1`, fingerprintOf(t, text, "Q-PG"))
+	assert.Equal(t, withheldFingerprint, fingerprintOf(t, text, "Q-BOTH"), "calls under both engines")
+
+	reqs := fake.requestsTo("/v1/qan/metrics:getReport")
+	require.Len(t, reqs, 2)
+	body := unmarshalBody[qan_service.GetReportBody](t, reqs[1])
+	assert.EqualValues(t, 3, body.Limit)
+	require.Len(t, body.Labels, 2)
+	assert.Equal(t, "queryid", body.Labels[0].Key)
+	assert.Equal(t, []string{"Q-MY", "Q-BOTH", "Q-PG"}, body.Labels[0].Value)
+	assert.Equal(t, "service_type", body.Labels[1].Key)
+	assert.Equal(t, []string{"mysql"}, body.Labels[1].Value)
+
+	t.Run("LookupFails", func(t *testing.T) {
+		t.Parallel()
+
+		session := connect(t, newQANService(t, mixedEngineReports(t, http.StatusInternalServerError), false))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		for _, id := range []string{"Q-MY", "Q-BOTH", "Q-PG"} {
+			assert.Equal(t, withheldFingerprint, fingerprintOf(t, text, id), id)
+		}
+	})
+
+	t.Run("CallerFiltersServiceType", func(t *testing.T) {
+		t.Parallel()
+
+		fake := mixedEngineReports(t, 0)
+		session := connect(t, newQANService(t, fake, false))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"labels": map[string]any{"service_type": []string{"postgresql"}}})
+		require.False(t, isError, text)
+		assert.Equal(t, `SELECT "id" FROM "users" WHERE "email" = $1`, fingerprintOf(t, text, "Q-BOTH"), "read as PostgreSQL")
+		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), 1)
+	})
 }

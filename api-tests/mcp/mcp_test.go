@@ -298,3 +298,21 @@ func TestInventory(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
 	})
 }
+
+func TestTopQueriesGroupBy(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+	_, serviceName, _ := topQueryID(t, session, "mysql")
+	args := map[string]any{"service_name": serviceName, "period_from": "now-12h", "group_by": "username", "columns": []string{"rows_examined"}, "limit": 1}
+	text, isError := callText(t, session, "pmm_top_queries", args)
+	require.False(t, isError, text)
+	assert.Regexp(t, `^Rows 1-1 of \d+ \(group_by=username, order_by=load\):`, text)
+	assert.Contains(t, text, "rows_examined_avg=")
+	assert.NotContains(t, text, "\n   ", "no fingerprint line unless group_by=queryid")
+
+	args["offset"] = 1
+	text, isError = callText(t, session, "pmm_top_queries", args)
+	require.False(t, isError, text)
+	assert.Regexp(t, `^(Rows 2-2 of \d+|No rows at offset 1; the report has 1\.)`, text)
+}
