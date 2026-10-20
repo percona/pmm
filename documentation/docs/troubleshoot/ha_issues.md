@@ -185,7 +185,7 @@ Interpret the result:
 | Query | Healthy value | Meaning if different |
 |-------|---------------|----------------------|
 | `sum(pmm_ha_leader_status)` | `1` | `0` means no leader; above `1` means split brain |
-| `count(pmm_ha_up{role="voter"} == 1)` | Number of replicas | A lower value means the cluster has lost quorum |
+| `count(pmm_ha_up{role="voter"} == 1)` | Number of replicas | If the count is lower than expected, a node is down. PMM still works with 2 out of 3 nodes alive. If only 1 node is alive, PMM stops. |
 | `pmm_ha_raft_term` | Stable | A rapidly increasing value means the leader keeps changing |
 
 The `node_id` label on these metrics is the pod name.
