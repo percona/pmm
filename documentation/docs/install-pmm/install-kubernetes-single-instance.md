@@ -1,6 +1,8 @@
 # Install PMM on a Kubernetes single instance
 
-Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. If 2–5 minutes of monitoring downtime during pod rescheduling is not acceptable, consider [PMM HA Cluster](install-HA-clustered.md) instead.
+Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. 
+
+If 2–5 minutes of monitoring downtime during pod rescheduling is not acceptable, consider [PMM HA Cluster](install-HA-clustered.md) instead.
 
 ## Prerequisites
 
@@ -32,6 +34,10 @@ Check that your environment meets the software and cluster resource requirements
     - **Storage**: 100+ GB with fast SSD-backed persistent volumes
     - **Multiple nodes**: At least 2 worker nodes for automatic rescheduling
 
+
+### Supported platforms
+
+The `percona/pmm` chart runs on any Kubernetes 1.21 or later and is tested on Red Hat OpenShift 4.18 to 4.22, including ROSA with hosted control planes. Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't tested.
 
 ### Verify prerequisites
 

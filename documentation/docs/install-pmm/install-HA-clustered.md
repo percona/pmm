@@ -1258,7 +1258,7 @@ For complete endpoint documentation, request/response examples, and integration 
 
 ### Modify your PMM HA deployment
 
-Use Helm upgrades to modify settings like resource limits, replica counts, or storage sizes. Each pod restarts sequentially, with a brief interruption when the active leader pod restarts and a new leader is elected. To upgrade from PMM 3.10.0 to a newer release, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) (`percona/pmm-ha` chart 1.8.0 or later required).
+Use Helm upgrades to modify settings like resource limits, replica counts, or storage sizes. Each pod restarts sequentially, with a brief interruption when the active leader pod restarts and a new leader is elected. To upgrade to a newer PMM release, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md). Upgrading HA clusters is not supported before PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0.
 
 
 === "Modify specific settings"
@@ -1523,4 +1523,4 @@ kubectl get pvc -n pmm
 
 ## Next steps
 
-When a new PMM release is available, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) — supported starting with PMM 3.10.0 and `percona/pmm-ha` chart version 1.8.0.
+When a new PMM release is available, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md). Upgrading HA clusters is not supported before PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0.
