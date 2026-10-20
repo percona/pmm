@@ -56,10 +56,11 @@ To collect and send diagnostics to your support case:
 {.power-number}
 
 1. Go to **Apps > Support diagnostics** in the sidebar.
-2. Click **New incident** and enter your ServiceNow case number.
-3. Select the diagnostic scripts to run.
-4. Click **Execute batch**. PMM runs the selected scripts on the target host.
-5. Review the results, then select the ones to send.
-6. Click **Send**. PMM uploads the selected results directly to your support case.
+2. Click **New incident**. PMM creates the incident and opens it.
+3. Next to **Case**, add your ServiceNow case number. You can also enter it later, when you send the results.
+4. Select the diagnostic scripts to run, and fill in any **Shared parameters**.
+5. Click **Execute batch**. PMM runs the selected scripts on the target host.
+6. Review the results, then select the ones to send.
+7. Click **Send to support case**, check the **Support case reference**, and click **Send**. PMM uploads the selected results directly to your support case.
 
 No files to download or upload manually.
