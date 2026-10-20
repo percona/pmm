@@ -1,10 +1,19 @@
 ---
 name: Release notes
 
-# When pmm-X.Y.Z is branched, and whenever a release note lands on it, builds release-notes/X.Y.Z.md
-# from the notes on that branch and keeps one "[Doc] Release X.Y.Z" PR to main open with it.
-# The PR also removes those notes from main. Once merged, doc-hotfix copies it to pmm-X.Y.Z.
+# check: on a PR, checks the release notes it adds. On a "[Doc] Release X.Y.Z" PR it also fails
+#   until every X.Y.Z note is on the page.
+# release-pr: when pmm-X.Y.Z is branched, and whenever a note lands on it, builds release-notes/X.Y.Z.md
+#   from the notes on that branch into one draft "[Doc] Release X.Y.Z" PR to main, which also removes
+#   those notes from main. Once merged, doc-hotfix copies it to pmm-X.Y.Z.
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/release-notes.yml"
+      - "documentation/docs/release-notes/**"
+      - "documentation/resources/bin/release-notes.sh"
+      - "documentation/resources/bin/tests/**"
+      - "documentation/resources/release-notes-template.md"
   create:
   push:
     branches:
@@ -22,11 +31,42 @@ permissions:
   contents: read
 
 jobs:
+  check:
+    name: Release notes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ github.base_ref }}
+      HEAD_REF: ${{ github.head_ref }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Test the script
+        run: npx --yes bats@1.11.0 documentation/resources/bin/tests
+
+      - name: Check the notes in this PR
+        run: |
+          mapfile -t files < <(git diff --name-only --diff-filter=AM "origin/$BASE...HEAD" \
+            -- documentation/docs/release-notes/unreleased/)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "This PR adds or changes no release notes."
+            exit 0
+          fi
+          documentation/resources/bin/release-notes.sh check "$BASE" "${files[@]}"
+
+      - name: Check the release PR
+        if: startsWith(github.head_ref, 'release-notes-')
+        run: documentation/resources/bin/release-notes.sh gate "${HEAD_REF#release-notes-}"
+
   release-pr:
     name: Update the release PR
     # startsWith ignores case: 'pmm-3.' keeps PMM-12345-* branches out, 'pmm-' alone would not.
     if: >-
-      github.repository == 'percona/pmm' &&
+      github.repository == 'percona/pmm' && github.event_name != 'pull_request' &&
       (github.event_name != 'create' || (github.ref_type == 'branch' && startsWith(github.ref_name, 'pmm-3.')))
     runs-on: ubuntu-latest
     # Every run rebuilds from the current branches, so a newer queued run can replace a pending one.
@@ -47,6 +87,7 @@ jobs:
             exit 0
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "branch=release-notes-$version" >> "$GITHUB_OUTPUT"
 
       # ROBOT_TOKEN, unlike GITHUB_TOKEN, opens a PR that runs the PR checks.
       - name: Check out main
@@ -59,52 +100,34 @@ jobs:
 
       - name: Build the page
         if: steps.release.outputs.version
-        id: build
         env:
           VERSION: ${{ steps.release.outputs.version }}
+          BRANCH: ${{ steps.release.outputs.branch }}
         run: |
-          . documentation/resources/bin/rn-common.sh
           git config user.name "GitHub Action"
           git config user.email "github-action@users.noreply.github.com"
-          branch="release-notes-$VERSION"
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-
-          if git rev-parse --verify --quiet "origin/$branch" > /dev/null; then
-            git checkout -B "$branch" "origin/$branch"
+          if git rev-parse --verify --quiet "origin/$BRANCH" > /dev/null; then
+            git checkout -B "$BRANCH" "origin/$BRANCH"
             git merge --no-edit origin/main
           else
-            git checkout -B "$branch" origin/main
+            git checkout -B "$BRANCH" origin/main
           fi
 
-          notes=$(mktemp -d)
-          if git cat-file -e "origin/pmm-$VERSION:documentation/docs/release-notes/unreleased"; then
-            git archive "origin/pmm-$VERSION" documentation/docs/release-notes/unreleased \
-              | tar -x -C "$notes" --strip-components=4
-          fi
-          documentation/resources/bin/rn-compile.sh "$VERSION" "$notes"
+          documentation/resources/bin/release-notes.sh build "$VERSION"
 
-          # A note left on main that is not on the page stays, and fails the PR's gate.
-          page="documentation/docs/release-notes/$VERSION.md"
-          for file in documentation/docs/release-notes/unreleased/PMM-*.md; do
-            [ "$(rn_target_of "$file")" = "$VERSION" ] || continue
-            if rn_on_page "$page" "$(basename "$file" .md)"; then
-              git rm -q "$file"
-            fi
-          done
-
-          git add documentation
+          git add -A documentation
           if ! git diff --cached --quiet; then
             git commit -q -m "[Doc] Release $VERSION"
           fi
-          if [ "$(git rev-parse HEAD)" != "$(git rev-parse --verify --quiet "origin/$branch" || true)" ]; then
-            git push origin "$branch"
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse --verify --quiet "origin/$BRANCH" || true)" ]; then
+            git push origin "$BRANCH"
           fi
 
       - name: Open the PR
         if: steps.release.outputs.version
         env:
           VERSION: ${{ steps.release.outputs.version }}
-          BRANCH: ${{ steps.build.outputs.branch }}
+          BRANCH: ${{ steps.release.outputs.branch }}
         run: |
           if [ -n "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
             exit 0

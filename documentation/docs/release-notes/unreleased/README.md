@@ -31,3 +31,5 @@ CI checks every note in a PR:
 
 - On `main`, the target must not be branched yet. Once `pmm-3.11.0` exists, a 3.11.0 note goes in the PR to `pmm-3.11.0`; the same change on `main` needs no note.
 - On a `pmm-X.Y.Z` branch, the target must be `X.Y.Z`.
+
+Run the same check locally, from the repository root: `documentation/resources/bin/release-notes.sh check main documentation/docs/release-notes/unreleased/PMM-12345.md`.
