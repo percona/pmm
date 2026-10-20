@@ -71,7 +71,7 @@ const meta = {
       type: 'boolean',
     },
     size: {
-      description: 'Field height: small (default) or medium.',
+      description: 'Field height: small or medium.',
       options: ['small', 'medium'],
       control: { type: 'inline-radio' },
     },

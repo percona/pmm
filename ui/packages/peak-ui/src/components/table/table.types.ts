@@ -31,7 +31,7 @@ export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   hideExpandAllIcon?: boolean;
   /** Unique name of this table; also its test id and the key for the user's saved column choices, so renaming it breaks both. */
   tableName: string;
-  /** Replaces `noDataMessage` when there are no rows at all, such as an illustration with text and a call to action (see the Empty State Custom story). */
+  /** Replaces `noDataMessage` when there are no rows at all, such as an illustration with text and a call to action (see the "Empty state — custom illustration" story). */
   emptyState?: React.ReactNode;
   /** MUI Alert props for the no-data and no-results messages, for example to change the severity. */
   noDataAlertProps?: AlertProps;

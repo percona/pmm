@@ -7,16 +7,29 @@ import { describe, expect, it } from 'vitest';
 const root = join(process.cwd(), 'src');
 const GUARDED = /(Props|Options)$/;
 
-// Every type the entry point exports from this repo, so `*Result` and state types are checked too.
-const publicTypes = (() => {
+const SKIP = /\.(stories|spec)\.tsx?$|\.d\.ts$/;
+const allFiles = readdirSync(root, { recursive: true }).map(String).sort();
+const sourceFiles = allFiles.filter((file) => /\.tsx?$/.test(file) && !SKIP.test(file));
+const storyFiles = allFiles.filter((file) => /\.stories\.tsx?$/.test(file));
+
+const program = (() => {
   const cwd = process.cwd();
   const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json')!;
   const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
   const { options } = ts.parseJsonConfigFileContent(config, ts.sys, cwd);
-  const entry = join(root, 'index.ts');
-  const program = ts.createProgram([entry], { ...options, noEmit: true });
-  const checker = program.getTypeChecker();
-  const moduleSymbol = checker.getSymbolAtLocation(program.getSourceFile(entry)!)!;
+  const roots = [join(root, 'index.ts'), ...storyFiles.map((file) => join(root, file))];
+  return ts.createProgram(roots, { ...options, noEmit: true });
+})();
+const checker = program.getTypeChecker();
+const isOwnSource = (node: ts.Node) => {
+  const fileName = node.getSourceFile().fileName;
+  return fileName.startsWith(root) && !SKIP.test(fileName);
+};
+
+// Every type the entry point exports from this repo, so `*Result` and state types are checked too.
+const publicTypes = (() => {
+  const entry = program.getSourceFile(join(root, 'index.ts'))!;
+  const moduleSymbol = checker.getSymbolAtLocation(entry)!;
   return new Set(
     checker
       .getExportsOfModule(moduleSymbol)
@@ -30,11 +43,6 @@ const publicTypes = (() => {
   );
 })();
 const guarded = (name: string) => GUARDED.test(name) || publicTypes.has(name);
-const SKIP = /\.(stories|spec)\.tsx?$|\.d\.ts$/;
-
-const allFiles = readdirSync(root, { recursive: true }).map(String).sort();
-const sourceFiles = allFiles.filter((file) => /\.tsx?$/.test(file) && !SKIP.test(file));
-const storyFiles = allFiles.filter((file) => /\.stories\.tsx?$/.test(file));
 
 type Member = { file: string; type: string; prop: string };
 
@@ -92,22 +100,46 @@ const collect = (file: string) => {
   return { checked, undocumented };
 };
 
-// Identifier the story meta passes as `component`, if any.
-const storyComponent = (file: string) => {
-  let found: string | undefined;
-  const visit = (node: ts.Node) => {
-    if (
-      !found &&
-      ts.isPropertyAssignment(node) &&
-      nameOf(node) === 'component' &&
-      ts.isIdentifier(node.initializer)
-    ) {
-      found = node.initializer.text;
+const unwrap = (node: ts.Expression): ts.Expression =>
+  ts.isSatisfiesExpression(node) || ts.isAsExpression(node) || ts.isParenthesizedExpression(node)
+    ? unwrap(node.expression)
+    : node;
+
+// The `component` the story's default-exported meta passes, resolved to its props type.
+const storyComponentProps = (file: string) => {
+  const source = program.getSourceFile(join(root, file))!;
+  const exported = source.statements.find(ts.isExportAssignment)?.expression;
+  if (!exported) return { found: false as const };
+  let meta: ts.Expression = unwrap(exported);
+  if (ts.isIdentifier(meta)) {
+    const declaration = checker.getSymbolAtLocation(meta)?.valueDeclaration;
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      meta = unwrap(declaration.initializer);
     }
-    ts.forEachChild(node, visit);
-  };
-  visit(parse(file));
-  return found;
+  }
+  if (!ts.isObjectLiteralExpression(meta)) return { found: false as const };
+  const component = meta.properties.find(
+    (p): p is ts.PropertyAssignment => ts.isPropertyAssignment(p) && nameOf(p) === 'component'
+  );
+  if (!component) return { found: false as const };
+  const type = checker.getTypeAtLocation(component.initializer);
+  const param = (type.isUnion() ? type.types : [type])
+    .flatMap((t) => [...t.getCallSignatures(), ...t.getConstructSignatures()])
+    .map((sig) => sig.getParameters()[0])
+    .find(Boolean);
+  if (!param) return { found: true as const, props: undefined };
+  const propsType = checker.getTypeOfSymbolAtLocation(param, component.initializer);
+  const props = propsType.getProperties().flatMap((prop) =>
+    (prop.declarations ?? []).filter(isOwnSource).map((d) => {
+      let owner: ts.Node | undefined = d.parent;
+      while (owner && !ts.isInterfaceDeclaration(owner) && !ts.isTypeAliasDeclaration(owner)) {
+        owner = owner.parent;
+      }
+      const type = owner && (ts.isInterfaceDeclaration(owner) || ts.isTypeAliasDeclaration(owner));
+      return { prop: prop.name, type: type ? owner.name.text : '?' };
+    })
+  );
+  return { found: true as const, props };
 };
 
 // Names of the argTypes entries that set a `description`, anywhere in the story file.
@@ -159,21 +191,26 @@ describe('component props carry a JSDoc description', () => {
 });
 
 describe('stories leave the description to the JSDoc', () => {
-  const duplicated = storyFiles.flatMap((story) => {
-    const own = checked.filter((m) => m.type === `${storyComponent(story)}Props`);
-    return describedArgTypes(story)
-      .map((prop) => own.find((m) => m.prop === prop))
-      .filter((m): m is Member => !!m)
-      .map(
-        (m) =>
-          `${relative(process.cwd(), join(root, story))}: argTypes.${m.prop} repeats ${m.type}.${m.prop}`
-      );
-  });
+  const resolved = storyFiles.map((story) => ({ story, ...storyComponentProps(story) }));
+  const where = (story: string) => relative(process.cwd(), join(root, story));
+  const duplicated = resolved.flatMap(({ story, found, props }) =>
+    !found || !props
+      ? []
+      : describedArgTypes(story)
+          .map((name) => props.find((p) => p.prop === name))
+          .filter((p): p is { prop: string; type: string } => !!p)
+          .map((p) => `${where(story)}: argTypes.${p.prop} repeats ${p.type}.${p.prop}`)
+  );
 
-  it('finds the stories to check', () => {
-    expect(storyFiles.length).toBeGreaterThan(0);
-    expect(storyFiles.some((story) => describedArgTypes(story).length > 0)).toBe(true);
-    expect(storyFiles.map(storyComponent)).toContain('Table');
+  it('resolves the props of every story component', () => {
+    const unresolved = resolved.filter((r) => r.found && !r.props).map((r) => where(r.story));
+    expect(
+      unresolved,
+      `Cannot read the props of the meta \`component\` in:\n${unresolved.join('\n')}`
+    ).toEqual([]);
+    const props = (story: string) => resolved.find((r) => r.story.endsWith(story))?.props ?? [];
+    expect(props('code-block.stories.tsx').map((p) => p.type)).toContain('CodeBlockProps');
+    expect(props('table.stories.tsx').map((p) => p.type)).toContain('TableProps');
   });
 
   it('never sets argTypes.<prop>.description for a prop the component declares', () => {
