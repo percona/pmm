@@ -84,7 +84,7 @@ Complete the following steps before creating your first backup.
 
 5. Create a backup directory on the execution host and confirm it is writable. Set the path per task in the **Backup directory** field.
 
-6. Trigger a sync from **Inventory** if your MySQL service does not appear in the backup form. Apps syncs from PMM, so services registered in PMM may not appear until a sync has run.
+6. If your MySQL service does not appear in the backup form, ask a PMM administrator to sync the inventory through the API: `POST /extensions/api/apps/inventory/sync/`.
 
 ## Run a backup
 
