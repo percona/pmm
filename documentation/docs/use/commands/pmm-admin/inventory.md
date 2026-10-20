@@ -233,7 +233,6 @@ To change `pmm-agent` itself, for example its PMM Server address, use [`pmm-admi
 - Amazon RDS: `rds-exporter`
 - Microsoft Azure: `azure-database-exporter`
 - External exporters: `external-exporter`
-- Nomad: `nomad-agent`
 
 ### When you change an agent
 
@@ -276,9 +275,9 @@ Use the following flags to turn an agent on or off, replace its labels, change i
 | Flag | Available for | Description |
 |------|---------------|-------------|
 | `--enable` | All agent types | Enable the agent, or disable it with `--enable=false`. A disabled agent stops collecting data until you enable it again. |
-| `--custom-labels` | All agent types except `nomad-agent` | Custom labels in `key=value,key=value` format. The labels you pass replace all stored labels. Pass an empty value to remove them. |
-| `--log-level` | All agent types except `external-exporter`, `nomad-agent` | Log level of the agent: `debug`, `info`, `warn` or `error`. All types except `mysqld-exporter`, `node-exporter`, `postgres-exporter`, `valkey-exporter` also accept `fatal`. |
-| `--skip-connection-check` | All agent types except `azure-database-exporter`, `node-exporter`, `nomad-agent`, `rds-exporter` | Save the new settings without checking the connection to the database first. See [Save changes without a connection check](#save-changes-without-a-connection-check). |
+| `--custom-labels` | All agent types | Custom labels in `key=value,key=value` format. The labels you pass replace all stored labels. Pass an empty value to remove them. |
+| `--log-level` | All agent types except `external-exporter` | Log level of the agent: `debug`, `info`, `warn` or `error`. All types except `mysqld-exporter`, `node-exporter`, `postgres-exporter`, `valkey-exporter` also accept `fatal`. |
+| `--skip-connection-check` | All agent types except `azure-database-exporter`, `node-exporter`, `rds-exporter` | Save the new settings without checking the connection to the database first. See [Save changes without a connection check](#save-changes-without-a-connection-check). |
 
 ### Change connection and collection settings
 
@@ -329,7 +328,7 @@ Use the following flags to change how an agent connects to the database and what
     | `--comments-parsing` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Turn parsing of query comments `on` or `off`. |
     | `--max-query-length` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Maximum length of queries in Query Analytics. `-1` means no limit. If you never set it, PMM Server decides. |
     | `--disable-query-examples` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Stop showing query examples in Query Analytics. Use `--disable-query-examples=false` to show them again. |
-    | `--max-slowlog-file-size` | `qan-mysql-slowlog-agent` | Maximum size of the slow log file. The default is 1 GiB, and `0` means no limit. |
+    | `--max-slowlog-file-size` | `qan-mysql-slowlog-agent` | Maximum size of the slow log file in bytes. The default is 1 GiB (`1073741824`), and `0` means no limit. |
 
 === "PostgreSQL"
 
@@ -398,7 +397,6 @@ Use the following flags to change how an agent connects to the database and what
     |------|-------------|-------------|
     | `--aws-access-key` | `rds-exporter` | AWS access key. |
     | `--aws-secret-key` | `rds-exporter` | AWS secret key. |
-    | `--aws-role-arn` | `rds-exporter` | ARN of the IAM role that the exporter assumes with the AWS credentials of its pmm-agent host. You can't combine it with an access key and secret key. Pass an empty value to remove it. |
     | `--disable-basic-metrics` | `rds-exporter` | Stop collecting CloudWatch basic metrics. |
     | `--disable-enhanced-metrics` | `rds-exporter` | Stop collecting Enhanced Monitoring metrics. |
     | `--push-metrics` | `rds-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
