@@ -13,7 +13,7 @@ Use **Support diagnostics** when Percona Support asks you to run diagnostics on 
 
 Use **[PMM Dump](../troubleshoot/pmm_dump.md)** when Percona Support asks for monitoring data from PMM itself, such as metrics or dashboards.
 
-## Before you start
+## Prerequisites
 
 Before you start, make sure that:
 
