@@ -143,7 +143,7 @@ cached_build() {
         build ${stage_dir}
 
         tar -C ${stage_dir} -zcpf ${tarball} .
-        aws s3 cp --region us-east-2 ${tarball} ${s3_url} || :
+        aws s3 cp --region us-east-2 --no-progress ${tarball} ${s3_url} || :
     fi
 
     tar -C ${binaries_dir} -zxpf ${tarball}
