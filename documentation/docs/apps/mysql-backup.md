@@ -231,7 +231,7 @@ When creating a backup in **Apps > MySQL Backups**, configure encryption in the 
 - **No encryption**: no encryption is applied.
 - **GPG**: GPG-based encryption. Enables the GPG timing options below.
 - **AES-256**: AES-256 keyfile encryption. Requires an **AES-256 key file path**.
-- **AES-256 + GPG**: combines both. Requires both the keyfile path and a GPG recipient.
+- **AES-256 + GPG**: currently applies AES-256 encryption only, and the GPG step is skipped. Requires an **AES-256 key file path**.
 
 **GPG timing options** (available when format includes GPG):
 
