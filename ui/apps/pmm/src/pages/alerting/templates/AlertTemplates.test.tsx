@@ -7,6 +7,8 @@ import {
 import * as templatesApi from 'api/alert-templates';
 import * as fileUtils from 'utils/file.utils';
 import {
+  ParamType,
+  ParamUnit,
   Severity,
   Template,
   TemplateCategory,
@@ -81,6 +83,39 @@ describe('AlertTemplates', () => {
       expect(screen.getByText('Built-in one')).toBeInTheDocument()
     );
     expect(screen.getByText('User one')).toBeInTheDocument();
+  });
+
+  it('marks only templates with overridable params as dynamic', async () => {
+    const dynamic = makeTemplate(
+      'dynamic_one',
+      TemplateSource.BUILT_IN,
+      'Dynamic one'
+    );
+    dynamic.params = [
+      {
+        name: 'threshold',
+        summary: 'Threshold',
+        unit: ParamUnit.PERCENTAGE,
+        type: ParamType.FLOAT,
+        overridable: true,
+      },
+    ];
+    listTemplatesMock.mockResolvedValue({
+      totalItems: 2,
+      totalPages: 1,
+      templates: [
+        dynamic,
+        makeTemplate('static_one', TemplateSource.BUILT_IN, 'Static one'),
+      ],
+    });
+
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByText('Static one')).toBeInTheDocument()
+    );
+    const badges = screen.getAllByTestId('dynamic-template-badge');
+    expect(badges).toHaveLength(1);
+    expect(badges[0].closest('tr')).toHaveTextContent('Dynamic one');
   });
 
   it('shows the add button for admins', async () => {

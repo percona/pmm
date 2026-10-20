@@ -26,6 +26,10 @@ export const formatCreatedAt = (createdAt?: string): string => {
 export const isTemplateEditable = (template: Template): boolean =>
   template.source === TemplateSource.USER_API;
 
+// A template is dynamic when at least one of its thresholds can be overridden per target.
+export const isDynamicTemplate = (template: Template): boolean =>
+  !!template.params?.some((param) => param.overridable);
+
 export const getTemplateExportFilename = (template: Template): string =>
   `${template.name}.yaml`;
 

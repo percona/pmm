@@ -71,6 +71,8 @@ export interface ParamDefinition {
   bool?: BoolParamDefinition;
   float?: FloatParamDefinition;
   string?: StringParamDefinition;
+  // Whether the threshold can be overridden per target without editing the rule.
+  overridable?: boolean;
 }
 
 export interface TemplateQuery {

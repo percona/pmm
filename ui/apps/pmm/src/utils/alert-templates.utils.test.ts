@@ -4,6 +4,7 @@ import {
   durationToSeconds,
   formatCreatedAt,
   getTemplateExportFilename,
+  isDynamicTemplate,
   isTemplateEditable,
   paramValueKey,
   secondsToDuration,
@@ -44,6 +45,29 @@ describe('alert-templates.utils', () => {
         false
       );
       expect(isTemplateEditable(makeTemplate(TemplateSource.SAAS))).toBe(false);
+    });
+  });
+
+  describe('isDynamicTemplate', () => {
+    const param = (overridable?: boolean) => ({
+      name: 'threshold',
+      summary: 'Threshold',
+      unit: ParamUnit.PERCENTAGE,
+      type: ParamType.FLOAT,
+      overridable,
+    });
+
+    it('returns true when any param is overridable', () => {
+      const template = makeTemplate(TemplateSource.BUILT_IN);
+      template.params = [param(false), param(true)];
+      expect(isDynamicTemplate(template)).toBe(true);
+    });
+
+    it('returns false when no param is overridable', () => {
+      const template = makeTemplate(TemplateSource.BUILT_IN);
+      expect(isDynamicTemplate(template)).toBe(false);
+      template.params = [param(), param(false)];
+      expect(isDynamicTemplate(template)).toBe(false);
     });
   });
 

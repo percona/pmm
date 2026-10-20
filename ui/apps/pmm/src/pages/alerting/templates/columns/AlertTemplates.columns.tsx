@@ -1,6 +1,10 @@
+import { Chip, Stack } from '@mui/material';
 import { type MRT_ColumnDef } from '@percona/peak-ui';
 import { Template } from 'types/alert-templates.types';
-import { formatCreatedAt } from 'utils/alert-templates.utils';
+import {
+  formatCreatedAt,
+  isDynamicTemplate,
+} from 'utils/alert-templates.utils';
 import { Messages } from '../AlertTemplates.messages';
 import { SourceCell } from './cell-source';
 import { TemplateRowActions } from './cell-actions';
@@ -24,7 +28,19 @@ export const getAlertTemplatesColumns = ({
   {
     accessorKey: 'summary',
     header: Messages.columns.name,
-    Cell: ({ row }) => row.original.summary || row.original.name,
+    Cell: ({ row }) => (
+      <Stack direction="row" alignItems="center" gap={1}>
+        {row.original.summary || row.original.name}
+        {isDynamicTemplate(row.original) && (
+          <Chip
+            size="small"
+            color="info"
+            label={Messages.dynamic}
+            data-testid="dynamic-template-badge"
+          />
+        )}
+      </Stack>
+    ),
   },
   {
     size: 150,

@@ -2,6 +2,7 @@ export const Messages = {
   title: 'Alert templates',
   addButton: 'Add template',
   empty: 'No alert templates found',
+  dynamic: 'Dynamic',
   filters: {
     category: 'Category',
     allCategories: 'All categories',
