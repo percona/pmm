@@ -18,6 +18,7 @@ install -p -m 0755 bin/pmm-managed ${rootfs}/usr/sbin/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation ${rootfs}/usr/sbin/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init ${rootfs}/usr/sbin/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark ${rootfs}/usr/sbin/pmm-managed-starlark
+strip -g ${rootfs}/usr/sbin/*
 
 install -d ${rootfs}/usr/share/pmm-managed
 cp -pa api/swagger ${rootfs}/usr/share/pmm-managed/
