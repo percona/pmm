@@ -235,7 +235,7 @@ When creating a backup in **Apps > MySQL Backups**, configure encryption in the 
 
 **GPG timing options** (available when format includes GPG):
 
-- **Encrypt backup**: GPG-encrypts the backup in place during the run. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
+- **Encrypt backup**: GPG-encrypts the backup as part of the upload, so it requires at least one upload provider. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
 - **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Cannot be combined with **Encrypt using tmpdir**.
 
 Both GPG options require an **Encryption recipient** (GPG key or recipient ID). You can enable both GPG timing options at the same time.
