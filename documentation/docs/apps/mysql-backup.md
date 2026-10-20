@@ -183,7 +183,7 @@ To restore from a backup:
     - **Start file / Start position**: where to begin replaying.
     - **Stop file / Stop position**: where to stop. Leave empty to replay all available logs.
 
-    To restore to a different host, configure access via **SSH user**, **SSH port**, and **SSH key**.
+    If the binlog files are stored on another host, set **Backup location** to the remote host and fill in **SSH user**, **SSH port**, and **SSH key name**. To restore to a different server, pick that server as the execution host.
 
 ### Pre and post scripts
 
