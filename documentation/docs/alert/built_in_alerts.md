@@ -5,7 +5,7 @@ PMM includes preconfigured alert rules that watch PMM's own components and fire 
 | Rule set | Included with | Monitors |
 |----------|---------------|----------|
 | [PMM internal components](templates_list.md#pmm_component_alerts) | Every PMM Server | VictoriaMetrics, ClickHouse, Grafana, and the Query Analytics API |
-| [PMM High Availability](templates_list.md#pmm_ha_alerts) | PMM HA Cluster deployments only | The cluster leader and node availability |
+| [PMM High Availability](templates_list.md#pmm_ha_alerts) | PMM HA Cluster deployments only | The cluster leader, node availability, and disk space |
 
 To view the rules PMM created for your deployment, go to **Alerts > Alert rules** and open the folder for your rule set: **PMM Server** for the internal components rules, or **PMM High Availability** for the HA rules.
 
@@ -24,7 +24,7 @@ Turn off a rule set if you've replaced it with your own rules, or if you don't w
 | Variable | Default | Turns off alerts for | Applies to |
 |----------|---------|----------------------|------------|
 | `PMM_ENABLE_COMPONENT_ALERTS` | `true` | VictoriaMetrics, ClickHouse, Grafana, and the Query Analytics API | Every PMM Server |
-| `PMM_ENABLE_HA_ALERTS` | `true` | The cluster leader and node availability | PMM HA Clusters only |
+| `PMM_ENABLE_HA_ALERTS` | `true` | The cluster leader, node availability, and disk space | PMM HA Clusters only |
 
 The rules keep firing until PMM Server restarts. If you need to suppress notifications before that, [silence the rules](silence_alerts.md). Silencing mutes notifications without stopping the rules from firing.
 

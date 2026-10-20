@@ -74,16 +74,12 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
       ```
-
-      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
 
     5. Install PMM HA:
       ```sh
@@ -204,10 +200,8 @@ To install PMM HA:
           --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
           --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
-          --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
-          --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
+          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+          --from-literal=PMM_HA_VM_PASSWORD="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
           --from-literal=GF_PASSWORD="your-grafana-password" \
           --namespace pmm
@@ -230,10 +224,8 @@ To install PMM HA:
           PMM_ADMIN_PASSWORD: "your-secure-password"
           PMM_CLICKHOUSE_USER: "clickhouse_pmm"
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
-          PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
-          PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
-          VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
-          VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
+          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+          PMM_HA_VM_PASSWORD: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
           GF_PASSWORD: "your-grafana-password"
     ```
@@ -344,16 +336,12 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
       ```
-
-      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
 
     5. Create `values-openshift.yaml` with the required OpenShift settings:
 
@@ -961,7 +949,7 @@ pmmResources:
 
 ### Customize environment variables
 
-PMM HA uses environment variables to control its behavior. Some are pre-configured by the Helm chart and should stay as they are. Others, like data retention, you can adjust to match your requirements.
+PMM HA uses environment variables to control its behavior. Some are pre-configured by the Helm chart and should stay as they are. Others you can adjust to match your requirements.
 
 #### Pre-configured HA variables
 
@@ -991,7 +979,7 @@ If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and
 
 #### Built-in alert rules
 
-When the cluster first starts, PMM adds nine alert rules and turns them on: five that warn you about [problems in the cluster](../alert/templates_list.md#pmm_ha_alerts), such as a missing leader, and four that warn you when one of [PMM's own components](../alert/templates_list.md#pmm_component_alerts) stops responding. To receive notifications, configure a [contact point](../alert/contact_points.md).
+When the cluster first starts, PMM adds ten alert rules and turns them on: six that warn you about [problems in the cluster](../alert/templates_list.md#pmm_ha_alerts), such as a missing leader or a volume running out of space, and four that warn you when one of [PMM's own components](../alert/templates_list.md#pmm_component_alerts) stops responding. To receive notifications, configure a [contact point](../alert/contact_points.md).
 
 If you don't want some of these rules, set the variable for that group to `"false"` in `pmmEnv` before you install. You can turn off one group or both:
 
@@ -1005,22 +993,23 @@ To change the rules or turn them off later, see [Manage the built-in alert rules
 
 #### Adjust data retention and other settings
 
-Set customizable variables in your `values.yaml` to match your monitoring requirements. 
-
-Choose a retention period that matches your compliance requirements and storage capacity. For example, `720h` keeps 30 days of data and `4320h` keeps 180 days:
+Set the data retention period with the chart's `dataRetentionDays` value, in whole days. It applies to both metrics and Query Analytics data, and the default is 30 days. Choose a period that matches your compliance requirements and storage capacity:
 
 ```yaml
-pmmEnv:
-  PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
-  # Add other environment variables as needed
+dataRetentionDays: 90
 ```
 
-For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
+To change the period later, update `values.yaml` and run `helm upgrade`. In HA, you can't change it under **Configuration > Settings > Advanced Settings**, where the field is read-only. Don't set `PMM_DATA_RETENTION` in `pmmEnv`: the chart derives it from `dataRetentionDays` and fails the install or upgrade if you set it.
 
-#### Common customizations
+If you shorten the period, PMM deletes the older data, and you can't recover it.
 
-- **Data retention**: Set `PMM_DATA_RETENTION` based on your compliance requirements and storage capacity (e.g., `720h` for 30 days, `4320h` for 180 days)
-- **Additional variables**: See [PMM environment variables documentation](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) for all available options.
+To check the period a replica is using, search its log:
+
+```sh
+kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- grep 'Data retention' /srv/logs/pmm-managed.log | tail -1
+```
+
+To set other PMM environment variables, add them to `pmmEnv`. For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
 ### Review Helm parameters reference
 

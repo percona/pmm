@@ -2,8 +2,6 @@
 
 Upgrade a single PMM Server instance deployed on Kubernetes with the [`percona/pmm`](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm) chart when you want to move to a new PMM release. 
 
-If you're running a [PMM Server HA Cluster](../install-pmm/HA-clustered.md) with the `percona/pmm-ha` chart, [upgrade it using the HA cluster steps](upgrade_helm_ha.md).
-
 Percona releases new chart versions to update containers when:
 
 - A new version of the main container is available

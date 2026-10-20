@@ -163,10 +163,10 @@ done
 
 Exactly one pod must answer 200. If none does, see the sections below.
 
-To reach PMM while you investigate, bypass the load balancer:
+To reach PMM while you investigate, connect directly to a PMM Server pod, bypassing HAProxy:
 
 ```sh
-kubectl port-forward -n pmm svc/pmm-ha-haproxy 18443:443
+kubectl port-forward -n pmm pmm-ha-0 18443:8443
 ```
 
 PMM is then available at `https://127.0.0.1:18443`.

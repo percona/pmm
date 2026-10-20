@@ -68,7 +68,7 @@ Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't
 
 Choose the size of your Kubernetes cluster based on how many nodes you plan to monitor. Count each host that runs one database service with Query Analytics turned on as one node.
 
-If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. Each size handles the number of monitored nodes in its row:
+If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. These are recommended sizes, not minimum requirements. Each size handles the number of monitored nodes in its row:
 
 | Monitored nodes | Helm values to use | Each of the 3 worker nodes | Total storage |
 |-----------------|--------------------|----------------------------|---------------|
@@ -78,7 +78,14 @@ If you run three Kubernetes worker nodes and keep data for the default 30 days, 
 
 If you monitor fewer than 100 nodes, plan for the 100-node size anyway. The chart's default values request about 17 CPUs, 40 GB of memory and 465 GB of storage, whatever the number of nodes.
 
-For more than 100 nodes, pass the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you install, for example `helm install pmm-ha percona/pmm-ha --namespace pmm -f values-500-nodes.yaml`. These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
+For more than 100 nodes, install with the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha). The values files ship inside the chart, so download the chart first, then pass the file to `helm install`. For example, for up to 500 nodes:
+
+```sh
+helm pull percona/pmm-ha --version 1.8.0 --untar
+helm install pmm-ha percona/pmm-ha --namespace pmm --version 1.8.0 -f pmm-ha/examples/values-500-nodes.yaml
+```
+
+These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
 
 Choose a larger size than your node count suggests if:
 
@@ -109,7 +116,7 @@ The architecture consists of:
 - HAProxy for routing traffic to the active leader and handling failover
 - operator-managed database clusters (ClickHouse, VictoriaMetrics, and PostgreSQL) for resilient data storage
 
-![HA Clustered diagram](../images/HA-diagram.jpg)
+[![HA Clustered diagram](../images/HA-diagram.jpg)](../images/HA-diagram.jpg)
 ### How operators manage databases
 
 PMM HA requires three Kubernetes operators to manage distributed databases:

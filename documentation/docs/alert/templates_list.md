@@ -36,7 +36,7 @@ Browse the alert templates by what they monitor:
 <a id="pmm_ha_alerts"></a>
 ### PMM High Availability (HA) templates
 
-These templates warn you when a [PMM HA Cluster](../install-pmm/install-HA-clustered.md) has no leader, splits into separate clusters, keeps switching leaders, or loses nodes.
+These templates warn you when a [PMM HA Cluster](../install-pmm/install-HA-clustered.md) has no leader, splits into separate clusters, keeps switching leaders, loses nodes, or runs low on disk space.
 
 You don't need to create rules from these templates yourself. PMM adds them to every PMM HA Cluster and turns them on automatically. To get notified, customize the rules, or turn them off, see [Manage the built-in alert rules](built_in_alerts.md).
 
@@ -47,6 +47,7 @@ You don't need to create rules from these templates yourself. PMM adds them to e
 | **PMM HA leader is flapping** | Alerts when a node goes through more than 5 leader elections within 10 minutes, usually because of an unstable network or a node that keeps restarting. |
 | **PMM HA node unreachable** | Alerts when fewer PMM Server nodes report in than the number configured in `PMM_HA_PEERS`, which means at least one node is down or cut off from the others. |
 | **PMM HA quorum at risk** | Alerts when only the minimum number of nodes needed to keep PMM running are still up, so losing one more node would stop PMM. Applies to clusters of three or more nodes. |
+| **PMM HA disk space usage is high** | Alerts when a persistent volume in the PMM HA namespace stays more than 80% full for 10 minutes. When a volume fills up, VictoriaMetrics and ClickHouse stop storing new data, and PostgreSQL shuts down, which takes PMM Server down with it. |
 
 #### Coverage limitations
 

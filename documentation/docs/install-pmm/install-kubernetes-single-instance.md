@@ -44,7 +44,7 @@ The `percona/pmm` chart runs on any Kubernetes 1.21 or later and is tested on Re
 Check your cluster meets the requirements:
 ```sh
 # Check Kubernetes version
-kubectl version --short
+kubectl version
 
 # Check available resources
 kubectl top nodes
@@ -90,7 +90,12 @@ Choose the installation method that fits your needs and install PMM Server on Ku
 
         The external IP may take a minute to provision. Look for the `EXTERNAL-IP` column.
 
-    5. Open `https://<EXTERNAL-IP>` in your browser and log in with default credentials: `admin`/`admin` (change immediately after first login).
+    5. Get the admin password that the chart generated:
+      ```sh
+        kubectl get secret pmm-secret -n monitoring -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
+      ```
+
+    6. Open `https://<EXTERNAL-IP>` in your browser and log in as `admin` with that password.
 
 === "Recommended"
 
@@ -111,7 +116,7 @@ Choose the installation method that fits your needs and install PMM Server on Ku
           storageClassName: "fast-ssd"  # Use your fastest storage class
           size: 100Gi
 
-        resources:
+        pmmResources:
           requests:
             memory: 4Gi
             cpu: 2
@@ -119,16 +124,9 @@ Choose the installation method that fits your needs and install PMM Server on Ku
             memory: 8Gi
             cpu: 4
 
-        # Enable persistent volume
-        persistence:
-          enabled: true
-          storageClass: "fast-ssd"
-          size: 100Gi
-
         # Configure data retention (default: 30 days)
-        env:
-          - name: PMM_DATA_RETENTION
-            value: "720h"  # 30 days
+        pmmEnv:
+          PMM_DATA_RETENTION: "720h"  # 30 days
 
         # Configure security
         secret:
@@ -177,11 +175,11 @@ kubectl get pvc -n monitoring
 kubectl get svc -n monitoring
 
 # View pod logs
-kubectl logs -n monitoring -l app=pmm
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm
 
 # Wait for pod to be ready
 kubectl wait --for=condition=ready pod \
-  -l app=pmm \
+  -l app.kubernetes.io/name=pmm \
   -n monitoring \
   --timeout=300s
 ```
@@ -348,12 +346,9 @@ PMM Server stores metrics, query analytics data, and Grafana settings on a persi
 
     ```yaml
     # values.yaml
-    persistence:
-      storageClass: "fast-ssd"  # Use fastest available
+    storage:
+      storageClassName: "fast-ssd"  # Use fastest available
       size: 100Gi
-
-      # Optional: Use existing PVC
-      # existingClaim: "pmm-data"
 
       # Optional: Storage selector
       # selector:
@@ -361,10 +356,10 @@ PMM Server stores metrics, query analytics data, and Grafana settings on a persi
       #     type: ssd
     ```
 
-3. Apply the change:
+3. Install PMM Server with these values. Kubernetes doesn't apply storage changes to the volume of an existing installation, so set them before you install:
 
     ```sh
-    helm upgrade pmm percona/pmm \
+    helm install pmm percona/pmm \
       --namespace monitoring \
       --values values.yaml
     ```
@@ -382,9 +377,8 @@ PMM retains monitoring data for 30 days by default. To change it, set `PMM_DATA_
 
     ```yaml
     # values.yaml
-    env:
-      - name: PMM_DATA_RETENTION
-        value: "720h"  # 30 days (recommended)
+    pmmEnv:
+      PMM_DATA_RETENTION: "720h"  # 30 days (recommended)
     ```
 
 2. Apply the change:
@@ -400,7 +394,7 @@ PMM retains monitoring data for 30 days by default. To change it, set `PMM_DATA_
 Adjust resources based on your monitoring scale:
 ```yaml
 # values.yaml
-resources:
+pmmResources:
   requests:
     memory: "4Gi"
     cpu: "2"
@@ -458,13 +452,13 @@ Verify Kubernetes automatically recovers PMM:
 **Test 1: Delete pod**
 ```sh
 # Delete the PMM pod
-kubectl delete pod -n monitoring -l app=pmm
+kubectl delete pod -n monitoring -l app.kubernetes.io/name=pmm
 
 # Watch Kubernetes recreate it
 kubectl get pods -n monitoring -w
 
 # Check pod is running on same or different node
-kubectl get pod -n monitoring -l app=pmm -o wide
+kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm -o wide
 ```
 
 Recovery should complete in 30-60 seconds on the same node.
@@ -472,7 +466,7 @@ Recovery should complete in 30-60 seconds on the same node.
 **Test 2: Drain node (simulate node failure)**
 ```sh
 # Get node running PMM
-export PMM_NODE=$(kubectl get pod -n monitoring -l app=pmm \
+export PMM_NODE=$(kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm \
   -o jsonpath='{.items[0].spec.nodeName}')
 
 # Drain the node
@@ -482,7 +476,7 @@ kubectl drain $PMM_NODE --ignore-daemonsets --delete-emptydir-data
 kubectl get pods -n monitoring -w
 
 # Check PMM is running on different node
-kubectl get pod -n monitoring -l app=pmm -o wide
+kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm -o wide
 
 # Uncordon the node when done testing
 kubectl uncordon $PMM_NODE
@@ -495,19 +489,19 @@ Recovery should complete in 2-5 minutes with pod rescheduled to a healthy node.
 Check PMM status and resource usage:
 ```sh
 # Check pod status
-kubectl get pods -n monitoring -l app=pmm
+kubectl get pods -n monitoring -l app.kubernetes.io/name=pmm
 
 # View pod logs
-kubectl logs -n monitoring -l app=pmm --tail=100
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm --tail=100
 
 # Check resource usage
-kubectl top pod -n monitoring -l app=pmm
+kubectl top pod -n monitoring -l app.kubernetes.io/name=pmm
 
 # Check persistent volume
 kubectl get pvc -n monitoring
 
 # Describe pod for detailed status
-kubectl describe pod -n monitoring -l app=pmm
+kubectl describe pod -n monitoring -l app.kubernetes.io/name=pmm
 ```
 
 ### Access PMM pod directly
@@ -515,27 +509,33 @@ kubectl describe pod -n monitoring -l app=pmm
 For troubleshooting, access the PMM pod:
 ```sh
 # Execute commands in pod
-kubectl exec -it -n monitoring -l app=pmm -- bash
+kubectl exec -it -n monitoring pmm-0 -- bash
 
 # Check PMM Server status
-kubectl exec -n monitoring -l app=pmm -- pmm-admin status
+kubectl exec -n monitoring pmm-0 -- pmm-admin status
 
 # View available disk space
-kubectl exec -n monitoring -l app=pmm -- df -h /srv
+kubectl exec -n monitoring pmm-0 -- df -h /srv
 ```
 
 ### Backup and restore
 
-Back up the persistent volume using Kubernetes VolumeSnapshots. Restoring creates a new PVC from the snapshot and updates the Helm deployment to use it.
+Back up the persistent volume using Kubernetes VolumeSnapshots. To restore, replace the PMM volume with one created from the snapshot. Both stop PMM Server while they run, so the volume is not written to during the snapshot or the restore.
 
 **Create backup**
 ```sh
+SNAPSHOT=pmm-backup-$(date +%Y%m%d)
+
+# Stop PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=0
+kubectl wait --for=delete pod/pmm-0 -n monitoring --timeout=120s
+
 # Create VolumeSnapshot (requires CSI driver with snapshot support)
 kubectl create -f - <<EOF
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
-  name: pmm-backup-$(date +%Y%m%d)
+  name: $SNAPSHOT
   namespace: monitoring
 spec:
   volumeSnapshotClassName: csi-snapclass
@@ -543,18 +543,26 @@ spec:
     persistentVolumeClaimName: pmm-storage-pmm-0
 EOF
 
-# Verify snapshot
-kubectl get volumesnapshot -n monitoring
+# Wait for the snapshot, then start PMM Server
+kubectl wait --for=jsonpath='{.status.readyToUse}'=true volumesnapshot/$SNAPSHOT -n monitoring --timeout=30m
+kubectl scale statefulset pmm -n monitoring --replicas=1
 ```
 
 **Restore from backup**
 ```sh
-# Create new PVC from snapshot
+# Stop PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=0
+kubectl wait --for=delete pod/pmm-0 -n monitoring --timeout=120s
+
+# Delete the current PMM volume. This permanently deletes the data on it.
+kubectl delete pvc pmm-storage-pmm-0 -n monitoring
+
+# Recreate the volume from the snapshot, under the name the PMM pod uses
 kubectl create -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pmm-storage-restored
+  name: pmm-storage-pmm-0
   namespace: monitoring
 spec:
   dataSource:
@@ -565,18 +573,11 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi
+      storage: 100Gi  # At least the size of the original volume
 EOF
 
-# Update Helm values to use restored PVC
-# values.yaml:
-# persistence:
-#   existingClaim: pmm-storage-restored
-
-# Upgrade deployment
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
+# Start PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=1
 ```
 
 ### Upgrade PMM
@@ -595,7 +596,7 @@ helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml
 
-# Or upgrade to a specific configOverrideschart version
+# Or upgrade to a specific chart version
 helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml \

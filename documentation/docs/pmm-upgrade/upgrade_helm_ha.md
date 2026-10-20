@@ -1,6 +1,6 @@
 # Upgrade PMM Server HA Cluster on Kubernetes
 
-Upgrade a [PMM Server HA Cluster](../install-pmm/HA-clustered.md) deployed with the [`percona/pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you want to move to a new PMM release. If you're running a single PMM Server instance with the `percona/pmm` chart, [upgrade it using the single-instance steps](upgrade_helm.md).
+Upgrade a [PMM Server HA Cluster](../install-pmm/HA-clustered.md) deployed with the [`percona/pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you want to move to a new PMM release.
 
 !!! caution "Upgrading HA clusters not supported before PMM 3.10.0"
     In-place Helm upgrades for HA clusters are available starting with PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0.
@@ -44,39 +44,49 @@ Once you've completed the steps in [Before you begin](#before-you-begin), run th
     helm repo update percona
     ```
 
-2. Run the upgrade, replacing `<version>` with the target PMM version. Use `--reuse-values` to keep your existing configuration, or `-f values.yaml` if you manage settings in a values file:
+2. Find the chart version that ships the target PMM version. The **APP VERSION** column shows the PMM version:
+
+    ```sh
+    helm search repo percona/pmm-ha --versions
+    ```
+
+3. Run the upgrade, replacing `<chart-version>` with the chart version from the previous step and `<version>` with the target PMM version. Without `--version`, Helm installs the newest chart in the repository. Use `--reset-then-reuse-values` to keep your existing configuration and pick up the new chart's defaults, or `-f values.yaml` if you manage settings in a values file:
 
     ```sh
     helm upgrade pmm-ha percona/pmm-ha \
       --namespace pmm \
-      --reuse-values \
+      --version <chart-version> \
+      --reset-then-reuse-values \
       --set image.tag=<version>
     ```
 
     If this fails with `Job.batch "<release>-pmm-token-init" is invalid: spec.template: ... field is immutable`, see [Troubleshoot upgrade issues](../troubleshoot/upgrade_issues.md#pmm-ha-helm-upgrade-fails-with-field-is-immutable).
 
-3. Track the rollout progress. Expect a brief interruption when the leader pod restarts:
+4. Track the rollout progress. Expect a brief interruption when the leader pod restarts:
 
     ```sh
     kubectl rollout status statefulset/pmm-ha -n pmm
     ```
 
-4. Confirm all three pods are running the new version:
+5. Confirm all three pods are running the new version:
 
     ```sh
     kubectl get pods -l app.kubernetes.io/name=pmm -n pmm -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.containerStatuses[0].image}{"\n"}{end}'
     ```
 
-5. Confirm PMM Server is reachable and returning the new version:
+6. Confirm PMM Server is reachable and returning the new version:
 
     ```sh
     curl -k https://<pmm-ha-haproxy-endpoint>/v1/server/version
     ```
 
-6. Check the logs across all pods for errors:
+7. Check the PMM Server logs on each pod for errors. PMM Server writes them to files under `/srv/logs/`, so `kubectl logs` doesn't show them:
 
     ```sh
-    kubectl logs -l app.kubernetes.io/name=pmm -n pmm --tail=100
+    for p in pmm-ha-0 pmm-ha-1 pmm-ha-2; do
+      echo "--- $p"
+      kubectl exec -n pmm "$p" -c pmm-ha -- tail -50 /srv/logs/pmm-managed.log
+    done
     ```
 
 ### Built-in alert rules during the upgrade
@@ -136,4 +146,3 @@ To roll back the Helm release to the previous version:
 - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
 - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
 - [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
-- [Upgrade PMM Server on a Kubernetes single instance](upgrade_helm.md)

@@ -252,12 +252,16 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
     For disaster recovery, restore a backup into a separate PMM HA installation in another namespace, on the same or another Kubernetes cluster:
     {.power-number}
 
-    1. Copy the source installation's `pmm-secret` into the new namespace **before** you install PMM HA there. The PostgreSQL, ClickHouse, and VictoriaMetrics operators set their passwords from this Secret at installation time, so it must match the source:
+    1. Copy the source installation's `pmm-secret` into the new namespace **before** you install PMM HA there. The PostgreSQL, ClickHouse, and VictoriaMetrics operators set their passwords from this Secret at installation time, so it must match the source. The command removes the metadata that ties the Secret to the source namespace, because Kubernetes rejects a new object that carries it:
 
         ```sh
         kubectl create namespace pmm-dr
         kubectl -n pmm get secret pmm-secret -o yaml \
-          | sed 's/namespace: pmm/namespace: pmm-dr/' \
+          | sed \
+            -e '/^[[:space:]]*resourceVersion:/d' \
+            -e '/^[[:space:]]*uid:/d' \
+            -e '/^[[:space:]]*creationTimestamp:/d' \
+            -e 's/namespace: pmm/namespace: pmm-dr/' \
           | kubectl apply -f -
         ```
 
