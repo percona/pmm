@@ -25,10 +25,15 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-func encryptionKeyPath() string {
-	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+// KeyPath returns the path PMM reads the encryption key from, or an empty string in tests that keep the key in memory.
+func KeyPath() string {
+	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
 	if customKeyPath != "" {
 		return customKeyPath
+	}
+
+	if isTest() {
+		return ""
 	}
 
 	return DefaultEncryptionKeyPath

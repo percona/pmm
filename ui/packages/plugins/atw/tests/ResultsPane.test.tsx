@@ -15,7 +15,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -23,11 +30,16 @@ import { MemoryRouter } from 'react-router-dom';
 import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { ResultsPane } from '../src/ResultsPane';
 
+/** Skip Collapse/Accordion transition work that dominates wall time under CI. */
+const testTheme = createTheme({
+  transitions: { create: () => 'none' },
+});
+
 /** Flipped per test to cover the read-only (non-admin) rendering. */
 let mockCanMutate = true;
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
   useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
@@ -41,8 +53,8 @@ beforeEach(() => {
 // reporting no logs. The files dialog stays closed throughout — so none of them
 // fires a query.
 
-import { apiClient, SEP_BASE_PATH } from '@sep/api';
-import { browserTimezone } from '@sep/framework';
+import { apiClient, EXTENSIONS_BASE_PATH } from '@pmm-extensions/api';
+import { browserTimezone } from '@pmm-extensions/framework';
 const mockedApi = apiClient as unknown as {
   get: ReturnType<typeof vi.fn>;
   post: ReturnType<typeof vi.fn>;
@@ -57,7 +69,9 @@ function renderPane(ui: ReactNode) {
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    <ThemeProvider theme={testTheme}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
@@ -112,6 +126,12 @@ describe('ResultsPane', () => {
         screen.getByText(/Run snippets from the Collect pane/i)
       ).toBeTruthy();
     });
+    // An empty pane is not news: plain text, not an info alert.
+    expect(
+      screen
+        .getByText(/Run snippets from the Collect pane/i)
+        .closest('[role="alert"]')
+    ).toBeNull();
   });
 
   it('does not point a read-only session at the withheld Collect pane', async () => {
@@ -178,7 +198,7 @@ describe('ResultsPane recorded arguments', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the masked arguments in the collapsed summary', async () => {
+  it('keeps the command line out of the collapsed row', async () => {
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
     );
@@ -186,11 +206,12 @@ describe('ResultsPane recorded arguments', () => {
     renderPane(<ResultsPane incidentId="inc-1" />);
 
     await waitFor(() => {
-      expect(screen.getByText(MASKED_ARGS)).toBeTruthy();
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
     });
+    expect(screen.queryByText(MASKED_ARGS)).not.toBeInTheDocument();
   });
 
-  it('renders the arguments in the expanded body as well as the summary', async () => {
+  it('renders the arguments once, behind the expand', async () => {
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
     );
@@ -203,11 +224,11 @@ describe('ResultsPane recorded arguments', () => {
     fireEvent.click(screen.getByText('diag/mongo.sh'));
 
     await waitFor(() => {
-      expect(screen.getAllByText(MASKED_ARGS)).toHaveLength(2);
+      expect(screen.getAllByText(MASKED_ARGS)).toHaveLength(1);
     });
   });
 
-  it('wraps the arguments in the body while the summary keeps them on one line', async () => {
+  it('wraps a long command line rather than clipping it', async () => {
     const longArgs = `--dest /var/tmp/${'long-path-segment/'.repeat(12)} --password ***`;
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: longArgs })])
@@ -221,11 +242,9 @@ describe('ResultsPane recorded arguments', () => {
     fireEvent.click(screen.getByText('diag/mongo.sh'));
 
     await waitFor(() => {
-      expect(screen.getAllByText(longArgs)).toHaveLength(2);
+      expect(screen.getAllByText(longArgs)).toHaveLength(1);
     });
-    const [summaryLine, bodyLine] = screen.getAllByText(longArgs);
-    expect(getComputedStyle(summaryLine).whiteSpace).toBe('nowrap');
-    expect(getComputedStyle(summaryLine).textOverflow).toBe('ellipsis');
+    const [bodyLine] = screen.getAllByText(longArgs);
     expect(getComputedStyle(bodyLine).whiteSpace).toBe('pre-wrap');
   });
 
@@ -734,22 +753,16 @@ const rowToggle = (filename: string) =>
 /**
  * How the toggle presents itself to a screen reader.
  *
- * MUI leaves the native `checked` property false in the mixed state, so the
- * indeterminate case has to be read off an attribute. `aria-checked="mixed"`
- * is the contract a screen reader consumes, but MUI only started emitting it
- * after 7.3.7 — the version this repo's lockfile resolves — so fall back to
- * the `data-indeterminate` attribute MUI documents for that release.
+ * MUI reports the mixed state as `aria-checked="mixed"` and leaves the native
+ * `checked` property false, so asserting the ARIA state pins the contract a
+ * screen reader actually consumes rather than MUI's own markup.
  */
-const toggleState = () => {
-  const toggle = selectAllToggle();
-  const indeterminate =
-    toggle.getAttribute('aria-checked') === 'mixed' ||
-    toggle.getAttribute('data-indeterminate') === 'true';
-  if (indeterminate) {
-    return 'mixed';
-  }
-  return toggle.checked ? 'checked' : 'unchecked';
-};
+const toggleState = () =>
+  selectAllToggle().getAttribute('aria-checked') === 'mixed'
+    ? 'mixed'
+    : selectAllToggle().checked
+      ? 'checked'
+      : 'unchecked';
 
 /** Serve `pages` keyed by offset, so a case can select across a page flip. */
 function pagesByOffset(pages: Record<number, unknown[]>, total: number) {
@@ -1341,6 +1354,65 @@ describe('ResultsPane rerun actions', () => {
     expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
   });
 
+  it('offers no rerun on a closed incident, whose Collect pane is gone', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? Promise.resolve({
+            data: {
+              id: 'inc-1',
+              case_ref: 'CS0001',
+              closed_at: '2026-07-30T12:00:00Z',
+            },
+          })
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    // Settled once the incident read has resolved and rendered; before that
+    // the pane cannot yet know the incident is closed.
+    await waitFor(() =>
+      expect(mockedApi.get).toHaveBeenCalledWith('/apps/atw/incidents/inc-1')
+    );
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
+  it('offers no rerun until the incident has loaded and is known to be open', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? new Promise(() => {})
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
   it('calls onEditParameters with the execution', async () => {
     const onEditParameters = vi.fn();
     renderPane(
@@ -1550,7 +1622,7 @@ describe('ResultsPane live log', () => {
 
     await waitFor(() => {
       expect(requestedUrls()).toContain(
-        `${SEP_BASE_PATH}/stream-logs/${RUNNING_EXECUTION.task_history_id}`
+        `${EXTENSIONS_BASE_PATH}/stream-logs/${RUNNING_EXECUTION.task_history_id}`
       );
     });
     expect(
@@ -1583,7 +1655,7 @@ describe('ResultsPane live log', () => {
       ).toBeInTheDocument();
     });
     expect(requestedUrls()).not.toContain(
-      `${SEP_BASE_PATH}/stream-logs/${RUNNING_EXECUTION.task_history_id}`
+      `${EXTENSIONS_BASE_PATH}/stream-logs/${RUNNING_EXECUTION.task_history_id}`
     );
   });
 
@@ -1613,4 +1685,250 @@ describe('ResultsPane live log', () => {
       requestedUrls().filter((url) => url.includes('/stream-logs/'))
     ).toEqual([]);
   });
+});
+
+// ── The row as a report entry, not a filename (PMM-15512) ────────────────
+
+describe('ResultsPane execution rows', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** A finished run with everything the row is meant to name. */
+  const NAMED_EXECUTION = {
+    id: 'exec-named',
+    snippet_filename: 'pt-mysql-summary.sh',
+    snippet_title: 'MySQL Summary',
+    executor_host: 'db-node-1',
+    task_history_id: 31,
+    created_at: '2026-07-22T09:59:00Z',
+    started_at: '2026-07-22T10:00:00Z',
+    finished_at: '2026-07-22T10:00:42Z',
+    task_status: 'success',
+    has_logs: false,
+    masked_args: '--host db-node-1 --password ***',
+    args_withheld: false,
+  };
+
+  it('names the run by its title, host, start and duration', async () => {
+    routeGet({
+      executions: {
+        items: [NAMED_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('MySQL Summary')).toBeTruthy();
+    });
+    expect(screen.getByText('db-node-1')).toBeTruthy();
+    // 10:00:00 to 10:00:42, held by the wire and not by a ticking clock.
+    expect(screen.getByText('42.0s')).toBeTruthy();
+    expect(
+      screen.getByTitle(
+        `${new Date('2026-07-22T10:00:00Z').toLocaleString()} (${browserTimezone()})`
+      )
+    ).toBeTruthy();
+    expect(screen.queryByText('pt-mysql-summary.sh')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the filename until the title is served', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...NAMED_EXECUTION, snippet_title: null }],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
+    });
+  });
+
+  it('counts up while a run is still going', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+      routeGet({
+        executions: {
+          items: [
+            {
+              ...NAMED_EXECUTION,
+              id: 'exec-live',
+              task_status: 'running',
+              finished_at: null,
+            },
+          ],
+          total: 1,
+          offset: 0,
+          limit: 20,
+        },
+      });
+
+      renderPane(<ResultsPane incidentId="inc-1" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('5.0s')).toBeTruthy();
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(screen.getByText('8.0s')).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('says a run is only queued rather than inventing a start time', async () => {
+    routeGet({
+      executions: {
+        items: [
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-queued',
+            task_status: 'pending',
+            started_at: null,
+            finished_at: null,
+          },
+        ],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/^Queued /)).toBeTruthy();
+    });
+    // No start means no elapsed time to report, and `0s` would be a lie.
+    expect(screen.getByText('—')).toBeTruthy();
+  });
+
+  it('names every condition holding the send action back, not just one', async () => {
+    routeGet({
+      executions: {
+        items: [NAMED_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+      config: {
+        send_disabled_reasons: ['Diagnostics delivery is not configured.'],
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Send to support case/i })
+      ).toBeTruthy();
+    });
+
+    fireEvent.mouseOver(
+      screen.getByRole('button', { name: /Send to support case/i })
+    );
+
+    // Both are true at once on a fresh pane, and fixing only the one named
+    // leaves the button just as grey.
+    const tip = await screen.findByRole('tooltip');
+    expect(tip.textContent).toContain(
+      'Diagnostics delivery is not configured.'
+    );
+    expect(tip.textContent).toContain('Select one or more finished executions');
+  });
+});
+
+describe('ResultsPane — executions that just started', () => {
+  /** Two pages of finished executions, keyed by the requested offset. */
+  function pageAt(offset: number, limit: number) {
+    const rows = Array.from({ length: limit }, (_, index) => {
+      const n = offset + index;
+      return {
+        id: `exec-${n}`,
+        snippet_filename: `diag/script-${n}.sh`,
+        task_history_id: n,
+        created_at: '2026-07-22T10:00:00Z',
+        task_status: 'success',
+        started_at: null,
+        finished_at: null,
+        has_logs: false,
+      };
+    });
+    return { data: { items: rows, total: 40, offset, limit } };
+  }
+
+  beforeEach(() => {
+    // Earlier cases in this file use fake timers; never let that leak here.
+    vi.useRealTimers();
+    vi.clearAllMocks();
+    mockedApi.get.mockImplementation(
+      (url: string, config?: { params?: { offset: number } }) => {
+        if (url.includes('/executions/')) {
+          return Promise.resolve(pageAt(config?.params?.offset ?? 0, 20));
+        }
+        return Promise.resolve(paginated([]));
+      }
+    );
+  });
+
+  it('marks out an execution the reader just started', async () => {
+    renderPane(
+      <ResultsPane incidentId="inc-1" highlightedTaskIds={new Set([3])} />
+    );
+
+    const row = await screen.findByTestId('atw-execution-row-new');
+    expect(row).toHaveTextContent('diag/script-3.sh');
+    // Only the one it names.
+    expect(screen.getAllByTestId('atw-execution-row-new')).toHaveLength(1);
+  });
+
+  // Five page flips of twenty MUI accordions each — under a loaded CI
+  // worker the default 5s budget is not enough even when the reset is correct.
+  it('returns a reader on a later page to the top for every new batch', async () => {
+    // One client across every rerender: a fresh one would refetch from scratch
+    // and hide whether the pane's own page state actually moved.
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const withHighlight = (highlightedTaskIds: Set<number>) => (
+      <ThemeProvider theme={testTheme}>
+        <QueryClientProvider client={queryClient}>
+          <ResultsPane
+            incidentId="inc-1"
+            highlightedTaskIds={highlightedTaskIds}
+          />
+        </QueryClientProvider>
+      </ThemeProvider>
+    );
+    const { rerender } = render(withHighlight(new Set()));
+
+    await screen.findByText('diag/script-0.sh');
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    await screen.findByText('diag/script-20.sh');
+
+    rerender(withHighlight(new Set([1])));
+    await screen.findByText('diag/script-0.sh');
+
+    // Back to a later page, then a second batch inside the first one's
+    // highlight window: the set is replaced without ever emptying, which a
+    // reset keyed on "is anything highlighted" would sleep through.
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    await screen.findByText('diag/script-20.sh');
+
+    rerender(withHighlight(new Set([2])));
+    expect(await screen.findByText('diag/script-0.sh')).toBeVisible();
+    expect(screen.queryByText('diag/script-20.sh')).not.toBeInTheDocument();
+  }, 20_000);
 });

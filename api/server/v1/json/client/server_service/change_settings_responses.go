@@ -222,6 +222,9 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// Enable OpenManager.
+	EnableOM *bool `json:"enable_om,omitempty"`
+
 	// Enable the Model Context Protocol endpoint (/mcp).
 	EnableMcp *bool `json:"enable_mcp,omitempty"`
 
@@ -986,9 +989,12 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// True if the SEP integration is enabled. Read-only: it reports how this PMM
+	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
 	// Server process was started, and cannot be changed through ChangeSettings.
-	SepEnabled bool `json:"sep_enabled,omitempty"`
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.
 	EnableMcp bool `json:"enable_mcp,omitempty"`
