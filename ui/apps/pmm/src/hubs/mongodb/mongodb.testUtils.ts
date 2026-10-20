@@ -62,6 +62,7 @@ export const deriveContext = ({
     params: {
       environment,
       patches,
+      connection: 'live',
       scenario,
       ops: operations ? 'on' : 'off',
       role,

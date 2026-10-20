@@ -112,7 +112,6 @@ export const deriveApps = ({
           id: 'operations',
           name: Messages.apps.operations,
           icon: ExtensionIcon,
-          preview: 'developer' as const,
           summary: operationsSummary(operations, emptyEstate, now),
           pages: [
             page(Messages.apps.pages.fleet, MONGO_PATHS.operations),

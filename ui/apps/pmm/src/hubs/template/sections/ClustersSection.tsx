@@ -42,7 +42,7 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
   };
   const empty = view.status.state === 'empty';
   const { matchesNothing } = view.environment;
-  const hasActions = !!(view.actions.addService || view.actions.install);
+  const hasActions = view.actions.add.length > 0;
 
   return (
     <HubSection

@@ -258,21 +258,44 @@ describe('deriveMongoHub capabilities', () => {
   it('gives an admin with Operations every action and Operations doors', () => {
     const view = derive(healthySnapshot(NOW, true), { operations: true });
 
-    expect(view.actions).toEqual({
-      addService: {
-        label: 'Add MongoDB service',
-        to: '/graph/add-instance/mongodb',
-      },
-      install: {
-        label: 'Install MongoDB',
-        to: '/operations/nodes?filter=unmonitored',
-        preview: 'developer',
-      },
-    });
+    expect(
+      view.actions.add.map(({ label, to, description }) => [
+        label,
+        to,
+        description,
+      ])
+    ).toEqual([
+      [
+        'Monitor an existing service',
+        '/graph/add-instance/mongodb',
+        'Connect PMM to a database you already run',
+      ],
+      [
+        'Install new cluster',
+        '/operations/nodes?filter=unmonitored',
+        'PMM sets up a new MongoDB for you',
+      ],
+    ]);
+    expect(
+      view.actions.more.map(({ label, to, external }) => [
+        label,
+        to,
+        !!external,
+      ])
+    ).toEqual([
+      ['Manage services', '/graph/inventory/services', false],
+      ['Configure backups', '/graph/backup/scheduled', false],
+      ['Set up alert rules', '/graph/alerting/alert-rule-templates', false],
+      ['Run Advisors checks', '/graph/advisors/insights', false],
+      [
+        'Documentation',
+        'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html',
+        true,
+      ],
+    ]);
     expect(view.sectionDoors.clusters).toEqual({
       label: 'Fleet in Operations',
       to: '/operations?tab=clusters',
-      preview: 'developer',
     });
     expect(view.apps.map((app) => app.id)).toEqual([
       'operations',
@@ -284,7 +307,9 @@ describe('deriveMongoHub capabilities', () => {
   it('opens Instances overview without Operations and drops its card', () => {
     const view = derive(healthySnapshot(NOW, false));
 
-    expect(view.actions.install).toBeUndefined();
+    expect(view.actions.add.map((action) => action.label)).toEqual([
+      'Monitor an existing service',
+    ]);
     expect(view.sectionDoors.clusters).toEqual({
       label: 'Instances overview',
       to: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
@@ -298,7 +323,11 @@ describe('deriveMongoHub capabilities', () => {
       operations: true,
     });
 
-    expect(view.actions).toEqual({});
+    // The docs are for everyone; the rest is for admins.
+    expect(view.actions.add).toEqual([]);
+    expect(view.actions.more.map((action) => action.label)).toEqual([
+      'Documentation',
+    ]);
     expect(view.capabilities.operations).toBe(false);
     expect(view.apps.map((app) => app.id)).toEqual(['backups', 'diagnostics']);
   });

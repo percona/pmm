@@ -10,6 +10,7 @@ import {
   writeHubSearch,
 } from './hub.params';
 import type {
+  HubFreshness,
   HubParams,
   HubSourceId,
   HubSourceState,
@@ -19,6 +20,41 @@ import type {
 
 /** How often the derived view's clock moves, so ages and thresholds stay current between fetches. */
 export const HUB_NOW_TICK_MS = 30_000;
+
+/** Sample data refreshes as often as live metrics do, so its ages read like a live page's. */
+export const HUB_SAMPLE_REFRESH_MS = 30_000;
+
+/** A source reads stale once it misses two refreshes, and never sooner than this. */
+export const HUB_STALE_MIN_MS = 2 * 60_000;
+
+/** How old the sample data reads with the prototype's connection lost. */
+export const HUB_LOST_FOR_MS = 32 * 60_000;
+
+const isOverdue = (source: HubSourceState, now: number) =>
+  source.status === 'ready' &&
+  source.updatedAt !== undefined &&
+  source.refreshEvery !== undefined &&
+  now - source.updatedAt > Math.max(2 * source.refreshEvery, HUB_STALE_MIN_MS);
+
+/** The newest update while every source keeps up; the oldest overdue one, and stale, once any falls behind. */
+export const liveFreshness = (
+  sources: Record<HubSourceId, HubSourceState>,
+  now: number
+): HubFreshness => {
+  const states = Object.values(sources);
+  const overdue = states
+    .filter((source) => isOverdue(source, now))
+    .map((source) => source.updatedAt as number);
+
+  if (overdue.length) {
+    return { at: Math.min(...overdue), stale: true };
+  }
+  const updated = states.flatMap((source) =>
+    source.updatedAt ? [source.updatedAt] : []
+  );
+
+  return { at: updated.length ? Math.max(...updated) : now, stale: false };
+};
 
 const SOURCE_IDS: HubSourceId[] = [
   'inventory',
@@ -56,8 +92,8 @@ export interface TechnologyHub {
   /** Writes the params with `replace`, keeping every other param as it is. */
   setParams: (next: Partial<HubParams>) => void;
   refetch: () => void;
-  /** Newest source update, or the sample data's clock. */
-  updatedAt: number;
+  /** How current the data is, live or sample. */
+  freshness: HubFreshness;
   isInitialLoading: boolean;
   /** What the signed-in user has, which the prototype switches lower but never raise on live data. */
   access: { admin: boolean; operations: boolean };
@@ -74,6 +110,7 @@ export const useTechnologyHub = <TSnapshot>(
   const params = useMemo(() => parseHubParams(search), [search]);
   const { scenario } = params;
   const live = scenario === 'live';
+  const connectionLost = !live && params.connection === 'lost';
 
   const isPMMAdmin = !!user?.isPMMAdmin;
   const operationsForUser = isPMMAdmin && settings?.omEnabled === true;
@@ -105,8 +142,20 @@ export const useTechnologyHub = <TSnapshot>(
     role,
   });
 
-  // Refresh on sample data builds it again, so its ages restart like a fresh fetch.
+  // Refresh on sample data builds it again, so its ages restart like a fresh fetch; a lost connection stops it.
   const [fixtureRun, setFixtureRun] = useState(0);
+
+  useEffect(() => {
+    if (live || connectionLost) {
+      return;
+    }
+    const id = setInterval(
+      () => setFixtureRun((run) => run + 1),
+      HUB_SAMPLE_REFRESH_MS
+    );
+
+    return () => clearInterval(id);
+  }, [live, connectionLost]);
   const fixture = useMemo(() => {
     if (scenario === 'live') {
       return null;
@@ -150,16 +199,15 @@ export const useTechnologyHub = <TSnapshot>(
     ]
   );
 
-  const updatedAt = useMemo(() => {
+  const freshness = useMemo<HubFreshness>(() => {
     if (fixture) {
-      return fixture.now;
+      return connectionLost
+        ? { at: fixture.now - HUB_LOST_FOR_MS, stale: true }
+        : { at: fixture.now, stale: false };
     }
-    const updated = Object.values(sources).flatMap((source) =>
-      source.updatedAt ? [source.updatedAt] : []
-    );
 
-    return updated.length ? Math.max(...updated) : now;
-  }, [fixture, sources, now]);
+    return liveFreshness(sources, now);
+  }, [fixture, connectionLost, sources, now]);
 
   const isInitialLoading =
     live && INITIAL_SOURCES.some((id) => sources[id].status === 'loading');
@@ -177,14 +225,19 @@ export const useTechnologyHub = <TSnapshot>(
     [navigate, search]
   );
 
-  const refreshFixture = useCallback(() => setFixtureRun((run) => run + 1), []);
+  // With the connection lost, Refresh finds nothing new, as a failed fetch would.
+  const refreshFixture = useCallback(() => {
+    if (!connectionLost) {
+      setFixtureRun((run) => run + 1);
+    }
+  }, [connectionLost]);
 
   return {
     view,
     params,
     setParams,
     refetch: live ? liveResult.refetch : refreshFixture,
-    updatedAt,
+    freshness,
     isInitialLoading,
     access,
   };

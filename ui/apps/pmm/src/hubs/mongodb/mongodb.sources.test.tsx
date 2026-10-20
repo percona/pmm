@@ -752,6 +752,47 @@ describe('useMongoLiveSnapshot', () => {
     vi.clearAllMocks();
   });
 
+  it('keeps the last good data and its time when a refresh fails, and says how often each source refreshes', async () => {
+    const { result } = renderLive();
+
+    await waitFor(() =>
+      expect(result.current.sources.metrics.status).toBe('ready')
+    );
+    const { updatedAt, refreshEvery } = result.current.sources.metrics;
+
+    expect(refreshEvery).toBe(30_000);
+
+    const calls = vi.mocked(instantQuery).mock.calls.length;
+
+    vi.mocked(instantQuery).mockRejectedValue(new Error('Network Error'));
+    await act(async () => {
+      result.current.refetch();
+    });
+    await waitFor(() =>
+      expect(vi.mocked(instantQuery).mock.calls.length).toBeGreaterThan(calls)
+    );
+    // Lets the rejected refresh settle into the query's state.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+
+    expect(result.current.sources.metrics).toMatchObject({
+      status: 'ready',
+      updatedAt,
+    });
+    expect(Object.keys(result.current.snapshot.metrics?.up ?? {})).toHaveLength(
+      12
+    );
+  });
+
+  it('fails a source that never loaded', async () => {
+    vi.mocked(instantQuery).mockRejectedValue(new Error('Network Error'));
+    const { result } = renderLive();
+
+    await waitFor(() =>
+      expect(result.current.sources.metrics.status).toBe('error')
+    );
+    expect(result.current.snapshot.metrics).toBeNull();
+  });
+
   it('maps every source into the snapshot and makes no Operations request with it off', async () => {
     const { result } = renderLive();
 

@@ -15,7 +15,12 @@ import type {
   HubSourceState,
   TechnologyHubConfig,
 } from './hub.types';
-import { useTechnologyHub } from './useTechnologyHub';
+import {
+  HUB_LOST_FOR_MS,
+  HUB_SAMPLE_REFRESH_MS,
+  liveFreshness,
+  useTechnologyHub,
+} from './useTechnologyHub';
 
 interface FakeSnapshot {
   from: 'live' | 'fixture';
@@ -149,7 +154,7 @@ describe('useTechnologyHub', () => {
         extensions: false,
       },
     });
-    expect(result.current.hub.updatedAt).toBe(3_000);
+    expect(result.current.hub.freshness).toEqual({ at: 3_000, stale: false });
     expect(result.current.hub.isInitialLoading).toBe(false);
     expect(result.current.hub.access).toEqual({
       admin: true,
@@ -208,7 +213,10 @@ describe('useTechnologyHub', () => {
         (source: HubSourceState) => source.status === 'ready'
       )
     ).toBe(true);
-    expect(result.current.hub.updatedAt).toBe(snapshot.now);
+    expect(result.current.hub.freshness).toEqual({
+      at: snapshot.now,
+      stale: false,
+    });
   });
 
   it('builds the sample data once per scenario', () => {
@@ -246,6 +254,42 @@ describe('useTechnologyHub', () => {
     expect(live.refetch).toHaveBeenCalledTimes(1);
   });
 
+  it('refreshes sample data on its own like live data, and stops with the connection lost', () => {
+    vi.useFakeTimers();
+    try {
+      const { config, derive } = makeConfig();
+      const { result } = renderTechnologyHub(config, {
+        path: '/mongodb?hubState=wrong',
+      });
+      const first = derive.mock.calls[derive.mock.calls.length - 1][0];
+
+      act(() => vi.advanceTimersByTime(HUB_SAMPLE_REFRESH_MS));
+
+      const second = derive.mock.calls[derive.mock.calls.length - 1][0];
+
+      expect(second).not.toBe(first);
+      expect(result.current.hub.freshness.stale).toBe(false);
+
+      act(() => result.current.hub.setParams({ connection: 'lost' }));
+
+      const lost = derive.mock.calls[derive.mock.calls.length - 1][0];
+
+      expect(result.current.hub.freshness).toEqual({
+        at: (lost.now ?? 0) - HUB_LOST_FOR_MS,
+        stale: true,
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(HUB_SAMPLE_REFRESH_MS * 2);
+        result.current.hub.refetch();
+      });
+
+      expect(derive.mock.calls[derive.mock.calls.length - 1][0]).toBe(lost);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('is loading at first until inventory and metrics answer', () => {
     const { config } = makeConfig(
       sources({ metrics: { status: 'loading' }, qan: { status: 'loading' } })
@@ -276,5 +320,64 @@ describe('useTechnologyHub', () => {
     );
 
     expect(result.current.location.search).toBe('?from=now-1h&q=a%20b');
+  });
+});
+
+describe('liveFreshness', () => {
+  const NOW = 10 * 60_000;
+
+  it('reads the newest update while every source keeps up', () => {
+    expect(
+      liveFreshness(
+        sources({
+          inventory: {
+            status: 'ready',
+            updatedAt: NOW - 50_000,
+            refreshEvery: 60_000,
+          },
+          metrics: {
+            status: 'ready',
+            updatedAt: NOW - 20_000,
+            refreshEvery: 30_000,
+          },
+        }),
+        NOW
+      )
+    ).toEqual({ at: NOW - 20_000, stale: false });
+  });
+
+  it('reads stale from the oldest source that missed two refreshes, and not before two minutes', () => {
+    const late = sources({
+      inventory: {
+        status: 'ready',
+        updatedAt: NOW - 3 * 60_000,
+        refreshEvery: 60_000,
+      },
+      metrics: {
+        status: 'ready',
+        updatedAt: NOW - 90_000,
+        refreshEvery: 30_000,
+      },
+      backups: { status: 'ready', updatedAt: NOW - 5_000 },
+    });
+
+    // Metrics missed three refreshes but is not two minutes old; inventory is.
+    expect(liveFreshness(late, NOW)).toEqual({
+      at: NOW - 3 * 60_000,
+      stale: true,
+    });
+  });
+
+  it('ignores sources that refresh only on demand, are off or failed outright', () => {
+    expect(
+      liveFreshness(
+        sources({
+          inventory: { status: 'ready', updatedAt: NOW - 9 * 60_000 },
+          metrics: { status: 'error' },
+          backups: { status: 'disabled' },
+        }),
+        NOW
+      ).stale
+    ).toBe(false);
   });
 });

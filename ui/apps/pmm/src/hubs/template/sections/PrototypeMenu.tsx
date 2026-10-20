@@ -11,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { type FC, type ReactNode, useId, useState } from 'react';
 import { Messages } from '../hub.messages';
 import type {
+  HubConnectionMode,
   HubOpsMode,
   HubParams,
   HubRole,
@@ -21,6 +22,7 @@ import type {
 const SCENARIOS: HubScenario[] = ['live', 'empty', 'healthy', 'wrong'];
 const OPS: HubOpsMode[] = ['live', 'on', 'off'];
 const ROLES: HubRoleMode[] = ['live', 'admin', 'viewer'];
+const CONNECTIONS: HubConnectionMode[] = ['live', 'lost'];
 
 export interface PrototypeMenuProps {
   params: HubParams;
@@ -68,11 +70,16 @@ export const PrototypeMenu: FC<PrototypeMenuProps> = ({
     params.role === 'admin' && role !== 'admin' ? 'live' : params.role;
   const shownOps: HubOpsMode =
     params.ops === 'on' && !operations ? 'live' : params.ops;
+  // Live data has a real connection, so only sample data can lose one.
+  const shownConnection: HubConnectionMode = live ? 'live' : params.connection;
+  const connectionBlocked = (value: HubConnectionMode) =>
+    value === 'lost' && live ? prototype.hints.sampleOnly : undefined;
 
   const summary = [
     prototype.scenario[params.scenario],
     shownOps !== 'live' && prototype.opsSummary[shownOps],
     shownRole !== 'live' && prototype.role[shownRole],
+    shownConnection === 'lost' && prototype.connectionSummary,
   ].filter((part): part is string => !!part);
 
   const choose = (next: Partial<HubParams>) => {
@@ -178,6 +185,15 @@ export const PrototypeMenu: FC<PrototypeMenuProps> = ({
           shownRole,
           (next) => ({ role: next }),
           roleBlocked
+        )}
+        {group(
+          'connection',
+          prototype.groups.connection,
+          CONNECTIONS,
+          prototype.connection,
+          shownConnection,
+          (connection) => ({ connection }),
+          connectionBlocked
         )}
       </Menu>
     </>

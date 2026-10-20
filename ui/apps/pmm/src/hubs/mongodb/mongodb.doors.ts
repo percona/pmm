@@ -45,6 +45,10 @@ export const MONGO_PATHS = {
   diagnostics: '/extensions/atw',
   realtime: '/rta',
   allApps: '/prototype/all-apps',
+  inventoryServices: '/graph/inventory/services',
+  advisors: '/graph/advisors/insights',
+  documentation:
+    'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html',
 } as const;
 
 /** Where an entity sits: its own environment and cluster, whatever the filter. */
@@ -167,7 +171,6 @@ export const automationsDoor = (
     kind === 'install'
       ? Messages.doors.forInstall(target)
       : Messages.doors.forScan,
-  preview: 'developer',
 });
 
 export const manageDoor = (omClusterId?: string): HubDoor => ({
@@ -176,7 +179,6 @@ export const manageDoor = (omClusterId?: string): HubDoor => ({
     tab: 'clusters',
     cluster: omClusterId,
   }),
-  preview: 'developer',
 });
 
 /** A door to a section of this page that keeps the hub's params. */

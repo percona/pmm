@@ -446,7 +446,7 @@ describe('operations', () => {
     },
   ];
 
-  it('reports failed installs and scans of the last 24 h, with Preview doors', () => {
+  it('reports failed installs and scans of the last 24 h, with Automations doors', () => {
     const result = items(
       input([], mergeMetrics(), {
         operations: {
@@ -465,10 +465,7 @@ describe('operations', () => {
     expect(result[0]).toMatchObject({
       kind: 'operationsFailed',
       source: 'operations',
-      door: {
-        to: '/operations/automations?tab=installs&expand=r1',
-        preview: 'developer',
-      },
+      door: { to: '/operations/automations?tab=installs&expand=r1' },
     });
   });
 

@@ -128,7 +128,9 @@ describe('fixtures', () => {
         'operationsFailed',
       ]);
       expect(
-        on.slice(13).every((item) => item.door.preview === 'developer')
+        on
+          .slice(13)
+          .every((item) => item.door.to.startsWith('/operations/automations'))
       ).toBe(true);
     });
 
@@ -269,12 +271,15 @@ describe('fixtures', () => {
     });
 
     it('offers both actions to an admin with Operations, Add only without, none to viewers', () => {
-      expect(Object.keys(view('empty', true).actions)).toEqual([
-        'addService',
-        'install',
+      const labels = (ops: boolean, role?: 'viewer') =>
+        view('empty', ops, role).actions.add.map((action) => action.label);
+
+      expect(labels(true)).toEqual([
+        'Monitor an existing service',
+        'Install new cluster',
       ]);
-      expect(Object.keys(view('empty', false).actions)).toEqual(['addService']);
-      expect(view('empty', true, 'viewer').actions).toEqual({});
+      expect(labels(false)).toEqual(['Monitor an existing service']);
+      expect(labels(true, 'viewer')).toEqual([]);
     });
 
     it('points the Operations card at Nodes', () => {

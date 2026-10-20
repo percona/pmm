@@ -449,17 +449,19 @@ export const readRecentDashboards = (user: {
     }));
 };
 
+/** A failed refresh keeps the last good data and its time, so the page reads stale instead of losing what it showed. */
 const sourceState = (
   enabled: boolean,
   query: Pick<
     UseQueryResult<unknown>,
-    'isPending' | 'isError' | 'error' | 'dataUpdatedAt'
-  >
+    'data' | 'isPending' | 'isError' | 'error' | 'dataUpdatedAt'
+  >,
+  refreshEvery?: number
 ): HubSourceState => {
   if (!enabled) {
     return { status: 'disabled' };
   }
-  if (query.isError) {
+  if (query.isError && query.data === undefined) {
     return {
       status: 'error',
       ...(query.error instanceof Error ? { message: query.error.message } : {}),
@@ -472,8 +474,13 @@ const sourceState = (
   return {
     status: 'ready',
     ...(query.dataUpdatedAt ? { updatedAt: query.dataUpdatedAt } : {}),
+    ...(refreshEvery ? { refreshEvery } : {}),
   };
 };
+
+/** The data a query holds, kept through a failed refresh; null only when it never loaded. */
+const lastGood = <T>(query: { data: T | undefined; isError: boolean }) =>
+  query.data === undefined && query.isError ? null : query.data;
 
 const combine = (...states: HubSourceState[]): HubSourceState =>
   states.find((state) => state.status === 'error') ??
@@ -493,11 +500,13 @@ export const useMongoLiveSnapshot = ({
   const backupsEnabled = enabled && settings?.backupManagementEnabled === true;
   const opsEnabled = enabled && operations;
 
+  // Scheduled sources catch up as soon as the tab is back, so a hidden tab never reads stale on return.
   const inventory = useQuery({
     queryKey: [MONGO_HUB_KEYS.services],
     queryFn: () => listManagedServicesQuietly(ServiceType.mongodb),
     enabled,
     refetchInterval: MONGO_HUB_INTERVALS.inventory,
+    refetchOnWindowFocus: true,
   });
   const metrics = useQuery({
     queryKey: [MONGO_HUB_KEYS.metrics, { environment }],
@@ -523,16 +532,19 @@ export const useMongoLiveSnapshot = ({
     },
     enabled: backupsEnabled,
     refetchInterval: MONGO_HUB_INTERVALS.backups,
+    refetchOnWindowFocus: true,
   });
   const qan = useQuery({
     queryKey: [MONGO_HUB_KEYS.qan, { environment }],
     queryFn: () => fetchQan(environment),
     enabled,
     refetchInterval: MONGO_HUB_INTERVALS.qan,
+    refetchOnWindowFocus: true,
   });
   const sessions = useRealtimeSessions({
     enabled,
     refetchInterval: MONGO_HUB_INTERVALS.realtimeSessions,
+    refetchOnWindowFocus: true,
   });
   const services = useMemo(
     () => toServiceInputs(inventory.data ?? []),
@@ -555,6 +567,7 @@ export const useMongoLiveSnapshot = ({
     {
       enabled: enabled && sessionServiceIds.length > 0,
       refetchInterval: MONGO_HUB_INTERVALS.realtimeQueries,
+      refetchOnWindowFocus: true,
     }
   );
   const topology = useQuery({
@@ -569,12 +582,14 @@ export const useMongoLiveSnapshot = ({
     queryFn: () => getRuns(OM_RUNS_LIMIT),
     enabled: opsEnabled,
     refetchInterval: MONGO_HUB_INTERVALS.runs,
+    refetchOnWindowFocus: true,
   });
   const bootstrapRuns = useQuery({
     queryKey: [MONGO_HUB_KEYS.bootstrapRuns, OM_RUNS_LIMIT],
     queryFn: () => getBootstrapRuns(OM_RUNS_LIMIT),
     enabled: opsEnabled,
     refetchInterval: MONGO_HUB_INTERVALS.runs,
+    refetchOnWindowFocus: true,
   });
   const catalog = useQuery({
     queryKey: [MONGO_HUB_KEYS.dashboards, DASHBOARD_QUERY],
@@ -591,20 +606,23 @@ export const useMongoLiveSnapshot = ({
   });
 
   // Keyed by content, so the sources (and the snapshot) keep their identity between renders.
+  const I = MONGO_HUB_INTERVALS;
   const sourcesKey = JSON.stringify({
-    inventory: sourceState(enabled, inventory),
-    metrics: sourceState(enabled, metrics),
-    alerts: sourceState(alertsEnabled, alerts),
-    backups: sourceState(backupsEnabled, backups),
-    qan: sourceState(enabled, qan),
+    inventory: sourceState(enabled, inventory, I.inventory),
+    metrics: sourceState(enabled, metrics, I.metrics),
+    alerts: sourceState(alertsEnabled, alerts, I.alerts),
+    backups: sourceState(backupsEnabled, backups, I.backups),
+    qan: sourceState(enabled, qan, I.qan),
     realtime: combine(
-      sourceState(enabled, sessions),
-      ...(sessionServiceIds.length ? [sourceState(enabled, realtime)] : [])
+      sourceState(enabled, sessions, I.realtimeSessions),
+      ...(sessionServiceIds.length
+        ? [sourceState(enabled, realtime, I.realtimeQueries)]
+        : [])
     ),
     operations: combine(
-      sourceState(opsEnabled, topology),
-      sourceState(opsEnabled, runs),
-      sourceState(opsEnabled, bootstrapRuns)
+      sourceState(opsEnabled, topology, I.topology),
+      sourceState(opsEnabled, runs, I.runs),
+      sourceState(opsEnabled, bootstrapRuns, I.runs)
     ),
     dashboards: sourceState(enabled, catalog),
   } satisfies Record<HubSourceId, HubSourceState>);
@@ -613,6 +631,17 @@ export const useMongoLiveSnapshot = ({
     [sourcesKey]
   );
 
+  // What each source last delivered; null only for one that never loaded.
+  const inventoryData = lastGood(inventory);
+  const metricsData = lastGood(metrics);
+  const alertsData = lastGood(alerts);
+  const backupsData = lastGood(backups);
+  const qanData = lastGood(qan);
+  const sessionsData = lastGood(sessions);
+  const realtimeData = lastGood(realtime);
+  const runsData = lastGood(runs);
+  const bootstrapRunsData = lastGood(bootstrapRuns);
+
   const snapshot = useMemo<MongoSnapshot>(() => {
     const updated = Object.values(sources).flatMap((source) =>
       source.updatedAt ? [source.updatedAt] : []
@@ -620,70 +649,62 @@ export const useMongoLiveSnapshot = ({
 
     return {
       fetchedAt: updated.length ? Math.max(...updated) : Date.now(),
-      services: inventory.isError ? null : services,
-      metrics: metrics.isError ? null : (metrics.data ?? EMPTY_METRICS),
-      alerts: alerts.isError ? null : toAlertInputs(alerts.data, services),
-      alertRules:
-        alertsEnabled && !alerts.isError && alerts.data
-          ? toAlertRules(alerts.data)
-          : null,
+      services: inventoryData === null ? null : services,
+      metrics: metricsData === null ? null : (metricsData ?? EMPTY_METRICS),
+      alerts:
+        alertsData === null
+          ? null
+          : toAlertInputs(alertsData ?? undefined, services),
+      alertRules: alertsEnabled && alertsData ? toAlertRules(alertsData) : null,
       backups: !backupsEnabled
         ? toBackupsInput(false, [], [])
-        : backups.isError
-          ? null
-          : (backups.data ?? null),
-      qan: qan.isError ? null : (qan.data ?? { current: [], baseline: [] }),
+        : (backupsData ?? null),
+      qan: qanData === null ? null : (qanData ?? { current: [], baseline: [] }),
       realtime:
-        sessions.isError || realtime.isError
+        sessionsData === null || realtimeData === null
           ? null
           : {
               sessionServiceIds,
               queries: toRtaQueries(
-                sessionServiceIds.length ? (realtime.data ?? []) : []
+                sessionServiceIds.length ? (realtimeData ?? []) : []
               ),
             },
       // PMM Extensions has no version check yet (PMM-15299 P0-1c).
       updates: null,
       operations:
-        opsEnabled && topology.data && !runs.isError && !bootstrapRuns.isError
+        opsEnabled &&
+        topology.data &&
+        runsData !== null &&
+        bootstrapRunsData !== null
           ? toOperationsInput(
               topology.data,
-              runs.data ?? [],
-              bootstrapRuns.data ?? [],
+              runsData ?? [],
+              bootstrapRunsData ?? [],
               environment
             )
           : null,
-      dashboards:
-        catalog.isError || !catalog.data
-          ? null
-          : { catalog: catalog.data, recent: recent.data ?? [] },
+      dashboards: catalog.data
+        ? { catalog: catalog.data, recent: recent.data ?? [] }
+        : null,
     };
   }, [
     sources,
-    inventory.isError,
+    inventoryData,
     services,
-    metrics.isError,
-    metrics.data,
-    alerts.isError,
-    alerts.data,
+    metricsData,
+    alertsData,
     alertsEnabled,
-    backups.isError,
-    backups.data,
+    backupsData,
     backupsEnabled,
-    qan.isError,
-    qan.data,
-    sessions.isError,
-    realtime.isError,
-    realtime.data,
+    qanData,
+    sessionsData,
+    realtimeData,
     sessionServiceIds,
     opsEnabled,
     topology.data,
-    runs.isError,
-    runs.data,
-    bootstrapRuns.isError,
-    bootstrapRuns.data,
+    runsData,
+    bootstrapRunsData,
     environment,
-    catalog.isError,
     catalog.data,
     recent.data,
   ]);

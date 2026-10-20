@@ -171,8 +171,6 @@ export const Messages = {
     fleet: 'Fleet in Operations',
     instancesOverview: 'Instances overview',
     allApps: 'All apps',
-    addService: 'Add MongoDB service',
-    install: 'Install MongoDB',
     setUpBackup: 'Set up a backup',
     turnOnBackups: 'Turn it on in Settings',
     backupDashboard: 'Backup status dashboard',
@@ -224,6 +222,18 @@ export const Messages = {
     oplogFull: (fill: number) => `${fill}% full`,
     lagDetail: (sustained: string) => `${sustained} sustained for 2m`,
     alertFallback: 'Alert firing',
+  },
+  /** The header's Add MongoDB and More actions menus. */
+  actions: {
+    monitor: 'Monitor an existing service',
+    monitorDescription: 'Connect PMM to a database you already run',
+    install: 'Install new cluster',
+    installDescription: 'PMM sets up a new MongoDB for you',
+    manageServices: 'Manage services',
+    configureBackups: 'Configure backups',
+    alertRules: 'Set up alert rules',
+    advisors: 'Run Advisors checks',
+    documentation: 'Documentation',
   },
   coverage: {
     memberDown: 'member down',

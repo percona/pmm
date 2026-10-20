@@ -6,6 +6,7 @@ import { PrototypeMenu, type PrototypeMenuProps } from './PrototypeMenu';
 const LIVE: HubParams = {
   environment: null,
   patches: null,
+  connection: 'live',
   scenario: 'live',
   ops: 'live',
   role: 'live',
@@ -67,7 +68,7 @@ describe('PrototypeMenu', () => {
     const menu = screen.getByRole('menu');
     const radios = within(menu).getAllByRole('menuitemradio');
 
-    expect(radios).toHaveLength(10);
+    expect(radios).toHaveLength(12);
     expect(
       within(menu).getByRole('menuitemradio', { name: 'Healthy' })
     ).toHaveAttribute('aria-checked', 'true');
@@ -82,12 +83,12 @@ describe('PrototypeMenu', () => {
     ).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('separates its three radio sets and names each item’s set', () => {
+  it('separates its four radio sets and names each item’s set', () => {
     renderMenu({ scenario: 'wrong' });
 
     const menu = open();
 
-    expect(within(menu).getAllByRole('separator')).toHaveLength(2);
+    expect(within(menu).getAllByRole('separator')).toHaveLength(3);
 
     const wrong = within(menu).getByRole('menuitemradio', {
       name: 'Things wrong',
@@ -99,6 +100,37 @@ describe('PrototypeMenu', () => {
     expect(
       within(menu).getByRole('menuitemradio', { name: 'As signed in' })
     ).toHaveAccessibleDescription('Signed in as');
+  });
+
+  it('loses the connection only on sample data, and says so in its name', () => {
+    const { setParams } = renderMenu({ scenario: 'wrong' });
+    const menu = open();
+
+    fireEvent.click(within(menu).getByRole('menuitemradio', { name: 'Lost' }));
+    expect(setParams).toHaveBeenCalledWith({ connection: 'lost' });
+  });
+
+  it('names a lost connection on the button, and keeps it from live data', () => {
+    renderMenu({ scenario: 'wrong', connection: 'lost' });
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Prototype: Things wrong · Connection lost',
+      })
+    ).toBeInTheDocument();
+  });
+
+  it('cannot lose the connection of live data', () => {
+    renderMenu({ connection: 'lost' });
+
+    const menu = open();
+
+    expect(
+      within(menu).getByRole('menuitemradio', { name: /^Lost/ })
+    ).toHaveAttribute('aria-disabled', 'true');
+    expect(
+      within(menu).getByRole('menuitemradio', { name: 'Connected' })
+    ).toHaveAttribute('aria-checked', 'true');
   });
 
   it('opens on the first choice of Data', () => {

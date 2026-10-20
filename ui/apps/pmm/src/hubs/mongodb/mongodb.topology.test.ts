@@ -578,7 +578,6 @@ describe('buildClusterTree', () => {
     expect(manage).toEqual({
       label: 'Manage in Operations',
       to: '/operations?tab=clusters&cluster=om-orders',
-      preview: 'developer',
     });
     expect(
       find(on, 'orders-shard1')?.doors.menu.map((door) => door.label)

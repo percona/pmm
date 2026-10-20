@@ -1,6 +1,7 @@
 import {
   HUB_NO_ENVIRONMENT,
   type HubCapabilities,
+  type HubConnectionMode,
   type HubOpsMode,
   type HubParams,
   type HubRole,
@@ -8,13 +9,14 @@ import {
   type HubScenario,
 } from './hub.types';
 
-/** URL names of the hub's own params; the three prototype ones are removed before anything ships. */
+/** URL names of the hub's own params; the four prototype ones are removed before anything ships. */
 export const HUB_PARAM_KEYS = {
   environment: 'environment',
   patches: 'patches',
   scenario: 'hubState',
   ops: 'hubOps',
   role: 'hubRole',
+  connection: 'hubConnection',
 } as const satisfies Record<keyof HubParams, string>;
 
 export const DEFAULT_HUB_PARAMS: HubParams = {
@@ -23,11 +25,13 @@ export const DEFAULT_HUB_PARAMS: HubParams = {
   scenario: 'live',
   ops: 'live',
   role: 'live',
+  connection: 'live',
 };
 
 const SCENARIOS: readonly HubScenario[] = ['live', 'empty', 'healthy', 'wrong'];
 const OPS_MODES: readonly HubOpsMode[] = ['live', 'on', 'off'];
 const ROLE_MODES: readonly HubRoleMode[] = ['live', 'admin', 'viewer'];
+const CONNECTION_MODES: readonly HubConnectionMode[] = ['live', 'lost'];
 
 const oneOf = <T extends string>(
   values: readonly T[],
@@ -46,6 +50,11 @@ export const parseHubParams = (search: URLSearchParams | string): HubParams => {
     scenario: oneOf(SCENARIOS, params.get(HUB_PARAM_KEYS.scenario), 'live'),
     ops: oneOf(OPS_MODES, params.get(HUB_PARAM_KEYS.ops), 'live'),
     role: oneOf(ROLE_MODES, params.get(HUB_PARAM_KEYS.role), 'live'),
+    connection: oneOf(
+      CONNECTION_MODES,
+      params.get(HUB_PARAM_KEYS.connection),
+      'live'
+    ),
   };
 };
 
@@ -79,7 +88,7 @@ export const writeHubSearch = (
   if (merged.patches) {
     own.set(HUB_PARAM_KEYS.patches, merged.patches);
   }
-  (['scenario', 'ops', 'role'] as const).forEach((key) => {
+  (['scenario', 'ops', 'role', 'connection'] as const).forEach((key) => {
     if (merged[key] !== DEFAULT_HUB_PARAMS[key]) {
       own.set(HUB_PARAM_KEYS[key], merged[key]);
     }

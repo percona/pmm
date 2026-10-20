@@ -12,6 +12,8 @@ export type HubLevel = 'ok' | 'warning' | 'error';
 export type HubScenario = 'live' | 'empty' | 'healthy' | 'wrong';
 export type HubOpsMode = 'live' | 'on' | 'off';
 export type HubRoleMode = 'live' | 'admin' | 'viewer';
+/** Prototype only: `lost` stops sample data refreshing, as a dropped connection would. */
+export type HubConnectionMode = 'live' | 'lost';
 export type HubRole = 'admin' | 'viewer';
 export type HubSourceId =
   | 'inventory'
@@ -48,6 +50,8 @@ export interface HubParams {
   ops: HubOpsMode;
   /** `?hubRole=` */
   role: HubRoleMode;
+  /** `?hubConnection=` */
+  connection: HubConnectionMode;
 }
 
 export interface HubDoor {
@@ -252,6 +256,15 @@ export interface HubApp {
   pages: HubDoor[];
 }
 
+/** An entry of a header menu: Add MongoDB, or More actions. */
+export interface HubMenuAction extends HubDoor {
+  icon: HubIcon;
+  /** A second line under the label, such as "Connect PMM to a database you already run". */
+  description?: string;
+  /** Opens outside PMM, in a new tab. */
+  external?: boolean;
+}
+
 export interface HubCapabilities {
   /** Role admin. */
   addService: boolean;
@@ -300,7 +313,12 @@ export interface HubViewModel {
   queries: HubQueries;
   dashboards: HubDashboards;
   apps: HubApp[];
-  actions: { addService?: HubDoor; install?: HubDoor };
+  actions: {
+    /** Ways to bring the technology in, for admins: monitor one that runs, install a new one. */
+    add: HubMenuAction[];
+    /** Estate-wide pages for admins, then the docs for everyone. */
+    more: HubMenuAction[];
+  };
   sectionDoors: { attention?: HubDoor; clusters: HubDoor; apps?: HubDoor };
   sections: Record<HubSectionId, HubSectionState>;
 }
@@ -308,7 +326,18 @@ export interface HubViewModel {
 export interface HubSourceState {
   status: 'disabled' | 'loading' | 'ready' | 'error';
   message?: string;
+  /** The last successful fetch, kept when a refresh fails. */
   updatedAt?: number;
+  /** How often it refreshes, in ms; absent for a source that refreshes only on demand. */
+  refreshEvery?: number;
+}
+
+/** How current the page's data is. */
+export interface HubFreshness {
+  /** Epoch ms of the update the label reads: the latest, or the oldest overdue one. */
+  at: number;
+  /** A source missed its refreshes, as when the connection drops. */
+  stale: boolean;
 }
 
 export interface HubLiveContext {

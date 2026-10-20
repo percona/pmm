@@ -106,12 +106,11 @@ describe('list doors carry the filter only when one environment is selected', ()
   });
 });
 
-describe('Operations doors carry Preview', () => {
+describe('Operations doors', () => {
   it('Manage in Operations focuses the cluster in Fleet', () => {
     expect(manageDoor('om-orders')).toEqual({
       label: 'Manage in Operations',
       to: '/operations?tab=clusters&cluster=om-orders',
-      preview: 'developer',
     });
     expect(manageDoor().to).toBe('/operations?tab=clusters');
   });
@@ -121,13 +120,11 @@ describe('Operations doors carry Preview', () => {
       label: 'Open Automations',
       to: '/operations/automations?tab=scans&expand=run%201',
       context: 'for the scan',
-      preview: 'developer',
     });
     expect(automationsDoor('install', 'b1', 'pmm-client')).toEqual({
       label: 'Open Automations',
       to: '/operations/automations?tab=installs&expand=b1',
       context: 'for the install on pmm-client',
-      preview: 'developer',
     });
   });
 
@@ -153,6 +150,7 @@ describe('sectionAnchor', () => {
         {
           environment: 'prod',
           patches: null,
+          connection: 'live',
           scenario: 'wrong',
           ops: 'on',
           role: 'live',

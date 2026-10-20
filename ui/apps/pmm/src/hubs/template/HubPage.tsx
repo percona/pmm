@@ -8,7 +8,9 @@ import { BackupsSection } from './sections/BackupsSection';
 import { ClustersSection } from './sections/ClustersSection';
 import { DashboardsSection } from './sections/DashboardsSection';
 import { HubHeader } from './sections/HubHeader';
+import { HubStatusLine } from './sections/HubStatusLine';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
+import { PrototypeMenu } from './sections/PrototypeMenu';
 import { QueriesSection } from './sections/QueriesSection';
 import { HUB_CONTAINER } from './sections/hub.sx';
 import { useTechnologyHub } from './useTechnologyHub';
@@ -57,7 +59,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
     params,
     setParams,
     refetch,
-    updatedAt,
+    freshness,
     isInitialLoading,
     access,
   } = useTechnologyHub(config);
@@ -81,12 +83,17 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           view={view}
           icon={config.icon}
           messages={messages}
-          params={params}
           setParams={setParams}
-          updatedAt={updatedAt}
+          freshness={freshness}
           refetch={refetch}
+        />
+        <HubStatusLine
+          status={view.status}
+          name={messages.name}
+          unit={messages.unit.cluster}
+          canSetUpBackup={view.capabilities.setUpBackup}
+          matchesNothing={view.environment.matchesNothing}
           loading={isInitialLoading}
-          access={access}
         />
         {view.status.state !== 'empty' &&
           !(view.environment.matchesNothing && !view.attention.length) && (
@@ -144,6 +151,16 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
             dashboards={view.dashboards}
             state={view.sections.dashboards}
             onRetry={refetch}
+          />
+        </Box>
+        {/* Prototype only, kept out of the header so the page reads as it would ship. */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <PrototypeMenu
+            params={params}
+            setParams={setParams}
+            role={view.role}
+            operations={view.capabilities.operations}
+            access={access}
           />
         </Box>
       </Box>

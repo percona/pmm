@@ -33,11 +33,11 @@ describe('deriveApps', () => {
     expect(apps.every((app) => app.icon === ExtensionIcon)).toBe(true);
   });
 
-  it('marks Operations as a preview and links its pages', () => {
+  it('shows Operations as generally available and links its pages', () => {
     const [operations] = deriveApps(input());
 
+    expect(operations.preview).toBeUndefined();
     expect(operations).toMatchObject({
-      preview: 'developer',
       summary: {
         text: '21 of 21 services up · last scan 4m ago',
         doors: [

@@ -1,3 +1,7 @@
+import AddLinkOutlined from '@mui/icons-material/AddLinkOutlined';
+import ArrowOutwardOutlined from '@mui/icons-material/ArrowOutwardOutlined';
+import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
+import { Graph4Icon } from '@percona/peak-ui';
 import type {
   HubAttentionItem,
   HubDoor,
@@ -253,20 +257,39 @@ export const testView = (
   },
   apps: [],
   actions: {
-    addService: testDoor('Add MongoDB service', '/graph/add-instance/mongodb'),
-    install: testDoor(
-      'Install MongoDB',
-      '/operations/nodes?filter=unmonitored',
+    add: [
       {
-        preview: 'developer',
-      }
-    ),
+        ...testDoor(
+          'Monitor an existing service',
+          '/graph/add-instance/mongodb'
+        ),
+        description: 'Connect PMM to a database you already run',
+        icon: AddLinkOutlined,
+      },
+      {
+        ...testDoor(
+          'Install new cluster',
+          '/operations/nodes?filter=unmonitored'
+        ),
+        description: 'PMM sets up a new MongoDB for you',
+        icon: DownloadOutlined,
+      },
+    ],
+    more: [
+      {
+        ...testDoor('Manage services', '/graph/inventory/services'),
+        icon: Graph4Icon,
+      },
+      {
+        ...testDoor('Documentation', 'https://docs.percona.com/mongodb.html'),
+        icon: ArrowOutwardOutlined,
+        external: true,
+      },
+    ],
   },
   sectionDoors: {
     attention: testDoor('Alerts', '/alerting/status'),
-    clusters: testDoor('Fleet in Operations', '/operations?tab=clusters', {
-      preview: 'developer',
-    }),
+    clusters: testDoor('Fleet in Operations', '/operations?tab=clusters'),
   },
   sections: {
     attention: READY,

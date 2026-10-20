@@ -3,7 +3,7 @@ import { PerconaMoIcon } from '@percona/peak-ui';
 import { fireEvent, screen, within } from '@testing-library/react';
 import { hasPeakHub, renderHub } from '../../testUtils';
 import { testView } from '../hub.testFixtures';
-import type { HubMessages, HubParams, HubViewModel } from '../hub.types';
+import type { HubFreshness, HubMessages, HubViewModel } from '../hub.types';
 import { HubHeader } from './HubHeader';
 
 const MESSAGES = {
@@ -11,88 +11,120 @@ const MESSAGES = {
   unit: { cluster: ['cluster', 'clusters'] },
 } as HubMessages;
 
-const ACCESS = { admin: true, operations: true };
+const FRESH: HubFreshness = { at: Date.now() - 20_000, stale: false };
 
-const PARAMS: HubParams = {
-  environment: null,
-  patches: null,
-  scenario: 'wrong',
-  ops: 'live',
-  role: 'live',
+const header = (
+  view: Partial<HubViewModel> = {},
+  freshness: HubFreshness = FRESH,
+  handlers = { setParams: vi.fn(), refetch: vi.fn() }
+) => (
+  <HubHeader
+    view={testView(view)}
+    icon={PerconaMoIcon}
+    messages={MESSAGES}
+    setParams={handlers.setParams}
+    freshness={freshness}
+    refetch={handlers.refetch}
+  />
+);
+
+const renderHeader = (
+  view: Partial<HubViewModel> = {},
+  freshness: HubFreshness = FRESH
+) => {
+  const handlers = { setParams: vi.fn(), refetch: vi.fn() };
+
+  renderHub(header(view, freshness, handlers));
+
+  return handlers;
 };
 
-const renderHeader = (view: Partial<HubViewModel> = {}) => {
-  const setParams = vi.fn();
-  const refetch = vi.fn();
-
-  renderHub(
-    <HubHeader
-      view={testView(view)}
-      icon={PerconaMoIcon}
-      messages={MESSAGES}
-      params={PARAMS}
-      setParams={setParams}
-      updatedAt={Date.now() - 20_000}
-      refetch={refetch}
-      loading={false}
-      access={ACCESS}
-    />
-  );
-
-  return { setParams, refetch };
-};
+// renderHub's location probe is an <output>, which is a status too.
+const liveRegion = () =>
+  screen
+    .getAllByRole('status')
+    .filter((element) => element.tagName !== 'OUTPUT')[0];
 
 describe.skipIf(!hasPeakHub)('HubHeader', () => {
-  it('is the page’s one h1, with the status line under it', () => {
+  it('is the page’s one h1, in the h3 size, and leaves the status line to the page', () => {
     renderHeader();
+
+    const [heading] = screen.getAllByRole('heading', { level: 1 });
 
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'MongoDB' })
-    ).toBeInTheDocument();
-    expect(screen.getByTestId('hub-status-line')).toHaveTextContent(
-      '3 clusters · 3 need attention'
-    );
+    expect(heading).toHaveAccessibleName('MongoDB');
+    expect(heading).toHaveClass('MuiTypography-h3');
+    expect(screen.queryByTestId('hub-status-line')).not.toBeInTheDocument();
   });
 
-  it('marks sample data so a screenshot cannot pass for an estate', () => {
+  it('shows no Sample data or Preview label', () => {
     renderHeader({ scenario: 'healthy' });
 
-    expect(screen.getByText('Sample data')).toBeInTheDocument();
-  });
-
-  it('shows no Sample data chip on live data', () => {
-    renderHeader({ scenario: 'live' });
-
     expect(screen.queryByText('Sample data')).not.toBeInTheDocument();
+    expect(screen.queryByText(/preview/i)).not.toBeInTheDocument();
   });
 
-  it('offers Add and Install to whoever the view allows', () => {
+  it('offers the ways to add MongoDB in a menu, each with what it does', () => {
     renderHeader();
 
+    const add = screen.getByRole('button', { name: 'Add MongoDB' });
+
+    expect(add).toHaveAttribute('aria-haspopup', 'menu');
+    fireEvent.click(add);
+
+    const menu = screen.getByRole('menu', { name: 'Add MongoDB' });
+    const monitor = within(menu).getByRole('menuitem', {
+      name: /Monitor an existing service/,
+    });
+
+    expect(monitor).toHaveAttribute('href', '/graph/add-instance/mongodb');
+    expect(monitor).toHaveTextContent(
+      'Connect PMM to a database you already run'
+    );
     expect(
-      screen.getByRole('link', { name: 'Add MongoDB service' })
-    ).toHaveAttribute('href', '/graph/add-instance/mongodb');
-    expect(
-      screen.getByRole('link', { name: 'Install MongoDB Developer preview' })
+      within(menu).getByRole('menuitem', { name: /Install new cluster/ })
     ).toHaveAttribute('href', '/operations/nodes?filter=unmonitored');
   });
 
-  it('shows no actions to a viewer', () => {
-    renderHeader({ role: 'viewer', actions: {} });
+  it('links straight to the one way in when there is only one', () => {
+    const [monitor] = testView().actions.add;
 
-    expect(
-      screen.queryByRole('link', { name: 'Add MongoDB service' })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: /Install MongoDB/ })
-    ).not.toBeInTheDocument();
+    renderHeader({ actions: { add: [monitor], more: [] } });
+
+    expect(screen.getByRole('link', { name: 'Add MongoDB' })).toHaveAttribute(
+      'href',
+      '/graph/add-instance/mongodb'
+    );
   });
 
-  it('filters by environment through the params', () => {
+  it('lists the admin pages and the docs under More actions, the docs in a new tab', () => {
+    renderHeader();
+
+    fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
+
+    const menu = screen.getByRole('menu', { name: 'More actions' });
+    const docs = within(menu).getByRole('menuitem', {
+      name: 'Documentation (opens in a new tab)',
+    });
+
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Manage services' })
+    ).toHaveAttribute('href', '/graph/inventory/services');
+    expect(docs).toHaveAttribute('target', '_blank');
+    expect(docs).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('shows no actions when there are none', () => {
+    renderHeader({ actions: { add: [], more: [] } });
+
+    expect(screen.queryByRole('button', { name: 'Add MongoDB' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+  });
+
+  it('names the environment filter and filters through the params', () => {
     const { setParams } = renderHeader();
 
-    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Environment' }));
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: /^Environment/ }));
     fireEvent.click(
       within(screen.getByRole('listbox')).getByRole('option', { name: 'prod' })
     );
@@ -105,7 +137,7 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
       environment: { ...testView().environment, selected: 'prod' },
     });
 
-    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Environment' }));
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: /^Environment/ }));
     fireEvent.click(screen.getByRole('option', { name: 'All environments' }));
 
     expect(setParams).toHaveBeenCalledWith({ environment: null });
@@ -120,75 +152,55 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
       },
     });
 
-    expect(
-      screen.queryByRole('combobox', { name: 'Environment' })
-    ).not.toBeInTheDocument();
-  });
-
-  it('keeps the select while it filters, even to an environment no service has', () => {
-    const { setParams } = renderHeader({
-      environment: {
-        selected: 'staging',
-        options: [
-          { value: 'prod', label: 'prod' },
-          { value: 'staging', label: 'staging' },
-        ],
-        matchesNothing: true,
-      },
-    });
-
-    expect(screen.getByTestId('hub-status-line')).toHaveTextContent(
-      'No MongoDB in this environment'
-    );
-
-    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Environment' }));
-    fireEvent.click(screen.getByRole('option', { name: 'All environments' }));
-
-    expect(setParams).toHaveBeenCalledWith({ environment: null });
-  });
-
-  it('tells assistive tech when a refresh it asked for has landed', () => {
-    const refetch = vi.fn();
-    const header = (updatedAt: number) => (
-      <HubHeader
-        view={testView()}
-        icon={PerconaMoIcon}
-        messages={MESSAGES}
-        params={PARAMS}
-        setParams={vi.fn()}
-        updatedAt={updatedAt}
-        refetch={refetch}
-        loading={false}
-        access={ACCESS}
-      />
-    );
-    const before = Date.now() - 20_000;
-    const { rerender } = renderHub(header(before));
-    // renderHub's location probe is an <output>, which is a status too.
-    const [status] = screen
-      .getAllByRole('status')
-      .filter((element) => element.tagName !== 'OUTPUT');
-
-    expect(status).toHaveTextContent('');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
-    rerender(header(before));
-
-    expect(refetch).toHaveBeenCalledTimes(1);
-    expect(status).toHaveTextContent('');
-
-    rerender(header(Date.now()));
-
-    expect(status).toHaveTextContent('Updated just now');
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('says how fresh the data is and refreshes every source', () => {
     const { refetch } = renderHeader();
 
     expect(screen.getByText(/^Updated 2\ds ago$/)).toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Warning' })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
 
     expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('warns when the data is stale, in words and on focus, and says so to assistive tech', async () => {
+    renderHeader({}, { at: Date.now() - 32 * 60_000, stale: true });
+
+    const age = screen.getByText('Updated 32m ago');
+
+    expect(screen.getByRole('img', { name: 'Warning' })).toBeInTheDocument();
+    expect(age).toHaveAttribute('tabindex', '0');
+    expect(liveRegion()).toHaveTextContent(
+      'Data looks stale. Refresh, or check your connection.'
+    );
+
+    fireEvent.mouseOver(age);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Data looks stale. Refresh, or check your connection.'
+    );
+  });
+
+  it('tells assistive tech when a refresh it asked for has landed', () => {
+    const handlers = { setParams: vi.fn(), refetch: vi.fn() };
+    const before = Date.now() - 20_000;
+    const { rerender } = renderHub(
+      header({}, { at: before, stale: false }, handlers)
+    );
+
+    expect(liveRegion()).toHaveTextContent('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    rerender(header({}, { at: before, stale: false }, handlers));
+
+    expect(handlers.refetch).toHaveBeenCalledTimes(1);
+    expect(liveRegion()).toHaveTextContent('');
+
+    rerender(header({}, { at: Date.now(), stale: false }, handlers));
+
+    expect(liveRegion()).toHaveTextContent('Updated just now');
   });
 });

@@ -16,6 +16,7 @@ import type {
   HubStatus,
   HubViewModel,
 } from 'hubs/template/hub.types';
+import { deriveActions } from './mongodb.actions';
 import { deriveApps } from './mongodb.apps';
 import {
   type AttentionEntry,
@@ -185,6 +186,7 @@ export const deriveMongoHub = (
     scenario: ctx.scenario,
     ops: 'live',
     role: 'live',
+    connection: 'live',
   };
   const allServices = snapshot.services ?? [];
   const services = allServices.filter((service) =>
@@ -399,32 +401,13 @@ export const deriveMongoHub = (
       },
       now: ctx.now,
     }),
-    actions: {
-      ...(capabilities.addService
-        ? {
-            addService: {
-              label: Messages.doors.addService,
-              to: MONGO_PATHS.addService,
-            },
-          }
-        : {}),
-      ...(capabilities.install
-        ? {
-            install: {
-              label: Messages.doors.install,
-              to: MONGO_PATHS.install,
-              preview: 'developer' as const,
-            },
-          }
-        : {}),
-    },
+    actions: deriveActions(capabilities, ctx.role),
     sectionDoors: {
       attention: { label: Messages.doors.alerts, to: ALERTS_PATH },
       clusters: capabilities.operations
         ? {
             label: Messages.doors.fleet,
             to: MONGO_PATHS.operationsClusters,
-            preview: 'developer',
           }
         : {
             label: Messages.doors.instancesOverview,

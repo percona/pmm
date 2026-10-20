@@ -1,4 +1,5 @@
 import type {
+  HubConnectionMode,
   HubHealth,
   HubOpsMode,
   HubRoleMode,
@@ -7,10 +8,13 @@ import type {
 } from './hub.types';
 
 export const Messages = {
-  sampleData: 'Sample data',
   refresh: 'Refresh',
   refreshed: 'Updated just now',
   updated: (age: string) => `Updated ${age}`,
+  stale: 'Data looks stale. Refresh, or check your connection.',
+  add: (name: string) => `Add ${name}`,
+  moreActions: 'More actions',
+  newTab: '(opens in a new tab)',
   environment: {
     label: 'Environment',
     all: 'All environments',
@@ -174,6 +178,7 @@ export const Messages = {
       data: 'Data',
       operations: 'Operations',
       role: 'Signed in as',
+      connection: 'Connection',
     },
     scenario: {
       live: 'Live',
@@ -195,6 +200,11 @@ export const Messages = {
       admin: 'Admin',
       viewer: 'Viewer',
     } satisfies Record<HubRoleMode, string>,
+    connection: {
+      live: 'Connected',
+      lost: 'Lost',
+    } satisfies Record<HubConnectionMode, string>,
+    connectionSummary: 'Connection lost',
     hints: {
       sampleOnly: 'Sample data only',
       adminOnly: 'Admins only',

@@ -1,4 +1,3 @@
-import AddOutlined from '@mui/icons-material/AddOutlined';
 import type { FC } from 'react';
 import type { HubViewModel } from '../hub.types';
 import { DoorButton } from './DoorLink';
@@ -7,19 +6,17 @@ export interface HubActionsProps {
   actions: HubViewModel['actions'];
 }
 
-/** The page's ways to grow the estate: add a service, and install one with Operations. */
-export const HubActions: FC<HubActionsProps> = ({ actions }) => (
+/** An empty estate's ways in, as buttons: the first one leads. */
+export const HubActions: FC<HubActionsProps> = ({ actions: { add } }) => (
   <>
-    {actions.addService && (
+    {add.map(({ icon: Icon, label, to }, index) => (
       <DoorButton
-        door={actions.addService}
-        variant="contained"
+        key={to}
+        door={{ label, to }}
+        variant={index === 0 ? 'contained' : 'outlined'}
         size="medium"
-        startIcon={<AddOutlined />}
+        startIcon={<Icon />}
       />
-    )}
-    {actions.install && (
-      <DoorButton door={actions.install} variant="outlined" size="medium" />
-    )}
+    ))}
   </>
 );

@@ -70,10 +70,13 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       });
     });
 
-    it('marks the sample data', async () => {
+    it('reads as generally available: no Sample data or Preview label', async () => {
       renderPage({ scenario, ops, role });
 
-      expect(await screen.findByText('Sample data')).toBeInTheDocument();
+      await screen.findByRole('heading', { level: 1 });
+
+      expect(screen.queryByText('Sample data')).toBeNull();
+      expect(screen.queryByText('Preview')).toBeNull();
     });
 
     it('shows Needs attention only when there is an estate, and its list only when wrong', async () => {
@@ -109,13 +112,18 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
 
       await screen.findByRole('heading', { level: 1 });
 
-      expect(
-        screen.queryAllByRole('link', { name: 'Add MongoDB service' }).length >
-          0
-      ).toBe(admin);
-      expect(
-        screen.queryAllByRole('link', { name: /^Install MongoDB/ }).length > 0
-      ).toBe(operations);
+      // Two ways in open a menu; one is a plain link.
+      const add = screen.queryAllByRole(operations ? 'button' : 'link', {
+        name: 'Add MongoDB',
+      });
+
+      expect(add.length > 0).toBe(admin);
+      if (operations) {
+        fireEvent.click(add[0]);
+        expect(
+          screen.getByRole('menuitem', { name: /^Install new cluster/ })
+        ).toBeInTheDocument();
+      }
     });
 
     it('shows the Operations card only to admins with Operations', async () => {
