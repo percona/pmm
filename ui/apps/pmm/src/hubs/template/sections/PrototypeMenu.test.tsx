@@ -42,21 +42,27 @@ const open = () => {
 };
 
 describe('PrototypeMenu', () => {
-  it('names the state it shows, listing only what differs from live', () => {
+  it('names the state it shows, leaving out Operations while it is on', () => {
     renderMenu({ scenario: 'wrong', ops: 'on', role: 'admin' });
 
     expect(
-      screen.getByRole('button', {
-        name: 'Prototype: Things wrong · Ops on · Admin',
-      })
+      screen.getByRole('button', { name: 'Prototype: Worst case · Admin' })
     ).toHaveAttribute('aria-haspopup', 'menu');
   });
 
-  it('says Live while every switch follows the real data', () => {
+  it('names Operations on the button when it is off', () => {
+    renderMenu({ scenario: 'healthy', ops: 'off' });
+
+    expect(
+      screen.getByRole('button', { name: 'Prototype: Best case · Ops off' })
+    ).toBeInTheDocument();
+  });
+
+  it('says Live data while every switch follows the real data', () => {
     renderMenu();
 
     expect(
-      screen.getByRole('button', { name: 'Prototype: Live' })
+      screen.getByRole('button', { name: 'Prototype: Live data' })
     ).toBeInTheDocument();
   });
 
@@ -70,10 +76,10 @@ describe('PrototypeMenu', () => {
 
     expect(radios).toHaveLength(12);
     expect(
-      within(menu).getByRole('menuitemradio', { name: 'Healthy' })
+      within(menu).getByRole('menuitemradio', { name: 'Best case' })
     ).toHaveAttribute('aria-checked', 'true');
     expect(
-      within(menu).getByRole('menuitemradio', { name: 'Things wrong' })
+      within(menu).getByRole('menuitemradio', { name: 'Worst case' })
     ).toHaveAttribute('aria-checked', 'false');
     expect(
       within(menu).getByRole('menuitemradio', { name: 'Off' })
@@ -91,11 +97,11 @@ describe('PrototypeMenu', () => {
     expect(within(menu).getAllByRole('separator')).toHaveLength(3);
 
     const wrong = within(menu).getByRole('menuitemradio', {
-      name: 'Things wrong',
+      name: 'Worst case',
     });
 
     expect(wrong).toHaveAccessibleDescription('Data');
-    expect(wrong).toHaveAttribute('aria-posinset', '4');
+    expect(wrong).toHaveAttribute('aria-posinset', '2');
     expect(wrong).toHaveAttribute('aria-setsize', '4');
     expect(
       within(menu).getByRole('menuitemradio', { name: 'As signed in' })
@@ -115,7 +121,7 @@ describe('PrototypeMenu', () => {
 
     expect(
       screen.getByRole('button', {
-        name: 'Prototype: Things wrong · Connection lost',
+        name: 'Prototype: Worst case · Connection lost',
       })
     ).toBeInTheDocument();
   });
@@ -137,7 +143,9 @@ describe('PrototypeMenu', () => {
     renderMenu({ scenario: 'wrong' });
     open();
 
-    expect(screen.getByRole('menuitemradio', { name: 'Live' })).toHaveFocus();
+    expect(
+      screen.getByRole('menuitemradio', { name: 'Best case' })
+    ).toHaveFocus();
   });
 
   it('shows on live data the role and Operations the page shows, not the ignored switch', () => {
@@ -151,7 +159,7 @@ describe('PrototypeMenu', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: 'Prototype: Live' })
+      screen.getByRole('button', { name: 'Prototype: Live data' })
     ).toBeInTheDocument();
 
     const menu = open();
@@ -177,7 +185,7 @@ describe('PrototypeMenu', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: 'Prototype: Live' })
+      screen.getByRole('button', { name: 'Prototype: Live data' })
     ).toBeInTheDocument();
     expect(
       within(open()).getByRole('menuitemradio', { name: /^On/ })
@@ -185,7 +193,7 @@ describe('PrototypeMenu', () => {
   });
 
   it.each<[string, Partial<HubParams>]>([
-    ['Empty', { scenario: 'empty' }],
+    ['First run', { scenario: 'empty' }],
     ['On', { ops: 'on' }],
     ['Viewer', { role: 'viewer' }],
   ])('writes %s into the params and closes', (name, next) => {

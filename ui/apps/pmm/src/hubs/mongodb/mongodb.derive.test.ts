@@ -266,14 +266,14 @@ describe('deriveMongoHub capabilities', () => {
       ])
     ).toEqual([
       [
-        'Monitor an existing service',
+        'Monitor an existing MongoDB service',
         '/graph/add-instance/mongodb',
-        'Connect PMM to a database you already run',
+        undefined,
       ],
       [
-        'Install new cluster',
+        'Install a new MongoDB cluster',
         '/operations/nodes?filter=unmonitored',
-        'PMM sets up a new MongoDB for you',
+        undefined,
       ],
     ]);
     expect(
@@ -308,7 +308,7 @@ describe('deriveMongoHub capabilities', () => {
     const view = derive(healthySnapshot(NOW, false));
 
     expect(view.actions.add.map((action) => action.label)).toEqual([
-      'Monitor an existing service',
+      'Monitor an existing MongoDB service',
     ]);
     expect(view.sectionDoors.clusters).toEqual({
       label: 'Instances overview',
@@ -519,7 +519,7 @@ describe('deriveMongoHub patches', () => {
       patches: { behind: 2, unknown: 0 },
     });
     expect(view.status.doors.clusters.to).toBe(
-      '?hubState=healthy&hubOps=off&hubRole=admin#clusters'
+      '?hubOps=off&hubRole=admin#clusters'
     );
   });
 });

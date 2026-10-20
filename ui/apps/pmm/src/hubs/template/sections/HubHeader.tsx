@@ -44,8 +44,8 @@ export const HubHeader: FC<HubHeaderProps> = ({
   return (
     <PageHeader
       title={messages.name}
-      titleVariant="h3"
-      icon={<Icon sx={{ fontSize: 36 }} />}
+      // The h3 title drops from 33px to 26px below sm; the mark keeps its 36:33 ratio to it.
+      icon={<Icon sx={{ fontSize: { xs: 28, sm: 36 } }} />}
       divider
       toolbarPlacement="inline"
       toolbar={
@@ -69,7 +69,7 @@ export const HubHeader: FC<HubHeaderProps> = ({
                 }
                 // The value alone does not say what it filters, so the hidden label names the field.
                 slotProps={{ select: { labelId } }}
-                sx={{ width: 240, maxWidth: '100%' }}
+                sx={{ width: { xs: '100%', sm: 240 } }}
               >
                 <MenuItem value={ALL_ENVIRONMENTS}>
                   {Messages.environment.all}

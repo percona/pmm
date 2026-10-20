@@ -275,10 +275,10 @@ describe('fixtures', () => {
         view('empty', ops, role).actions.add.map((action) => action.label);
 
       expect(labels(true)).toEqual([
-        'Monitor an existing service',
-        'Install new cluster',
+        'Monitor an existing MongoDB service',
+        'Install a new MongoDB cluster',
       ]);
-      expect(labels(false)).toEqual(['Monitor an existing service']);
+      expect(labels(false)).toEqual(['Monitor an existing MongoDB service']);
       expect(labels(true, 'viewer')).toEqual([]);
     });
 

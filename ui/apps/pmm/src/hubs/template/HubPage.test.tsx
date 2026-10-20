@@ -121,7 +121,9 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       if (operations) {
         fireEvent.click(add[0]);
         expect(
-          screen.getByRole('menuitem', { name: /^Install new cluster/ })
+          screen.getByRole('menuitem', {
+            name: /^Install a new MongoDB cluster/,
+          })
         ).toBeInTheDocument();
       }
     });
@@ -268,7 +270,8 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     );
 
     expect(screen.getByTestId('hub-location')).toHaveTextContent(
-      /^\/mongodb\?hubState=healthy$/
+      // Best case is the default, so it leaves the URL.
+      /^\/mongodb$/
     );
   });
 });

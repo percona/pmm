@@ -124,7 +124,7 @@ describe('useTechnologyHub', () => {
   it('derives live data for the signed-in admin with Operations on', () => {
     const { config, useLiveSnapshot, derive } = makeConfig();
     const { result } = renderTechnologyHub(config, {
-      path: '/mongodb?environment=prod',
+      path: '/mongodb?environment=prod&hubState=live&hubOps=live',
       settings: { omEnabled: true, backupManagementEnabled: true },
     });
 
@@ -162,11 +162,25 @@ describe('useTechnologyHub', () => {
     });
   });
 
+  it('opens on the best-case sample with Operations on', () => {
+    const { config, useLiveSnapshot, derive } = makeConfig();
+
+    renderTechnologyHub(config);
+
+    expect(useLiveSnapshot).toHaveBeenLastCalledWith(
+      expect.objectContaining({ enabled: false })
+    );
+    expect(lastDeriveContext(derive)).toMatchObject({
+      scenario: 'healthy',
+      operations: true,
+    });
+  });
+
   it('never raises a live user above what they have', () => {
     const { config, useLiveSnapshot } = makeConfig();
 
     const { result } = renderTechnologyHub(config, {
-      path: '/mongodb?hubOps=on&hubRole=admin',
+      path: '/mongodb?hubState=live&hubOps=on&hubRole=admin',
       user: TEST_USER_VIEWER,
       settings: { omEnabled: true },
     });
@@ -184,7 +198,7 @@ describe('useTechnologyHub', () => {
     const { config, derive } = makeConfig();
 
     renderTechnologyHub(config, {
-      path: '/mongodb?hubRole=viewer',
+      path: '/mongodb?hubState=live&hubRole=viewer',
       settings: { omEnabled: true },
     });
 
@@ -247,7 +261,9 @@ describe('useTechnologyHub', () => {
     expect(derive.mock.calls[derive.mock.calls.length - 1][0]).not.toBe(first);
 
     const live = makeConfig();
-    const { result: liveHub } = renderTechnologyHub(live.config);
+    const { result: liveHub } = renderTechnologyHub(live.config, {
+      path: '/mongodb?hubState=live',
+    });
 
     liveHub.current.hub.refetch();
 
@@ -294,7 +310,9 @@ describe('useTechnologyHub', () => {
     const { config } = makeConfig(
       sources({ metrics: { status: 'loading' }, qan: { status: 'loading' } })
     );
-    const { result } = renderTechnologyHub(config);
+    const { result } = renderTechnologyHub(config, {
+      path: '/mongodb?hubState=live',
+    });
 
     expect(result.current.hub.isInitialLoading).toBe(true);
   });
@@ -316,7 +334,7 @@ describe('useTechnologyHub', () => {
     expect(result.current.navigationType).toBe('REPLACE');
 
     act(() =>
-      result.current.hub.setParams({ environment: null, scenario: 'live' })
+      result.current.hub.setParams({ environment: null, scenario: 'healthy' })
     );
 
     expect(result.current.location.search).toBe('?from=now-1h&q=a%20b');

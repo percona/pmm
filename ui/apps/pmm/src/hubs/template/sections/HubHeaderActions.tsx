@@ -16,6 +16,7 @@ import {
   useState,
 } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { ThemeScope } from 'components/theme-scope';
 import { Messages } from '../hub.messages';
 import type { HubMenuAction, HubViewModel } from '../hub.types';
 import { DoorButton } from './DoorLink';
@@ -115,31 +116,40 @@ export const HubHeaderActions: FC<HubHeaderActionsProps> = ({
 }) => {
   const addMenu = useMenu();
   const moreMenu = useMenu();
-  const addLabel = Messages.add(name);
+  // "Add" on screen, as the page already says MongoDB; "Add MongoDB" for assistive tech.
+  const addContext = Messages.addContext(name);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      {/* Only Add is neutral, Peak's Base theme; its menu and More stay in the PMM theme. */}
       {add.length === 1 && (
-        <DoorButton
-          door={{ ...add[0], label: addLabel }}
-          size="medium"
-          startIcon={<AddOutlined />}
-        />
+        <ThemeScope theme="base">
+          <DoorButton
+            door={{ label: Messages.add, to: add[0].to, context: addContext }}
+            size="medium"
+            startIcon={<AddOutlined />}
+          />
+        </ThemeScope>
       )}
       {add.length > 1 && (
         <>
-          <Button
-            variant="text"
-            startIcon={<AddOutlined />}
-            {...addMenu.trigger}
-          >
-            {addLabel}
-          </Button>
+          <ThemeScope theme="base">
+            <Button
+              variant="text"
+              startIcon={<AddOutlined />}
+              {...addMenu.trigger}
+            >
+              {Messages.add}
+              <Box component="span" sx={visuallyHidden}>
+                {` ${addContext}`}
+              </Box>
+            </Button>
+          </ThemeScope>
           <Menu
             {...addMenu.menu}
             slotProps={{
               ...addMenu.menu.slotProps,
-              paper: { sx: { width: 280 } },
+              paper: { sx: { minWidth: 240 } },
             }}
           >
             {add.map((action) => (

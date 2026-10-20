@@ -12,8 +12,21 @@ import {
 import { HUB_NO_ENVIRONMENT } from './hub.types';
 
 describe('parseHubParams', () => {
-  it('defaults to live data, every environment, as configured and as signed in', () => {
+  it('defaults to the best case with Operations on, every environment, as signed in', () => {
     expect(parseHubParams('')).toEqual(DEFAULT_HUB_PARAMS);
+    expect(DEFAULT_HUB_PARAMS).toMatchObject({
+      scenario: 'healthy',
+      ops: 'on',
+      role: 'live',
+      connection: 'live',
+    });
+  });
+
+  it('reads Live data and As configured from the URL', () => {
+    expect(parseHubParams('?hubState=live&hubOps=live')).toMatchObject({
+      scenario: 'live',
+      ops: 'live',
+    });
   });
 
   it('reads every param', () => {
@@ -31,7 +44,7 @@ describe('parseHubParams', () => {
     });
   });
 
-  it('falls back to live for unknown values', () => {
+  it('falls back to the defaults for unknown values', () => {
     expect(
       parseHubParams(
         new URLSearchParams('hubState=broken&hubOps=maybe&hubRole=root')
@@ -52,15 +65,21 @@ describe('parseHubParams', () => {
 
 describe('writeHubSearch', () => {
   it('leaves defaults out of the URL', () => {
-    expect(writeHubSearch('?hubState=wrong', { scenario: 'live' })).toBe('');
+    expect(writeHubSearch('?hubState=wrong', { scenario: 'healthy' })).toBe('');
+  });
+
+  it('writes Live data and As configured, which are not the defaults', () => {
+    expect(writeHubSearch('', { scenario: 'live', ops: 'live' })).toBe(
+      'hubState=live&hubOps=live'
+    );
   });
 
   it('keeps unrelated params byte for byte', () => {
     expect(
       writeHubSearch('?from=now-1h&q=a%20b+c&tag=x&tag=y', {
-        scenario: 'healthy',
+        scenario: 'wrong',
       })
-    ).toBe('from=now-1h&q=a%20b+c&tag=x&tag=y&hubState=healthy');
+    ).toBe('from=now-1h&q=a%20b+c&tag=x&tag=y&hubState=wrong');
   });
 
   it('replaces the hub params it is given and keeps the others', () => {
@@ -92,10 +111,10 @@ describe('serializeHubParams', () => {
         patches: null,
         connection: 'live',
         scenario: 'wrong',
-        ops: 'on',
+        ops: 'off',
         role: 'live',
       })
-    ).toBe('environment=prod&hubState=wrong&hubOps=on');
+    ).toBe('environment=prod&hubState=wrong&hubOps=off');
     expect(serializeHubParams(DEFAULT_HUB_PARAMS)).toBe('');
   });
 });
@@ -129,11 +148,15 @@ describe('resolveHubRole', () => {
 });
 
 describe('resolveHubOperations', () => {
-  it('follows the setting by default', () => {
-    expect(resolveHubOperations(DEFAULT_HUB_PARAMS, 'admin', true)).toBe(true);
-    expect(resolveHubOperations(DEFAULT_HUB_PARAMS, 'admin', false)).toBe(
-      false
-    );
+  it('is on for an admin by default, on sample data', () => {
+    expect(resolveHubOperations(DEFAULT_HUB_PARAMS, 'admin', false)).toBe(true);
+  });
+
+  it('follows the setting as configured', () => {
+    const asConfigured = { scenario: 'healthy', ops: 'live' } as const;
+
+    expect(resolveHubOperations(asConfigured, 'admin', true)).toBe(true);
+    expect(resolveHubOperations(asConfigured, 'admin', false)).toBe(false);
   });
 
   it('lets hubOps=off lower it, live or not', () => {

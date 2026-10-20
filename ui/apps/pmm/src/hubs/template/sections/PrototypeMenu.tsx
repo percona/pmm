@@ -19,7 +19,7 @@ import type {
   HubScenario,
 } from '../hub.types';
 
-const SCENARIOS: HubScenario[] = ['live', 'empty', 'healthy', 'wrong'];
+const SCENARIOS: HubScenario[] = ['healthy', 'wrong', 'empty', 'live'];
 const OPS: HubOpsMode[] = ['live', 'on', 'off'];
 const ROLES: HubRoleMode[] = ['live', 'admin', 'viewer'];
 const CONNECTIONS: HubConnectionMode[] = ['live', 'lost'];
@@ -77,7 +77,8 @@ export const PrototypeMenu: FC<PrototypeMenuProps> = ({
 
   const summary = [
     prototype.scenario[params.scenario],
-    shownOps !== 'live' && prototype.opsSummary[shownOps],
+    // Operations is on by default, so only Off is news.
+    shownOps === 'off' && prototype.opsSummary.off,
     shownRole !== 'live' && prototype.role[shownRole],
     shownConnection === 'lost' && prototype.connectionSummary,
   ].filter((part): part is string => !!part);

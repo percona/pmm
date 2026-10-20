@@ -225,10 +225,8 @@ export const Messages = {
   },
   /** The header's Add MongoDB and More actions menus. */
   actions: {
-    monitor: 'Monitor an existing service',
-    monitorDescription: 'Connect PMM to a database you already run',
-    install: 'Install new cluster',
-    installDescription: 'PMM sets up a new MongoDB for you',
+    monitor: 'Monitor an existing MongoDB service',
+    install: 'Install a new MongoDB cluster',
     manageServices: 'Manage services',
     configureBackups: 'Configure backups',
     alertRules: 'Set up alert rules',

@@ -36,7 +36,7 @@ export const HubFreshness: FC<HubFreshnessProps> = ({
 
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+      sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}
       data-testid="hub-freshness"
     >
       {stale && (
@@ -60,9 +60,15 @@ export const HubFreshness: FC<HubFreshnessProps> = ({
             setRefreshedFrom(at);
             onRefresh();
           }}
-          sx={{ p: 1 }}
+          size="small"
+          // Quiet in the note's secondary tone until pointed at or focused; the margin pulls its 12px padding toward the note.
+          sx={{
+            ml: -0.75,
+            color: 'text.secondary',
+            '&:hover, &.Mui-focusVisible': { color: 'text.primary' },
+          }}
         >
-          <RefreshOutlined sx={{ fontSize: 16 }} />
+          <RefreshOutlined fontSize="small" />
         </IconButton>
       </Tooltip>
       {/* Says when a refresh lands, and when the data turns stale. */}

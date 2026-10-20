@@ -12,7 +12,9 @@ export const Messages = {
   refreshed: 'Updated just now',
   updated: (age: string) => `Updated ${age}`,
   stale: 'Data looks stale. Refresh, or check your connection.',
-  add: (name: string) => `Add ${name}`,
+  add: 'Add',
+  /** What Add adds, for assistive tech: "MongoDB". */
+  addContext: (name: string) => name,
   moreActions: 'More actions',
   newTab: '(opens in a new tab)',
   environment: {
@@ -181,10 +183,10 @@ export const Messages = {
       connection: 'Connection',
     },
     scenario: {
-      live: 'Live',
-      empty: 'Empty',
-      healthy: 'Healthy',
-      wrong: 'Things wrong',
+      healthy: 'Best case',
+      wrong: 'Worst case',
+      empty: 'First run',
+      live: 'Live data',
     } satisfies Record<HubScenario, string>,
     ops: {
       live: 'As configured',
@@ -192,9 +194,8 @@ export const Messages = {
       off: 'Off',
     } satisfies Record<HubOpsMode, string>,
     opsSummary: {
-      on: 'Ops on',
       off: 'Ops off',
-    } satisfies Record<Exclude<HubOpsMode, 'live'>, string>,
+    },
     role: {
       live: 'As signed in',
       admin: 'Admin',

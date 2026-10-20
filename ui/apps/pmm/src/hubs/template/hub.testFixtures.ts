@@ -260,18 +260,16 @@ export const testView = (
     add: [
       {
         ...testDoor(
-          'Monitor an existing service',
+          'Monitor an existing MongoDB service',
           '/graph/add-instance/mongodb'
         ),
-        description: 'Connect PMM to a database you already run',
         icon: AddLinkOutlined,
       },
       {
         ...testDoor(
-          'Install new cluster',
+          'Install a new MongoDB cluster',
           '/operations/nodes?filter=unmonitored'
         ),
-        description: 'PMM sets up a new MongoDB for you',
         icon: DownloadOutlined,
       },
     ],

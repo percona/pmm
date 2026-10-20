@@ -115,6 +115,7 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
+- Render an area in another Peak theme with `ThemeScope` (`src/components/theme-scope`), such as Peak's neutral Base theme for one quiet control; it follows the page's light or dark mode and reaches the area's menus and tooltips
 - Build native pages on the shared `Page` wrapper (`src/components/page`); it renders on the paper surface by default, so don't pass `surface="paper"`. Opt out with `surface="canvas"` only for a page composed of cards (Help center, Updates), where the darker tone makes the cards stand out
 
 ### Don't

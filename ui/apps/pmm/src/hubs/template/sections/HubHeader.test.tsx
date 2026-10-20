@@ -1,5 +1,6 @@
 import { describe } from 'vitest';
-import { PerconaMoIcon } from '@percona/peak-ui';
+import { createTheme } from '@mui/material/styles';
+import { baseThemeOptions, PerconaMoIcon } from '@percona/peak-ui';
 import { fireEvent, screen, within } from '@testing-library/react';
 import { hasPeakHub, renderHub } from '../../testUtils';
 import { testView } from '../hub.testFixtures';
@@ -57,6 +58,19 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     expect(screen.queryByTestId('hub-status-line')).not.toBeInTheDocument();
   });
 
+  it('draws only Add in Peak’s neutral Base theme', () => {
+    renderHeader();
+
+    const { primary } = createTheme(baseThemeOptions('light')).palette;
+
+    // MUI draws a text button's colour through this variable.
+    expect(
+      getComputedStyle(
+        screen.getByRole('button', { name: 'Add MongoDB' })
+      ).getPropertyValue('--variant-textColor')
+    ).toBe(primary.main);
+  });
+
   it('shows no Sample data or Preview label', () => {
     renderHeader({ scenario: 'healthy' });
 
@@ -64,25 +78,26 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     expect(screen.queryByText(/preview/i)).not.toBeInTheDocument();
   });
 
-  it('offers the ways to add MongoDB in a menu, each with what it does', () => {
+  it('reads Add on screen and Add MongoDB to assistive tech, and offers the ways in as a menu', () => {
     renderHeader();
 
     const add = screen.getByRole('button', { name: 'Add MongoDB' });
 
+    expect(add).toHaveTextContent(/^Add/);
     expect(add).toHaveAttribute('aria-haspopup', 'menu');
     fireEvent.click(add);
 
     const menu = screen.getByRole('menu', { name: 'Add MongoDB' });
     const monitor = within(menu).getByRole('menuitem', {
-      name: /Monitor an existing service/,
+      name: /Monitor an existing MongoDB service/,
     });
 
     expect(monitor).toHaveAttribute('href', '/graph/add-instance/mongodb');
-    expect(monitor).toHaveTextContent(
-      'Connect PMM to a database you already run'
-    );
+    expect(monitor).toHaveTextContent(/^Monitor an existing MongoDB service$/);
     expect(
-      within(menu).getByRole('menuitem', { name: /Install new cluster/ })
+      within(menu).getByRole('menuitem', {
+        name: /Install a new MongoDB cluster/,
+      })
     ).toHaveAttribute('href', '/operations/nodes?filter=unmonitored');
   });
 

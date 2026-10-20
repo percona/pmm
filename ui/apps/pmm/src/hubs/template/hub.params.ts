@@ -22,8 +22,9 @@ export const HUB_PARAM_KEYS = {
 export const DEFAULT_HUB_PARAMS: HubParams = {
   environment: null,
   patches: null,
-  scenario: 'live',
-  ops: 'live',
+  // The prototype opens on the best case, with Operations, so the bare URL shows the whole page; Live data is a choice.
+  scenario: 'healthy',
+  ops: 'on',
   role: 'live',
   connection: 'live',
 };
@@ -39,7 +40,7 @@ const oneOf = <T extends string>(
   fallback: T
 ): T => (values.includes(value as T) ? (value as T) : fallback);
 
-/** Reads the hub params; unknown values fall back to live, an empty environment to all, any patches value but behind to none. */
+/** Reads the hub params; unknown values fall back to the defaults, an empty environment to all, any patches value but behind to none. */
 export const parseHubParams = (search: URLSearchParams | string): HubParams => {
   const params =
     typeof search === 'string' ? new URLSearchParams(search) : search;
@@ -47,13 +48,25 @@ export const parseHubParams = (search: URLSearchParams | string): HubParams => {
   return {
     environment: params.get(HUB_PARAM_KEYS.environment) || null,
     patches: params.get(HUB_PARAM_KEYS.patches) === 'behind' ? 'behind' : null,
-    scenario: oneOf(SCENARIOS, params.get(HUB_PARAM_KEYS.scenario), 'live'),
-    ops: oneOf(OPS_MODES, params.get(HUB_PARAM_KEYS.ops), 'live'),
-    role: oneOf(ROLE_MODES, params.get(HUB_PARAM_KEYS.role), 'live'),
+    scenario: oneOf(
+      SCENARIOS,
+      params.get(HUB_PARAM_KEYS.scenario),
+      DEFAULT_HUB_PARAMS.scenario
+    ),
+    ops: oneOf(
+      OPS_MODES,
+      params.get(HUB_PARAM_KEYS.ops),
+      DEFAULT_HUB_PARAMS.ops
+    ),
+    role: oneOf(
+      ROLE_MODES,
+      params.get(HUB_PARAM_KEYS.role),
+      DEFAULT_HUB_PARAMS.role
+    ),
     connection: oneOf(
       CONNECTION_MODES,
       params.get(HUB_PARAM_KEYS.connection),
-      'live'
+      DEFAULT_HUB_PARAMS.connection
     ),
   };
 };

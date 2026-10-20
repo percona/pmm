@@ -28,7 +28,6 @@ export const deriveActions = (
         ? [
             {
               label: M.monitor,
-              description: M.monitorDescription,
               to: MONGO_PATHS.addService,
               icon: AddLinkOutlined,
             },
@@ -38,7 +37,6 @@ export const deriveActions = (
         ? [
             {
               label: M.install,
-              description: M.installDescription,
               to: MONGO_PATHS.install,
               icon: DownloadOutlined,
             },

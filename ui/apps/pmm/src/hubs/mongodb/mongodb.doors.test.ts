@@ -152,12 +152,12 @@ describe('sectionAnchor', () => {
           patches: null,
           connection: 'live',
           scenario: 'wrong',
-          ops: 'on',
+          ops: 'off',
           role: 'live',
         },
         'clusters'
       )
-    ).toBe('?environment=prod&hubState=wrong&hubOps=on#clusters');
+    ).toBe('?environment=prod&hubState=wrong&hubOps=off#clusters');
   });
 
   it('is the bare anchor with default params', () => {
