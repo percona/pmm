@@ -90,7 +90,38 @@ Creates a recurring schedule for the named task. Requires the **Admin** role. Us
 PUT /extensions/api/extensions/periodic-tasks/{periodic_task_id}
 ```
 
-Updates an existing schedule. Requires the **Admin** role. Send the full schedule object with your changes, using the same fields as the create request. Use the numeric ID returned when you created the schedule as `{periodic_task_id}`.
+Replaces an existing schedule. Requires the **Admin** role. Use the numeric ID returned when you created the schedule as `{periodic_task_id}`.
+
+The update body is not the same as the create body. Send the full schedule, including the fields you don't change. To get the current values, [list the schedules](#list-schedules) first:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Schedule name. Required. |
+| `task` | string | Name of the task the schedule runs. Required. |
+| `enabled` | boolean | Whether the schedule is active. Required. |
+| `description` | string | A label for this schedule. Required, can be empty. |
+| `start_time` | datetime or `null` | Earliest time the schedule can fire. Required, can be `null`. |
+| `interval` or `crontab` | object | The recurrence, in the same format as the create request. Set exactly one. |
+
+**Request body:**
+
+```json
+{
+  "name": "nightly-xtrabackup",
+  "task": "<task-name>",
+  "enabled": true,
+  "description": "Nightly XtraBackup",
+  "start_time": null,
+  "crontab": {
+    "minute": "30",
+    "hour": "2",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+}
+```
 
 ## Delete a schedule
 

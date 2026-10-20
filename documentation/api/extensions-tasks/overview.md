@@ -17,7 +17,7 @@ Use it to:
 
 ## Concepts
 
-**Task**: a named operation template registered in PMM Extensions. Tasks are app-specific; for example, the MySQL Backups app registers tasks for XtraBackup, Mydumper, and Binlog.
+**Task**: a named operation you create in an app. For example, each backup you configure in the MySQL Backups app is a task, identified by the task name you enter.
 
 **Task run**: a single execution of a task. Each run produces a task history record with a status, timestamps, and logs.
 

@@ -29,7 +29,7 @@ curl -sk https://<pmm-server>/extensions/api/apps/ \
 GET /extensions/api/apps/{app}/
 ```
 
-Returns the tasks registered by the named app. Use the `app` value from the list above, for example `mysql_backups`.
+Returns the tasks created in the named app, for example the backup tasks in MySQL Backups. Results are paginated with `offset` and `limit`. Use the `app_key` value from the list above, for example `mysql_backups`. Restore tasks are under `mysql_backups/restore`.
 
 **Example:**
 

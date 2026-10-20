@@ -47,7 +47,7 @@ Returns a list of connectivity results in the same order as `targets`.
 ]
 ```
 
-**Status values:** `reachable`, `unreachable`, `not_configured`, `inputs_drifted`, `probe_undeclared`.
+**Status values:** `reachable`, `unreachable`, `not_configured`, `inputs_drifted`, `probe_undeclared`, `auth_failed`, `error`, `ssl_error`, `timeout`.
 
 ## Example
 

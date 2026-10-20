@@ -45,9 +45,7 @@ If your environment pulls images from a registry other than Docker Hub, change t
 
     3. Add an empty `pmm-extensions` volume to the `pmm-server` container and mount it at `/srv/extensions`. PMM uses this volume to share the credentials that PMM Extensions needs to start. Make sure the volume is empty before starting the container.
 
-    4. Recreate the `pmm-server` container to apply the new settings. Your data in the `pmm-data` volume stays intact.
-
-    5. Start the PMM Extensions container:
+    4. Recreate the `pmm-server` container with these settings and start PMM Extensions. Your data in the `pmm-data` volume stays intact:
 
         === "Docker Compose"
 
@@ -97,25 +95,61 @@ If your environment pulls images from a registry other than Docker Hub, change t
                       - pmm-server
 
                 volumes:
-                  pmm-data: {}
-                  pmm-extensions: {}
-                  pmm-extensions-state: {}
+                  pmm-data:
+                    name: pmm-data
+                  pmm-extensions:
+                    name: pmm-extensions
+                  pmm-extensions-state:
+                    name: pmm-extensions-state
                 ```
 
                 Add any other `pmm-server` settings you had before (custom ports, TLS certificates, extra environment variables) to the `pmm-server` service.
 
         === "docker run"
 
-            For PMM Server and PMM Extensions to reach each other by name, both containers must be on the same Docker network when PMM Server starts. Adding a running container to a network afterward is not enough. PMM Extensions looks up PMM Server by the name `pmm-server`, so the container must use exactly that name.
+            For PMM Server and PMM Extensions to reach each other by name, both containers must be on the same user-defined Docker network when PMM Server starts. Connecting a running container to a network afterward is not enough. PMM Extensions looks up PMM Server by the name `pmm-server`, and PMM Server looks up PMM Extensions by the name `pmm-extensions`, so the containers must use exactly these names.
             {.power-number}
 
-            1. Create a Docker network for both containers to share. When you start `pmm-server`, add `--network pmm-net --name pmm-server` to your `docker run` command:
+            1. Check which networks `pmm-server` is on:
+
+                {% raw %}
+                ```bash
+                docker inspect pmm-server --format '{{range $name, $net := .NetworkSettings.Networks}}{{$name}} {{end}}'
+                ```
+                {% endraw %}
+
+                If the output lists a network other than `bridge`, such as `pmm-net` (created by the Easy-install script) or `pmm-network`, use that network in the following steps. Otherwise, create one:
 
                 ```bash
                 docker network create pmm-net
                 ```
 
-            2. Start the PMM Extensions container on the same network, using exactly `--name pmm-extensions`:
+            2. Note the options your current `pmm-server` container uses, such as published ports, environment variables, and volumes, so you can keep them. If you installed PMM with the Easy-install script, you can see them with `docker inspect pmm-server`.
+
+            3. Stop and remove the existing container. Your data in `pmm-data` is preserved:
+
+                ```bash
+                docker stop pmm-server && docker rm pmm-server
+                ```
+
+            4. Start `pmm-server` with your existing options, the settings from steps 1 to 3, and the network from step 1. For example, for a default installation (replace `pmm-net` if your network has a different name):
+
+                ```bash
+                docker run -d \
+                  --name pmm-server \
+                  --restart always \
+                  --network pmm-net \
+                  -p 443:8443 \
+                  -p 4647:4647 \
+                  -e PMM_ENABLE_EXTENSIONS=1 \
+                  -e PMM_ENABLE_NOMAD=1 \
+                  -e PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server> \
+                  -v pmm-data:/srv \
+                  -v pmm-extensions:/srv/extensions \
+                  percona/pmm-server:3.10.0
+                ```
+
+            5. Start the PMM Extensions container on the same network as `pmm-server`, using exactly `--name pmm-extensions`:
 
                 ```bash
                 docker run -d \
@@ -132,7 +166,7 @@ If your environment pulls images from a registry other than Docker Hub, change t
                   percona/pmm-extensions:3.10.0
                 ```
 
-    6. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
+    5. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
 
 === "New PMM install"
 
@@ -184,9 +218,12 @@ If your environment pulls images from a registry other than Docker Hub, change t
               - pmm-server
 
         volumes:
-          pmm-data: {}
-          pmm-extensions: {}
-          pmm-extensions-state: {}
+          pmm-data:
+            name: pmm-data
+          pmm-extensions:
+            name: pmm-extensions
+          pmm-extensions-state:
+            name: pmm-extensions-state
         ```
 
     3. Start PMM Server and PMM Extensions together:
