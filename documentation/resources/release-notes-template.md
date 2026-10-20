@@ -11,33 +11,15 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📋 Release summary
 
-!!! note
-    Release summary to be added. Two or three sentences that name the headline changes, then one sentence on security fixes, improvements and bug fixes. Write it for a reader who is deciding whether to upgrade.
-
 ## ✨ Release highlights
-
-!!! note
-    Release highlights to be added. One `###` subsection per highlight, written from the user's point of view, with a screenshot in `../images/` where it helps. Say where to find the feature in the UI and link to the page that documents it.
 
 ## 🔒 Security updates
 
-!!! note
-    Security updates to be added. One `###` subsection per fixed vulnerability, titled with the issue and its linked CVE or advisory ID, and stating the severity, the affected components and the fix. Remove this section if the release ships no CVE fixes.
-
 ## 📈 Improvements
-
-!!! note
-    Improvements to be added. One bullet per Feature or Improvement ticket: `- [PMM-XXXXX](https://perconadev.atlassian.net/browse/PMM-XXXXX): What changes for the user.` If some entries apply only to PMM HA Cluster, group them under `### PMM HA Cluster deployments` and put the rest under `### All deployments`.
 
 ## ✅ Fixed issues
 
-!!! note
-    Fixed issues to be added. One bullet per Bug ticket, in the same format as Improvements. Describe the symptom that is gone, not the code change, and say what the reader has to redo after upgrading, if anything.
-
 ## 🔶 Known issues
-
-!!! note
-    Known issues to be added. One `###` subsection per defect that ships knowingly, titled with the symptom and the linked ticket key, followed by what the reader sees and a **Workaround**. Remove this section if there are none.
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
 

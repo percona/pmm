@@ -192,8 +192,9 @@ That file, `unreleased/PMM-15310.md`, becomes this entry on the 3.11.0 page:
 Rules for the note:
 
 - `target` is the release the change ships in. It has no default, and Jira's fix version is not a substitute: choose it.
-- `type` is the section: `highlight` (✨ Release highlights), `security` (🔒 Security updates), `improvement` (📈 Improvements, for Feature and Improvement tickets), `fix` (✅ Fixed issues, for Bug tickets) or `known-issue` (🔶 Known issues, a defect you are shipping knowingly).
-- `highlight`, `security` and `known-issue` also take a `title:`. It becomes the `###` heading; a known issue's heading gets the linked ticket key.
+- `type` is the section: `improvement` (📈 Improvements, for Feature and Improvement tickets), `fix` (✅ Fixed issues, for Bug tickets) or `known-issue` (🔶 Known issues, a defect you are shipping knowingly).
+- A `known-issue` also takes a `title:`. It becomes the `### Title ([PMM-XXXXX](url))` heading.
+- Release highlights and security updates are not notes: the doc team writes them on the release PR.
 - Don't write the ticket link. It comes from the file name.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Write links as they appear on the release page, which sits one level up from `unreleased/`: `../reference/nomad.md`, `../images/<name>.png`.
@@ -204,7 +205,7 @@ Where the note goes:
 - **After it is branched**, CI rejects an X.Y.Z note on `main`. Put it in the PR to `pmm-X.Y.Z`; the same change on `main` needs no note.
 - **On `pmm-X.Y.Z`**, the target must be X.Y.Z.
 
-`unreleased/` is never published. When `pmm-X.Y.Z` is created, `.github/workflows/release-notes.yml` builds `X.Y.Z.md` from the notes on that branch, using `documentation/resources/release-notes-template.md`, lists it in the index and nav, and opens a draft "[Doc] Release X.Y.Z" PR to `main` that also deletes those notes from `main`. It updates that PR whenever a note lands on the branch, adding only what is new, so edits to the page stay. The doc team writes the summary, highlights and release date there. The PR merges only when every X.Y.Z note is on the page; its `doc-hotfix` label then copies it to `pmm-X.Y.Z`, which the site publishes from at GA. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+`unreleased/` is never published. When `pmm-X.Y.Z` is created, `.github/workflows/release-notes.yml` builds `X.Y.Z.md` from the notes on that branch, using `documentation/resources/release-notes-template.md`, lists it in the index and nav, and opens a draft "[Doc] Release X.Y.Z" PR to `main` that also deletes those notes from `main`. It updates that PR whenever a note lands on the branch, adding only what is new, so edits to the page stay. The doc team writes the summary, highlights, security updates and release date there. The PR merges only when every X.Y.Z note is on the page; its `doc-hotfix` label then copies it to `pmm-X.Y.Z`, which the site publishes from at GA. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
 
 ## Content type templates
 

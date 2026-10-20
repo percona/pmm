@@ -1,8 +1,8 @@
 ---
 name: Release notes
 
-# check: on a PR, checks the release notes it adds. On a "[Doc] Release X.Y.Z" PR it also fails
-#   until every X.Y.Z note is on the page.
+# check: on a PR, checks the release notes it adds. On the "[Doc] Release X.Y.Z" PR it also fails
+#   while an X.Y.Z note is missing from the page.
 # release-pr: when pmm-X.Y.Z is branched, and whenever a note lands on it, builds release-notes/X.Y.Z.md
 #   from the notes on that branch into one draft "[Doc] Release X.Y.Z" PR to main, which also removes
 #   those notes from main. Once merged, doc-hotfix copies it to pmm-X.Y.Z.
@@ -48,19 +48,11 @@ jobs:
       - name: Test the script
         run: npx --yes bats@1.11.0 documentation/resources/bin/tests
 
-      - name: Check the notes in this PR
+      - name: Check the release notes
         run: |
           mapfile -t files < <(git diff --name-only --diff-filter=AM "origin/$BASE...HEAD" \
             -- documentation/docs/release-notes/unreleased/)
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "This PR adds or changes no release notes."
-            exit 0
-          fi
-          documentation/resources/bin/release-notes.sh check "$BASE" "${files[@]}"
-
-      - name: Check the release PR
-        if: startsWith(github.head_ref, 'release-notes-')
-        run: documentation/resources/bin/release-notes.sh gate "${HEAD_REF#release-notes-}"
+          documentation/resources/bin/release-notes.sh check "$BASE" "$HEAD_REF" "${files[@]}"
 
   release-pr:
     name: Update the release PR
