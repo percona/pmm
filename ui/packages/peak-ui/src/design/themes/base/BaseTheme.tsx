@@ -513,6 +513,22 @@ const BUTTON_ELEVATION_4 =
 const MENU_ELEVATION_8 =
   '0px 0px 1px 0px rgba(0,0,0,0.16), 0px 8px 4px 0px rgba(0,0,0,0.12), 0px 8px 16px 0px rgba(0,0,0,0.2)';
 
+// The Figma List and Menu row states take the primary tokens, so each theme tints them its own way: neutral in Base, purple in PMM.
+const rowStateStyles = (theme: Theme): CSSObject => ({
+  '&:hover': {
+    backgroundColor: theme.palette.primary.hover,
+    '@media (hover: none)': {
+      backgroundColor: 'transparent',
+    },
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: theme.palette.primary.focus,
+  },
+  '&.Mui-selected': {
+    backgroundColor: theme.palette.primary.selected,
+  },
+});
+
 const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
   switch (variant) {
     case 'contained':
@@ -1059,6 +1075,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           // MUI's body1 labels on 40px rows; phones keep MUI's 48px touch rows, dense lists their 32px.
           root: ({ theme, ownerState }) => ({
+            ...rowStateStyles(theme),
             ...(!ownerState.dense && {
               [theme.breakpoints.up('sm')]: {
                 minHeight: 40,
@@ -1081,6 +1098,11 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               borderBottom: `1px solid ${theme.palette.divider}`,
             },
           }),
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: ({ theme }) => rowStateStyles(theme),
         },
       },
       // The Figma List subheader: an overline label heading a run of rows.
