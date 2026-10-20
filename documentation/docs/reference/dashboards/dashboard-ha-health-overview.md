@@ -58,7 +58,7 @@ If the panel shows no primary, PMM can't save any changes. Check the [**PostgreS
 
 Shows how many ClickHouse database and Keeper nodes are alive, how many are expected, and the resulting health percentage.
 
-Use this to check that Query Analytics (QAN) data is being stored. ClickHouse stores all QAN data, so while pods are down, QAN shows incomplete data and the gaps can't be filled later.
+Use this to check whether QAN data is being collected and stored. If one node is down, QAN keeps working. If the cluster loses enough nodes to stop accepting data, QAN collection stops and queries that ran during the outage are not recorded and cannot be recovered.
 
 If **Alive** is lower than **Expected**, check the [**ClickHouse Pods**](#clickhouse-pods) table to see whether a database node or a Keeper node failed. Losing Keeper nodes is more serious, because ClickHouse stops working when half or more of them are down.
 
@@ -255,9 +255,11 @@ If one pod is DOWN, PMM stays reachable through the remaining pods. If all pods 
 
 Shows each server that HAProxy sends traffic to, grouped by **Backend** and **Service**, with its **Status** (UP or DOWN).
 
-Use this to see whether HAProxy can reach the PMM Server replicas and other PMM services. HAProxy stops sending traffic to a server that fails its health checks and uses the healthy ones.
+Use this to check which PMM services are reachable and receiving traffic.
 
-Servers that show DOWN briefly during pod restarts are expected. If a server stays DOWN for more than a few minutes, its pod isn't recovering. Check the pod status tables for that component to find out why. Common causes are resource exhaustion, configuration errors, or a failed deployment.
+For PMM Server, only the current leader shows UP at a time. The other PMM Server pods show DOWN on purpose, because only the leader accepts traffic. If you see no PMM Server entry showing UP, your cluster has no active leader and the PMM UI is unreachable.
+
+For all other services, a brief DOWN during a pod restart is normal. If an entry stays DOWN for more than a few minutes, check the pod status tables for that component to find out what went wrong.
 
 ## Dashboard usage tips
 
