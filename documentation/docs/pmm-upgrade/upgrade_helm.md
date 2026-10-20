@@ -14,7 +14,7 @@ Percona releases new chart versions to update containers when:
 
 [Create a backup](../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md) before upgrading. Downgrades are not supported, so a backup is your only recovery option if something goes wrong.
 
-## Upgrade steps
+## Upgrade PMM Server
 
 Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings. You can restore from your backup if needed.
 {.power-number}

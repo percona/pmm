@@ -29,11 +29,11 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
 
-3. [Back up your PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md) before upgrading. Downgrades are not supported, so a backup is your only recovery option.
+3. [Back up your PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md#back-up-pmm-ha-cluster) before upgrading. Downgrades are not supported, so a backup is your only recovery option. If the upgrade fails, [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster).
 
 4. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
 
-## Upgrade
+## Upgrade PMM HA Cluster
 
 Once you've completed the steps in [Before you begin](#before-you-begin), run the upgrade:
 {.power-number}
