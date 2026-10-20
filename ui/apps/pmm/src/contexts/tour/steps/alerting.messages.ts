@@ -1,5 +1,4 @@
 // Tip paragraphs keyed by the id of the Alerts menu item they describe.
-// todo: need Catalinas input here
 export const Messages: Record<string, string[]> = {
   'alerts-rules': [
     'Alert rules specify the conditions for firing alerts.',
@@ -7,7 +6,7 @@ export const Messages: Record<string, string[]> = {
     "If you need to create an alert rule from scratch, use Grafana's complex alerting configuration instead.",
   ],
   'alerts-status': [
-    'View the current state of alerts in your environment and their associated nodes',
+    'View the current state of alerts in your environment and their associated nodes, including every alert that is currently firing.',
   ],
   'alerts-templates': [
     'Templates help you create complex alert rules effortlessly.',
@@ -15,7 +14,7 @@ export const Messages: Record<string, string[]> = {
   ],
   'alerts-silences': [
     'Create silences when you want to stop notifications from one or more alerting rules.',
-    'Silences will prevent notifications from getting created, but they will not prevent alerting rules from being evaluated or recorded in the Fired alerts tab. A silence only lasts for a specified window of time.',
+    'Silences will prevent notifications from getting created, but they will not prevent alerting rules from being evaluated or shown on the Status page. A silence only lasts for a specified window of time.',
   ],
   'alerts-groups': [
     'Alert groups show grouped alerts.',
