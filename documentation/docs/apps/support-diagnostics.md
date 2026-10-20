@@ -22,7 +22,7 @@ Before you start, make sure that:
 
 ## Connect PMM to ServiceNow
 
-Support diagnostics uploads results to your support case through Percona's ServiceNow. PMM needs two credentials for this connection: a client token and a REST API key. You connect once per PMM instance, and every PMM user can then send diagnostics to your organization's support cases.
+Support diagnostics uploads results to your support case through Percona's ServiceNow. PMM needs two credentials for this connection: a client token and a REST API key. You connect once per PMM instance, and PMM administrators can then send diagnostics to your organization's support cases.
 
 ### Generate the credentials
 
