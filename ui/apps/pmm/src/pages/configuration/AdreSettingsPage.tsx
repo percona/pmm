@@ -21,7 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
-import { Page } from 'components/page';
+import { AdrePageShell } from 'components/adre/AdrePageShell';
 import {
   useAdreModels,
   useAdreSettings,
@@ -60,9 +60,9 @@ function behaviorFromSettings(
 
 const pageProps = {
   title: 'Assistant configuration',
-  fullWidth: true as const,
-  surface: 'paper' as const,
-  footer: null,
+  subtitle:
+    'Configure the PMM Assistant and its AI backend for AI-assisted chat and investigations.',
+  maxWidth: 880,
 };
 
 const AdreSettingsPage: FC = () => {
@@ -388,15 +388,15 @@ const AdreSettingsPage: FC = () => {
 
   if (isLoading) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Typography>Loading...</Typography>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   if (isError && !isForbidden) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
@@ -405,13 +405,13 @@ const AdreSettingsPage: FC = () => {
             </Alert>
           </CardContent>
         </Card>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   if (isForbidden) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
@@ -425,17 +425,14 @@ const AdreSettingsPage: FC = () => {
             </Link>
           </CardContent>
         </Card>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   if (!isAdmin) {
     return (
-      <Page {...pageProps}>
-        <Card
-          variant="outlined"
-          sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}
-        >
+      <AdrePageShell {...pageProps}>
+        <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
               Admin access is required to change the Assistant configuration.
@@ -443,29 +440,14 @@ const AdreSettingsPage: FC = () => {
             </Alert>
           </CardContent>
         </Card>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   return (
-    <Page {...pageProps}>
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          minWidth: 0,
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          p: 2,
-        }}
-        data-testid="adre-settings-scroll"
-      >
-        <Box sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Configure the PMM Assistant and its AI backend for AI-assisted chat
-            and investigations.
-          </Typography>
-
+    <AdrePageShell {...pageProps}>
+      <Box data-testid="adre-settings-scroll">
+        <Box>
           <Tabs
             value={tab}
             onChange={(_: SyntheticEvent, v: number) => setTab(v)}
@@ -1027,7 +1009,7 @@ const AdreSettingsPage: FC = () => {
           </Box>
         </Box>
       </Box>
-    </Page>
+    </AdrePageShell>
   );
 };
 

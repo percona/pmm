@@ -4,8 +4,10 @@ import {
   CircularProgress,
   Divider,
   Stack,
+  ThemeProvider,
   Typography,
 } from '@mui/material';
+import { adreTheme } from 'components/adre/adreTheme';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import Markdown from 'react-markdown';
@@ -23,7 +25,7 @@ import { getLabelQueryParams } from '../../utils/qanTools';
 const RUNNING_MESSAGE =
   'Query analysis is running. Results will appear here soon. Recommendations are advisory — copy and apply manually in your environment.';
 
-export const QanAiInsightsTab: FC = () => {
+const QanAiInsightsTabContent: FC = () => {
   const state = useQanPanelState();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -175,3 +177,10 @@ export const QanAiInsightsTab: FC = () => {
     </Stack>
   );
 };
+
+/** QanAiInsightsTab in the Assistant's dark look. */
+export const QanAiInsightsTab: FC = () => (
+  <ThemeProvider theme={adreTheme}>
+    <QanAiInsightsTabContent />
+  </ThemeProvider>
+);

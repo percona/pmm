@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { FC, SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
-import { Page } from 'components/page';
+import { AdrePageShell } from 'components/adre/AdrePageShell';
 import { useUser } from 'contexts/user';
 import {
   useAdreDeployment,
@@ -45,9 +45,8 @@ import type {
 
 const pageProps = {
   title: 'Assistant deployment',
-  fullWidth: true as const,
-  surface: 'paper' as const,
-  footer: null,
+  subtitle:
+    'Models, keys, the HolmesGPT config.yaml, skills, and how they are applied.',
 };
 
 const monospace = { fontFamily: 'Roboto Mono, monospace' };
@@ -88,7 +87,7 @@ const AdreDeploymentPage: FC = () => {
 
   if (!isAdmin) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
@@ -96,21 +95,21 @@ const AdreDeploymentPage: FC = () => {
             </Alert>
           </CardContent>
         </Card>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   if (isLoading) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Typography>Loading…</Typography>
-      </Page>
+      </AdrePageShell>
     );
   }
 
   if (isError || !data) {
     return (
-      <Page {...pageProps}>
+      <AdrePageShell {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
@@ -118,7 +117,7 @@ const AdreDeploymentPage: FC = () => {
             </Alert>
           </CardContent>
         </Card>
-      </Page>
+      </AdrePageShell>
     );
   }
 
@@ -150,8 +149,8 @@ const AdreDeploymentPage: FC = () => {
   };
 
   return (
-    <Page {...pageProps}>
-      <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', p: 2 }}>
+    <AdrePageShell {...pageProps}>
+      <Box>
         {safeData.provisioning.restartRequired && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             {safeData.provisioning.envRestartRequired ? (
@@ -189,7 +188,7 @@ const AdreDeploymentPage: FC = () => {
         {tab === 2 && <SkillsTab data={safeData} {...notify} />}
         {tab === 3 && <ProvisioningTab data={safeData} {...notify} />}
       </Box>
-    </Page>
+    </AdrePageShell>
   );
 };
 

@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Page } from 'components/page';
+import { AdrePageShell } from 'components/adre/AdrePageShell';
 import {
   useAdreUsageEvents,
   useAdreUsageSummary,
@@ -112,11 +112,10 @@ const AdreUsagePage: FC = () => {
   };
 
   return (
-    <Page title="AI usage">
-      <Stack spacing={2} sx={{ mb: 2, overflow: 'visible' }}>
-        <Typography variant="body2" color="text.secondary">
-          Token and cost usage across PMM AI features
-        </Typography>
+    <AdrePageShell
+      title="AI usage"
+      subtitle="Token and cost usage across PMM AI features"
+      actions={
         <Stack
           direction="row"
           spacing={1.5}
@@ -162,8 +161,8 @@ const AdreUsagePage: FC = () => {
             Export CSV
           </Button>
         </Stack>
-      </Stack>
-
+      }
+    >
       {summaryQuery.isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
@@ -323,7 +322,7 @@ const AdreUsagePage: FC = () => {
                                       height: '100%',
                                       width: `${pct}%`,
                                       minWidth: 8,
-                                      bgcolor: 'secondary.main',
+                                      bgcolor: 'primary.main',
                                     }}
                                   />
                                 ) : null}
@@ -480,7 +479,7 @@ const AdreUsagePage: FC = () => {
           </Box>
         </Box>
       )}
-    </Page>
+    </AdrePageShell>
   );
 };
 

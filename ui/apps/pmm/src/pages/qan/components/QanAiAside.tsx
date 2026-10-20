@@ -4,8 +4,10 @@ import {
   IconButton,
   Stack,
   TextField,
+  ThemeProvider,
   Typography,
 } from '@mui/material';
+import { adreTheme } from 'components/adre/adreTheme';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,7 +25,7 @@ import { getLabelQueryParams } from '../utils/qanTools';
 const ADVISORY_FOOTER =
   'Recommendations are advisory. Copy SQL and apply manually — PMM does not execute changes.';
 
-export const QanAiAside: FC = () => {
+const QanAiAsideContent: FC = () => {
   const state = useQanPanelState();
   const serviceId = useQanServiceId();
   const { data: settings } = useAdreSettings();
@@ -255,3 +257,10 @@ export const QanAiAside: FC = () => {
     </Stack>
   );
 };
+
+/** QanAiAside in the Assistant's dark look. */
+export const QanAiAside: FC = () => (
+  <ThemeProvider theme={adreTheme}>
+    <QanAiAsideContent />
+  </ThemeProvider>
+);

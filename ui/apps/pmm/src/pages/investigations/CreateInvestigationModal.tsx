@@ -12,8 +12,10 @@ import {
   Select,
   Stack,
   TextField,
+  ThemeProvider,
   Typography,
 } from '@mui/material';
+import { adreTheme } from 'components/adre/adreTheme';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { FC, useEffect, useState } from 'react';
@@ -47,7 +49,7 @@ export interface CreateInvestigationModalProps {
   initial?: Partial<CreateInvestigationBody>;
 }
 
-export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
+const CreateInvestigationModalContent: FC<CreateInvestigationModalProps> = ({
   open,
   onClose,
   onSubmit,
@@ -306,3 +308,12 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
     </Dialog>
   );
 };
+
+/** CreateInvestigationModal in the Assistant's dark look. */
+export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = (
+  props
+) => (
+  <ThemeProvider theme={adreTheme}>
+    <CreateInvestigationModalContent {...props} />
+  </ThemeProvider>
+);

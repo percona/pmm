@@ -23,7 +23,8 @@ import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { Page } from 'components/page';
+import { AdrePageShell } from 'components/adre/AdrePageShell';
+import { answerBodySx } from 'components/adre/adreAnswerSx';
 import { adreQanInsights, getQanInsightsCache } from 'api/adre';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { holmesUsageSummaryLine } from 'utils/holmesUsageFormat';
@@ -269,8 +270,12 @@ const QanAiInsightsPageContent: FC = () => {
   };
 
   return (
-    <Page title="QAN AI Insights">
-      <Stack gap={2} sx={{ maxWidth: 900 }}>
+    <AdrePageShell
+      title="QAN AI Insights"
+      subtitle="The Assistant's analysis of one query: what it does, why it is slow and how to fix it."
+      maxWidth={920}
+    >
+      <Stack gap={2}>
         {hasContext && (
           <Typography variant="body2" color="text.secondary">
             {hasUrlContext ? 'Opened from Query Analytics. ' : ''}
@@ -379,7 +384,7 @@ const QanAiInsightsPageContent: FC = () => {
                 <Card variant="outlined" key={`${section.title}-${idx}`}>
                   <CardContent>
                     <Typography
-                      variant="subtitle2"
+                      variant="subtitle1"
                       fontWeight={600}
                       sx={{ mb: 1 }}
                     >
@@ -419,11 +424,7 @@ const QanAiInsightsPageContent: FC = () => {
                         </Table>
                       </TableContainer>
                     ) : (
-                      <Typography
-                        component="div"
-                        variant="body2"
-                        sx={{ '& p': { mb: 1 }, '& pre': { overflow: 'auto' } }}
-                      >
+                      <Typography component="div" sx={answerBodySx}>
                         <Markdown
                           remarkPlugins={[remarkGfm]}
                           rehypePlugins={[rehypeRaw]}
@@ -484,7 +485,7 @@ const QanAiInsightsPageContent: FC = () => {
           </>
         )}
       </Stack>
-    </Page>
+    </AdrePageShell>
   );
 };
 

@@ -18,7 +18,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { Page } from 'components/page';
+import { AdrePageShell } from 'components/adre/AdrePageShell';
 import {
   useInvestigationsList,
   useCreateInvestigation,
@@ -32,7 +32,7 @@ import type {
   InvestigationListItem,
 } from 'api/investigations';
 import { useSnackbar } from 'notistack';
-import { adreColors, headingFont } from 'components/adre/adreAnswerSx';
+import { adreColors } from 'components/adre/adreAnswerSx';
 import { StatusPill } from './components/StatusPill';
 import {
   accentButtonSx,
@@ -80,32 +80,6 @@ const checkboxSx = {
   color: adreColors.muted,
   '&.Mui-checked, &.MuiCheckbox-indeterminate': { color: adreColors.accent },
 } as const;
-
-const DarkShell: FC<{ children: ReactNode }> = ({ children }) => (
-  <Page title="Investigations" hideTitle fullWidth footer={null}>
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        overflowY: 'auto',
-        bgcolor: adreColors.page,
-        color: adreColors.text,
-        borderRadius: 1,
-      }}
-    >
-      <Box
-        sx={{
-          maxWidth: 1120,
-          mx: 'auto',
-          px: { xs: 2, md: 4 },
-          py: { xs: 2.5, md: 3.5 },
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  </Page>
-);
 
 const InvestigationRow: FC<{
   inv: InvestigationListItem;
@@ -412,35 +386,11 @@ const InvestigationsListPage: FC = () => {
   }
 
   return (
-    <DarkShell>
-      <Stack
-        component="header"
-        direction="row"
-        flexWrap="wrap"
-        alignItems="flex-end"
-        justifyContent="space-between"
-        gap={2}
-        sx={{ mb: 3 }}
-      >
-        <Box>
-          <Typography
-            component="h1"
-            sx={{
-              fontFamily: headingFont,
-              fontSize: { xs: 22, md: 26 },
-              fontWeight: 600,
-              lineHeight: 1.3,
-            }}
-          >
-            Investigations
-          </Typography>
-          <Typography
-            sx={{ mt: 0.5, fontSize: 14, color: adreColors.secondary }}
-          >
-            What the Assistant looked into, with its root cause and next steps.
-          </Typography>
-        </Box>
-        <Stack direction="row" gap={1} flexWrap="wrap">
+    <AdrePageShell
+      title="Investigations"
+      subtitle="What the Assistant looked into, with its root cause and next steps."
+      actions={
+        <>
           {selectedIds.size > 0 && (
             <Button
               variant="outlined"
@@ -465,9 +415,9 @@ const InvestigationsListPage: FC = () => {
           >
             New investigation
           </Button>
-        </Stack>
-      </Stack>
-
+        </>
+      }
+    >
       <Stack
         direction="row"
         flexWrap="wrap"
@@ -548,7 +498,7 @@ const InvestigationsListPage: FC = () => {
         isPending={createMutation.isPending}
         initial={initialFromParams}
       />
-    </DarkShell>
+    </AdrePageShell>
   );
 };
 

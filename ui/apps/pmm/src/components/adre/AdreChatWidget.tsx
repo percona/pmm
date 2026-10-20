@@ -5,8 +5,11 @@ import {
   Paper,
   Stack,
   TextField,
+  ThemeProvider,
   Typography,
 } from '@mui/material';
+import { adreTheme } from './adreTheme';
+import { adreColors } from './adreAnswerSx';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
@@ -94,11 +97,11 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(
             py: 1,
             borderRadius: 2,
             ...(msg.role === 'user'
-              ? { bgcolor: '#2d3748', color: 'text.primary' }
+              ? { bgcolor: '#2A2930', color: 'text.primary' }
               : {
-                  bgcolor: 'rgba(255,255,255,0.05)',
+                  bgcolor: adreColors.card,
                   border: 1,
-                  borderColor: 'rgba(255,255,255,0.12)',
+                  borderColor: adreColors.border,
                 }),
             '& img': { maxWidth: '100%', height: 'auto', display: 'block' },
             '& pre': { maxWidth: '100%', minWidth: 0 },
@@ -325,7 +328,7 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(
   }
 );
 
-export const AdreChatWidget: FC = () => {
+const AdreChatWidgetContent: FC = () => {
   const {
     loading,
     progressSteps,
@@ -503,7 +506,7 @@ export const AdreChatWidget: FC = () => {
               flex: 1,
               overflow: 'auto',
               p: 1,
-              bgcolor: '#212121',
+              bgcolor: adreColors.page,
               display: 'flex',
               flexDirection: 'column',
               gap: 1,
@@ -551,8 +554,8 @@ export const AdreChatWidget: FC = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   fontSize: '0.85rem',
-                  bgcolor: '#1e1e1e',
-                  '& fieldset': { borderColor: 'rgba(255,255,255,0.12)' },
+                  bgcolor: adreColors.card,
+                  '& fieldset': { borderColor: adreColors.border },
                 },
               }}
             />
@@ -569,3 +572,10 @@ export const AdreChatWidget: FC = () => {
     </>
   );
 };
+
+/** AdreChatWidget in the Assistant's dark look. */
+export const AdreChatWidget: FC = () => (
+  <ThemeProvider theme={adreTheme}>
+    <AdreChatWidgetContent />
+  </ThemeProvider>
+);
