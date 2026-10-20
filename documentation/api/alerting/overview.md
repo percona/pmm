@@ -21,7 +21,6 @@ To use the threshold override endpoints, you need:
 ### Enable overrides for older rules
 
 Rules created before PMM 3.10.0 don't have a `rule_id` and don't support overrides. To get one:
-{.power-number}
 
 1. Check **Alerts > Templates** for a **Dynamic** badge on your template. The built-in `pmm_node_high_cpu_load` template already has one. If yours uses `expr`, it doesn't support overrides. Rewrite it to use `queries`, `expressions`, and `condition` with `overridable: true`.
 2. Delete the rule.

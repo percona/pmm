@@ -34,7 +34,6 @@ How to read the results:
 - **Pods:** All three `pmm-ha-*` pods should show `Running` with all containers ready (for example, `1/1`). Pods in `Pending`, `CrashLoopBackOff`, or with restarts that keep climbing need attention first.
 - **`/v1/ha/status`:** Returns `{"status":"Enabled"}` when HA is active. Any other value means the server is not running in HA mode.
 - **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader, and every other node is a follower. To spot a missing node, compare the number of entries in the list with `expected_nodes`. That field is the replica count PMM was installed with, not a live count, so it stays the same even when a node is down.
-```
 
 ## Find the logs for each component
 
