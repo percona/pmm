@@ -98,6 +98,6 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/ansible/pmm-docker/main.yml` — Docker provisioning playbook
 - `build/ansible/roles/` — All Ansible roles for server components
 - `build/scripts/build-server-binaries` — Server component binary builds (driver: container, S3 cache)
-- `build/scripts/server/` — One build recipe per server component, replacing the old spec files
+- `build/scripts/server/` — One build recipe per server component
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types
