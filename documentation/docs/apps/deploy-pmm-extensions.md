@@ -231,4 +231,4 @@ To disable PMM Extensions:
 2. Stop and remove the PMM Extensions container. Use the command that matches how you started it:
 
     - **docker run**: `docker stop pmm-extensions && docker rm pmm-extensions`
-    - **Docker Compose**: `docker compose down`
+    - **Docker Compose**: `docker compose rm -s -f pmm-extensions`, then delete the `pmm-extensions` service from your `docker-compose.yml`
