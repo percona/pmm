@@ -123,7 +123,7 @@ Scheduling is a two-step process: first create the backup task, then attach a re
 
 6. Click **Create**.
 
-Scheduled tasks appear in the **Scheduled Tasks** list, and on the task's own detail page under **Schedule**.
+Scheduled tasks appear in the **Scheduled MySQL Backups** list, and on the task's own detail page under **Schedule**.
 
 
 ## Restore from a backup
