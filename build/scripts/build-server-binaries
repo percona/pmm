@@ -6,7 +6,7 @@
 # which is layered into the server docker image by build-server-docker.
 #
 # This script drives the build; the per-component recipes live in server/, one
-# file each, the way there used to be one spec file each.
+# file each.
 #
 # Usage:
 #   build-server-binaries                       # build all components
