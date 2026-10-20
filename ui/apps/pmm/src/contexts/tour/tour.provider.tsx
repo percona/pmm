@@ -14,6 +14,7 @@ import { DRAWER_WIDTH } from 'components/sidebar/drawer/Drawer.constants';
 import { waitForVisible } from 'utils/dom.utils';
 import { useUpdateUserInfo } from 'hooks/api/useUser';
 import { useUser } from 'contexts/user';
+import { useSettings } from 'contexts/settings';
 import { getProductTourSteps } from './steps/product.steps';
 import { getAlertingTourSteps } from './steps/alerting.steps';
 import { TourCloseButton } from 'components/tour-close-button';
@@ -24,19 +25,20 @@ import { useTheme } from '@mui/material/styles';
 export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();
   const { user } = useUser();
+  const { settings } = useSettings();
   const [tourName, setTourName] = useState<TourName>('product');
   const { mutateAsync: updateUserInfoAsync } = useUpdateUserInfo();
+  const { navTree, navOpen, setNavOpen } = useNavigation();
   const stepsMap = useMemo<StepsMap>(
     () => ({
       product: getProductTourSteps(user),
-      alerting: getAlertingTourSteps(user),
+      alerting: getAlertingTourSteps(navTree),
     }),
-    [user]
+    [user, navTree]
   );
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<StepType[]>([]);
-  const { navOpen, setNavOpen } = useNavigation();
   const location = useLocation();
 
   const startTour = useCallback(
@@ -77,7 +79,8 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [tourName, updateUserInfoAsync]);
 
   useEffect(() => {
-    if (isOpen || !user?.info) {
+    // The Alerts menu, and so the alerting tour, is incomplete until settings load.
+    if (isOpen || !user?.info || !settings) {
       return;
     }
 
@@ -87,7 +90,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
     ) {
       startTour('alerting');
     }
-  }, [isOpen, location.pathname, user?.info, startTour]);
+  }, [isOpen, location.pathname, user?.info, settings, startTour]);
 
   return (
     <TourContext.Provider
