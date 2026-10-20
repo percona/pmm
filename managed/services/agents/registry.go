@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -105,6 +106,7 @@ type Registry struct {
 	connectionCache    map[string]struct{}
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
+	rebuildMu          sync.Mutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -187,17 +189,15 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: check cache first, then database
-	if !time.Now().After(r.connectionCacheTTL) {
-		r.cacheMu.RLock()
-		_, exists := r.connectionCache[pmmAgentID]
-		r.cacheMu.RUnlock()
-		if exists {
-			return true
+	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query.
+	if r.connectionCacheExpired() {
+		r.rebuildMu.Lock()
+		// Concurrent callers share a single rebuild.
+		if r.connectionCacheExpired() {
+			r.rebuildConnectionCache()
 		}
+		r.rebuildMu.Unlock()
 	}
-
-	r.rebuildConnectionCache()
 
 	r.cacheMu.RLock()
 	_, exists := r.connectionCache[pmmAgentID]
@@ -206,13 +206,20 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return exists
 }
 
+func (r *Registry) connectionCacheExpired() bool {
+	r.cacheMu.RLock()
+	defer r.cacheMu.RUnlock()
+
+	return time.Now().After(r.connectionCacheTTL)
+}
+
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
-	_ = r.db.InTransaction(func(tx *reform.TX) error {
+	// Fetch pmm-agents from the database.
+	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
@@ -226,9 +233,15 @@ func (r *Registry) rebuildConnectionCache() {
 
 		return nil
 	})
+	if err != nil {
+		logrus.WithField("component", "agents/registry").Errorf("Failed to rebuild the connection cache: %v", err)
+	}
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	// On error, keep the last snapshot and still wait for the TTL, so a failing database is not queried on every call.
+	if err == nil {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
 	r.cacheMu.Unlock()
 }
