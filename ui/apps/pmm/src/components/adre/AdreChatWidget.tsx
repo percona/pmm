@@ -89,10 +89,13 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(
           justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
           alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
           maxWidth: '90%',
+          minWidth: 0,
         }}
       >
         <Box
           sx={{
+            // Without it a long code line widens the bubble past the panel, which clips it.
+            minWidth: 0,
             px: 1.5,
             py: 1,
             borderRadius: 2,
