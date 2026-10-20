@@ -87,6 +87,20 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [tourName, updateUserInfoAsync]);
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    // Menu rows above the target (e.g. per-service dashboards) can load after
+    // the tour opens; reactour only re-measures its highlight on resize.
+    const frame = requestAnimationFrame(() =>
+      window.dispatchEvent(new Event('resize'))
+    );
+
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen, navTree]);
+
+  useEffect(() => {
     // The Alerts menu, and so the alerting tour, is incomplete until settings load.
     // Anonymous users can't save tour completion, so it would reopen on every visit.
     if (isOpen || !user?.info || user.isAnonymous || !settings) {

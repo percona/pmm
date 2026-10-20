@@ -4,10 +4,13 @@ import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
 import { addAlerting } from 'contexts/navigation/navigation.utils';
 import { User } from 'types/user.types';
+import { NavItem } from 'types/navigation.types';
+import { NAV_QAN } from 'contexts/navigation/navigation.constants';
 import { TourProvider } from './tour.provider';
 
 const mocks = vi.hoisted(() => ({
   user: undefined as User | undefined,
+  navAbove: [] as NavItem[],
   updateUserInfo: vi.fn(),
 }));
 
@@ -21,7 +24,7 @@ vi.mock('contexts/settings', () => ({
 
 vi.mock('contexts/navigation', () => ({
   useNavigation: () => ({
-    navTree: [addAlerting(true, true, mocks.user)],
+    navTree: [...mocks.navAbove, addAlerting(true, true, mocks.user)],
     navOpen: true,
     setNavOpen: vi.fn(),
   }),
@@ -47,6 +50,7 @@ const renderAtAlerting = (user: User) => {
 
 describe('TourProvider', () => {
   beforeEach(() => {
+    mocks.navAbove = [];
     mocks.updateUserInfo.mockReset();
   });
 
@@ -78,6 +82,23 @@ describe('TourProvider', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(screen.queryByTestId('tour-step-title')).not.toBeInTheDocument();
+  });
+
+  it('re-measures the highlight when the menu changes while open', async () => {
+    const { rerender } = renderAtAlerting(TEST_USER_ADMIN);
+    await screen.findByTestId('tour-step-title');
+    const resize = vi.fn();
+    window.addEventListener('resize', resize);
+
+    mocks.navAbove = [NAV_QAN];
+    rerender(
+      <MemoryRouter initialEntries={['/alerting/status']}>
+        <TourProvider />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(resize).toHaveBeenCalled());
+    window.removeEventListener('resize', resize);
   });
 
   it('closes the tour when saving completion fails', async () => {
