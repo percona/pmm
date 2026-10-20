@@ -1,6 +1,6 @@
-# Upgrade PMM High Availability (HA) cluster using Helm
+# Upgrade PMM Server HA Cluster on Kubernetes
 
-Upgrade a [PMM HA Cluster](../install-pmm/HA-clustered.md) deployed with the `percona/pmm-ha` chart (three pods) when you want to move to a new PMM release. For single-instance deployments using the `percona/pmm` chart, see [Upgrade PMM Server using Helm](upgrade_helm.md) instead.
+Upgrade a [PMM Server HA Cluster](../install-pmm/HA-clustered.md) deployed with the [`percona/pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you want to move to a new PMM release. If you're running a single PMM Server instance with the `percona/pmm` chart, [upgrade it using the single-instance steps](upgrade_helm.md).
 
 !!! caution "Upgrading HA clusters not supported before PMM 3.10.0"
     In-place Helm upgrades for HA clusters are available starting with PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0.
@@ -29,38 +29,9 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
 
-3. Back up your PMM HA Cluster before upgrading. Downgrades are not supported, so a backup is your only recovery option:
-
-    === "Built-in backups"
-
-        If you [turned on backups](../install-pmm/backup-restore-HA-clustered.md#turn-on-backups), take a backup of all components:
-
-        ```sh
-        kubectl exec -n <namespace> deploy/<release>-backup-tools -- pmm-backup.sh backup
-        ```
-
-        If the upgrade fails, you can [restore this backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster).
-
-    === "Without built-in backups"
-
-        If you haven't turned on backups, back up each database cluster separately:
-
-        - **PostgreSQL** is backed up automatically by default. Confirm a recent backup exists:
-
-            ```sh
-            kubectl get perconapgbackup -n <namespace>
-            ```
-
-        - **ClickHouse and VictoriaMetrics** have no automatic backup. Back them up manually if you need to restore your Query Analytics data and metrics, for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/).
+3. [Back up your PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md) before upgrading. Downgrades are not supported, so a backup is your only recovery option.
 
 4. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
-
-5. Pull the new PMM Server image on your cluster nodes in advance to reduce upgrade time:
-
-    ```sh
-    # Replace <version> with the version you're upgrading to
-    docker pull percona/pmm-server:<version>
-    ```
 
 ## Upgrade
 
@@ -143,13 +114,7 @@ If you need to upgrade one:
 
 If the upgrade causes issues, you can restore your previous Helm configuration. Keep in mind that this only restores the PMM Server configuration, not any database changes PMM made during the upgrade. 
 
-To fully return to the pre-upgrade state, also restore your databases from the backups you took in [Before you begin](#before-you-begin):
-
-- If you used built-in backups, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-in-place). A backup can only be restored into the same PMM version it was taken from.
-- Otherwise, restore each database separately:
-    - [Restore PostgreSQL](https://docs.percona.com/percona-operator-for-postgresql/latest/backups-restore.html)
-    - [Restore ClickHouse](https://github.com/Altinity/clickhouse-backup?tab=readme-ov-file#usage)
-    - [Restore VictoriaMetrics](https://docs.victoriametrics.com/vmrestore/)
+To fully return to the pre-upgrade state, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster) you took in [Before you begin](#before-you-begin). A backup can only be restored into the same PMM version it was taken from.
 
 To roll back the Helm release to the previous version:
 {.power-number}
@@ -171,4 +136,4 @@ To roll back the Helm release to the previous version:
 - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
 - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
 - [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
-- [Upgrade PMM Server using Helm](upgrade_helm.md) (single-instance deployments)
+- [Upgrade PMM Server on a Kubernetes single instance](upgrade_helm.md)

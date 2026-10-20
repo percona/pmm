@@ -455,9 +455,9 @@ nav:
           - Manual upgrade:
               - pmm-upgrade/upgrade_docker.md
               - pmm-upgrade/upgrade_podman.md
-          - Upgrade PMM Server in K8s:
-              - pmm-upgrade/upgrade_helm.md
-              - pmm-upgrade/upgrade_helm_ha.md
+          - Upgrade PMM in Kubernetes:
+              - Upgrade on a Kubernetes single instance: pmm-upgrade/upgrade_helm.md
+              - Upgrade HA Cluster on Kubernetes: pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
