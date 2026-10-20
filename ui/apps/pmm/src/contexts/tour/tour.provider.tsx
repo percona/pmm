@@ -43,12 +43,20 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
     async (tourName: TourName) => {
       const steps = stepsMap[tourName];
 
+      if (!steps.length) {
+        return;
+      }
+
       if (!navOpen) {
         setNavOpen(true);
       }
 
-      if (steps[0] && typeof steps[0].selector === 'string') {
-        await waitForVisible(steps[0].selector);
+      if (typeof steps[0].selector === 'string') {
+        try {
+          await waitForVisible(steps[0].selector);
+        } catch {
+          return;
+        }
       }
 
       setTourName(tourName);
