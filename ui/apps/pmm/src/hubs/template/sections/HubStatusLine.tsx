@@ -15,6 +15,7 @@ const SEVERITY: Record<HubStatus['state'], StatusIconSeverity> = {
   healthy: 'success',
   degraded: 'warning',
   down: 'error',
+  upgrading: 'info',
   noData: 'indeterminate',
   empty: 'indeterminate',
 };

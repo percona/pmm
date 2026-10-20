@@ -39,9 +39,9 @@ describe('deriveApps', () => {
     expect(operations).toMatchObject({
       preview: 'developer',
       summary: {
-        text: '15 of 15 services up · last scan 4m ago',
+        text: '21 of 21 services up · last scan 4m ago',
         doors: [
-          { label: '15 of 15 services up', to: '/operations?tab=services' },
+          { label: '21 of 21 services up', to: '/operations?tab=services' },
           {
             label: 'last scan 4m ago',
             to: '/operations/automations?tab=scans',

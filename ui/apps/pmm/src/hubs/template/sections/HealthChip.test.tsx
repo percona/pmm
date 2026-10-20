@@ -14,6 +14,7 @@ describe('HealthChip', () => {
     ['healthy', 'Healthy', 'MuiChip-colorSuccess', 'MuiChip-outlined'],
     ['degraded', 'Degraded', 'MuiChip-colorWarning', 'MuiChip-filled'],
     ['down', 'Down', 'MuiChip-colorError', 'MuiChip-filled'],
+    ['upgrading', 'Upgrading', 'MuiChip-colorInfo', 'MuiChip-outlined'],
     ['noData', 'No data', 'MuiChip-colorDefault', 'MuiChip-filled'],
   ])('shows %s as the word %s', (health, word, color, variant) => {
     renderChip(health);

@@ -89,6 +89,7 @@ const EMPTY_METRICS: MongoMetrics = {
   lastUpAt: {},
   self: {},
   roles: {},
+  stateSince: {},
   lag: {},
   oplogWindow: {},
   oplogFill: {},
@@ -366,6 +367,8 @@ export const toOperationsInput = (
   return {
     clusterIds,
     summary: { services, up, ...(lastScanAt ? { lastScanAt } : {}) },
+    // Operations does not report upgrades yet.
+    upgrades: [],
     failedRuns: [
       ...(lastScan && FAILED_RUN.has(lastScan.status)
         ? [

@@ -23,7 +23,7 @@ const input = (
   metrics: MongoMetrics,
   overrides: Partial<AttentionInput> = {}
 ): AttentionInput => ({
-  clusters: groupClusters(services, metrics),
+  clusters: groupClusters(services, metrics, NOW),
   alerts: [],
   backupFindings: [],
   slower: [],
@@ -56,31 +56,25 @@ const shortOplog = (window: number, fill: number) => {
 };
 
 describe('behind', () => {
-  it('flags sustained lag from 30 s as a warning', () => {
-    expect(kinds(lagging(29))).toEqual([]);
-    expect(items(lagging(31))).toMatchObject([
+  it('flags sustained lag from 10s as a warning', () => {
+    expect(kinds(lagging(9))).toEqual([]);
+    expect(items(lagging(11))).toMatchObject([
       {
         kind: 'behind',
         severity: 'warning',
-        title: 'rs-m3 is 31s behind its primary',
-        detail: '31s sustained for 2m',
+        title: 'rs-m3 is 11s behind its primary',
+        detail: '11s sustained for 2m',
       },
     ]);
   });
 
-  it('errors from 600 s', () => {
-    expect(items(lagging(599))[0].severity).toBe('warning');
-    expect(items(lagging(601))[0].severity).toBe('error');
+  it('stays a warning however far behind, as PMM-15299 has it', () => {
+    expect(items(lagging(601))[0].severity).toBe('warning');
+    expect(items(lagging(200, 200, 300))[0].severity).toBe('warning');
   });
 
   it('ignores a momentary spike that is not sustained', () => {
     expect(kinds(lagging(700, 5))).toEqual([]);
-  });
-
-  it('errors at half the primary’s oplog window', () => {
-    expect(items(lagging(200, 200, 300))).toMatchObject([
-      { kind: 'behind', severity: 'error' },
-    ]);
   });
 
   it('opens the set’s ReplSet summary', () => {
@@ -105,9 +99,9 @@ describe('oplogShort', () => {
     ]);
   });
 
-  it('errors under an hour', () => {
+  it('stays a warning under an hour', () => {
     expect(items(shortOplog(59 * 60, 0.95))).toMatchObject([
-      { kind: 'oplogShort', severity: 'error' },
+      { kind: 'oplogShort', severity: 'warning' },
     ]);
   });
 
@@ -197,21 +191,31 @@ describe('member rows', () => {
 });
 
 describe('members that are up but not serving', () => {
-  it.each(['RECOVERING', 'STARTUP2', 'ROLLBACK'])(
-    'warns about a %s member and opens its set',
-    (state) => {
-      const set = replicaSet('rs');
-      const m3 = set.services[2].serviceId;
+  const inState = (state: string, minutes = 60) => {
+    const set = replicaSet('rs');
+    const m3 = set.services[2].serviceId;
 
-      set.metrics.self[m3] = { ...set.metrics.self[m3], state };
-      delete set.metrics.lag[m3];
+    set.metrics.self[m3] = { ...set.metrics.self[m3], state };
+    set.metrics.stateSince[m3] = (NOW - minutes * 60_000) / 1000;
+    delete set.metrics.lag[m3];
+
+    return { set, m3 };
+  };
+
+  it.each([
+    ['RECOVERING', 'recovering'],
+    ['STARTUP2', 'in initial sync'],
+  ])(
+    'warns about a member %s past the grace period and opens its set',
+    (state, phrase) => {
+      const { set, m3 } = inState(state);
 
       expect(items(input(set.services, set.metrics))).toEqual([
         {
           id: `memberNotServing:${m3}`,
           kind: 'memberNotServing',
           severity: 'warning',
-          title: `rs-m3 is ${state}, it can't serve reads`,
+          title: `rs-m3 has been ${phrase} for 1h, it can't serve reads`,
           where: 'rs · prod',
           door: {
             label: 'Open ReplSet summary',
@@ -222,6 +226,25 @@ describe('members that are up but not serving', () => {
       ]);
     }
   );
+
+  it('says nothing about a member inside the 10m grace period', () => {
+    const { set } = inState('RECOVERING', 9);
+
+    expect(items(input(set.services, set.metrics))).toEqual([]);
+  });
+
+  it('makes a member rolling back an error, since its set is down', () => {
+    const { set, m3 } = inState('ROLLBACK', 1);
+
+    expect(items(input(set.services, set.metrics))).toMatchObject([
+      {
+        id: `memberLost:${m3}`,
+        kind: 'memberLost',
+        severity: 'error',
+        title: "rs-m3 is rolling back, it holds none of the set's data",
+      },
+    ]);
+  });
 
   it('merges the unusual state alert of its set', () => {
     const set = replicaSet('rs');
@@ -290,24 +313,31 @@ describe('alerts', () => {
   });
 
   it('keeps the derived severity when the alert is milder', () => {
-    const set = replicaSet('rs');
+    const set = replicaSet('rs', { members: 4 });
 
-    set.metrics.lag[set.services[2].serviceId] = { now: 700, sustained: 700 };
+    set.metrics.up[set.services[2].serviceId] = {
+      value: 0,
+      clusterRole: 'mongod',
+    };
+    set.metrics.up[set.services[3].serviceId] = {
+      value: 0,
+      clusterRole: 'mongod',
+    };
     const [row] = items(
       input(set.services, set.metrics, {
         alerts: [
           alert({
-            templateName: 'pmm_mongodb_replication_lag',
+            templateName: 'pmm_mongodb_down',
             severity: 'warning',
-            serviceName: undefined,
-            replicaSet: 'rs',
+            serviceName: 'rs-m3',
           }),
         ],
       })
     );
 
+    // Half the set is down, so it lost its majority: the rows are errors whatever the alert says.
     expect(row).toMatchObject({
-      kind: 'behind',
+      kind: 'memberDown',
       severity: 'error',
       source: 'alert',
     });
@@ -422,6 +452,7 @@ describe('operations', () => {
         operations: {
           clusterIds: {},
           summary: { services: 0, up: 0 },
+          upgrades: [],
           failedRuns,
         },
       })
@@ -450,7 +481,7 @@ describe('the things-wrong estate', () => {
   it('gives exactly the ranked list of the design', () => {
     const snapshot = wrongSnapshot(NOW, true);
     const services = snapshot.services ?? [];
-    const clusters = groupClusters(services, snapshot.metrics);
+    const clusters = groupClusters(services, snapshot.metrics, NOW);
     const backups = deriveBackups({
       clusters,
       input: snapshot.backups,
@@ -491,7 +522,7 @@ describe('the things-wrong estate', () => {
       [
         'memberNotServing',
         'warning',
-        "orders-cfg-m3 is RECOVERING, it can't serve reads",
+        "orders-cfg-m3 has been recovering for 14m, it can't serve reads",
       ],
       ['behind', 'warning', 'orders-shard1-m3 is 40s behind its primary'],
       ['alert', 'warning', 'MongoDB restarted (orders-shard1-m1)'],

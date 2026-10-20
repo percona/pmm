@@ -95,6 +95,7 @@ export const emptyMetrics = (): MongoMetrics => ({
   lastUpAt: {},
   self: {},
   roles: {},
+  stateSince: {},
   lag: {},
   oplogWindow: {},
   oplogFill: {},
@@ -143,6 +144,7 @@ export const replicaSet = (
       ...(clRole ? { clRole } : {}),
     };
     metrics.roles[id] = { rsName: name, ...(clRole ? { clRole } : {}) };
+    metrics.stateSince[id] = NOW / 1000 - 3600;
     metrics.oplogWindow[id] = window;
     metrics.oplogFill[id] = fill;
     if (index > 0) {
@@ -161,6 +163,7 @@ export const mergeMetrics = (...all: MongoMetrics[]): MongoMetrics =>
       lastUpAt: { ...merged.lastUpAt, ...metrics.lastUpAt },
       self: { ...merged.self, ...metrics.self },
       roles: { ...merged.roles, ...metrics.roles },
+      stateSince: { ...merged.stateSince, ...metrics.stateSince },
       lag: { ...merged.lag, ...metrics.lag },
       oplogWindow: { ...merged.oplogWindow, ...metrics.oplogWindow },
       oplogFill: { ...merged.oplogFill, ...metrics.oplogFill },

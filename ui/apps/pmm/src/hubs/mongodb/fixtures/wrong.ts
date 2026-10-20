@@ -31,7 +31,7 @@ const down = (
   );
 };
 
-/** One of every attention kind on the shared estate: design section 6.3's list and a recovering config server member. */
+/** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, and payments mid-upgrade. */
 export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   const snapshot = healthySnapshot(now, ops);
   const metrics = snapshot.metrics;
@@ -49,7 +49,18 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
       ...metrics.self[recovering],
       state: 'RECOVERING',
     };
+    metrics.stateSince[recovering] = Math.floor((now - 14 * MINUTE_MS) / 1000);
     delete metrics.lag[recovering];
+
+    // The member payments' upgrade restarted a minute ago, still inside its grace period.
+    const restarting = serviceId('payments-m2');
+
+    metrics.self[restarting] = {
+      ...metrics.self[restarting],
+      state: 'RECOVERING',
+    };
+    metrics.stateSince[restarting] = Math.floor((now - MINUTE_MS) / 1000);
+    delete metrics.lag[restarting];
     metrics.lag[serviceId('orders-shard1-m3')] = { now: 40, sustained: 38 };
     metrics.oplogWindow[serviceId('orders-shard2-m1')] = 3 * 3600;
     metrics.oplogFill[serviceId('orders-shard2-m1')] = 0.96;
@@ -154,6 +165,15 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   if (snapshot.operations) {
     snapshot.operations = {
       ...snapshot.operations,
+      upgrades: [
+        {
+          clusterKey: 'prod/payments',
+          done: 1,
+          total: 3,
+          startedAt: ago(now, 9 * MINUTE_MS),
+          to: '7.0.30-16',
+        },
+      ],
       failedRuns: [
         {
           id: 'run-install-pmm-client',

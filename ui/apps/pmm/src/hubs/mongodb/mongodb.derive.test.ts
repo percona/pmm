@@ -24,7 +24,7 @@ describe('deriveMongoHub status', () => {
 
     expect(status).toMatchObject({
       state: 'healthy',
-      clusters: 3,
+      clusters: 5,
       needAttention: 0,
       otherIssues: 0,
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
@@ -34,7 +34,7 @@ describe('deriveMongoHub status', () => {
     expect(attention).toEqual([]);
   });
 
-  it('carries the worst row severity and counts rows outside any cluster', () => {
+  it('carries the worst row severity, counts rows outside any cluster, and leaves an upgrade out', () => {
     const snapshot = healthySnapshot(NOW, true);
 
     snapshot.alerts = [
@@ -54,7 +54,8 @@ describe('deriveMongoHub status', () => {
     expect(
       derive(snapshot, { scenario: 'healthy', operations: true }).status
     ).toMatchObject({
-      state: 'healthy',
+      // Operations upgrades payments, which is planned work, not a cluster that needs attention.
+      state: 'upgrading',
       needAttention: 1,
       otherIssues: 3,
       attentionSeverity: 'error',
@@ -66,7 +67,7 @@ describe('deriveMongoHub status', () => {
 
     expect(status).toMatchObject({
       state: 'down',
-      clusters: 3,
+      clusters: 5,
       needAttention: 3,
       otherIssues: 1,
       attentionSeverity: 'error',
@@ -181,8 +182,11 @@ describe('deriveMongoHub environment filter', () => {
   it('narrows clusters, attention and backups to the environment', () => {
     const view = derive(wrongSnapshot(NOW, false), { environment: 'staging' });
 
-    expect(view.clusters.map((node) => node.name)).toEqual(['reports']);
-    expect(view.status).toMatchObject({ clusters: 1, needAttention: 1 });
+    expect(view.clusters.map((node) => node.name)).toEqual([
+      'reports',
+      'catalog',
+    ]);
+    expect(view.status).toMatchObject({ clusters: 2, needAttention: 1 });
     // Every schedule and artifact belongs to prod.
     expect(view.backups.state).toBe('notSetUp');
     // Query analytics is filtered by the server, so sample queries stay whatever the filter.

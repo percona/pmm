@@ -23,8 +23,9 @@ import {
 import {
   compareHealth,
   hasNoPrimary,
-  isNotServing,
+  type HealthVerdict,
   lagLevel,
+  type MemberHealthInput,
   type MemberVerdict,
   memberHealth,
   memberVerdict,
@@ -33,16 +34,24 @@ import {
   setHealth,
   shardedHealth,
   standaloneHealth,
+  upgradingHealth,
   worstLevel,
 } from './mongodb.health';
 import { Messages } from './mongodb.messages';
-import type { MongoMetrics, MongoServiceInput } from './mongodb.types';
+import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
+import type {
+  MongoMetrics,
+  MongoServiceInput,
+  MongoUpgradeInput,
+} from './mongodb.types';
 
 export interface MemberModel {
   service: MongoServiceInput;
   verdict: MemberVerdict;
   /** member_state while up: PRIMARY, SECONDARY, ARBITER and so on. */
   state?: string;
+  /** How long the member has been in its state, as far as the last hour tells. */
+  stateSeconds?: number;
   router: boolean;
   /** Epoch seconds the member was last seen up. */
   lastUpAt?: number;
@@ -72,6 +81,8 @@ export interface ClusterModel {
   /** Shards of a sharded cluster, or the one set of a replica set. */
   sets: SetModel[];
   standalone?: MemberModel;
+  /** An upgrade Operations runs on the cluster now. */
+  upgrade?: MongoUpgradeInput;
 }
 
 export const clusterKey = (environment: string | undefined, name: string) =>
@@ -79,16 +90,21 @@ export const clusterKey = (environment: string | undefined, name: string) =>
 
 const toMember = (
   service: MongoServiceInput,
-  metrics: MongoMetrics | null
+  metrics: MongoMetrics | null,
+  now: number
 ): MemberModel => {
   const verdict = memberVerdict(service, metrics);
   const id = service.serviceId;
   const self = metrics?.self[id];
+  const stateSince = metrics?.stateSince[id];
 
   return {
     service,
     verdict,
     state: verdict === 'up' ? self?.state : undefined,
+    ...(verdict === 'up' && self?.state && stateSince !== undefined
+      ? { stateSeconds: Math.max(0, Math.round(now / 1000 - stateSince)) }
+      : {}),
     router: metrics?.up[id]?.clusterRole === 'mongos',
     lastUpAt: metrics?.lastUpAt[id],
     lag: metrics?.lag[id],
@@ -125,7 +141,8 @@ const byName = (a: { name: string }, b: { name: string }) =>
 /** Groups services by environment and cluster (else replication set); routers, config servers or two sets make it sharded. */
 export const groupClusters = (
   services: MongoServiceInput[],
-  metrics: MongoMetrics | null
+  metrics: MongoMetrics | null,
+  now = Date.now()
 ): ClusterModel[] => {
   const groups = new Map<
     string,
@@ -140,7 +157,7 @@ export const groupClusters = (
 
   for (const service of services) {
     const name = service.cluster || service.replicationSet;
-    const member = toMember(service, metrics);
+    const member = toMember(service, metrics, now);
 
     if (!name) {
       standalones.push({
@@ -252,10 +269,11 @@ export const primaryOf = (set: SetModel) =>
 const isSecondary = (member: MemberModel) =>
   member.verdict === 'up' && member.state === 'SECONDARY';
 
-export const memberLagLevel = (member: MemberModel, set: SetModel) =>
-  member.lag && isSecondary(member)
-    ? lagLevel(member.lag.sustained, primaryOf(set)?.oplogWindow)
-    : 'ok';
+const isPrimary = (member: MemberModel) =>
+  member.verdict === 'up' && member.state === 'PRIMARY';
+
+export const memberLagLevel = (member: MemberModel): HubLevel =>
+  member.lag && isSecondary(member) ? lagLevel(member.lag.sustained) : 'ok';
 
 export const primaryOplogLevel = (set: SetModel): HubLevel | undefined => {
   const primary = primaryOf(set);
@@ -265,29 +283,66 @@ export const primaryOplogLevel = (set: SetModel): HubLevel | undefined => {
     : undefined;
 };
 
+/** What the health rules read of a member; lag and oplog only count inside a set. */
+const healthInput = (
+  member: MemberModel,
+  inSet = false
+): MemberHealthInput => ({
+  name: member.service.serviceName,
+  verdict: member.verdict,
+  ...(member.state ? { state: member.state } : {}),
+  ...(member.stateSeconds !== undefined
+    ? { stateSeconds: member.stateSeconds }
+    : {}),
+  ...(inSet && member.lag && isSecondary(member) ? { lag: member.lag } : {}),
+  ...(inSet && member.oplogWindow !== undefined && isPrimary(member)
+    ? {
+        oplog: {
+          seconds: member.oplogWindow,
+          ...(member.oplogFill !== undefined ? { fill: member.oplogFill } : {}),
+        },
+      }
+    : {}),
+});
+
+export const setVerdictOf = (set: SetModel): HealthVerdict =>
+  setHealth(
+    set.members.map((member) => healthInput(member, true)),
+    set.name
+  );
+
 export const setHealthOf = (set: SetModel): HubHealth =>
-  setHealth({
-    members: set.members,
-    lagLevels: set.members.map((member) => memberLagLevel(member, set)),
-    primaryOplogLevel: primaryOplogLevel(set),
-  });
+  setVerdictOf(set).health;
 
-export const clusterHealthOf = (cluster: ClusterModel): HubHealth => {
-  if (cluster.kind === 'standalone' && cluster.standalone) {
-    return standaloneHealth(cluster.standalone.verdict);
-  }
-  if (cluster.kind === 'replicaSet') {
-    return setHealthOf(cluster.sets[0]);
-  }
+const routersVerdictOf = (cluster: ClusterModel): HealthVerdict =>
+  routersHealth(
+    cluster.routers.map((member) => healthInput(member)),
+    Messages.routersName
+  );
 
-  return shardedHealth({
-    shards: cluster.sets.map(setHealthOf),
-    config: cluster.config ? setHealthOf(cluster.config) : undefined,
-    routers: cluster.routers.length
-      ? routersHealth(cluster.routers.map((member) => member.verdict))
-      : undefined,
-  });
+const memberVerdictOf = (member: MemberModel, set?: SetModel): HealthVerdict =>
+  memberHealth(healthInput(member, !!set));
+
+/** A cluster's health and the conditions behind it; an upgrade in progress decides before anything else. */
+export const clusterVerdictOf = (cluster: ClusterModel): HealthVerdict => {
+  const own =
+    cluster.kind === 'standalone' && cluster.standalone
+      ? standaloneHealth(healthInput(cluster.standalone))
+      : cluster.kind === 'replicaSet'
+        ? setVerdictOf(cluster.sets[0])
+        : shardedHealth({
+            shards: cluster.sets.map(setVerdictOf),
+            config: cluster.config ? setVerdictOf(cluster.config) : undefined,
+            routers: cluster.routers.length
+              ? routersVerdictOf(cluster)
+              : undefined,
+          });
+
+  return cluster.upgrade ? upgradingHealth(own, cluster.upgrade) : own;
 };
+
+export const clusterHealthOf = (cluster: ClusterModel): HubHealth =>
+  clusterVerdictOf(cluster).health;
 
 export const setHasNoPrimary = (set: SetModel) => hasNoPrimary(set.members);
 
@@ -339,7 +394,7 @@ const memberLag = (
       ? noData(member)
       : notApplicable(Messages.measures.noPrimaryLag);
   }
-  const level = memberLagLevel(member, set);
+  const level = memberLagLevel(member);
 
   return {
     kind: 'value',
@@ -347,7 +402,10 @@ const memberLag = (
     level,
     ...(level !== 'ok'
       ? {
-          rule: Messages.measures.lagRule(level, duration(member.lag.now)),
+          rule: Messages.measures.lagRule(
+            duration(T.lagWarningSeconds),
+            duration(member.lag.now)
+          ),
         }
       : {}),
     door: lagDoor(place, set.name, member.service.serviceName),
@@ -386,7 +444,6 @@ const memberOplog = (
     ...(level !== 'ok'
       ? {
           rule: Messages.measures.oplogRule(
-            level,
             duration(member.oplogWindow),
             fillPercent(member.oplogFill)
           ),
@@ -411,7 +468,7 @@ const setLag = (set: SetModel, place: MongoPlace): HubMeasure => {
     return notApplicable(Messages.measures.noPrimaryLag);
   }
   const worst = lagging[0];
-  const levels = lagging.map((member) => memberLagLevel(member, set));
+  const levels = lagging.map(memberLagLevel);
   const level = worstLevel(levels);
   const seconds = worst.lag?.now ?? 0;
 
@@ -449,7 +506,6 @@ const setOplog = (set: SetModel, place: MongoPlace): HubMeasure => {
     ...(level !== 'ok'
       ? {
           rule: Messages.measures.oplogRule(
-            level,
             duration(primary.oplogWindow),
             fillPercent(primary.oplogFill)
           ),
@@ -549,15 +605,15 @@ const memberNode = (
           oplogWindow: notApplicable(Messages.measures.standaloneOplog),
         };
   const since = memberSince(member);
-  const notServing = isNotServing(member);
+  const { health } = memberVerdictOf(member, set);
 
   return {
     id: `member:${serviceId}`,
     kind: 'member',
     name: serviceName,
     type: memberType(member),
-    health: notServing ? 'degraded' : memberHealth(member.verdict),
-    showHealth: member.verdict !== 'up' || notServing,
+    health,
+    showHealth: health !== 'healthy',
     ...(since ? { since } : {}),
     measures,
     doors: {
@@ -586,6 +642,9 @@ const clusterMenu = (
     : []),
 ];
 
+const upgradeSince = (cluster: ClusterModel) =>
+  cluster.upgrade ? { since: cluster.upgrade.startedAt } : {};
+
 const setNode = (
   set: SetModel,
   cluster: ClusterModel,
@@ -593,7 +652,7 @@ const setNode = (
 ): HubTreeNode => {
   const place = placeOf(cluster);
   const summary = replsetSummary(place, set.name);
-  const health = setHealthOf(set);
+  const health = cluster.upgrade ? 'upgrading' : setHealthOf(set);
 
   return {
     id: `set:${cluster.key}/${set.name}`,
@@ -608,6 +667,7 @@ const setNode = (
     ...(health === 'down' && earliestSince(set.members)
       ? { since: earliestSince(set.members) }
       : {}),
+    ...upgradeSince(cluster),
     members: membersCount(set.members),
     measures: { lag: setLag(set, place), oplogWindow: setOplog(set, place) },
     doors: {
@@ -631,7 +691,8 @@ const routersNode = (cluster: ClusterModel): HubTreeNode => {
     kind: 'group',
     name: Messages.routersName,
     type: Messages.types.routers,
-    health: routersHealth(cluster.routers.map((member) => member.verdict)),
+    health: cluster.upgrade ? 'upgrading' : routersVerdictOf(cluster).health,
+    ...upgradeSince(cluster),
     showHealth: true,
     members: membersCount(cluster.routers),
     measures: {
@@ -668,6 +729,7 @@ const clusterNode = (
       environment: cluster.environment,
       health,
       showHealth: true,
+      ...upgradeSince(cluster),
       members: membersCount(members),
       doors: {
         name: { label: cluster.name, to: node.doors.name.to },
@@ -723,6 +785,7 @@ const clusterNode = (
     environment: cluster.environment,
     health,
     showHealth: true,
+    ...upgradeSince(cluster),
     members: membersCount(members),
     measures: {
       lag: lag
@@ -760,7 +823,11 @@ export const buildClusterTree = (
     .map((cluster) => clusterNode(cluster, options))
     .sort((a, b) => compareHealth(a.health, b.health) || byName(a, b));
 
-/** MRT's expanded state: every non-healthy node with children, and every ancestor of one. */
+/** A node that needs the reader; an upgrade is planned work, not a problem. */
+export const isProblem = (node: Pick<HubTreeNode, 'health'>) =>
+  node.health !== 'healthy' && node.health !== 'upgrading';
+
+/** MRT's expanded state: every node with a problem and children, and every ancestor of one. */
 export const expandedProblems = (
   nodes: HubTreeNode[]
 ): Record<string, true> => {
@@ -768,7 +835,7 @@ export const expandedProblems = (
 
   const visit = (node: HubTreeNode): boolean => {
     const childProblem = (node.children ?? []).map(visit).some(Boolean);
-    const problem = node.health !== 'healthy' || childProblem;
+    const problem = isProblem(node) || childProblem;
 
     if (problem && node.children?.length) {
       expanded[node.id] = true;

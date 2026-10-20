@@ -158,6 +158,16 @@ describe('HubStatusLine', () => {
     expect(screen.queryByRole('img', { name: 'Healthy' })).toBeNull();
   });
 
+  it('names an estate whose worst cluster is upgrading on an info icon', () => {
+    renderLine({
+      state: 'upgrading',
+      needAttention: 0,
+      attentionSeverity: undefined,
+    });
+
+    expect(screen.getByRole('img', { name: 'Upgrading' })).toBeInTheDocument();
+  });
+
   it('keeps the health icon when no row is worse', () => {
     renderLine({ state: 'down', attentionSeverity: 'warning' });
 

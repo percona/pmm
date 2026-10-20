@@ -23,7 +23,7 @@ export const USUAL_QUERIES: QanRowInput[] = [
   },
 ];
 
-/** All 15 members up, backups fresh, nothing firing, queries as usual. */
+/** All 21 members up, backups fresh, nothing firing, queries as usual. */
 export const healthySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   fetchedAt: now,
   services: estateServices(),

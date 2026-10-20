@@ -33,6 +33,7 @@ import {
   clusterMembers,
   expandedProblems,
   groupClusters,
+  isProblem,
 } from './mongodb.topology';
 import type {
   MongoAlertInput,
@@ -139,8 +140,17 @@ export const deriveMongoHub = (
     matchesEnvironment(service.environment, filter)
   );
   const metricsOk = snapshot.metrics !== null;
-  const models = groupClusters(services, snapshot.metrics);
   const operations = ctx.operations ? snapshot.operations : null;
+  const upgrades = new Map(
+    (operations?.upgrades ?? []).map((upgrade) => [upgrade.clusterKey, upgrade])
+  );
+  const models = groupClusters(services, snapshot.metrics, ctx.now).map(
+    (cluster) => {
+      const upgrade = upgrades.get(cluster.key);
+
+      return upgrade ? { ...cluster, upgrade } : cluster;
+    }
+  );
   const clusters = metricsOk
     ? buildClusterTree(models, {
         capabilities,
@@ -184,9 +194,7 @@ export const deriveMongoHub = (
     )
   );
   const troubled = new Set<string>(
-    clusters
-      .filter((node) => node.health !== 'healthy')
-      .map((node) => node.id.replace(/^cluster:/, ''))
+    clusters.filter(isProblem).map((node) => node.id.replace(/^cluster:/, ''))
   );
 
   let otherIssues = 0;

@@ -24,7 +24,7 @@ import {
   runningAge,
   type SlowerQuery,
 } from './mongodb.queries';
-import { isNotServing, routersHealth } from './mongodb.health';
+import { isLost, isStuck } from './mongodb.health';
 import {
   type ClusterModel,
   clusterMembers,
@@ -43,6 +43,7 @@ import type { MongoAlertInput, MongoOperationsInput } from './mongodb.types';
 export const MONGODB_ATTENTION_ORDER = [
   'noPrimary',
   'memberDown',
+  'memberLost',
   'memberNoData',
   'backupFailed',
   'pitrStopped',
@@ -112,6 +113,9 @@ const setsOf = (
 
 const severityOfHealth = (down: boolean): HubSeverity =>
   down ? 'error' : 'warning';
+
+const statePhrase = (state: string) =>
+  Messages.memberStatePhrases[state] ?? Messages.memberStatePhrase(state);
 
 const memberEntries = (cluster: ClusterModel): AttentionEntry[] => {
   const place = placeOf(cluster);
@@ -184,7 +188,8 @@ const memberEntries = (cluster: ClusterModel): AttentionEntry[] => {
   }
 
   const routersDown =
-    routersHealth(cluster.routers.map((member) => member.verdict)) === 'down';
+    cluster.routers.length > 0 &&
+    cluster.routers.every((member) => member.verdict === 'down');
 
   cluster.routers.forEach((member) =>
     pushMember(
@@ -242,15 +247,28 @@ const memberEntries = (cluster: ClusterModel): AttentionEntry[] => {
       if (noPrimary && member.verdict === 'down') {
         return;
       }
-      if (isNotServing(member) && member.state) {
+      if ((isLost(member) || isStuck(member)) && member.state) {
         const { serviceId, serviceName } = member.service;
+        const lost = isLost(member);
+        const kind = lost ? 'memberLost' : 'memberNotServing';
 
         entries.push({
           item: {
-            id: `memberNotServing:${serviceId}`,
-            kind: 'memberNotServing',
-            severity: severityOfHealth(setDown),
-            title: Messages.attention.notServing(serviceName, member.state),
+            id: `${kind}:${serviceId}`,
+            kind,
+            severity: severityOfHealth(lost || setDown),
+            title: lost
+              ? Messages.attention.memberLost(
+                  serviceName,
+                  statePhrase(member.state)
+                )
+              : Messages.attention.notServing(
+                  serviceName,
+                  statePhrase(member.state),
+                  member.stateSeconds !== undefined
+                    ? duration(member.stateSeconds)
+                    : undefined
+                ),
             where: whereOf(cluster, inner),
             door: {
               label: Messages.doors.replsetSummary,
@@ -318,7 +336,7 @@ const replicationEntries = (cluster: ClusterModel): AttentionEntry[] => {
     }
 
     set.members.forEach((member) => {
-      const level = memberLagLevel(member, set);
+      const level = memberLagLevel(member);
 
       if (level === 'ok' || !member.lag) {
         return;
@@ -411,7 +429,7 @@ const MERGES: Record<string, string[]> = {
   pmm_mongodb_oplog_window: ['oplogShort'],
   pmm_mongodb_pbm_backup_failed: ['backupFailed'],
   pmm_mongodb_pbm_backup_stale: ['backupFailed'],
-  pmm_mongodb_unusual_state: ['memberNotServing'],
+  pmm_mongodb_unusual_state: ['memberNotServing', 'memberLost'],
 };
 
 const sameCluster = (alert: MongoAlertInput, subject: Subject) =>
@@ -433,6 +451,7 @@ const matches = (alert: MongoAlertInput, entry: AttentionEntry): boolean => {
             subject.serviceNames.includes(alert.serviceName);
     case 'behind':
     case 'memberNotServing':
+    case 'memberLost':
       return !!alert.replicaSet && alert.replicaSet === subject.set;
     case 'oplogShort':
       return (
@@ -633,10 +652,12 @@ export const deriveAttention = ({
   now,
 }: AttentionInput): AttentionEntry[] => {
   const places = memberPlaceIndex(clusters);
+  // An upgrade restarts members and mixes versions on purpose, so only alerts speak for a cluster while one runs.
+  const steady = clusters.filter((cluster) => !cluster.upgrade);
   const derived = [
-    ...clusters.flatMap(memberEntries),
+    ...steady.flatMap(memberEntries),
     ...backupFindings.map((finding) => backupEntry(finding, clusters)),
-    ...clusters.flatMap(replicationEntries),
+    ...steady.flatMap(replicationEntries),
   ];
 
   return [

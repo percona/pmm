@@ -50,12 +50,12 @@ describe('fixtures', () => {
       });
     });
 
-    it('matches the design: 3 clusters, none need attention, last good backup 6h ago', () => {
+    it('matches the design: 5 clusters, none need attention, last good backup 6h ago', () => {
       const result = view('healthy', true);
 
       expect(result.status).toMatchObject({
         state: 'healthy',
-        clusters: 3,
+        clusters: 5,
         needAttention: 0,
         lastGoodBackup: {
           at: new Date(NOW - 6 * 3600_000).toISOString(),
@@ -66,6 +66,8 @@ describe('fixtures', () => {
         [
           ['billing', 'on'],
           ['orders', 'off'],
+          ['payments', 'off'],
+          ['catalog', 'off'],
           ['reports', 'notApplicable'],
         ]
       );
@@ -75,18 +77,20 @@ describe('fixtures', () => {
         'Backup status'
       );
       expect(result.apps[0].summary?.text).toBe(
-        '15 of 15 services up · last scan 4m ago'
+        '21 of 21 services up · last scan 4m ago'
       );
     });
   });
 
   describe('wrong', () => {
-    it('has at least one item of every kind', () => {
+    it('has at least one item of every kind but a lost member, which unit tests cover', () => {
       const kinds = new Set(
         view('wrong', true).attention.map((item) => item.kind)
       );
 
-      expect([...kinds].sort()).toEqual([...MONGODB_ATTENTION_ORDER].sort());
+      expect([...kinds].sort()).toEqual(
+        MONGODB_ATTENTION_ORDER.filter((kind) => kind !== 'memberLost').sort()
+      );
     });
 
     it('ranks every kind, 11 rows with Operations off and 13 on', () => {
@@ -133,11 +137,18 @@ describe('fixtures', () => {
 
     it('matches the design’s tree and status line', () => {
       const result = view('wrong', false);
-      const [billing, orders, reports] = result.clusters;
+      const [billing, reports, orders] = result.clusters;
 
+      expect(result.clusters.map((node) => node.name)).toEqual([
+        'billing',
+        'reports',
+        'orders',
+        'catalog',
+        'payments',
+      ]);
       expect(result.status).toMatchObject({
         state: 'down',
-        clusters: 3,
+        clusters: 5,
         needAttention: 3,
         lastGoodBackup: {
           at: new Date(NOW - 6 * 3600_000).toISOString(),
@@ -170,11 +181,28 @@ describe('fixtures', () => {
       expect(result.queries.slower[0].headline).toBe('6× slower than usual');
       expect(result.queries.runningLong[0].headline).toBe('running for 14m');
       expect(view('wrong', true).apps[0].summary?.text).toBe(
-        '11 of 15 services up · last scan 4m ago'
+        '17 of 21 services up · last scan 4m ago'
       );
       expect(result.apps[0].summary?.text).toBe(
-        '3 schedules · 1 failed in the last 24h'
+        '4 schedules · 1 failed in the last 24h'
       );
+    });
+
+    it('reads payments as Upgrading while Operations runs its upgrade, and keeps it out of the count', () => {
+      const on = view('wrong', true);
+      const payments = on.clusters.find((node) => node.name === 'payments');
+
+      expect(payments).toMatchObject({
+        health: 'upgrading',
+        since: new Date(NOW - 9 * 60_000).toISOString(),
+      });
+      expect(on.status.needAttention).toBe(3);
+      expect(on.expanded['cluster:prod/payments']).toBeUndefined();
+      // Without Operations nothing says an upgrade runs, and the restarted member is still inside its grace period.
+      expect(
+        view('wrong', false).clusters.find((node) => node.name === 'payments')
+          ?.health
+      ).toBe('healthy');
     });
 
     it('narrows queries, Operations counts and installs to the environment like live data', () => {
@@ -183,10 +211,13 @@ describe('fixtures', () => {
         deriveContext({ operations: true, environment: 'staging' })
       );
 
-      expect(staging.clusters.map((node) => node.name)).toEqual(['reports']);
+      expect(staging.clusters.map((node) => node.name)).toEqual([
+        'reports',
+        'catalog',
+      ]);
       expect(staging.queries.slower).toEqual([]);
       expect(staging.apps[0].summary?.text).toBe(
-        '0 of 1 services up · last scan 4m ago'
+        '3 of 4 services up · last scan 4m ago'
       );
       expect(staging.attention.map((item) => item.title)).toEqual([
         'PMM gets no data from reports',

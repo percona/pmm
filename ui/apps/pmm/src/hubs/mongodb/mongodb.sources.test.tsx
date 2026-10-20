@@ -485,6 +485,7 @@ describe('toOperationsInput', () => {
       },
       // This topology lists every service down.
       summary: { services: 12, up: 0, lastScanAt: '2026-10-19T15:42:14Z' },
+      upgrades: [],
       failedRuns: [
         {
           id: '4585235a-f86b-45a9-8038-2049190bfab3',

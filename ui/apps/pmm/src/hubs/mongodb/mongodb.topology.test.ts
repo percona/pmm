@@ -7,6 +7,7 @@ import { MONGO_QUERY_IDS, parseMongoMetrics } from './mongodb.promql';
 import { toServiceInputs } from './mongodb.sources';
 import {
   buildClusterTree,
+  type ClusterModel,
   expandedProblems,
   groupClusters,
 } from './mongodb.topology';
@@ -19,11 +20,19 @@ import {
   service,
 } from './mongodb.testUtils';
 
-const tree = (snapshot: MongoSnapshot, operations = false) =>
-  buildClusterTree(groupClusters(snapshot.services ?? [], snapshot.metrics), {
-    capabilities: { operations },
-    omClusterIds: snapshot.operations?.clusterIds,
-  });
+const tree = (
+  snapshot: MongoSnapshot,
+  operations = false,
+  withModels: (clusters: ClusterModel[]) => ClusterModel[] = (clusters) =>
+    clusters
+) =>
+  buildClusterTree(
+    withModels(groupClusters(snapshot.services ?? [], snapshot.metrics, NOW)),
+    {
+      capabilities: { operations },
+      omClusterIds: snapshot.operations?.clusterIds,
+    }
+  );
 
 const find = (nodes: HubTreeNode[], name: string): HubTreeNode | undefined => {
   for (const node of nodes) {
@@ -222,9 +231,41 @@ describe('buildClusterTree', () => {
   it('lists clusters worst first and folds a healthy estate', () => {
     const nodes = tree(healthySnapshot(NOW, false));
 
-    expect(names(nodes)).toEqual(['billing', 'orders', 'reports']);
+    expect(names(nodes)).toEqual([
+      'billing',
+      'catalog',
+      'orders',
+      'payments',
+      'reports',
+    ]);
     expect(nodes.every((node) => node.health === 'healthy')).toBe(true);
     expect(expandedProblems(nodes)).toEqual({});
+  });
+
+  it('ranks No data next to Down, then Degraded, Upgrading and Healthy', () => {
+    const nodes = tree(wrongSnapshot(NOW, true), true, (clusters) =>
+      clusters.map((cluster) =>
+        cluster.name === 'payments'
+          ? {
+              ...cluster,
+              upgrade: {
+                clusterKey: cluster.key,
+                done: 1,
+                total: 3,
+                startedAt: new Date(NOW - 9 * 60_000).toISOString(),
+              },
+            }
+          : cluster
+      )
+    );
+
+    expect(nodes.map((node) => [node.name, node.health])).toEqual([
+      ['billing', 'down'],
+      ['reports', 'noData'],
+      ['orders', 'degraded'],
+      ['payments', 'upgrading'],
+      ['catalog', 'healthy'],
+    ]);
   });
 
   it('keeps a sharded cluster’s shape: routers, config servers, then shards worst first', () => {
@@ -265,11 +306,15 @@ describe('buildClusterTree', () => {
     ]);
   });
 
-  it('shows a member’s health only when it is not up, with since', () => {
+  it('shows a member’s health only when it has a problem of its own, with since', () => {
     const nodes = tree(wrongSnapshot(NOW, false));
     const downMember = find(nodes, 'orders-shard2-m2');
 
-    expect(find(nodes, 'orders-shard2-m1')?.showHealth).toBe(false);
+    expect(find(nodes, 'orders-shard1-m1')?.showHealth).toBe(false);
+    expect(find(nodes, 'orders-shard2-m1')).toMatchObject({
+      health: 'degraded',
+      showHealth: true,
+    });
     expect(downMember).toMatchObject({
       health: 'down',
       showHealth: true,
@@ -366,7 +411,7 @@ describe('buildClusterTree', () => {
     expect(find(nodes, 'orders-shard1-m3')?.measures.lag).toMatchObject({
       seconds: 40,
       level: 'warning',
-      rule: 'Warning above 30s sustained for 2m; this member is 40s behind',
+      rule: 'Warning at 10s sustained for 2m; this member is 40s behind',
     });
     expect(find(nodes, 'orders-shard1-m1')?.measures.lag).toEqual({
       kind: 'notApplicable',
@@ -395,6 +440,35 @@ describe('buildClusterTree', () => {
       'set:prod/orders/orders-shard1': true,
       'set:prod/orders/orders-shard2': true,
     });
+  });
+
+  it('marks every set of an upgrading cluster Upgrading since the upgrade began, and keeps it folded', () => {
+    const startedAt = new Date(NOW - 9 * 60_000).toISOString();
+    const nodes = tree(healthySnapshot(NOW, false), false, (clusters) =>
+      clusters.map((cluster) =>
+        cluster.name === 'orders'
+          ? {
+              ...cluster,
+              upgrade: {
+                clusterKey: cluster.key,
+                done: 4,
+                total: 11,
+                startedAt,
+              },
+            }
+          : cluster
+      )
+    );
+    const orders = find(nodes, 'orders');
+
+    expect(orders).toMatchObject({ health: 'upgrading', since: startedAt });
+    expect(orders?.children?.map((node) => node.health)).toEqual([
+      'upgrading',
+      'upgrading',
+      'upgrading',
+      'upgrading',
+    ]);
+    expect(expandedProblems(nodes)).toEqual({});
   });
 
   it('opens each level on its dashboard with its own environment and cluster', () => {

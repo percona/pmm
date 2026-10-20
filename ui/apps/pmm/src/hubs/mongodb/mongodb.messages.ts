@@ -40,7 +40,19 @@ export const Messages = {
     STARTUP2: 'Initial sync',
     RECOVERING: 'Recovering',
     ROLLBACK: 'Rolling back',
+    REMOVED: 'Removed',
+    UNKNOWN: 'Unknown state',
   } as Partial<Record<string, string>>,
+  /** The same states inside a sentence: "orders-cfg-m3 has been recovering for 14m". */
+  memberStatePhrases: {
+    STARTUP: 'starting up',
+    STARTUP2: 'in initial sync',
+    RECOVERING: 'recovering',
+    ROLLBACK: 'rolling back',
+    REMOVED: 'removed from its set',
+    UNKNOWN: 'in an unknown state',
+  } as Partial<Record<string, string>>,
+  memberStatePhrase: (state: string) => `in state ${state}`,
   routersName: 'Routers (mongos)',
   columns: {
     lag: {
@@ -70,16 +82,12 @@ export const Messages = {
     standaloneLag: 'A standalone does not replicate',
     standaloneOplog: 'A standalone keeps no oplog',
     noPrimaryOplog: 'No primary to read the oplog window from',
-    lagRule: (level: 'warning' | 'error', lag: string) =>
-      level === 'error'
-        ? `Error at 10m sustained, or at half the primary's oplog window; this member is ${lag} behind`
-        : `Warning above 30s sustained for 2m; this member is ${lag} behind`,
+    lagRule: (threshold: string, lag: string) =>
+      `Warning at ${threshold} sustained for 2m; this member is ${lag} behind`,
     worstLagRule: (member: string, lag: string) =>
       `The furthest behind is ${member}, ${lag} behind its primary`,
-    oplogRule: (level: 'warning' | 'error', window: string, fill: number) =>
-      level === 'error'
-        ? `Error below 1h once the oplog is 90% full; this window is ${window} at ${fill}% full`
-        : `Warning below 24h once the oplog is 90% full; this window is ${window} at ${fill}% full`,
+    oplogRule: (window: string, fill: number) =>
+      `Warning below 24h once the oplog is 90% full; this window is ${window} at ${fill}% full`,
     tightestOplogRule: (set: string, window: string) =>
       `The tightest window is ${set}, ${window}`,
   },
@@ -128,8 +136,12 @@ export const Messages = {
       `${down} of ${total} members down`,
     memberDown: (member: string) => `${member} is down`,
     memberNoData: (member: string) => `PMM gets no data from ${member}`,
-    notServing: (member: string, state: string) =>
-      `${member} is ${state}, it can't serve reads`,
+    notServing: (member: string, phrase: string, duration?: string) =>
+      duration
+        ? `${member} has been ${phrase} for ${duration}, it can't serve reads`
+        : `${member} is ${phrase}, it can't serve reads`,
+    memberLost: (member: string, phrase: string) =>
+      `${member} is ${phrase}, it holds none of the set's data`,
     backupFailed: (cluster: string, name: string) =>
       `${cluster} ${name} failed`,
     backupFallbackName: 'backup',

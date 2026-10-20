@@ -50,6 +50,8 @@ export interface MongoMetrics {
   >;
   /** Set and role seen in the last day, for placing a member that reports nothing now. */
   roles: Record<string, { rsName: string; clRole?: 'configsvr' | 'shardsvr' }>;
+  /** Epoch seconds the member's current state was first seen within the last hour. */
+  stateSince: Record<string, number>;
   /** Seconds, secondaries only. */
   lag: Record<string, { now: number; sustained: number }>;
   /** Seconds. */
@@ -121,6 +123,8 @@ export interface MongoOperationsInput {
   /** `${env ?? ''}/${cluster}` to OmCluster.id */
   clusterIds: Record<string, string>;
   summary: { services: number; up: number; lastScanAt?: string };
+  /** Upgrades running now; sample data only until Operations reports them. */
+  upgrades: MongoUpgradeInput[];
   failedRuns: Array<{
     id: string;
     kind: 'install' | 'scan';
@@ -128,6 +132,17 @@ export interface MongoOperationsInput {
     finishedAt: string;
     failingNodes?: number;
   }>;
+}
+
+export interface MongoUpgradeInput {
+  /** `${env ?? ''}/${cluster}`, as clusterIds keys it. */
+  clusterKey: string;
+  /** Members upgraded so far; the next one is in progress. */
+  done: number;
+  total: number;
+  startedAt: string;
+  /** The version it upgrades to, such as 7.0.30-16. */
+  to?: string;
 }
 
 export type DashboardHit = DashboardSearchResult;

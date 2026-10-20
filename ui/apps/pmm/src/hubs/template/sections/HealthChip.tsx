@@ -8,11 +8,12 @@ import type { HubHealth } from '../hub.types';
 import { focusableText } from './hub.sx';
 import { formatSince } from './hub.time';
 
-// Filled for the states that need someone, outlined for healthy, grey for no data.
+// Filled for the states that need someone, outlined for healthy and planned work, grey for no data.
 const CHIP: Record<HubHealth, Pick<ChipProps, 'color' | 'variant'>> = {
   healthy: { color: 'success', variant: 'outlined' },
   degraded: { color: 'warning', variant: 'filled' },
   down: { color: 'error', variant: 'filled' },
+  upgrading: { color: 'info', variant: 'outlined' },
   noData: { color: 'default', variant: 'filled' },
 };
 

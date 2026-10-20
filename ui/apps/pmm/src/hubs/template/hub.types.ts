@@ -1,7 +1,12 @@
 import type { SvgIconProps } from '@mui/material/SvgIcon';
 import type { ComponentType } from 'react';
 
-export type HubHealth = 'healthy' | 'degraded' | 'down' | 'noData';
+export type HubHealth =
+  | 'healthy'
+  | 'degraded'
+  | 'down'
+  | 'upgrading'
+  | 'noData';
 export type HubSeverity = 'error' | 'warning' | 'info';
 export type HubLevel = 'ok' | 'warning' | 'error';
 export type HubScenario = 'live' | 'empty' | 'healthy' | 'wrong';
@@ -82,7 +87,7 @@ export interface HubTreeNode {
   health: HubHealth;
   /** False on members that are up. */
   showHealth: boolean;
-  /** ISO time the node has been down or without data since. */
+  /** ISO time the node has been down, without data or upgrading since. */
   since?: string;
   /** Tooltip, such as "No primary since 14:02". */
   healthDetail?: string;

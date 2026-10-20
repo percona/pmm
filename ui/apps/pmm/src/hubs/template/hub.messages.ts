@@ -74,6 +74,7 @@ export const Messages = {
     healthy: 'Healthy',
     degraded: 'Degraded',
     down: 'Down',
+    upgrading: 'Upgrading',
     noData: 'No data',
   } satisfies Record<HubHealth, string>,
   healthFor: (duration: string) => `for ${duration}`,

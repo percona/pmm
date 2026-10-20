@@ -14,11 +14,12 @@ const M = 'service_type="mongodb",job=~".*_hr"';
 describe('mongoQueries', () => {
   it('builds every query of the design for all environments', () => {
     expect(mongoQueries(null)).toEqual({
-      up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${M}}[1m]))`,
-      upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${M}}[1m]))`,
+      up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${M}}[5m]))`,
+      upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${M}}[5m]))`,
       lastUp: `max by (service_id) (tmax_over_time(mongodb_up{${M}}[24h]) and max_over_time(mongodb_up{${M}}[24h]) == 1)`,
-      self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${M}}[1m]))`,
-      selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${M}}[1m]))`,
+      self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${M}}[5m]))`,
+      selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${M}}[5m]))`,
+      stateSince: `max by (service_id, member_state) (tfirst_over_time(mongodb_members_self{${M}}[1h]))`,
       roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${M}}[24h]))`,
       lag: `max by (service_id) (last_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[1m]))`,
       lagSustained: `min by (service_id) (min_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[2m]))`,
@@ -186,6 +187,24 @@ describe('parseMongoMetrics', () => {
     });
 
     expect(metrics.self.x).toEqual({ rsName: 'billing', state: 'PRIMARY' });
+  });
+
+  it('dates each member’s current state from when it was first seen in the hour', () => {
+    const series = (member_state: string) => ({
+      service_id: 'x',
+      member_state,
+    });
+    const metrics = parseMongoMetrics({
+      ...recorded(),
+      self: [sample({ ...series('RECOVERING'), rs_nm: 'billing' }, 1)],
+      selfSeen: [],
+      stateSince: [
+        sample(series('SECONDARY'), 400),
+        sample(series('RECOVERING'), 700),
+      ],
+    });
+
+    expect(metrics.stateSince.x).toBe(700);
   });
 
   it('remembers the set and role of the last day', () => {

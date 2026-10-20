@@ -1,6 +1,7 @@
 import { matcher, type PromMatcher } from 'hubs/api/promql';
 import type { PromSample } from 'hubs/api/victoriaMetrics';
 import { HUB_NO_ENVIRONMENT } from 'hubs/template/hub.types';
+import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
 import type { MongoMetrics } from './mongodb.types';
 
 export type MongoQueryId =
@@ -9,6 +10,7 @@ export type MongoQueryId =
   | 'lastUp'
   | 'self'
   | 'selfSeen'
+  | 'stateSince'
   | 'roles'
   | 'lag'
   | 'lagSustained'
@@ -23,6 +25,7 @@ export const MONGO_QUERY_IDS: MongoQueryId[] = [
   'lastUp',
   'self',
   'selfSeen',
+  'stateSince',
   'roles',
   'lag',
   'lagSustained',
@@ -60,14 +63,18 @@ export const mongoQueries = (
     ...env,
   ]);
   const ownLag = `mongodb_mongod_replset_member_replication_lag{${m},self="1",state="SECONDARY"}`;
+  // A member keeps its last reading until it is stale, then reads No data.
+  const stale = `${T.staleSeconds / 60}m`;
 
   return {
-    up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${m}}[1m]))`,
-    // A label that flips (cluster_role when mongod stops) leaves two series for a minute; the one seen last is the member now.
-    upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${m}}[1m]))`,
+    up: `max by (service_id, cluster_role) (last_over_time(mongodb_up{${m}}[${stale}]))`,
+    // A label that flips (cluster_role when mongod stops) leaves two series in the window; the one seen last is the member now.
+    upSeen: `max by (service_id, cluster_role) (tlast_over_time(mongodb_up{${m}}[${stale}]))`,
     lastUp: `max by (service_id) (tmax_over_time(mongodb_up{${m}}[24h]) and max_over_time(mongodb_up{${m}}[24h]) == 1)`,
-    self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${m}}[1m]))`,
-    selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${m}}[1m]))`,
+    self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${m}}[${stale}]))`,
+    selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${m}}[${stale}]))`,
+    // When each state was first seen in the last hour, which the grace period for transitional states runs from.
+    stateSince: `max by (service_id, member_state) (tfirst_over_time(mongodb_members_self{${m}}[1h]))`,
     // Set and role a day back, so a set whose members are all down still lands where it belongs.
     roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${m}}[24h]))`,
     lag: `max by (service_id) (last_over_time(${ownLag}[1m]))`,
@@ -99,6 +106,7 @@ const byLabel = (
 
 const UP_LABELS = ['service_id', 'cluster_role'];
 const SELF_LABELS = ['service_id', 'rs_nm', 'cl_role', 'member_state'];
+const STATE_LABELS = ['service_id', 'member_state'];
 
 const seriesKey = (metric: Record<string, string>, labels: string[]) =>
   labels.map((label) => metric[label] ?? '').join('\u0000');
@@ -184,6 +192,19 @@ export const parseMongoMetrics = (
     selfAt[id] = at;
   }
 
+  const statesSeen = seenAt(results.stateSince, STATE_LABELS);
+  const stateSince: MongoMetrics['stateSince'] = {};
+
+  for (const [id, { state }] of Object.entries(self)) {
+    const since = statesSeen.get(
+      seriesKey({ service_id: id, member_state: state }, STATE_LABELS)
+    );
+
+    if (since !== undefined) {
+      stateSince[id] = since;
+    }
+  }
+
   const roles: MongoMetrics['roles'] = {};
 
   for (const { metric } of results.roles) {
@@ -210,6 +231,7 @@ export const parseMongoMetrics = (
     lastUpAt: byLabel(results.lastUp, 'service_id'),
     self,
     roles,
+    stateSince,
     lag,
     oplogWindow: byLabel(results.oplogWindow, 'service_id'),
     oplogFill: byLabel(results.oplogFill, 'service_id'),

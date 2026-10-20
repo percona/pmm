@@ -6,7 +6,7 @@ import type {
   MongoServiceInput,
 } from '../mongodb.types';
 
-// The recorded estate's names (recorded.ts), so doors land on dashboards with data; orders-mongos-2 and orders-cfg-m2/m3 exist only here.
+// The recorded estate's names (recorded.ts), so doors land on dashboards with data; orders-mongos-2, orders-cfg-m2/m3, payments and catalog exist only here.
 
 export const MINUTE_MS = 60 * 1000;
 export const HOUR_MS = 60 * MINUTE_MS;
@@ -59,6 +59,8 @@ export const ESTATE: EstateMember[] = [
   ...set('prod', 'orders', 'orders-shard1', 'shardsvr'),
   ...set('prod', 'orders', 'orders-shard2', 'shardsvr'),
   ...set('prod', 'billing', 'billing', 'replica'),
+  ...set('prod', 'payments', 'payments', 'replica'),
+  ...set('staging', 'catalog', 'catalog', 'replica'),
   {
     name: 'reports',
     environment: 'staging',
@@ -87,6 +89,10 @@ const LAG_SECONDS: Record<string, number> = {
   'orders-shard2-m3': 1,
   'billing-m2': 0,
   'billing-m3': 1,
+  'payments-m2': 1,
+  'payments-m3': 0,
+  'catalog-m2': 2,
+  'catalog-m3': 1,
 };
 
 const WINDOW_SECONDS: Record<Role, number | undefined> = {
@@ -97,18 +103,25 @@ const WINDOW_SECONDS: Record<Role, number | undefined> = {
   standalone: undefined,
 };
 
-/** Every member up, lag 0 to 2 s, shard windows 26 h, config and billing 40 h, oplogs full. */
+/** Every member up and in its state for the last hour, lag 0 to 2 s, shard windows 26 h, config and replica sets 40 h, oplogs full. */
 export const healthyMetrics = (now: number): MongoMetrics => {
   const metrics: MongoMetrics = {
     up: {},
     lastUpAt: {},
     self: {},
     roles: {},
+    stateSince: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
     shardsByCluster: { orders: 2 },
-    pbmConfiguredByCluster: { orders: true, billing: true, reports: false },
+    pbmConfiguredByCluster: {
+      orders: true,
+      billing: true,
+      payments: true,
+      catalog: false,
+      reports: false,
+    },
   };
 
   ESTATE.forEach((member) => {
@@ -135,6 +148,7 @@ export const healthyMetrics = (now: number): MongoMetrics => {
         rsName: member.replicationSet,
         ...(clRole ? { clRole } : {}),
       };
+      metrics.stateSince[id] = Math.floor((now - HOUR_MS) / 1000);
     }
     if (member.state === 'SECONDARY') {
       const lag = LAG_SECONDS[member.name] ?? 0;
@@ -165,8 +179,9 @@ export const nextRunAt = (now: number, hour: number) => {
 export const ORDERS_SCHEDULE = 'nightly backup';
 export const BILLING_SCHEDULE = 'daily backup';
 export const BILLING_PITR = 'point-in-time recovery';
+export const PAYMENTS_SCHEDULE = 'payments daily';
 
-/** Orders nightly at 02:00, billing daily at 03:00 plus PITR; reports has none. */
+/** Orders nightly at 02:00, billing daily at 03:00 plus PITR, payments daily at 04:00; catalog and reports have none. */
 export const healthyBackups = (now: number): MongoBackupsInput => ({
   enabled: true,
   scheduled: [
@@ -199,6 +214,16 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
       enabled: true,
       cronExpression: '',
     },
+    {
+      scheduledBackupId: 'sched-payments',
+      name: PAYMENTS_SCHEDULE,
+      serviceId: serviceId('payments-m1'),
+      serviceName: 'payments-m1',
+      mode: 'snapshot',
+      enabled: true,
+      cronExpression: '0 4 * * *',
+      nextRun: nextRunAt(now, 4),
+    },
   ],
   artifacts: [
     {
@@ -228,18 +253,34 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
       status: 'inProgress',
       createdAt: ago(now, 6 * HOUR_MS),
     },
+    {
+      artifactId: 'art-payments-snapshot',
+      name: `${PAYMENTS_SCHEDULE} 1`,
+      serviceId: serviceId('payments-m1'),
+      serviceName: 'payments-m1',
+      mode: 'snapshot',
+      status: 'success',
+      createdAt: ago(now, 8 * HOUR_MS),
+    },
   ],
 });
 
 export const OM_CLUSTER_IDS: Record<string, string> = {
   'prod/orders': 'om-orders',
   'prod/billing': 'om-billing',
+  'prod/payments': 'om-payments',
+  'staging/catalog': 'om-catalog',
   'staging/reports': 'om-reports',
 };
 
 export const healthyOperations = (now: number): MongoOperationsInput => ({
   clusterIds: OM_CLUSTER_IDS,
-  summary: { services: 15, up: 15, lastScanAt: ago(now, 4 * MINUTE_MS) },
+  summary: {
+    services: ESTATE.length,
+    up: ESTATE.length,
+    lastScanAt: ago(now, 4 * MINUTE_MS),
+  },
+  upgrades: [],
   failedRuns: [],
 });
 

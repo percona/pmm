@@ -230,7 +230,7 @@ type Vector = Array<{
 
 /** Each hub query's `data.result`, as VictoriaMetrics answered it. */
 const VECTORS: Record<
-  Exclude<MongoQueryId, 'upSeen' | 'selfSeen' | 'roles'>,
+  Exclude<MongoQueryId, 'upSeen' | 'selfSeen' | 'stateSince' | 'roles'>,
   Vector
 > = {
   up: [
@@ -613,11 +613,19 @@ const seen = (vector: Vector): Vector =>
     value: [time, lastUp.get(metric.service_id) ?? String(time)],
   }));
 
-/** Every hub query's answer; the seen-at times and day-long roles follow from the up and self series. */
+/** Every hub query's answer; the seen-at times, state times and day-long roles follow from the up and self series. */
 export const RECORDED_VECTORS: Record<MongoQueryId, Vector> = {
   ...VECTORS,
   upSeen: seen(VECTORS.up),
   selfSeen: seen(VECTORS.self),
+  // Recorded before the hub asked when states began: each member as in its state for the whole hour.
+  stateSince: VECTORS.self.map(({ metric, value: [time] }) => ({
+    metric: {
+      service_id: metric.service_id,
+      member_state: metric.member_state,
+    },
+    value: [time, String(time - 3600)],
+  })),
   roles: VECTORS.self.map(({ metric, value }) => ({
     metric: Object.fromEntries(
       Object.entries(metric).filter(([label]) => label !== 'member_state')

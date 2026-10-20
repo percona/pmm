@@ -10,6 +10,7 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
     lastUpAt: {},
     self: {},
     roles: {},
+    stateSince: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
@@ -21,7 +22,12 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   qan: { current: [], baseline: [] },
   realtime: { sessionServiceIds: [], queries: [] },
   operations: ops
-    ? { clusterIds: {}, summary: { services: 0, up: 0 }, failedRuns: [] }
+    ? {
+        clusterIds: {},
+        summary: { services: 0, up: 0 },
+        upgrades: [],
+        failedRuns: [],
+      }
     : null,
   dashboards: { catalog: DASHBOARD_CATALOG, recent: [] },
 });
