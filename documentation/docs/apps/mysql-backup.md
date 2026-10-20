@@ -171,7 +171,7 @@ To restore from a backup:
 
     Under **Backup location**, select how the backup is accessed (Local, SSH, S3, or GCS). The selection reveals the relevant credential fields. Under **Backup encryption**, select the format used when the backup was taken to provide the required decryption keys.
 
-    To restore to a different host, configure access via **SSH user**, **SSH port**, and **SSH key**.
+    If the backup is stored on another host, set **Backup location** to the remote host and fill in **SSH user**, **SSH port**, and **SSH key name**. These fields control where PMM fetches the backup from, not where it restores to.
 
 
 === "Binlog"
