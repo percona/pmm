@@ -87,7 +87,7 @@ Creates a recurring schedule for the named task. Requires the **Admin** role. Us
 ## Update a schedule
 
 ```
-PUT /extensions/api/extensions/periodic-tasks/{periodic_task_id}/
+PUT /extensions/api/extensions/periodic-tasks/{periodic_task_id}
 ```
 
 Updates an existing schedule. Requires the **Admin** role. Send the full schedule object with your changes, using the same fields as the create request. Use the numeric ID returned when you created the schedule as `{periodic_task_id}`.
