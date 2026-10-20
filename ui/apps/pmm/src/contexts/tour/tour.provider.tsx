@@ -70,17 +70,22 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 
   const endTour = useCallback(async () => {
-    if (tourName === 'alerting') {
-      await updateUserInfoAsync({ alertingTourCompleted: true });
-    } else if (tourName === 'product') {
-      await updateUserInfoAsync({ productTourCompleted: true });
+    try {
+      if (tourName === 'alerting') {
+        await updateUserInfoAsync({ alertingTourCompleted: true });
+      } else if (tourName === 'product') {
+        await updateUserInfoAsync({ productTourCompleted: true });
+      }
+    } catch {
+      // The API client already shows the error; the tour must still close.
     }
     setIsOpen(false);
   }, [tourName, updateUserInfoAsync]);
 
   useEffect(() => {
     // The Alerts menu, and so the alerting tour, is incomplete until settings load.
-    if (isOpen || !user?.info || !settings) {
+    // Anonymous users can't save tour completion, so it would reopen on every visit.
+    if (isOpen || !user?.info || user.isAnonymous || !settings) {
       return;
     }
 
