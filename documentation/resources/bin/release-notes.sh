@@ -8,7 +8,7 @@
 #   release-notes.sh build VERSION
 #       Adds the pmm-VERSION notes to VERSION.md, creating it from the template, and deletes each
 #       note it adds from NOTES_DIR and from unreleased/. A note is added once: an entry or a
-#       section the writer deletes stays deleted.
+#       section the writer deletes stays deleted, and a note already in any release page is only deleted.
 #
 # NOTES_DIR is unreleased/ in a checkout of pmm-VERSION; without it, check reads origin/pmm-VERSION.
 # DOC_DIR replaces the documentation/ directory.
@@ -58,12 +58,19 @@ branch_notes() {
   notes "$dir"
 }
 
-# published PAGE NOTE: the note's ticket is in the section of its type. Elsewhere on the page,
-# in the summary for example, does not count.
-published() {
-  [[ $(basename "$2") =~ $name ]] || return 1
-  awk -v h="${headings[${BASH_REMATCH[2]}]}" '$0 == h { s = 1; next } s && /^## / { exit } s' "$1" \
-    | grep -qF "browse/${BASH_REMATCH[1]})"
+# released NOTE prints the release page that has the note's ticket in the section of its type.
+# Elsewhere on a page, in the summary for example, does not count.
+released() {
+  local page
+  [[ $(basename "$1") =~ $name ]] || return 1
+  for page in "$pages"/[0-9]*.md; do
+    if awk -v h="${headings[${BASH_REMATCH[2]}]}" '$0 == h { s = 1; next } s && /^## / { exit } s' "$page" \
+      | grep -qF "browse/${BASH_REMATCH[1]})"; then
+      echo "$page"
+      return
+    fi
+  done
+  return 1
 }
 
 check() {
@@ -81,11 +88,9 @@ check() {
       continue
     fi
     grep -q '[^[:space:]]' "$file" || error "$base: write the release note"
-    for page in "$pages"/[0-9]*.md; do
-      if published "$page" "$file"; then
-        error "$base: already published in $(basename "$page"). Delete this note."
-      fi
-    done
+    if page=$(released "$file"); then
+      error "$base: already published in $(basename "$page"). Delete this note."
+    fi
   done
 
   if [[ $head =~ ^release-notes-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
@@ -143,7 +148,7 @@ build() {
   fi
 
   for file in $(branch_notes "$version"); do
-    if ! published "$page" "$file"; then
+    if ! released "$file" > /dev/null; then
       [[ $(basename "$file") =~ $name ]]
       heading=${headings[${BASH_REMATCH[2]}]}
       if ! grep -qxF "$heading" "$page"; then
@@ -160,7 +165,7 @@ build() {
   done
 
   for file in $(notes "$unreleased"); do
-    if published "$page" "$file"; then
+    if released "$file" > /dev/null; then
       rm "$file"
       echo "$(basename "$file"): removed from unreleased/"
     fi

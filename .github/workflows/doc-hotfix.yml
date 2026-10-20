@@ -2,6 +2,7 @@ name: Documentation hotfix
 
 # A PR merged to main with the doc-hotfix label has its documentation changes copied to the
 # release branch of the latest GA version; that push republishes the site (documentation.yml).
+# The "[Doc] Release X.Y.Z" PR of release-notes.yml goes to pmm-X.Y.Z instead.
 on:
   pull_request_target:
     types: [closed, labeled]
@@ -26,9 +27,16 @@ jobs:
       PR: ${{ github.event.pull_request.number }}
 
     steps:
-      - name: Find the latest GA version
+      - name: Find the target release branch
         id: release
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
+          if [[ $HEAD_REF =~ ^release-notes-([0-9]+\.[0-9]+\.[0-9]+)$ ]] && [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ]; then
+            echo "branch=pmm-${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           version=$(git ls-remote --tags --refs "https://github.com/${GITHUB_REPOSITORY}" 'v3.*' \
             | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
           if [ -z "$version" ]; then
@@ -55,7 +63,8 @@ jobs:
           git config user.email "github-action@users.noreply.github.com"
           git fetch --depth=2 origin "$SHA"
           patch="$RUNNER_TEMP/doc.patch"
-          git diff --binary "${SHA}^1" "$SHA" -- documentation/ > "$patch"
+          # Release notes in unreleased/ never go to a release branch; release-notes.yml handles them there.
+          git diff --binary "${SHA}^1" "$SHA" -- documentation/ ':(exclude)documentation/docs/release-notes/unreleased' > "$patch"
 
           if [ ! -s "$patch" ]; then
             echo "result=empty" >> "$GITHUB_OUTPUT"
