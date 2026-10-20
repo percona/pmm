@@ -28,7 +28,7 @@ export type SelectInputProps<T extends FieldValues = FieldValues> = {
   helperText?: React.ReactNode;
   /** MUI Select props forwarded to the dropdown, such as multiple or renderValue. */
   selectFieldProps?: SelectProps;
-  /** MUI FormControl props for the wrapper, such as fullWidth or size (defaults to small). */
+  /** MUI FormControl props for the wrapper, such as fullWidth or size; size is small unless this object sets the `size` key. */
   formControlProps?: FormControlProps;
   /** The choices, as MUI MenuItem elements; with none, a disabled "No options" item is shown. */
   children?: React.ReactNode | React.ReactNode[];
