@@ -181,9 +181,9 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		// Present only when the container was started with PMM_ENABLE_SEP,
+		// Present only when the container was started with PMM_ENABLE_EXTENSIONS,
 		// so it cannot belong to a fixed expectation either way.
-		if f.Name == "sep.conf" {
+		if f.Name == "extensions.conf" {
 			require.NoError(t, f.Err, "name = %q", f.Name)
 			continue
 		}
@@ -204,32 +204,32 @@ func TestFiles(t *testing.T) {
 	assert.Equal(t, commonExpectedFiles, actual)
 }
 
-func TestSepConfigFiles(t *testing.T) {
+func TestExtensionsConfigFiles(t *testing.T) {
 	t.Parallel()
 
 	t.Run("collects the drop-ins and ignores everything else", func(t *testing.T) {
 		t.Parallel()
 
 		dir := t.TempDir()
-		sep := filepath.Join(dir, "sep.conf")
+		extensions := filepath.Join(dir, "extensions.conf")
 		extra := filepath.Join(dir, "extra.conf")
-		require.NoError(t, os.WriteFile(sep, []byte("location /sep/ {}\n"), 0o600))
+		require.NoError(t, os.WriteFile(extensions, []byte("location /extensions/ {}\n"), 0o600))
 		require.NoError(t, os.WriteFile(extra, []byte("# left by an older build\n"), 0o600))
-		require.NoError(t, os.WriteFile(filepath.Join(dir, "sep.conf.template"), []byte("# not a drop-in\n"), 0o600))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "extensions.conf.template"), []byte("# not a drop-in\n"), 0o600))
 
-		assert.ElementsMatch(t, []string{sep, extra}, sepConfigFiles(dir))
+		assert.ElementsMatch(t, []string{extensions, extra}, extensionsConfigFiles(dir))
 	})
 
 	t.Run("absent directory is not an error", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Empty(t, sepConfigFiles(filepath.Join(t.TempDir(), "sep.d")))
+		assert.Empty(t, extensionsConfigFiles(filepath.Join(t.TempDir(), "extensions.d")))
 	})
 
 	t.Run("empty directory is not an error", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Empty(t, sepConfigFiles(t.TempDir()))
+		assert.Empty(t, extensionsConfigFiles(t.TempDir()))
 	})
 }
 

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -391,6 +392,14 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
+	}
+	if lr != nil && slices.Contains(lrOptions, "perf_schema.file_instances") {
+		// MySQL 8.0.30+ numbers redo log files ever higher, so per-file series would never stop growing.
+		lr.MetricRelabelConfigs = []*config.RelabelConfig{{
+			SourceLabels: []string{"__name__", "file_name"},
+			Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+			Action:       "drop",
+		}}
 	}
 
 	var r []*config.ScrapeConfig

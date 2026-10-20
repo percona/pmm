@@ -72,13 +72,13 @@ func (e *statusError) Error() string {
 // 404 not_found, 400 invalid_input; everything else is pmm_unavailable except
 // deadlines, which are timeout.
 func mapError(err error) *toolError {
-	var te *toolError
-	if errors.As(err, &te) {
+	te, ok := errors.AsType[*toolError](err)
+	if ok {
 		return te
 	}
 
-	var se *statusError
-	if errors.As(err, &se) {
+	se, ok := errors.AsType[*statusError](err)
+	if ok {
 		switch se.status {
 		case http.StatusUnauthorized, http.StatusForbidden:
 			return newToolError(codeUnauthorized, "%s", se.Error())

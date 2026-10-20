@@ -6,16 +6,16 @@
 %global commit		      ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         28
+%define release         29
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
-%define clickhouse_datasource_version 4.20.0
+%define clickhouse_datasource_version 4.21.3
 %define polystat_panel_version        2.1.16
 
 %ifarch x86_64
-%define plugin_platform linux_amd64
+%define plugin_platform linux-amd64
 %else
-%define plugin_platform linux_arm64
+%define plugin_platform linux-arm64
 %endif
 
 Name:		  percona-dashboards
@@ -31,7 +31,7 @@ BuildRequires:	unzip
 Requires:	percona-grafana
 
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
-Source1:	https://github.com/grafana/clickhouse-datasource/releases/download/v%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
+Source1:	https://storage.googleapis.com/grafana-plugins-catalog/grafana-clickhouse-datasource/release/%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
 Source2:	https://github.com/grafana/grafana-polystat-panel/releases/download/v%{polystat_panel_version}/grafana-polystat-panel-%{polystat_panel_version}.zip
 
 %description
@@ -66,6 +66,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-29
+- PMM-15225 Bump clickhouse datasource plugin to 4.21.3
+
 * Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-28
 - PMM-15335 Bump clickhouse datasource plugin to 4.20.0
 
