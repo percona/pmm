@@ -6,8 +6,10 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import { Page } from 'components/page';
-import { useAlertTemplates } from 'hooks/api/useAlertTemplates';
-import { useCreateRuleFromTemplate } from 'hooks/api/useAlertTemplates';
+import {
+  useAlertTemplates,
+  useCreateRuleFromTemplate,
+} from 'hooks/api/useAlertTemplates';
 import { useFolders } from 'hooks/api/useFolders';
 import { Severity } from 'types/alert-templates.types';
 import { PMM_ALERTING_TEMPLATES_PATH } from 'lib/constants';

@@ -2,7 +2,7 @@ import { FC } from 'react';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { Dialog, DialogTitle } from '@percona/percona-ui';
+import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { enqueueSnackbar } from 'notistack';
 import { useDeleteTemplate } from 'hooks/api/useAlertTemplates';
 import { Template } from 'types/alert-templates.types';

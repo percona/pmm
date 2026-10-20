@@ -16,7 +16,7 @@ import { AlertTemplates } from './AlertTemplates';
 
 vi.mock('api/alert-templates');
 vi.mock('utils/file.utils');
-// The real modal renders percona-ui's Dialog + multiline TextInput, which
+// The real modal renders peak-ui's Dialog + multiline TextInput, which
 // isn't renderable under jsdom; stub it to verify the props it receives.
 vi.mock('./modal-create-template', () => ({
   CreateTemplateModal: ({

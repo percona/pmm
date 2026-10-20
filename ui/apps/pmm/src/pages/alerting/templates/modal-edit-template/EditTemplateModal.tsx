@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Stack from '@mui/material/Stack';
-import { Dialog, DialogTitle } from '@percona/percona-ui';
+import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';

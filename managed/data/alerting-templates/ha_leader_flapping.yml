@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_leader_flapping
     version: 1
     summary: PMM HA leader is flapping
+    category: pmm
     queries:
       - ref_id: A
         expr: |-

@@ -5,7 +5,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { CodeBlock } from '@percona/percona-ui';
+import { CodeBlock } from '@percona/peak-ui';
 import { Template } from 'types/alert-templates.types';
 import { Messages } from '../CreateAlertFromTemplate.messages';
 

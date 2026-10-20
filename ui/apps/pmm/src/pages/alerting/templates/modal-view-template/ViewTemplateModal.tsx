@@ -4,7 +4,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import TextField from '@mui/material/TextField';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Dialog, DialogTitle } from '@percona/percona-ui';
+import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { enqueueSnackbar } from 'notistack';
 import { copyToClipboard } from 'utils/clipboard.utils';
 import { Messages } from './ViewTemplateModal.messages';

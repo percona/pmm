@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { TextInput } from '@percona/percona-ui';
+import { TextInput } from '@percona/peak-ui';
 import { useFormContext } from 'react-hook-form';
 import { EVALUATION_INTERVAL_OPTIONS } from '../CreateAlertFromTemplate.constants';
 import { Messages } from '../CreateAlertFromTemplate.messages';

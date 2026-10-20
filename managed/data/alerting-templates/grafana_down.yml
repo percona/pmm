@@ -3,6 +3,7 @@ templates:
   - name: pmm_grafana_down
     version: 1
     summary: PMM Grafana is down
+    category: pmm
     # Grafana evaluates the alert rules, so this cannot fire when Grafana is down everywhere.
     # It covers the case that matters in a clustered deployment: Grafana failing on one node
     # while another node still evaluates rules. See the coverage limitations in the docs.

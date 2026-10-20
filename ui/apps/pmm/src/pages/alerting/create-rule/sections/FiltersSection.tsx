@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { SelectInput, TextInput } from '@percona/percona-ui';
+import { SelectInput, TextInput } from '@percona/peak-ui';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FilterType } from 'types/alert-templates.types';
 import { CreateRuleFormValues } from '../CreateAlertFromTemplate.types';

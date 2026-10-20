@@ -1,4 +1,4 @@
-import { type MRT_ColumnDef } from '@percona/percona-ui';
+import { type MRT_ColumnDef } from '@percona/peak-ui';
 import { Template } from 'types/alert-templates.types';
 import { formatCreatedAt } from 'utils/alert-templates.utils';
 import { Messages } from '../AlertTemplates.messages';

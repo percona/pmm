@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_node_unreachable
     version: 1
     summary: PMM HA node unreachable
+    category: pmm
     # A node that goes down stops emitting pmm_ha_up entirely, so it cannot be named from a
     # live series. The first half names a node seen in the last 6h but not the last 2m, and
     # absent() supplies an unnamed instance when nobody can be named: a node that never

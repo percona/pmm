@@ -2,7 +2,7 @@ import { ChangeEvent, FC, useRef } from 'react';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
-import { TextInput } from '@percona/percona-ui';
+import { TextInput } from '@percona/peak-ui';
 import { useFormContext } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { readFileAsText } from '../../modal-create-template/CreateTemplateModal.utils';

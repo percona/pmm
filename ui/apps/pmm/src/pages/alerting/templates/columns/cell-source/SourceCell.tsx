@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { ChipProps } from '@mui/material/Chip';
-import { Chip } from '@percona/percona-ui';
+import { Chip } from '@percona/peak-ui';
 import { TemplateSource } from 'types/alert-templates.types';
 import { SOURCE_MAP } from '../../AlertTemplates.constants';
 

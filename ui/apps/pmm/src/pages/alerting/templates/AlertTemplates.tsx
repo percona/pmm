@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import { boxClasses } from '@mui/material/Box';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { useUser } from 'contexts/user';
 import { useAlertTemplates } from 'hooks/api/useAlertTemplates';
 import { Template } from 'types/alert-templates.types';

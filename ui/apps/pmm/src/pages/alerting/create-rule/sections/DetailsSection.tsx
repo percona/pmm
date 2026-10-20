@@ -2,7 +2,7 @@ import { FC } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { SelectInput, TextInput } from '@percona/percona-ui';
+import { SelectInput, TextInput } from '@percona/peak-ui';
 import { SEVERITY_OPTIONS } from '../CreateAlertFromTemplate.constants';
 import { Messages } from '../CreateAlertFromTemplate.messages';
 

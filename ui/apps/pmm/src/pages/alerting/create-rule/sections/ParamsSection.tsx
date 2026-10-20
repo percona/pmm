@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { SwitchInput, TextInput } from '@percona/percona-ui';
+import { SwitchInput, TextInput } from '@percona/peak-ui';
 import {
   ParamDefinition,
   ParamType,

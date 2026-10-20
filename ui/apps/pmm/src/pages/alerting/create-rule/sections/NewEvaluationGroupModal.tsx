@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Dialog, DialogTitle, TextInput } from '@percona/percona-ui';
+import { Dialog, DialogTitle, TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
