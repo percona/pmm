@@ -16,7 +16,7 @@ You cannot deploy PMM Extensions on:
 
 ## Check versions before deploying
 
-PMM Server and PMM Extensions must run on the same version. A mismatch won't produce an error but the **Apps** menu won't appear in the sidebar.
+PMM Server and PMM Extensions must run on the same version. If they don't match, the app pages show a warning with both versions.
 
 Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, which pulls the latest 3.x release. To run a specific version, set it in `.env` before starting the containers:
 
