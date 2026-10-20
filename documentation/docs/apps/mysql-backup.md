@@ -145,7 +145,7 @@ To restore from a backup:
 
 5. Configure [Restore options by backup type](#restore-options-by-backup-type). PMM checks MySQL version compatibility before restoring, but make sure your backup binary version matches the target server. A mismatch fails in the backup tool, not in PMM.
 6. Optionally check **Alert on failure** to receive an alert if the restore task fails.
-7. Click **Create MySQL Restore**.
+7. Click **Create restore**.
 
 ### Restore options by backup type
 
