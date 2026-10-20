@@ -94,7 +94,7 @@ Shows the per-node rate of scrape requests made by VMAgent.
 
 ### Samples
 
-Shows the per-node rate of samples collected per scrape.
+Shows the per-node rate of samples collected by scraping.
 
 ### Scrapes p0.95 Response Size
 
