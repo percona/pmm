@@ -81,8 +81,9 @@ func TestExplainTool(t *testing.T) {
 		assert.Contains(t, text, "details_tab=explain&filter_by=QID-AAA")
 		fake.assertForwardedAuth(t)
 
-		// The stored-plan probe ran first, then the action was started and polled.
-		assert.Len(t, fake.requestsTo("/v1/qan/query/QID-AAA/plan"), 1)
+		// MySQL has no stored plans, so there is no probe: the action is started
+		// and polled straight away.
+		assert.Empty(t, fake.requestsTo("/v1/qan/query/QID-AAA/plan"))
 		starts := fake.requestsTo("/v1/actions:startServiceAction")
 		require.Len(t, starts, 1)
 		body := unmarshalBody[actions_service.StartServiceActionBody](t, starts[0])
@@ -201,6 +202,20 @@ func TestExplainTool(t *testing.T) {
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\nservice 'svc-404' not found"), text)
 	})
+
+	// Only MySQL's 1064 gets the placeholder advice, not any invalid input.
+	t.Run("ExplainStartRejectedHasNoPlaceholderAdvice", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_invalid.json", status: http.StatusBadRequest}
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+		assert.NotContains(t, text, "placeholder syntax")
+	})
 }
 
 func TestSchemaTool(t *testing.T) {
@@ -237,6 +252,20 @@ func TestSchemaTool(t *testing.T) {
 		require.NotNil(t, ddl.PostgresShowCreateTable)
 		idx := unmarshalBody[actions_service.StartServiceActionBody](t, starts[1])
 		require.NotNil(t, idx.PostgresShowIndex)
+	})
+
+	// A syntax error from SHOW CREATE TABLE is not EXPLAIN's placeholder
+	// problem, and pmm_get_schema takes no placeholders.
+	t.Run("SyntaxErrorHasNoExplainAdvice", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "table": "customers"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nError 1064"), text)
+		assert.NotContains(t, text, "placeholders")
 	})
 
 	t.Run("Validation", func(t *testing.T) {
@@ -311,10 +340,13 @@ func TestMapActionError(t *testing.T) {
 		"dial tcp 10.0.0.5:3306: connect: connection refused":           codeAgentUnreachable,
 		"Error 1064 (42000): You have an error in your SQL syntax":      codeInvalidInput,
 		"Error 1146 (42S02): Table 'shop.nope' doesn't exist":           codeNotFound,
+		"Error 1698 (28000): Access denied for user 'root'@'localhost'": codeInsufficientPrivileges,
+		"Error 1040 (08004): Too many connections":                      codeAgentUnreachable,
+		"Error 1305 (42000): FUNCTION shop.f does not exist":            codeNotFound,
 		"table not found: sql: no rows in result set":                   codeNotFound,
 		"query EXPLAIN functionality is supported only for DML queries": codePMMUnavailable,
 	} {
-		assert.Equal(t, code, mapActionError(msg).code, msg)
+		assert.Equal(t, code, mapActionError(msg, false).code, msg)
 	}
 
 	assert.Equal(t, codeAgentUnreachable, mapError(mapActionStartError(&statusError{status: 400, message: "Cannot find right agent"})).code)
@@ -326,10 +358,10 @@ func TestDecodeExplainOutput(t *testing.T) {
 	t.Parallel()
 
 	envelope := `{"explain_result":"cGxhbg==","explained_query":"SELECT 1","is_dml":false}`
-	assert.Equal(t, "-- SELECT 1\nplan", decodeExplainOutput(envelope, true))
-	assert.Equal(t, "plan", decodeExplainOutput(envelope, false))
+	assert.Equal(t, "-- SELECT 1\nplan", first(decodeExplainOutput(envelope, true)))
+	assert.Equal(t, "plan", first(decodeExplainOutput(envelope, false)))
 	assert.Equal(t, "-- UPDATE t\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)\nplan",
-		decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"UPDATE t","is_dml":true}`, true))
-	assert.Equal(t, "not json", decodeExplainOutput("not json", true))
-	assert.Equal(t, `{"other":1}`, decodeExplainOutput(`{"other":1}`, true))
+		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"UPDATE t","is_dml":true}`, true)))
+	assert.Equal(t, "not json", first(decodeExplainOutput("not json", true)))
+	assert.Equal(t, `{"other":1}`, first(decodeExplainOutput(`{"other":1}`, true)))
 }

@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -64,9 +65,11 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 		Name:  "pmm_get_explain",
 		Title: "Execution plan",
 		Description: "Return the execution plan for a query addressed by queryid. PostgreSQL plans come from " +
-			"pg_stat_monitor's stored plan (needs pgsm_enable_query_plan=on); MySQL and MongoDB plans are " +
-			"produced live by the PMM agent with a non-executing EXPLAIN (never EXPLAIN ANALYZE). If a MySQL " +
-			"fingerprint has ? placeholders and no query example is stored, pass placeholders and database.",
+			"pg_stat_monitor's stored plan (needs pgsm_enable_query_plan=on). MySQL plans are produced live by " +
+			"the PMM agent with a non-executing EXPLAIN (never EXPLAIN ANALYZE). MongoDB plans are produced live " +
+			"with explain, which runs the query's candidate plans to collect execution statistics but never " +
+			"modifies data. If a MySQL fingerprint has ? placeholders and no query example is stored, pass " +
+			"placeholders and database.",
 		Annotations: readOnly("Execution plan"),
 	}, handle(s, "pmm_get_explain", s.explain))
 
@@ -96,23 +99,22 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
 	now := s.now()
+	// Read once: each read is a settings query, and two reads could disagree.
+	raw := s.rawSQL()
 
-	// Probe the stored plan first: pg_stat_monitor stores one per digest when
-	// pgsm_enable_query_plan is on. Live-confirmed on 3.8.1: 200 {} when absent.
-	if in.QueryID != "" {
-		plan, err := s.api.GetQueryPlan(ctx, auth, in.QueryID)
-		if err != nil {
-			s.l.WithField("tool", "pmm_get_explain").Debugf("Stored-plan probe failed: %s.", err)
-		} else if plan != nil && plan.QueryPlan != "" {
-			text := "Stored plan (pg_stat_monitor, planid " + plan.Planid + "):\n```\n" + plan.QueryPlan + "\n```"
-			text += "\n\n" + link("View this query in PMM", qanQueryURL(base, in.QueryID, "", now.Add(-time.Hour), now, "explain"))
-			return textResult(text), nil
-		}
-	}
-
+	// Resolve the service before anything else: the engine decides where the
+	// plan comes from, and an unknown service_id must fail before any plan is
+	// fetched.
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
 		return nil, err
+	}
+
+	// PostgreSQL has no live EXPLAIN action; its plans come only from
+	// pg_stat_monitor. MySQL and MongoDB never have stored plans, so they skip
+	// the probe rather than paying for a lookup that cannot succeed.
+	if svc.Engine == enginePostgreSQL {
+		return s.storedPlan(ctx, auth, in.QueryID, svc, base, now, raw)
 	}
 
 	var body actions_service.StartServiceActionBody
@@ -143,23 +145,60 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 			}
 		}
 		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: in.ServiceID, Query: query}
-	case enginePostgreSQL:
-		return nil, newToolError(codeNotFound,
-			"no stored plan for queryid '%s' and PMM has no live EXPLAIN action for PostgreSQL. Monitor the service with "+
-				"pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on so plans are captured, then retry", in.QueryID)
 	default:
 		return nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
-	output, err := s.runAction(ctx, auth, body)
+	output, err := s.runAction(ctx, auth, body, !raw)
+	var te *toolError
+	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
+		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no
+		// concrete statement was available.
+		return nil, newToolError(codeInvalidInput,
+			"EXPLAIN could not run on the fingerprint (placeholder syntax): %s. "+
+				"Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database.", te.message)
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	text := fmt.Sprintf("EXPLAIN (%s, %s %s):\n```\n%s\n```", format, svc.Engine, svc.ServiceName, decodeExplainOutput(output, s.rawSQL()))
+	plan, decoded := decodeExplainOutput(output, raw)
+	if !raw {
+		plan = redactPlan(svc.Engine, format, plan, decoded)
+	}
+	text := fmt.Sprintf("EXPLAIN (%s, %s %s):\n```\n%s\n```", format, svc.Engine, svc.ServiceName, plan)
 	if in.QueryID != "" {
 		text += "\n\n" + link("View this query in PMM", qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"))
 	}
+	return textResult(text), nil
+}
+
+// storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {};
+// qan-api2 ignores the service_id it is sent until PMM-15697.
+func (s *Service) storedPlan(
+	ctx context.Context, auth callerAuth, queryID string, svc serviceInfo, base string, now time.Time, raw bool,
+) (*mcp.CallToolResult, error) {
+	if queryID == "" {
+		return nil, newToolError(codeInvalidInput, "PostgreSQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
+	}
+
+	plan, err := s.api.GetQueryPlan(ctx, auth, queryID, svc.ServiceID)
+	if err != nil {
+		return nil, err
+	}
+	if plan == nil || plan.QueryPlan == "" {
+		return nil, newToolError(codeNotFound,
+			"no stored plan for queryid '%s'. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
+				"pg_stat_monitor: monitor the service with pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on, "+
+				"then retry once the query has run again", queryID)
+	}
+
+	body := plan.QueryPlan
+	if !raw {
+		body = maskPGPlan(body)
+	}
+	text := "Stored plan (pg_stat_monitor, planid " + plan.Planid + "):\n```\n" + body + "\n```"
+	text += "\n\n" + link("View this query in PMM", qanQueryURL(base, queryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"))
 	return textResult(text), nil
 }
 
@@ -225,7 +264,9 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return nil, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
 	}
 
-	ddl, err := s.runAction(ctx, auth, ddlBody)
+	// SHOW CREATE TABLE and SHOW INDEX errors quote only the identifiers the
+	// caller passed, never a value, so they are not masked.
+	ddl, err := s.runAction(ctx, auth, ddlBody, false)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +276,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	text := "```sql\n" + strings.TrimRight(ddl, "\n") + "\n```"
 
 	if in.IncludeIndexes {
-		indexes, err := s.runAction(ctx, auth, indexBody)
+		indexes, err := s.runAction(ctx, auth, indexBody, false)
 		if err != nil {
 			return nil, err
 		}
@@ -245,8 +286,9 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 }
 
 // runAction starts a service action and polls it with 300 ms -> 2 s backoff
-// until it is done or the action timeout elapses.
-func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody) (string, error) {
+// until it is done or the action timeout elapses. With redact set, literals in
+// the action's error are masked.
+func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody, redact bool) (string, error) {
 	started, err := s.api.StartServiceAction(ctx, auth, body)
 	if err != nil {
 		return "", mapActionStartError(err)
@@ -266,7 +308,7 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 		}
 		if res.Done {
 			if res.Error != "" {
-				return "", mapActionError(res.Error)
+				return "", mapActionError(res.Error, redact)
 			}
 			return res.Output, nil
 		}
@@ -317,34 +359,108 @@ func mapActionStartError(err error) error {
 	return te
 }
 
+// mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
+// only users, hosts, databases, tables, keys and routines, never a value, so
+// their message is kept when raw SQL is off; remediation needs the names.
+var mysqlErrors = map[string]struct {
+	code        errorCode
+	identifiers bool
+}{
+	"1044": {codeInsufficientPrivileges, true},
+	"1045": {codeInsufficientPrivileges, true},
+	"1142": {codeInsufficientPrivileges, true},
+	"1143": {codeInsufficientPrivileges, true},
+	"1227": {codeInsufficientPrivileges, true},
+	"1370": {codeInsufficientPrivileges, true},
+	"1698": {codeInsufficientPrivileges, true},
+	"1040": {codeAgentUnreachable, true},
+	"1203": {codeAgentUnreachable, true},
+	"1049": {codeNotFound, true},
+	"1146": {codeNotFound, true},
+	"1176": {codeNotFound, true},
+	"1305": {codeNotFound, true},
+	"1449": {codeNotFound, true},
+	"1932": {codeNotFound, true},
+	// ANSI_QUOTES makes a double-quoted string a column name, so 1054 can
+	// quote a value.
+	"1054": {codeNotFound, false},
+	"1064": {codeInvalidInput, false},
+}
+
+// mongoErrors classifies MongoDB server error code names.
+var mongoErrors = map[string]errorCode{
+	"Unauthorized":         codeInsufficientPrivileges,
+	"AuthenticationFailed": codeInsufficientPrivileges,
+	"NamespaceNotFound":    codeNotFound,
+	"IndexNotFound":        codeNotFound,
+}
+
+// withheldMessage replaces an action error message that can quote the statement.
+const withheldMessage = "(message withheld: it can quote the statement, and PMM_MCP_RAW_SQL is off)"
+
 // mapActionError classifies the error text of a finished action.
-func mapActionError(actionErr string) *toolError {
-	e := strings.ToLower(actionErr)
+//
+// With redact set (raw SQL off), the message is withheld unless it is known
+// not to quote the statement the agent ran, with its literal values:
+// pmm-agent's own fixed texts and network errors (safeActionError), and the
+// MySQL errors that name only identifiers. Every other shape - MySQL's
+// "near '...'", MongoDB's planner and parse errors, a format not seen yet -
+// is withheld, keeping its MySQL error number or MongoDB code name.
+//
+// The error is classified by that number or name, and otherwise on its text
+// with the quoted parts removed, so that a word inside a quoted value cannot
+// pass for the error's own.
+func mapActionError(actionErr string, redact bool) *toolError {
+	rest := strings.TrimPrefix(actionErr, mongoExplainPrefix)
+	prefix := actionErr[:len(actionErr)-len(rest)]
+	mysqlHeader := mysqlErrorHeader.FindStringSubmatch(rest)
+	mongoName := mongoErrorName.FindStringSubmatch(rest)
+
+	var code errorCode
+	safe := safeActionError.MatchString(rest)
+	header := ""
 	switch {
-	case strings.Contains(e, "denied") || strings.Contains(e, "privilege") || strings.Contains(e, "permission"):
-		return newToolError(codeInsufficientPrivileges, "%s", actionErr)
-	case strings.Contains(e, "connection") || strings.Contains(e, "dial") || strings.Contains(e, "unreachable") || strings.Contains(e, "no such host"):
-		return newToolError(codeAgentUnreachable, "%s", actionErr)
-	case strings.Contains(e, "1064") || strings.Contains(e, "syntax"):
-		// EXPLAIN ran on the ? fingerprint because no concrete statement was
-		// available: needs a stored query example or explicit placeholders.
-		return newToolError(codeInvalidInput,
-			"EXPLAIN could not run on the fingerprint (placeholder syntax): %s. "+
-				"Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database.", actionErr)
+	case mysqlHeader != nil:
+		known := mysqlErrors[mysqlHeader[1]]
+		code, safe, header = known.code, known.identifiers, mysqlHeader[0]
+	case mongoName != nil:
+		code, header = mongoErrors[mongoName[1]], mongoName[0]
+	}
+	if code == "" {
+		code = classifyErrorText(maskQuoted(rest))
+	}
+
+	msg := actionErr
+	if redact && !safe {
+		msg = prefix + header + withheldMessage
+	}
+	return newToolError(code, "%s", msg)
+}
+
+// classifyErrorText classifies an error by the words of its message.
+func classifyErrorText(text string) errorCode {
+	e := strings.ToLower(text)
+	switch {
+	case strings.Contains(e, "denied") || strings.Contains(e, "privilege") || strings.Contains(e, "permission") ||
+		strings.Contains(e, "not authorized") || strings.Contains(e, "authentication failed"):
+		return codeInsufficientPrivileges
+	case strings.Contains(e, "connection") || strings.Contains(e, "dial") || strings.Contains(e, "unreachable") ||
+		strings.Contains(e, "no such host") || strings.Contains(e, "server selection"):
+		return codeAgentUnreachable
 	case strings.Contains(e, "not found") || strings.Contains(e, "doesn't exist") || strings.Contains(e, "does not exist"):
-		return newToolError(codeNotFound, "%s", actionErr)
+		return codeNotFound
 	default:
-		return newToolError(codePMMUnavailable, "%s", actionErr)
+		return codePMMUnavailable
 	}
 }
 
 // decodeExplainOutput unwraps the MySQL explain envelope
 // {explain_result: <base64 plan>, explained_query, is_dml} (source-confirmed in
 // agent/runner/actions/mysql_explain_action.go). With raw SQL disabled the
-// explained statement (a real query with literals) is omitted. The plan body
-// itself may still embed literals (e.g. attached_condition in FORMAT=JSON):
-// disable query examples in PMM to prevent literal-bearing EXPLAINs entirely.
-func decodeExplainOutput(output string, rawSQL bool) string {
+// explained statement (a real query with literals) is omitted; literals in the
+// plan body are masked separately, by redactPlan. It reports whether output
+// was such an envelope: anything else is returned unchanged.
+func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
 	var envelope struct {
 		ExplainResult  string `json:"explain_result"`
 		ExplainedQuery string `json:"explained_query"`
@@ -352,11 +468,11 @@ func decodeExplainOutput(output string, rawSQL bool) string {
 	}
 	err := json.Unmarshal([]byte(output), &envelope)
 	if err != nil || envelope.ExplainResult == "" {
-		return output
+		return output, false
 	}
 	plan, err := base64.StdEncoding.DecodeString(envelope.ExplainResult)
 	if err != nil {
-		return output
+		return output, false
 	}
 	text := strings.TrimRight(string(plan), "\n")
 	if rawSQL && envelope.ExplainedQuery != "" {
@@ -364,7 +480,7 @@ func decodeExplainOutput(output string, rawSQL bool) string {
 		if envelope.IsDML {
 			prefix += "\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)"
 		}
-		return prefix + "\n" + text
+		return prefix + "\n" + text, true
 	}
-	return text
+	return text, true
 }

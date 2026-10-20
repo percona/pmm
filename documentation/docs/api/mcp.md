@@ -2,14 +2,32 @@
 
 PMM Server exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) endpoint at `https://<pmm-server>/mcp`. Any MCP client, such as Claude Code, Cursor, or your own agent, can use it to triage slow queries with PMM data: list the monitored services, rank the worst queries from Query Analytics (QAN), fetch the metrics and an example statement for one query, get its execution plan and the DDL of its tables, and read the database server's configuration.
 
-The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` and `destructiveHint: false` annotations, no tool changes database or PMM state, and EXPLAIN is always the non-executing form, never `EXPLAIN ANALYZE`.
+The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` and `destructiveHint: false` annotations, and no tool changes database or PMM state. MySQL EXPLAIN is always the non-executing form, never `EXPLAIN ANALYZE`. MongoDB explain runs the query's candidate plans to collect execution statistics. It costs about as much as the read itself, but it never modifies data.
 
 ## How it works
 
 The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own `Authorization` header, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies.
 
+The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
+
 !!! note alert alert-primary "Service-account tokens and label-based access control"
     PMM resolves service-account tokens without a user ID, so label-based access control (LBAC) filters are not applied to them. A Viewer token sees the same services and queries a Viewer sees in the UI, subject to the role, but not to LBAC roles. This is existing PMM behaviour, not specific to MCP.
+
+## Enable the endpoint
+
+The endpoint is **off by default**: until it is enabled, `/mcp` answers 404. Enable it in either of these ways:
+
+- Start PMM Server with the environment variable `PMM_ENABLE_MCP=true`, for example `docker run … -e PMM_ENABLE_MCP=true …`.
+- Or change the setting on a running server, as an administrator. It takes effect immediately, without a restart:
+
+    ```sh
+    curl -X PUT https://<pmm-server>/v1/server/settings \
+      -u admin:<password> \
+      -H "Content-Type: application/json" \
+      -d '{"enable_mcp": true}'
+    ```
+
+The current state is reported as `enable_mcp` in `GET /v1/server/settings/readonly`. Setting it back to `false` disables the endpoint again at once. When `PMM_ENABLE_MCP` is set, it takes precedence: a change that contradicts it is rejected.
 
 ## Create a token
 
@@ -76,9 +94,9 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 | `pmm_inventory` | Monitored services with `service_id`, `service_name`, engine, version, node and address; optional `engine` / `node` filters | `GET /v1/inventory/services`, `GET /v1/inventory/nodes`, version metrics |
 | `pmm_top_queries` | The worst queries for a service over a window (`period_from` / `period_to`, RFC 3339 or relative such as `now-1h`), ranked by `load`, `total_query_time`, `avg_query_time` or `count`, with their `queryid` | `POST /v1/qan/metrics:getReport` |
 | `pmm_query_detail` | Fingerprint, engine and version, schema, tables, key metrics (rows examined/sent, full scans, filesorts, …) and an example statement for one `queryid` | `POST /v1/qan:getMetrics`, `POST /v1/qan/query:getExample` |
-| `pmm_get_explain` | The execution plan for a `queryid`: the stored `pg_stat_monitor` plan for PostgreSQL, a live `EXPLAIN` (JSON or traditional) run by pmm-agent for MySQL, `explain` for MongoDB | `GET /v1/qan/query/{queryid}/plan`, `POST /v1/actions:startServiceAction`, `GET /v1/actions/{action_id}` |
+| `pmm_get_explain` | The execution plan for a `queryid`: the stored `pg_stat_monitor` plan for PostgreSQL, a live `EXPLAIN` (JSON or traditional) run by pmm-agent for MySQL, `explain` for MongoDB | `GET /v1/inventory/services`, `GET /v1/qan/query/{queryid}/plan` (PostgreSQL), `POST /v1/actions:startServiceAction` and `GET /v1/actions/{action_id}` (MySQL, MongoDB) |
 | `pmm_get_schema` | `SHOW CREATE TABLE` (MySQL) or the table definition (PostgreSQL) for a table, optionally with its indexes | `POST /v1/actions:startServiceAction`, `GET /v1/actions/{action_id}` |
-| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects | `GET /graph/api/datasources`, the Grafana datasource proxy |
+| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted) | `GET /v1/inventory/services` (with `service_id`), `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy |
 
 Every result carries a **View in PMM** link that opens the QAN dashboard on the same window, service and query, so an answer can always be checked in PMM itself. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
 
@@ -99,18 +117,28 @@ A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain
 
 | Environment variable | Default | Effect |
 |----------------------|---------|--------|
-| `PMM_ENABLE_MCP` | `true` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`. |
-| `PMM_MCP_RAW_SQL` | `true` | Allows tool output to include statements with literal values: the stored query example in `pmm_query_detail` and the explained statement in `pmm_get_explain`. Set to `false` to emit only normalized text (fingerprints and PMM's `explain_fingerprint`). |
+| `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
+| `PMM_MCP_RAW_SQL` | `false` | Allows tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints, plan literals are replaced with `?`, and agent errors that can quote a statement are withheld. Removing the variable turns raw SQL off at the next start. |
 | `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long `pmm_get_explain` and `pmm_get_schema` wait for pmm-agent to finish an action before returning a `timeout` error. |
 
-Set them on the PMM Server container like other `PMM_*` variables, for example `-e PMM_ENABLE_MCP=false`. They are persisted in PMM settings at start-up.
+Set them on the PMM Server container like other `PMM_*` variables, for example `-e PMM_ENABLE_MCP=true`. They are persisted in PMM settings at start-up.
 
 !!! note alert alert-primary "Data sensitivity"
-    Query fingerprints have their literal values stripped and are safe to share broadly. Example statements and execution plans can contain literal values from your data. To keep them out of tool output, set `PMM_MCP_RAW_SQL=false`, or disable query examples at the source with `pmm-admin add … --disable-queryexamples` (this also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL). Plan bodies can still embed literals (for example `attached_condition` in MySQL's JSON format).
+    Query fingerprints are normally free of literal values. Example statements, execution plans and agent errors can contain literal values from your data. So can a fingerprint that PMM stored unnormalized, such as a PostgreSQL query that `pg_stat_monitor` truncated.
+
+    With `PMM_MCP_RAW_SQL` off, the default, MCP keeps those values out of tool output:
+
+    - Example statements are replaced by their fingerprints.
+    - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
+    - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, or QAN cannot report which engines it holds, a fingerprint that contains any quoted text is withheld too. PMM Server's own PostgreSQL counts when its QAN is enabled. To see such a fingerprint, filter by `service_name`.
+    - An agent error that can quote the statement is withheld, and its error code is kept.
+
+    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
 
 ## Limitations
 
 - **MySQL EXPLAIN needs a query example.** pmm-agent resolves the `?` placeholders of a fingerprint from the stored example. Without one (examples disabled, or short-lived connections whose statements leave `performance_schema.events_statements_history` before pmm-agent samples it), MySQL answers a syntax error and the tool returns `invalid_input` with instructions to pass `placeholders` and `database` explicitly.
+- **PostgreSQL stored plans are not yet scoped to a service.** `pmm_get_explain` sends the `service_id` with the plan request, but QAN does not yet filter stored plans by it or by label-based access control. When two PostgreSQL services record the same `queryid`, the plan returned can belong to the other service, including one the caller's access roles hide.
 - **PostgreSQL plans are stored, not live.** PMM has no live EXPLAIN action for PostgreSQL. `pmm_get_explain` returns the plan captured by `pg_stat_monitor`, which requires `pg_stat_monitor.pgsm_enable_query_plan = on`. PMM's [PostgreSQL setup](../install-pmm/install-pmm-client/connect-database/postgresql.md) recommends keeping it off because plan capture splits a query's statistics over several records; enable it only where plan retrieval matters more than exact timing. With `pg_stat_statements`, or with plan capture off, the tool returns `not_found`.
 - **MongoDB EXPLAIN uses the stored example document** as its input; pass `query` to explain a specific statement.
 - **`pmm_get_config` is limited to numeric variables**, because exporters publish numeric values only. String-valued knobs such as `sql_mode` or `innodb_flush_method` are not available.

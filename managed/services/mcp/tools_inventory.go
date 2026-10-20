@@ -17,7 +17,9 @@ package mcp
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"sort"
 	"strings"
@@ -100,7 +102,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	services, err := s.listServices(ctx, auth)
+	services, err := s.listServices(ctx, auth, true)
 	if err != nil {
 		return nil, err
 	}
@@ -139,34 +141,17 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	return textResult(strings.Join(lines, "\n")), nil
 }
 
-// listServices fetches the inventory and resolves node names. Node lookup
-// failures are tolerated: the listing is still useful without them.
-func (s *Service) listServices(ctx context.Context, auth callerAuth) ([]serviceInfo, error) {
+// listServices fetches the inventory, with node names when withNodeNames is
+// set: that is one more call, which a lookup by service id does not need.
+func (s *Service) listServices(ctx context.Context, auth callerAuth, withNodeNames bool) ([]serviceInfo, error) {
 	resp, err := s.api.ListServices(ctx, auth)
 	if err != nil {
 		return nil, err
 	}
 
-	nodeNames := map[string]string{}
-	nodes, err := s.api.ListNodes(ctx, auth)
-	if err != nil {
-		s.l.WithField("tool", "pmm_inventory").Debugf("Cannot list nodes, node names will be empty: %s.", err)
-	} else {
-		for _, n := range nodes.Generic {
-			nodeNames[n.NodeID] = n.NodeName
-		}
-		for _, n := range nodes.Container {
-			nodeNames[n.NodeID] = n.NodeName
-		}
-		for _, n := range nodes.Remote {
-			nodeNames[n.NodeID] = n.NodeName
-		}
-		for _, n := range nodes.RemoteRDS {
-			nodeNames[n.NodeID] = n.NodeName
-		}
-		for _, n := range nodes.RemoteAzureDatabase {
-			nodeNames[n.NodeID] = n.NodeName
-		}
+	var nodeNames map[string]string
+	if withNodeNames {
+		nodeNames = s.nodeNames(ctx, auth)
 	}
 
 	var out []serviceInfo
@@ -195,6 +180,33 @@ func (s *Service) listServices(ctx context.Context, auth callerAuth) ([]serviceI
 		return out[i].ServiceName < out[j].ServiceName
 	})
 	return out, nil
+}
+
+// nodeNames maps node ids to names; on failure it is empty, and so are the
+// names it would have filled.
+func (s *Service) nodeNames(ctx context.Context, auth callerAuth) map[string]string {
+	names := map[string]string{}
+	nodes, err := s.api.ListNodes(ctx, auth)
+	if err != nil {
+		s.l.WithField("tool", "pmm_inventory").Debugf("Cannot list nodes, node names will be empty: %s.", err)
+		return names
+	}
+	for _, n := range nodes.Generic {
+		names[n.NodeID] = n.NodeName
+	}
+	for _, n := range nodes.Container {
+		names[n.NodeID] = n.NodeName
+	}
+	for _, n := range nodes.Remote {
+		names[n.NodeID] = n.NodeName
+	}
+	for _, n := range nodes.RemoteRDS {
+		names[n.NodeID] = n.NodeName
+	}
+	for _, n := range nodes.RemoteAzureDatabase {
+		names[n.NodeID] = n.NodeName
+	}
+	return names
 }
 
 // enrichVersions fills empty versions from the exporters' version metrics,
@@ -249,24 +261,29 @@ func (s *Service) queryMetrics(ctx context.Context, auth callerAuth, promql stri
 	return s.api.QueryInstant(ctx, auth, uid, promql, at)
 }
 
-// metricsDatasourceUID discovers (once) the uid of the Prometheus-typed
-// datasource, which is PMM's VictoriaMetrics behind vmproxy.
-func (s *Service) metricsDatasourceUID(ctx context.Context, auth callerAuth) (string, error) {
-	s.dsMu.Lock()
-	defer s.dsMu.Unlock()
-	if s.dsUID != "" {
-		return s.dsUID, nil
-	}
+// metricsDatasourceName is the stable name PMM provisions its VictoriaMetrics
+// datasource under (see the Grafana datasources.yml provisioning file). The uid
+// is generated, so the name is the only stable handle.
+const metricsDatasourceName = "Metrics"
 
-	datasources, err := s.api.ListDatasources(ctx, auth)
+// metricsDatasourceUID looks up the uid of PMM's metrics datasource,
+// VictoriaMetrics behind vmproxy, by its provisioned name, so a user's own
+// Prometheus-typed datasources are never picked.
+//
+// It is looked up for every query, with the caller's credentials: a lookup by
+// name is one small call, nothing is shared between callers, and nothing goes
+// stale when the datasource is re-provisioned or recreated.
+func (s *Service) metricsDatasourceUID(ctx context.Context, auth callerAuth) (string, error) {
+	ds, err := s.api.GetDatasourceByName(ctx, auth, metricsDatasourceName)
+	var se *statusError
+	if errors.As(err, &se) && se.status == http.StatusNotFound {
+		return "", newToolError(codePMMUnavailable, "no Grafana datasource named '%s' found", metricsDatasourceName)
+	}
 	if err != nil {
 		return "", err
 	}
-	for _, ds := range datasources {
-		if ds.Type == "prometheus" && ds.UID != "" {
-			s.dsUID = ds.UID
-			return ds.UID, nil
-		}
+	if ds.Type != "prometheus" || ds.UID == "" {
+		return "", newToolError(codePMMUnavailable, "Grafana datasource '%s' is not Prometheus-typed", metricsDatasourceName)
 	}
-	return "", newToolError(codePMMUnavailable, "no Prometheus-typed datasource found in Grafana")
+	return ds.UID, nil
 }

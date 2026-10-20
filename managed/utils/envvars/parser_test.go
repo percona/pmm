@@ -678,6 +678,7 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
 		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
 		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+		{key: "PMM_DEV_MCP_LOOPBACK_URL", value: "http://user:pass@127.0.0.1:8080/?token=abc", expected: "<redacted>"},
 		{key: "PMM_VM_URL", value: "http://victoriametrics_pmm:vm-password@vmauth:8427/", expected: "http://<redacted>@vmauth:8427/"},
 		{key: "PMM_VM_URL", value: "http://vmauth:8427/", expected: "http://vmauth:8427/"},
 		{key: "VMAGENT_remoteWrite_url", value: "https://user:p%40ss@collector.example.com/api/v1/write", expected: "https://<redacted>@collector.example.com/api/v1/write"},

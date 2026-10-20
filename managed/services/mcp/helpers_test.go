@@ -26,7 +26,6 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -144,10 +143,17 @@ func unmarshalBody[T any](t *testing.T, r recordedRequest) T {
 func newTestService(t *testing.T, fake *fakePMM) *Service {
 	t.Helper()
 
-	c, err := newClient(fake.server.URL+"/", logrus.WithField("test", t.Name()))
+	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
 
-	s, err := New(Params{API: c})
+	// Enabled and RawSQL are explicit: both default to off, so a test that
+	// wants the endpoint reachable has to say so. Tests covering the disabled
+	// endpoint build their own Service.
+	s, err := New(Params{
+		API:     c,
+		Enabled: func() bool { return true },
+		RawSQL:  func() bool { return true },
+	})
 	require.NoError(t, err)
 	return s
 }
@@ -192,4 +198,10 @@ func callText(t *testing.T, session *mcp.ClientSession, name string, args map[st
 	text, ok := res.Content[0].(*mcp.TextContent)
 	require.True(t, ok, "unexpected content %T", res.Content[0])
 	return text.Text, res.IsError
+}
+
+// first returns the first of two results, for asserting on a function that
+// also reports a flag.
+func first[T, U any](v T, _ U) T {
+	return v
 }
