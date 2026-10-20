@@ -6,39 +6,36 @@ category:
 position: 5
 ---
 
-List the task definitions registered in PMM Extensions. Each task is an operation template that can be executed or scheduled.
+Use these endpoints to discover which apps are installed and which tasks each app provides.
+
+## List installed apps
 
 ```
-GET /extensions/api/tasks/
+GET /extensions/api/apps/
 ```
 
-Returns a paginated list of active task definitions.
+Returns the list of apps currently installed in PMM Extensions, for example `mysql_backups`.
 
-## Query parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `owner` | string | Filter by task owner (for example, `mysql_backups`). |
-| `target` | string | Filter by target host. |
-| `backup_type` | string | Filter by backup type. |
-| `limit` | integer | Results per page. |
-| `offset` | integer | Pagination offset. |
-
-## Get a single task
-
-```
-GET /extensions/api/tasks/{task_name}
-```
-
-Returns the task definition for the given task name.
-
-## Example
+**Example:**
 
 ```shell
-curl -sk https://<pmm-server>/extensions/api/tasks/ \
+curl -sk https://<pmm-server>/extensions/api/apps/ \
      -H "Authorization: Bearer <token>"
 ```
 
-To find available task names for a specific app, refer to the [Apps documentation](https://docs.percona.com/percona-monitoring-and-management/3/apps/index.html) for each installed app.
+## List tasks for an app
 
-To list the executor hosts available for task execution, see [Executor hosts](ref:extensions-list-hosts).
+```
+GET /extensions/api/apps/{app}/
+```
+
+Returns the tasks registered by the named app. Use the `app` value from the list above, for example `mysql_backups`.
+
+**Example:**
+
+```shell
+curl -sk https://<pmm-server>/extensions/api/apps/mysql_backups/ \
+     -H "Authorization: Bearer <token>"
+```
+
+To find which hosts are available for task execution, [list executor hosts](ref:extensions-list-hosts).

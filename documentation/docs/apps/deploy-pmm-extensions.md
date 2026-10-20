@@ -106,14 +106,13 @@ If your environment pulls images from a registry other than Docker Hub, change t
 
         === "docker run"
 
-            PMM Server routes `/extensions/` requests to `pmm-extensions:9000` by container name. Both containers must be on the same user-defined Docker network, or they can't reach each other by name and the **Apps** menu will not appear.
+            For PMM Server and PMM Extensions to reach each other by name, both containers must be on the same Docker network when PMM Server starts. Adding a running container to a network afterward is not enough. PMM Extensions looks up PMM Server by the name `pmm-server`, so the container must use exactly that name.
             {.power-number}
 
-            1. If `pmm-server` is not already on a user-defined network, create one and attach it:
+            1. Create a Docker network for both containers to share. When you start `pmm-server`, add `--network pmm-net --name pmm-server` to your `docker run` command:
 
                 ```bash
                 docker network create pmm-net
-                docker network connect pmm-net pmm-server
                 ```
 
             2. Start the PMM Extensions container on the same network, using exactly `--name pmm-extensions`:
