@@ -88,7 +88,7 @@ s3_scope() {
 # from stdin; the component's staging directory is mounted at ${rootfs} and is
 # laid out as if it were the target /. The sources are mounted read-only and
 # copied without .git into ${build_dir} (submodule .git files point outside
-# the mount, breaking git; the old rpmbuild flow built from tarballs too).
+# the mount, breaking git).
 run_in_container() {
     local stage_dir=$1
     local src_repo=$2
