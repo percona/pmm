@@ -19,7 +19,7 @@ Use it to:
 
 **Task**: a named operation template registered in PMM Extensions. Tasks are app-specific; for example, the MySQL Backups app registers tasks for XtraBackup, Mydumper, and Binlog.
 
-**Task history**: a single execution of a task. Each run produces a history record with a status, timestamps, and logs.
+**Task run**: a single execution of a task. Each run produces a task history record with a status, timestamps, and logs.
 
 **Periodic task**: a schedule that triggers a task on a cron or interval cadence.
 
