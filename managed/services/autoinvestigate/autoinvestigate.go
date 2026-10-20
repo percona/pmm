@@ -111,6 +111,7 @@ func (s *Service) ProcessAlerts(ctx context.Context, alerts []Alert) {
 		return
 	}
 	if !settings.Adre.SlackAutoInvestigate || !settings.IsAdreEnabled() || settings.GetAdreURL() == "" {
+		s.l.WithField("alerts", len(alerts)).Debug("auto-investigate is off or the Assistant is not configured; ignoring alerts")
 		return
 	}
 	if len(settings.Adre.SlackAutoInvestigateChannels) == 0 {
@@ -147,13 +148,16 @@ func (s *Service) processFiring(ctx context.Context, settings *models.Settings, 
 	if fp == "" {
 		return
 	}
+	l := s.l.WithField("alert", fp)
 	if !passesSelection(settings, a) {
+		l.Debug("alert is below the severity floor or fails the label matchers; not investigating")
 		return
 	}
 
 	s.mu.Lock()
 	if _, seen := s.episodes[fp]; seen {
 		s.mu.Unlock()
+		l.Debug("alert was already investigated in this firing episode")
 		return
 	}
 	s.mu.Unlock()
@@ -181,6 +185,7 @@ func (s *Service) processFiring(ctx context.Context, settings *models.Settings, 
 	}
 	if !claimed {
 		// An active investigation already exists for this episode; mark seen and don't run.
+		l.Debug("an investigation for this alert is already running")
 		s.markEpisode(fp)
 		return
 	}

@@ -769,11 +769,13 @@ const AdreSettingsPage: FC = () => {
                     color="text.secondary"
                     display="block"
                   >
-                    When enabled, firing alerts from Grafana Alertmanager (via a
-                    reconciliation poll, plus an optional auto-provisioned
-                    webhook) create one investigation per alert episode and post
-                    a summary to the output channels below. Bound the cost with
-                    the severity floor / label matchers / hourly cap.
+                    When enabled, each Grafana alert message posted in the alert
+                    channels below starts one investigation per alert episode,
+                    and the report is posted in the alert thread. Grafana needs
+                    a Slack contact point that posts to those channels with{' '}
+                    <strong>Mention Users</strong> set to this bot: messages
+                    that do not @-mention the bot are ignored. Bound the cost
+                    with the severity floor, label matchers and hourly cap.
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">

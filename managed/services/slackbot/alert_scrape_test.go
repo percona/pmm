@@ -108,15 +108,26 @@ func TestStripSlackMentions(t *testing.T) {
 	assert.Equal(t, "root cause: crash", stripSlackMentions("root cause: crash"))
 }
 
-func TestIsAlertSource(t *testing.T) {
+func TestScrapeAlert(t *testing.T) {
 	t.Parallel()
+	const alertText = "[FIRING:1]\nLabels:\n - alertname = pmm_mysql_down"
 	s := &models.Settings{}
 	s.Adre.SlackAutoInvestigateChannels = []string{"C123"}
 
-	assert.False(t, isAlertSource(s, "C999", "B1"), "channel not in alert list")
-	assert.True(t, isAlertSource(s, "C123", "B1"), "alert channel, no bot filter ⇒ any bot")
+	_, skip := scrapeAlert(s, &slackevents.MessageEvent{Channel: "C999", BotID: "B1", Text: alertText})
+	assert.Equal(t, "not an alert channel", skip)
+
+	alert, skip := scrapeAlert(s, &slackevents.MessageEvent{Channel: "C123", BotID: "B1", Text: alertText})
+	assert.Empty(t, skip, "alert channel, no bot filter ⇒ any bot")
+	assert.Equal(t, "pmm_mysql_down", alert.Labels["alertname"])
+
+	_, skip = scrapeAlert(s, &slackevents.MessageEvent{Channel: "C123", BotID: "B1", Text: "deploy finished"})
+	assert.Equal(t, "no alertname label", skip)
 
 	s.Adre.SlackAlertBotIDs = []string{"BGRAFANA"}
-	assert.False(t, isAlertSource(s, "C123", "B1"), "bot not allow-listed")
-	assert.True(t, isAlertSource(s, "C123", "BGRAFANA"), "allow-listed bot in alert channel")
+	_, skip = scrapeAlert(s, &slackevents.MessageEvent{Channel: "C123", BotID: "B1", Text: alertText})
+	assert.Equal(t, "sender is not in the alert bot IDs", skip)
+
+	_, skip = scrapeAlert(s, &slackevents.MessageEvent{Channel: "C123", BotID: "BGRAFANA", Text: alertText})
+	assert.Empty(t, skip, "allow-listed bot in alert channel")
 }

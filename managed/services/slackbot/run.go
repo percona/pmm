@@ -175,6 +175,9 @@ func runSocketMode(ctx context.Context, db *reform.DB, processor AlertProcessor,
 		// The alert scrape keys off an @-mention of this id, so an empty id silently drops every alert — and
 		// the scrape is the only auto-investigate trigger, so auto-investigations stop entirely.
 		log.Warn("Slack AuthTest returned an empty bot user id; alert scrape disabled — auto-investigations will not run")
+	} else {
+		// Grafana's Slack contact point must mention this id in "Mention Users" for alerts to be investigated.
+		log.WithField("bot_user_id", botUserID).Info("slack bot connected")
 	}
 
 	ts := NewThreadStore()
@@ -274,9 +277,11 @@ func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, te
 	if processor == nil {
 		return
 	}
+	l := log.WithFields(logrus.Fields{"channel": ev.Channel, "bot_id": ev.BotID, "msg_ts": ev.TimeStamp})
 	// The alert must @-mention us. This identifies a Grafana alert without inspecting every message, and
 	// it is the loop guard: PMM's own started/report posts never @-mention the bot, so they are skipped.
 	if !messageMentionsBot(ev, botUserID) {
+		l.WithField("reason", "no mention of the PMM bot").Debug("alert scrape skipped a bot message")
 		return
 	}
 	settings, err := models.GetSettings(db)
@@ -284,11 +289,9 @@ func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, te
 		log.Errorf("GetSettings: %v", err)
 		return
 	}
-	if !isAlertSource(settings, ev.Channel, ev.BotID) {
-		return
-	}
-	alert, ok := parseSlackAlert(ev)
-	if !ok {
+	alert, skip := scrapeAlert(settings, ev)
+	if skip != "" {
+		l.WithField("reason", skip).Debug("alert scrape skipped a bot message")
 		return
 	}
 	threadTS := ev.ThreadTimeStamp
@@ -296,6 +299,11 @@ func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, te
 		threadTS = ev.TimeStamp
 	}
 	alert.Slack = &autoinvestigate.SlackRef{TeamID: teamID, Channel: ev.Channel, ThreadTS: threadTS}
+	l.WithFields(logrus.Fields{
+		"alertname":   alert.Labels["alertname"],
+		"status":      alert.Status,
+		"fingerprint": alert.Fingerprint,
+	}).Info("alert scrape accepted an alert message")
 	processor.ProcessAlerts(ctx, []autoinvestigate.Alert{alert})
 }
 

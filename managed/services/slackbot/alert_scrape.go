@@ -138,10 +138,21 @@ func derivedFingerprint(labels map[string]string) string {
 	return "slack-" + hex.EncodeToString(sum[:16])
 }
 
-// isAlertSource reports whether a bot message in channelID from botID should be scraped as an alert:
-// the channel must be a configured alert channel and (when SlackAlertBotIDs is set) the bot must match.
-func isAlertSource(settings *models.Settings, channelID, botID string) bool {
-	return settings.IsSlackAlertChannel(channelID) && settings.IsSlackAlertBot(botID)
+// scrapeAlert returns the alert in a bot message, or why the message is not one to investigate: it must
+// come from a configured alert channel, from an accepted bot when SlackAlertBotIDs is set, and carry an
+// alertname label.
+func scrapeAlert(settings *models.Settings, ev *slackevents.MessageEvent) (autoinvestigate.Alert, string) {
+	if !settings.IsSlackAlertChannel(ev.Channel) {
+		return autoinvestigate.Alert{}, "not an alert channel"
+	}
+	if !settings.IsSlackAlertBot(ev.BotID) {
+		return autoinvestigate.Alert{}, "sender is not in the alert bot IDs"
+	}
+	alert, ok := parseSlackAlert(ev)
+	if !ok {
+		return autoinvestigate.Alert{}, "no alertname label"
+	}
+	return alert, ""
 }
 
 // slackSubtypeBotMessage is Slack's subtype for messages posted by a bot/incoming webhook.
