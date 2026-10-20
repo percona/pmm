@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 export type ProgressBarProps = {
-  /** Prefix for the test ids of the bar and its label. */
+  /** Test id of the bar; the label gets it with a `-label` suffix. */
   dataTestId?: string;
   /** Amount already used, drawn as the solid part from the start of the bar; hidden when `buffer` exceeds `total`. */
   value: number;
