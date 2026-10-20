@@ -24,7 +24,7 @@ Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, w
 PMM_IMAGE_TAG=3.10.0
 ```
 
-If your environment requires pulling images from a location other than Docker Hub, use `PMM_SERVER_IMAGE` and `PMM_EXTENSIONS_IMAGE` to specify the full image path for each container. These replace `PMM_IMAGE_TAG`, so set both to the same version.
+If your environment pulls images from a registry other than Docker Hub, change the two `image:` lines in the `docker-compose.yml` file on this page to point to your registry. Use the same version for both images.
 
 ## Deploy PMM Extensions
 
