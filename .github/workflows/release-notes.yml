@@ -17,7 +17,7 @@ on:
   # No paths filter: pushing a new branch changes no file, and the branch's creation must run this.
   push:
     branches:
-      - pmm-3.*
+      - "pmm-[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       version:
@@ -59,43 +59,26 @@ jobs:
     # Every run rebuilds from the current branches, so a newer queued run can replace a pending one.
     concurrency:
       group: release-notes-${{ inputs.version && format('pmm-{0}', inputs.version) || github.ref_name }}
-    env:
-      INPUT_VERSION: ${{ inputs.version }}
-      REF_NAME: ${{ github.ref_name }}
-      GH_TOKEN: ${{ secrets.ROBOT_TOKEN }}
 
     steps:
-      - name: Resolve the release
-        id: release
-        run: |
-          version=${INPUT_VERSION:-${REF_NAME#pmm-}}
-          if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::notice::$REF_NAME is not a release branch"
-            exit 0
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "branch=release-notes-$version" >> "$GITHUB_OUTPUT"
-
-      # ROBOT_TOKEN, unlike GITHUB_TOKEN, opens a PR that runs the PR checks.
+      # ROBOT_TOKEN, unlike GITHUB_TOKEN, opens a PR that runs the PR checks and can push to pmm-X.Y.Z.
       - name: Check out main
-        if: steps.release.outputs.version
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           fetch-depth: 0
           token: ${{ secrets.ROBOT_TOKEN }}
 
-      - name: Build the page
-        if: steps.release.outputs.version
-        id: build
+      - name: Update the release PR
         env:
-          VERSION: ${{ steps.release.outputs.version }}
-          BRANCH: ${{ steps.release.outputs.branch }}
+          VERSION: ${{ inputs.version || github.ref_name }}
+          GH_TOKEN: ${{ secrets.ROBOT_TOKEN }}
         run: |
+          VERSION=${VERSION#pmm-}
+          BRANCH=release-notes-$VERSION
           git config user.name "GitHub Action"
           git config user.email "github-action@users.noreply.github.com"
           pr=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')
-          echo "pr=$pr" >> "$GITHUB_OUTPUT"
           # An open PR keeps its edits; otherwise start from main, also over the branch of a merged PR.
           if [ -n "$pr" ]; then
             git checkout -B "$BRANCH" "origin/$BRANCH"
@@ -113,24 +96,8 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -q -m "[Doc] Release $VERSION"
             git push --force-with-lease origin "$BRANCH"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-          # ROBOT_TOKEN can push to the protected release branch.
-          git -C "$release" add -A documentation
-          if ! git -C "$release" diff --cached --quiet; then
-            git -C "$release" commit -q -m "Remove the release notes added to the $VERSION page"
-            git -C "$release" push origin "HEAD:pmm-$VERSION"
-          fi
-
-      - name: Open the PR
-        if: steps.build.outputs.changed && !steps.build.outputs.pr
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-          BRANCH: ${{ steps.release.outputs.branch }}
-        run: |
-          gh pr create --draft --base main --head "$BRANCH" --label doc-hotfix \
-            --title "[Doc] Release $VERSION" --body-file - <<EOF
+            [ -n "$pr" ] || gh pr create --draft --base main --head "$BRANCH" --label doc-hotfix \
+              --title "[Doc] Release $VERSION" --body-file - <<EOF
           Release notes for PMM $VERSION, built from the notes in \`documentation/docs/release-notes/unreleased/\` on \`pmm-$VERSION\`. The [Release notes workflow](https://github.com/$GITHUB_REPOSITORY/actions/workflows/release-notes.yml) adds to this PR whenever a note lands on \`pmm-$VERSION\`, and keeps your edits.
 
           Merge it before GA. Merging copies the page to \`pmm-$VERSION\`, which the site publishes from at GA. An entry or section you delete here is not added back.
@@ -141,3 +108,10 @@ jobs:
           - [ ] Known issues, or remove the section
           - [ ] Release date in the page heading, the nav label, \`variables.yml\` and \`mkdocs-pdf.yml\`
           EOF
+          fi
+
+          git -C "$release" add -A documentation
+          if ! git -C "$release" diff --cached --quiet; then
+            git -C "$release" commit -q -m "Remove the release notes added to the $VERSION page"
+            git -C "$release" push origin "HEAD:pmm-$VERSION"
+          fi
