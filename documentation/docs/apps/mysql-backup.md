@@ -143,7 +143,7 @@ To restore from a backup:
 
     Add `/latest` to any path to use the most recent backup.
 
-5. Configure [Restore options by backup type](#restore-options-by-backup-type). PMM checks MySQL version compatibility before restoring, but make sure your backup binary version matches the target server. A mismatch fails in the backup tool, not in PMM.
+5. Configure [Restore options by backup type](#restore-options-by-backup-type). PMM doesn't check version compatibility, so make sure your backup binary version matches the target server. With a mismatch, the restore fails in the backup tool.
 6. Optionally check **Alert on failure** to receive an alert if the restore task fails.
 7. Click **Create restore**.
 
