@@ -5,87 +5,57 @@ setup() {
   bin="$BATS_TEST_DIRNAME/.."
   doc="$BATS_TEST_TMPDIR/documentation"
   notes="$BATS_TEST_TMPDIR/notes"
-  mkdir -p "$doc/docs/release-notes/unreleased" "$doc/resources" "$notes"
+  unreleased="$doc/docs/release-notes/unreleased"
+  mkdir -p "$unreleased" "$doc/resources" "$notes"
   cp "$bin/../release-notes-template.md" "$doc/resources/"
   cp "$bin/../../docs/release-notes/index.md" "$doc/docs/release-notes/"
   cp "$bin/../../mkdocs-base.yml" "$doc/"
-  export RN_RELEASE_BRANCHES="3.9.1 3.10.0" DOC_DIR="$doc" NOTES_DIR="$notes"
+  export DOC_DIR="$doc" NOTES_DIR="$notes"
   rn="$bin/release-notes.sh"
   page="$doc/docs/release-notes/3.11.0.md"
 }
 
-# note DIR KEY FRONT_MATTER [BODY]
+# note DIR FILE [TEXT]
 note() {
-  printf -- '---\n%b\n---\n%b\n' "$3" "${4-Fixed a thing.}" > "$1/$2.md"
+  printf '%b\n' "${3-Fixed a thing.}" > "$1/$2"
 }
 
-@test "check: missing target fails" {
-  note "$notes" PMM-1 'type: fix'
-  run "$rn" check main PMM-1-fix "$notes/PMM-1.md"
-  [ "$status" -eq 1 ]
-  [[ $output == *"target is required"* ]]
-}
-
-@test "check: target that is already branched fails on main" {
-  note "$notes" PMM-1 'target: 3.10.0\ntype: fix'
-  run "$rn" check main PMM-1-fix "$notes/PMM-1.md"
-  [ "$status" -eq 1 ]
-  [[ $output == *"pmm-3.10.0 is already branched"* ]]
-}
-
-@test "check: target older than the newest release branch fails on main" {
-  note "$notes" PMM-1 'target: 3.9.5\ntype: fix'
-  run "$rn" check main PMM-1-fix "$notes/PMM-1.md"
-  [ "$status" -eq 1 ]
-  [[ $output == *"older than the newest release branch, pmm-3.10.0"* ]]
-}
-
-@test "check: future target passes on main" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix'
-  note "$notes" PMM-2 'target: 3.10.1\ntype: improvement'
-  run "$rn" check main PMM-1-fix "$notes/PMM-1.md" "$notes/PMM-2.md"
+@test "check: a well-named note passes" {
+  note "$notes" PMM-1-fix.md
+  note "$notes" PMM-2-improvement.md
+  note "$notes" PMM-3-known-issue.md 'Slow\n\nIt is slow.'
+  run "$rn" check PMM-1-fix "$notes"/PMM-*.md
   [ "$status" -eq 0 ]
 }
 
-@test "check: release branch needs its own version" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix'
-  run "$rn" check pmm-3.10.0 PMM-1-fix "$notes/PMM-1.md"
+@test "check: a bad name or an empty note fails, README is skipped" {
+  note "$notes" PMM-1.md
+  note "$notes" PMM-2-bugfix.md
+  note "$notes" pmm-3-fix.md
+  note "$notes" PMM-4-fix.md ''
+  note "$notes" README.md '# Notes'
+  run "$rn" check PMM-1-fix "$notes"/*.md
   [ "$status" -eq 1 ]
-  [[ $output == *"target must be 3.10.0"* ]]
-}
-
-@test "check: release branch accepts its own version" {
-  note "$notes" PMM-1 'target: 3.10.0\ntype: fix'
-  run "$rn" check pmm-3.10.0 PMM-1-fix "$notes/PMM-1.md"
-  [ "$status" -eq 0 ]
-}
-
-@test "check: bad fields fail" {
-  note "$notes" PMM-1 'target: 3.11\ntype: fix'
-  note "$notes" PMM-2 'target: 3.11.0\ntype: highlight'
-  note "$notes" PMM-3 'target: 3.11.0\ntype: known-issue'
-  note "$notes" PMM-4 'target: 3.11.0\ntype: fix' ''
-  run "$rn" check main PMM-1-fix "$notes"/PMM-{1,2,3,4}.md
-  [ "$status" -eq 1 ]
-  [[ $output == *"PMM-1.md: target must be a version like 3.11.0"* ]]
-  [[ $output == *"PMM-2.md: type must be one of"* ]]
-  [[ $output == *"PMM-3.md: a known-issue needs a title"* ]]
-  [[ $output == *"PMM-4.md: write the release note"* ]]
-}
-
-@test "check: file name and front matter are required, README is skipped" {
-  note "$notes" fix-login 'target: 3.11.0\ntype: fix'
-  echo "Fixed a thing." > "$notes/PMM-5.md"
-  echo "# Notes" > "$notes/README.md"
-  run "$rn" check main PMM-1-fix "$notes/fix-login.md" "$notes/PMM-5.md" "$notes/README.md"
-  [ "$status" -eq 1 ]
-  [[ $output == *"name the file after its ticket"* ]]
-  [[ $output == *"PMM-5.md: start the file with front matter"* ]]
+  [[ $output == *"PMM-1.md: name it PMM-<ticket>-<type>.md"* ]]
+  [[ $output == *"PMM-2-bugfix.md: name it"* ]]
+  [[ $output == *"pmm-3-fix.md: name it"* ]]
+  [[ $output == *"PMM-4-fix.md: write the release note"* ]]
   [[ $output != *"README"* ]]
 }
 
+@test "check: a note already published in its section fails" {
+  note "$notes" PMM-1-fix.md
+  "$rn" build 3.11.0
+  note "$unreleased" PMM-1-fix.md
+  note "$unreleased" PMM-1-known-issue.md 'Still slow\n\nIt is slow.'
+  run "$rn" check PMM-9-fix "$unreleased/PMM-1-fix.md" "$unreleased/PMM-1-known-issue.md"
+  [ "$status" -eq 1 ]
+  [[ $output == *"PMM-1-fix.md: already published in 3.11.0.md"* ]]
+  [[ $output != *"PMM-1-known-issue.md"* ]]
+}
+
 @test "build: creates the page and lists it in the index and nav" {
-  note "$notes" PMM-15310 'target: 3.11.0\ntype: fix' 'Fixed the Disconnected status.'
+  note "$notes" PMM-15310-fix.md 'Fixed the Disconnected status.'
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
   grep -qx '# Percona Monitoring and Management 3.11.0' "$page"
@@ -96,23 +66,21 @@ note() {
 }
 
 @test "build: a re-run adds only new notes and keeps edits" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix' 'First fix.'
+  note "$notes" PMM-1-fix.md 'First fix.'
   "$rn" build 3.11.0
   sed -i 's/First fix\./First fix, edited./' "$page"
-  note "$notes" PMM-2 'target: 3.11.0\ntype: fix' 'Second fix.'
-  note "$notes" PMM-3 'target: 3.12.0\ntype: fix' 'Later fix.'
+  note "$notes" PMM-2-fix.md 'Second fix.'
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
   [ "$(grep -c 'browse/PMM-1)' "$page")" -eq 1 ]
   grep -q 'First fix, edited.' "$page"
   grep -q 'browse/PMM-2): Second fix.' "$page"
-  ! grep -q 'PMM-3' "$page"
   [ "$(grep -c 'Percona Monitoring and Management 3.11.0' "$doc/docs/release-notes/index.md")" -eq 1 ]
 }
 
 @test "build: improvements and known issues get their format" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: known-issue\ntitle: QAN is empty after failover' 'QAN shows no data.\n\n**Workaround**: reload.'
-  note "$notes" PMM-2 'target: 3.11.0\ntype: improvement' 'Faster.\n\nSecond paragraph.'
+  note "$notes" PMM-1-known-issue.md 'QAN is empty after failover\n\nQAN shows no data.'
+  note "$notes" PMM-2-improvement.md 'Faster.\n\nSecond paragraph.'
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
   sed -n '/^## 🔶 Known issues/,/^## 🚀/p' "$page" \
@@ -120,47 +88,55 @@ note() {
   sed -n '/^## 📈 Improvements/,/^## ✅/p' "$page" | grep -qx '    Second paragraph.'
 }
 
+@test "build: a ticket mentioned elsewhere on the page is still added" {
+  "$rn" build 3.11.0
+  sed -i 's|^## 📋 Release summary$|&\n\nSee [PMM-1](https://perconadev.atlassian.net/browse/PMM-1).|' "$page"
+  note "$notes" PMM-1-fix.md 'Fixed it.'
+  run "$rn" build 3.11.0
+  [ "$status" -eq 0 ]
+  sed -n '/^## ✅ Fixed issues/,/^## 🔶/p' "$page" | grep -q 'browse/PMM-1): Fixed it.'
+}
+
+@test "build: the same ticket can be a fix and a known issue" {
+  note "$notes" PMM-1-fix.md 'Fixed it.'
+  note "$notes" PMM-1-known-issue.md 'Still slow\n\nIt is slow.'
+  run "$rn" build 3.11.0
+  [ "$status" -eq 0 ]
+  [ "$(grep -c 'browse/PMM-1)' "$page")" -eq 2 ]
+}
+
 @test "build: a note for a removed section fails with a message" {
   "$rn" build 3.11.0
   sed -i '/^## 🔶 Known issues/d' "$page"
-  note "$notes" PMM-1 'target: 3.11.0\ntype: known-issue\ntitle: Slow' 'It is slow.'
+  note "$notes" PMM-1-known-issue.md 'Slow\n\nIt is slow.'
   run "$rn" build 3.11.0
   [ "$status" -eq 1 ]
-  [[ $output == *"has no section for type 'known-issue'"* ]]
+  [[ $output == *"has no '## 🔶 Known issues' section"* ]]
 }
 
 @test "build: removes from unreleased/ the notes now on the page" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix'
-  note "$doc/docs/release-notes/unreleased" PMM-1 'target: 3.11.0\ntype: fix'
-  note "$doc/docs/release-notes/unreleased" PMM-2 'target: 3.11.0\ntype: fix'
-  note "$doc/docs/release-notes/unreleased" PMM-3 'target: 3.12.0\ntype: fix'
+  note "$notes" PMM-1-fix.md
+  note "$unreleased" PMM-1-fix.md
+  note "$unreleased" PMM-1-improvement.md
+  note "$unreleased" PMM-2-fix.md
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
-  [ ! -e "$doc/docs/release-notes/unreleased/PMM-1.md" ]
-  [ -e "$doc/docs/release-notes/unreleased/PMM-2.md" ]
-  [ -e "$doc/docs/release-notes/unreleased/PMM-3.md" ]
+  [ ! -e "$unreleased/PMM-1-fix.md" ]
+  [ -e "$unreleased/PMM-1-improvement.md" ]
+  [ -e "$unreleased/PMM-2-fix.md" ]
 }
 
-@test "check: release PR passes when every note is on the page" {
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix'
-  note "$doc/docs/release-notes/unreleased" PMM-9 'target: 3.12.0\ntype: fix'
+@test "check: release PR passes when every note on the branch is on the page" {
+  note "$notes" PMM-1-fix.md
   "$rn" build 3.11.0
-  run "$rn" check main release-notes-3.11.0
+  run "$rn" check release-notes-3.11.0
   [ "$status" -eq 0 ]
 }
 
-@test "check: release PR fails for a release-branch note missing from the page" {
+@test "check: release PR fails for a note missing from the page" {
   "$rn" build 3.11.0
-  note "$notes" PMM-1 'target: 3.11.0\ntype: fix'
-  run "$rn" check main release-notes-3.11.0
+  note "$notes" PMM-1-fix.md
+  run "$rn" check release-notes-3.11.0
   [ "$status" -eq 1 ]
-  [[ $output == *"PMM-1 is on pmm-3.11.0 but not on the page"* ]]
-}
-
-@test "check: release PR fails for a note left on main" {
-  "$rn" build 3.11.0
-  note "$doc/docs/release-notes/unreleased" PMM-2 'target: 3.11.0\ntype: fix'
-  run "$rn" check main release-notes-3.11.0
-  [ "$status" -eq 1 ]
-  [[ $output == *"PMM-2 targets 3.11.0 but is not on pmm-3.11.0"* ]]
+  [[ $output == *"PMM-1-fix.md is on pmm-3.11.0 but not on 3.11.0.md"* ]]
 }

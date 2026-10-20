@@ -1,81 +1,33 @@
 #!/bin/bash
-# Release notes waiting in documentation/docs/release-notes/unreleased/; its README.md has the format.
+# Release notes waiting in documentation/docs/release-notes/unreleased/, one file per entry named
+# PMM-<ticket>-<type>.md. A note ships in the release cut from the branch it is on.
 #
-#   release-notes.sh check BASE_BRANCH HEAD_BRANCH [FILE...]
+#   release-notes.sh check HEAD_BRANCH [FILE...]
 #       Checks the notes a PR adds or changes. On the release-notes-X.Y.Z PR it also fails
-#       while an X.Y.Z note is missing from X.Y.Z.md or still in unreleased/.
+#       while a note on pmm-X.Y.Z is missing from X.Y.Z.md.
 #   release-notes.sh build VERSION
-#       Adds the VERSION notes to VERSION.md, creating it from the template,
+#       Adds the pmm-VERSION notes to VERSION.md, creating it from the template,
 #       and deletes from unreleased/ the notes it now holds.
 #
-# The VERSION notes come from unreleased/ on origin/pmm-VERSION; NOTES_DIR replaces them in tests.
-# DOC_DIR replaces the documentation/ directory.
+# NOTES_DIR replaces unreleased/ on origin/pmm-VERSION, DOC_DIR the documentation/ directory.
 
 set -o errexit -o nounset -o pipefail
 shopt -s nullglob
 
 doc=${DOC_DIR:-$(dirname "$0")/../..}
-unreleased=$doc/docs/release-notes/unreleased
+pages=$doc/docs/release-notes
+unreleased=$pages/unreleased
 jira=https://perconadev.atlassian.net/browse
+name='^(PMM-[0-9]+)-(improvement|fix|known-issue)\.md$'
 declare -A headings=(
   [improvement]="## 📈 Improvements"
   [fix]="## ✅ Fixed issues"
   [known-issue]="## 🔶 Known issues"
 )
 
-has_front_matter() {
-  [ "$(head -n 1 "$1")" = "---" ] && [ "$(grep -c '^---$' "$1")" -ge 2 ]
-}
-
-field() {
-  yq --front-matter=extract ".$2 // \"\"" "$1"
-}
-
-# body FILE prints the text after the front matter, without leading or trailing blank lines.
-body() {
-  awk '
-    f >= 2 { line[++n] = $0 }
-    /^---$/ && f < 2 { f++ }
-    END {
-      s = 1; while (s <= n && line[s] ~ /^[[:space:]]*$/) s++
-      e = n; while (e >= s && line[e] ~ /^[[:space:]]*$/) e--
-      for (i = s; i <= e; i++) print line[i]
-    }' "$1"
-}
-
-# on_page PAGE KEY: the closing parenthesis keeps PMM-12 from matching PMM-123.
-on_page() {
-  grep -qF "browse/$2)" "$1"
-}
-
-# notes_for VERSION DIR prints the notes in DIR that target VERSION, in ticket order.
-notes_for() {
-  local file
-  for file in $(printf '%s\n' "$2"/PMM-*.md | sort -V); do
-    if has_front_matter "$file" && [ "$(field "$file" target)" = "$1" ]; then
-      echo "$file"
-    fi
-  done
-}
-
-release_notes() {
-  local dir=${NOTES_DIR:-}
-  if [ -z "$dir" ]; then
-    dir=$(mktemp -d)
-    if git cat-file -e "origin/pmm-$1:documentation/docs/release-notes/unreleased" 2> /dev/null; then
-      git archive "origin/pmm-$1" documentation/docs/release-notes/unreleased | tar -x -C "$dir" --strip-components=4
-    fi
-  fi
-  notes_for "$1" "$dir"
-}
-
-# Versions with a pmm-X.Y.Z branch. RN_RELEASE_BRANCHES replaces the lookup in tests.
-release_versions() {
-  if [ -n "${RN_RELEASE_BRANCHES+x}" ]; then
-    tr ' ' '\n' <<< "$RN_RELEASE_BRANCHES"
-  else
-    git ls-remote --heads origin 'pmm-*' | sed -n 's#.*refs/heads/pmm-\([0-9]*\.[0-9]*\.[0-9]*\)$#\1#p'
-  fi
+die() {
+  echo "::error::$*"
+  exit 1
 }
 
 error() {
@@ -83,89 +35,79 @@ error() {
   errors=$((errors + 1))
 }
 
-check_note() {
-  local file=$1 name target type
-  name=$(basename "$file")
-  if ! [[ $name =~ ^PMM-[0-9]+\.md$ ]]; then
-    error "$name: name the file after its ticket, for example PMM-12345.md"
-    return
-  fi
-  if ! has_front_matter "$file"; then
-    error "$name: start the file with front matter: target and type between two --- lines"
-    return
-  fi
-
-  target=$(field "$file" target)
-  type=$(field "$file" type)
-  if [ -z "$target" ]; then
-    error "$name: target is required: the version this change ships in, for example target: 3.11.0"
-  elif ! [[ $target =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    error "$name: target must be a version like 3.11.0, not '$target'"
-  elif [[ $base =~ ^pmm-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-    [ "$target" = "${BASH_REMATCH[1]}" ] || error "$name: this PR goes to $base, so target must be ${BASH_REMATCH[1]}"
-  elif grep -qxF "$target" <<< "$releases"; then
-    error "$name: pmm-$target is already branched. Open this PR against pmm-$target, or target a later version"
-  elif [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$target" "$latest" | sort -V | tail -n 1)" = "$latest" ]; then
-    error "$name: $target is older than the newest release branch, pmm-$latest. Target a later version"
-  fi
-
-  [ -n "${headings[$type]:-}" ] || error "$name: type must be one of: improvement fix known-issue"
-  if [ "$type" = known-issue ] && [ -z "$(field "$file" title)" ]; then
-    error "$name: a known-issue needs a title"
-  fi
-  [ -n "$(body "$file")" ] || error "$name: write the release note below the front matter"
-}
-
-# check_page VERSION: every VERSION note on the release branch is on the page, and none is left in unreleased/.
-check_page() {
-  local version=$1 page=$doc/docs/release-notes/$1.md file key
-  if [ ! -f "$page" ]; then
-    error "release-notes/$version.md does not exist. Run the Release notes workflow for $version."
-    return
-  fi
-  for file in $(release_notes "$version"); do
-    key=$(basename "$file" .md)
-    on_page "$page" "$key" || error "$key is on pmm-$version but not on the page. Run the Release notes workflow for $version."
-  done
-  for file in $(notes_for "$version" "$unreleased"); do
-    key=$(basename "$file" .md)
-    if on_page "$page" "$key"; then
-      error "$key is on the page but still in unreleased/. Delete unreleased/$key.md."
-    else
-      error "$key targets $version but is not on pmm-$version. Cherry-pick its change to pmm-$version, or change its target."
+# notes DIR prints the notes in DIR, in ticket order.
+notes() {
+  local file
+  for file in $(printf '%s\n' "$1"/PMM-*.md | sort -V); do
+    if [[ $(basename "$file") =~ $name ]]; then
+      echo "$file"
     fi
   done
+}
+
+branch_notes() {
+  local dir=${NOTES_DIR:-}
+  if [ -z "$dir" ]; then
+    dir=$(mktemp -d)
+    if git cat-file -e "origin/pmm-$1:documentation/docs/release-notes/unreleased" 2> /dev/null; then
+      git archive "origin/pmm-$1" documentation/docs/release-notes/unreleased | tar -x -C "$dir" --strip-components=4
+    fi
+  fi
+  notes "$dir"
+}
+
+# published PAGE NOTE: the note's ticket is in the section of its type. Elsewhere on the page,
+# in the summary for example, does not count.
+published() {
+  [[ $(basename "$2") =~ $name ]] || return 1
+  awk -v h="${headings[${BASH_REMATCH[2]}]}" '$0 == h { s = 1; next } s && /^## / { exit } s' "$1" \
+    | grep -qF "browse/${BASH_REMATCH[1]})"
 }
 
 check() {
-  local file
-  base=$1
-  head=$2
-  shift 2
+  local head=$1 file base version page
+  shift
   errors=0
-  releases=$(release_versions | sort -V)
-  latest=$(tail -n 1 <<< "$releases")
 
   for file in "$@"; do
-    if [ "$(basename "$file")" != README.md ]; then
-      check_note "$file"
+    base=$(basename "$file")
+    if [ "$base" = README.md ]; then
+      continue
     fi
+    if ! [[ $base =~ $name ]]; then
+      error "$base: name it PMM-<ticket>-<type>.md, where type is improvement, fix or known-issue"
+      continue
+    fi
+    grep -q '[^[:space:]]' "$file" || error "$base: write the release note"
+    for page in "$pages"/[0-9]*.md; do
+      if published "$page" "$file"; then
+        error "$base: already published in $(basename "$page"). Delete this note."
+      fi
+    done
   done
+
   if [[ $head =~ ^release-notes-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-    check_page "${BASH_REMATCH[1]}"
+    version=${BASH_REMATCH[1]}
+    page=$pages/$version.md
+    [ -f "$page" ] || die "release-notes/$version.md does not exist. Run the Release notes workflow for $version."
+    for file in $(branch_notes "$version"); do
+      published "$page" "$file" ||
+        error "$(basename "$file") is on pmm-$version but not on $version.md. Run the Release notes workflow for $version."
+    done
   fi
 
   [ "$errors" -eq 0 ] || exit 1
   echo "Release notes are fine."
 }
 
+# render NOTE TYPE KEY: improvements and fixes become a bullet; a known issue's first line is its title.
 render() {
-  local file=$1 type=$2 link="[$3]($jira/$3)"
-  if [ "$type" = known-issue ]; then
-    printf '### %s (%s)\n\n' "$(field "$file" title)" "$link"
-    body "$file"
+  local link="[$3]($jira/$3)"
+  if [ "$2" = known-issue ]; then
+    printf '### %s (%s)\n' "$(head -n 1 "$1")" "$link"
+    tail -n +2 "$1"
   else
-    body "$file" | awk -v lead="- $link: " 'NR == 1 { print lead $0; next } /^$/ { print; next } { print "    " $0 }'
+    awk -v lead="- $link: " 'NR == 1 { print lead $0; next } /^$/ { print; next } { print "    " $0 }' "$1"
   fi
 }
 
@@ -189,41 +131,34 @@ insert() {
 }
 
 build() {
-  local version=$1 page=$doc/docs/release-notes/$1.md file key type heading entry
+  local version=$1 page=$pages/$1.md file heading entry
 
   if [ ! -f "$page" ]; then
     sed "s/{{VERSION}}/$version/g" "$doc/resources/release-notes-template.md" > "$page"
-    sed -i "/^# Release notes$/a - [Percona Monitoring and Management $version]($version.md)" \
-      "$doc/docs/release-notes/index.md"
+    sed -i "/^# Release notes$/a - [Percona Monitoring and Management $version]($version.md)" "$pages/index.md"
     sed -i "/^ *- Release notes index: release-notes\/index.md$/a\\      - \"PMM $version\": release-notes/$version.md" \
       "$doc/mkdocs-base.yml"
     echo "Created $(basename "$page") from the template"
   fi
 
-  for file in $(release_notes "$version"); do
-    key=$(basename "$file" .md)
-    if on_page "$page" "$key"; then
+  for file in $(branch_notes "$version"); do
+    if published "$page" "$file"; then
       continue
     fi
-    type=$(field "$file" type)
-    heading=${headings[$type]:-}
-    if [ -z "$heading" ] || ! grep -qxF "$heading" "$page"; then
-      echo "::error::$key: $(basename "$page") has no section for type '$type'"
-      exit 1
-    fi
+    [[ $(basename "$file") =~ $name ]]
+    heading=${headings[${BASH_REMATCH[2]}]}
+    grep -qxF "$heading" "$page" || die "$(basename "$file"): $(basename "$page") has no '$heading' section"
     entry=$(mktemp)
-    render "$file" "$type" "$key" > "$entry"
+    render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
     insert "$page" "$heading" "$entry"
     rm -f "$entry"
-    echo "$key: added as $type"
+    echo "$(basename "$file"): added"
   done
 
-  # A note left in unreleased/ that is not on the page stays, and fails the check.
-  for file in $(notes_for "$version" "$unreleased"); do
-    key=$(basename "$file" .md)
-    if on_page "$page" "$key"; then
+  for file in $(notes "$unreleased"); do
+    if published "$page" "$file"; then
       rm "$file"
-      echo "$key: removed from unreleased/"
+      echo "$(basename "$file"): removed from unreleased/"
     fi
   done
 }
@@ -233,7 +168,7 @@ case ${1:-} in
     "$@"
     ;;
   *)
-    echo "Usage: $0 check BASE_BRANCH HEAD_BRANCH [FILE...] | build VERSION" >&2
+    echo "Usage: $0 check HEAD_BRANCH [FILE...] | build VERSION" >&2
     exit 2
     ;;
 esac
