@@ -23,7 +23,7 @@ POST /extensions/api/apps/{app}/{task_name}/execute
 
 ```json
 {
-  "eta": "2026-11-01T02:00:00Z",
+  "eta": "<future ISO 8601 datetime, e.g. 2030-01-01T12:00:00Z>",
   "chain_task_names": ["string"],
   "chain_on_failure": false
 }
