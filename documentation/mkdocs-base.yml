@@ -260,8 +260,11 @@ nav:
                 - Details panel: use/qan/panels/details.md
             - use/qan/mysql.md
             - use/qan/qan_mongo.md
-          - Real-time analytics: use/qan/QAN-realtime-analytics.md           
+          - Real-time analytics: use/qan/QAN-realtime-analytics.md
 
+      - MongoDB Operations:
+          - use/mongodb-operations.md
+          - Install a replica set: use/install-mongodb-replica-set.md
 
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
