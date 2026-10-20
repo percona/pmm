@@ -254,7 +254,7 @@ Each backup and restore run captures `stdout` and `stderr` as task logs.
 Check the `taskhistory_log` table in PMM's embedded PostgreSQL database (`pmm_extensions`). Logs are not written to disk or Docker container logs.                         
                                                                                           
 #### Configure retention
-Use the PMM Extensions API to set TASKS__LOG_RETENTION_DAYS and override the default 90-day retention period. The maximum is 365 days.
+To override the default 90-day log retention, set `TASKS__LOG_RETENTION_DAYS` on the `pmm-extensions` container, or change `LOG_RETENTION_DAYS` through the PMM Extensions settings API. The maximum is 365 days.
 
 A daily purge job removes log bodies for finished tasks older than the configured threshold. Task history records (who ran what, when, and final status) are never purged.      
                                                                                         
