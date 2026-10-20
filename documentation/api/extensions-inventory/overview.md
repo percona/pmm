@@ -10,7 +10,7 @@ The PMM Extensions Inventory API provides access to the hosts and database servi
 
 Use it to:
 
-- [list executor hosts](ref:extensions-list-hosts) to find valid `target` values for task execution
+- [list executor hosts](ref:extensions-list-hosts) to find valid execution hosts when you create a task
 - [list services](ref:extensions-list-services) to find database services for backup and restore tasks
 - [list schemas and tables](ref:extensions-list-schemas) within a service
 
