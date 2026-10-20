@@ -4,6 +4,9 @@ import { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {
   title?: string;
+  // Keep the document title but do not render the heading, for pages whose
+  // content carries its own centered heading (empty states, error pages).
+  hideTitle?: boolean;
   footer?: ReactNode;
   topBar?: ReactNode;
   /**
@@ -16,6 +19,12 @@ export interface PageProps extends PropsWithChildren {
    * `maxWidth="full"` when `maxWidth` is not set.
    */
   fullWidth?: boolean;
-  surface?: 'default' | 'paper';
+  /**
+   * Background the page paints behind its content. A plain content page sits
+   * on `'paper'`. A page composed of cards opts out with `'canvas'`, where
+   * the darker tone makes the cards stand out.
+   * @default 'paper'
+   */
+  surface?: 'canvas' | 'paper';
   roles?: OrgRole[];
 }

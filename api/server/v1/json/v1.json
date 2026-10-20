@@ -312,15 +312,20 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
                     },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -499,11 +504,17 @@
                   "x-nullable": true,
                   "x-order": 13
                 },
+                "enable_om": {
+                  "description": "Enable OpenManager.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 14
+                },
                 "enable_mcp": {
                   "description": "Enable the Model Context Protocol endpoint (/mcp).",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 14
+                  "x-order": 15
                 }
               }
             }
@@ -646,15 +657,20 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
                     },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -756,15 +772,20 @@
                       "type": "boolean",
                       "x-order": 7
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled.",
                       "type": "boolean",
                       "x-order": 8
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0

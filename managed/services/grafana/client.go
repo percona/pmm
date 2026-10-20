@@ -35,7 +35,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/services"
@@ -43,9 +42,6 @@ import (
 	"github.com/percona/pmm/managed/utils/irt"
 	"github.com/percona/pmm/utils/grafana"
 )
-
-// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
 	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
@@ -60,6 +56,9 @@ const (
 	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
 	defaultMaxIdleConns        = 100
 	defaultMaxIdleConnsPerHost = 100
+
+	// PMM supports a single Grafana organization, hard-coded to ID 1.
+	pmmOrgID = "1"
 )
 
 // Client represents a client for Grafana API.
@@ -108,10 +107,10 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 
 // clientError contains error response details.
 type clientError struct {
-	Method       string
-	URL          string
-	Code         int
-	Body         string
+	Method       string `json:"-"`
+	URL          string `json:"-"`
+	Code         int    `json:"-"`
+	Body         string `json:"-"`
 	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
@@ -160,7 +159,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		Path:     path,
 		RawQuery: rawQuery,
 	}
-	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("failed to create http request: %w", err)
 	}
@@ -171,7 +170,6 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		req.Header.Set(k, headers.Get(k))
 	}
 
-	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to execute http request: %w", err)
@@ -276,7 +274,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	userID, ok := m["id"].(float64)
 	if !ok {
-		return 0, errors.New("Missing User ID in Grafana response")
+		return 0, errors.New("missing user ID in Grafana response")
 	}
 
 	return int(userID), nil
@@ -547,6 +545,9 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 	}, nil
 }
 
+// errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
+var errServiceTokenRejected = errors.New("service token rejected")
+
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
@@ -554,6 +555,11 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
 	if err != nil {
+		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok && cErr.Code == http.StatusBadRequest {
+			return none, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
+		}
 		return none, err
 	}
 
@@ -766,6 +772,61 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	return nil
+}
+
+// ListPMMRuleIDs returns the identity label of every Grafana alert rule that carries one,
+// which is how PMM-created rules identify themselves.
+//
+// The label is read rather than the rule's UID because a copied rule gets a new UID while
+// keeping the label, so this reports which rules still exist in terms of the identity PMM
+// keys its threshold overrides on.
+func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// The ruler returns every folder's groups keyed by folder title. Only the rule
+	// labels matter here, so the rest of the payload is left unmodelled.
+	type rulerRule struct {
+		Labels map[string]string `json:"labels"`
+	}
+
+	type rulerGroup struct {
+		Rules []rulerRule `json:"rules"`
+	}
+
+	// Pinned to PMM's org: the ruler otherwise answers for the caller's current org, and
+	// the sweep would reap every row whose rule lives in the org it did not see.
+	headers := authHeaders.Clone()
+	headers.Set("X-Grafana-Org-Id", pmmOrgID)
+
+	var folders map[string][]rulerGroup
+
+	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", headers, nil, &folders)
+	if err != nil {
+		return nil, err
+	}
+
+	// do skips decoding an empty body, which must not read as "no rules": the sweep
+	// deletes whatever this omits.
+	if folders == nil {
+		return nil, errors.New("empty ruler response")
+	}
+
+	ids := make(map[string]struct{})
+	for _, groups := range folders {
+		for _, group := range groups {
+			for _, rule := range group.Rules {
+				id := rule.Labels[services.PMMRuleIDLabel]
+				if id != "" {
+					ids[id] = struct{}{}
+				}
+			}
+		}
+	}
+
+	return ids, nil
 }
 
 func validateDurations(intervalD, forD string) error {
@@ -1094,41 +1155,6 @@ func (c *Client) IsReady(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-const grpcGatewayCookie = "grpcgateway-cookie"
-
-type currentUser struct {
-	AccessToken string `json:"access_token"`
-}
-
-var errCookieIsNotSet = fmt.Errorf("cookie %q is not set", grpcGatewayCookie)
-
-// GetCurrentUserAccessToken return users access token from Grafana.
-func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) {
-	// We need to set cookie to the request to make it execute in grafana user context.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", fmt.Errorf("metadata not set in the context: %w", errCookieIsNotSet)
-	}
-	cookies := md.Get(grpcGatewayCookie)
-	if len(cookies) == 0 {
-		return "", errCookieIsNotSet
-	}
-	headers := http.Header{}
-	headers.Set("Cookie", strings.Join(cookies, "; "))
-
-	var user currentUser
-	err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user)
-	if err != nil {
-		var e *clientError
-		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
-			return "", ErrFailedToGetToken
-		}
-		return "", fmt.Errorf("unknown error occurred during getting of user's token: %w", err)
-	}
-
-	return user.AccessToken, nil
 }
 
 // check interfaces.

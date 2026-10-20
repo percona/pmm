@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"maps"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -36,12 +37,125 @@ import (
 	"github.com/percona/pmm/managed/utils/stringset"
 )
 
+// QAN agents all report at the start of each minute. Looking each of them up separately
+// filled pmm-managed's connection pool in that burst, so Collect reads a cached copy.
+const inventoryCacheTTL = 30 * time.Second
+
 // Client represents qan-api client for data collection.
 type Client struct {
-	c   qanCollectorClient
-	qsc qanv1.QANServiceClient
-	db  *reform.DB
-	l   *logrus.Entry
+	c         qanCollectorClient
+	qsc       qanv1.QANServiceClient
+	db        *reform.DB
+	l         *logrus.Entry
+	inventory inventoryCache
+}
+
+// inventory holds the Agents, Services and Nodes used to label QAN data, by ID.
+type inventory struct {
+	agents   map[string]*models.Agent
+	services map[string]*models.Service
+	nodes    map[string]*models.Node
+}
+
+type inventoryCache struct {
+	mu       sync.Mutex
+	inv      *inventory
+	loadedAt time.Time
+}
+
+// get returns the cached inventory, reloading it once it is older than inventoryCacheTTL.
+func (ic *inventoryCache) get(q *reform.Querier) (*inventory, error) {
+	ic.mu.Lock()
+	defer ic.mu.Unlock()
+
+	if ic.inv != nil && time.Since(ic.loadedAt) < inventoryCacheTTL {
+		return ic.inv, nil
+	}
+
+	inv, err := loadInventory(q)
+	if err != nil {
+		return nil, err
+	}
+	ic.inv = inv
+	ic.loadedAt = time.Now()
+	return inv, nil
+}
+
+// loadInventory reads all QAN Agents, Services and Nodes.
+func loadInventory(q *reform.Querier) (*inventory, error) {
+	// Credentials stay encrypted: labels don't use them.
+	agents, err := q.SelectAllFrom(models.AgentTable, "WHERE agent_type LIKE 'qan-%'")
+	if err != nil {
+		return nil, err
+	}
+	services, err := models.FindServices(q, models.ServiceFilters{})
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := models.FindNodes(q, models.NodeFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	inv := &inventory{
+		agents:   make(map[string]*models.Agent, len(agents)),
+		services: make(map[string]*models.Service, len(services)),
+		nodes:    make(map[string]*models.Node, len(nodes)),
+	}
+	for _, str := range agents {
+		agent := str.(*models.Agent) //nolint:forcetypeassert
+		inv.agents[agent.AgentID] = agent
+	}
+	for _, service := range services {
+		inv.services[service.ServiceID] = service
+	}
+	for _, node := range nodes {
+		inv.nodes[node.NodeID] = node
+	}
+	return inv, nil
+}
+
+// covers reports whether inv holds the Agent, Service and Node of every bucket.
+func (inv *inventory) covers(metricsBuckets []*agentv1.MetricsBucket) bool {
+	for _, m := range metricsBuckets {
+		// TODO: remove once v2 hits end-of-support
+		agentID, _ := strings.CutPrefix(m.Common.AgentId, "/agent_id/")
+		agent := inv.agents[agentID]
+		if agent == nil {
+			return false
+		}
+		service := inv.services[pointer.GetString(agent.ServiceID)]
+		if service == nil || inv.nodes[service.NodeID] == nil {
+			return false
+		}
+	}
+	return true
+}
+
+// lookupInventory returns the Agents, Services and Nodes that metricsBuckets refer to.
+func (c *Client) lookupInventory(metricsBuckets []*agentv1.MetricsBucket) (*inventory, error) {
+	cached, err := c.inventory.get(c.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if cached.covers(metricsBuckets) {
+		return cached, nil
+	}
+
+	// Added since the last reload.
+	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	if err != nil {
+		return nil, err
+	}
+	services, err := collectServices(c.db.Querier, agents)
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := collectNodes(c.db.Querier, services)
+	if err != nil {
+		return nil, err
+	}
+	return &inventory{agents: agents, services: services, nodes: nodes}, nil
 }
 
 // NewClient returns new client for given gRPC connection.
@@ -179,18 +293,11 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		}
 	}()
 
-	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	inv, err := c.lookupInventory(metricsBuckets)
 	if err != nil {
 		return err
 	}
-	services, err := collectServices(c.db.Querier, agents)
-	if err != nil {
-		return err
-	}
-	nodes, err := collectNodes(c.db.Querier, services)
-	if err != nil {
-		return err
-	}
+	agents, services, nodes := inv.agents, inv.services, inv.nodes
 
 	convertedMetricsBuckets := make([]*qanv1.MetricsBucket, 0, len(metricsBuckets))
 	for _, m := range metricsBuckets {

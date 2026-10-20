@@ -21,7 +21,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    // Single instance per package under pnpm — see @sep/framework vitest config.
+    // Single instance per package under pnpm — see @pmm-extensions/framework vitest config.
     dedupe: ['react', 'react-dom', 'react-hook-form', '@tanstack/react-query'],
   },
   test: {

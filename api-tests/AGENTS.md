@@ -25,6 +25,7 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 
 | Directory | API Domain | What's Tested |
 |-----------|------------|---------------|
+| `accesscontrol/` | Access Control API | LBAC filtering on every Grafana data source route, the VictoriaMetrics surface a viewer must not reach, and the URL shapes that once got past both |
 | `alerting/` | Alerting API | Template CRUD, rule creation |
 | `backup/` | Backup API | Backup operations, storage locations |
 | `inventory/` | Inventory API | Node/Service/Agent CRUD, listing, filtering |
