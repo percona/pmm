@@ -24,9 +24,10 @@ permissions:
 jobs:
   release-pr:
     name: Update the release PR
+    # startsWith ignores case: 'pmm-3.' keeps PMM-12345-* branches out, 'pmm-' alone would not.
     if: >-
       github.repository == 'percona/pmm' &&
-      (github.event_name != 'create' || (github.ref_type == 'branch' && startsWith(github.ref_name, 'pmm-')))
+      (github.event_name != 'create' || (github.ref_type == 'branch' && startsWith(github.ref_name, 'pmm-3.')))
     runs-on: ubuntu-latest
     # Every run rebuilds from the current branches, so a newer queued run can replace a pending one.
     concurrency:
