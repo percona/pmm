@@ -1,23 +1,27 @@
 {
-  "name": "@percona/percona-ui",
+  "name": "@percona/peak-ui",
   "type": "module",
-  "version": "1.0.17",
+  "version": "1.0.29",
   "private": false,
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json && tsc -p .storybook/tsconfig.json",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
     "storybook:dev": "storybook dev -p 6006 --no-open",
     "storybook:build": "storybook build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepack": "pnpm build"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "AGENTS.md",
+    "llms.txt"
   ],
   "exports": {
     ".": {
@@ -38,40 +42,43 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/utils": "^7.3.7",
-    "@mui/x-date-pickers": "^7.6.2",
+    "@mui/x-date-pickers": "^7.29.4",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@storybook/addon-essentials": "^8.6.15",
-    "@storybook/addon-interactions": "^8.6.15",
-    "@storybook/addon-links": "^8.6.15",
-    "@storybook/blocks": "^8.6.15",
-    "@storybook/react": "^8.6.15",
-    "@storybook/react-vite": "^8.6.15",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/react": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
+    "@types/node": "^22.10.0",
     "date-fns": "^3.6.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-storybook": "^0.11.6",
+    "eslint-plugin-storybook": "^10.4.1",
+    "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "prettier": "^3.8.3",
+    "prop-types": "15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rollup": "^4.53.5",
     "rollup-plugin-dts": "^6.3.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
-    "storybook": "^8.6.15",
-    "storybook-addon-pseudo-states": "^3.1.1",
+    "storybook": "^10.4.1",
+    "storybook-addon-pseudo-states": "^10.4.1",
+    "storybook-addon-tag-badges": "^3.1.0",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.0",
     "vite": "^7.3.0",
-    "vite-tsconfig-paths": "^6.0.3"
+    "vite-tsconfig-paths": "^6.0.3",
+    "vitest": "^4.1.7"
   },
   "peerDependencies": {
     "@emotion/react": "^11.11.4",
@@ -79,7 +86,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/utils": "^7.3.7",
-    "@mui/x-date-pickers": "^7.6.2",
+    "@mui/x-date-pickers": "^7.29.4",
     "notistack": "^3.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -89,21 +96,27 @@
     "@fontsource/poppins": "^5.2.7",
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
-    "material-react-table": "^1.15.1",
+    "material-react-table": "^3.2.1",
+    "prism-react-renderer": "^2.4.1",
     "react-is": "18.3.1"
   },
-  "description": "Percona UI lib",
+  "description": "PEAK UI lib",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/percona/percona-ui.git"
+    "url": "git+https://github.com/percona/peak-ui.git"
   },
   "author": "Percona",
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/percona/percona-ui/issues"
+    "url": "https://github.com/percona/peak-ui/issues"
   },
   "overrides": {
-    "react-is": "^18.3.1"
+    "react-is": "18.3.1"
   },
-  "homepage": "https://github.com/percona/percona-ui#readme"
+  "pnpm": {
+    "overrides": {
+      "react-is": "18.3.1"
+    }
+  },
+  "homepage": "https://github.com/percona/peak-ui#readme"
 }

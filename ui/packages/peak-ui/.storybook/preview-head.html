@@ -12,29 +12,44 @@
     text-decoration: underline;
   }
 
-  .sbdocs p:not(.MuiTypography-root),
+  .sbdocs p:not([class*="Mui"]),
   .sbdocs li {
     font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     font-weight: 400;
     font-size: 16px;
     line-height: 1.375;
   }
-  .sbdocs p:not(.MuiTypography-root),
+  .sbdocs p:not([class*="Mui"]),
   .sbdocs ul,
   .sbdocs ol {
     margin: calc(16px * 1.375) 0;
   }
-  .sbdocs code,
+  /* Docs prose code — MDX copy only; Canvas previews (.docs-story) use MUI CssBaseline */
   .sbdocs.sbdocs-preview .token {
     font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-weight: 450;
     font-size: 16px;
     line-height: 1.375;
   }
-  .sbdocs code {
-    margin: calc(16px * 1.375) 0;
+  /* Live component previews own their typography — keep CodeBlock tokens at the component's size */
+  .sbdocs.sbdocs-preview .docs-story .token {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
   }
-  .sbdocs p code {
+  .sbdocs-content > :is(p, h1, h2, h3, h4, h5, h6) code,
+  .sbdocs-content > :is(ul, ol, table, blockquote) code {
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-weight: 450;
+    font-size: 16px;
+    line-height: 1.375;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .sbdocs-content > p code,
+  .sbdocs-content > :is(ul, ol) code {
     font-weight: 475;
     font-size: 14px;
     line-height: 1.5;
@@ -69,11 +84,19 @@
     line-height: 1.25;
     margin-bottom: 11px;
   }
-  .sbdocs h2[id^="stories"] {
+  .sbdocs h2[id^="stories"],
+  .docblock-argstable-body > tr[title] > td {
     font-weight: 700;
     font-size: 12px;
     line-height: 1.25;
     letter-spacing: 0.03rem;
+  }
+  .docblock-argstable-body > tr[title] > td {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+  }
+  .docblock-argstable-body > tr[title] > td svg {
+    margin-top: -1px;
   }
 
   /* Dark mode preview wrapper for color docs */
@@ -95,32 +118,34 @@
   }
 
   .dark-preview {
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .dark-preview,
   .dark-preview * {
-    color: #FBFBFB !important;
-    background: #2C323E !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: rgb(246, 245, 245) !important;
+    background: #3D3C3C !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
   }
 
   .light-preview {
-    border: 1px solid rgba(38, 85, 115, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .light-preview,
   .light-preview * {
-    background: #ffffff !important;
-    border-color: rgba(38, 85, 115, 0.2) !important;
+    background: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
   }
 
   /* Inline story preview in a doc page */
 
-  .sbdocs .docs-story > *:first-child {
+  /* SB10 puts the preview padding on .docs-story; remove it so the gray surface reaches the edges */
+  .sbdocs .docs-story {
     padding: 0;
   }
-  .sbdocs .docs-story > *:first-child > * {
+  /* .docs-story is flex; stretch its child to full width so the gray fills like the canvas */
+  .sbdocs .docs-story > *:first-child {
     width: 100%;
   }
   .sbdocs .docs-story .innerZoomElementWrapper > * {
@@ -132,5 +157,12 @@
   .sbdocs .docblock-argstable tbody {
     filter: none !important;
   }
+
+  /* Page design */
+
+  .sbdocs.sbdocs-wrapper {
+    padding-top: 0;
+  }
+
 
 </style>

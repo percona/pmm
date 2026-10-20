@@ -1,6 +1,6 @@
 ## What it is
 
-Utility to synchronize design tokens from a Figma export (in W3C Design Tokens format) into our TypeScript theme files for Percona UI. By running the script, we automate the process of resolving variable references and updating our codebase with the latest design choices from Figma.
+Utility to synchronize design tokens from a Figma export (in W3C Design Tokens format) into our TypeScript theme files for Peak UI. By running the script, we automate the process of resolving variable references and updating our codebase with the latest design choices from Figma.
 
 ## How to use it
 

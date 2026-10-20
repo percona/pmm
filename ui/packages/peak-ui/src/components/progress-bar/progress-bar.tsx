@@ -25,15 +25,15 @@ const ProgressBar = ({ dataTestId, value, buffer, total, label }: ProgressBarPro
         value={value1Percentage}
         valueBuffer={value2Percentage}
         data-testid={dataTestId ?? 'progress-bar'}
-        sx={{
+        sx={(theme) => ({
           '&': {
             padding: '4px',
             backgroundColor: 'action.selected',
-            borderRadius: '32px',
+            borderRadius: `${theme.shape.borderRadiusFull}px`,
           },
           '& .MuiLinearProgress-bar': {
             margin: '1.6px',
-            borderRadius: '32px',
+            borderRadius: `${theme.shape.borderRadiusFull}px`,
           },
           '& .MuiLinearProgress-dashed': {
             display: 'none',
@@ -45,7 +45,7 @@ const ProgressBar = ({ dataTestId, value, buffer, total, label }: ProgressBarPro
             backgroundColor: isOverLimit ? 'warning.main' : 'primary.contrastText',
             transform: isOverLimit ? 'none !important' : undefined,
           },
-        }}
+        })}
       />
     </Box>
   );
