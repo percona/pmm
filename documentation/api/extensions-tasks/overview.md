@@ -48,6 +48,8 @@ curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql_backups/<your_ta
 
 To generate a service account token, see [Authentication](ref:authentication) in the PMM API welcome section.
 
+All `POST`, `PUT`, and `DELETE` requests require a token with the **Admin** role. Tokens with the Viewer or Editor role get `403 Forbidden`, and requests without a token get `401 Unauthorized`. `GET` requests work with any role.
+
 ## Task statuses
 
 | Status | Meaning |
