@@ -18,6 +18,6 @@ Fixed an issue where PMM Client could get stuck showing as **Disconnected** afte
 - Write links as they appear on the release page, which sits one level up: `../images/<name>.png`, `../reference/nomad.md`.
 - A note ships in the release cut from the branch it is on. A cherry-pick to `pmm-X.Y.Z` brings it along.
 
-This folder is never published. When `pmm-X.Y.Z` is branched, the Release notes workflow builds `X.Y.Z.md` from the notes on that branch and opens a "[Doc] Release X.Y.Z" PR that adds the page and deletes the notes. Merging it deletes them from `pmm-X.Y.Z` too.
+This folder is never published. When `pmm-X.Y.Z` is branched, the Release notes workflow builds `X.Y.Z.md` from the notes on that branch, deletes them from `pmm-X.Y.Z`, and opens a "[Doc] Release X.Y.Z" PR that adds the page and deletes them from `main`. A note cherry-picked to `pmm-X.Y.Z` later goes the same way.
 
 CI fails a file named any other way, an empty note, and a note already published in an earlier release. Run the check locally from the repository root: `documentation/resources/bin/release-notes.sh check my-branch documentation/docs/release-notes/unreleased/PMM-12345-fix.md`.

@@ -4,12 +4,14 @@
 #
 #   release-notes.sh check HEAD_BRANCH [FILE...]
 #       Checks the notes a PR adds or changes. On the release-notes-X.Y.Z PR it also fails
-#       while a note on pmm-X.Y.Z is missing from X.Y.Z.md.
+#       while a note is left on pmm-X.Y.Z.
 #   release-notes.sh build VERSION
-#       Adds the pmm-VERSION notes to VERSION.md, creating it from the template,
-#       and deletes from unreleased/ the notes it now holds.
+#       Adds the pmm-VERSION notes to VERSION.md, creating it from the template, and deletes each
+#       note it adds from NOTES_DIR and from unreleased/. A note is added once: an entry or a
+#       section the writer deletes stays deleted.
 #
-# NOTES_DIR replaces unreleased/ on origin/pmm-VERSION, DOC_DIR the documentation/ directory.
+# NOTES_DIR is unreleased/ in a checkout of pmm-VERSION; without it, check reads origin/pmm-VERSION.
+# DOC_DIR replaces the documentation/ directory.
 
 set -o errexit -o nounset -o pipefail
 shopt -s nullglob
@@ -91,8 +93,7 @@ check() {
     page=$pages/$version.md
     [ -f "$page" ] || die "release-notes/$version.md does not exist. Run the Release notes workflow for $version."
     for file in $(branch_notes "$version"); do
-      published "$page" "$file" ||
-        error "$(basename "$file") is on pmm-$version but not on $version.md. Run the Release notes workflow for $version."
+      error "$(basename "$file") is still on pmm-$version: $version.md has no section for it, or the Release notes workflow has not run since it landed."
     done
   fi
 
@@ -142,17 +143,20 @@ build() {
   fi
 
   for file in $(branch_notes "$version"); do
-    if published "$page" "$file"; then
-      continue
+    if ! published "$page" "$file"; then
+      [[ $(basename "$file") =~ $name ]]
+      heading=${headings[${BASH_REMATCH[2]}]}
+      if ! grep -qxF "$heading" "$page"; then
+        echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note stays on pmm-$version"
+        continue
+      fi
+      entry=$(mktemp)
+      render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
+      insert "$page" "$heading" "$entry"
+      rm -f "$entry"
+      echo "$(basename "$file"): added"
     fi
-    [[ $(basename "$file") =~ $name ]]
-    heading=${headings[${BASH_REMATCH[2]}]}
-    grep -qxF "$heading" "$page" || die "$(basename "$file"): $(basename "$page") has no '$heading' section"
-    entry=$(mktemp)
-    render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
-    insert "$page" "$heading" "$entry"
-    rm -f "$entry"
-    echo "$(basename "$file"): added"
+    rm "$file"
   done
 
   for file in $(notes "$unreleased"); do

@@ -105,38 +105,52 @@ note() {
   [ "$(grep -c 'browse/PMM-1)' "$page")" -eq 2 ]
 }
 
-@test "build: a note for a removed section fails with a message" {
+@test "build: an entry the writer deleted is not added back" {
+  note "$notes" PMM-1-fix.md 'Fixed it.'
   "$rn" build 3.11.0
-  sed -i '/^## 🔶 Known issues/d' "$page"
-  note "$notes" PMM-1-known-issue.md 'Slow\n\nIt is slow.'
+  sed -i '/browse\/PMM-1)/d' "$page"
   run "$rn" build 3.11.0
-  [ "$status" -eq 1 ]
-  [[ $output == *"has no '## 🔶 Known issues' section"* ]]
+  [ "$status" -eq 0 ]
+  ! grep -q 'browse/PMM-1)' "$page"
 }
 
-@test "build: removes from unreleased/ the notes now on the page" {
+@test "build: a section the writer deleted is not added back, its note stays with a warning" {
+  "$rn" build 3.11.0
+  sed -i '/^## 📈 Improvements/d' "$page"
+  note "$notes" PMM-1-improvement.md 'Faster.'
+  note "$notes" PMM-2-fix.md 'Fixed it.'
+  run "$rn" build 3.11.0
+  [ "$status" -eq 0 ]
+  [[ $output == *"PMM-1-improvement.md: 3.11.0.md has no '## 📈 Improvements' section"* ]]
+  ! grep -q '^## 📈 Improvements' "$page"
+  grep -q 'browse/PMM-2): Fixed it.' "$page"
+  [ -e "$notes/PMM-1-improvement.md" ]
+}
+
+@test "build: deletes each note it adds, from the release branch and from unreleased/" {
   note "$notes" PMM-1-fix.md
   note "$unreleased" PMM-1-fix.md
   note "$unreleased" PMM-1-improvement.md
   note "$unreleased" PMM-2-fix.md
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
+  [ ! -e "$notes/PMM-1-fix.md" ]
   [ ! -e "$unreleased/PMM-1-fix.md" ]
   [ -e "$unreleased/PMM-1-improvement.md" ]
   [ -e "$unreleased/PMM-2-fix.md" ]
 }
 
-@test "check: release PR passes when every note on the branch is on the page" {
+@test "check: release PR passes once every note on the branch is added" {
   note "$notes" PMM-1-fix.md
   "$rn" build 3.11.0
   run "$rn" check release-notes-3.11.0
   [ "$status" -eq 0 ]
 }
 
-@test "check: release PR fails for a note missing from the page" {
+@test "check: release PR fails while a note is left on the branch" {
   "$rn" build 3.11.0
   note "$notes" PMM-1-fix.md
   run "$rn" check release-notes-3.11.0
   [ "$status" -eq 1 ]
-  [[ $output == *"PMM-1-fix.md is on pmm-3.11.0 but not on 3.11.0.md"* ]]
+  [[ $output == *"PMM-1-fix.md is still on pmm-3.11.0"* ]]
 }

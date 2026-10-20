@@ -1,11 +1,11 @@
 ---
 name: Release notes
 
-# check: checks the release notes a PR adds; on the "[Doc] Release X.Y.Z" PR, also that no note is left out.
-# release-pr: when pmm-X.Y.Z is branched, and whenever a note lands on it, builds release-notes/X.Y.Z.md
-#   from the notes on that branch into one draft "[Doc] Release X.Y.Z" PR to main, which also deletes
-#   those notes from main.
-# copy: once that PR merges, copies it to pmm-X.Y.Z and deletes the notes there, so none is kept anywhere.
+# check: checks the release notes a PR adds; on the "[Doc] Release X.Y.Z" PR, also that none is left on pmm-X.Y.Z.
+# release-pr: when pmm-X.Y.Z is branched, and whenever a note lands on it, adds the notes on that branch
+#   to release-notes/X.Y.Z.md in one draft "[Doc] Release X.Y.Z" PR to main, and deletes them from
+#   pmm-X.Y.Z at once and from main in that PR. A deleted note is never added again.
+# copy: once that PR merges, copies the page to pmm-X.Y.Z, which the site publishes from at GA.
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
@@ -110,15 +110,24 @@ jobs:
             git checkout -B "$BRANCH" origin/main
           fi
 
-          documentation/resources/bin/release-notes.sh build "$VERSION"
+          release=$RUNNER_TEMP/release
+          git worktree add -q --detach "$release" "origin/pmm-$VERSION"
+          NOTES_DIR=$release/documentation/docs/release-notes/unreleased \
+            documentation/resources/bin/release-notes.sh build "$VERSION"
 
           git add -A documentation
-          if git diff --cached --quiet; then
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -q -m "[Doc] Release $VERSION"
+            git push --force-with-lease origin "$BRANCH"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-          git commit -q -m "[Doc] Release $VERSION"
-          git push --force-with-lease origin "$BRANCH"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # ROBOT_TOKEN can push to the protected release branch.
+          git -C "$release" add -A documentation
+          if ! git -C "$release" diff --cached --quiet; then
+            git -C "$release" commit -q -m "Remove the release notes added to the $VERSION page"
+            git -C "$release" push origin "HEAD:pmm-$VERSION"
+          fi
 
       - name: Open the PR
         if: steps.build.outputs.changed && !steps.build.outputs.pr
@@ -130,7 +139,7 @@ jobs:
             --title "[Doc] Release $VERSION" --body-file - <<EOF
           Release notes for PMM $VERSION, built from the notes in \`documentation/docs/release-notes/unreleased/\` on \`pmm-$VERSION\`. The [Release notes workflow](https://github.com/$GITHUB_REPOSITORY/actions/workflows/release-notes.yml) adds to this PR whenever a note lands on \`pmm-$VERSION\`, and keeps your edits.
 
-          Merge it before GA. Merging copies the page to \`pmm-$VERSION\`, which the site publishes from at GA, and deletes the notes there.
+          Merge it before GA. Merging copies the page to \`pmm-$VERSION\`, which the site publishes from at GA. An entry or section you delete here is not added back.
 
           - [ ] Release summary
           - [ ] Release highlights
@@ -162,15 +171,15 @@ jobs:
           ref: pmm-${{ steps.release.outputs.version }}
           token: ${{ secrets.ROBOT_TOKEN }}
 
-      - name: Copy the page and delete the notes
+      # The notes are already gone from pmm-X.Y.Z, so only the page, the index and the nav are copied.
+      - name: Copy the page
         env:
           VERSION: ${{ steps.release.outputs.version }}
         run: |
           git config user.name "GitHub Action"
           git config user.email "github-action@users.noreply.github.com"
           git fetch --depth=2 origin "$SHA"
-          git diff --binary "${SHA}^1" "$SHA" -- documentation/ | git apply --index --3way
-          NOTES_DIR=documentation/docs/release-notes/unreleased documentation/resources/bin/release-notes.sh build "$VERSION"
-          git add -A documentation
+          git diff --binary "${SHA}^1" "$SHA" -- documentation/ ':(exclude)documentation/docs/release-notes/unreleased' \
+            | git apply --index --3way
           git commit -q -m "[Doc] Release $VERSION" -m "(cherry picked from commit $SHA)"
           git push origin "HEAD:pmm-$VERSION"
