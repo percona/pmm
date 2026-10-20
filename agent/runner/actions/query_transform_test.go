@@ -168,9 +168,9 @@ func Test_dmlToSelect(t *testing.T) {
 }
 
 func Test_isDMLQuery(t *testing.T) {
-	assert.True(t, isDMLQuery("SELECT * FROM table"))
+	assert.True(t, isDMLQuery("SELECT id FROM table"))
 	assert.True(t, isDMLQuery(`update tabla set nombre = "carlos" where id = 0`))
 	assert.True(t, isDMLQuery("delete from tabla join tabla2 on tabla.id = tabla2.tabla2_id"))
 	assert.True(t, isDMLQuery("/*+ SET_VAR(foreign_key_checks=OFF) */ INSERT INTO t2 VALUES(2);"))
-	assert.False(t, isDMLQuery("EXPLAIN SELECT * FROM table"))
+	assert.False(t, isDMLQuery("EXPLAIN SELECT id FROM table"))
 }

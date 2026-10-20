@@ -1,6 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { ToolbarSearchButton, ToolbarShortcutsButton } from 'components/buttons';
+import {
+  ToolbarSearchButton,
+  ToolbarShortcutsButton,
+} from 'components/buttons';
 import { LOCATORS } from 'lib/constants';
 import { waitForElement } from 'lib/utils';
 

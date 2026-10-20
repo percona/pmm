@@ -1,7 +1,7 @@
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Tooltip } from '@percona/percona-ui';
+import { Tooltip } from '@percona/peak-ui';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { FC, PropsWithChildren } from 'react';
 import Box from '@mui/material/Box';

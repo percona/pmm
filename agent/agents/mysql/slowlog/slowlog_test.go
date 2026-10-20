@@ -40,7 +40,7 @@ import (
 func getDataFromFile(t *testing.T, filePath string, data any) {
 	t.Helper()
 
-	jsonData, err := os.ReadFile(filePath) //nolint:gosec
+	jsonData, err := os.ReadFile(filePath)
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)
@@ -174,7 +174,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() { //nolint:revive
+		for range s.Changes() {
 		}
 	})
 
@@ -225,7 +225,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() { //nolint:revive
+		for range s.Changes() {
 		}
 	})
 
@@ -274,7 +274,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() { //nolint:revive
+		for range s.Changes() {
 		}
 	})
 }

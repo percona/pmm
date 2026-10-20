@@ -39,7 +39,7 @@ const isBrowser = () =>
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
-  const isGrafanaPageRef = useRef<boolean>();
+  const isGrafanaPageRef = useRef<boolean | undefined>(undefined);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();

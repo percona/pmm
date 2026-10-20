@@ -38,7 +38,7 @@ variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_TE
 
 - `gofumpt -s ` (note the `-s`)
 - `make format`
-- Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments) wiki page.
+- Follow [Effective Go](https://go.dev/doc/effective_go) and [CodeReviewComments](https://go.dev/wiki/CodeReviewComments) wiki page.
 - golangci-lint checks style too.
 - Try to keep the code consistent
 - Our own customizations:

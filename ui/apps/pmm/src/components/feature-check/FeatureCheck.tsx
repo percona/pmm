@@ -1,7 +1,7 @@
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Card } from '@percona/percona-ui';
+import { Card } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { FC } from 'react';
@@ -15,7 +15,7 @@ interface Props {
 const FeatureCheck: FC<Props> = ({ feature, pageTitle }) => {
   const { user } = useUser();
   return (
-    <Page title={pageTitle}>
+    <Page title={pageTitle} surface="canvas">
       <Card
         dataTestId="empty-block"
         content={

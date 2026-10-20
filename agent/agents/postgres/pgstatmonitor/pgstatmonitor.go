@@ -284,10 +284,17 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	return version, pgStatMonitorPrerelease(prerelease), nil
 }
 
+func (m *PGStatMonitorQAN) closeDB() {
+	err := m.dbCloser.Close()
+	if err != nil {
+		m.l.WithError(err).Error("Failed to close DB connection")
+	}
+}
+
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	defer func() {
-		m.dbCloser.Close() //nolint:errcheck
+		m.closeDB()
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
@@ -609,7 +616,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					NumQueries:          count,
 					ClientHost:          currentPSM.ClientIP,
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
+					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()), //nolint:gosec
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
@@ -627,7 +634,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			mb.Postgresql.Planid = pointer.GetString(currentPSM.PlanID)
 			mb.Postgresql.QueryPlan = pointer.GetString(currentPSM.QueryPlan)
 
-			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
+			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM, m.l)
 			if err != nil {
 				m.l.WithError(err).Warnf("failed to parse histogram from resp calls")
 			} else {
@@ -722,10 +729,15 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentv1.HistogramItem, error) {
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion, l *logrus.Entry) ([]*agentv1.HistogramItem, error) {
 	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
-		val, err := strconv.ParseInt(v, 10, 32)
+		if k >= len(histogram) {
+			l.Debugf("pg_stat_monitor returned %d histogram buckets, expected %d; ignoring the excess.", len(respCalls), len(histogram))
+			break
+		}
+		// Use ParseUint with bitSize 32 to ensure non-negative values that fit in uint32
+		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
@@ -734,12 +746,22 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	}
 
 	for k, v := range prevRespCalls {
-		val, err := strconv.ParseInt(v, 10, 32)
+		if k >= len(histogram) {
+			l.Debugf("cached histogram has %d buckets, expected %d; ignoring the excess.", len(prevRespCalls), len(histogram))
+			break
+		}
+		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
-		histogram[k].Frequency -= uint32(val)
+		uVal := uint32(val)
+		if histogram[k].Frequency >= uVal {
+			histogram[k].Frequency -= uVal
+		} else {
+			// Handle counter resets or inconsistencies by capping at 0
+			histogram[k].Frequency = 0
+		}
 	}
 
 	return histogram, nil

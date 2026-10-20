@@ -181,7 +181,7 @@ Configure connections to external database services:
 ### Nomad Garbage Collection (GC) settings
 
 !!! note
-    To enable Nomad, you must set **both** `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`. Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient — without a public address, Nomad does not start. See [Configure Nomad](../../../../reference/nomad.md#prerequisites) for details.
+    To enable Nomad, you must set **both** `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`. Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient — without a public address, Nomad does not start. See [Configure Nomad](../../../../reference/nomad.md#set-a-public-address) for details.
 
 Control Nomad client-side garbage collection (GC) directly from PMM using environment variables. 
 

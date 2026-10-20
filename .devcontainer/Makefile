@@ -62,17 +62,17 @@ run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
 ui-setup:                            ## Install UI dependencies
-	cd ui && yarn install
+	cd ui && pnpm install
 
 run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
 	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
 	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app; \
 	supervisorctl restart grafana; \
 	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
-	cd ui && yarn dev
+	cd ui && pnpm dev
 
 build-ui: ui-setup               ## Build UI and deploy to system dirs
-	cd ui && yarn build
+	cd ui && pnpm build
 	rm -rf /usr/share/pmm-ui
 	cp -r ui/apps/pmm/dist /usr/share/pmm-ui
 	rm -rf /usr/share/percona-dashboards/panels/pmm-compat-app /srv/grafana/plugins/pmm-compat-app
@@ -113,14 +113,6 @@ reload-dashboards:
 	rm -r /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
 	cp -r /root/go/src/github.com/percona/pmm/dashboards/dashboards /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
 	supervisorctl restart grafana
-
-# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
-# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
-# 	go test -coverpkg="github.com/percona/pmm/managed/..." \
-# 			-tags maincover \
-# 			$(PMM_LD_FLAGS) \
-# 			-race -c -o bin/pmm-managed.test
-# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
 psql:                           ## Open database for the pmm-managed instance in psql shell
 	PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed

@@ -25,6 +25,7 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 
 | Directory | API Domain | What's Tested |
 |-----------|------------|---------------|
+| `accesscontrol/` | Access Control API | LBAC filtering on every Grafana data source route, the VictoriaMetrics surface a viewer must not reach, and the URL shapes that once got past both |
 | `alerting/` | Alerting API | Template CRUD, rule creation |
 | `backup/` | Backup API | Backup operations, storage locations |
 | `inventory/` | Inventory API | Node/Service/Agent CRUD, listing, filtering |
@@ -66,7 +67,6 @@ docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api
 ### Do
 - Make tests **idempotent** — tests must clean up after themselves
 - Use helper functions in `helpers.go` for common setup (creating nodes, services, agents)
-- Use `testify/assert` and `testify/require` for assertions
 - Test both success and error paths (invalid input, not found, permission denied)
 - Use the generated Swagger clients for API calls (same clients as pmm-admin)
 - Test with the `t.Cleanup()` pattern to ensure resources are removed even on failure

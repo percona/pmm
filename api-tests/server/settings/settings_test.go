@@ -529,7 +529,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
+			t.Run("ChangeSSHKey only on AMI", func(t *testing.T) {
 				defer serverTest.RestoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -543,7 +543,7 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI and OVF distributions`)
+				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI distribution`)
 				assert.Empty(t, res)
 			})
 
@@ -723,7 +723,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err := http.DefaultClient.Do(req)
+						resp, err := pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)
@@ -759,7 +759,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err = http.DefaultClient.Do(req)
+						resp, err = pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)

@@ -147,6 +147,11 @@ func (r *Template) Validate() error {
 		return err
 	}
 
+	err = r.validateOverridableParams()
+	if err != nil {
+		return err
+	}
+
 	// Deliberately not normalized to CategoryUnknown here: Validate has a pointer
 	// receiver on the value Parse appends, so a mutation would leak into the YAML
 	// stored in the database and shown in the UI. The default is applied once, at

@@ -288,6 +288,7 @@
   },
   "tags": [
     {
+      "description": "UserService contains rpcs related to user data",
       "name": "UserService"
     }
   ]
