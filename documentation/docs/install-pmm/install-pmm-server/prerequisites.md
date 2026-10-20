@@ -43,7 +43,7 @@ For detailed sizing calculations, see [Hardware and system requirements](../plan
 
 - **CPU**: Must support SSE4.2 instruction set (required for Query Analytics)
 - **x86_64**: Native support for optimal performance
-- **ARM64**: Native support starting with PMM 3.10.0. The PMM Server container image includes an ARM64 build, and Docker automatically pulls the one that matches your host 
+- **ARM64**: Native support starting with PMM 3.10.0. The PMM Server container image includes an ARM64 build, and Docker automatically pulls the one that matches your host.
 
 ## Storage planning
 

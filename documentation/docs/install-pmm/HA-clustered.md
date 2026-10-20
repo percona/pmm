@@ -1,12 +1,7 @@
 # Understand PMM High Availability Cluster
 
-!!! warning "Technical Preview: Not production-ready"
-    This feature is in **Technical Preview** for testing and feedback only. Expect [known issues](../install-pmm/install-HA-clustered.md#known-issues), breaking changes, and incomplete features.
-    
-    **Test in non-production environments only** and [provide feedback](../install-pmm/install-HA-clustered.md#get-help-and-provide-feedback) to shape the GA release.
-
 !!! danger "VictoriaMetrics limitations"
-    This Tech Preview does not support:
+    PMM HA Cluster does not support:
     
     - **Prometheus data imports**: Cannot import existing Prometheus files
     - **Metrics downsampling**: No automatic historical data optimization
@@ -18,7 +13,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance deployments](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
+Unlike [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -32,9 +27,9 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Choose your Kubernetes deployment type
 
-| Consideration | Single-instance (GA) | HA Cluster (Tech Preview) |
+| Consideration | Single-instance | HA Cluster |
 |--------------|----------------------|-----------------------------|
-| **Production status** | ✅ Production-ready | ⚠️ Testing only |
+| **Production status** | ✅ Production-ready | ✅ Production-ready |
 | **Failover time** | 2-5 minutes | Immediate |
 | **Setup complexity** | ● Low | ●●● Medium |
 | **Resource overhead** | 1x baseline | 3-5x baseline |
@@ -48,65 +43,64 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Check prerequisites
 
-- **Kubernetes**: 1.32 or higher
-- **Helm**: 3.2.0 or higher
+- **Kubernetes**: 1.32 or higher, because the Helm chart doesn't install on earlier versions. The [supported versions](#check-if-your-platform-is-supported) depend on your platform.
+- **Helm**: 3.17.0 or higher
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 
 ### Check if your platform is supported
 
-!!! info "Tested Platform: Amazon EKS only"
-    This Tech Preview is validated exclusively on **Amazon EKS (Kubernetes 1.32+)**. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.
+You can deploy PMM as an HA Cluster on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. The Amazon EKS and OpenShift versions you can use depend on your `pmm-ha` Helm chart version, because each chart ships its own database operators.
+
+To check that your platform version is supported, before you install or upgrade:
+{.power-number}
+
+1. Find your `pmm-ha` chart version. For a new installation, use the chart version you plan to install. For an existing installation, run `helm list -n <namespace>`.
+
+2. In the following table, find the row for your chart version and check that your Amazon EKS or OpenShift version is between the versions listed for it. For example, chart 1.8.0 supports Amazon EKS 1.33, 1.34, 1.35 and 1.36:
+
+    | `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift |
+    |------------------------|-------------|------------|-----------|
+    | 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.18 to 4.22 |
+
+    If your version is supported, continue with [Plan your resources](#plan-your-resources). If it isn't, upgrade your Amazon EKS or OpenShift cluster to a supported version, or use a chart version that supports your current version.
+
+Other platforms, such as GKE, AKS or on-premises Kubernetes, might work but aren't tested. VMware Tanzu isn't supported.
 
 ## Plan your resources
 
-Before installing PMM HA, ensure your Kubernetes cluster has sufficient capacity to run the distributed architecture. This section helps you calculate the resources you'll need based on your monitoring requirements.
+Choose the size of your Kubernetes cluster based on how many nodes you plan to monitor. Count each host that runs one database service with Query Analytics turned on as one node.
 
-### Minimum cluster requirements
+If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. Each size handles the number of monitored nodes in its row:
 
-At minimum, your cluster needs:
+| Monitored nodes | Helm values to use | Each of the 3 worker nodes | Total storage |
+|-----------------|--------------------|----------------------------|---------------|
+| Up to 100 | The chart's default values | 16 CPUs, 32 GB memory | About 0.5 TB |
+| Up to 500 | `examples/values-500-nodes.yaml` | 32 CPUs, 64 GB memory | About 1.6 TB |
+| Up to 1,000 | `examples/values-1000-nodes.yaml` | 48 CPUs, 96 GB memory | About 3.2 TB |
 
-- **CPU**: 12+ cores
-- **Memory**: 20-40 GB RAM
-- **Storage**: 100+ GB with persistent volume provisioner
+If you monitor fewer than 100 nodes, plan for the 100-node size anyway. The chart's default values request about 17 CPUs, 40 GB of memory and 465 GB of storage, whatever the number of nodes.
 
-This baseline supports monitoring **1-10 database services** with standard retention periods. 
+For more than 100 nodes, pass the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you install, for example `helm install pmm-ha percona/pmm-ha --namespace pmm -f values-500-nodes.yaml`. These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
 
-If you're planning a larger deployment, use the sizing guidelines below to calculate your resource needs.
+Choose a larger size than your node count suggests if:
 
-### Sizing guidelines
+- you monitor MySQL with per-table statistics, or MongoDB with many collections. These produce two to three times more metrics per node. To reduce them, [turn off table statistics](install-pmm-client/connect-database/mysql/improve_perf.md#disable-table-statistics).
+- you keep data for longer than 30 days. Storage grows with retention, for example 90 days needs about three times the metrics storage.
 
-Use this table to estimate resources based on your monitoring scale:
+### Understand where the resources go
 
-| Monitored services | PMM replicas | ClickHouse replicas | VictoriaMetrics storage | Total CPU | Total memory | Total storage |
-|-------------------|--------------|---------------------|------------------------|-----------|--------------|---------------|
-| 1-10 | 3 | 3 | 3 | 12 cores | 20 GB | 100 GB |
-| 11-50 | 3 | 3 | 3 | 15 cores | 30 GB | 200 GB |
-| 51-100 | 3 | 3 | 5 | 20 cores | 40 GB | 500 GB |
-| 100+ | 5 | 5 | 5 | 30+ cores | 60+ GB | 1+ TB |
+To see which component to watch as you add nodes or keep data longer, check what each one does, what it requests with the chart's default values and what makes it grow:
 
-### Factors affecting resource usage
+| Component | What it does | Each pod requests by default | What makes it grow |
+|-----------|--------------|------------------------------|--------------------|
+| PMM Server (3 pods) | Serves the PMM UI, the API and all traffic from PMM Clients. Only the leader pod does this work. The other two are on standby. | 2 CPUs, 4 GB memory, 40 GB storage | More monitored nodes, because one pod handles all of them |
+| HAProxy (3 pods) | Sends every request to the PMM Server leader | 0.25 CPU, 128 MB memory | PMM Clients sending buffered data all at once after a failover or an upgrade |
+| VictoriaMetrics storage (3 pods) | Stores metrics. Other VictoriaMetrics pods receive, route and query them. | 0.5 CPU, 2 GB memory, 50 GB storage | More monitored nodes and a longer retention period |
+| ClickHouse (3 pods) | Stores Query Analytics data. Each pod holds a full copy. | 1 CPU, 4 GB memory, 50 GB storage | More database services with Query Analytics and a longer retention period |
+| PostgreSQL (3 pods) | Stores PMM Server and Grafana data, such as your inventory, settings and alert rules | 0.5 CPU, 1 GB memory, 10 GB storage | More PMM Server connections as you add monitored nodes |
 
-Your actual resource needs may vary based on:
-
-- number of monitored database instances
-- metrics resolution and retention period
-- Query Analytics (QAN) volume
-- number of concurrent users
-- custom dashboards and queries
-
-### Understand how resources are distributed
-
-PMM HA spreads resource consumption across multiple components to ensure high availability. Understanding this breakdown helps you identify which components to scale as your monitoring needs grow, and where bottlenecks might occur.
-
-| Component | CPU | Memory | Storage | Notes |
-|-----------|-----|--------|---------|-------|
-| **Per PMM Server pod** | 2 cores | 4 GB | Minimal | Stores configuration only |
-| **HAProxy (3 replicas)** | 1 core | 2 GB | - | Routing and failover overhead |
-| **ClickHouse cluster** | 3-6 cores | 8-12 GB | 50+ GB | Stores QAN data and scales with query volume |
-| **VictoriaMetrics cluster** | 2-4 cores | 4-8 GB | 50+ GB | Stores metrics and scales with retention period |
-| **PostgreSQL cluster** | 1-2 cores | 2-4 GB | 10 GB | Grafana metadata storage |
-| **Kubernetes operators** | 1-2 cores | 2-4 GB | - | Operator management overhead |
+The `values-500-nodes.yaml` and `values-1000-nodes.yaml` files raise these values for larger deployments.
 
 ## Learn the architecture
 
@@ -140,9 +134,7 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **Automatic failover**: HAProxy detects when the active leader becomes unhealthy and routes traffic to the new leader
 - **Pod anti-affinity**: Kubernetes scheduler distributes components across different nodes
 - **Health checks**: Comprehensive readiness and liveness probes on all components
-- **Rolling updates**: Zero-downtime upgrades with sequential pod updates
-
-### Known issues
+- **Rolling updates**: Upgrades restart each pod sequentially. Expect a brief interruption (around 5-10 seconds) when the active leader pod restarts and a new leader is elected.
 
 - Exporters in pull mode get no metrics, because nothing in the HA deployment scrapes them. Exporters on PMM Client nodes use push mode by default, so this affects only those set to pull mode, for example with `--metrics-mode=pull`. To switch an exporter to push mode, run `pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> --push-metrics` (see [`pmm-admin inventory change agent`](../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-change-agent)).
 - **[PMM-14680](https://perconadev.atlassian.net/browse/PMM-14680)**: PostgreSQL database instance nodes and services display with an incorrect 'pmm-' prefix in their names.
@@ -157,3 +149,7 @@ Now that you understand how PMM HA Cluster works, you can deploy it on your Kube
 The installation process uses Helm to set up all three replicas, configure HAProxy load balancing, and deploy the distributed databases automatically.
 
 [Install PMM HA Cluster →](../install-pmm/install-HA-clustered.md){.md-button}
+
+## Need to upgrade?
+
+When a new PMM release is available, see [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.

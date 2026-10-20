@@ -85,6 +85,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			err:         errAgentNotFound,
 		},
 		{
+			// Also the answer to a service token PMM Server no longer accepts, such as one of a disabled service account.
 			name:        "PMM Server does not accept the credentials",
 			agentStatus: http.StatusUnauthorized,
 			agentCode:   codes.Unauthenticated,
@@ -99,8 +100,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			unknowable:  true,
 		},
 		{
-			// PMM Server answers 401 for a failure of its own, a Grafana restart among them, and for a
-			// service token it no longer accepts - the token an Agent whose Node was removed holds.
+			// PMM Server answers 401 for a failure of its own, a Grafana restart among them.
 			name:        "PMM Server did not accept the credentials",
 			agentStatus: http.StatusUnauthorized,
 			agentCode:   codes.Internal,
