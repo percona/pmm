@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import { FormProvider, useForm } from 'react-hook-form';
 import AutoCompleteInput from './auto-complete';
 
@@ -11,9 +11,9 @@ type CustomArgs = React.ComponentProps<typeof AutoCompleteInput> & {
 };
 
 const meta = {
-  title: 'Inputs/AutoComplete',
+  title: 'To be reviewed/AutoComplete',
   component: AutoCompleteInput,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'centered',
     docs: {

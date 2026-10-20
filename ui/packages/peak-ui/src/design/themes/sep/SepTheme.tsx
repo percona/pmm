@@ -1,10 +1,10 @@
 import { PaletteMode, ThemeOptions } from '@mui/material';
-import { deepmerge } from '@mui/utils';
+import { mergeThemeOptions } from '../../merge-theme-options';
 import { iconButtonClasses } from '@mui/material/IconButton';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { listItemButtonClasses } from '@mui/material/ListItemButton';
 
-import baseThemeOptions, { semanticTokensLight, semanticTokensDark } from '../base';
+import baseThemeOptions, { semanticTokensLight, semanticTokensDark, shape } from '../base';
 
 // SEP brand colors
 const sepBrand = {
@@ -144,37 +144,6 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           { props: { variant: 'contained', color: 'info' }, style: { color: sepBrand.white } },
         ],
       },
-      MuiIconButton: {
-        defaultProps: {
-          disableTouchRipple: true,
-        },
-        styleOverrides: {
-          root: ({ theme, ownerState }) => ({
-            color: theme.palette.text.primary,
-            ...(ownerState.color === 'primary' && {
-              color: theme.palette.primary.main,
-            }),
-            '&:hover': {
-              backgroundColor: theme.palette.action.selected,
-            },
-            '&:focus': {
-              backgroundColor: theme.palette.action.focusVisible,
-            },
-            ...(ownerState.size === 'large' && {
-              svg: {
-                width: 40,
-                height: 40,
-              },
-            }),
-            ...(ownerState.size === 'small' && {
-              svg: {
-                width: 20,
-                height: 20,
-              },
-            }),
-          }),
-        },
-      },
       MuiAppBar: {
         styleOverrides: {
           root: () => ({
@@ -188,12 +157,12 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           root: ({ theme }) => ({
             height: 10,
             borderStyle: 'solid',
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             borderColor: theme.palette.divider,
             backgroundColor: tokens.surfaces.elevation0,
           }),
           bar: {
-            borderRadius: 5,
+            borderRadius: `${shape.borderRadiusSm}px`,
             backgroundColor: sepBrand.purple[500],
           },
         },
@@ -250,7 +219,7 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
             '&:focus-visible': {
               outline: `2px solid ${mode === 'light' ? sepBrand.purple[600] : sepBrand.purple[200]}`,
               outlineOffset: '2px',
-              borderRadius: '2px',
+              borderRadius: `${shape.borderRadiusXs}px`,
             },
           },
         },
@@ -294,7 +263,7 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
     },
   };
 
-  return deepmerge<ThemeOptions>(baseThemeOptions(mode), newOptions);
+  return mergeThemeOptions(baseThemeOptions(mode), newOptions);
 };
 
 export default sepThemeOptions;

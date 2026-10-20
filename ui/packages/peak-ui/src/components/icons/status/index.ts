@@ -1,2 +1,3 @@
 export * from './status';
-export * from './status.types';
+export type { IconsProps, StatusIconProviderProps } from './status.types';
+export type { StatusIconProps as LegacyStatusIconProps } from './status.types';

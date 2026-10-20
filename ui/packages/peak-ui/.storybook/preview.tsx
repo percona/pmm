@@ -1,8 +1,10 @@
-import React, { useMemo } from "react";
-import type { Preview } from "@storybook/react";
-import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
-import { getThemeOptions } from "../src/design";
-import peakDesign from "./peak-design";
+import { useMemo } from 'react';
+import type { Preview } from '@storybook/react';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { getThemeOptions } from '../src/design';
+import peakUi from './peak-ui';
+import { resolveDisplayName } from './resolve-display-name';
 
 const preview: Preview = {
   decorators: [
@@ -11,61 +13,63 @@ const preview: Preview = {
         globals: { mode, theme: themeName },
       } = context;
 
-      const theme = useMemo(
-        () => createTheme(getThemeOptions(themeName)(mode)),
-        [mode, themeName]
-      );
+      const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
 
-      const bgColor = theme.palette.background.default;
-      document.body.style.backgroundColor = bgColor;
+      const defaultBg = theme.palette.background.default;
+      document.body.style.backgroundColor = defaultBg;
 
       const content = (
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Story />
+          <Story key={context.id} />
         </ThemeProvider>
       );
 
       if (context.viewMode === 'docs') {
-        return <div style={{ backgroundColor: bgColor, padding: '2rem' }}>{content}</div>;
+        const canvasSurface =
+          (context.parameters?.canvasSurface as 'default' | 'paper' | undefined) ?? 'default';
+        const canvasBg = theme.palette.background[canvasSurface] ?? defaultBg;
+        return <div style={{ backgroundColor: canvasBg, padding: '2rem' }}>{content}</div>;
       }
 
       return content;
     },
   ],
+  initialGlobals: {
+    mode: 'light',
+    theme: 'base',
+  },
   globalTypes: {
     mode: {
-      name: "mode",
-      description: "Color mode",
-      defaultValue: "light",
+      name: 'mode',
+      description: 'Color mode',
       toolbar: {
-        icon: "sun",
+        icon: 'sun',
         items: [
-          { value: "light", icon: "sun", title: "Light mode" },
-          { value: "dark", icon: "moon", title: "Dark mode" },
+          { value: 'light', icon: 'sun', title: 'Light mode' },
+          { value: 'dark', icon: 'moon', title: 'Dark mode' },
         ],
-        showName: true,
         dynamicTitle: true,
       },
     },
     theme: {
-      name: "theme",
-      description: "GUI theme",
-      defaultValue: "base",
+      name: 'theme',
+      description: 'GUI theme',
       toolbar: {
-        icon: "circlehollow",
+        icon: 'circlehollow',
         items: [
-          { value: "base", icon: "circlehollow", title: "Base theme" },
-          { value: "pmm", icon: "hearthollow", title: "PMM theme" },
-          { value: "sep", icon: "database", title: "SEP theme" },
+          { value: 'base', icon: 'circlehollow', title: 'Base theme' },
+          { value: 'pmm', icon: 'hearthollow', title: 'PMM theme' },
+          { value: 'sep', icon: 'database', title: 'SEP theme' },
         ],
-        showName: true,
         dynamicTitle: true,
       },
     },
   },
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
+    jsx: {
+      displayName: resolveDisplayName,
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -73,27 +77,33 @@ const preview: Preview = {
       },
     },
     docs: {
-      theme: peakDesign,
+      theme: peakUi,
       codePanel: true,
     },
     options: {
       storySort: {
         order: [
           'Introduction',
-          'Foundations', [
-            'Colors', [
-              'Primitives',
-              'Primary',
-              'Structural UI',
-              'Messaging',
-              'Charts'
-            ],
+          'Foundations',
+          [
+            'Colors',
+            ['Primitives', 'Primary', 'Structural UI', 'Messaging', 'Charts'],
             'Typography',
-            'Icons'
+            'Shape',
+            'Icons',
+            ['Overview', 'Custom Icons'],
+            'Illustrations',
+            ['Overview', 'Illustrations'],
           ],
-          'Data display', ['Chip', 'Tooltip'],
+          'Inputs',
+          ['Icon Button', 'Text Field', 'Copy to Clipboard'],
+          'Data display',
+          ['Chip', 'Code Block', 'Table', 'Tooltip'],
+          'Feedback',
+          ['Status Icon'],
           'Navigation',
-          '*'
+          'To be reviewed',
+          '*',
         ],
       },
     },

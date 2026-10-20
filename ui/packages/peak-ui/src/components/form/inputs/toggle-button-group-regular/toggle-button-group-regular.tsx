@@ -12,7 +12,7 @@ const ToggleButtonGroupInputRegular = <T extends FieldValues = FieldValues>({
     <ToggleButtonGroupInput
       name={name}
       toggleButtonGroupProps={{
-        sx: {
+        sx: (theme) => ({
           width: 'fit-content',
           '.MuiToggleButtonGroup-middleButton, .MuiToggleButtonGroup-lastButton': {
             ml: 0,
@@ -24,18 +24,18 @@ const ToggleButtonGroupInputRegular = <T extends FieldValues = FieldValues>({
           },
 
           '.MuiButtonBase-root: first-child': {
-            borderTopLeftRadius: '128px',
-            borderBottomLeftRadius: '128px',
+            borderTopLeftRadius: `${theme.shape.borderRadiusFull}px`,
+            borderBottomLeftRadius: `${theme.shape.borderRadiusFull}px`,
             borderTopRightRadius: '0%',
             borderBottomRightRadius: '0%',
           },
           '.MuiButtonBase-root: last-child': {
             borderTopLeftRadius: '0',
             borderBottomLeftRadius: '0',
-            borderTopRightRadius: '128px',
-            borderBottomRightRadius: '128px',
+            borderTopRightRadius: `${theme.shape.borderRadiusFull}px`,
+            borderBottomRightRadius: `${theme.shape.borderRadiusFull}px`,
           },
-        },
+        }),
         ...toggleButtonGroupProps,
       }}
       {...props}

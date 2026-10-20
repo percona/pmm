@@ -1,14 +1,14 @@
 import { type Meta, type StoryObj } from '@storybook/react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import ActionableLabeledContent, {
   ActionableLabeledContentProps,
 } from './actionable-labeled-content';
 import { TextField } from '@mui/material';
 
 const meta = {
-  title: 'Inputs/ActionableLabeledContent',
+  title: 'To be reviewed/ActionableLabeledContent',
   component: ActionableLabeledContent,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'padded',
     docs: {

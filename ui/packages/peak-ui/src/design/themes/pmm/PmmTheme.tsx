@@ -1,5 +1,5 @@
 import { PaletteMode, ThemeOptions } from '@mui/material';
-import { deepmerge } from '@mui/utils';
+import { mergeThemeOptions } from '../../merge-theme-options';
 
 import { iconButtonClasses } from '@mui/material/IconButton';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
@@ -49,44 +49,11 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: (theme) => ({
           html: {
             backgroundColor: theme.palette.background.default,
-            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
           body: {
             backgroundColor: theme.palette.background.default,
-            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
         }),
-      },
-      MuiIconButton: {
-        defaultProps: {
-          disableTouchRipple: true,
-        },
-        styleOverrides: {
-          root: ({ theme, ownerState }) => ({
-            color: theme.palette.text.primary,
-            ...(ownerState.color === 'primary' && {
-              color: theme.palette.primary.main,
-            }),
-            '&:hover': {
-              backgroundColor: theme.palette.action.selected,
-            },
-            '&:focus': {
-              backgroundColor: theme.palette.action.focusVisible,
-            },
-            ...(ownerState.size === 'large' && {
-              svg: {
-                width: 40,
-                height: 40,
-              },
-            }),
-            ...(ownerState.size === 'small' && {
-              svg: {
-                width: 20,
-                height: 20,
-              },
-            }),
-          }),
-        },
       },
       MuiAppBar: {
         styleOverrides: {
@@ -110,12 +77,12 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           root: ({ theme }) => ({
             height: 10,
             borderStyle: 'solid',
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             borderColor: theme.palette.divider,
             backgroundColor: theme.palette.background.default,
           }),
           bar: ({ theme }) => ({
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             backgroundColor: theme.palette.primary.main,
           }),
         },
@@ -147,13 +114,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
               color: primary.main,
               backgroundColor: primary.focus,
             },
-          },
-        },
-      },
-      MuiMenuItem: {
-        styleOverrides: {
-          root: {
-            fontFamily: 'Poppins',
           },
         },
       },
@@ -193,7 +153,7 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
     },
   };
 
-  return deepmerge<ThemeOptions>(baseThemeOptions(mode), newOptions);
+  return mergeThemeOptions(baseThemeOptions(mode), newOptions);
 };
 
 export default pmmThemeOptions;

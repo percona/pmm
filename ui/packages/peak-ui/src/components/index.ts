@@ -12,6 +12,8 @@ export { default as ToggleRegularButton } from './buttons/toggle-regular-button'
 
 export * from './icons';
 
+export * from './illustrations';
+
 export * from './stepper';
 export { default as Stepper } from './stepper';
 
@@ -89,3 +91,10 @@ export { default as Chip } from './chip';
 
 export * from './tooltip';
 export { default as Tooltip } from './tooltip';
+
+export * from './code';
+
+export * from './status-icon';
+
+export * from './page-container';
+export { default as PageContainer } from './page-container';
