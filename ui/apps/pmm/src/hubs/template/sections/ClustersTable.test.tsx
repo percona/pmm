@@ -288,7 +288,7 @@ describe('ClustersTable', () => {
 
     it('shows every column in a frame wide enough, on a narrow viewport', () => {
       matchAllMedia(true);
-      observeWidth(1200);
+      observeWidth(1300);
       renderTable();
 
       expect(

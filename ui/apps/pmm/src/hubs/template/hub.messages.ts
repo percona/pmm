@@ -82,6 +82,7 @@ export const Messages = {
   } satisfies Record<HubHealth, string>,
   healthFor: (duration: string) => `for ${duration}`,
   healthSince: (health: string, time: string) => `${health} since ${time}`,
+  conditionsMore: (count: number) => ` · ${count} more`,
   clusters: {
     columns: {
       name: 'Name',

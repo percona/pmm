@@ -99,8 +99,8 @@ export const clusterColumns = (
     id: 'health',
     header: Messages.clusters.columns.health,
     accessorKey: 'health',
-    // Fits the widest health, "No data for 23h 59m".
-    size: 150,
+    // Fits the widest health, "No data for 23h 59m", and most reasons on one line beneath it.
+    size: 180,
     Cell: ({ row }) => {
       const node = row.original;
 
@@ -108,7 +108,7 @@ export const clusterColumns = (
         <HealthChip
           health={node.health}
           since={node.since}
-          detail={node.healthDetail}
+          conditions={node.conditions}
         />
       ) : null;
     },

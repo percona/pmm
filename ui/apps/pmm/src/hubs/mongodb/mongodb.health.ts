@@ -351,7 +351,7 @@ export const standaloneHealth = (member: MemberHealthInput): HealthVerdict => {
   return { health: 'healthy', conditions: [] };
 };
 
-/** PMM-15299 checks for an upgrade first: while one runs, the cluster reads Upgrading whatever else holds. */
+/** PMM-15299 checks for an upgrade first: while one runs, the cluster reads Upgrading whatever else holds, and its mixed versions are the upgrade's. */
 export const upgradingHealth = (
   own: HealthVerdict,
   upgrade: { done: number; total: number; to?: string }
@@ -364,7 +364,7 @@ export const upgradingHealth = (
       total: upgrade.total,
       ...(upgrade.to ? { to: upgrade.to } : {}),
     },
-    ...own.conditions,
+    ...own.conditions.filter((condition) => condition.kind !== 'drift'),
   ],
 });
 

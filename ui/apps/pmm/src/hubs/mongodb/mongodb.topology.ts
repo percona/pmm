@@ -2,6 +2,7 @@
 import { formatCompactDuration } from '@pmm/plugins-om/src/format';
 import type {
   HubCapabilities,
+  HubCondition,
   HubDoor,
   HubHealth,
   HubLevel,
@@ -24,6 +25,7 @@ import {
 } from './mongodb.doors';
 import {
   compareHealth,
+  type HealthCondition,
   hasNoPrimary,
   type HealthVerdict,
   lagLevel,
@@ -365,6 +367,147 @@ const isoFromSeconds = (seconds?: number) =>
 
 const duration = (seconds: number) => formatCompactDuration(seconds) || '0s';
 
+// A state that lasts minutes reads "14m", not "14m 1s".
+const wholeMinutes = (seconds: number) =>
+  duration(seconds >= 60 ? Math.floor(seconds / 60) * 60 : seconds);
+
+// A threshold in whole hours reads as such: "24h", not "1d".
+const threshold = (seconds: number) =>
+  seconds >= 3600 && seconds % 3600 === 0
+    ? `${seconds / 3600}h`
+    : duration(seconds);
+
+const statePhrase = (state: string) =>
+  Messages.memberStatePhrases[state] ?? Messages.memberStatePhrase(state);
+
+/** The row a condition shows on: its own set or member goes unnamed. */
+interface RowContext {
+  set?: string;
+  member?: string;
+}
+
+/** A condition in words with its rule, or null when it only repeats the row's health word. */
+const toCondition = (
+  condition: HealthCondition,
+  row: RowContext
+): HubCondition | null => {
+  const C = Messages.conditions;
+  const R = Messages.rules;
+  const setName = (set?: string) => (set === row.set ? undefined : set);
+  const other = (member: string) =>
+    member === row.member ? undefined : member;
+
+  switch (condition.kind) {
+    case 'upgrading':
+      return {
+        text: C.upgrading(condition.done + 1, condition.total),
+        rule: R.upgrading,
+      };
+    case 'allDown':
+      return condition.total === 1
+        ? null
+        : {
+            text: C.allDown(condition.total, setName(condition.set)),
+            rule: R.allDown,
+          };
+    case 'noPrimary':
+      return {
+        text: C.noPrimary(
+          condition.down,
+          condition.total,
+          setName(condition.set)
+        ),
+        rule: R.noPrimary,
+      };
+    case 'quorumLost':
+      return {
+        text: C.quorumLost(
+          condition.down,
+          condition.total,
+          setName(condition.set)
+        ),
+        rule: R.quorumLost,
+      };
+    case 'memberLost':
+      return {
+        text: C.memberState(
+          statePhrase(condition.state),
+          other(condition.member)
+        ),
+        rule: R.memberLost,
+      };
+    case 'noData':
+      return condition.total === 1
+        ? null
+        : {
+            text: C.noData(condition.total, setName(condition.set)),
+            rule: R.noData(threshold(T.staleSeconds)),
+          };
+    case 'memberDown':
+      return condition.member === row.member
+        ? null
+        : { text: C.memberDown(condition.member), rule: R.memberDown };
+    case 'memberNoData':
+      return condition.member === row.member
+        ? null
+        : {
+            text: C.memberNoData(condition.member),
+            rule: R.memberNoData(threshold(T.staleSeconds)),
+          };
+    case 'memberState':
+      return {
+        text: C.memberState(
+          statePhrase(condition.state),
+          other(condition.member),
+          condition.seconds !== undefined
+            ? wholeMinutes(condition.seconds)
+            : undefined
+        ),
+        rule: R.memberState(threshold(T.transitionGraceSeconds)),
+      };
+    case 'drift':
+      return {
+        text: C.drift(setName(condition.set)),
+        rule: `${R.drift}: ${condition.versions
+          .map(({ version, members }) =>
+            Messages.attention.versionOn(version, members)
+          )
+          .join('; ')}`,
+      };
+    case 'oplogShort':
+      return {
+        text: C.oplogShort(
+          duration(condition.seconds),
+          threshold(T.oplogWarningSeconds),
+          other(condition.member)
+        ),
+        rule: R.oplogShort(threshold(T.oplogWarningSeconds)),
+      };
+    case 'behind':
+      return {
+        text: C.behind(duration(condition.seconds), other(condition.member)),
+        rule: R.behind(threshold(T.lagWarningSeconds)),
+      };
+  }
+};
+
+/** The conditions a row shows; none when nothing is left to say beyond its health word. */
+const conditionsOf = (
+  verdict: HealthVerdict,
+  row: RowContext
+): Pick<HubTreeNode, 'conditions'> => {
+  const conditions = verdict.conditions.flatMap((condition) => {
+    const shown = toCondition(condition, row);
+
+    return shown ? [shown] : [];
+  });
+
+  return conditions.length ? { conditions } : {};
+};
+
+const withUpgrade = (verdict: HealthVerdict, cluster: ClusterModel) =>
+  cluster.upgrade ? upgradingHealth(verdict, cluster.upgrade) : verdict;
+
 export interface TreeOptions {
   capabilities: Pick<HubCapabilities, 'operations'>;
   /** `${env ?? ''}/${cluster}` to OmCluster.id, with Operations on. */
@@ -679,15 +822,16 @@ const memberNode = (
           oplogWindow: notApplicable(Messages.measures.standaloneOplog),
         };
   const since = memberSince(member);
-  const { health } = memberVerdictOf(member, set);
+  const verdict = memberVerdictOf(member, set);
 
   return {
     id: `member:${serviceId}`,
     kind: 'member',
     name: serviceName,
     type: memberType(member),
-    health,
-    showHealth: health !== 'healthy',
+    health: verdict.health,
+    showHealth: verdict.health !== 'healthy',
+    ...conditionsOf(verdict, { member: serviceName }),
     ...(since ? { since } : {}),
     ...(member.version ? { version: { effective: member.version } } : {}),
     measures,
@@ -727,7 +871,8 @@ const setNode = (
 ): HubTreeNode => {
   const place = placeOf(cluster);
   const summary = replsetSummary(place, set.name);
-  const health = cluster.upgrade ? 'upgrading' : setHealthOf(set);
+  const verdict = withUpgrade(setVerdictOf(set), cluster);
+  const { health } = verdict;
 
   return {
     id: `set:${cluster.key}/${set.name}`,
@@ -736,15 +881,17 @@ const setNode = (
     type,
     health,
     showHealth: true,
-    ...(setHasNoPrimary(set)
-      ? { healthDetail: Messages.health.noPrimary }
-      : {}),
+    ...conditionsOf(verdict, { set: set.name }),
     ...(health === 'down' && earliestSince(set.members)
       ? { since: earliestSince(set.members) }
       : {}),
     ...upgradeSince(cluster),
     members: membersCount(set.members),
-    version: versionOf(set.members, setDrift(set)),
+    // An upgrade mixes versions on purpose.
+    version: versionOf(
+      set.members,
+      cluster.upgrade ? undefined : setDrift(set)
+    ),
     measures: { lag: setLag(set, place), oplogWindow: setOplog(set, place) },
     doors: {
       name: { label: set.name, to: summary },
@@ -761,13 +908,15 @@ const setNode = (
 const routersNode = (cluster: ClusterModel): HubTreeNode => {
   const place = placeOf(cluster);
   const summary = routerSummary(place);
+  const verdict = withUpgrade(routersVerdictOf(cluster), cluster);
 
   return {
     id: `group:${cluster.key}/routers`,
     kind: 'group',
     name: Messages.routersName,
     type: Messages.types.routers,
-    health: cluster.upgrade ? 'upgrading' : routersVerdictOf(cluster).health,
+    health: verdict.health,
+    ...conditionsOf(verdict, { set: Messages.routersName }),
     ...upgradeSince(cluster),
     showHealth: true,
     members: membersCount(cluster.routers),
@@ -807,10 +956,12 @@ const clusterNode = (
 ): HubTreeNode => {
   const place = placeOf(cluster);
   const id = `cluster:${cluster.key}`;
-  const health = clusterHealthOf(cluster);
+  const verdict = clusterVerdictOf(cluster);
+  const { health } = verdict;
   const members = clusterMembers(cluster);
 
   if (cluster.kind === 'standalone' && cluster.standalone) {
+    // A standalone member names nothing its health word does not, so the row's conditions are the cluster's.
     const node = memberNode(cluster.standalone, place);
 
     return {
@@ -822,6 +973,9 @@ const clusterNode = (
       environment: cluster.environment,
       health,
       showHealth: true,
+      ...conditionsOf(verdict, {
+        member: cluster.standalone.service.serviceName,
+      }),
       ...upgradeSince(cluster),
       members: membersCount(members),
       version: clusterVersion(cluster, versionOf(members), options),
@@ -880,11 +1034,12 @@ const clusterNode = (
     environment: cluster.environment,
     health,
     showHealth: true,
+    ...conditionsOf(verdict, {}),
     ...upgradeSince(cluster),
     members: membersCount(members),
     version: clusterVersion(
       cluster,
-      versionOf(members, shardedDrift(cluster)),
+      versionOf(members, cluster.upgrade ? undefined : shardedDrift(cluster)),
       options
     ),
     measures: {

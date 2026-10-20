@@ -4,7 +4,7 @@ import { Chip, Tooltip, type ChipProps } from '@percona/peak-ui';
 import { formatTimestamp } from '@pmm-extensions/framework';
 import type { FC } from 'react';
 import { Messages } from '../hub.messages';
-import type { HubHealth } from '../hub.types';
+import type { HubCondition, HubHealth } from '../hub.types';
 import { focusableText } from './hub.sx';
 import { formatSince } from './hub.time';
 
@@ -21,50 +21,108 @@ export interface HealthChipProps {
   health: HubHealth;
   /** ISO time the node has been in this state since; shown as "for 12m". */
   since?: string;
-  /** Tooltip on the duration; the exact time when absent. */
-  detail?: string;
+  /** What makes it other than healthy, the deciding one first; the first shows beneath the chip. */
+  conditions?: HubCondition[];
 }
 
-/** A health word on a Peak Chip, with how long a problem has lasted beside it. */
-export const HealthChip: FC<HealthChipProps> = ({ health, since, detail }) => {
+/** Each condition with the rule it breaks, then since when, for the reason line's tooltip. */
+const ConditionsDetail: FC<{ conditions: HubCondition[]; since?: string }> = ({
+  conditions,
+  since,
+}) => (
+  <>
+    {conditions.map(({ text, rule }, index) => (
+      <Box
+        key={`${index}:${text}`}
+        component="span"
+        sx={{ display: 'block', mb: 0.5 }}
+      >
+        <Box
+          component="span"
+          sx={{ display: 'block', fontWeight: 'fontWeightMedium' }}
+        >
+          {text}
+        </Box>
+        <Box component="span" sx={{ display: 'block' }}>
+          {rule}
+        </Box>
+      </Box>
+    ))}
+    {since}
+  </>
+);
+
+/** A health word on a Peak Chip, how long a problem has lasted beside it, and why beneath it. */
+export const HealthChip: FC<HealthChipProps> = ({
+  health,
+  since,
+  conditions = [],
+}) => {
   const word = Messages.health[health];
   const age = health === 'healthy' ? null : formatSince(since);
+  const exact = formatTimestamp(since)?.title;
+  const sinceText = exact ? Messages.healthSince(word, exact) : undefined;
+  const [first] = conditions;
 
   return (
     <Box
       component="span"
-      // Bounded by its cell, so a long age ellipsizes instead of running past the edge.
+      // Bounded by its cell, so a long age ellipsizes and a long reason wraps instead of running past the edge.
       sx={{
         display: 'inline-flex',
-        alignItems: 'center',
-        gap: 0.75,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 0.25,
         minWidth: 0,
         maxWidth: '100%',
       }}
     >
-      <Chip
-        size="small"
-        label={word}
-        data-testid="hub-health"
-        sx={{ flexShrink: 0 }}
-        {...CHIP[health]}
-      />
-      {age != null && (
+      <Box
+        component="span"
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0.75,
+          minWidth: 0,
+          maxWidth: '100%',
+        }}
+      >
+        <Chip
+          size="small"
+          label={word}
+          data-testid="hub-health"
+          sx={{ flexShrink: 0 }}
+          {...CHIP[health]}
+        />
+        {age != null && (
+          <Tooltip title={sinceText ?? ''} describeChild>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              noWrap
+              tabIndex={0}
+              sx={focusableText}
+            >
+              {Messages.healthFor(age)}
+            </Typography>
+          </Tooltip>
+        )}
+      </Box>
+      {first && (
         <Tooltip
-          title={
-            detail ??
-            Messages.healthSince(word, formatTimestamp(since)?.title ?? '')
-          }
+          title={<ConditionsDetail conditions={conditions} since={sinceText} />}
           describeChild
         >
           <Typography
             variant="caption"
             color="text.secondary"
-            noWrap
             tabIndex={0}
-            sx={focusableText}
+            data-testid="hub-health-reason"
+            sx={[focusableText, { whiteSpace: 'normal' }]}
           >
-            {Messages.healthFor(age)}
+            {first.text}
+            {conditions.length > 1 &&
+              Messages.conditionsMore(conditions.length - 1)}
           </Typography>
         </Tooltip>
       )}

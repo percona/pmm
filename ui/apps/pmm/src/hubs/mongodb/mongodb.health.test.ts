@@ -419,12 +419,16 @@ describe('standaloneHealth', () => {
 });
 
 describe('upgradingHealth', () => {
-  it('decides before anything else and keeps what else holds', () => {
-    const verdict = upgradingHealth(setHealth([primary(), down()]), {
-      done: 1,
-      total: 3,
-      to: '7.0.30-16',
-    });
+  it('decides before anything else and keeps what else holds, but the versions it mixes', () => {
+    const verdict = upgradingHealth(
+      setHealth([
+        named({ verdict: 'up', state: 'PRIMARY', version: '7.0.24-13' }),
+        named({ verdict: 'down', version: '7.0.30-16' }),
+        named({ verdict: 'up', state: 'SECONDARY', version: '7.0.30-16' }),
+        down(),
+      ]),
+      { done: 1, total: 3, to: '7.0.30-16' }
+    );
 
     expect(verdict.health).toBe('upgrading');
     expect(verdict.conditions[0]).toEqual({

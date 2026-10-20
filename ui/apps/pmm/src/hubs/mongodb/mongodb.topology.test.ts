@@ -358,7 +358,12 @@ describe('buildClusterTree', () => {
       type: 'Replica set',
       health: 'down',
       members: { up: 1, total: 3, noData: 0 },
-      healthDetail: "No primary: it can't take writes",
+      conditions: [
+        {
+          text: 'No primary · 2 of 3 down',
+          rule: "Down when members answer but none is primary, so the set can't take writes",
+        },
+      ],
     });
     expect(billing?.measures.lag.kind).toBe('notApplicable');
     expect(billing?.measures.oplogWindow.kind).toBe('notApplicable');
@@ -379,6 +384,52 @@ describe('buildClusterTree', () => {
       since: new Date(NOW - 9 * 60_000).toISOString(),
     });
     expect(reports?.children).toBeUndefined();
+  });
+
+  it('says why each row is not healthy, naming only what the row is not', () => {
+    const nodes = tree(wrongSnapshot(NOW, false));
+    const texts = (name: string) =>
+      find(nodes, name)?.conditions?.map((condition) => condition.text);
+
+    expect(texts('orders')).toEqual([
+      'orders-shard2-m2 down',
+      'orders-cfg-m3 recovering for 14m',
+      'orders-shard2-m1 oplog window 3h, under 24h',
+      'orders-shard1-m3 40s behind',
+    ]);
+    expect(texts('orders-cfg')).toEqual(['orders-cfg-m3 recovering for 14m']);
+    expect(texts('orders-cfg-m3')).toEqual(['Recovering for 14m']);
+    expect(texts('orders-shard1-m3')).toEqual(['40s behind']);
+    expect(texts('orders-shard2-m1')).toEqual(['Oplog window 3h, under 24h']);
+    expect(texts('catalog')).toEqual(['Mixed versions']);
+    expect(find(nodes, 'catalog')?.conditions?.[0].rule).toBe(
+      'Degraded when members of one set run different versions: 7.0.24-13 on catalog-m1; 7.0.30-16 on catalog-m2, catalog-m3'
+    );
+    // A down member's or standalone's chip says it all.
+    expect(texts('orders-shard2-m2')).toBeUndefined();
+    expect(texts('reports')).toBeUndefined();
+    expect(find(nodes, 'orders')?.conditions?.[3].rule).toBe(
+      'Degraded when a secondary is 10s or more behind, sustained for 2m'
+    );
+  });
+
+  it('names the set of a set-wide condition on the sharded cluster’s row', () => {
+    const snapshot = healthySnapshot(NOW, false);
+    const { metrics } = snapshot;
+
+    if (metrics) {
+      ['svc-orders-shard2-m1', 'svc-orders-shard2-m2'].forEach((id) => {
+        metrics.up[id] = { value: 0, clusterRole: 'mongod' };
+      });
+    }
+    const nodes = tree(snapshot);
+
+    expect(find(nodes, 'orders')?.conditions?.[0].text).toBe(
+      'orders-shard2 has no primary · 2 of 3 down'
+    );
+    expect(find(nodes, 'orders-shard2')?.conditions?.[0].text).toBe(
+      'No primary · 2 of 3 down'
+    );
   });
 
   it('carries the worst secondary lag and the tightest shard window up to the cluster', () => {

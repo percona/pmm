@@ -19,6 +19,9 @@ export const MONGODB_HUB_MESSAGES: HubMessages = {
   dashboards: { all: 'All MongoDB dashboards' },
 };
 
+const capitalize = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
+
 export const Messages = {
   noEnvironment: 'No environment',
   types: {
@@ -65,11 +68,58 @@ export const Messages = {
         'How much recent history the primary keeps for secondaries to catch up with.',
     },
   },
-  health: {
-    noPrimary: "No primary: it can't take writes",
-    allDown: 'Every member is down',
-    noDataSince: (time: string) => `No data since ${time}`,
-    downSince: (time: string) => `Down since ${time}`,
+  /** What holds, beneath a health chip; the name of the row's own set or member is left out. */
+  conditions: {
+    upgrading: (member: number, total: number) =>
+      `Rolling upgrade · member ${member} of ${total}`,
+    allDown: (total: number, set?: string) =>
+      set ? `${set}: all ${total} down` : `All ${total} members down`,
+    noPrimary: (down: number, total: number, set?: string) =>
+      [
+        set ? `${set} has no primary` : 'No primary',
+        down ? `${down} of ${total} down` : undefined,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    quorumLost: (down: number, total: number, set?: string) =>
+      `${set ? `${set} lost its quorum` : 'Quorum lost'} · ${down} of ${total} down`,
+    noData: (total: number, set?: string) =>
+      set ? `No data from ${set}` : `No data from any of ${total} members`,
+    memberDown: (member: string) => `${member} down`,
+    memberNoData: (member: string) => `No data from ${member}`,
+    /** "orders-cfg-m3 recovering for 14m", or "Recovering for 14m" on its own row. */
+    memberState: (phrase: string, member?: string, duration?: string) =>
+      `${member ? `${member} ${phrase}` : capitalize(phrase)}${duration ? ` for ${duration}` : ''}`,
+    drift: (set?: string) =>
+      set ? `${set}: mixed versions` : 'Mixed versions',
+    oplogShort: (window: string, threshold: string, member?: string) =>
+      `${member ? `${member} oplog window` : 'Oplog window'} ${window}, under ${threshold}`,
+    behind: (lag: string, member?: string) =>
+      member ? `${member} ${lag} behind` : `${lag} behind`,
+  },
+  /** The rule each condition breaks, for the tooltip. */
+  rules: {
+    upgrading:
+      'Upgrading while Operations runs an upgrade on the cluster, whatever else holds',
+    allDown: 'Down when every member is down',
+    noPrimary:
+      "Down when members answer but none is primary, so the set can't take writes",
+    quorumLost:
+      'Down when half the members or more are down, so no majority can keep a primary',
+    memberLost: 'Down when a member rolls back or is removed from its set',
+    noData: (stale: string) =>
+      `No data when PMM gets nothing from any member for ${stale}`,
+    memberDown:
+      'Degraded when a member is down while the set keeps its primary and majority',
+    memberNoData: (stale: string) =>
+      `Degraded when PMM gets nothing from a member for ${stale}`,
+    memberState: (grace: string) =>
+      `Degraded when a member stays in STARTUP, STARTUP2, RECOVERING or UNKNOWN past ${grace}, or in any state but PRIMARY, SECONDARY or ARBITER`,
+    drift: 'Degraded when members of one set run different versions',
+    oplogShort: (threshold: string) =>
+      `Degraded when the primary's oplog window is under ${threshold} once the oplog is 90% full`,
+    behind: (threshold: string) =>
+      `Degraded when a secondary is ${threshold} or more behind, sustained for 2m`,
   },
   measures: {
     primaryLag: 'A primary has no replication lag',

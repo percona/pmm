@@ -86,6 +86,14 @@ export interface HubVersion {
   update?: HubUpdate;
 }
 
+/** Why a node is not healthy: what holds, and the rule it breaks. */
+export interface HubCondition {
+  /** "billing-m2 47s behind" */
+  text: string;
+  /** "Degraded when a secondary is 10s or more behind, sustained for 2m" */
+  rule: string;
+}
+
 export interface HubTreeColumn {
   /** Key in HubTreeNode.measures. */
   id: string;
@@ -107,8 +115,8 @@ export interface HubTreeNode {
   showHealth: boolean;
   /** ISO time the node has been down, without data or upgrading since. */
   since?: string;
-  /** Tooltip, such as "No primary since 14:02". */
-  healthDetail?: string;
+  /** What makes it other than healthy, the deciding one first; none that only repeat its health word. */
+  conditions?: HubCondition[];
   members?: { up: number; total: number; noData: number };
   version?: HubVersion;
   measures: Record<string, HubMeasure>;
