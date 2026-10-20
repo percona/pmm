@@ -149,7 +149,9 @@ Requests keep failing and do not recover.
 kubectl get endpoints pmm-ha-haproxy -n pmm
 ```
 
-If the endpoint list is empty, no pod is passing the leader health check. Ask each pod directly which one is the leader:
+If the endpoint list is empty, the HAProxy pods are not running or not ready. Check the pod logs to find out why.
+
+If endpoints exist but PMM is still unreachable, the HAProxy pods are up but no PMM Server pod is acting as leader. Ask each PMM Server pod directly which one is the leader:
 
 ```sh
 for p in pmm-ha-0 pmm-ha-1 pmm-ha-2; do

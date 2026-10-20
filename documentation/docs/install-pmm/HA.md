@@ -37,7 +37,7 @@ If you don't have Kubernetes, run PMM Server with `--restart always` and [Docker
 | **Setup complexity** | Low | High |
 | **Resource overhead** | 1.2x | 3–5x |
 | **Metric data during outage** | Cached on clients, resent on reconnect | Cached on clients. Brief gap during leader failover (5–10 sec) |
-| **Limitations** | 2–5 min interruption during pod rescheduling | Complex setup requiring 3 Kubernetes operators. PostgreSQL monitoring may show incorrect FAILED status. |
+| **Limitations** | Monitoring stops for 2–5 minutes if the pod restarts or moves to another node | Requires advanced Kubernetes or OpenShift experience and significantly more resources |
 | **Use when** | You already run Kubernetes, want automatic recovery, and can tolerate 2–5 min of downtime. | You need near-continuous monitoring, failover under 30 seconds, and have advanced Kubernetes or OpenShift experience. |
 
 ## Get started
