@@ -74,7 +74,7 @@ describe('deriveMongoHub status', () => {
       attentionSeverity: 'error',
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
-    expect(attention).toHaveLength(13);
+    expect(attention).toHaveLength(14);
   });
 
   it('says nothing is monitored for an empty estate', () => {
@@ -108,6 +108,7 @@ describe('deriveMongoHub status', () => {
       'alert',
       'backupFailed',
       'pitrStopped',
+      'alert',
       'alert',
       'querySlower',
       'queryRunning',
@@ -491,5 +492,77 @@ describe('deriveMongoHub patches', () => {
     expect(view.status.doors.clusters.to).toBe(
       '?hubState=healthy&hubOps=off&hubRole=admin#clusters'
     );
+  });
+});
+
+describe('deriveMongoHub alerts', () => {
+  it('counts the firing alerts, host alerts included, and opens Alerts', () => {
+    const view = derive(wrongSnapshot(NOW, false), {
+      sources: sourcesWith('ready'),
+    });
+
+    expect(view.status.alerts).toBe(3);
+    expect(view.status.doors.alerts).toEqual({
+      label: 'Firing alerts',
+      to: '/alerting/status',
+    });
+    expect(
+      view.attention.find((item) => item.title.startsWith('Node high CPU'))
+    ).toMatchObject({
+      kind: 'alert',
+      where: 'orders › orders-shard2 · prod',
+      door: { label: 'Open Alerts', context: 'for orders-shard2-m1' },
+    });
+  });
+
+  it('cannot count alerts it could not read, and says nothing while alerting is off', () => {
+    expect(
+      derive(
+        { ...wrongSnapshot(NOW, false), alerts: null },
+        { sources: sourcesWith('ready', { alerts: { status: 'error' } }) }
+      ).status.alerts
+    ).toBeNull();
+    expect(
+      derive(wrongSnapshot(NOW, false), {
+        sources: sourcesWith('ready', { alerts: { status: 'disabled' } }),
+      }).status.alerts
+    ).toBeUndefined();
+  });
+
+  it('says what no alert rule covers, with templates for admins and an administrator for viewers', () => {
+    const admin = derive(wrongSnapshot(NOW, false));
+
+    expect(admin.alertCoverage).toEqual({
+      text: 'No rule from the replication lag or oplog window template yet.',
+      door: {
+        label: 'Create from templates',
+        to: '/graph/alerting/alert-rule-templates',
+      },
+    });
+
+    const none = {
+      ...wrongSnapshot(NOW, false),
+      alertRules: { templates: ['pmm_grafana_down'], custom: 0 },
+    };
+
+    expect(derive(none).alertCoverage).toMatchObject({
+      text: 'No alert rules cover MongoDB yet.',
+      detail: '(member down, replication lag, oplog window)',
+    });
+    expect(derive(none, { role: 'viewer' }).alertCoverage).toEqual({
+      text: 'No alert rules cover MongoDB yet.',
+      detail:
+        'An administrator can create them from templates (member down, replication lag, oplog window).',
+    });
+  });
+
+  it('says nothing about coverage once the key templates have rules, or without rules to read', () => {
+    expect(
+      derive(healthySnapshot(NOW, false), { scenario: 'healthy' }).alertCoverage
+    ).toBeUndefined();
+    expect(
+      derive({ ...wrongSnapshot(NOW, false), alertRules: null }).alertCoverage
+    ).toBeUndefined();
+    expect(derive(emptySnapshot(NOW, false)).alertCoverage).toBeUndefined();
   });
 });

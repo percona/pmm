@@ -10,6 +10,7 @@ export const INCIDENT_LEAD_MS = 30 * 60 * 1000;
 
 export const QAN_DASHBOARD = 'pmm-qan/pmm-query-analytics';
 export const ALERTS_PATH = '/alerting/status';
+export const ALERT_TEMPLATES_PATH = '/graph/alerting/alert-rule-templates';
 export const RTA_PATH = '/rta';
 
 /** Alerts' column filter for the service, as `useTableUrlState` reads it (`?f.serviceName=`). */

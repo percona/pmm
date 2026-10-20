@@ -38,6 +38,7 @@ import {
   qanLabels,
   readRecentDashboards,
   toAlertInputs,
+  toAlertRules,
   toBackupsInput,
   toOperationsInput,
   toQanRows,
@@ -137,6 +138,42 @@ describe('fetchMongoMetrics', () => {
     });
 
     await expect(fetchMongoMetrics('prod')).rejects.toThrow('bad gateway');
+  });
+});
+
+describe('toAlertRules', () => {
+  it('lists every rule’s template, and counts template-less rules on MongoDB metrics', () => {
+    const rule = (labels: Record<string, string>, query = '') => ({
+      name: 'rule',
+      labels,
+      query,
+      alerts: [],
+    });
+
+    expect(
+      toAlertRules({
+        data: {
+          groups: [
+            {
+              name: 'PMM Managed',
+              rules: [
+                rule({ template_name: 'pmm_grafana_down' }),
+                rule({ template_name: 'pmm_mongodb_down' }),
+                rule({}, 'mongodb_connections{} > 100'),
+                rule({}, 'mysql_up == 0'),
+              ],
+            },
+            {
+              name: 'team',
+              rules: [rule({ template_name: 'pmm_mongodb_down' })],
+            },
+          ],
+        },
+      })
+    ).toEqual({
+      templates: ['pmm_grafana_down', 'pmm_mongodb_down'],
+      custom: 1,
+    });
   });
 });
 
@@ -252,6 +289,44 @@ describe('toAlertInputs', () => {
 
     expect(result.map((alert) => [alert.name, alert.replicaSet])).toEqual([
       ['MongoDB replica set has no primary', 'billing'],
+    ]);
+  });
+
+  it('keeps an alert about the host a member runs on, and no other host’s', () => {
+    const result = toAlertInputs(
+      rules([
+        {
+          state: 'Alerting',
+          labels: {
+            alertname: 'Node high CPU load',
+            template_name: 'pmm_node_high_cpu_load',
+            node_name: 'billing-m2',
+          },
+        },
+        {
+          state: 'Alerting',
+          labels: { alertname: 'other host', node_name: 'mysql-shop-1' },
+        },
+        // A host's MySQL alert names its service, which is not MongoDB.
+        {
+          state: 'Alerting',
+          labels: {
+            alertname: 'MySQL down',
+            node_name: 'billing-m2',
+            service_name: 'mysql-shop-1',
+          },
+        },
+      ]),
+      services
+    );
+
+    expect(result).toEqual([
+      {
+        name: 'Node high CPU load',
+        templateName: 'pmm_node_high_cpu_load',
+        nodeName: 'billing-m2',
+        activeAt: '2026-10-19T11:00:00Z',
+      },
     ]);
   });
 

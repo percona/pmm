@@ -33,7 +33,7 @@ const down = (
   );
 };
 
-/** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, catalog's upgrade stopped halfway, payments mid-upgrade, and billing's version check gone stale. */
+/** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, catalog's upgrade stopped halfway, payments mid-upgrade, billing's version check gone stale, an alert about a member's host, and no rule for lag or the oplog. */
 export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   const snapshot = healthySnapshot(now, ops);
   const metrics = snapshot.metrics;
@@ -152,7 +152,24 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
       activeAt: ago(now, 30 * MINUTE_MS),
       summary: 'MongoDB restarted (orders-shard1-m1)',
     },
+    // A host alert carries only the node it is about.
+    {
+      name: 'Node high CPU load',
+      templateName: 'pmm_node_high_cpu_load',
+      severity: 'warning',
+      nodeName: 'orders-shard2-m1',
+      activeAt: ago(now, 7 * MINUTE_MS),
+      summary: 'Node high CPU load (orders-shard2-m1)',
+    },
   ];
+  snapshot.alertRules = {
+    templates: [
+      'pmm_mongodb_down',
+      'pmm_mongodb_restarted',
+      'pmm_node_high_cpu_load',
+    ],
+    custom: 0,
+  };
 
   snapshot.qan = {
     current: USUAL_QUERIES.map((query) =>

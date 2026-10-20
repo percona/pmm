@@ -29,6 +29,11 @@ export const Messages = {
     noAttention: 'none need attention',
     otherIssues: (count: number) =>
       count === 1 ? '1 other issue' : `${count} other issues`,
+    alertsFiring: (count: number) =>
+      count === 1 ? '1 alert firing' : `${count} alerts firing`,
+    noAlertsFiring: 'no alerts firing',
+    alertsUnknown: '— alerts firing',
+    alertsUnknownHidden: 'Could not read the firing alerts',
     patchesBehind: (count: number) => `${count} behind on patches`,
     patchesNone: 'none behind on patches',
     patchesUnknown: (count: number) => `, ${count} unknown`,

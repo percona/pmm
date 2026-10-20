@@ -132,6 +132,32 @@ const otherIssuesFigure = (status: HubStatus): ReactNode[] =>
       ]
     : [];
 
+const alertsFigure = ({ alerts, doors }: HubStatus): ReactNode[] => {
+  if (alerts === undefined) {
+    return [];
+  }
+  if (alerts === null) {
+    return [
+      <Fragment key="alerts">
+        <span aria-hidden="true">{Messages.status.alertsUnknown}</span>
+        <Box component="span" sx={visuallyHidden}>
+          {Messages.status.alertsUnknownHidden}
+        </Box>
+      </Fragment>,
+    ];
+  }
+
+  return [
+    alerts > 0 ? (
+      <DoorLink key="alerts" door={doors.alerts} underline="always">
+        {Messages.status.alertsFiring(alerts)}
+      </DoorLink>
+    ) : (
+      Messages.status.noAlertsFiring
+    ),
+  ];
+};
+
 const patchesFigure = ({ patches, doors }: HubStatus): ReactNode[] =>
   patches
     ? [
@@ -184,6 +210,7 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
             ),
             attentionFigure(status),
             ...otherIssuesFigure(status),
+            ...alertsFigure(status),
             ...patchesFigure(status),
             backupFigure(status, canSetUpBackup),
           ];

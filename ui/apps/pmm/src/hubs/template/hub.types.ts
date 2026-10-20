@@ -154,6 +154,8 @@ export interface HubStatus {
   attentionSeverity?: HubSeverity;
   /** Clusters with an update available, and those the check could not answer for; absent while nothing checks. */
   patches?: { behind: number; unknown: number };
+  /** Firing alerts about the technology or its hosts; null when they could not be read, absent while alerting is off. */
+  alerts?: number | null;
   lastGoodBackup:
     | { at: string; cluster: string }
     | 'none'
@@ -166,7 +168,18 @@ export interface HubStatus {
     attention: HubDoor;
     backup: HubDoor;
     patches: HubDoor;
+    alerts: HubDoor;
   };
+}
+
+/** Which key conditions no alert rule covers, and where to create the rules. */
+export interface HubAlertCoverage {
+  /** "No alert rules cover MongoDB yet." */
+  text: string;
+  /** Create from templates; admins only. */
+  door?: HubDoor;
+  /** After the door: the templates to start from. */
+  detail?: string;
 }
 
 export interface HubBackupRow {
@@ -275,6 +288,8 @@ export interface HubViewModel {
   status: HubStatus;
   /** Ranked, uncapped; the view applies the cap. */
   attention: HubAttentionItem[];
+  /** Absent when the rules cover what matters, or could not be read. */
+  alertCoverage?: HubAlertCoverage;
   /** Worst first; only those behind on patches while that filter is on. */
   clusters: HubTreeNode[];
   /** `?patches=behind` is on. */

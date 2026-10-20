@@ -95,6 +95,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
               state={view.sections.attention}
               door={view.sectionDoors.attention}
               checkedAt={view.status.checkedAt}
+              coverage={view.alertCoverage}
               onRetry={refetch}
             />
           )}

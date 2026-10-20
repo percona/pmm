@@ -6,7 +6,11 @@ import {
   READY,
   testDoor,
 } from '../hub.testFixtures';
-import type { HubAttentionItem, HubSectionState } from '../hub.types';
+import type {
+  HubAlertCoverage,
+  HubAttentionItem,
+  HubSectionState,
+} from '../hub.types';
 import { NeedsAttentionSection } from './NeedsAttentionSection';
 
 const ITEMS: HubAttentionItem[] = [
@@ -44,7 +48,8 @@ const ITEMS: HubAttentionItem[] = [
 const renderSection = (
   items: HubAttentionItem[] = ITEMS,
   state: HubSectionState = READY,
-  onRetry = vi.fn()
+  onRetry = vi.fn(),
+  coverage?: HubAlertCoverage
 ) =>
   renderHub(
     <NeedsAttentionSection
@@ -52,6 +57,7 @@ const renderSection = (
       state={state}
       door={testDoor('Alerts', '/alerting/status')}
       checkedAt={minutesAgo(0)}
+      coverage={coverage}
       onRetry={onRetry}
     />
   );
@@ -62,6 +68,38 @@ const rowTitles = (list: HTMLElement) =>
     .map((row) => row.querySelector('.MuiListItemText-primary')?.textContent);
 
 describe('NeedsAttentionSection', () => {
+  it('says what no alert rule covers beneath the rows, with the door to the templates', () => {
+    renderSection(ITEMS, READY, vi.fn(), {
+      text: 'No alert rules cover MongoDB yet.',
+      door: testDoor(
+        'Create from templates',
+        '/graph/alerting/alert-rule-templates'
+      ),
+      detail: '(member down, replication lag, oplog window)',
+    });
+
+    expect(screen.getByTestId('hub-alert-coverage')).toHaveTextContent(
+      'No alert rules cover MongoDB yet. Create from templates (member down, replication lag, oplog window)'
+    );
+    expect(
+      screen.getByRole('link', { name: 'Create from templates' })
+    ).toHaveAttribute('href', '/graph/alerting/alert-rule-templates');
+  });
+
+  it('keeps the coverage line beneath the calm line too, and leaves it out when covered', () => {
+    const { unmount } = renderSection([], READY, vi.fn(), {
+      text: 'No rule from the oplog window template yet.',
+    });
+
+    expect(screen.getByTestId('hub-alert-coverage')).toHaveTextContent(
+      'No rule from the oplog window template yet.'
+    );
+    unmount();
+
+    renderSection([]);
+    expect(screen.queryByTestId('hub-alert-coverage')).toBeNull();
+  });
+
   it('is a section named by its h2, with the count and the Alerts door', () => {
     renderSection();
 

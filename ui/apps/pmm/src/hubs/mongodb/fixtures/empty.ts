@@ -19,6 +19,7 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
     pbmConfiguredByCluster: {},
   },
   alerts: [],
+  alertRules: { templates: [], custom: 0 },
   backups: { enabled: true, artifacts: [], scheduled: [] },
   qan: { current: [], baseline: [] },
   realtime: { sessionServiceIds: [], queries: [] },

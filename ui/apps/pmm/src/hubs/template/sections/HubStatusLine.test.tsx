@@ -31,6 +31,7 @@ describe('HubStatusLine', () => {
           context: 'of billing',
         }),
         patches: testDoor('Behind on patches', '/mongodb?patches=behind'),
+        alerts: testDoor('Firing alerts', '/alerting/status'),
       },
     });
 
@@ -176,6 +177,28 @@ describe('HubStatusLine', () => {
       screen.getByRole('link', { name: '2 behind on patches' })
     ).toHaveAttribute('href', '/mongodb?patches=behind#clusters');
     expect(sentence()).toHaveTextContent('2 behind on patches, 1 unknown');
+  });
+
+  it('links the firing alerts, says when none fire, and reads a dash when they could not be read', () => {
+    const { unmount } = renderLine({ alerts: 3 });
+
+    expect(
+      screen.getByRole('link', { name: '3 alerts firing' })
+    ).toHaveAttribute('href', '/alerting/status');
+    unmount();
+
+    const second = renderLine({ alerts: 1 });
+
+    expect(screen.getByRole('link', { name: '1 alert firing' })).toBeVisible();
+    second.unmount();
+
+    const third = renderLine({ alerts: 0 });
+
+    expect(sentence()).toHaveTextContent('no alerts firing');
+    third.unmount();
+
+    renderLine({ alerts: null });
+    expect(sentence()).toHaveTextContent('Could not read the firing alerts');
   });
 
   it('says none are behind as plain text, and nothing while no check runs', () => {

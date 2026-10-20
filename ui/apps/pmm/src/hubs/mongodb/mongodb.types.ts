@@ -14,6 +14,8 @@ export interface MongoSnapshot {
   services: MongoServiceInput[] | null;
   metrics: MongoMetrics | null;
   alerts: MongoAlertInput[] | null;
+  /** What the alert rules cover; null when alerting is off, failed or has not answered. */
+  alertRules: MongoAlertRulesInput | null;
   /** Null also while the source has not answered yet. */
   backups: MongoBackupsInput | null;
   qan: { current: QanRowInput[]; baseline: QanRowInput[] } | null;
@@ -73,12 +75,21 @@ export interface MongoAlertInput {
   templateName?: string;
   severity?: string;
   serviceName?: string;
+  /** Label node_name: an alert about the host a member runs on, such as high CPU. */
+  nodeName?: string;
   cluster?: string;
   environment?: string;
   /** Label rs_nm or set, for replica set alerts. */
   replicaSet?: string;
   activeAt: string;
   summary?: string;
+}
+
+export interface MongoAlertRulesInput {
+  /** template_name of every alert rule, MongoDB or not. */
+  templates: string[];
+  /** Rules made without a template whose query reads a MongoDB metric. */
+  custom: number;
 }
 
 export interface MongoBackupsInput {

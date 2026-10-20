@@ -93,7 +93,7 @@ describe('fixtures', () => {
       );
     });
 
-    it('ranks every kind, 13 rows with Operations off and 14 on', () => {
+    it('ranks every kind, 14 rows with Operations off and 15 on', () => {
       const off = view('wrong', false).attention;
       const on = view('wrong', true).attention;
       const steady = [
@@ -105,7 +105,7 @@ describe('fixtures', () => {
         'oplogShort',
         'memberNotServing',
       ];
-      const after = ['behind', 'alert', 'querySlower', 'queryRunning'];
+      const after = ['behind', 'alert', 'alert', 'querySlower', 'queryRunning'];
 
       // Without Operations nothing says payments is upgrading, so its mixed versions read as drift too.
       expect(off.map((item) => [item.kind, item.where])).toEqual(
@@ -128,11 +128,11 @@ describe('fixtures', () => {
         'operationsFailed',
       ]);
       expect(
-        on.slice(12).every((item) => item.door.preview === 'developer')
+        on.slice(13).every((item) => item.door.preview === 'developer')
       ).toBe(true);
     });
 
-    it('shows the first five and folds 8 more off, 9 more on', () => {
+    it('shows the first five and folds 9 more off, 10 more on', () => {
       const off = capAttention(view('wrong', false).attention, 5);
       const on = capAttention(view('wrong', true).attention, 5);
 
@@ -143,8 +143,8 @@ describe('fixtures', () => {
         'backupFailed',
         'pitrStopped',
       ]);
-      expect(off.hidden).toHaveLength(8);
-      expect(on.hidden).toHaveLength(9);
+      expect(off.hidden).toHaveLength(9);
+      expect(on.hidden).toHaveLength(10);
     });
 
     it('matches the design’s tree and status line', () => {

@@ -11,8 +11,13 @@ import { StatusIcon } from '@percona/peak-ui';
 import { type FC, type Ref, useEffect, useId, useRef, useState } from 'react';
 import { capAttention } from '../hub.attention';
 import { Messages } from '../hub.messages';
-import type { HubAttentionItem, HubDoor, HubSectionState } from '../hub.types';
-import { DoorButton } from './DoorLink';
+import type {
+  HubAlertCoverage,
+  HubAttentionItem,
+  HubDoor,
+  HubSectionState,
+} from '../hub.types';
+import { DoorButton, DoorLink } from './DoorLink';
 import { HubSection, SectionState } from './HubSection';
 import { HUB_CONTAINER } from './hub.sx';
 import { formatSince } from './hub.time';
@@ -25,8 +30,32 @@ export interface NeedsAttentionSectionProps {
   state: HubSectionState;
   door?: HubDoor;
   checkedAt: string;
+  /** What no alert rule covers yet, beneath the rows. */
+  coverage?: HubAlertCoverage;
   onRetry: () => void;
 }
+
+/** A line under the rows: Needs attention lists what alert rules catch, so it says what they cannot. */
+const CoverageLine: FC<{ coverage: HubAlertCoverage }> = ({
+  coverage: { text, door, detail },
+}) => (
+  <Box
+    sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}
+    data-testid="hub-alert-coverage"
+  >
+    <StatusIcon size="small" severity="info" />
+    <Typography variant="body2" color="text.secondary">
+      {text}
+      {door && (
+        <>
+          {' '}
+          <DoorLink door={door} underline="always" />
+        </>
+      )}
+      {detail && ` ${detail}`}
+    </Typography>
+  </Box>
+);
 
 const AttentionRow: FC<{
   item: HubAttentionItem;
@@ -87,6 +116,7 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
   state,
   door,
   checkedAt,
+  coverage,
   onRetry,
 }) => {
   const restId = useId();
@@ -166,6 +196,11 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
               </>
             )}
           </Paper>
+        )}
+        {coverage && (
+          <Box sx={{ mt: 1.5 }}>
+            <CoverageLine coverage={coverage} />
+          </Box>
         )}
       </SectionState>
     </HubSection>

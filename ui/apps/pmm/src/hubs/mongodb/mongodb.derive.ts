@@ -1,11 +1,12 @@
 import { higherSeverity, rankAttention } from 'hubs/template/hub.attention';
-import { ALERTS_PATH } from 'hubs/template/hub.doors';
+import { ALERT_TEMPLATES_PATH, ALERTS_PATH } from 'hubs/template/hub.doors';
 import { Messages as HubText } from 'hubs/template/hub.messages';
 import {
   environmentOptions,
   matchesEnvironment,
 } from 'hubs/template/hub.params';
 import type {
+  HubAlertCoverage,
   HubDeriveContext,
   HubParams,
   HubSectionId,
@@ -37,9 +38,54 @@ import {
 } from './mongodb.topology';
 import type {
   MongoAlertInput,
+  MongoAlertRulesInput,
   MongoServiceInput,
   MongoSnapshot,
 } from './mongodb.types';
+
+// The templates for what the health model watches most: a member gone, a secondary behind, the oplog running short.
+const KEY_TEMPLATES: Array<[string, string]> = [
+  ['pmm_mongodb_down', Messages.coverage.memberDown],
+  ['pmm_mongodb_replication_lag', Messages.coverage.lag],
+  ['pmm_mongodb_oplog_window', Messages.coverage.oplog],
+];
+
+/** What the alert rules leave uncovered, if anything, with the way to cover it. */
+const alertCoverage = (
+  rules: MongoAlertRulesInput | null,
+  admin: boolean
+): HubAlertCoverage | undefined => {
+  const missing = rules
+    ? KEY_TEMPLATES.filter(([template]) => !rules.templates.includes(template))
+    : [];
+
+  if (!rules || !missing.length) {
+    return undefined;
+  }
+  const words = missing.map(([, word]) => word);
+  const door = admin
+    ? { door: { label: Messages.coverage.create, to: ALERT_TEMPLATES_PATH } }
+    : {};
+  const none =
+    !rules.templates.some((template) => template.startsWith('pmm_mongodb_')) &&
+    rules.custom === 0;
+
+  if (none) {
+    return {
+      text: Messages.coverage.none,
+      ...door,
+      detail: admin
+        ? Messages.coverage.templates(words)
+        : Messages.coverage.askAdmin(words),
+    };
+  }
+
+  return {
+    text: Messages.coverage.missing(words),
+    ...door,
+    ...(admin ? {} : { detail: Messages.coverage.askAdminOne }),
+  };
+};
 
 const READY: HubSectionState = { status: 'ready' };
 
@@ -76,7 +122,11 @@ const alertEnvironment = (
   const service = services.find(
     (item) =>
       (alert.serviceName && item.serviceName === alert.serviceName) ||
-      (!alert.serviceName && alert.cluster && item.cluster === alert.cluster)
+      (!alert.serviceName && alert.cluster && item.cluster === alert.cluster) ||
+      (!alert.serviceName &&
+        !alert.cluster &&
+        alert.nodeName &&
+        item.nodeName === alert.nodeName)
   );
 
   return service ? (service.environment ?? '') : null;
@@ -245,8 +295,15 @@ export const deriveMongoHub = (
           },
         }
       : {}),
+    // Alerting off says nothing, and a source still loading would read as none firing.
+    ...(sources.alerts?.status === 'error'
+      ? { alerts: null }
+      : sources.alerts?.status === 'ready' && snapshot.alerts
+        ? { alerts: alerts.length }
+        : {}),
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {
+      alerts: { label: Messages.doors.firingAlerts, to: ALERTS_PATH },
       clusters: {
         label: Messages.doors.clusters,
         to: sectionAnchor({ ...params, patches: null }, 'clusters'),
@@ -268,6 +325,11 @@ export const deriveMongoHub = (
             },
     },
   };
+
+  // Nothing monitored has nothing to cover.
+  const coverage = allServices.length
+    ? alertCoverage(snapshot.alertRules, ctx.role === 'admin')
+    : undefined;
 
   const hasBackups =
     backups.backups.state === 'ok' ||
@@ -312,6 +374,7 @@ export const deriveMongoHub = (
       entries.map((entry) => entry.item),
       MONGODB_ATTENTION_ORDER
     ),
+    ...(coverage ? { alertCoverage: coverage } : {}),
     clusters: shownClusters,
     patchesFilter,
     expanded: expandedProblems(shownClusters),

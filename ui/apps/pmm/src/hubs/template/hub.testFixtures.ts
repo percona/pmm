@@ -219,6 +219,7 @@ export const testView = (
         'Clusters behind on patches',
         '/mongodb?patches=behind#clusters'
       ),
+      alerts: testDoor('Firing alerts', '/alerting/status'),
     },
   },
   attention: [],

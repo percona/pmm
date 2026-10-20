@@ -517,11 +517,18 @@ const matches = (alert: MongoAlertInput, entry: AttentionEntry): boolean => {
 // Merged member alerts prefer the member's own row over the set row that folded it.
 const KIND_PREFERENCE = ['memberDown', 'memberNoData', 'noPrimary'];
 
+/** Where each host sits, by node name, and the members on it, for alerts about a host. */
+export interface HostPlace {
+  where: string;
+  serviceNames: string[];
+}
+
 /** Folds firing alerts into the rows they repeat; the rest become rows of their own. */
 export const mergeAlerts = (
   entries: AttentionEntry[],
   alerts: MongoAlertInput[],
-  memberPlaces: Map<string, string>
+  memberPlaces: Map<string, string>,
+  hosts: Map<string, HostPlace> = new Map()
 ): AttentionEntry[] => {
   const merged = entries.map((entry) => ({
     ...entry,
@@ -553,7 +560,16 @@ export const mergeAlerts = (
     }
 
     const subjectName =
-      alert.serviceName ?? alert.replicaSet ?? alert.cluster ?? '';
+      alert.serviceName ??
+      alert.replicaSet ??
+      alert.cluster ??
+      alert.nodeName ??
+      '';
+    // An alert about a host belongs where its members are.
+    const host =
+      !alert.serviceName && alert.nodeName
+        ? hosts.get(alert.nodeName)
+        : undefined;
 
     own.push({
       item: {
@@ -563,18 +579,24 @@ export const mergeAlerts = (
         title: alert.summary || alert.name || Messages.attention.alertFallback,
         where:
           (alert.serviceName && memberPlaces.get(alert.serviceName)) ||
+          host?.where ||
           Messages.where([subjectName, alert.environment]),
         since: alert.activeAt,
         door: {
           ...alertDoor(alert.serviceName),
           label: Messages.doors.openAlerts,
+          ...(host && alert.nodeName
+            ? { context: Messages.doors.forSubject(alert.nodeName) }
+            : {}),
         },
         source: 'alert',
       },
       subject: {
         cluster: alert.cluster,
         set: alert.replicaSet,
-        serviceNames: alert.serviceName ? [alert.serviceName] : [],
+        serviceNames: alert.serviceName
+          ? [alert.serviceName]
+          : (host?.serviceNames ?? []),
       },
     });
   });
@@ -664,6 +686,25 @@ const operationsEntries = (
       })
     );
 
+/** Each host's place and members, by node name, for rows that only know the host. */
+export const hostPlaceIndex = (
+  clusters: ClusterModel[]
+): Map<string, HostPlace> => {
+  const hosts = new Map<string, HostPlace>();
+  const places = memberPlaceIndex(clusters);
+
+  clusters.flatMap(clusterMembers).forEach(({ service }) => {
+    const host = hosts.get(service.nodeName);
+
+    hosts.set(service.nodeName, {
+      where: host?.where ?? places.get(service.serviceName) ?? '',
+      serviceNames: [...(host?.serviceNames ?? []), service.serviceName],
+    });
+  });
+
+  return hosts;
+};
+
 /** Where each member sits, by service name, for rows that only know the service. */
 export const memberPlaceIndex = (clusters: ClusterModel[]) => {
   const places = new Map<string, string>();
@@ -710,7 +751,7 @@ export const deriveAttention = ({
   ];
 
   return [
-    ...mergeAlerts(derived, alerts, places),
+    ...mergeAlerts(derived, alerts, places, hostPlaceIndex(clusters)),
     ...queryEntries(slower, running, filter, places),
     ...operationsEntries(operations, now),
   ];

@@ -309,6 +309,15 @@ export const healthyUpdates = (
   },
 });
 
+/** The rules a team that set up MongoDB alerting has: the key templates and a few more. */
+export const HEALTHY_ALERT_TEMPLATES = [
+  'pmm_mongodb_down',
+  'pmm_mongodb_oplog_window',
+  'pmm_mongodb_replication_lag',
+  'pmm_mongodb_restarted',
+  'pmm_node_high_cpu_load',
+];
+
 export const OM_CLUSTER_IDS: Record<string, string> = {
   'prod/orders': 'om-orders',
   'prod/billing': 'om-billing',

@@ -22,6 +22,12 @@ export const MONGODB_HUB_MESSAGES: HubMessages = {
 const capitalize = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
+/** "a", "a or b", "a, b or c" */
+const orList = (items: string[]) =>
+  items.length < 2
+    ? items.join('')
+    : `${items.slice(0, -1).join(', ')} or ${items[items.length - 1]}`;
+
 export const Messages = {
   noEnvironment: 'No environment',
   types: {
@@ -173,6 +179,7 @@ export const Messages = {
     mongodbBackups: 'MongoDB backups',
     clusters: 'Clusters',
     behindOnPatches: 'Clusters behind on patches',
+    firingAlerts: 'Firing alerts',
     needsAttention: 'Needs attention',
     lastGoodBackup: 'Last good backup',
     realtime: 'Real-time queries',
@@ -217,6 +224,19 @@ export const Messages = {
     oplogFull: (fill: number) => `${fill}% full`,
     lagDetail: (sustained: string) => `${sustained} sustained for 2m`,
     alertFallback: 'Alert firing',
+  },
+  coverage: {
+    memberDown: 'member down',
+    lag: 'replication lag',
+    oplog: 'oplog window',
+    none: 'No alert rules cover MongoDB yet.',
+    missing: (things: string[]) =>
+      `No rule from the ${orList(things)} template yet.`,
+    create: 'Create from templates',
+    templates: (things: string[]) => `(${things.join(', ')})`,
+    askAdmin: (things: string[]) =>
+      `An administrator can create them from templates (${things.join(', ')}).`,
+    askAdminOne: 'An administrator can create it from a template.',
   },
   where: (parts: Array<string | undefined>) =>
     parts.filter(Boolean).join(' · '),

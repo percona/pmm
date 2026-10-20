@@ -41,6 +41,7 @@ import {
 } from './mongodb.promql';
 import type {
   MongoAlertInput,
+  MongoAlertRulesInput,
   MongoBackupMode,
   MongoBackupsInput,
   MongoBackupStatus,
@@ -142,12 +143,13 @@ export const fetchMongoMetrics = async (
 const isFiring = (state?: string) =>
   !!state && (state === 'firing' || state.startsWith('Alerting'));
 
-/** Firing alerts about MongoDB: a mongodb service type, or a MongoDB service or cluster name. */
+/** Firing alerts about MongoDB: a mongodb service type, a MongoDB service, cluster or set name, or a host a member runs on. */
 export const toAlertInputs = (
   response: PrometheusAlertRulesResponse | undefined,
   services: MongoServiceInput[]
 ): MongoAlertInput[] => {
   const serviceNames = new Set(services.map((service) => service.serviceName));
+  const nodeNames = new Set(services.map((service) => service.nodeName));
   const clusters = new Set(
     services.flatMap((service) => (service.cluster ? [service.cluster] : []))
   );
@@ -167,11 +169,15 @@ export const toAlertInputs = (
           : rule.state === 'firing';
         const serviceName = labels.service_name || labels.service;
         const replicaSet = labels.rs_nm || labels.set || labels.replication_set;
+        // A host alert names only its node, such as pmm_node_high_cpu_load's node_name.
+        const host =
+          !serviceName && !!labels.node_name && nodeNames.has(labels.node_name);
         const mongo =
           labels.service_type === 'mongodb' ||
           (!!serviceName && serviceNames.has(serviceName)) ||
           (!!labels.cluster && clusters.has(labels.cluster)) ||
-          (!!replicaSet && replicaSets.has(replicaSet));
+          (!!replicaSet && replicaSets.has(replicaSet)) ||
+          host;
 
         if (!firing || !mongo) {
           return [];
@@ -185,6 +191,7 @@ export const toAlertInputs = (
               : {}),
             ...(labels.severity ? { severity: labels.severity } : {}),
             ...(serviceName ? { serviceName } : {}),
+            ...(labels.node_name ? { nodeName: labels.node_name } : {}),
             ...(labels.cluster ? { cluster: labels.cluster } : {}),
             ...(labels.environment ? { environment: labels.environment } : {}),
             ...(replicaSet ? { replicaSet } : {}),
@@ -197,6 +204,26 @@ export const toAlertInputs = (
       })
     )
   );
+};
+
+/** Every rule's template, and how many template-less rules read MongoDB metrics, firing or not. */
+export const toAlertRules = (
+  response: PrometheusAlertRulesResponse
+): MongoAlertRulesInput => {
+  const rules = response.data.groups.flatMap((group) => group.rules ?? []);
+
+  return {
+    templates: [
+      ...new Set(
+        rules.flatMap((rule) =>
+          rule.labels?.template_name ? [rule.labels.template_name] : []
+        )
+      ),
+    ].sort(),
+    custom: rules.filter(
+      (rule) => !rule.labels?.template_name && rule.query?.includes('mongodb_')
+    ).length,
+  };
 };
 
 const BACKUP_MODE: Record<string, MongoBackupMode | undefined> = {
@@ -596,6 +623,10 @@ export const useMongoLiveSnapshot = ({
       services: inventory.isError ? null : services,
       metrics: metrics.isError ? null : (metrics.data ?? EMPTY_METRICS),
       alerts: alerts.isError ? null : toAlertInputs(alerts.data, services),
+      alertRules:
+        alertsEnabled && !alerts.isError && alerts.data
+          ? toAlertRules(alerts.data)
+          : null,
       backups: !backupsEnabled
         ? toBackupsInput(false, [], [])
         : backups.isError
@@ -635,6 +666,7 @@ export const useMongoLiveSnapshot = ({
     metrics.data,
     alerts.isError,
     alerts.data,
+    alertsEnabled,
     backups.isError,
     backups.data,
     backupsEnabled,

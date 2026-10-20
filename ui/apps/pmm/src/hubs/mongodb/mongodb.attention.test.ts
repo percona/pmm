@@ -539,6 +539,7 @@ describe('the things-wrong estate', () => {
       ],
       ['behind', 'warning', 'orders-shard1-m3 is 40s behind its primary'],
       ['alert', 'warning', 'MongoDB restarted (orders-shard1-m1)'],
+      ['alert', 'warning', 'Node high CPU load (orders-shard2-m1)'],
       [
         'querySlower',
         'warning',

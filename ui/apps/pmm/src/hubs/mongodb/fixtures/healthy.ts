@@ -2,6 +2,7 @@ import type { MongoSnapshot, QanRowInput } from '../mongodb.types';
 import {
   DASHBOARD_CATALOG,
   estateServices,
+  HEALTHY_ALERT_TEMPLATES,
   healthyBackups,
   healthyMetrics,
   healthyOperations,
@@ -30,6 +31,7 @@ export const healthySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   services: estateServices(),
   metrics: healthyMetrics(now),
   alerts: [],
+  alertRules: { templates: HEALTHY_ALERT_TEMPLATES, custom: 0 },
   backups: healthyBackups(now),
   qan: { current: USUAL_QUERIES, baseline: USUAL_QUERIES },
   realtime: { sessionServiceIds: [], queries: [] },
