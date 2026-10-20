@@ -205,7 +205,7 @@ You can select multiple providers at the same time. To upload to S3 or Google Cl
 
 ### Limit how many backups to keep
 
-Each backup type has a default retention limit. To override it, set your own limit when creating a backup in **Apps > MySQL Backups**, in the **Retention** section:
+Each backup type has a default retention limit: XtraBackup keeps 2 copies, Mydumper keeps 7 daily and 4 weekly backups, and Binlog purges files after 30 days. To change it, set these fields in each backup type's section when creating a backup in **Apps > MySQL Backups**:
 
 - Mydumper: daily purge (days), weekly purge (weeks)
 - XtraBackup: number of copies to keep
