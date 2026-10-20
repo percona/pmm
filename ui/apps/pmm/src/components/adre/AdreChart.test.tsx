@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import AdreChart from './AdreChart';
 
@@ -37,6 +37,20 @@ describe('AdreChart', () => {
     expect(
       screen.getByRole('link', { name: 'Open in Explore' })
     ).toHaveAttribute('href', expect.stringContaining('/graph/explore?'));
+  });
+
+  it('shows the query under the chart and copies it', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    renderChart();
+
+    const figure = screen.getByRole('figure', { name: 'Handlers by service' });
+    expect(figure).toHaveTextContent(spec.query);
+    fireEvent.click(screen.getByRole('button', { name: 'Copy query' }));
+    expect(writeText).toHaveBeenCalledWith(spec.query);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Copied' })).toBeInTheDocument()
+    );
   });
 
   it('says when the window cannot be read and shows the query', () => {

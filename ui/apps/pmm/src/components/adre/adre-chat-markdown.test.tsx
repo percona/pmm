@@ -128,7 +128,7 @@ describe('chat markdown panels', () => {
 
     expect(screen.getByTitle('MySQL Handlers')).toHaveAttribute(
       'src',
-      '/graph/d-solo/mysql-instance-summary?from=1&to=2&var-service_name=ps-1&panelId=8&orgId=1&theme=dark'
+      '/graph/d-solo/mysql-instance-summary?from=1&to=2&var-service_name=ps-1&panelId=8&orgId=1&theme=dark&hideLogo=true'
     );
     expect(screen.queryByRole('img')).toBeNull();
     expect(

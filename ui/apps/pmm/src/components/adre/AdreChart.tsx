@@ -63,6 +63,7 @@ const AdreChart: FC<{ spec: ChartSpec }> = ({ spec }) => {
     <GrafanaPanelEmbed
       src={chartEmbedUrl(spec, range)}
       title={spec.title ?? 'Chart'}
+      query={spec.query}
       caption={`${formatRange(range)} · ${spec.ds}`}
       link={
         <EmbedLink

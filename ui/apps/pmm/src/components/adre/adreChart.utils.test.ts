@@ -81,6 +81,7 @@ describe('chartEmbedUrl', () => {
       from: '1000',
       to: '2000',
       theme: 'dark',
+      hideLogo: 'true',
       'var-ds': 'Metrics',
       'var-title': 'Handlers',
       'var-legend': '{{service_name}} · {{handler}}',
@@ -122,6 +123,7 @@ describe('panelEmbedUrl', () => {
       panelId: '8',
       orgId: '1',
       theme: 'dark',
+      hideLogo: 'true',
     });
   });
 

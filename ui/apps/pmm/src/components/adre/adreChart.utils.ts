@@ -92,6 +92,7 @@ export const chartEmbedUrl = (
     from: String(range.from),
     to: String(range.to),
     theme: 'dark',
+    hideLogo: 'true',
     [clickHouse ? 'var-chds' : 'var-ds']: spec.ds,
     'var-title': spec.title ?? 'Chart',
     'var-query': spec.query,
@@ -116,6 +117,7 @@ export const panelEmbedUrl = (href: string) => {
   q.set('panelId', panel);
   q.set('orgId', q.get('orgId') ?? '1');
   q.set('theme', 'dark');
+  q.set('hideLogo', 'true');
   return `${GRAFANA_SUB_PATH}/d-solo/${uid}?${q}`;
 };
 
