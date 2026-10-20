@@ -159,7 +159,7 @@ To restore from a backup:
 
     XtraBackup restores go into MySQL running on the execution host. The task stops MySQL, replaces the data directory, and restarts MySQL on that host.
 
-    The destination service is optional. You can restore to any reachable host, including hosts not in inventory. Key options:
+    XtraBackup restores into the MySQL instance on the execution host. To restore to a different server, pick that server as the execution host. Key options:
 
     - **XtraBackup binary**: the binary used to prepare the backup. Pick the one that matches the binary that ran the backup.
     - **Skip incrementals**: applies the full backup only, skipping incremental layers.
