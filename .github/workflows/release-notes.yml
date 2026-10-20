@@ -1,0 +1,144 @@
+---
+name: Release notes
+
+# When pmm-X.Y.Z is branched, and whenever a release note lands on it, builds release-notes/X.Y.Z.md
+# from the notes on that branch and keeps one "[Doc] Release X.Y.Z" PR to main open with it.
+# The PR also removes those notes from main. Once merged, doc-hotfix copies it to pmm-X.Y.Z.
+on:
+  create:
+  push:
+    branches:
+      - pmm-3.*
+    paths:
+      - "documentation/docs/release-notes/unreleased/**"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release, for example 3.11.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release-pr:
+    name: Update the release PR
+    if: >-
+      github.repository == 'percona/pmm' &&
+      (github.event_name != 'create' || (github.ref_type == 'branch' && startsWith(github.ref_name, 'pmm-')))
+    runs-on: ubuntu-latest
+    # Every run rebuilds from the current branches, so a newer queued run can replace a pending one.
+    concurrency:
+      group: release-notes-${{ inputs.version && format('pmm-{0}', inputs.version) || github.ref_name }}
+    env:
+      INPUT_VERSION: ${{ inputs.version }}
+      REF_NAME: ${{ github.ref_name }}
+      GH_TOKEN: ${{ secrets.ROBOT_TOKEN }}
+
+    steps:
+      - name: Resolve the release
+        id: release
+        run: |
+          version=${INPUT_VERSION:-${REF_NAME#pmm-}}
+          if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::notice::$REF_NAME is not a release branch"
+            exit 0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # ROBOT_TOKEN, unlike GITHUB_TOKEN, opens a PR that runs the PR checks.
+      - name: Check out main
+        if: steps.release.outputs.version
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.ROBOT_TOKEN }}
+
+      - name: Build the page
+        if: steps.release.outputs.version
+        id: build
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          . documentation/resources/bin/rn-common.sh
+          git config user.name "GitHub Action"
+          git config user.email "github-action@users.noreply.github.com"
+          branch="release-notes-$VERSION"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse --verify --quiet "origin/$branch" > /dev/null; then
+            git checkout -B "$branch" "origin/$branch"
+            git merge --no-edit origin/main
+          else
+            git checkout -B "$branch" origin/main
+          fi
+
+          notes=$(mktemp -d)
+          if git cat-file -e "origin/pmm-$VERSION:documentation/docs/release-notes/unreleased"; then
+            git archive "origin/pmm-$VERSION" documentation/docs/release-notes/unreleased \
+              | tar -x -C "$notes" --strip-components=4
+          fi
+          documentation/resources/bin/rn-compile.sh "$VERSION" "$notes"
+
+          # A note left on main that is not on the page stays, and fails the PR's gate.
+          page="documentation/docs/release-notes/$VERSION.md"
+          for file in documentation/docs/release-notes/unreleased/PMM-*.md; do
+            [ "$(rn_target_of "$file")" = "$VERSION" ] || continue
+            if rn_on_page "$page" "$(basename "$file" .md)"; then
+              git rm -q "$file"
+            fi
+          done
+
+          git add documentation
+          if ! git diff --cached --quiet; then
+            git commit -q -m "[Doc] Release $VERSION"
+          fi
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse --verify --quiet "origin/$branch" || true)" ]; then
+            git push origin "$branch"
+          fi
+
+      - name: Open the PR
+        if: steps.release.outputs.version
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          BRANCH: ${{ steps.build.outputs.branch }}
+        run: |
+          if [ -n "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
+            exit 0
+          fi
+          gh pr create --draft --base main --head "$BRANCH" --label doc-hotfix \
+            --title "[Doc] Release $VERSION" --body-file - <<EOF
+          Release notes for PMM $VERSION, built from the notes in \`documentation/docs/release-notes/unreleased/\` on \`pmm-$VERSION\`. The [Release notes workflow](https://github.com/$GITHUB_REPOSITORY/actions/workflows/release-notes.yml) updates this PR whenever a note lands on \`pmm-$VERSION\`, and keeps your edits.
+
+          Merge it before GA. The \`doc-hotfix\` label copies it to \`pmm-$VERSION\`, which the site publishes from at GA.
+
+          - [ ] Release summary
+          - [ ] Release highlights
+          - [ ] Security updates, or remove the section
+          - [ ] Known issues, or remove the section
+          - [ ] Release date in the page heading, the nav label, \`variables.yml\` and \`mkdocs-pdf.yml\`
+          EOF
+
+      # Notes for this version can no longer merge to main; tell the open PRs that carry one.
+      - name: Comment on PRs with a note for this release
+        if: steps.release.outputs.version && github.event_name != 'push'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          marker="<!-- release-notes-branched-$VERSION -->"
+          for pr in $(gh pr list --base main --state open --limit 500 --json number --jq '.[].number'); do
+            head=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
+            for file in $(gh pr view "$pr" --json files --jq '.files[].path' \
+              | grep -E '^documentation/docs/release-notes/unreleased/PMM-[0-9]+\.md$'); do
+              target=$(gh api "repos/$GITHUB_REPOSITORY/contents/$file?ref=$head" -H "Accept: application/vnd.github.raw" \
+                | yq --front-matter=extract '.target // ""' 2>/dev/null || true)
+              [ "$target" = "$VERSION" ] || continue
+              if gh pr view "$pr" --json comments --jq '.comments[].body' | grep -qF "$marker"; then
+                continue
+              fi
+              gh pr comment "$pr" --body "$marker
+          \`pmm-$VERSION\` is branched, so \`$file\` can no longer target $VERSION on \`main\`. Change its target to a later version, or open a PR against \`pmm-$VERSION\` if the change ships in $VERSION."
+            done
+          done

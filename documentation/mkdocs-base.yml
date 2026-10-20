@@ -11,6 +11,11 @@ repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
 edit_uri: !ENV [EDIT_URI, 'edit/main/documentation/docs/']
 
+# Release notes for versions not released yet. The Release notes workflow builds them into
+# release-notes/X.Y.Z.md when pmm-X.Y.Z is branched.
+exclude_docs: |
+  release-notes/unreleased/
+
 theme:
   name: material
   custom_dir: overrides
