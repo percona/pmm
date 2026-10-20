@@ -39,7 +39,6 @@ const QueryBar: FC<{ query: string }> = ({ query }) => {
       }}
     >
       <Box
-        component="code"
         sx={{
           flex: 1,
           minWidth: 0,
