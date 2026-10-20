@@ -173,7 +173,9 @@ PMM is then available at `https://127.0.0.1:18443`.
 
 PMM does not serve requests, or the cluster behaves inconsistently.
 
-**Fix:** Check the HA metrics. Query them through the Grafana data source proxy, using the UID of the Metrics data source:
+**Fix:** If PMM is unreachable, use the per-pod leader health checks above and inspect the surviving pods' logs as described in [No quorum](#no-quorum-cluster-is-unreachable-after-losing-multiple-replicas). The Grafana proxy is unavailable when HAProxy has no leader to route to.
+
+If PMM is reachable, check the HA metrics through the Grafana data source proxy, using the UID of the Metrics data source:
 
 ```sh
 curl -sk -u admin:$PASSWORD \
