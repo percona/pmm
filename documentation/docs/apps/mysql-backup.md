@@ -131,8 +131,8 @@ Scheduled tasks appear in the **Scheduled MySQL Backups** list, and on the task'
 To restore from a backup:
 {.power-number}
 
-1. Go to **Apps > MySQL Backups** and select the **Restore** tab.
-2. Click **+ New MySQL Restore**.
+1. Go to **Apps > MySQL Backups** and select the **Restores** tab.
+2. Click **New restore**.
 3. Select the **backup type**.
 4. Select the **destination service** to restore into. The **Backup source** list then shows that service's recorded backups. To use a different source, enter a path directly:
 
