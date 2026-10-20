@@ -92,7 +92,7 @@ To run a MySQL backup:
 {.power-number}
 
 1. Go to **Apps > MySQL Backups** in the sidebar.
-2. Click **+ New MySQL Backup**.
+2. Click **New backup**.
 3. Enter a task name, and select the **database host**, **execution host**, and **backup type**. For XtraBackup, the execution host must be the host running the MySQL service.
 4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
 5. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
