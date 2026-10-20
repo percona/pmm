@@ -405,3 +405,49 @@ func TestLinks(t *testing.T) {
 	s.publicAddress = func(_ context.Context) string { return "http://pmm.example.com:8080/" }
 	assert.Equal(t, "http://pmm.example.com:8080/", s.publicBaseURL(t.Context(), http.Header{}))
 }
+
+// TestQANValuesAreChecked pins that a QAN filter value with a quote or a
+// backslash is rejected before any QAN call (PMM-15715).
+func TestQANValuesAreChecked(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		tool string
+		args map[string]any
+	}{
+		{"pmm_top_queries", map[string]any{"service_name": "svc'1"}},
+		{"pmm_top_queries", map[string]any{"service_id": `svc\`}},
+		{"pmm_query_detail", map[string]any{"queryid": "Q'1"}},
+		{"pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc'"}},
+		{"pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "Q'"}},
+	} {
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, false))
+
+		text, isError := callText(t, session, tc.tool, tc.args)
+		assert.True(t, isError, "%s %v", tc.tool, tc.args)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		for _, path := range []string{"/v1/qan/metrics:getReport", "/v1/qan:getMetrics", "/v1/qan/query:getExample", "/v1/inventory/services"} {
+			assert.Empty(t, fake.requestsTo(path), "%s %v -> %s", tc.tool, tc.args, path)
+		}
+	}
+}
+
+// TestKeyMetricsMongoDB pins the MongoDB counters pmm_query_detail shows, so the
+// examined-to-returned ratio is visible; zero counters are left out.
+func TestKeyMetricsMongoDB(t *testing.T) {
+	t.Parallel()
+
+	got := keyMetrics(map[string]metricStats{
+		"num_queries":                            {Sum: 50},
+		"query_time":                             {Sum: 2.5, Avg: 0.05},
+		"docs_examined":                          {Sum: 500000, Avg: 10000},
+		"keys_examined":                          {},
+		"docs_returned":                          {Sum: 50, Avg: 1},
+		"response_length":                        {Sum: 6400, Avg: 128},
+		"storage_bytes_read":                     {},
+		"locks_global_acquire_count_read_shared": {Sum: 100, Avg: 2},
+	})
+	assert.Equal(t, "calls=50, query_time_sum=2.5, query_time_avg=0.05, docs_examined_avg=10000, docs_returned_avg=1, "+
+		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
+}

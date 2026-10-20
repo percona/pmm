@@ -89,6 +89,10 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	if in.QueryID == "" && in.Query == "" {
 		return nil, newToolError(codeInvalidInput, "queryid or query is required")
 	}
+	err := checkQANValue("queryid", in.QueryID)
+	if err != nil {
+		return nil, err
+	}
 	format := in.Format
 	if format == "" {
 		format = formatJSON
