@@ -151,7 +151,7 @@ To restore from a backup:
 
 === "Mydumper"
 
-    The destination must be a MySQL service in inventory. Optionally scope the restore with **Include databases**, **Skip databases**, or **Restore to Database** to target a single schema.
+    The destination must be a MySQL service in inventory. Optionally scope the restore with **Include databases** or **Skip databases**, or pick a **Target database** from the list to restore into a single schema.
 
     To restore to a different host, the destination must be a MySQL service in inventory — you cannot restore Mydumper backups to a host outside of PMM inventory.
 
