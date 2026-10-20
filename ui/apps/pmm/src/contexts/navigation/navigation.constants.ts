@@ -23,6 +23,7 @@ import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import TroubleshootOutlined from '@mui/icons-material/TroubleshootOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -478,7 +479,7 @@ export const NAV_ASSISTANT: NavItem = {
 
 export const NAV_INVESTIGATIONS: NavItem = {
   id: 'investigations',
-  icon: NetworkIntelligenceIcon,
+  icon: TroubleshootOutlined,
   text: 'Investigations',
   url: `${PMM_NEW_NAV_PATH}/investigations`,
   matches: [
