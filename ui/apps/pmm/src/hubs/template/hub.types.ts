@@ -40,6 +40,8 @@ export const HUB_NO_ENVIRONMENT = '__none__';
 export interface HubParams {
   /** `?environment=`; null means every environment. */
   environment: string | null;
+  /** `?patches=behind` shows only the clusters a newer patch release exists for. */
+  patches: 'behind' | null;
   /** `?hubState=` */
   scenario: HubScenario;
   /** `?hubOps=` */
@@ -68,6 +70,22 @@ export type HubMeasure =
   | { kind: 'notApplicable'; reason: string }
   | { kind: 'noData'; lastSeen?: string };
 
+/** What a version check says about a cluster. */
+export type HubUpdate =
+  | { state: 'available'; latest: string; checkedAt: string }
+  | { state: 'upToDate'; checkedAt: string }
+  /** Failed, or too old to trust: never read as up to date. */
+  | { state: 'unknown'; reason: 'failed' | 'stale'; checkedAt?: string };
+
+export interface HubVersion {
+  /** A member's own version, else the lowest one its reachable members run: what it is still exposed on. */
+  effective: string;
+  /** Members of one set run different versions, lowest first. */
+  drift?: Array<{ version: string; members: string[] }>;
+  /** Clusters only; absent while nothing checks for updates. */
+  update?: HubUpdate;
+}
+
 export interface HubTreeColumn {
   /** Key in HubTreeNode.measures. */
   id: string;
@@ -92,6 +110,7 @@ export interface HubTreeNode {
   /** Tooltip, such as "No primary since 14:02". */
   healthDetail?: string;
   members?: { up: number; total: number; noData: number };
+  version?: HubVersion;
   measures: Record<string, HubMeasure>;
   doors: { name: HubDoor; members?: HubDoor; menu: HubDoor[] };
   children?: HubTreeNode[];
@@ -125,6 +144,8 @@ export interface HubStatus {
   otherIssues: number;
   /** The most severe attention row, when any. */
   attentionSeverity?: HubSeverity;
+  /** Clusters with an update available, and those the check could not answer for; absent while nothing checks. */
+  patches?: { behind: number; unknown: number };
   lastGoodBackup:
     | { at: string; cluster: string }
     | 'none'
@@ -132,7 +153,12 @@ export interface HubStatus {
     | 'featureOff'
     | 'unknown';
   checkedAt: string;
-  doors: { clusters: HubDoor; attention: HubDoor; backup: HubDoor };
+  doors: {
+    clusters: HubDoor;
+    attention: HubDoor;
+    backup: HubDoor;
+    patches: HubDoor;
+  };
 }
 
 export interface HubBackupRow {
@@ -241,8 +267,10 @@ export interface HubViewModel {
   status: HubStatus;
   /** Ranked, uncapped; the view applies the cap. */
   attention: HubAttentionItem[];
-  /** Worst first. */
+  /** Worst first; only those behind on patches while that filter is on. */
   clusters: HubTreeNode[];
+  /** `?patches=behind` is on. */
+  patchesFilter: boolean;
   /** MRT expanded state: every non-healthy node and its ancestors. */
   expanded: Record<string, true>;
   backups: HubBackups;

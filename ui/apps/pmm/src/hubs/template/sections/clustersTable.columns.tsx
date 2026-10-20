@@ -7,6 +7,7 @@ import type { HubTreeColumn, HubTreeNode } from '../hub.types';
 import { DoorLink } from './DoorLink';
 import { HealthChip } from './HealthChip';
 import { MeasureValue } from './MeasureValue';
+import { VersionValue } from './VersionValue';
 import { focusableText } from './hub.sx';
 
 /** Columns that fold into the name cell's caption line below md. */
@@ -146,6 +147,14 @@ export const clusterColumns = (
         </span>
       );
     },
+  },
+  {
+    id: 'version',
+    header: Messages.clusters.columns.version,
+    accessorFn: (node) => node.version?.effective ?? null,
+    // Fits "Update available" beneath the version.
+    size: 135,
+    Cell: ({ row }) => <VersionValue version={row.original.version} />,
   },
   ...treeColumns.map<MRT_ColumnDef<HubTreeNode>>((column) => ({
     id: column.id,

@@ -10,6 +10,7 @@ import {
   type ClusterModel,
   expandedProblems,
   groupClusters,
+  updateOf,
 } from './mongodb.topology';
 import type { MongoSnapshot } from './mongodb.types';
 import {
@@ -262,9 +263,9 @@ describe('buildClusterTree', () => {
     expect(nodes.map((node) => [node.name, node.health])).toEqual([
       ['billing', 'down'],
       ['reports', 'noData'],
+      ['catalog', 'degraded'],
       ['orders', 'degraded'],
       ['payments', 'upgrading'],
-      ['catalog', 'healthy'],
     ]);
   });
 
@@ -436,6 +437,8 @@ describe('buildClusterTree', () => {
     expect(expanded).toEqual({
       'cluster:prod/billing': true,
       'cluster:prod/orders': true,
+      'cluster:prod/payments': true,
+      'cluster:staging/catalog': true,
       'set:prod/orders/orders-cfg': true,
       'set:prod/orders/orders-shard1': true,
       'set:prod/orders/orders-shard2': true,
@@ -529,5 +532,103 @@ describe('buildClusterTree', () => {
     expect(
       find(on, 'orders-shard1')?.doors.menu.map((door) => door.label)
     ).not.toContain('Manage in Operations');
+  });
+});
+
+describe('versions', () => {
+  const withUpdates = (snapshot: MongoSnapshot) =>
+    buildClusterTree(
+      groupClusters(snapshot.services ?? [], snapshot.metrics, NOW),
+      {
+        capabilities: { operations: false },
+        updates: snapshot.updates,
+        now: NOW,
+      }
+    );
+
+  it('shows each member its own version and each group the lowest one its reachable members run', () => {
+    const nodes = withUpdates(wrongSnapshot(NOW, false));
+
+    expect(find(nodes, 'catalog-m1')?.version).toEqual({
+      effective: '7.0.24-13',
+    });
+    expect(find(nodes, 'catalog')?.version).toMatchObject({
+      effective: '7.0.24-13',
+      drift: [
+        { version: '7.0.24-13', members: ['catalog-m1'] },
+        { version: '7.0.30-16', members: ['catalog-m2', 'catalog-m3'] },
+      ],
+    });
+    // billing-m1 and billing-m2 are down, so only billing-m3 counts.
+    expect(find(nodes, 'billing')?.version?.effective).toBe('7.0.30-16');
+    expect(find(nodes, 'reports')?.version).toBeUndefined();
+  });
+
+  it('marks a sharded cluster with the drift of its sets, and its version as the lowest of all', () => {
+    const snapshot = healthySnapshot(NOW, false);
+
+    if (snapshot.metrics) {
+      snapshot.metrics.versions['svc-orders-shard2-m3'] = '8.0.12-4';
+    }
+    const orders = find(withUpdates(snapshot), 'orders');
+
+    expect(orders?.version).toMatchObject({
+      effective: '8.0.12-4',
+      drift: [
+        { version: '8.0.12-4', members: ['orders-shard2-m3'] },
+        {
+          version: '8.0.32-14',
+          members: ['orders-shard2-m1', 'orders-shard2-m2'],
+        },
+      ],
+      update: { state: 'available', latest: '8.0.32-14' },
+    });
+    expect(orders?.health).toBe('degraded');
+  });
+
+  it('puts what the version check says on cluster rows only', () => {
+    const nodes = withUpdates(healthySnapshot(NOW, false));
+
+    expect(find(nodes, 'payments')?.version?.update).toEqual({
+      state: 'available',
+      latest: '7.0.30-16',
+      checkedAt: new Date(NOW - 2 * 3600_000).toISOString(),
+    });
+    expect(find(nodes, 'orders')?.version?.update?.state).toBe('upToDate');
+    expect(find(nodes, 'orders-shard1')?.version?.update).toBeUndefined();
+    expect(
+      tree(healthySnapshot(NOW, false)).every((node) => !node.version?.update)
+    ).toBe(true);
+  });
+});
+
+describe('updateOf', () => {
+  const checkedAt = new Date(NOW - 3600_000).toISOString();
+
+  it('compares the effective version with the newest patch of its series', () => {
+    expect(
+      updateOf('7.0.24-13', { checkedAt, latest: '7.0.30-16' }, NOW)
+    ).toEqual({ state: 'available', latest: '7.0.30-16', checkedAt });
+    expect(
+      updateOf('7.0.30-16', { checkedAt, latest: '7.0.30-16' }, NOW)
+    ).toEqual({ state: 'upToDate', checkedAt });
+  });
+
+  it('never reads a failed, old or missing check as up to date', () => {
+    expect(updateOf('7.0.30-16', { checkedAt }, NOW)).toEqual({
+      state: 'unknown',
+      reason: 'failed',
+      checkedAt,
+    });
+
+    const old = new Date(NOW - 49 * 3600_000).toISOString();
+
+    expect(
+      updateOf('7.0.30-16', { checkedAt: old, latest: '7.0.30-16' }, NOW)
+    ).toEqual({ state: 'unknown', reason: 'stale', checkedAt: old });
+    expect(updateOf('7.0.30-16', undefined, NOW)).toEqual({
+      state: 'unknown',
+      reason: 'stale',
+    });
   });
 });

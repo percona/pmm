@@ -20,6 +20,8 @@ export interface MongoSnapshot {
   realtime: { sessionServiceIds: string[]; queries: RtaQueryInput[] } | null;
   /** Null when Operations is off or failed. */
   operations: MongoOperationsInput | null;
+  /** PMM Extensions' version check by cluster key; null while nothing checks, which is so until P0-1c ships (sample data only). */
+  updates: Record<string, MongoUpdateCheck> | null;
   /** Null also while the catalog has not answered yet. */
   dashboards: {
     catalog: DashboardHit[];
@@ -52,6 +54,8 @@ export interface MongoMetrics {
   roles: Record<string, { rsName: string; clRole?: 'configsvr' | 'shardsvr' }>;
   /** Epoch seconds the member's current state was first seen within the last hour. */
   stateSince: Record<string, number>;
+  /** The server version each member reports, such as 7.0.24-13. */
+  versions: Record<string, string>;
   /** Seconds, secondaries only. */
   lag: Record<string, { now: number; sustained: number }>;
   /** Seconds. */
@@ -132,6 +136,14 @@ export interface MongoOperationsInput {
     finishedAt: string;
     failingNodes?: number;
   }>;
+}
+
+/** One cluster's version check: the newest patch release in its major.minor series. */
+export interface MongoUpdateCheck {
+  /** When the check last ran. */
+  checkedAt: string;
+  /** Absent when the check failed. */
+  latest?: string;
 }
 
 export interface MongoUpgradeInput {

@@ -131,6 +131,7 @@ export const deriveMongoHub = (
   const { capabilities, sources } = ctx;
   const params: HubParams = ctx.params ?? {
     environment: filter,
+    patches: null,
     scenario: ctx.scenario,
     ops: 'live',
     role: 'live',
@@ -155,8 +156,15 @@ export const deriveMongoHub = (
     ? buildClusterTree(models, {
         capabilities,
         omClusterIds: operations?.clusterIds,
+        updates: snapshot.updates,
+        now: ctx.now,
       })
     : [];
+  const updateStates = clusters.map((node) => node.version?.update?.state);
+  const patchesFilter = params.patches === 'behind';
+  const shownClusters = patchesFilter
+    ? clusters.filter((node) => node.version?.update?.state === 'available')
+    : clusters;
 
   const backups = deriveBackups({
     clusters: models,
@@ -228,11 +236,24 @@ export const deriveMongoHub = (
     otherIssues,
     ...(attentionSeverity ? { attentionSeverity } : {}),
     lastGoodBackup: inventoryOk ? backups.lastGoodBackup : 'unknown',
+    ...(snapshot.updates && metricsOk
+      ? {
+          patches: {
+            behind: updateStates.filter((state) => state === 'available')
+              .length,
+            unknown: updateStates.filter((state) => state === 'unknown').length,
+          },
+        }
+      : {}),
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {
       clusters: {
         label: Messages.doors.clusters,
-        to: sectionAnchor(params, 'clusters'),
+        to: sectionAnchor({ ...params, patches: null }, 'clusters'),
+      },
+      patches: {
+        label: Messages.doors.behindOnPatches,
+        to: sectionAnchor({ ...params, patches: 'behind' }, 'clusters'),
       },
       attention: {
         label: Messages.doors.needsAttention,
@@ -291,8 +312,9 @@ export const deriveMongoHub = (
       entries.map((entry) => entry.item),
       MONGODB_ATTENTION_ORDER
     ),
-    clusters,
-    expanded: expandedProblems(clusters),
+    clusters: shownClusters,
+    patchesFilter,
+    expanded: expandedProblems(shownClusters),
     backups: backups.backups,
     queries: queries.queries,
     dashboards: deriveDashboards({

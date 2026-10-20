@@ -24,7 +24,7 @@ import {
   runningAge,
   type SlowerQuery,
 } from './mongodb.queries';
-import { isLost, isStuck } from './mongodb.health';
+import { isLost, isStuck, versionDrift } from './mongodb.health';
 import {
   type ClusterModel,
   clusterMembers,
@@ -49,6 +49,7 @@ export const MONGODB_ATTENTION_ORDER = [
   'pitrStopped',
   'oplogShort',
   'memberNotServing',
+  'versionDrift',
   'behind',
   'alert',
   'querySlower',
@@ -373,6 +374,53 @@ const replicationEntries = (cluster: ClusterModel): AttentionEntry[] => {
   });
 };
 
+/** A set whose members run different versions: an upgrade that stopped partway. */
+const driftEntries = (cluster: ClusterModel): AttentionEntry[] => {
+  const place = placeOf(cluster);
+
+  return setsOf(cluster).flatMap(({ set, inner }): AttentionEntry[] => {
+    const drift = versionDrift(
+      set.members.map((member) => ({
+        name: member.service.serviceName,
+        verdict: member.verdict,
+        version: member.version,
+      }))
+    );
+
+    if (!drift) {
+      return [];
+    }
+
+    return [
+      {
+        item: {
+          id: `versionDrift:${cluster.key}/${set.name}`,
+          kind: 'versionDrift',
+          severity: 'warning',
+          title: Messages.attention.versionDrift(set.name),
+          where: whereOf(cluster, inner),
+          detail: Messages.where(
+            drift.map(({ version, members }) =>
+              Messages.attention.versionOn(version, members)
+            )
+          ),
+          door: {
+            label: Messages.doors.replsetSummary,
+            to: replsetSummary(place, set.name),
+            context: Messages.doors.forSubject(set.name),
+          },
+        },
+        subject: {
+          clusterKey: cluster.key,
+          cluster: cluster.name,
+          set: set.name,
+          serviceNames: set.members.map((member) => member.service.serviceName),
+        },
+      },
+    ];
+  });
+};
+
 const backupEntry = (
   finding: BackupFinding,
   clusters: ClusterModel[]
@@ -658,6 +706,7 @@ export const deriveAttention = ({
     ...steady.flatMap(memberEntries),
     ...backupFindings.map((finding) => backupEntry(finding, clusters)),
     ...steady.flatMap(replicationEntries),
+    ...steady.flatMap(driftEntries),
   ];
 
   return [

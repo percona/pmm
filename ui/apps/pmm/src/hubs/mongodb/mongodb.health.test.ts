@@ -222,6 +222,40 @@ describe('setHealth', () => {
     ).toBe('degraded');
   });
 
+  it('degrades a set whose answering members run different versions', () => {
+    const verdict = setHealth(
+      [
+        named({ verdict: 'up', state: 'PRIMARY', version: '7.0.24-13' }),
+        named({ verdict: 'up', state: 'SECONDARY', version: '7.0.30-16' }),
+        named({ verdict: 'up', state: 'SECONDARY', version: '7.0.30-16' }),
+        // A down member's last version does not count.
+        named({ verdict: 'down', version: '6.0.25-20' }),
+      ],
+      'catalog'
+    );
+
+    expect(verdict.health).toBe('degraded');
+    expect(verdict.conditions).toContainEqual({
+      kind: 'drift',
+      set: 'catalog',
+      versions: [
+        { version: '7.0.24-13', members: [expect.any(String)] },
+        {
+          version: '7.0.30-16',
+          members: [expect.any(String), expect.any(String)],
+        },
+      ],
+    });
+    expect(
+      healthOf(
+        setHealth([
+          named({ verdict: 'up', state: 'PRIMARY', version: '7.0.30-16' }),
+          named({ verdict: 'up', state: 'SECONDARY', version: '7.0.30-16' }),
+        ])
+      )
+    ).toBe('healthy');
+  });
+
   it('lists every condition, the deciding rule first', () => {
     const lagging = named({
       verdict: 'up',

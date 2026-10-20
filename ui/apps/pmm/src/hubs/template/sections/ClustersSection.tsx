@@ -1,6 +1,8 @@
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import {
+  Chip,
   EmptyState,
   NothingFoundIllustration,
   RadarIllustration,
@@ -19,6 +21,8 @@ export interface ClustersSectionProps {
   onRetry: () => void;
   /** Clears the environment filter. */
   onShowAllEnvironments: () => void;
+  /** Clears the behind on patches filter. */
+  onClearPatches: () => void;
 }
 
 /** Clusters: the full-width tree, or how to start when nothing is monitored. */
@@ -28,8 +32,14 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
   messages,
   onRetry,
   onShowAllEnvironments,
+  onClearPatches,
 }) => {
-  const { clusters } = view;
+  const { clusters, patchesFilter } = view;
+  // The chip leaves with its filter, so focus moves to the section's heading instead of falling to the page.
+  const clearPatches = () => {
+    onClearPatches();
+    document.getElementById('clusters-title')?.focus();
+  };
   const empty = view.status.state === 'empty';
   const { matchesNothing } = view.environment;
   const hasActions = !!(view.actions.addService || view.actions.install);
@@ -83,14 +93,48 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
             />
           </Paper>
         ) : (
-          <ClustersTable
-            key={`${view.scenario}:${view.environment.selected ?? ''}`}
-            tableName={`hub-${view.technology.id}-clusters`}
-            clusters={clusters}
-            treeColumns={treeColumns}
-            expanded={view.expanded}
-            label={messages.clusters.tableLabel}
-          />
+          <>
+            {patchesFilter && (
+              <Box sx={{ mb: 1.5 }}>
+                <Chip
+                  size="small"
+                  label={Messages.clusters.patchesFilter.label}
+                  aria-label={Messages.clusters.patchesFilter.clear}
+                  onClick={clearPatches}
+                  onDelete={clearPatches}
+                />
+              </Box>
+            )}
+            {patchesFilter && !clusters.length ? (
+              <Paper variant="outlined">
+                <EmptyState
+                  size="small"
+                  titleComponent="h3"
+                  illustration={<NothingFoundIllustration />}
+                  title={Messages.clusters.patchesFilter.none}
+                  description={Messages.clusters.patchesFilter.noneDescription}
+                  actions={
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={clearPatches}
+                    >
+                      {Messages.clusters.patchesFilter.showAll}
+                    </Button>
+                  }
+                />
+              </Paper>
+            ) : (
+              <ClustersTable
+                key={`${view.scenario}:${view.environment.selected ?? ''}:${patchesFilter}`}
+                tableName={`hub-${view.technology.id}-clusters`}
+                clusters={clusters}
+                treeColumns={treeColumns}
+                expanded={view.expanded}
+                label={messages.clusters.tableLabel}
+              />
+            )}
+          </>
         )}
       </SectionState>
     </HubSection>

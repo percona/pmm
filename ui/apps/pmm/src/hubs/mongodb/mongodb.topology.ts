@@ -7,6 +7,8 @@ import type {
   HubLevel,
   HubMeasure,
   HubTreeNode,
+  HubUpdate,
+  HubVersion,
 } from 'hubs/template/hub.types';
 import {
   backupStatus,
@@ -35,6 +37,7 @@ import {
   shardedHealth,
   standaloneHealth,
   upgradingHealth,
+  versionDrift,
   worstLevel,
 } from './mongodb.health';
 import { Messages } from './mongodb.messages';
@@ -42,8 +45,15 @@ import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
 import type {
   MongoMetrics,
   MongoServiceInput,
+  MongoUpdateCheck,
   MongoUpgradeInput,
 } from './mongodb.types';
+import {
+  compareVersions,
+  groupByVersion,
+  lowestVersion,
+  type VersionGroup,
+} from './mongodb.versions';
 
 export interface MemberModel {
   service: MongoServiceInput;
@@ -52,6 +62,8 @@ export interface MemberModel {
   state?: string;
   /** How long the member has been in its state, as far as the last hour tells. */
   stateSeconds?: number;
+  /** The server version it reported last, such as 7.0.24-13. */
+  version?: string;
   router: boolean;
   /** Epoch seconds the member was last seen up. */
   lastUpAt?: number;
@@ -105,6 +117,7 @@ const toMember = (
     ...(verdict === 'up' && self?.state && stateSince !== undefined
       ? { stateSeconds: Math.max(0, Math.round(now / 1000 - stateSince)) }
       : {}),
+    ...(metrics?.versions[id] ? { version: metrics.versions[id] } : {}),
     router: metrics?.up[id]?.clusterRole === 'mongos',
     lastUpAt: metrics?.lastUpAt[id],
     lag: metrics?.lag[id],
@@ -294,6 +307,7 @@ const healthInput = (
   ...(member.stateSeconds !== undefined
     ? { stateSeconds: member.stateSeconds }
     : {}),
+  ...(member.version ? { version: member.version } : {}),
   ...(inSet && member.lag && isSecondary(member) ? { lag: member.lag } : {}),
   ...(inSet && member.oplogWindow !== undefined && isPrimary(member)
     ? {
@@ -355,7 +369,67 @@ export interface TreeOptions {
   capabilities: Pick<HubCapabilities, 'operations'>;
   /** `${env ?? ''}/${cluster}` to OmCluster.id, with Operations on. */
   omClusterIds?: Record<string, string>;
+  /** The version check by cluster key; absent or null while nothing checks. */
+  updates?: Record<string, MongoUpdateCheck> | null;
+  now?: number;
 }
+
+const setDrift = (set: SetModel) =>
+  versionDrift(set.members.map((member) => healthInput(member)));
+
+/** The lowest version the reachable members run: what they are still exposed on. */
+const versionOf = (
+  members: MemberModel[],
+  drift?: VersionGroup[]
+): HubVersion | undefined => {
+  const effective = lowestVersion(
+    members.flatMap((member) =>
+      member.verdict === 'up' && member.version ? [member.version] : []
+    )
+  );
+
+  return effective ? { effective, ...(drift ? { drift } : {}) } : undefined;
+};
+
+/** A failed check, an old one or none at all never reads as up to date. */
+export const updateOf = (
+  effective: string,
+  check: MongoUpdateCheck | undefined,
+  now: number
+): HubUpdate => {
+  if (!check) {
+    return { state: 'unknown', reason: 'stale' };
+  }
+  const { checkedAt, latest } = check;
+  const age = now - Date.parse(checkedAt);
+
+  if (Number.isNaN(age) || age > T.updateCheckStaleSeconds * 1000) {
+    return { state: 'unknown', reason: 'stale', checkedAt };
+  }
+  if (!latest) {
+    return { state: 'unknown', reason: 'failed', checkedAt };
+  }
+
+  return compareVersions(effective, latest) < 0
+    ? { state: 'available', latest, checkedAt }
+    : { state: 'upToDate', checkedAt };
+};
+
+const clusterVersion = (
+  cluster: ClusterModel,
+  version: HubVersion | undefined,
+  options: TreeOptions
+): HubVersion | undefined =>
+  version && options.updates
+    ? {
+        ...version,
+        update: updateOf(
+          version.effective,
+          options.updates[cluster.key],
+          options.now ?? Date.now()
+        ),
+      }
+    : version;
 
 export const placeOf = (cluster: ClusterModel): MongoPlace => ({
   environment: cluster.environment,
@@ -615,6 +689,7 @@ const memberNode = (
     health,
     showHealth: health !== 'healthy',
     ...(since ? { since } : {}),
+    ...(member.version ? { version: { effective: member.version } } : {}),
     measures,
     doors: {
       name,
@@ -669,6 +744,7 @@ const setNode = (
       : {}),
     ...upgradeSince(cluster),
     members: membersCount(set.members),
+    version: versionOf(set.members, setDrift(set)),
     measures: { lag: setLag(set, place), oplogWindow: setOplog(set, place) },
     doors: {
       name: { label: set.name, to: summary },
@@ -695,6 +771,7 @@ const routersNode = (cluster: ClusterModel): HubTreeNode => {
     ...upgradeSince(cluster),
     showHealth: true,
     members: membersCount(cluster.routers),
+    version: versionOf(cluster.routers),
     measures: {
       lag: notApplicable(Messages.measures.routerLag),
       oplogWindow: notApplicable(Messages.measures.routerOplog),
@@ -706,6 +783,22 @@ const routersNode = (cluster: ClusterModel): HubTreeNode => {
     },
     children: cluster.routers.map((member) => memberNode(member, place)),
   };
+};
+
+/** The versions of every set that drifts, merged by version. */
+const shardedDrift = (cluster: ClusterModel): VersionGroup[] | undefined => {
+  const groups = [
+    ...(cluster.config ? [cluster.config] : []),
+    ...cluster.sets,
+  ].flatMap((set) => setDrift(set) ?? []);
+
+  return groups.length
+    ? groupByVersion(
+        groups.flatMap(({ version, members }) =>
+          members.map((name) => ({ name, version }))
+        )
+      )
+    : undefined;
 };
 
 const clusterNode = (
@@ -731,6 +824,7 @@ const clusterNode = (
       showHealth: true,
       ...upgradeSince(cluster),
       members: membersCount(members),
+      version: clusterVersion(cluster, versionOf(members), options),
       doors: {
         name: { label: cluster.name, to: node.doors.name.to },
         members: membersDoor(cluster.name, node.doors.name.to, members),
@@ -748,6 +842,7 @@ const clusterNode = (
       kind: 'cluster',
       name: cluster.name,
       environment: cluster.environment,
+      version: clusterVersion(cluster, set.version, options),
       doors: {
         name: { label: cluster.name, to: set.doors.name.to },
         members: membersDoor(cluster.name, set.doors.name.to, members),
@@ -787,6 +882,11 @@ const clusterNode = (
     showHealth: true,
     ...upgradeSince(cluster),
     members: membersCount(members),
+    version: clusterVersion(
+      cluster,
+      versionOf(members, shardedDrift(cluster)),
+      options
+    ),
     measures: {
       lag: lag
         ? { ...lag, door: lag.door && { ...lag.door, label: cluster.name } }

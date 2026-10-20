@@ -171,8 +171,8 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
   );
 
   it.each<[Ops, number]>([
-    ['off', 6],
-    ['on', 8],
+    ['off', 8],
+    ['on', 9],
   ])(
     'folds the rest of what is wrong behind Show more, Operations %s',
     async (ops, more) => {

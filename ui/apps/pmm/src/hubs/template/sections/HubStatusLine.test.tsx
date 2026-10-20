@@ -30,6 +30,7 @@ describe('HubStatusLine', () => {
         backup: testDoor('Last good backup', '/graph/backup/inventory', {
           context: 'of billing',
         }),
+        patches: testDoor('Behind on patches', '/mongodb?patches=behind'),
       },
     });
 
@@ -166,6 +167,26 @@ describe('HubStatusLine', () => {
     });
 
     expect(screen.getByRole('img', { name: 'Upgrading' })).toBeInTheDocument();
+  });
+
+  it('links the clusters behind on patches and says how many the check could not answer for', () => {
+    renderLine({ patches: { behind: 2, unknown: 1 } });
+
+    expect(
+      screen.getByRole('link', { name: '2 behind on patches' })
+    ).toHaveAttribute('href', '/mongodb?patches=behind#clusters');
+    expect(sentence()).toHaveTextContent('2 behind on patches, 1 unknown');
+  });
+
+  it('says none are behind as plain text, and nothing while no check runs', () => {
+    const { unmount } = renderLine({ patches: { behind: 0, unknown: 0 } });
+
+    expect(sentence()).toHaveTextContent('none behind on patches');
+    expect(screen.queryByRole('link', { name: /patches/ })).toBeNull();
+    unmount();
+
+    renderLine({ patches: undefined });
+    expect(sentence()).not.toHaveTextContent('patches');
   });
 
   it('keeps the health icon when no row is worse', () => {

@@ -35,6 +35,7 @@ export const sourcesWith = (
 
 export interface ContextOptions {
   scenario?: HubScenario;
+  patches?: 'behind' | null;
   role?: HubRole;
   operations?: boolean;
   environment?: string | null;
@@ -46,6 +47,7 @@ export interface ContextOptions {
 /** A derive context as useTechnologyHub builds it, for sample data unless told otherwise. */
 export const deriveContext = ({
   scenario = 'wrong',
+  patches = null,
   role = 'admin',
   operations = false,
   environment = null,
@@ -59,6 +61,7 @@ export const deriveContext = ({
     now: NOW,
     params: {
       environment,
+      patches,
       scenario,
       ops: operations ? 'on' : 'off',
       role,
@@ -96,6 +99,7 @@ export const emptyMetrics = (): MongoMetrics => ({
   self: {},
   roles: {},
   stateSince: {},
+  versions: {},
   lag: {},
   oplogWindow: {},
   oplogFill: {},
@@ -164,6 +168,7 @@ export const mergeMetrics = (...all: MongoMetrics[]): MongoMetrics =>
       self: { ...merged.self, ...metrics.self },
       roles: { ...merged.roles, ...metrics.roles },
       stateSince: { ...merged.stateSince, ...metrics.stateSince },
+      versions: { ...merged.versions, ...metrics.versions },
       lag: { ...merged.lag, ...metrics.lag },
       oplogWindow: { ...merged.oplogWindow, ...metrics.oplogWindow },
       oplogFill: { ...merged.oplogFill, ...metrics.oplogFill },

@@ -104,6 +104,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           messages={messages}
           onRetry={refetch}
           onShowAllEnvironments={() => setParams({ environment: null })}
+          onClearPatches={() => setParams({ patches: null })}
         />
         <Box
           sx={(theme) => ({

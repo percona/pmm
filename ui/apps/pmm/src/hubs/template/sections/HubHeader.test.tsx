@@ -15,6 +15,7 @@ const ACCESS = { admin: true, operations: true };
 
 const PARAMS: HubParams = {
   environment: null,
+  patches: null,
   scenario: 'wrong',
   ops: 'live',
   role: 'live',

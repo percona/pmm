@@ -19,10 +19,11 @@ describe('parseHubParams', () => {
   it('reads every param', () => {
     expect(
       parseHubParams(
-        '?environment=prod&hubState=wrong&hubOps=off&hubRole=viewer'
+        '?environment=prod&patches=behind&hubState=wrong&hubOps=off&hubRole=viewer'
       )
     ).toEqual({
       environment: 'prod',
+      patches: 'behind',
       scenario: 'wrong',
       ops: 'off',
       role: 'viewer',
@@ -87,6 +88,7 @@ describe('serializeHubParams', () => {
     expect(
       serializeHubParams({
         environment: 'prod',
+        patches: null,
         scenario: 'wrong',
         ops: 'on',
         role: 'live',

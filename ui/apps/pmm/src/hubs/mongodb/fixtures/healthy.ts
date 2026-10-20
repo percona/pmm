@@ -5,6 +5,7 @@ import {
   healthyBackups,
   healthyMetrics,
   healthyOperations,
+  healthyUpdates,
   recentDashboards,
 } from './estate';
 
@@ -23,7 +24,7 @@ export const USUAL_QUERIES: QanRowInput[] = [
   },
 ];
 
-/** All 21 members up, backups fresh, nothing firing, queries as usual. */
+/** All 21 members up, backups fresh, nothing firing, queries as usual; payments and catalog one patch behind. */
 export const healthySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   fetchedAt: now,
   services: estateServices(),
@@ -33,5 +34,6 @@ export const healthySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   qan: { current: USUAL_QUERIES, baseline: USUAL_QUERIES },
   realtime: { sessionServiceIds: [], queries: [] },
   operations: ops ? healthyOperations(now) : null,
+  updates: healthyUpdates(now),
   dashboards: { catalog: DASHBOARD_CATALOG, recent: recentDashboards(now) },
 });

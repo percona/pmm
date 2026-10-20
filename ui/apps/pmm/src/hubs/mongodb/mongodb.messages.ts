@@ -122,6 +122,7 @@ export const Messages = {
     backupDashboard: 'Backup status dashboard',
     mongodbBackups: 'MongoDB backups',
     clusters: 'Clusters',
+    behindOnPatches: 'Clusters behind on patches',
     needsAttention: 'Needs attention',
     lastGoodBackup: 'Last good backup',
     realtime: 'Real-time queries',
@@ -142,6 +143,10 @@ export const Messages = {
         : `${member} is ${phrase}, it can't serve reads`,
     memberLost: (member: string, phrase: string) =>
       `${member} is ${phrase}, it holds none of the set's data`,
+    versionDrift: (rs: string) =>
+      `${rs} runs mixed versions, an upgrade may have stopped partway`,
+    versionOn: (version: string, members: string[]) =>
+      `${version} on ${members.join(', ')}`,
     backupFailed: (cluster: string, name: string) =>
       `${cluster} ${name} failed`,
     backupFallbackName: 'backup',

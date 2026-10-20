@@ -1,6 +1,7 @@
 import type { HubHealth, HubLevel } from 'hubs/template/hub.types';
 import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
 import type { MongoMetrics, MongoServiceInput } from './mongodb.types';
+import { groupByVersion, type VersionGroup } from './mongodb.versions';
 
 /** Up, Down, or No data: PMM has no up series and the inventory does not say down. */
 export type MemberVerdict = 'up' | 'down' | 'noData';
@@ -57,6 +58,7 @@ export type HealthCondition =
   | { kind: 'memberDown'; member: string }
   | { kind: 'memberNoData'; member: string }
   | { kind: 'memberState'; member: string; state: string; seconds?: number }
+  | { kind: 'drift'; versions: VersionGroup[]; set?: string }
   | { kind: 'oplogShort'; member: string; seconds: number }
   | { kind: 'behind'; member: string; seconds: number };
 
@@ -73,6 +75,7 @@ const CONDITION_HEALTH: Record<HealthConditionKind, HubHealth> = {
   memberDown: 'degraded',
   memberNoData: 'degraded',
   memberState: 'degraded',
+  drift: 'degraded',
   oplogShort: 'degraded',
   behind: 'degraded',
 };
@@ -110,6 +113,8 @@ export interface MemberHealthInput {
   lag?: { now: number; sustained: number };
   /** Primaries only. */
   oplog?: { seconds: number; fill?: number };
+  /** The server version, such as 7.0.24-13. */
+  version?: string;
 }
 
 // PMM-15299's allow-list: the only states a healthy set's members hold.
@@ -139,6 +144,17 @@ export const isStuck = (member: StateInput): boolean =>
   (!TRANSITIONAL_STATES.has(member.state) ||
     member.stateSeconds === undefined ||
     member.stateSeconds >= T.transitionGraceSeconds);
+
+/** The versions the answering members run, when they run more than one: an upgrade that stopped halfway. */
+export const versionDrift = (
+  members: Array<Pick<MemberHealthInput, 'name' | 'verdict' | 'version'>>
+): VersionGroup[] | undefined => {
+  const groups = groupByVersion(
+    members.filter((member) => member.verdict === 'up')
+  );
+
+  return groups.length > 1 ? groups : undefined;
+};
 
 /** At least one member answers and none of them is primary, so the set takes no writes. */
 export const hasNoPrimary = (members: StateInput[]): boolean =>
@@ -256,8 +272,15 @@ export const setHealth = (
         !setWide.length ||
         (condition.kind !== 'memberDown' && condition.kind !== 'memberNoData')
     );
+  const drift = versionDrift(members);
 
-  return verdictOf([...setWide, ...own]);
+  return verdictOf([
+    ...setWide,
+    ...own,
+    ...(drift
+      ? [{ kind: 'drift' as const, versions: drift, ...named(set) }]
+      : []),
+  ]);
 };
 
 /** Routers share no data, so one answering keeps the cluster reachable. */

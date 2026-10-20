@@ -93,11 +93,10 @@ describe('fixtures', () => {
       );
     });
 
-    it('ranks every kind, 11 rows with Operations off and 13 on', () => {
+    it('ranks every kind, 13 rows with Operations off and 14 on', () => {
       const off = view('wrong', false).attention;
       const on = view('wrong', true).attention;
-
-      expect(off.map((item) => item.kind)).toEqual([
+      const steady = [
         'noPrimary',
         'memberDown',
         'memberNoData',
@@ -105,22 +104,35 @@ describe('fixtures', () => {
         'pitrStopped',
         'oplogShort',
         'memberNotServing',
-        'behind',
-        'alert',
-        'querySlower',
-        'queryRunning',
+      ];
+      const after = ['behind', 'alert', 'querySlower', 'queryRunning'];
+
+      // Without Operations nothing says payments is upgrading, so its mixed versions read as drift too.
+      expect(off.map((item) => [item.kind, item.where])).toEqual(
+        expect.arrayContaining([
+          ['versionDrift', 'payments · prod'],
+          ['versionDrift', 'catalog · staging'],
+        ])
+      );
+      expect(off.map((item) => item.kind)).toEqual([
+        ...steady,
+        'versionDrift',
+        'versionDrift',
+        ...after,
       ]);
       expect(on.map((item) => item.kind)).toEqual([
-        ...off.map((item) => item.kind),
+        ...steady,
+        'versionDrift',
+        ...after,
         'operationsFailed',
         'operationsFailed',
       ]);
       expect(
-        on.slice(11).every((item) => item.door.preview === 'developer')
+        on.slice(12).every((item) => item.door.preview === 'developer')
       ).toBe(true);
     });
 
-    it('shows the first five and folds 6 more off, 8 more on', () => {
+    it('shows the first five and folds 8 more off, 9 more on', () => {
       const off = capAttention(view('wrong', false).attention, 5);
       const on = capAttention(view('wrong', true).attention, 5);
 
@@ -131,25 +143,25 @@ describe('fixtures', () => {
         'backupFailed',
         'pitrStopped',
       ]);
-      expect(off.hidden).toHaveLength(6);
-      expect(on.hidden).toHaveLength(8);
+      expect(off.hidden).toHaveLength(8);
+      expect(on.hidden).toHaveLength(9);
     });
 
     it('matches the design’s tree and status line', () => {
       const result = view('wrong', false);
-      const [billing, reports, orders] = result.clusters;
+      const [billing, reports, , orders] = result.clusters;
 
       expect(result.clusters.map((node) => node.name)).toEqual([
         'billing',
         'reports',
-        'orders',
         'catalog',
+        'orders',
         'payments',
       ]);
       expect(result.status).toMatchObject({
         state: 'down',
         clusters: 5,
-        needAttention: 3,
+        needAttention: 5,
         lastGoodBackup: {
           at: new Date(NOW - 6 * 3600_000).toISOString(),
           cluster: 'billing',
@@ -196,13 +208,14 @@ describe('fixtures', () => {
         health: 'upgrading',
         since: new Date(NOW - 9 * 60_000).toISOString(),
       });
-      expect(on.status.needAttention).toBe(3);
+      // billing, reports, orders and catalog; payments' mixed versions are its upgrade's.
+      expect(on.status.needAttention).toBe(4);
       expect(on.expanded['cluster:prod/payments']).toBeUndefined();
-      // Without Operations nothing says an upgrade runs, and the restarted member is still inside its grace period.
+      // Without Operations nothing says an upgrade runs: the restarted member is inside its grace period, but the versions differ.
       expect(
         view('wrong', false).clusters.find((node) => node.name === 'payments')
           ?.health
-      ).toBe('healthy');
+      ).toBe('degraded');
     });
 
     it('narrows queries, Operations counts and installs to the environment like live data', () => {
@@ -221,6 +234,7 @@ describe('fixtures', () => {
       );
       expect(staging.attention.map((item) => item.title)).toEqual([
         'PMM gets no data from reports',
+        'catalog runs mixed versions, an upgrade may have stopped partway',
         'Scan failed on 2 nodes',
       ]);
     });

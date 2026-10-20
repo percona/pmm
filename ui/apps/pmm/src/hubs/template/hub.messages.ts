@@ -29,6 +29,9 @@ export const Messages = {
     noAttention: 'none need attention',
     otherIssues: (count: number) =>
       count === 1 ? '1 other issue' : `${count} other issues`,
+    patchesBehind: (count: number) => `${count} behind on patches`,
+    patchesNone: 'none behind on patches',
+    patchesUnknown: (count: number) => `, ${count} unknown`,
     clustersUnknown: ([, many]: [string, string]) => `— ${many}`,
     clustersUnknownHidden: ([, many]: [string, string]) =>
       `Could not count the ${many}`,
@@ -86,6 +89,15 @@ export const Messages = {
       environment: 'Environment',
       health: 'Health',
       members: 'Members up',
+      version: 'Version',
+    },
+    patchesFilter: {
+      label: 'Behind on patches',
+      clear: 'Clear the filter: behind on patches',
+      none: 'No cluster is behind on patches',
+      noneDescription:
+        'Each one runs the newest patch release of its series, or its version check could not tell.',
+      showAll: 'Show all clusters',
     },
     membersNoData: (count: number) => ` · ${count} no data`,
     expandColumn: 'Expand',
@@ -93,6 +105,23 @@ export const Messages = {
     path: (names: string[]) => names.join(' › '),
     expand: (name: string) => `Expand ${name}`,
     collapse: (name: string) => `Collapse ${name}`,
+  },
+  version: {
+    mixed: 'mixed versions',
+    drift: (parts: string[]) => `Mixed versions: ${parts.join('; ')}`,
+    on: (version: string, members: string[]) =>
+      `${version} on ${members.join(', ')}`,
+    updateAvailable: 'Update available',
+    checkFailed: 'Check failed',
+    available: (latest: string, age: string) =>
+      `${latest} is available, checked ${age}`,
+    upToDate: (age: string) => `Up to date, checked ${age}`,
+    failed: (age?: string) =>
+      `The version check failed${age ? ` ${age}` : ''}, so PMM can't say whether an update exists`,
+    stale: (age?: string) =>
+      age
+        ? `The version check last ran ${age}, too long ago to trust`
+        : 'No version check has run yet',
   },
   measure: {
     over: {

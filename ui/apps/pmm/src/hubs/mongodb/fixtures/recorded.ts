@@ -230,7 +230,10 @@ type Vector = Array<{
 
 /** Each hub query's `data.result`, as VictoriaMetrics answered it. */
 const VECTORS: Record<
-  Exclude<MongoQueryId, 'upSeen' | 'selfSeen' | 'stateSince' | 'roles'>,
+  Exclude<
+    MongoQueryId,
+    'upSeen' | 'selfSeen' | 'stateSince' | 'version' | 'roles'
+  >,
   Vector
 > = {
   up: [
@@ -618,6 +621,8 @@ export const RECORDED_VECTORS: Record<MongoQueryId, Vector> = {
   ...VECTORS,
   upSeen: seen(VECTORS.up),
   selfSeen: seen(VECTORS.self),
+  // Recorded before the hub asked for versions.
+  version: [],
   // Recorded before the hub asked when states began: each member as in its state for the whole hour.
   stateSince: VECTORS.self.map(({ metric, value: [time] }) => ({
     metric: {

@@ -4,6 +4,7 @@ import type {
   MongoMetrics,
   MongoOperationsInput,
   MongoServiceInput,
+  MongoUpdateCheck,
 } from '../mongodb.types';
 
 // The recorded estate's names (recorded.ts), so doors land on dashboards with data; orders-mongos-2, orders-cfg-m2/m3, payments and catalog exist only here.
@@ -95,6 +96,27 @@ const LAG_SECONDS: Record<string, number> = {
   'catalog-m3': 1,
 };
 
+// Sample releases; the version check (PMM-15299 P0-1c) does not exist yet.
+export const LATEST = {
+  '6.0': '6.0.25-20',
+  '7.0': '7.0.30-16',
+  '8.0': '8.0.32-14',
+} as const;
+
+const PATCH_BEHIND = '7.0.24-13';
+
+/** Orders, billing and reports on the newest patch of their series; payments and catalog one patch behind. */
+const CLUSTER_VERSIONS: Record<string, string> = {
+  orders: LATEST['8.0'],
+  billing: LATEST['7.0'],
+  payments: PATCH_BEHIND,
+  catalog: PATCH_BEHIND,
+  reports: LATEST['6.0'],
+};
+
+export const versionOf = (member: { cluster: string }) =>
+  CLUSTER_VERSIONS[member.cluster];
+
 const WINDOW_SECONDS: Record<Role, number | undefined> = {
   router: undefined,
   configsvr: 40 * 3600,
@@ -111,6 +133,7 @@ export const healthyMetrics = (now: number): MongoMetrics => {
     self: {},
     roles: {},
     stateSince: {},
+    versions: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
@@ -133,6 +156,7 @@ export const healthyMetrics = (now: number): MongoMetrics => {
       clusterRole: member.role === 'router' ? 'mongos' : 'mongod',
     };
     metrics.lastUpAt[id] = Math.floor(now / 1000);
+    metrics.versions[id] = versionOf(member);
     if (member.replicationSet && member.state) {
       const clRole =
         member.role === 'configsvr' || member.role === 'shardsvr'
@@ -263,6 +287,26 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
       createdAt: ago(now, 8 * HOUR_MS),
     },
   ],
+});
+
+/** Each cluster checked 2 hours ago against the newest patch of its series. */
+export const healthyUpdates = (
+  now: number
+): Record<string, MongoUpdateCheck> => ({
+  'prod/orders': { checkedAt: ago(now, 2 * HOUR_MS), latest: LATEST['8.0'] },
+  'prod/billing': { checkedAt: ago(now, 2 * HOUR_MS), latest: LATEST['7.0'] },
+  'prod/payments': {
+    checkedAt: ago(now, 2 * HOUR_MS),
+    latest: LATEST['7.0'],
+  },
+  'staging/catalog': {
+    checkedAt: ago(now, 2 * HOUR_MS),
+    latest: LATEST['7.0'],
+  },
+  'staging/reports': {
+    checkedAt: ago(now, 2 * HOUR_MS),
+    latest: LATEST['6.0'],
+  },
 });
 
 export const OM_CLUSTER_IDS: Record<string, string> = {

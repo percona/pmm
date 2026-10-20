@@ -481,7 +481,15 @@ describe('the things-wrong estate', () => {
   it('gives exactly the ranked list of the design', () => {
     const snapshot = wrongSnapshot(NOW, true);
     const services = snapshot.services ?? [];
-    const clusters = groupClusters(services, snapshot.metrics, NOW);
+    // As the derivation does: Operations' upgrade of payments rides on its cluster.
+    const clusters = groupClusters(services, snapshot.metrics, NOW).map(
+      (cluster) => ({
+        ...cluster,
+        upgrade: snapshot.operations?.upgrades.find(
+          (upgrade) => upgrade.clusterKey === cluster.key
+        ),
+      })
+    );
     const backups = deriveBackups({
       clusters,
       input: snapshot.backups,
@@ -523,6 +531,11 @@ describe('the things-wrong estate', () => {
         'memberNotServing',
         'warning',
         "orders-cfg-m3 has been recovering for 14m, it can't serve reads",
+      ],
+      [
+        'versionDrift',
+        'warning',
+        'catalog runs mixed versions, an upgrade may have stopped partway',
       ],
       ['behind', 'warning', 'orders-shard1-m3 is 40s behind its primary'],
       ['alert', 'warning', 'MongoDB restarted (orders-shard1-m1)'],

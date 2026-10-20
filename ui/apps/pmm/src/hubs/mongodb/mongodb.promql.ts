@@ -11,6 +11,7 @@ export type MongoQueryId =
   | 'self'
   | 'selfSeen'
   | 'stateSince'
+  | 'version'
   | 'roles'
   | 'lag'
   | 'lagSustained'
@@ -26,6 +27,7 @@ export const MONGO_QUERY_IDS: MongoQueryId[] = [
   'self',
   'selfSeen',
   'stateSince',
+  'version',
   'roles',
   'lag',
   'lagSustained',
@@ -75,6 +77,8 @@ export const mongoQueries = (
     selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${m}}[${stale}]))`,
     // When each state was first seen in the last hour, which the grace period for transitional states runs from.
     stateSince: `max by (service_id, member_state) (tfirst_over_time(mongodb_members_self{${m}}[1h]))`,
+    // When each version was last seen: a member restarted into a new one has both in the window.
+    version: `max by (service_id, mongodb) (tlast_over_time(mongodb_version_info{${m}}[${stale}]))`,
     // Set and role a day back, so a set whose members are all down still lands where it belongs.
     roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${m}}[24h]))`,
     lag: `max by (service_id) (last_over_time(${ownLag}[1m]))`,
@@ -205,6 +209,22 @@ export const parseMongoMetrics = (
     }
   }
 
+  const versions: MongoMetrics['versions'] = {};
+  const versionAt: Record<string, number> = {};
+
+  for (const { metric, value } of results.version) {
+    const id = metric.service_id;
+
+    if (
+      id &&
+      metric.mongodb &&
+      (versionAt[id] === undefined || value > versionAt[id])
+    ) {
+      versions[id] = metric.mongodb;
+      versionAt[id] = value;
+    }
+  }
+
   const roles: MongoMetrics['roles'] = {};
 
   for (const { metric } of results.roles) {
@@ -232,6 +252,7 @@ export const parseMongoMetrics = (
     self,
     roles,
     stateSince,
+    versions,
     lag,
     oplogWindow: byLabel(results.oplogWindow, 'service_id'),
     oplogFill: byLabel(results.oplogFill, 'service_id'),

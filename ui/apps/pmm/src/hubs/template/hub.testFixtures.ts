@@ -215,10 +215,15 @@ export const testView = (
       clusters: testDoor('3 clusters', '/mongodb#clusters'),
       attention: testDoor('3 need attention', '/mongodb#needs-attention'),
       backup: testDoor('last good backup', '/graph/backup/inventory'),
+      patches: testDoor(
+        'Clusters behind on patches',
+        '/mongodb?patches=behind#clusters'
+      ),
     },
   },
   attention: [],
   clusters: TEST_CLUSTERS,
+  patchesFilter: false,
   expanded: TEST_EXPANDED,
   backups: {
     state: 'ok',

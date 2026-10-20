@@ -11,6 +11,7 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
     self: {},
     roles: {},
     stateSince: {},
+    versions: {},
     lag: {},
     oplogWindow: {},
     oplogFill: {},
@@ -29,5 +30,6 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
         failedRuns: [],
       }
     : null,
+  updates: {},
   dashboards: { catalog: DASHBOARD_CATALOG, recent: [] },
 });

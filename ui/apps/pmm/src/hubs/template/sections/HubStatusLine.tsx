@@ -132,6 +132,23 @@ const otherIssuesFigure = (status: HubStatus): ReactNode[] =>
       ]
     : [];
 
+const patchesFigure = ({ patches, doors }: HubStatus): ReactNode[] =>
+  patches
+    ? [
+        <Fragment key="patches">
+          {patches.behind > 0 ? (
+            <DoorLink door={doors.patches} underline="always">
+              {Messages.status.patchesBehind(patches.behind)}
+            </DoorLink>
+          ) : (
+            Messages.status.patchesNone
+          )}
+          {patches.unknown > 0 &&
+            Messages.status.patchesUnknown(patches.unknown)}
+        </Fragment>,
+      ]
+    : [];
+
 /** One sentence on the whole estate; each figure opens what it counts. */
 export const HubStatusLine: FC<HubStatusLineProps> = ({
   status,
@@ -167,6 +184,7 @@ export const HubStatusLine: FC<HubStatusLineProps> = ({
             ),
             attentionFigure(status),
             ...otherIssuesFigure(status),
+            ...patchesFigure(status),
             backupFigure(status, canSetUpBackup),
           ];
 

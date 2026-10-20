@@ -20,6 +20,7 @@ describe('mongoQueries', () => {
       self: `max by (service_id, rs_nm, cl_role, member_state) (last_over_time(mongodb_members_self{${M}}[5m]))`,
       selfSeen: `max by (service_id, rs_nm, cl_role, member_state) (tlast_over_time(mongodb_members_self{${M}}[5m]))`,
       stateSince: `max by (service_id, member_state) (tfirst_over_time(mongodb_members_self{${M}}[1h]))`,
+      version: `max by (service_id, mongodb) (tlast_over_time(mongodb_version_info{${M}}[5m]))`,
       roles: `max by (service_id, rs_nm, cl_role) (last_over_time(mongodb_members_self{${M}}[24h]))`,
       lag: `max by (service_id) (last_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[1m]))`,
       lagSustained: `min by (service_id) (min_over_time(mongodb_mongod_replset_member_replication_lag{${M},self="1",state="SECONDARY"}[2m]))`,
@@ -205,6 +206,19 @@ describe('parseMongoMetrics', () => {
     });
 
     expect(metrics.stateSince.x).toBe(700);
+  });
+
+  it('takes the version seen last when a restart into a new one leaves two series', () => {
+    const series = (mongodb: string) => ({ service_id: 'x', mongodb });
+    const metrics = parseMongoMetrics({
+      ...recorded(),
+      version: [
+        sample(series('7.0.30-16'), 1190),
+        sample(series('7.0.24-13'), 1010),
+      ],
+    });
+
+    expect(metrics.versions).toEqual({ x: '7.0.30-16' });
   });
 
   it('remembers the set and role of the last day', () => {

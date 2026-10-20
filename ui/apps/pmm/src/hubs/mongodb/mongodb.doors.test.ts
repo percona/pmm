@@ -150,7 +150,13 @@ describe('sectionAnchor', () => {
   it('keeps the hub params on in-page doors', () => {
     expect(
       sectionAnchor(
-        { environment: 'prod', scenario: 'wrong', ops: 'on', role: 'live' },
+        {
+          environment: 'prod',
+          patches: null,
+          scenario: 'wrong',
+          ops: 'on',
+          role: 'live',
+        },
         'clusters'
       )
     ).toBe('?environment=prod&hubState=wrong&hubOps=on#clusters');

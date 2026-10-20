@@ -3,6 +3,7 @@ import {
   ago,
   BILLING_PITR,
   HOUR_MS,
+  LATEST,
   MINUTE_MS,
   ORDERS_SCHEDULE,
   serviceId,
@@ -25,13 +26,14 @@ const down = (
     delete metrics.lag[id];
     delete metrics.oplogWindow[id];
     delete metrics.oplogFill[id];
+    delete metrics.versions[id];
   }
   snapshot.services = (snapshot.services ?? []).map((service) =>
     service.serviceId === id ? { ...service, inventoryStatus: 'down' } : service
   );
 };
 
-/** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, and payments mid-upgrade. */
+/** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, catalog's upgrade stopped halfway, payments mid-upgrade, and billing's version check gone stale. */
 export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
   const snapshot = healthySnapshot(now, ops);
   const metrics = snapshot.metrics;
@@ -61,6 +63,12 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
     };
     metrics.stateSince[restarting] = Math.floor((now - MINUTE_MS) / 1000);
     delete metrics.lag[restarting];
+    metrics.versions[restarting] = LATEST['7.0'];
+    metrics.versions[serviceId('payments-m3')] = LATEST['7.0'];
+
+    // An upgrade of catalog's secondaries that never reached its primary.
+    metrics.versions[serviceId('catalog-m2')] = LATEST['7.0'];
+    metrics.versions[serviceId('catalog-m3')] = LATEST['7.0'];
     metrics.lag[serviceId('orders-shard1-m3')] = { now: 40, sustained: 38 };
     metrics.oplogWindow[serviceId('orders-shard2-m1')] = 3 * 3600;
     metrics.oplogFill[serviceId('orders-shard2-m1')] = 0.96;
@@ -70,6 +78,7 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
     const reports = serviceId('reports');
 
     delete metrics.up[reports];
+    delete metrics.versions[reports];
     metrics.lastUpAt[reports] = Math.floor((now - 9 * MINUTE_MS) / 1000);
   }
   snapshot.services = (snapshot.services ?? []).map((service) =>
@@ -113,6 +122,13 @@ export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
         createdAt: ago(now, 3 * HOUR_MS),
       },
     ];
+  }
+
+  if (snapshot.updates) {
+    snapshot.updates['prod/billing'] = {
+      checkedAt: ago(now, 3 * 24 * HOUR_MS),
+      latest: LATEST['7.0'],
+    };
   }
 
   snapshot.alerts = [

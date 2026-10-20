@@ -5,6 +5,7 @@ import { PrototypeMenu, type PrototypeMenuProps } from './PrototypeMenu';
 
 const LIVE: HubParams = {
   environment: null,
+  patches: null,
   scenario: 'live',
   ops: 'live',
   role: 'live',

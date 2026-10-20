@@ -90,6 +90,7 @@ const EMPTY_METRICS: MongoMetrics = {
   self: {},
   roles: {},
   stateSince: {},
+  versions: {},
   lag: {},
   oplogWindow: {},
   oplogFill: {},
@@ -610,6 +611,8 @@ export const useMongoLiveSnapshot = ({
                 sessionServiceIds.length ? (realtime.data ?? []) : []
               ),
             },
+      // PMM Extensions has no version check yet (PMM-15299 P0-1c).
+      updates: null,
       operations:
         opsEnabled && topology.data && !runs.isError && !bootstrapRuns.isError
           ? toOperationsInput(

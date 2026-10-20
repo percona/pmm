@@ -68,12 +68,13 @@ describe('deriveMongoHub status', () => {
     expect(status).toMatchObject({
       state: 'down',
       clusters: 5,
-      needAttention: 3,
+      // Without Operations, payments' upgrade reads as drift, like catalog's.
+      needAttention: 5,
       otherIssues: 1,
       attentionSeverity: 'error',
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
-    expect(attention).toHaveLength(11);
+    expect(attention).toHaveLength(13);
   });
 
   it('says nothing is monitored for an empty estate', () => {
@@ -186,7 +187,7 @@ describe('deriveMongoHub environment filter', () => {
       'reports',
       'catalog',
     ]);
-    expect(view.status).toMatchObject({ clusters: 2, needAttention: 1 });
+    expect(view.status).toMatchObject({ clusters: 2, needAttention: 2 });
     // Every schedule and artifact belongs to prod.
     expect(view.backups.state).toBe('notSetUp');
     // Query analytics is filtered by the server, so sample queries stay whatever the filter.
@@ -194,7 +195,7 @@ describe('deriveMongoHub environment filter', () => {
       view.attention
         .filter((item) => item.kind !== 'querySlower')
         .map((item) => item.kind)
-    ).toEqual(['memberNoData']);
+    ).toEqual(['memberNoData', 'versionDrift']);
   });
 
   it('shows services without an environment for No environment', () => {
@@ -445,5 +446,50 @@ describe('deriveMongoHub tree', () => {
         (item) => item.kind
       )
     ).toEqual(['alert']);
+  });
+});
+
+describe('deriveMongoHub patches', () => {
+  it('counts the clusters behind on patches and those the check could not answer for', () => {
+    const { status } = derive(wrongSnapshot(NOW, false));
+
+    // payments and catalog run 7.0.24-13; billing's check is three days old.
+    expect(status.patches).toEqual({ behind: 2, unknown: 1 });
+    expect(status.doors.patches).toEqual({
+      label: 'Clusters behind on patches',
+      to: '?patches=behind&hubState=wrong&hubOps=off&hubRole=admin#clusters',
+    });
+  });
+
+  it('says nothing about patches while nothing checks for updates', () => {
+    const view = derive(
+      { ...wrongSnapshot(NOW, false), updates: null },
+      { scenario: 'live' }
+    );
+
+    expect(view.status.patches).toBeUndefined();
+    expect(
+      view.clusters.every((node) => node.version?.update === undefined)
+    ).toBe(true);
+  });
+
+  it('shows only the clusters behind on patches while the filter is on, and its doors clear it', () => {
+    const view = derive(healthySnapshot(NOW, false), {
+      scenario: 'healthy',
+      patches: 'behind',
+    });
+
+    expect(view.patchesFilter).toBe(true);
+    expect(view.clusters.map((node) => node.name)).toEqual([
+      'catalog',
+      'payments',
+    ]);
+    expect(view.status).toMatchObject({
+      clusters: 5,
+      patches: { behind: 2, unknown: 0 },
+    });
+    expect(view.status.doors.clusters.to).toBe(
+      '?hubState=healthy&hubOps=off&hubRole=admin#clusters'
+    );
   });
 });

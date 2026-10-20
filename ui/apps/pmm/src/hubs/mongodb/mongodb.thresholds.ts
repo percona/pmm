@@ -10,6 +10,8 @@ export const MONGODB_HUB_THRESHOLDS = {
   staleSeconds: 5 * 60,
   /** How long a member may stay in STARTUP, STARTUP2, RECOVERING or UNKNOWN before it degrades its set. */
   transitionGraceSeconds: 10 * 60,
+  /** A version check this old reads as failed, never as up to date; the check runs daily. */
+  updateCheckStaleSeconds: 2 * 86400,
   /** pmm_mongodb_pbm_backup_stale default; a row marker only. */
   backupStaleSeconds: 86400,
   querySlowerRatio: 3,

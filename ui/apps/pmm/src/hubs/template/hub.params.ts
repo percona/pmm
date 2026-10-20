@@ -11,6 +11,7 @@ import {
 /** URL names of the hub's own params; the three prototype ones are removed before anything ships. */
 export const HUB_PARAM_KEYS = {
   environment: 'environment',
+  patches: 'patches',
   scenario: 'hubState',
   ops: 'hubOps',
   role: 'hubRole',
@@ -18,6 +19,7 @@ export const HUB_PARAM_KEYS = {
 
 export const DEFAULT_HUB_PARAMS: HubParams = {
   environment: null,
+  patches: null,
   scenario: 'live',
   ops: 'live',
   role: 'live',
@@ -33,13 +35,14 @@ const oneOf = <T extends string>(
   fallback: T
 ): T => (values.includes(value as T) ? (value as T) : fallback);
 
-/** Reads the hub params; unknown values fall back to live, an empty environment to all. */
+/** Reads the hub params; unknown values fall back to live, an empty environment to all, any patches value but behind to none. */
 export const parseHubParams = (search: URLSearchParams | string): HubParams => {
   const params =
     typeof search === 'string' ? new URLSearchParams(search) : search;
 
   return {
     environment: params.get(HUB_PARAM_KEYS.environment) || null,
+    patches: params.get(HUB_PARAM_KEYS.patches) === 'behind' ? 'behind' : null,
     scenario: oneOf(SCENARIOS, params.get(HUB_PARAM_KEYS.scenario), 'live'),
     ops: oneOf(OPS_MODES, params.get(HUB_PARAM_KEYS.ops), 'live'),
     role: oneOf(ROLE_MODES, params.get(HUB_PARAM_KEYS.role), 'live'),
@@ -72,6 +75,9 @@ export const writeHubSearch = (
 
   if (merged.environment) {
     own.set(HUB_PARAM_KEYS.environment, merged.environment);
+  }
+  if (merged.patches) {
+    own.set(HUB_PARAM_KEYS.patches, merged.patches);
   }
   (['scenario', 'ops', 'role'] as const).forEach((key) => {
     if (merged[key] !== DEFAULT_HUB_PARAMS[key]) {
