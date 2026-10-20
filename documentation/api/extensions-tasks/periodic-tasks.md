@@ -29,7 +29,7 @@ Returns a paginated list of all periodic tasks.
 POST /extensions/api/extensions/periodic-tasks/{task_name}/
 ```
 
-Creates a new periodic task for the named task. Supply either `interval` or `crontab`, not both. Returns HTTP 201 on success.
+Creates a recurring schedule for the named task. Requires the **Admin** role. Use either `interval` or `crontab` to set the recurrence, not both. Returns HTTP 201 on success.
 
 **Request body:**
 
@@ -54,7 +54,7 @@ Creates a new periodic task for the named task. Supply either `interval` or `cro
 | `name` | string | Schedule name. Leave empty to auto-generate. |
 | `enabled` | boolean | Whether the schedule is active. Default: `true`. |
 | `description` | string | A label for this schedule. |
-| `interval` | object | Interval schedule: `{"every": 1, "period": "days"}`. Period options: `days`, `hours`, `minutes`, `seconds`. |
+| `interval` | object | Interval schedule: `{"every": 1, "period": "days"}`. Period options: `days`, `hours`, `minutes`. |
 | `crontab` | object | Crontab schedule with `minute`, `hour`, `day_of_week`, `day_of_month`, `month_of_year`, and `timezone`. |
 | `start_time` | datetime | Earliest time the schedule can fire. |
 
@@ -87,10 +87,10 @@ Creates a new periodic task for the named task. Supply either `interval` or `cro
 ## Update a schedule
 
 ```
-PUT /extensions/api/extensions/periodic-tasks/{periodic_task_id}
+PUT /extensions/api/extensions/periodic-tasks/{periodic_task_id}/
 ```
 
-Replaces the schedule configuration. Supply the full updated object with the same fields as the create request.
+Updates an existing schedule. Requires the **Admin** role. Send the full schedule object with your changes, using the same fields as the create request. Use the numeric ID returned when you created the schedule as `{periodic_task_id}`.
 
 ## Delete a schedule
 
@@ -98,7 +98,7 @@ Replaces the schedule configuration. Supply the full updated object with the sam
 DELETE /extensions/api/extensions/periodic-tasks/{periodic_task_id}
 ```
 
-Deletes the periodic task. Returns HTTP 204.
+Deletes the periodic task. Requires the **Admin** role. Returns HTTP 204.
 
 ## Preview a schedule
 

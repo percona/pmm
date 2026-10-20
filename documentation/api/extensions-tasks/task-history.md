@@ -29,7 +29,7 @@ Returns a paginated list of task history records, newest first.
 **Example — list failed runs for a task:**
 
 ```shell
-curl -sk "https://<pmm-server>/extensions/api/extensions/task-history/?task_names=mysql-backup-xtrabackup&status=failed" \
+curl -sk "https://<pmm-server>/extensions/api/extensions/task-history/?task_names=<task_name>&status=failed" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -39,7 +39,7 @@ curl -sk "https://<pmm-server>/extensions/api/extensions/task-history/?task_name
 POST /extensions/api/extensions/task-history/{task_history_id}/stop/
 ```
 
-Stops a running task. Returns the updated history record with `status: stopped`. Returns HTTP 400 if the task is not running.
+Stops a running task. Requires the **Admin** role. Returns the updated history record with `status: stopped`. Returns HTTP 400 if the task is not running.
 
 **Example:**
 
@@ -59,7 +59,7 @@ Returns aggregate statistics for all runs of a task: total count, counts by stat
 **Example:**
 
 ```shell
-curl -sk https://<pmm-server>/extensions/api/extensions/task-stats/mysql-backup-xtrabackup \
+curl -sk https://<pmm-server>/extensions/api/extensions/task-stats/<task_name> \
      -H "Authorization: Bearer <token>"
 ```
 

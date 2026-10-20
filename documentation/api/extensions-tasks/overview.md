@@ -33,14 +33,14 @@ The PMM Extensions API is served through PMM Server at:
 https://<pmm-server>/extensions
 ```
 
-All endpoint paths in this reference are appended to that base.
+Endpoint paths in this reference are full paths relative to the server root. To form a complete request URL, prepend `https://<pmm-server>` to the path shown.
 
 ## Authentication
 
 Use the same PMM service account token you use for the PMM REST API. Pass it as a Bearer token:
 
 ```shell
-curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql_backups/<task_name>/execute \
+curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql_backups/<your_task_name>/execute \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{}'

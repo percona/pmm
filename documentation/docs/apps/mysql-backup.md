@@ -157,17 +157,26 @@ To restore from a backup:
 
 === "XtraBackup"
 
+    XtraBackup restores go into MySQL running on the execution host. The task stops MySQL, replaces the data directory, and restarts MySQL on that host.
+
     The destination service is optional. You can restore to any reachable host, including hosts not in inventory. Key options:
 
+    - **XtraBackup binary**: the binary used to prepare the backup. Pick the one that matches the binary that ran the backup.
     - **Skip incrementals**: applies the full backup only, skipping incremental layers.
     - **XtraBackup parallel**: number of threads for the restore (default: 4).
-    - **Data directory**: override the target datadir path.
+    - **XtraBackup prepare memory**: memory the prepare step may use, such as `2G` (default: 100M).
+    - **Data directory**: path to write the restored MySQL data files into. Required. The directory must already exist. All existing files in it are deleted before the restore starts, so make sure you are pointing to the right location.
     - **Restore my.cnf**: restores the `my.cnf` configuration file as part of the restore.
+    - **Keyring file data**: keyring file required if the backup has encrypted tablespaces.
+
+    Under **Backup location**, select how the backup is accessed (Local, SSH, S3, or GCS). The selection reveals the relevant credential fields. Under **Backup encryption**, select the format used when the backup was taken to provide the required decryption keys.
 
     To restore to a different host, configure access via **SSH user**, **SSH port**, and **SSH key**.
 
 
 === "Binlog"
+
+    Binlog restores replay log files into MySQL running on the execution host.
 
     Set start and stop positions to control how far to replay logs:
 
@@ -196,7 +205,7 @@ You can select multiple providers at the same time. To upload to S3 or Google Cl
 
 ### Limit how many backups to keep
 
-Without retention configured, backups accumulate until you delete them manually. When creating a backup in **Apps > MySQL Backups**, set how long to keep backups in the **Retention** section:
+Each backup type has a default retention limit. To override it, set your own limit when creating a backup in **Apps > MySQL Backups**, in the **Retention** section:
 
 - Mydumper: daily purge (days), weekly purge (weeks)
 - XtraBackup: number of copies to keep
@@ -217,16 +226,21 @@ If you manage databases across multiple MySQL versions, make sure the algorithm 
 
 ### Encrypt backups
 
-When creating a backup in **Apps > MySQL Backups**, configure encryption in the **Encryption** section. Two GPG encryption modes are available:
+When creating a backup in **Apps > MySQL Backups**, configure encryption in the **Encryption** section. Start by selecting an **Encryption format**:
 
-- **Encrypt backup**: encrypts the backup in place during the run. Combine with **Encrypt using tmpdir** to write to a temporary directory during encryption.
-- **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Mutually exclusive with **Encrypt using tmpdir**.
+- **No encryption**: no encryption is applied.
+- **GPG**: GPG-based encryption. Enables the GPG timing options below.
+- **AES-256**: AES-256 keyfile encryption. Requires an **AES-256 key file path**.
+- **AES-256 + GPG**: combines both. Requires both the keyfile path and a GPG recipient.
 
-Both modes require an **Encryption recipient** (GPG key or recipient ID).
+**GPG timing options** (available when format includes GPG):
 
-XtraBackup also supports **AES-256 encryption** via a keyfile, configured in the **AES-256 key file path** field.
+- **Encrypt backup**: GPG-encrypts the backup in place during the run. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
+- **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Cannot be combined with **Encrypt using tmpdir**.
 
-`mariadb-backup` has no inline encryption option. For MariaDB backups, only **Encrypt after backup completes** is available. **Encrypt backup** (in-place) and the AES-256 keyfile both require an XtraBackup (PXB) binary.
+Both GPG options require an **Encryption recipient** (GPG key or recipient ID). You can enable both GPG timing options at the same time.
+
+For Binlog backups, AES-256 formats require at least one upload provider, because AES-256 runs during upload for Binlog.
 
 ## Monitor backups
 
