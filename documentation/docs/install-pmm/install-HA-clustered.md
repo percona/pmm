@@ -394,7 +394,7 @@ To install PMM HA:
         --namespace pmm
       ```
 
-      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
+      The chart creates a separate read-only ClickHouse user for the Grafana data source and stores its credentials in the `pmm-ha-clickhouse-datasource` secret. You don't need to add them to `pmm-secret`. To set them yourself, use the `clickhouse.datasource.user` and `clickhouse.datasource.password` Helm values.
 
     5. Create `values-openshift.yaml` with the required OpenShift settings:
 
