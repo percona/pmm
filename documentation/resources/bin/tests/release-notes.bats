@@ -116,6 +116,7 @@ note() {
   "$rn" build 3.11.0
   sed -i '/^## 📈 Improvements/d' "$page"
   note "$notes" PMM-1-improvement.md 'Faster.'
+  note "$unreleased" PMM-1-improvement.md 'Faster.'
   note "$notes" PMM-2-fix.md 'Fixed it.'
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
@@ -123,6 +124,7 @@ note() {
   ! grep -q '^## 📈 Improvements' "$page"
   grep -q 'browse/PMM-2): Fixed it.' "$page"
   [ ! -e "$notes/PMM-1-improvement.md" ]
+  [ ! -e "$unreleased/PMM-1-improvement.md" ]
 }
 
 @test "build: deletes each note it adds, from the release branch and from unreleased/" {

@@ -129,7 +129,7 @@ build() {
     else
       echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note was deleted without being added"
     fi
-    rm "$file"
+    rm -f "$file" "$unreleased/$(basename "$file")"
   done
 
   for file in $(notes "$unreleased"); do
