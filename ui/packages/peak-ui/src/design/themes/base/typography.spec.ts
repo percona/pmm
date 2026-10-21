@@ -75,8 +75,9 @@ const allLines = (theme: Theme): Line[] =>
       : []
   );
 
-const linePx = (theme: Theme, { fontSize, lineHeight }: Line) =>
-  toPx(fontSize, theme.typography.htmlFontSize) * Number(lineHeight);
+const fontPx = (theme: Theme, { fontSize }: Line) => toPx(fontSize, theme.typography.htmlFontSize);
+
+const linePx = (theme: Theme, line: Line) => fontPx(theme, line) * Number(line.lineHeight);
 
 const offPixel = (theme: Theme, line: Line): string | null => {
   const { variant, range, lineHeight } = line;
@@ -84,7 +85,8 @@ const offPixel = (theme: Theme, line: Line): string | null => {
   if (!unitless) return `${variant} (${range}): line height ${String(lineHeight)} is not a ratio`;
   const px = linePx(theme, line);
   const above = px - Math.round(px);
-  if (above >= 0 && above <= 0.005) return null;
+  // Rounding the ratio's fourth decimal up overshoots by at most 0.0001 per font px.
+  if (above >= 0 && above <= fontPx(theme, line) * 0.0001 + 1e-9) return null;
   return PENDING_RESTYLE[variant] === px ? null : `${variant} (${range}): ${px}px`;
 };
 
