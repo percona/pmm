@@ -189,7 +189,7 @@ func renderProvisionedRule(rule provisionedRule, template models.Template, datas
 	}
 	paramsMap := params.AsStringMap()
 
-	data, condition, err := buildGrafanaRuleData(alertTemplate, datasourceUID, paramsMap, nil)
+	built, err := buildGrafanaRuleData(alertTemplate, datasourceUID, "", paramsMap, nil)
 	if err != nil {
 		return provisioningRule{}, fmt.Errorf("failed to build rule data: %w", err)
 	}
@@ -233,13 +233,13 @@ func renderProvisionedRule(rule provisionedRule, template models.Template, datas
 	return provisioningRule{
 		UID:          rule.uid,
 		Title:        template.Summary,
-		Condition:    condition,
+		Condition:    built.condition,
 		For:          model.Duration(template.For).String(),
 		NoDataState:  provisionedNoDataState,
 		ExecErrState: provisionedExecErrState,
 		Labels:       labels,
 		Annotations:  annotations,
-		Data:         data,
+		Data:         built.data,
 	}, nil
 }
 
