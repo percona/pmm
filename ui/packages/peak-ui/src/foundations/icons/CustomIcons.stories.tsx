@@ -19,6 +19,7 @@ import {
   ClusterTransitioningIcon,
   ElectricBoltIcon,
   ElectricBoltOffIcon,
+  ExtensionIcon,
   Graph4Icon,
   Graph5Icon,
   Graph6Icon,
@@ -202,6 +203,12 @@ const customIcons: CustomIconEntry[] = [
     importName: 'SupportDiagnosticsIcon',
     designName: 'support-diagnostics',
     keywords: 'support diagnostics toolbox troubleshoot service maintenance help',
+  },
+  {
+    component: ExtensionIcon,
+    importName: 'ExtensionIcon',
+    designName: 'extension',
+    keywords: 'extension app plugin add-on puzzle piece integration',
   },
 ];
 
