@@ -62,6 +62,11 @@ func Run() {
 	v := versioner.New(&versioner.RealExecFunctions{})
 	configStorage, configFilepath := prepareConfig(l)
 
+	// Before the loop below starts Agents of its own, and only once: a reload has no orphans
+	// to clear, because the pmm-agent that started those Agents is this one. See
+	// reapOrphanedExporters.
+	reapOrphanedExporters(configStorage.Get().Paths.ExportersBase, l)
+
 	for {
 		ctx, cancel := context.WithCancel(rootCtx)
 		cfg := configStorage.Get()
