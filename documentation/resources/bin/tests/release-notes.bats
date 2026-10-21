@@ -138,14 +138,11 @@ note() {
   [ -e "$unreleased/PMM-2-fix.md" ]
 }
 
-@test "build: a note already in an earlier release is deleted, not added again" {
+@test "build: deletes from unreleased/ a note already in an earlier release" {
   note "$notes" PMM-1-fix.md 'Fixed it.'
   "$rn" build 3.10.0
-  note "$notes" PMM-1-fix.md 'Fixed it.'
   note "$unreleased" PMM-1-fix.md 'Fixed it.'
   run "$rn" build 3.11.0
   [ "$status" -eq 0 ]
-  ! grep -q 'browse/PMM-1)' "$page"
-  [ ! -e "$notes/PMM-1-fix.md" ]
   [ ! -e "$unreleased/PMM-1-fix.md" ]
 }

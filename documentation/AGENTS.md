@@ -188,6 +188,7 @@ Fixed an issue where PMM Client could get stuck showing as **Disconnected** afte
 Rules for the note:
 
 - A note ships in the release cut from the branch it is on. On `main`, that is the next release branched from `main`; on `pmm-X.Y.Z`, it is X.Y.Z. A cherry-pick to a release branch carries the note with the code.
+- Merge to `main` first, then cherry-pick to `pmm-X.Y.Z`. A note never goes from a release branch to `main`.
 - Don't write the ticket link. It comes from the file name.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Write links as they appear on the release page, which sits one level up from `unreleased/`: `../reference/nomad.md`, `../images/<name>.png`.
@@ -195,7 +196,7 @@ Rules for the note:
 
 CI fails a note whose name doesn't follow `PMM-<ticket>-<type>.md`, an empty note, and a note already published in that section of an earlier release page. Run the same check from the repository root: `documentation/resources/bin/release-notes.sh check documentation/docs/release-notes/unreleased/PMM-15310-fix.md`.
 
-When `pmm-X.Y.Z` is created, `.github/workflows/release-notes.yml` builds `X.Y.Z.md` from the notes on that branch, using `documentation/resources/release-notes-template.md`, lists it in the index and nav, and opens a draft "[Doc] Release X.Y.Z" PR to `main` that also deletes those notes from `main`. Each note is deleted from `pmm-X.Y.Z` as soon as it is on the page. The workflow updates the PR whenever a note lands on the branch and only appends, so the doc team's edits stay, and an entry or a section they delete is never added back. The doc team writes the summary, highlights, security updates and release date there. A note whose section the doc team removed is deleted without being added, with a warning in the workflow log. Once the PR merges, the workflow copies the page to `pmm-X.Y.Z`, and the site publishes from there at GA. A note already published in any release is deleted rather than added again. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+When `pmm-X.Y.Z` is created, `.github/workflows/release-notes.yml` builds `X.Y.Z.md` from the notes on that branch, using `documentation/resources/release-notes-template.md`, lists it in the index and nav, and opens a draft "[Doc] Release X.Y.Z" PR to `main` that also deletes those notes from `main`. Each note is deleted from `pmm-X.Y.Z` as soon as it is on the page. The workflow updates the PR whenever a note lands on the branch and only appends, so the doc team's edits stay, and an entry or a section they delete is never added back. The doc team writes the summary, highlights, security updates and release date there. A note whose section the doc team removed is deleted without being added, with a warning in the workflow log. Once the PR merges, the workflow copies the page to `pmm-X.Y.Z`, and the site publishes from there at GA. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
 
 ## Content type templates
 

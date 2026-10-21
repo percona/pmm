@@ -7,7 +7,7 @@
 #   release-notes.sh build VERSION
 #       Adds the pmm-VERSION notes to VERSION.md, creating it from the template, and deletes each
 #       note it adds from NOTES_DIR and from unreleased/. A note is added once: an entry or a
-#       section the writer deletes stays deleted, and a note already in any release page is only deleted.
+#       section the writer deletes stays deleted.
 #
 # NOTES_DIR is unreleased/ in a checkout of pmm-VERSION.
 # DOC_DIR replaces the documentation/ directory.
@@ -118,18 +118,16 @@ build() {
   fi
 
   for file in $(notes "${NOTES_DIR:?set NOTES_DIR to unreleased/ in a checkout of pmm-$version}"); do
-    if ! released "$file" > /dev/null; then
-      [[ $(basename "$file") =~ $name ]]
-      heading=${headings[${BASH_REMATCH[2]}]}
-      if grep -qxF "$heading" "$page"; then
-        entry=$(mktemp)
-        render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
-        insert "$page" "$heading" "$entry"
-        rm -f "$entry"
-        echo "$(basename "$file"): added"
-      else
-        echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note was deleted without being added"
-      fi
+    [[ $(basename "$file") =~ $name ]]
+    heading=${headings[${BASH_REMATCH[2]}]}
+    if grep -qxF "$heading" "$page"; then
+      entry=$(mktemp)
+      render "$file" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}" > "$entry"
+      insert "$page" "$heading" "$entry"
+      rm -f "$entry"
+      echo "$(basename "$file"): added"
+    else
+      echo "::warning::$(basename "$file"): $(basename "$page") has no '$heading' section, so the note was deleted without being added"
     fi
     rm "$file"
   done
