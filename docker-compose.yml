@@ -170,3 +170,11 @@ volumes:
     name: pmm-data
   pmm-extensions:
     name: pmm-extensions
+    # In memory only, shared with the side-car while either runs: PMM Server publishes the secrets to it at
+    # every start. The owner and the mode are those extensions-secrets requires: uid 1000 (pmm), group 0, setgid.
+    # A pmm-extensions volume created before on disk keeps that: remove it to have it created so.
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: uid=1000,gid=0,mode=2770

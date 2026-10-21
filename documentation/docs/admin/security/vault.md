@@ -283,7 +283,14 @@ In High Availability mode, give every node the same reference. To rotate the key
 
 PMM Server writes the passwords of the built-in ClickHouse to its configuration as SHA-256 hashes only. It applies the passwords of the built-in ClickHouse and PostgreSQL at every start, and those rotated in Vault while it runs, see above; without the variables, the default passwords apply again at the next start. The certificate and its key are written to `/srv/nginx` at every start, and when they are rotated in Vault, where nginx reads them, so that PMM Server serves the certificate in Vault. When you remove the variables, PMM Server removes the files it wrote and generates a self-signed certificate again. Set `GF_SECURITY_SECRET_KEY` before Grafana stores any secret: Grafana cannot read the secrets it stored with a different key. The superuser of the built-in PostgreSQL has no password, so there is none to store: it can only connect from inside PMM Server, over the local socket. PMM Server removes the superuser password of an existing installation, and the file in `/srv` that kept it, at the next start.
 
-To move the secret key of PMM Extensions of an existing installation to Vault, store the content of `/srv/.extensions_secret_key` under the reference: once the key from Vault is the same, PMM Server removes the file. A different key signs every session of the side-car out, and leaves the file in place, so that removing the variable returns to it. The side-car keeps reading the key and the password from `/srv/extensions`, where PMM Server publishes them at every start.
+To move the secret key of PMM Extensions of an existing installation to Vault, store the content of `/srv/.extensions_secret_key` under the reference: once the key from Vault is the same, PMM Server removes the file. A different key signs every session of the side-car out, and leaves the file in place, so that removing the variable returns to it. The side-car keeps reading the key and the password from `/srv/extensions`, where PMM Server publishes them at every start. To keep them in memory only, back the volume mounted there, and in the side-car, with tmpfs:
+
+```sh
+docker volume create --driver local --opt type=tmpfs --opt device=tmpfs \
+  --opt o=uid=1000,gid=0,mode=2770 pmm-extensions
+```
+
+The volume is empty once neither container uses it, and PMM Server publishes the secrets to it again when it starts.
 
 !!! note
     The token and secret ID that you give to PMM Server and to its own PMM Client, with `PMM_VAULT_TOKEN`, `PMM_VAULT_SECRET_ID`, `PMM_AGENT_VAULT_TOKEN`, and `PMM_AGENT_VAULT_SECRET_ID`, are handed over to them in files, and are not in the environment of PMM Server's components.
@@ -337,7 +344,7 @@ The password of a monitored database can be a reference too, as an alternative t
 
 Vault support has the following limitations:
 
-- PMM Server keeps the certificates of Nomad in `/srv` unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault). It publishes the secret key and the database password of PMM Extensions to `/srv/extensions`, where the side-car reads them.
+- PMM Server keeps the certificates of Nomad in `/srv` unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault). It publishes the secret key and the database password of PMM Extensions to `/srv/extensions`, where the side-car reads them, which can be kept in memory only, see above.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path in the PMM web interface, in the API, or with `pmm-admin` for another PMM Client passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, run `pmm-admin` on the host of the PMM Client, or store it in Vault yourself.
