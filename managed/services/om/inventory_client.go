@@ -175,12 +175,12 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return status.Errorf(codes.Unavailable, "the inventory app is unreachable: %s", err)
+		return status.Errorf(codes.Unavailable, "PMM Extensions is unreachable: %s", err)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		return extensionsStatusError(resp)
+		return extensionsStatusError(resp, a.client.token)
 	}
 	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
@@ -194,7 +194,7 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 
 // The gateway has no code it renders as 422, so a validation failure reaches the browser as 400;
 // the app's per-field detail is kept in the message.
-func extensionsStatusError(resp *http.Response) error {
+func extensionsStatusError(resp *http.Response, token string) error {
 	detail := extensionsErrorDetail(resp)
 	switch resp.StatusCode {
 	case http.StatusNotFound:
@@ -203,11 +203,15 @@ func extensionsStatusError(resp *http.Response) error {
 		return status.Error(codes.Aborted, detail)
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		return status.Error(codes.InvalidArgument, detail)
-	case http.StatusUnauthorized, http.StatusForbidden:
-		// Not passed through: a 401 would tell the browser to re-authenticate with PMM,
-		// when what failed is PMM's own credential for PMM Extensions.
-		return status.Errorf(codes.Internal,
-			"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
+	// Neither is passed through: a 401 or 403 would tell the browser to re-authenticate with PMM,
+	// when what failed is PMM's own credential for PMM Extensions.
+	case http.StatusUnauthorized:
+		if token == "" {
+			return status.Errorf(codes.Internal, "PMM has no token for PMM Extensions, set PMM_EXTENSIONS_TOKEN (%s: %s)", resp.Status, detail)
+		}
+		return status.Errorf(codes.Internal, "PMM's token does not match EXTENSIONS_INTERNAL_TOKEN on PMM Extensions (%s: %s)", resp.Status, detail)
+	case http.StatusForbidden:
+		return status.Errorf(codes.Internal, "PMM Extensions refused PMM's request (%s): %s", resp.Status, detail)
 	default:
 		return status.Errorf(codes.Internal, "the inventory app answered %s: %s", resp.Status, detail)
 	}

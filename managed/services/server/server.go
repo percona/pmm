@@ -617,8 +617,15 @@ func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
 		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
 	}
 
-	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
-		return status.Error(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: its inventory app is not available in PMM Extensions.")
+	if currentSettings.IsOMEnabled() {
+		return nil
+	}
+	if s.omService == nil {
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: PMM Extensions is not configured")
+	}
+	err = s.omService.CheckAvailable(ctx)
+	if err != nil {
+		return status.Errorf(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: %s", status.Convert(err).Message())
 	}
 
 	return nil
