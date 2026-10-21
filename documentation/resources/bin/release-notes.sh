@@ -4,6 +4,9 @@
 #   release-notes.sh new VERSION
 #       Creates VERSION.md from the template and lists it in the index and nav, unless it exists.
 #       The RC job runs it on main for the next patch version when it creates pmm-X.Y.Z.
+#   release-notes.sh prune VERSION
+#       Removes the pages of versions newer than VERSION, with their index and nav lines. The site
+#       build runs it on pmm-VERSION, so a newer page that reached the release branch is never published.
 #   release-notes.sh check
 #       For each version in RC (pmm-X.Y.Z exists, vX.Y.Z doesn't), fails on every ticket in
 #       X.Y.Z.md here that X.Y.Z.md on origin/pmm-X.Y.Z doesn't have.
@@ -29,6 +32,27 @@ new() {
   echo "Created $(basename "$page") from the template"
 }
 
+prune() {
+  local version=$1 page v
+  for page in "$pages"/[0-9]*.md; do
+    v=$(basename "$page" .md)
+    [ "$(printf '%s\n' "$version" "$v" | sort -V | tail -n 1)" != "$version" ] || continue
+    rm "$page"
+    unlist "$pages/index.md" "]($v.md)"
+    unlist "$doc/mkdocs-base.yml" "release-notes/$v.md"
+    echo "Removed $v.md"
+  done
+}
+
+# unlist FILE TEXT deletes the lines of FILE that contain TEXT.
+unlist() {
+  local tmp
+  tmp=$(mktemp)
+  grep -vF -- "$2" "$1" > "$tmp" || true
+  cat "$tmp" > "$1"
+  rm -f "$tmp"
+}
+
 tickets() {
   grep -o 'browse/PMM-[0-9]*' | sed 's#browse/##' | sort -u
 }
@@ -50,11 +74,11 @@ check() {
 }
 
 case ${1:-} in
-  new | check)
+  new | prune | check)
     "$@"
     ;;
   *)
-    echo "Usage: $0 new VERSION | check" >&2
+    echo "Usage: $0 new VERSION | prune VERSION | check" >&2
     exit 2
     ;;
 esac

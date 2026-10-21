@@ -42,6 +42,19 @@ at() {
   [ "$(grep -c '"PMM 3.11.0"' "$doc/mkdocs-base.yml")" -eq 1 ]
 }
 
+@test "prune: removes newer pages with their index and nav lines, keeps the rest" {
+  "$rn" new 3.10.1 > /dev/null
+  "$rn" new 3.11.1 > /dev/null
+  "$rn" new 3.12.0 > /dev/null
+  run "$rn" prune 3.11.0
+  [ "$status" -eq 0 ]
+  [ -f "$page" ] && [ -f "$doc/docs/release-notes/3.10.1.md" ]
+  [ ! -e "$doc/docs/release-notes/3.11.1.md" ] && [ ! -e "$doc/docs/release-notes/3.12.0.md" ]
+  ! grep -qE '3\.11\.1|3\.12\.0' "$doc/docs/release-notes/index.md" "$doc/mkdocs-base.yml"
+  grep -qF 'release-notes/3.11.0.md' "$doc/mkdocs-base.yml"
+  grep -qF '](3.10.1.md)' "$doc/docs/release-notes/index.md"
+}
+
 @test "check: passes when the release branch has every entry" {
   entry PMM-1
   at remotes/origin/pmm-3.11.0

@@ -191,6 +191,8 @@ Put the entry on the page of the version your change ships in. A fix for a versi
 
 When the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it also creates the next patch page, `X.Y.(Z+1).md`, on `main` with `documentation/resources/bin/release-notes.sh new`: from `documentation/resources/release-notes-template.md`, listed in the index and nav. The release a version branches from `main` is set by `VERSION` on the `v3` branch of [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION): after each RC a PR there bumps it to the next patch, and a later PR to the next minor when no patch is planned. Patch branches are cut from `main` like any other. When `VERSION` moves to a minor, rename the page in a PR here, for example `3.10.1.md` to `3.11.0.md` with its index and nav lines; its entries stay, since that code ships in the minor. The doc team writes the release summary, highlights, security updates and the `variables.yml` bump. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
 
+The site build drops every release notes page newer than the version it publishes, so a later page that reaches a release branch is never public.
+
 While `pmm-X.Y.Z` is in RC (no `vX.Y.Z` tag yet), `.github/workflows/release-notes.yml` fails on every ticket in `X.Y.Z.md` on `main` that `X.Y.Z.md` on `pmm-X.Y.Z` doesn't have. Cherry-pick its fix to `pmm-X.Y.Z`, or move the entry to the next release's page.
 
 ## Content type templates

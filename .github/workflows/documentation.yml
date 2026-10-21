@@ -106,6 +106,10 @@ jobs:
       - name: Check for unused images
         run: make doc-check-images
 
+      # Pages of later versions can reach a release branch (one recut from main, a doc-hotfix copy); never publish them.
+      - name: Drop newer release notes
+        run: documentation/resources/bin/release-notes.sh prune "$VERSION"
+
       # Builds Material-themed static web site in 'publish' branch
       - name: Build a themed site (3.x)
         working-directory: documentation
