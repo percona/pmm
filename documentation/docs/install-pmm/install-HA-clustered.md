@@ -1350,14 +1350,6 @@ helm rollback pmm-ha 2 -n pmm
 
 This restores your previous Helm release configuration, reverting any settings changes you made.
 
-## Known issues
-
-We are aware of the following known issues:
-
-| Issue | Impact | Workaround |
-|-------|--------|------------|
-| **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: Inconsistent PostgreSQL service count | The Inventory page shows 4-5 PostgreSQL services instead of the expected 6 | No workaround — cosmetic only |
-
 ### Scaling limitations
 
 #### Scaling down to single replica
