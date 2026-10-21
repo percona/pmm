@@ -51,7 +51,7 @@ You can enable Operations for MongoDB from the PMM settings or with an environme
 
     Use this method to keep Operations for MongoDB enabled every time PMM Server starts, for example in a Docker Compose file or a startup script.
 
-    Start PMM Server with `PMM_ENABLE_OM=1`. You then can't change the setting in the PMM UI: **Apply changes** returns an error.
+    Start PMM Server with `PMM_ENABLE_OM=1`. The toggle is still visible in the UI, but clicking **Apply changes** returns an error.
 
 After you enable it, **MongoDB > Operations** appears in the sidebar with a **Preview** label and following pages:
 
@@ -133,26 +133,29 @@ You can install a replica set with one member (1 node) or three members (3 nodes
 
 ### Node requirements
 
-Each node must meet the following requirements. PMM checks them during scans and reports the results, so you can fix issues before you install.
+Before you scan or install on a node, make sure that it meets the requirements in the following table. Scans check these requirements and report the results, so you can fix issues before you install.
 
-| Requirement | Needed for scans | Needed for installs |
+| Requirement | Scans | Installs |
 |---|---|---|
-| PMM Client 3.2.0 or later, installed from the DEB or RPM package | Yes | Yes |
-| `pmm-agent` running as root (the default for the package's systemd service) | Yes | Yes |
-| Writable cgroups and the `iproute` package | Yes | Yes |
-| Outbound TCP access to PMM Server on port `4647` | Yes | Yes |
-| `python3` with the `venv` module (`python3-venv` on Ubuntu; included on Rocky Linux) | Yes | Yes |
-| Access to PyPI or a configured pip mirror (the scan installs `pymongo`) | Yes | Yes |
-| HTTPS access to the `/extensions` URL on PMM Server | No | Yes |
-| HTTPS access to `repo.percona.com` and OS package mirrors | Reported only | Yes |
-| Ubuntu or Rocky Linux, running systemd | No | Yes |
+| PMM Client 3.2.0 or later, installed from the DEB or RPM package | Required | Required |
+| `pmm-agent` running as root, which is the default for the package's systemd service | Required | Required |
+| Writable cgroups | Required | Required |
+| The `iproute` package | Required | Required |
+| Outbound TCP access to PMM Server on port `4647` | Required | Required |
+| `python3` with the `venv` module: `python3-venv` on Ubuntu, included on Rocky Linux | Required | Required |
+| Access to PyPI or a configured pip mirror, because scans install `pymongo` | Required | Required |
+| HTTPS access to `repo.percona.com` and OS package mirrors | Reported only | Required |
+| HTTPS access to the `/extensions` URL on PMM Server | Not needed | Required |
+| Ubuntu or Rocky Linux, running systemd | Not needed | Required |
 
-**Reported only** means that the scan reports whether the requirement is met but doesn't fail if it isn't. The install fails if it isn't met.
+**Reported only** means that the scan reports whether the node meets the requirement but doesn't fail if it doesn't. The install fails.
 
-PMM doesn't check the following requirements before the install. If either is missing, the install fails when PMM forms the replica set, and PMM rolls it back:
+#### Requirements that PMM doesn't check
+
+PMM doesn't check the following requirements before the install. If a node doesn't meet them, the install fails when PMM forms the replica set, and PMM rolls it back:
 
 - **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
-- **Network access between members**: the members can reach each other on the MongoDB port.
+- **Network access between members**: each member can reach the other members on the MongoDB port.
 
 ### Node checks
 
@@ -194,7 +197,7 @@ To install a MongoDB replica set:
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
         !!! note "Keep the default port"
-            In PMM 3.10.0, if you install on a port other than `27017`, PMM still registers the service for monitoring on port `27017`, so monitoring doesn't work. For details, see [PMM-15764](https://perconadev.atlassian.net/browse/PMM-15764).
+            In PMM 3.10.0, PMM registers the service for monitoring on port 27017 even if you install on another port, so monitoring doesn’t work. This is a [known issue](https://perconadev.atlassian.net/browse/PMM-15764).
 
     - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
     - Optional: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
