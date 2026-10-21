@@ -17,8 +17,11 @@ package grafana
 
 import (
 	"bytes"
+	"cmp"
 	"context"
+	"crypto/pbkdf2"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,6 +29,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -34,6 +38,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/vault"
 )
@@ -41,6 +46,9 @@ import (
 // adminUserID is the ID of the admin user that Grafana creates with GF_SECURITY_ADMIN_PASSWORD, whose password
 // "grafana cli admin reset-admin-password" resets.
 const adminUserID = 1
+
+// postgresSocketDir is the directory of the Unix socket of the built-in PostgreSQL, whose superuser it trusts.
+const postgresSocketDir = "/run/postgresql"
 
 // maxPasswordChangeBody limits the body of a password change, which holds a few short fields.
 const maxPasswordChangeBody = 64 << 10
@@ -67,6 +75,9 @@ type AdminPassword struct {
 	read  func(ctx context.Context) (string, error)
 	write func(ctx context.Context, password string) error
 	reset func(ctx context.Context, password string) error
+	// stored returns the hash and the salt of the password of the admin user, as Grafana stores them, or is nil
+	// where they cannot be read: from a database of Grafana elsewhere than the built-in PostgreSQL.
+	stored func(ctx context.Context) (string, string, error)
 
 	// m serializes the checks and the password changes. applied is the fingerprint of the password that
 	// Grafana has, as far as known: empty until it is checked.
@@ -75,8 +86,9 @@ type AdminPassword struct {
 }
 
 // NewAdminPassword returns an AdminPassword for the admin user login of the Grafana at addr, whose password
-// the Vault reference ref gives. Without a reference, it only passes the password changes on to Grafana.
-func NewAdminPassword(ref, login, addr string) *AdminPassword {
+// the Vault reference ref gives. Without a reference, it only passes the password changes on to Grafana. The
+// database of Grafana is the built-in PostgreSQL unless it is elsewhere.
+func NewAdminPassword(ref, login, addr string, databaseElsewhere bool) *AdminPassword {
 	grafana := &url.URL{Scheme: "http", Host: addr}
 	a := &AdminPassword{
 		ref:     ref,
@@ -93,6 +105,9 @@ func NewAdminPassword(ref, login, addr string) *AdminPassword {
 	}
 	a.write = func(ctx context.Context, password string) error {
 		return secrets.WriteRef(ctx, ref, password)
+	}
+	if !databaseElsewhere {
+		a.stored = storedAdminPassword
 	}
 	return a
 }
@@ -133,9 +148,10 @@ func (a *AdminPassword) Run(ctx context.Context, interval time.Duration) {
 	}
 }
 
-// sync applies the admin password in Vault to Grafana if it is not the one Grafana has. At first, that is
-// checked with Grafana, which uses up one of the failed logins that Grafana allows if it is not; then it is
-// known from what was applied since.
+// sync applies the admin password in Vault to Grafana if it is not the one Grafana has. That is checked against
+// the hash that Grafana stores, which catches a password changed by any means, without a login. Where the hash
+// cannot be read, it is checked with Grafana at first, which uses up one of the failed logins that Grafana allows
+// if it is not the one, and then it is known from what was applied since.
 func (a *AdminPassword) sync(ctx context.Context) error {
 	password, err := a.read(ctx)
 	if err != nil {
@@ -146,6 +162,21 @@ func (a *AdminPassword) sync(ctx context.Context) error {
 	defer a.m.Unlock()
 
 	fp := fingerprint(password)
+	if a.stored != nil {
+		hash, salt, err := a.stored(ctx)
+		if err == nil {
+			if grafanaPasswordHash(password, salt) == hash {
+				a.applied = fp
+				return nil
+			}
+			if fp == a.applied {
+				a.l.Warn("The admin password of Grafana was changed outside PMM, setting the one in Vault again.")
+			}
+			return a.apply(ctx, password)
+		}
+		a.l.Debugf("Cannot read the admin password that Grafana stores, checking it with Grafana: %s.", err)
+	}
+
 	if fp == a.applied {
 		return nil
 	}
@@ -160,13 +191,48 @@ func (a *AdminPassword) sync(ctx context.Context) error {
 		}
 	}
 
-	err = a.reset(ctx, password)
+	return a.apply(ctx, password)
+}
+
+// apply sets the admin password of Grafana to password. Must be called with a.m held.
+func (a *AdminPassword) apply(ctx context.Context, password string) error {
+	err := a.reset(ctx, password)
 	if err != nil {
 		return err
 	}
-	a.applied = fp
+	a.applied = fingerprint(password)
 	a.l.Info("Applied the admin password in Vault to Grafana.")
 	return nil
+}
+
+// grafanaPasswordHash returns the hash that Grafana stores for password with salt.
+func grafanaPasswordHash(password, salt string) string {
+	key, err := pbkdf2.Key(sha256.New, password, []byte(salt), 10000, 50) //nolint:mnd // as Grafana does
+	if err != nil {
+		return ""
+	}
+	return hex.EncodeToString(key)
+}
+
+// storedAdminPassword reads the hash and the salt of the password of the admin user from the database of Grafana in
+// the built-in PostgreSQL, as its superuser over the socket.
+func storedAdminPassword(ctx context.Context) (string, string, error) {
+	db, err := models.OpenDB(models.SetupDBParams{
+		Address:  postgresSocketDir,
+		Username: "postgres",
+		Name:     cmp.Or(os.Getenv("GF_DATABASE_NAME"), "grafana"),
+	})
+	if err != nil {
+		return "", "", err
+	}
+	defer db.Close() //nolint:errcheck
+
+	var hash, salt string
+	err = db.QueryRowContext(ctx, `SELECT password, salt FROM "user" WHERE id = $1`, adminUserID).Scan(&hash, &salt)
+	if err != nil {
+		return "", "", err
+	}
+	return hash, salt, nil
 }
 
 // check reports whether Grafana accepts password for the admin user.

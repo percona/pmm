@@ -228,7 +228,7 @@ When `GF_SECURITY_ADMIN_PASSWORD` is a reference, PMM Server keeps the password 
 
 - A password changed in Vault is applied at the next check, within `PMM_VAULT_CACHE_TTL`, without a restart.
 - A password changed in the PMM web interface, by the admin user or by another server admin, is stored in Vault before it takes effect. If it cannot be stored, the change fails, and the password stays the one in Vault.
-- At start, PMM Server checks whether the admin user has the password in Vault, and sets it if not. A password changed by other means than these, such as with the Grafana command-line tool, is replaced with the one in Vault at the next start.
+- At every check, PMM Server compares the password in Vault with the one that Grafana stores for the admin user, and sets it if they differ, so a password changed by other means, such as with the Grafana command-line tool, is replaced with the one in Vault within `PMM_VAULT_CACHE_TTL`. The comparison needs no login, so it does not count toward the failed logins that Grafana allows. With the database of Grafana outside PMM Server, the password is checked by logging in at start only.
 
 The `change-admin-password` command stores the new password in Vault too:
 

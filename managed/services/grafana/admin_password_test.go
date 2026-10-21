@@ -113,7 +113,8 @@ func newTestAdminPassword(t *testing.T, ref, grafanaPassword, vaultPassword stri
 	require.NoError(t, err)
 
 	v := &fakeAdminVault{password: vaultPassword}
-	a := NewAdminPassword(ref, "admin", u.Host)
+	// Checked with Grafana: TestAdminPasswordStoredHash checks against the hash that Grafana stores.
+	a := NewAdminPassword(ref, "admin", u.Host, true)
 	a.read = func(context.Context) (string, error) {
 		v.m.Lock()
 		defer v.m.Unlock()
@@ -189,6 +190,48 @@ func TestAdminPasswordSync(t *testing.T) {
 		a.Run(t.Context(), 0)
 		assert.Empty(t, v.resets)
 	})
+}
+
+func TestAdminPasswordStoredHash(t *testing.T) {
+	t.Parallel()
+
+	a, g, v := newTestAdminPassword(t, testAdminRef, "p1", "p1")
+	a.stored = func(context.Context) (string, string, error) {
+		return grafanaPasswordHash(g.adminPassword(), "salt"), "salt", nil
+	}
+
+	require.NoError(t, a.sync(t.Context()))
+	assert.Empty(t, v.resets)
+
+	// Changed outside PMM, such as with the Grafana command-line tool.
+	g.m.Lock()
+	g.password = "changed-outside"
+	g.m.Unlock()
+	require.NoError(t, a.sync(t.Context()))
+	assert.Equal(t, []string{"p1"}, v.resets)
+	assert.Equal(t, "p1", g.adminPassword())
+
+	// Changed in Vault.
+	v.password = "p2"
+	require.NoError(t, a.sync(t.Context()))
+	assert.Equal(t, []string{"p1", "p2"}, v.resets)
+
+	require.NoError(t, a.sync(t.Context()))
+	assert.Len(t, v.resets, 2)
+	assert.Zero(t, g.logins, "no login, which counts toward Grafana's lockout")
+
+	// Where the hash cannot be read, it is checked with Grafana.
+	a.stored = func(context.Context) (string, string, error) { return "", "", errors.New("connection refused") }
+	a.applied = ""
+	require.NoError(t, a.sync(t.Context()))
+	assert.Equal(t, 1, g.logins)
+}
+
+func TestGrafanaPasswordHash(t *testing.T) {
+	t.Parallel()
+
+	// PBKDF2 with SHA-256, 10000 iterations and 50 bytes, in hex, as Grafana's util.EncodePassword computes it.
+	assert.Equal(t, "7505d6a1e863807b5776b7e3f3533f5ff59cab536328131443be9bfbfe5c7f4f03f8f936fb8f00fa718a3e34777a76a38273", grafanaPasswordHash("admin", "salt"))
 }
 
 func TestAdminPasswordChange(t *testing.T) {

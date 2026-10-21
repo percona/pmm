@@ -1391,8 +1391,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	// Kept the one in Vault while GF_SECURITY_ADMIN_PASSWORD is a reference, which vault-env keeps.
+	gfDatabaseElsewhere := os.Getenv("GF_DATABASE_URL") != "" || os.Getenv("GF_DATABASE_HOST") != ""
+	if on, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES")); on {
+		gfDatabaseElsewhere = true
+	}
 	adminPassword := grafana.NewAdminPassword(os.Getenv("PMM_VAULT_REF_GF_SECURITY_ADMIN_PASSWORD"),
-		cmp.Or(os.Getenv("GF_SECURITY_ADMIN_USER"), "admin"), *grafanaAddrF)
+		cmp.Or(os.Getenv("GF_SECURITY_ADMIN_USER"), "admin"), *grafanaAddrF, gfDatabaseElsewhere)
 	wg.Go(func() {
 		adminPassword.Run(ctx, secrets.CacheTTL())
 	})
