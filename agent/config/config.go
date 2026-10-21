@@ -588,6 +588,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("vault-azure-client-id", "Client ID of a user-assigned managed identity for the azure auth method, "+
 		"the system-assigned one by default [PMM_AGENT_VAULT_AZURE_CLIENT_ID]").
 		Envar("PMM_AGENT_VAULT_AZURE_CLIENT_ID").StringVar(&cfg.Vault.AzureClientID)
+	app.Flag("vault-gcp-role-type", "Type of the Vault role for the gcp auth method: gce (default) or iam, "+
+		"which GKE Workload Identity needs [PMM_AGENT_VAULT_GCP_ROLE_TYPE]").
+		Envar("PMM_AGENT_VAULT_GCP_ROLE_TYPE").EnumVar(&cfg.Vault.GCPRoleType, vault.GCPRoleTypeGCE, vault.GCPRoleTypeIAM)
 	app.Flag("vault-cache-ttl", "How long secrets without a lease are reused, and how often changed secrets are looked for [PMM_AGENT_VAULT_CACHE_TTL]").
 		Envar("PMM_AGENT_VAULT_CACHE_TTL").DurationVar(&cfg.Vault.CacheTTL)
 

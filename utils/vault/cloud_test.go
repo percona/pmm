@@ -15,6 +15,7 @@
 package vault
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -242,6 +243,73 @@ func TestClientLoginGCP(t *testing.T) {
 	})
 }
 
+func TestClientLoginGCPIAM(t *testing.T) {
+	t.Parallel()
+
+	fv, srv := newFakeVault(t)
+	fv.secrets["secret/pmm"] = func() map[string]any { return map[string]any{"data": map[string]any{"k": "v"}} }
+
+	metadata := fakeMetadata(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Metadata-Flavor") != "Google" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		switch r.URL.Path {
+		case "/instance/service-accounts/default/email":
+			_, _ = w.Write([]byte("pmm@project.iam.gserviceaccount.com"))
+		case "/instance/service-accounts/default/token":
+			writeJSON(t, w, http.StatusOK, map[string]any{"access_token": "sa-token", "token_type": "Bearer"})
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	})
+	var claims map[string]any
+	var path, auth string
+	iam := fakeMetadata(t, func(w http.ResponseWriter, r *http.Request) {
+		path, auth = r.URL.Path, r.Header.Get("Authorization")
+		var body struct {
+			Payload string `json:"payload"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		_ = json.Unmarshal([]byte(body.Payload), &claims)
+		writeJSON(t, w, http.StatusOK, map[string]any{"keyId": "k1", "signedJwt": "signed-jwt"})
+	})
+
+	c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodGCP, GCPRoleType: GCPRoleTypeIAM, Role: "pmm-server"})
+	require.NoError(t, err)
+	now := time.Unix(1792000000, 0)
+	c.now = func() time.Time { return now }
+	c.gcpMetadataURL, c.gcpIAMURL = metadata, iam
+
+	v, err := c.Get(t.Context(), "secret/pmm", "k")
+	require.NoError(t, err)
+	assert.Equal(t, "v", v)
+
+	assert.Equal(t, "/projects/-/serviceAccounts/pmm@project.iam.gserviceaccount.com:signJwt", path)
+	assert.Equal(t, "Bearer sa-token", auth)
+	assert.Equal(t, map[string]any{
+		"aud": "vault/pmm-server",
+		"sub": "pmm@project.iam.gserviceaccount.com",
+		"exp": float64(now.Add(10 * time.Minute).Unix()),
+	}, claims)
+	require.Len(t, fv.logins, 1)
+	assert.Equal(t, map[string]any{"mount": "gcp", "role": "pmm-server", "jwt": "signed-jwt"}, fv.logins[0])
+
+	t.Run("without the permission to sign", func(t *testing.T) {
+		t.Parallel()
+
+		_, srv := newFakeVault(t)
+		c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodGCP, GCPRoleType: GCPRoleTypeIAM, Role: "pmm-server"})
+		require.NoError(t, err)
+		c.gcpMetadataURL = metadata
+		c.gcpIAMURL = fakeMetadata(t, func(w http.ResponseWriter, _ *http.Request) {
+			writeJSON(t, w, http.StatusForbidden, map[string]any{"error": map[string]any{"message": "Permission 'iam.serviceAccounts.signJwt' denied"}})
+		})
+		_, err = c.Get(t.Context(), "secret/pmm", "k")
+		require.ErrorContains(t, err, "failed to sign a JWT with the service account for vault login: 403 Forbidden Permission 'iam.serviceAccounts.signJwt' denied")
+	})
+}
+
 func TestConfigValidateCloudMethods(t *testing.T) {
 	t.Parallel()
 
@@ -251,4 +319,8 @@ func TestConfigValidateCloudMethods(t *testing.T) {
 
 		require.NoError(t, Config{Address: "https://vault:8200", AuthMethod: method, Role: "pmm"}.Validate())
 	}
+
+	require.NoError(t, Config{Address: "https://vault:8200", AuthMethod: AuthMethodGCP, Role: "pmm", GCPRoleType: GCPRoleTypeIAM}.Validate())
+	err := Config{Address: "https://vault:8200", AuthMethod: AuthMethodGCP, Role: "pmm", GCPRoleType: "gke"}.Validate()
+	require.EqualError(t, err, "unsupported vault gcp role type 'gke', expected gce or iam")
 }

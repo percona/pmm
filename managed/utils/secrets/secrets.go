@@ -167,6 +167,7 @@ func ConfigFromEnv(getenv func(string) string) (vault.Config, error) {
 		AWSServerID:   getenv("PMM_VAULT_AWS_SERVER_ID"),
 		AzureResource: getenv("PMM_VAULT_AZURE_RESOURCE"),
 		AzureClientID: getenv("PMM_VAULT_AZURE_CLIENT_ID"),
+		GCPRoleType:   getenv("PMM_VAULT_GCP_ROLE_TYPE"),
 	}
 
 	if ttl := getenv("PMM_VAULT_CACHE_TTL"); ttl != "" {

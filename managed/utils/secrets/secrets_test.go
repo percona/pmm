@@ -142,6 +142,7 @@ func TestConfigFromEnv(t *testing.T) {
 		"PMM_VAULT_ROLE":            "pmm-server",
 		"PMM_VAULT_AZURE_RESOURCE":  "https://vault.example.com",
 		"PMM_VAULT_AZURE_CLIENT_ID": "6d0c1f2e",
+		"PMM_VAULT_GCP_ROLE_TYPE":   "iam",
 	}
 	cfg, err = ConfigFromEnv(func(name string) string { return azure[name] })
 	require.NoError(t, err)
@@ -151,5 +152,6 @@ func TestConfigFromEnv(t *testing.T) {
 		Role:          "pmm-server",
 		AzureResource: "https://vault.example.com",
 		AzureClientID: "6d0c1f2e",
+		GCPRoleType:   "iam",
 	}, cfg)
 }

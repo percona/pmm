@@ -53,6 +53,7 @@ type Client struct {
 	// azureMetadataURL and gcpMetadataURL are where the azure and gcp methods get the identity to log in with.
 	azureMetadataURL string
 	gcpMetadataURL   string
+	gcpIAMURL        string
 	// getenv returns the variables that the cloud sets for the identity, such as for an AKS workload identity.
 	getenv func(string) string
 
@@ -209,6 +210,7 @@ func New(cfg Config) (*Client, error) {
 
 		azureMetadataURL: azureMetadataURL,
 		gcpMetadataURL:   gcpMetadataURL,
+		gcpIAMURL:        gcpIAMURL,
 		getenv:           os.Getenv,
 	}, nil
 }
@@ -528,25 +530,9 @@ func (c *Client) login(ctx context.Context) (string, time.Duration, error) {
 		}
 		body["role"] = c.cfg.Role
 
-	case AuthMethodAzure:
-		resource := c.cfg.AzureResource
-		if resource == "" {
-			resource = DefaultAzureResource
-		}
+	case AuthMethodAzure, AuthMethodGCP:
 		var err error
-		if azureWorkloadIdentity(c.getenv) {
-			body, err = azureWorkloadIdentityLoginData(ctx, c.getenv, resource, c.cfg.AzureClientID)
-		} else {
-			body, err = azureLoginData(ctx, c.azureMetadataURL, resource, c.cfg.AzureClientID)
-		}
-		if err != nil {
-			return "", 0, err
-		}
-		body["role"] = c.cfg.Role
-
-	case AuthMethodGCP:
-		var err error
-		body, err = gcpLoginData(ctx, c.gcpMetadataURL, c.cfg.Role)
+		body, err = c.cloudLoginData(ctx)
 		if err != nil {
 			return "", 0, err
 		}
@@ -563,6 +549,25 @@ func (c *Client) login(ctx context.Context) (string, time.Duration, error) {
 	}
 
 	return resp.Auth.ClientToken, time.Duration(resp.Auth.LeaseDuration) * time.Second, nil
+}
+
+// cloudLoginData returns the body of a login with the identity that the cloud gives, for the azure and gcp methods.
+func (c *Client) cloudLoginData(ctx context.Context) (map[string]any, error) {
+	if c.cfg.authMethod() == AuthMethodGCP {
+		if c.cfg.GCPRoleType == GCPRoleTypeIAM {
+			return gcpIAMLoginData(ctx, c.gcpMetadataURL, c.gcpIAMURL, c.cfg.Role, c.now())
+		}
+		return gcpLoginData(ctx, c.gcpMetadataURL, c.cfg.Role)
+	}
+
+	resource := c.cfg.AzureResource
+	if resource == "" {
+		resource = DefaultAzureResource
+	}
+	if azureWorkloadIdentity(c.getenv) {
+		return azureWorkloadIdentityLoginData(ctx, c.getenv, resource, c.cfg.AzureClientID)
+	}
+	return azureLoginData(ctx, c.azureMetadataURL, resource, c.cfg.AzureClientID)
 }
 
 func (c *Client) do(ctx context.Context, method, path, token string, in, out any) error {

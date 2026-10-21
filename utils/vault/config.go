@@ -33,6 +33,12 @@ const (
 	AuthMethodGCP        = "gcp"
 )
 
+// The types of the roles of the gcp method.
+const (
+	GCPRoleTypeGCE = "gce"
+	GCPRoleTypeIAM = "iam"
+)
+
 // AuthMethods lists the supported authentication methods.
 var AuthMethods = []string{ //nolint:gochecknoglobals
 	AuthMethodToken, AuthMethodAppRole, AuthMethodKubernetes, AuthMethodAWS, AuthMethodAzure, AuthMethodGCP,
@@ -84,6 +90,8 @@ type Config struct {
 	// AzureClientID selects a user-assigned managed identity for the azure method; the system-assigned one is used
 	// when empty.
 	AzureClientID string `yaml:"azure-client-id,omitempty"`
+	// GCPRoleType is the type of the role of the gcp method: gce, the default, or iam.
+	GCPRoleType string `yaml:"gcp-role-type,omitempty"`
 
 	// CacheTTL is how long a secret without a lease is reused before it is read again.
 	CacheTTL time.Duration `yaml:"cache-ttl,omitempty"`
@@ -134,6 +142,10 @@ func (c Config) Validate() error {
 		if c.Role == "" {
 			return fmt.Errorf("vault auth method %s requires a role", c.authMethod())
 		}
+	}
+
+	if c.authMethod() == AuthMethodGCP && !slices.Contains([]string{"", GCPRoleTypeGCE, GCPRoleTypeIAM}, c.GCPRoleType) {
+		return fmt.Errorf("unsupported vault gcp role type '%s', expected %s or %s", c.GCPRoleType, GCPRoleTypeGCE, GCPRoleTypeIAM)
 	}
 
 	if c.CacheTTL < 0 {

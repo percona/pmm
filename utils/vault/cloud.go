@@ -15,6 +15,7 @@
 package vault
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"encoding/json"
@@ -33,6 +34,11 @@ const (
 	azureMetadataURL = "http://169.254.169.254/metadata"
 	// The metadata server of Google Compute Engine.
 	gcpMetadataURL = "http://metadata.google.internal/computeMetadata/v1"
+	// The IAM Service Account Credentials API, which signs a JWT for a service account.
+	gcpIAMURL = "https://iamcredentials.googleapis.com/v1"
+
+	// How long the JWT of an iam login is valid: Vault refuses one valid for longer than 15 minutes.
+	gcpIAMJWTLifetime = 10 * time.Minute
 
 	// DefaultAzureResource is the resource that the access token of the managed identity is requested for,
 	// which must be the one that the azure auth method of Vault is configured with.
@@ -143,6 +149,77 @@ func gcpLoginData(ctx context.Context, metadataURL, role string) (map[string]any
 	}
 
 	return map[string]any{"jwt": string(b)}, nil
+}
+
+// gcpIAMLoginData returns the body of a Vault gcp auth login with the iam type: a JWT for the audience of the role,
+// signed by the service account of the instance with the IAM Service Account Credentials API. The service account
+// and an access token of it come from the metadata server, also in GKE with Workload Identity, and it needs
+// iam.serviceAccounts.signJwt on itself (the Service Account Token Creator role).
+// See https://developer.hashicorp.com/vault/docs/auth/gcp#iam-login.
+func gcpIAMLoginData(ctx context.Context, metadataURL, iamURL, role string, now time.Time) (map[string]any, error) {
+	header := http.Header{"Metadata-Flavor": []string{"Google"}}
+	email, err := metadataGet(ctx, metadataURL+"/instance/service-accounts/default/email", header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the service account of the instance for vault login: %w", err)
+	}
+	b, err := metadataGet(ctx, metadataURL+"/instance/service-accounts/default/token", header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the service account for vault login: %w", err)
+	}
+	var token struct {
+		AccessToken string `json:"access_token"`
+	}
+	err = json.Unmarshal(b, &token)
+	if err == nil && token.AccessToken == "" {
+		err = errors.New("no access token in the response")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the service account for vault login: %w", err)
+	}
+
+	claims, err := json.Marshal(map[string]any{
+		"aud": "vault/" + role,
+		"sub": string(email),
+		"exp": now.Add(gcpIAMJWTLifetime).Unix(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := json.Marshal(map[string]string{"payload": string(claims)})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		iamURL+"/projects/-/serviceAccounts/"+url.PathEscape(string(email))+":signJwt", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+
+	resp, err := cloudHTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign a JWT with the service account for vault login: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err = io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return nil, err
+	}
+	var signed struct {
+		SignedJWT string `json:"signedJwt"`
+		Error     struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	_ = json.Unmarshal(b, &signed)
+	if resp.StatusCode != http.StatusOK || signed.SignedJWT == "" {
+		return nil, fmt.Errorf("failed to sign a JWT with the service account for vault login: %d %s %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode), signed.Error.Message)
+	}
+
+	return map[string]any{"jwt": signed.SignedJWT}, nil
 }
 
 // The variables that the workload identity webhook of AKS sets in the pods of a service account bound to an identity.
