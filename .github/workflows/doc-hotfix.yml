@@ -55,8 +55,7 @@ jobs:
           git config user.email "github-action@users.noreply.github.com"
           git fetch --depth=2 origin "$SHA"
           patch="$RUNNER_TEMP/doc.patch"
-          # Release notes in unreleased/ never go to a release branch; release-notes.yml handles them there.
-          git diff --binary "${SHA}^1" "$SHA" -- documentation/ ':(exclude)documentation/docs/release-notes/unreleased' > "$patch"
+          git diff --binary "${SHA}^1" "$SHA" -- documentation/ > "$patch"
 
           if [ ! -s "$patch" ]; then
             echo "result=empty" >> "$GITHUB_OUTPUT"

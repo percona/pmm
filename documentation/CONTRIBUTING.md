@@ -24,8 +24,6 @@ Ready to make changes? The docs are written in [Markdown](https://www.markdowngu
 
 Our style guide — voice, page structure, admonitions, links, release notes — is [AGENTS.md](AGENTS.md). It's worth a skim before a larger change, but don't let it hold up a typo fix.
 
-A user-facing change also adds a release note: one file, `docs/release-notes/unreleased/PMM-XXXXX-fix.md` or `PMM-XXXXX-improvement.md`. [Release notes in AGENTS.md](AGENTS.md#release-notes) shows the format; don't edit the `X.Y.Z.md` release pages directly.
-
 ### Quick edits online
 
 1. Click **Edit this page on GitHub** (pencil icon) at the top of any page

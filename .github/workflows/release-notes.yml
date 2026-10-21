@@ -1,30 +1,22 @@
 ---
 name: Release notes
 
-# check: checks the release notes a PR adds.
-# release-pr: on every push to pmm-X.Y.Z, its creation included, adds the notes on that branch to
-#   release-notes/X.Y.Z.md in one draft "[Doc] Release X.Y.Z" PR to main, and deletes them from pmm-X.Y.Z
-#   at once and from main in that PR. A deleted note is never added again.
-# copy: once that PR merges, copies the page to pmm-X.Y.Z, which the site publishes from at GA.
+# While pmm-X.Y.Z is in RC, every entry in release-notes/X.Y.Z.md on main must also be on pmm-X.Y.Z.
+# A fix merged to main but not cherry-picked fails this until it is, or its entry moves to the next release.
 on:
+  push:
+    branches:
+      - main
+      - "pmm-[0-9]+.[0-9]+.[0-9]+"
+    paths:
+      - "documentation/docs/release-notes/**"
   pull_request:
-    types: [opened, synchronize, reopened, closed]
     paths:
       - ".github/workflows/release-notes.yml"
-      - "documentation/docs/release-notes/**"
       - "documentation/resources/bin/release-notes.sh"
       - "documentation/resources/bin/tests/**"
       - "documentation/resources/release-notes-template.md"
-  # No paths filter: pushing a new branch changes no file, and the branch's creation must run this.
-  push:
-    branches:
-      - "pmm-[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release, for example 3.11.0'
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -32,115 +24,19 @@ permissions:
 jobs:
   check:
     name: Release notes
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
     runs-on: ubuntu-latest
-    env:
-      BASE: ${{ github.base_ref }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event_name != 'pull_request' && 'main' || '' }}
           fetch-depth: 0
 
       - name: Test the script
+        if: github.event_name == 'pull_request'
         run: npx --yes bats@1.11.0 documentation/resources/bin/tests
 
-      - name: Check the release notes
-        run: |
-          mapfile -t files < <(git diff --name-only --diff-filter=AM "origin/$BASE...HEAD" \
-            -- documentation/docs/release-notes/unreleased/)
-          documentation/resources/bin/release-notes.sh check "${files[@]}"
-
-  release-pr:
-    name: Update the release PR
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    # Every run rebuilds from the current branches, so a newer queued run can replace a pending one.
-    concurrency:
-      group: release-notes-${{ inputs.version && format('pmm-{0}', inputs.version) || github.ref_name }}
-
-    steps:
-      # ROBOT_TOKEN, unlike GITHUB_TOKEN, opens a PR that runs the PR checks and can push to pmm-X.Y.Z.
-      - name: Check out main
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: main
-          fetch-depth: 0
-          token: ${{ secrets.ROBOT_TOKEN }}
-
-      - name: Update the release PR
-        env:
-          VERSION: ${{ inputs.version || github.ref_name }}
-          GH_TOKEN: ${{ secrets.ROBOT_TOKEN }}
-        run: |
-          VERSION=${VERSION#pmm-}
-          BRANCH=release-notes-$VERSION
-          git config user.name "GitHub Action"
-          git config user.email "github-action@users.noreply.github.com"
-          pr=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')
-          # An open PR keeps its edits; otherwise start from main, also over the branch of a merged PR.
-          if [ -n "$pr" ]; then
-            git checkout -B "$BRANCH" "origin/$BRANCH"
-            git merge --no-edit origin/main
-          else
-            git checkout -B "$BRANCH" origin/main
-          fi
-
-          release=$RUNNER_TEMP/release
-          git worktree add -q --detach "$release" "origin/pmm-$VERSION"
-          NOTES_DIR=$release/documentation/docs/release-notes/unreleased \
-            documentation/resources/bin/release-notes.sh build "$VERSION"
-
-          git add -A documentation
-          if ! git diff --cached --quiet; then
-            git commit -q -m "[Doc] Release $VERSION"
-            git push --force-with-lease origin "$BRANCH"
-            [ -n "$pr" ] || gh pr create --draft --base main --head "$BRANCH" \
-              --title "[Doc] Release $VERSION" --body-file - <<EOF
-          Release notes for PMM $VERSION, built from the notes in \`documentation/docs/release-notes/unreleased/\` on \`pmm-$VERSION\`. The [Release notes workflow](https://github.com/$GITHUB_REPOSITORY/actions/workflows/release-notes.yml) adds to this PR whenever a note lands on \`pmm-$VERSION\`, and keeps your edits.
-
-          Merge it before GA. Merging copies the page to \`pmm-$VERSION\`, which the site publishes from at GA. An entry or section you delete here is not added back.
-
-          - [ ] Release summary
-          - [ ] Release highlights
-          - [ ] Security updates, or remove the section
-          - [ ] Known issues, or remove the section
-          - [ ] Release date in the page heading, the nav label, \`variables.yml\` and \`mkdocs-pdf.yml\`
-          EOF
-          fi
-
-          git -C "$release" add -A documentation
-          if ! git -C "$release" diff --cached --quiet; then
-            git -C "$release" commit -q -m "Remove the release notes added to the $VERSION page"
-            git -C "$release" push origin "HEAD:pmm-$VERSION"
-          fi
-
-  copy:
-    name: Copy the page to the release branch
-    if: github.event.action == 'closed' && github.event.pull_request.merged && startsWith(github.head_ref, 'release-notes-')
-    runs-on: ubuntu-latest
-
-    steps:
-      # ROBOT_TOKEN can push to the protected release branch, and its push republishes the site after GA.
-      - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: main
-          fetch-depth: 0
-          token: ${{ secrets.ROBOT_TOKEN }}
-
-      - name: Copy the page
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-          SHA: ${{ github.event.pull_request.merge_commit_sha }}
-        run: |
-          VERSION=${HEAD_REF#release-notes-}
-          git config user.name "GitHub Action"
-          git config user.email "github-action@users.noreply.github.com"
-          git checkout -q "pmm-$VERSION"
-          # The notes are already gone from pmm-X.Y.Z; only the page, the index and the nav are copied.
-          git diff --binary "$SHA^1" "$SHA" -- documentation/ ':(exclude)documentation/docs/release-notes/unreleased' \
-            | git apply --index --3way
-          git commit -q -m "[Doc] Release $VERSION" -m "(cherry picked from commit $SHA)"
-          git push origin "HEAD:pmm-$VERSION"
+      - name: Check the releases in RC
+        if: github.event_name != 'pull_request'
+        run: documentation/resources/bin/release-notes.sh check

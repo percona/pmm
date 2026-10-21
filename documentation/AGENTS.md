@@ -12,7 +12,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Built by the Release notes workflow from the notes in `unreleased/` when `pmm-X.Y.Z` is branched |
+| `documentation/docs/release-notes/` | One page per released version | Created on `main` by the RC job when the previous release branches; entries arrive with their PRs |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -171,32 +171,27 @@ For the version a change landed in, write "Starting with PMM X.Y.Z" — not "As 
 
 ## Release notes
 
-Every user-facing change adds one file to `documentation/docs/release-notes/unreleased/`, in the same PR as the change. The file name carries the ticket and the section: `PMM-<ticket>-<type>.md`.
-
-| File | Section | Written as |
-|------|---------|------------|
-| `PMM-15310-fix.md` | ✅ Fixed issues (Bug tickets) | `- [PMM-15310](link): <text>` |
-| `PMM-15309-improvement.md` | 📈 Improvements (Feature and Improvement tickets) | `- [PMM-15309](link): <text>` |
-| `PMM-15266-known-issue.md` | 🔶 Known issues | `### <first line> ([PMM-15266](link))` then the rest |
-
-`unreleased/PMM-15310-fix.md` holds only the text:
+Every user-facing change gets one release-note entry on the page for the version it ships in. Write it in the form it will publish in:
 
 ```markdown
-Fixed an issue where PMM Client could get stuck showing as **Disconnected** after a network interruption, with metrics and Query Analytics data no longer flowing. The connection now recovers automatically within about a minute.
+## ✅ Fixed issues
+
+- [PMM-15310](https://perconadev.atlassian.net/browse/PMM-15310): Fixed an issue where PMM Client could get stuck showing as **Disconnected** after a network interruption, with metrics and Query Analytics data no longer flowing. The connection now recovers automatically within about a minute.
 ```
 
-Rules for the note:
+Rules for the entry:
 
-- A note ships in the release cut from the branch it is on. On `main`, that is the next release branched from `main`; on `pmm-X.Y.Z`, it is X.Y.Z. A cherry-pick to a release branch carries the note with the code.
-- Merge to `main` first, then cherry-pick to `pmm-X.Y.Z`. A note never goes from a release branch to `main`.
-- Don't write the ticket link. It comes from the file name.
+- It goes under one of `## 📈 Improvements` (Feature and Improvement tickets), `## ✅ Fixed issues` (Bug tickets) or `## Known issues` (a defect you are shipping knowingly). The emoji are part of the heading — match the scaffolded template exactly. Other top-level sections in the template: `## 📋 Release summary`, `## 🔒 Security updates`, `## 🚀 Ready to upgrade to PMM X.Y.Z`.
+- Improvements and fixed issues are a single bullet opening with the linked ticket key: `- [PMM-XXXXX](https://perconadev.atlassian.net/browse/PMM-XXXXX): `.
+- Known issues take a `### Title ([PMM-XXXXX](url))` heading followed by prose — what the reader sees, and what to do about it.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
-- Write links as they appear on the release page, which sits one level up from `unreleased/`: `../reference/nomad.md`, `../images/<name>.png`.
-- Release highlights and security updates are not notes: the doc team writes them on the release PR.
+- Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
 
-CI fails a note whose name doesn't follow `PMM-<ticket>-<type>.md`, an empty note, and a note already published in that section of an earlier release page. Run the same check from the repository root: `documentation/resources/bin/release-notes.sh check documentation/docs/release-notes/unreleased/PMM-15310-fix.md`.
+Put the entry on the page of the version your change ships in. A fix for a version in RC goes on that version's page, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick; never the other way.
 
-When `pmm-X.Y.Z` is created, `.github/workflows/release-notes.yml` builds `X.Y.Z.md` from the notes on that branch, using `documentation/resources/release-notes-template.md`, lists it in the index and nav, and opens a draft "[Doc] Release X.Y.Z" PR to `main` that also deletes those notes from `main`. Each note is deleted from `pmm-X.Y.Z` as soon as it is on the page. The workflow updates the PR whenever a note lands on the branch and only appends, so the doc team's edits stay, and an entry or a section they delete is never added back. The doc team writes the summary, highlights, security updates and release date there. A note whose section the doc team removed is deleted without being added, with a warning in the workflow log. Once the PR merges, the workflow copies the page to `pmm-X.Y.Z`, and the site publishes from there at GA. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+When the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it also creates the next patch page, `X.Y.(Z+1).md`, on `main` with `documentation/resources/bin/release-notes.sh new`: from `documentation/resources/release-notes-template.md`, listed in the index and nav. If the next release is a minor one, rename that page in a PR. The doc team writes the release summary, highlights, security updates and the `variables.yml` bump. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+
+While `pmm-X.Y.Z` is in RC (no `vX.Y.Z` tag yet), `.github/workflows/release-notes.yml` fails on every ticket in `X.Y.Z.md` on `main` that `X.Y.Z.md` on `pmm-X.Y.Z` doesn't have. Cherry-pick its fix to `pmm-X.Y.Z`, or move the entry to the next release's page.
 
 ## Content type templates
 
