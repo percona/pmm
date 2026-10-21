@@ -33,7 +33,7 @@ PMM supports the following Vault authentication methods:
 | `approle` | PMM runs on a virtual machine or a bare-metal host | `--vault-role-id` and `--vault-secret-id` or `--vault-secret-id-file` |
 | `kubernetes` | PMM runs in Kubernetes | `--vault-role`, and `--vault-jwt-file` when the service account token is not in its default location |
 | `aws` | PMM runs in AWS with an IAM role | `--vault-role`, and `--vault-aws-region` or `--vault-aws-server-id` when your Vault requires them |
-| `azure` | PMM runs on an Azure virtual machine or scale set with a managed identity | `--vault-role`, `--vault-azure-resource` when the azure auth method of Vault is configured with a resource other than `https://management.azure.com/`, and `--vault-azure-client-id` for a user-assigned managed identity |
+| `azure` | PMM runs on an Azure virtual machine or scale set with a managed identity, or in AKS with a workload identity | `--vault-role`, `--vault-azure-resource` when the azure auth method of Vault is configured with a resource other than `https://management.azure.com/`, and `--vault-azure-client-id` for a user-assigned managed identity. In AKS, PMM uses the workload identity that the `AZURE_*` variables of the pod give, and the role must be bound to its service principal. |
 | `gcp` | PMM runs on a Google Compute Engine instance | `--vault-role`, a role of the `gce` type: PMM logs in with an identity token of the service account of the instance |
 
 PMM reads a token file again whenever Vault rejects the token, so it picks up the tokens that a Vault Agent renews. Every method logs in again before its token expires.

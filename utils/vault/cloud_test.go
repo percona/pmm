@@ -17,6 +17,7 @@ package vault
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -71,6 +72,7 @@ func TestClientLoginAzure(t *testing.T) {
 		c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodAzure, Role: "pmm"})
 		require.NoError(t, err)
 		c.azureMetadataURL = metadata
+		c.getenv = func(string) string { return "" } // not in a pod with a workload identity
 
 		v, err := c.Get(t.Context(), "secret/pmm", "k")
 		require.NoError(t, err)
@@ -109,6 +111,7 @@ func TestClientLoginAzure(t *testing.T) {
 		})
 		require.NoError(t, err)
 		c.azureMetadataURL = metadata
+		c.getenv = func(string) string { return "" } // not in a pod with a workload identity
 
 		_, err = c.Get(t.Context(), "secret/pmm", "k")
 		require.NoError(t, err)
@@ -132,10 +135,67 @@ func TestClientLoginAzure(t *testing.T) {
 		c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodAzure, Role: "pmm"})
 		require.NoError(t, err)
 		c.azureMetadataURL = metadata
+		c.getenv = func(string) string { return "" } // not in a pod with a workload identity
 
 		_, err = c.Get(t.Context(), "secret/pmm", "k")
 		require.ErrorContains(t, err, "failed to get an access token of the managed identity for vault login")
 		require.ErrorContains(t, err, "400 Bad Request")
+	})
+}
+
+func TestClientLoginAzureWorkloadIdentity(t *testing.T) {
+	t.Parallel()
+
+	fv, srv := newFakeVault(t)
+	fv.secrets["secret/pmm"] = func() map[string]any { return map[string]any{"data": map[string]any{"k": "v"}} }
+
+	var form url.Values
+	var path string
+	entra := fakeMetadata(t, func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path
+		_ = r.ParseForm()
+		form = r.PostForm
+		writeJSON(t, w, http.StatusOK, map[string]any{"access_token": "entra-token", "token_type": "Bearer"})
+	})
+
+	tokenFile := writeFile(t, "service-account-token\n")
+	env := map[string]string{
+		"AZURE_FEDERATED_TOKEN_FILE": tokenFile,
+		"AZURE_CLIENT_ID":            "client-1",
+		"AZURE_TENANT_ID":            "tenant-1",
+		"AZURE_AUTHORITY_HOST":       entra + "/",
+	}
+	c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodAzure, Role: "pmm", AzureResource: "https://vault.example.com/"})
+	require.NoError(t, err)
+	c.getenv = func(name string) string { return env[name] }
+	c.azureMetadataURL = "http://127.0.0.1:1" // not asked
+
+	v, err := c.Get(t.Context(), "secret/pmm", "k")
+	require.NoError(t, err)
+	assert.Equal(t, "v", v)
+
+	assert.Equal(t, "/tenant-1/oauth2/v2.0/token", path)
+	assert.Equal(t, url.Values{
+		"grant_type":            []string{"client_credentials"},
+		"client_id":             []string{"client-1"},
+		"scope":                 []string{"https://vault.example.com/.default"},
+		"client_assertion_type": []string{"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+		"client_assertion":      []string{"service-account-token"},
+	}, form)
+	require.Len(t, fv.logins, 1)
+	assert.Equal(t, map[string]any{"mount": "azure", "role": "pmm", "jwt": "entra-token"}, fv.logins[0])
+
+	t.Run("without the tenant", func(t *testing.T) {
+		t.Parallel()
+
+		_, srv := newFakeVault(t)
+		c, err := New(Config{Address: srv.URL, AuthMethod: AuthMethodAzure, Role: "pmm"})
+		require.NoError(t, err)
+		c.getenv = func(name string) string {
+			return map[string]string{"AZURE_FEDERATED_TOKEN_FILE": tokenFile, "AZURE_CLIENT_ID": "client-1"}[name]
+		}
+		_, err = c.Get(t.Context(), "secret/pmm", "k")
+		require.ErrorContains(t, err, "AZURE_CLIENT_ID and AZURE_TENANT_ID are needed")
 	})
 }
 

@@ -53,6 +53,8 @@ type Client struct {
 	// azureMetadataURL and gcpMetadataURL are where the azure and gcp methods get the identity to log in with.
 	azureMetadataURL string
 	gcpMetadataURL   string
+	// getenv returns the variables that the cloud sets for the identity, such as for an AKS workload identity.
+	getenv func(string) string
 
 	// l logs that a secret read before stands in for one Vault cannot be read from, see SetLogger.
 	l Logger
@@ -207,6 +209,7 @@ func New(cfg Config) (*Client, error) {
 
 		azureMetadataURL: azureMetadataURL,
 		gcpMetadataURL:   gcpMetadataURL,
+		getenv:           os.Getenv,
 	}, nil
 }
 
@@ -531,7 +534,11 @@ func (c *Client) login(ctx context.Context) (string, time.Duration, error) {
 			resource = DefaultAzureResource
 		}
 		var err error
-		body, err = azureLoginData(ctx, c.azureMetadataURL, resource, c.cfg.AzureClientID)
+		if azureWorkloadIdentity(c.getenv) {
+			body, err = azureWorkloadIdentityLoginData(ctx, c.getenv, resource, c.cfg.AzureClientID)
+		} else {
+			body, err = azureLoginData(ctx, c.azureMetadataURL, resource, c.cfg.AzureClientID)
+		}
 		if err != nil {
 			return "", 0, err
 		}

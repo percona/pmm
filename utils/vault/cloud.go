@@ -15,6 +15,7 @@
 package vault
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -22,6 +23,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -43,6 +46,9 @@ var metadataHTTPClient = &http.Client{ //nolint:gochecknoglobals
 	Transport: &http.Transport{Proxy: nil},
 	Timeout:   metadataTimeout,
 }
+
+// cloudHTTPClient asks the identity services of the clouds on the internet, through a proxy if one is set.
+var cloudHTTPClient = &http.Client{Timeout: requestTimeout} //nolint:gochecknoglobals
 
 // metadataGet returns the body of a GET request to a metadata service, sending header with it.
 func metadataGet(ctx context.Context, u string, header http.Header) ([]byte, error) {
@@ -137,4 +143,75 @@ func gcpLoginData(ctx context.Context, metadataURL, role string) (map[string]any
 	}
 
 	return map[string]any{"jwt": string(b)}, nil
+}
+
+// The variables that the workload identity webhook of AKS sets in the pods of a service account bound to an identity.
+const (
+	azureFederatedTokenFileEnv = "AZURE_FEDERATED_TOKEN_FILE"
+	azureClientIDEnv           = "AZURE_CLIENT_ID"
+	azureTenantIDEnv           = "AZURE_TENANT_ID"
+	azureAuthorityHostEnv      = "AZURE_AUTHORITY_HOST"
+
+	defaultAzureAuthorityHost = "https://login.microsoftonline.com/"
+)
+
+// azureWorkloadIdentity reports whether pmm runs in a pod of AKS with a workload identity: the token of its service
+// account, which Microsoft Entra ID trusts, stands in for a managed identity then.
+func azureWorkloadIdentity(getenv func(string) string) bool {
+	return getenv(azureFederatedTokenFileEnv) != ""
+}
+
+// azureWorkloadIdentityLoginData returns the body of a Vault azure auth login with an access token of the workload
+// identity of the pod, which Microsoft Entra ID issues for the token of its service account. The role of the login
+// is bound to the service principal, as no virtual machine stands behind the pod.
+// See https://learn.microsoft.com/azure/aks/workload-identity-overview.
+func azureWorkloadIdentityLoginData(ctx context.Context, getenv func(string) string, resource, clientID string) (map[string]any, error) {
+	assertion, err := os.ReadFile(getenv(azureFederatedTokenFileEnv))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the token of the workload identity for vault login: %w", err)
+	}
+	if clientID == "" {
+		clientID = getenv(azureClientIDEnv)
+	}
+	tenantID := getenv(azureTenantIDEnv)
+	if clientID == "" || tenantID == "" {
+		return nil, fmt.Errorf("%s and %s are needed with %s for vault login", azureClientIDEnv, azureTenantIDEnv, azureFederatedTokenFileEnv)
+	}
+
+	authority := strings.TrimSuffix(cmp.Or(getenv(azureAuthorityHostEnv), defaultAzureAuthorityHost), "/")
+	form := url.Values{
+		"grant_type":            []string{"client_credentials"},
+		"client_id":             []string{clientID},
+		"scope":                 []string{strings.TrimSuffix(resource, "/") + "/.default"},
+		"client_assertion_type": []string{"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+		"client_assertion":      []string{strings.TrimSpace(string(assertion))},
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		authority+"/"+url.PathEscape(tenantID)+"/oauth2/v2.0/token", strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := cloudHTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the workload identity for vault login: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return nil, err
+	}
+	var token struct {
+		AccessToken      string `json:"access_token"`
+		ErrorDescription string `json:"error_description"`
+	}
+	_ = json.Unmarshal(b, &token)
+	if resp.StatusCode != http.StatusOK || token.AccessToken == "" {
+		return nil, fmt.Errorf("failed to get an access token of the workload identity for vault login: %d %s %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode), token.ErrorDescription)
+	}
+
+	return map[string]any{"jwt": token.AccessToken}, nil
 }
