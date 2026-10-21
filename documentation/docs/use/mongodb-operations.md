@@ -196,7 +196,7 @@ To install a MongoDB replica set:
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB.
     - **Replica set name**.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
-    - **Bind address**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
+    - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
     - Optional: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
     - Optional: **environment** and **cluster** labels for PMM.
     - **Administrator user**: the default name is `admin`, with the `root` role. Enter a password of at least 8 characters, or use the generated one.
