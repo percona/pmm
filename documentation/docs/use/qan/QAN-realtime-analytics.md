@@ -203,7 +203,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-In **Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
+Start a session, then in **Inventory > Services**, click the **Monitoring** status of your MongoDB service and verify that the **Real-Time Analytics MongoDB agent** shows **Running**. When no session runs, it shows **Done**. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 
@@ -220,7 +220,7 @@ Check the **Raw data** tab to see exactly what MongoDB returned.
 Check the following requirements:
 
 - **PMM Client version**: 3.7.0 or later. Run `pmm-admin status` on the monitored host to check.
-- **MongoDB exporter**: Must be configured and running. Go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
+- **MongoDB exporter**: Must be configured and running. Go to **Inventory > Services**, click the **Monitoring** status of your MongoDB service, and check that the **MongoDB exporter** shows **Running**.
 - **Admin role**: Only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. Users with other roles can view live data from running sessions.
 
 ## See also

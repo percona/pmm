@@ -209,10 +209,10 @@ After adding your Valkey or Redis service to PMM, verify that it's properly conn
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **Inventory > Services > Valkey** service.
-    3. Verify the **Service Name** and **Address** match your configuration.
-    4. Check the **Status** column shows as *Active*.
-    5. In the **Options** column, expand the **Details** section to confirm the correct agents are running.
+    1. Navigate to **Inventory > Services** and find your Valkey service.
+    2. Verify the **Service Name** and **Address** match your configuration.
+    3. Check that the **Status** column shows **Up**.
+    4. Click the status in the **Monitoring** column to confirm that the correct agents are running.
 
 ### Verify data collection
 
@@ -265,8 +265,9 @@ If you need to remove a Valkey or Redis service from monitoring:
     
     1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
-    3. Click the **Remove** button in the **Options** column.
-    4. Confirm the removal when prompted.
+    3. Click :material-dots-vertical: next to the service, then select **Delete**.
+    4. To also remove the agents of the service, select **Force mode**.
+    5. Click **Yes, delete service**.
 
 ## Next steps
 
