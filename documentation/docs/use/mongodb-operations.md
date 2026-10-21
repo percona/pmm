@@ -3,7 +3,7 @@
 !!! warning "Developer Preview"
     Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
 
-If you are a PMM Admin user, use MongoDB Operations to install Percona Server for MongoDB replica sets on empty nodes without SSH access and to check the health of every MongoDB cluster that PMM monitors.
+If you are a PMM Admin user, use Operations for MongoDB to install Percona Server for MongoDB replica sets on empty nodes without SSH access and to check the health of every MongoDB cluster that PMM monitors.
 
 ## Prerequisites
 
