@@ -6,11 +6,12 @@ describe('technologyLabel', () => {
   it('names the technologies RTA supports', () => {
     expect(technologyLabel(ServiceType.mysql)).toBe('MySQL');
     expect(technologyLabel(ServiceType.mongodb)).toBe('MongoDB');
+    expect(technologyLabel(ServiceType.posgresql)).toBe('PostgreSQL');
   });
 
   it('returns an empty label for anything else', () => {
     expect(technologyLabel(undefined)).toBe('');
-    expect(technologyLabel(ServiceType.posgresql)).toBe('');
+    expect(technologyLabel(ServiceType.valkey)).toBe('');
   });
 });
 

@@ -153,6 +153,59 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 > 
 > On MySQL and Percona Server, lock modes distinguish a record lock from a gap lock (`X,REC_NOT_GAP`, `X,GAP`). MariaDB reports plain `X` or `S`.
 
+#### PostgreSQL response
+
+Queries from a PostgreSQL service carry `postgresql_payload`, read from `pg_stat_activity`. `query_id` is the session's process ID. This example shows an `UPDATE` waiting for a row held by a session that is idle in an open transaction:
+
+```json
+{
+  "queries": [
+    {
+      "service_id": "39c8e124-284a-4871-b9c0-32d6708dee4a",
+      "service_name": "postgresql-production-01",
+      "query_id": "7750",
+      "query_text": "UPDATE accounts SET balance = 999 WHERE id = 1",
+      "query_raw_json": "{...}",
+      "query_execution_duration": "40.685233s",
+      "query_collect_time": "2026-10-10T06:47:12.101928Z",
+      "client_address": "10.0.1.45:51234",
+      "postgresql_payload": {
+        "database_name": "shop",
+        "username": "app_user",
+        "application_name": "psql",
+        "state": "active",
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "pid": 7750,
+        "query_id": "-3248750928237446514",
+        "transaction_start_time": "2026-10-10T06:46:31.416695Z",
+        "query_start_time": "2026-10-10T06:46:31.416695Z",
+        "query_text_truncated": false,
+        "blocked_status": "BLOCKED_STATUS_BLOCKED",
+        "blocked_by": [
+          {
+            "blocking_conn_id": "7739",
+            "blocking_query": "UPDATE accounts SET balance = 0 WHERE id = 1",
+            "blocking_command": "idle in transaction",
+            "blocking_username": "batch_user",
+            "wait_duration": "40.685233s",
+            "blocker_transaction_duration": "52.508552s",
+            "root": true
+          }
+        ],
+        "db_instance_address": "pg-01.example.com:5432"
+      }
+    }
+  ]
+}
+```
+
+> 📘 Info
+>
+> `blocked_by` holds the sessions that `pg_blocking_pids()` reports for this one and, transitively, theirs, with `root` marking the ones that are not waiting themselves. `blocking_conn_id` is the blocker's process ID, or `0` for a prepared transaction. `blocking_command` is the blocker's state, or its backend type for a background process such as an autovacuum worker. PostgreSQL reports no lock facts, so `lock_type`, `locked_table` and the lock modes are MySQL-only.
+>
+> RTA lists at most 1000 sessions per collection, longest-running first, and at most 5000 `blocked_by` entries. Every blocked session gets its roots first. Past that limit a session lists only its roots, and if even those do not fit, its `blocked_status` is `BLOCKED_STATUS_UNSPECIFIED`. `BLOCKED_STATUS_UNATTRIBUTED` is never reported for PostgreSQL.
+
 ### Response schema
 
 | Field | Type | Description |
@@ -202,10 +255,25 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 | `queries[].my_sql_payload.blocked_by[].wait_duration` | string | How long this statement has been waiting |
 | `queries[].my_sql_payload.blocked_by[].blocker_transaction_duration` | string | How long the blocking transaction has been open |
 | `queries[].my_sql_payload.blocked_by[].root` | boolean | Blocker is not itself waiting — the head of the chain |
+| `queries[].postgresql_payload` | object | PostgreSQL-specific query information, read from `pg_stat_activity` |
+| `queries[].postgresql_payload.db_instance_address` | string | PostgreSQL instance PMM connects to: host:port, or the socket directory |
+| `queries[].postgresql_payload.database_name` | string | Database the session is connected to |
+| `queries[].postgresql_payload.username` | string | PostgreSQL user of the session |
+| `queries[].postgresql_payload.application_name` | string | Client `application_name` |
+| `queries[].postgresql_payload.state` | string | Session state: `active`, `idle in transaction`, `idle in transaction (aborted)` or `fastpath function call` |
+| `queries[].postgresql_payload.wait_event_type` | string | What the session is waiting for, for example `Lock`, `IO` or `Client`; empty when not waiting |
+| `queries[].postgresql_payload.wait_event` | string | The wait event within `wait_event_type` |
+| `queries[].postgresql_payload.pid` | integer | Process ID of the session's backend |
+| `queries[].postgresql_payload.query_id` | string | `pg_stat_activity.query_id`; empty before PostgreSQL 14, or when the server does not compute query IDs (`compute_query_id`) |
+| `queries[].postgresql_payload.transaction_start_time` | string (date-time) | When the current transaction started |
+| `queries[].postgresql_payload.query_start_time` | string (date-time) | When the current or last statement started. For a session idle in transaction, `query_execution_duration` is the transaction's age |
+| `queries[].postgresql_payload.query_text_truncated` | boolean | `query_text` is cut at `track_activity_query_size` bytes (1024 by default) |
+| `queries[].postgresql_payload.blocked_status` | string | `BLOCKED_STATUS_BLOCKED` while waiting for a heavyweight lock, otherwise `BLOCKED_STATUS_NOT_BLOCKED`; `BLOCKED_STATUS_UNSPECIFIED` when the session's blockers did not fit the limit |
+| `queries[].postgresql_payload.blocked_by` | array | Sessions holding up this one, ordered by process ID; same fields as `my_sql_payload.blocked_by[]` except `blocking_lock_mode` |
 
 > 📘 Info
 > 
-> Each query carries exactly one payload, matching the service type: `mongo_db_payload` for MongoDB services and `my_sql_payload` for MySQL, Percona Server and MariaDB services.
+> Each query carries exactly one payload, matching the service type: `mongo_db_payload` for MongoDB services, `my_sql_payload` for MySQL, Percona Server and MariaDB services, and `postgresql_payload` for PostgreSQL services.
 
 ### Examples
 

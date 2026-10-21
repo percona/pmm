@@ -40,8 +40,10 @@ func TestIsRTASupported(t *testing.T) {
 	assert.True(t, models.IsRTASupported("3.10.0", models.MySQLServiceType))
 	assert.True(t, models.IsRTASupported("3.10.1", models.MySQLServiceType))
 
+	assert.False(t, models.IsRTASupported("3.9.1", models.PostgreSQLServiceType))
+	assert.True(t, models.IsRTASupported("3.10.0", models.PostgreSQLServiceType))
+
 	assert.False(t, models.IsRTASupported("3.9.0", models.ValkeyServiceType))
-	assert.False(t, models.IsRTASupported("3.9.0", models.PostgreSQLServiceType))
 
 	assert.False(t, models.IsRTASupported("not-a-version", models.MySQLServiceType))
 }

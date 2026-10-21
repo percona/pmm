@@ -2439,6 +2439,158 @@ var _ interface {
 	ErrorName() string
 } = RTAMySQLAgentValidationError{}
 
+// Validate checks the field values on RTAPostgreSQLAgent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RTAPostgreSQLAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAPostgreSQLAgent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RTAPostgreSQLAgentMultiError, or nil if none found.
+func (m *RTAPostgreSQLAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAPostgreSQLAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAPostgreSQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAPostgreSQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAPostgreSQLAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return RTAPostgreSQLAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAPostgreSQLAgentMultiError is an error wrapping multiple validation errors
+// returned by RTAPostgreSQLAgent.ValidateAll() if the designated constraints
+// aren't met.
+type RTAPostgreSQLAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAPostgreSQLAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAPostgreSQLAgentMultiError) AllErrors() []error { return m }
+
+// RTAPostgreSQLAgentValidationError is the validation error returned by
+// RTAPostgreSQLAgent.Validate if the designated constraints aren't met.
+type RTAPostgreSQLAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAPostgreSQLAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAPostgreSQLAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAPostgreSQLAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAPostgreSQLAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAPostgreSQLAgentValidationError) ErrorName() string {
+	return "RTAPostgreSQLAgentValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RTAPostgreSQLAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAPostgreSQLAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = RTAPostgreSQLAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAPostgreSQLAgentValidationError{}
+
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -4156,6 +4308,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetRtaPostgresqlAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaPostgresqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaPostgresqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RtaPostgresqlAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -5186,6 +5372,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RtaPostgresqlAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaPostgresqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaPostgresqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaPostgresqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaPostgresqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RtaPostgresqlAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

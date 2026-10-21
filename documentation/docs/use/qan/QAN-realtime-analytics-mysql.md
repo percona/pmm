@@ -100,9 +100,11 @@ To start monitoring a MySQL service:
 2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list: click **+ New session** there.
 3. Select a MySQL service from the **Cluster/Service** drop-down and click **Start session**. The drop-down groups services by technology.
 
-![Cluster/Service drop-down with services grouped under MongoDB and MySQL](../../images/RTA_MySQL_select_service.png)
+    ![Cluster/Service drop-down with services grouped under MongoDB and MySQL](../../images/RTA_MySQL_select_service.png)
 
-The live query table appears and begins updating automatically.
+4. If the sessions list opens, click the service name to open the live query table.
+
+The live query table updates automatically.
 
 If you have multiple services registered, click **+ New session** to run sessions simultaneously — useful for watching a primary and its replicas during the same incident.
 
@@ -329,6 +331,7 @@ RTA bounds the lock graph it collects, because contention grows quadratically wi
 ## See also
 
 - [Real-time Query Analytics for MongoDB](QAN-realtime-analytics.md)
+- [Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md)
 - [Query Analytics overview](index.md)
 - [Connect MySQL to PMM](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md)
 - [Stored metrics for MySQL](mysql.md)
