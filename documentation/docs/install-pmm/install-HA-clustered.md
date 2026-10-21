@@ -322,9 +322,51 @@ To install PMM HA:
 
       You can use any project name. Replace `pmm` throughout these steps with your chosen name.
 
-    3. Install required operators:
+ 3. Install required operators. On OpenShift, the operators chart needs its own values file:
+
+      Create `values-operators-openshift.yaml`:
+
+      ```yaml
+      # restricted-v2 assigns user IDs from the project's range, so do not request fixed ones.
+      altinity-clickhouse-operator:
+        operator:
+          image:
+            registry: docker.io
+          containerSecurityContext:
+            runAsUser: null
+        metrics:
+          image:
+            registry: docker.io
+          containerSecurityContext:
+            runAsUser: null
+        crdHook:
+          image:
+            repository: docker.io/alpine/kubectl
+          podSecurityContext:
+            runAsUser: null
+
+      victoria-metrics-operator:
+        image:
+          registry: docker.io
+        env:
+          - name: VM_CONFIG_RELOADER_IMAGE
+            value: docker.io/victoriametrics/operator:config-reloader-v0.74.1
+          - name: VM_VMAGENTDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmagent
+          - name: VM_VMAUTHDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmauth
+          - name: VM_VMALERTDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmalert
+        podSecurityContext:
+          runAsUser: null
+          fsGroup: null
+      ```
+
+      Install the operators and wait for them to be ready:
+
       ```sh
-      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
+      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm \
+        -f values-operators-openshift.yaml
 
       # Wait for all operators to be ready (typically 2-3 minutes)
       kubectl wait --for=condition=ready pod \
@@ -337,6 +379,7 @@ To install PMM HA:
         -l app.kubernetes.io/name=pg-operator \
         -n pmm --timeout=300s
       ```
+
 
     4. Create PMM secret with your passwords:
       ```sh
