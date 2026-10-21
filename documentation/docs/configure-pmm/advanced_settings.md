@@ -103,4 +103,4 @@ Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **Mon
 
 This setting requires [PMM Extensions](../apps/deploy-pmm-extensions.md). If PMM can't reach PMM Extensions, the setting doesn't turn on.
 
-If PMM Server was started with `PMM_ENABLE_OM=1`, the setting is locked in the UI.
+If PMM Server was started with `PMM_ENABLE_OM=1`, you can't change the setting in the UI: **Apply changes** returns an error.
