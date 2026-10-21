@@ -76,8 +76,8 @@ To install PMM HA:
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
@@ -206,8 +206,8 @@ To install PMM HA:
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
+          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+          --from-literal=PMM_HA_VM_PASSWORD="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
           --from-literal=GF_PASSWORD="your-grafana-password" \
           --namespace pmm
@@ -232,8 +232,8 @@ To install PMM HA:
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
           PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
           PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
-          VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
-          VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
+          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+          PMM_HA_VM_PASSWORD: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
           GF_PASSWORD: "your-grafana-password"
     ```
@@ -322,9 +322,51 @@ To install PMM HA:
 
       You can use any project name. Replace `pmm` throughout these steps with your chosen name.
 
-    3. Install required operators:
+ 3. Install required operators. On OpenShift, the operators chart needs its own values file:
+
+      Create `values-operators-openshift.yaml`:
+
+      ```yaml
+      # restricted-v2 assigns user IDs from the project's range, so do not request fixed ones.
+      altinity-clickhouse-operator:
+        operator:
+          image:
+            registry: docker.io
+          containerSecurityContext:
+            runAsUser: null
+        metrics:
+          image:
+            registry: docker.io
+          containerSecurityContext:
+            runAsUser: null
+        crdHook:
+          image:
+            repository: docker.io/alpine/kubectl
+          podSecurityContext:
+            runAsUser: null
+
+      victoria-metrics-operator:
+        image:
+          registry: docker.io
+        env:
+          - name: VM_CONFIG_RELOADER_IMAGE
+            value: docker.io/victoriametrics/operator:config-reloader-v0.74.1
+          - name: VM_VMAGENTDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmagent
+          - name: VM_VMAUTHDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmauth
+          - name: VM_VMALERTDEFAULT_IMAGE
+            value: docker.io/victoriametrics/vmalert
+        podSecurityContext:
+          runAsUser: null
+          fsGroup: null
+      ```
+
+      Install the operators and wait for them to be ready:
+
       ```sh
-      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
+      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm \
+        -f values-operators-openshift.yaml
 
       # Wait for all operators to be ready (typically 2-3 minutes)
       kubectl wait --for=condition=ready pod \
@@ -338,6 +380,7 @@ To install PMM HA:
         -n pmm --timeout=300s
       ```
 
+
     4. Create PMM secret with your passwords:
       ```sh
       kubectl create secret generic pmm-secret \
@@ -346,8 +389,8 @@ To install PMM HA:
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm

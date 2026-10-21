@@ -16,7 +16,7 @@ You cannot deploy PMM Extensions on:
 
 ## Check versions before deploying
 
-PMM Server and PMM Extensions must run on the same version. A mismatch won't produce an error but the **Apps** menu won't appear in the sidebar.
+PMM Server and PMM Extensions must run on the same version. If they don't match, the app pages show a warning with both versions.
 
 Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, which pulls the latest 3.x release. To run a specific version, set it in `.env` before starting the containers:
 
@@ -24,7 +24,7 @@ Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, w
 PMM_IMAGE_TAG=3.10.0
 ```
 
-If your environment requires pulling images from a location other than Docker Hub, use `PMM_SERVER_IMAGE` and `PMM_EXTENSIONS_IMAGE` to specify the full image path for each container. These replace `PMM_IMAGE_TAG`, so set both to the same version.
+If your environment pulls images from a registry other than Docker Hub, change the two `image:` lines in the `docker-compose.yml` file on this page to point to your registry. Use the same version for both images.
 
 ## Deploy PMM Extensions
 
@@ -45,9 +45,7 @@ If your environment requires pulling images from a location other than Docker Hu
 
     3. Add an empty `pmm-extensions` volume to the `pmm-server` container and mount it at `/srv/extensions`. PMM uses this volume to share the credentials that PMM Extensions needs to start. Make sure the volume is empty before starting the container.
 
-    4. Recreate the `pmm-server` container to apply the new settings. Your data in the `pmm-data` volume stays intact.
-
-    5. Start the PMM Extensions container:
+    4. Recreate the `pmm-server` container with these settings and start PMM Extensions. Your data in the `pmm-data` volume stays intact:
 
         === "Docker Compose"
 
@@ -97,26 +95,61 @@ If your environment requires pulling images from a location other than Docker Hu
                       - pmm-server
 
                 volumes:
-                  pmm-data: {}
-                  pmm-extensions: {}
-                  pmm-extensions-state: {}
+                  pmm-data:
+                    name: pmm-data
+                  pmm-extensions:
+                    name: pmm-extensions
+                  pmm-extensions-state:
+                    name: pmm-extensions-state
                 ```
 
                 Add any other `pmm-server` settings you had before (custom ports, TLS certificates, extra environment variables) to the `pmm-server` service.
 
         === "docker run"
 
-            PMM Server routes `/extensions/` requests to `pmm-extensions:9000` by container name. Both containers must be on the same user-defined Docker network, or they can't reach each other by name and the **Apps** menu will not appear.
+            For PMM Server and PMM Extensions to reach each other by name, both containers must be on the same user-defined Docker network when PMM Server starts. Connecting a running container to a network afterward is not enough. PMM Extensions looks up PMM Server by the name `pmm-server`, and PMM Server looks up PMM Extensions by the name `pmm-extensions`, so the containers must use exactly these names.
             {.power-number}
 
-            1. If `pmm-server` is not already on a user-defined network, create one and attach it:
+            1. Check which networks `pmm-server` is on:
+
+                {% raw %}
+                ```bash
+                docker inspect pmm-server --format '{{range $name, $net := .NetworkSettings.Networks}}{{$name}} {{end}}'
+                ```
+                {% endraw %}
+
+                If the output lists a network other than `bridge`, such as `pmm-net` (created by the Easy-install script) or `pmm-network`, use that network in the following steps. Otherwise, create one:
 
                 ```bash
                 docker network create pmm-net
-                docker network connect pmm-net pmm-server
                 ```
 
-            2. Start the PMM Extensions container on the same network, using exactly `--name pmm-extensions`:
+            2. Note the options your current `pmm-server` container uses, such as published ports, environment variables, and volumes, so you can keep them. If you installed PMM with the Easy-install script, you can see them with `docker inspect pmm-server`.
+
+            3. Stop and remove the existing container. Your data in `pmm-data` is preserved:
+
+                ```bash
+                docker stop pmm-server && docker rm pmm-server
+                ```
+
+            4. Start `pmm-server` with your existing options, the settings from steps 1 to 3, and the network from step 1. For example, for a default installation (replace `pmm-net` if your network has a different name):
+
+                ```bash
+                docker run -d \
+                  --name pmm-server \
+                  --restart always \
+                  --network pmm-net \
+                  -p 443:8443 \
+                  -p 4647:4647 \
+                  -e PMM_ENABLE_EXTENSIONS=1 \
+                  -e PMM_ENABLE_NOMAD=1 \
+                  -e PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server> \
+                  -v pmm-data:/srv \
+                  -v pmm-extensions:/srv/extensions \
+                  percona/pmm-server:3.10.0
+                ```
+
+            5. Start the PMM Extensions container on the same network as `pmm-server`, using exactly `--name pmm-extensions`:
 
                 ```bash
                 docker run -d \
@@ -133,7 +166,7 @@ If your environment requires pulling images from a location other than Docker Hu
                   percona/pmm-extensions:3.10.0
                 ```
 
-    6. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
+    5. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
 
 === "New PMM install"
 
@@ -185,9 +218,12 @@ If your environment requires pulling images from a location other than Docker Hu
               - pmm-server
 
         volumes:
-          pmm-data: {}
-          pmm-extensions: {}
-          pmm-extensions-state: {}
+          pmm-data:
+            name: pmm-data
+          pmm-extensions:
+            name: pmm-extensions
+          pmm-extensions-state:
+            name: pmm-extensions-state
         ```
 
     3. Start PMM Server and PMM Extensions together:
@@ -215,8 +251,6 @@ After the containers start, confirm that PMM Extensions is running and integrate
 
 3. Open PMM and check that the **Apps** menu appears in the sidebar, with **MySQL Backups** and **Support diagnostics** listed under it.
 
-    To also enable [MongoDB Operations](../use/mongodb-operations.md) to view your MongoDB clusters and install Percona Server for MongoDB remotely, go to **Configuration > Settings > Advanced Settings** and turn on **Operations for MongoDB**. **Operations** then appears under **MongoDB** in the side menu.      
-
 ## Back up the PMM Extensions state volume
 
 The `pmm-extensions-state` volume holds the encryption key for PMM Extensions settings stored in `pmm-data`. Without it, a `pmm-data` backup is unusable, so back up both volumes together whenever you [back up the PMM Server container](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md).
@@ -233,4 +267,4 @@ To disable PMM Extensions:
 2. Stop and remove the PMM Extensions container. Use the command that matches how you started it:
 
     - **docker run**: `docker stop pmm-extensions && docker rm pmm-extensions`
-    - **Docker Compose**: `docker compose down`
+    - **Docker Compose**: `docker compose rm -s -f pmm-extensions`, then delete the `pmm-extensions` service from your `docker-compose.yml`
