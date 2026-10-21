@@ -522,6 +522,7 @@ func TestStateChanged(t *testing.T) {
 		status          inventoryv1.AgentStatus
 		listenPort      int
 		exporterOptions string
+		agentType       models.AgentType // node_exporter when empty
 	}
 	type report struct {
 		status     inventoryv1.AgentStatus
@@ -531,8 +532,12 @@ func TestStateChanged(t *testing.T) {
 
 	// The exporter has no pmm_agent_id, so stateChanged returns before asking for a state update.
 	agentRow := func(s stored) *sqlmock.Rows {
+		agentType := s.agentType
+		if agentType == "" {
+			agentType = models.NodeExporterType
+		}
 		return sqlmock.NewRows(agentColumns).AddRow(
-			agentID, string(models.NodeExporterType), nil, nil, "test-node", nil, nil, nil,
+			agentID, string(agentType), nil, nil, "test-node", nil, nil, nil,
 			time.Now(), time.Now(), false, s.status.String(), s.listenPort, nil, nil, false,
 			nil, nil, nil, false, false, nil,
 			s.exporterOptions, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
@@ -549,31 +554,38 @@ func TestStateChanged(t *testing.T) {
 		{
 			name: "a restart on a new port is forced once, when it becomes RUNNING",
 			reports: []report{
-				{starting, 42001, stored{running, 42000, `{}`}},
-				{running, 42001, stored{starting, 42001, `{}`}},
+				{starting, 42001, stored{running, 42000, `{}`, ""}},
+				{running, 42001, stored{starting, 42001, `{}`, ""}},
 			},
 			forced: 1, request: 1,
 		},
 		{
+			name: "a running Agent whose port moved is forced (a reconnect)",
+			reports: []report{
+				{running, 42001, stored{running, 42000, `{}`, ""}},
+			},
+			forced: 1, request: 0,
+		},
+		{
 			name: "an Agent that cannot start is never forced",
 			reports: []report{
-				{starting, 42002, stored{starting, 42001, `{}`}},
-				{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, stored{starting, 42002, `{}`}},
-				{inventoryv1.AgentStatus_AGENT_STATUS_DONE, 42002, stored{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, `{}`}},
+				{starting, 42002, stored{starting, 42001, `{}`, ""}},
+				{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, stored{starting, 42002, `{}`, ""}},
+				{inventoryv1.AgentStatus_AGENT_STATUS_DONE, 42002, stored{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, `{}`, ""}},
 			},
 			forced: 0, request: 3,
 		},
 		{
 			name: "a push-mode Agent becoming RUNNING is not forced",
 			reports: []report{
-				{running, 42001, stored{starting, 42001, `{"push_metrics": true}`}},
+				{running, 42001, stored{starting, 42001, `{"push_metrics": true}`, ""}},
 			},
 			forced: 0, request: 1,
 		},
 		{
 			name: "a built-in Agent becoming RUNNING is not forced",
 			reports: []report{
-				{running, 0, stored{starting, 0, `{}`}},
+				{running, 0, stored{starting, 0, `{}`, models.QANMySQLPerfSchemaAgentType}},
 			},
 			forced: 0, request: 1,
 		},
@@ -602,7 +614,8 @@ func TestStateChanged(t *testing.T) {
 				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // updateAgentStatus
 				mock.ExpectExec(`UPDATE "agents" SET`).WillReturnResult(sqlmock.NewResult(0, 1))
 				mock.ExpectCommit()
-				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // its pmm-agent
+				// The Agent again, for its pmm_agent_id: roster.get returns the Agent's own ID.
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored))
 
 				err := h.stateChanged(ctx, &agentv1.StateChangedRequest{
 					AgentId:    agentID,

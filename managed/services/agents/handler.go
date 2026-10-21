@@ -328,6 +328,9 @@ func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status in
 // first (one port is used for every status of a process - see the Supervisor's forwarder), and
 // updateAgentStatus stores it for every status, so by the time RUNNING arrives the stored port
 // already matches the reported one.
+//
+// Only an Agent PMM Server scrapes counts. Built-in, push-mode and disabled Agents enter RUNNING on
+// every restart too, and rebuilding for them cost a full configuration build for nothing.
 func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv1.AgentStatus) bool {
 	if newStatus != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		return false
@@ -345,7 +348,8 @@ func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv
 	return agent.Status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
 }
 
-// checkPortChanged checks if the agent's listen port is changing.
+// checkPortChanged checks if the agent's listen port is changing. Only an Agent PMM Server scrapes
+// counts: another's port is not in PMM Server's configuration.
 func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
 	agent, err := models.FindAgentByID(q, agentID)
 	if err != nil {
@@ -361,11 +365,13 @@ func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
 	return oldPort != 0 && oldPort != newPort16
 }
 
-// scrapedByServer reports whether PMM Server's own VictoriaMetrics scrapes the Agent at its listen
-// port, the only case in which a stale port there is worth a synchronous rebuild. It mirrors what
-// FindAgentsForScrapeConfig selects for PMM Server's configuration: not disabled, with a port, and
-// not pushing through a vmagent. Built-in Agents report no port (stored as 0), and vmagents and
-// push-mode exporters are scraped by the vmagent on their own node.
+// scrapedByServer reports whether PMM Server's own VictoriaMetrics may scrape the Agent at its
+// listen port, the only case in which a stale port there is worth a synchronous rebuild. It applies
+// FindAgentsForScrapeConfig's filter for PMM Server's configuration - not disabled, not pushing
+// through a vmagent - and requires a non-zero port: built-in Agents report none and are stored with
+// 0, which that query keeps and AddScrapeConfigs then drops by type. Push-mode exporters and
+// vmagents are scraped by the vmagent on their own node. It is a superset of what AddScrapeConfigs
+// emits (HA and non-leader skips are not repeated here); a rebuild for those finds nothing changed.
 func scrapedByServer(agent *models.Agent) bool {
 	return !agent.Disabled && pointer.GetUint16(agent.ListenPort) != 0 && !agent.ExporterOptions.PushMetrics
 }
