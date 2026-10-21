@@ -1,18 +1,19 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useChangeRdsCredentials } from 'hooks/api/useAgents';
-import { useChangeService } from 'hooks/api/useServices';
+import { useUpdateService } from 'hooks/api/useServices';
 import { PMM_INVENTORY_SERVICES_PATH } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import type { RdsExporter } from 'types/agent.types';
-import type { BaseService } from 'types/services.types';
+import type { EditableService } from 'types/services.types';
 import { ConfirmChangesModal } from '../confirm-changes-modal';
+import { ConnectionSettings } from '../connection-settings';
+import { SERVICE_SETTINGS } from '../EditService.constants';
 import { Messages } from '../EditService.messages';
 import {
   type EditServiceFormValues,
@@ -20,45 +21,71 @@ import {
 } from '../EditService.schema';
 import { RdsAuthMode } from '../EditService.types';
 import {
+  getExporter,
   getInitialValues,
-  toCustomLabelsText,
+  LABEL_CHANGES,
   toRdsCredentials,
-  toServiceChanges,
+  toServiceUpdate,
 } from '../EditService.utils';
+import { MetricsSettings } from '../metrics-settings';
+import { QueryAnalyticsSettings } from '../query-analytics-settings';
 import { RdsCredentials } from '../rds-credentials';
+import { SectionHeader } from '../section-header';
+import { ServiceDetails } from '../service-details';
+import { TlsSettings } from '../tls-settings';
 
 const { labels } = Messages;
 
 interface Props {
-  service: BaseService;
-  exporter: RdsExporter | null;
+  editable: EditableService;
+  rdsExporter: RdsExporter | null;
+  nodeName: string;
+  isCloudNode: boolean;
 }
 
-export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
+export const EditServiceForm: FC<Props> = ({
+  editable,
+  rdsExporter,
+  nodeName,
+  isCloudNode,
+}) => {
+  const { service } = editable;
+  const { serviceType } = service;
+  const settings = SERVICE_SETTINGS[serviceType];
   const navigate = useNavigate();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const { mutateAsync: changeService } = useChangeService();
+  const { mutateAsync: updateService } = useUpdateService();
   const { mutateAsync: changeRdsCredentials } = useChangeRdsCredentials();
+  // Changes are what differs from these, so a refetch must not move them
+  const [initialValues] = useState(() =>
+    getInitialValues(editable, rdsExporter)
+  );
+  const [exporter] = useState(() => getExporter(editable));
   const resolver = useMemo(
     () =>
       zodResolver(
-        getEditServiceSchema(exporter, toCustomLabelsText(service.customLabels))
+        getEditServiceSchema(serviceType, initialValues, rdsExporter)
       ),
-    [exporter, service.customLabels]
+    [serviceType, initialValues, rdsExporter]
   );
   const methods = useForm<EditServiceFormValues>({
     resolver,
-    defaultValues: getInitialValues(service, exporter),
+    defaultValues: initialValues,
   });
   const values = methods.watch();
-  const credentials = toRdsCredentials(values, exporter);
+  const credentials = toRdsCredentials(values, rdsExporter);
+  const update = toServiceUpdate(service, initialValues, values);
+  const changedNames = Object.keys(update?.changes ?? {});
 
   // Credentials go first: the server can reject them on their own, and nothing
   // is saved then. The API error notifications report what failed.
-  const handleSave = async () => {
-    if (credentials && exporter) {
+  const handleSave = async (skipConnectionCheck: boolean) => {
+    if (credentials && rdsExporter) {
       try {
-        await changeRdsCredentials({ agentId: exporter.agentId, credentials });
+        await changeRdsCredentials({
+          agentId: rdsExporter.agentId,
+          credentials,
+        });
       } catch {
         setIsConfirmOpen(false);
         return;
@@ -66,10 +93,18 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
     }
 
     try {
-      const changes = toServiceChanges(service, values);
+      if (update) {
+        const warning = await updateService({
+          ...update,
+          changes: {
+            ...update.changes,
+            ...(skipConnectionCheck && { skipConnectionCheck }),
+          },
+        });
 
-      if (changes) {
-        await changeService(changes);
+        if (warning) {
+          enqueueSnackbar(warning, { variant: 'warning' });
+        }
       }
 
       enqueueSnackbar(Messages.success(service.serviceName), {
@@ -94,11 +129,12 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
         sx={{ flex: 1 }}
         data-testid="edit-service-form"
       >
+        <ServiceDetails service={service} nodeName={nodeName} />
         <Stack gap={2}>
-          <Stack gap={0.5}>
-            <Typography variant="h6">{labels.title}</Typography>
-            <Typography variant="body2">{labels.description}</Typography>
-          </Stack>
+          <SectionHeader
+            title={labels.title}
+            description={labels.description}
+          />
           <Stack direction={{ xs: 'column', md: 'row' }} gap={2}>
             <TextInput<EditServiceFormValues>
               name="environment"
@@ -121,6 +157,13 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
                 fullWidth: true,
               }}
             />
+            {settings.includes('group') && (
+              <TextInput<EditServiceFormValues>
+                name="group"
+                label={labels.group}
+                textFieldProps={{ placeholder: labels.group, fullWidth: true }}
+              />
+            )}
           </Stack>
           <TextInput<EditServiceFormValues>
             name="customLabels"
@@ -134,7 +177,19 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
             }}
           />
         </Stack>
-        {exporter && <RdsCredentials exporter={exporter} />}
+        <ConnectionSettings serviceType={serviceType} exporter={exporter} />
+        {settings.includes('tls') && (
+          <TlsSettings serviceType={serviceType} exporter={exporter} />
+        )}
+        {settings.includes('querySource') && (
+          <QueryAnalyticsSettings
+            serviceType={serviceType}
+            serviceName={service.serviceName}
+            isCloudNode={isCloudNode}
+          />
+        )}
+        <MetricsSettings serviceType={serviceType} />
+        {rdsExporter && <RdsCredentials exporter={rdsExporter} />}
         <Stack
           direction="row"
           gap={2}
@@ -169,7 +224,9 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
       <ConfirmChangesModal
         open={isConfirmOpen}
         serviceName={service.serviceName}
-        clusterChanged={values.cluster !== service.cluster}
+        labelsChanged={changedNames.some((name) => LABEL_CHANGES.has(name))}
+        settingsChanged={changedNames.some((name) => !LABEL_CHANGES.has(name))}
+        clusterChanged={changedNames.includes('cluster')}
         credentialsChanged={!!credentials}
         dropsCredentials={
           !!credentials && values.rdsAuthMode === RdsAuthMode.hostCredentials

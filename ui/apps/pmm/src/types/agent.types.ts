@@ -49,6 +49,53 @@ export enum AgentStatus {
   unknown = 'AGENT_STATUS_UNKNOWN',
 }
 
+export enum LogLevel {
+  unspecified = 'LOG_LEVEL_UNSPECIFIED',
+  fatal = 'LOG_LEVEL_FATAL',
+  error = 'LOG_LEVEL_ERROR',
+  warn = 'LOG_LEVEL_WARN',
+  info = 'LOG_LEVEL_INFO',
+  debug = 'LOG_LEVEL_DEBUG',
+}
+
+// Settings of an agent from the /v1/management/services API; for secrets and
+// certificates it only says whether they are set, or nothing at all
+export interface ServiceAgent {
+  agentId: string;
+  agentType: AgentType;
+  username: string;
+  isPasswordSet: boolean;
+  isAgentPasswordSet: boolean;
+  tls: boolean;
+  tlsSkipVerify: boolean;
+  // The MySQL TLS key, the PostgreSQL SSL key or the MongoDB certificate key
+  isTlsKeySet: boolean;
+  isTlsCertificateKeyFilePasswordSet: boolean;
+  logLevel: LogLevel;
+  pushMetrics: boolean;
+  exposeExporter: boolean;
+  // A protobuf duration such as "5s", empty for the default
+  connectionTimeout: string;
+  disabledCollectors: string[];
+  maxQueryLength: number;
+  maxQueryLogSize: number;
+  queryExamplesDisabled: boolean;
+  commentsParsingDisabled: boolean;
+  tablestatsGroupTableLimit: number;
+  extraDsnParams: Record<string, string>;
+  authenticationMechanism: string;
+  authenticationDatabase: string;
+  statsCollections: string[];
+  collectionsLimit: number;
+  enableAllCollectors: boolean;
+  enableDiagnosticDataHistograms: boolean;
+  autoDiscoveryLimit: number;
+  maxExporterConnections: number;
+  listenPort: number;
+  metricsScheme: string;
+  metricsPath: string;
+}
+
 // Agent from the /v1/management APIs (agents, nodes and services lists)
 export interface ManagedAgent {
   agentId: string;
