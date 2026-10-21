@@ -1,6 +1,6 @@
 # About PMM Inventory
 
-The **Inventory** page lists every node, service and agent registered in PMM. Use it to check the monitoring status of your databases, edit service labels, and remove the objects that you no longer monitor.
+The **Inventory** page lists every node, service and agent registered in PMM. Use it to check the monitoring status of your databases, export your services to a CSV file, edit service labels, and remove the objects that you no longer monitor.
 
 Starting with PMM 3.11.0, **Inventory** is part of the PMM UI instead of a Grafana page. Bookmarks and links to the previous Inventory and service editing pages open the matching new page.
 
@@ -40,6 +40,8 @@ The **Services** tab lists the monitored services and the nodes that they run on
 | **Service ID** | The unique ID of the service. Hidden by default. |
 
 To add a service, click **Add Service**, or go to **Inventory > Add service**. For details, see [Connect databases](../install-pmm/install-pmm-client/connect-database/index.md).
+
+To download the services as a CSV file, click **Export**. For details, see [Export services to a CSV file](#export-services-to-a-csv-file).
 
 ### Service details
 
@@ -97,6 +99,44 @@ Each service has the following attributes:
     - PMM doesn't capture the version of the internal PostgreSQL database.
     - PMM captures the version only when you add the service with PMM Client 2.41.0 or later.
     - PMM doesn't update the version when you upgrade the database. To update it, remove the service and add it again.
+
+### Export services to a CSV file
+
+You can download the services as a CSV file, for example to keep an inventory report or to review the services in a spreadsheet.
+
+To export services:
+{.power-number}
+
+1. Go to **Inventory > Services**.
+2. To export only some services, search or filter the table, or select the checkboxes of the services to export.
+3. Click **Export**. PMM downloads the file as `inventory_services_export_{timestamp}.csv`.
+
+If you select services, the file contains only the selected services. Otherwise, it contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
+
+#### Exported columns
+
+Each row of the file is a service. The columns don't depend on which columns the table shows. The file starts with the following columns:
+
+| Column | Description |
+|--------|-------------|
+| `service_id` | The unique ID of the service. |
+| `service_name` | The name of the service. |
+| `service_type` | The database type, for example `mysql` or `postgresql`. |
+| `status` | The status of the service, as shown in the **Status** column, for example `Up`. |
+| `monitoring` | The monitoring status, as shown in the **Monitoring** column: `OK`, `Warning` or `Failed`. |
+| `failed_agents` | The agents that cause the `Failed` monitoring status, separated by semicolons. Each agent appears with its type, ID and status, for example `QAN MySQL Slow Query Log agent (<agent ID>): Waiting`. Empty when no agent failed. |
+| `node_id` | The ID of the node that the service runs on. |
+| `node_name` | The name of the node that the service runs on. |
+| `address` | The IP address or DNS name of the service. |
+| `port` | The port that the service listens on. |
+
+The next columns hold the labels and attributes that the service details show under **Labels**. `environment`, `cluster` and `replication_set` come first. The custom labels and the other attributes, such as `version`, follow in alphabetical order. A column appears only when at least one exported service has a value for it. Services without that value have an empty cell.
+
+If a custom label has the same name as a column in the previous table, its column is named `label:<name>`, for example `label:status`.
+
+If a value starts with `=`, `+`, `-`, `@`, a tab or a carriage return, PMM adds an apostrophe (`'`) before it. This prevents spreadsheet applications from running the value as a formula.
+
+If you process the file automatically, match columns by header name rather than by position. The label columns depend on which services you export.
 
 ## Nodes tab
 
