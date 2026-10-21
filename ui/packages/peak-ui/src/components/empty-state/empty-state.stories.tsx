@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import AddOutlined from '@mui/icons-material/AddOutlined';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-import ThemedModePanel from '../../../.storybook/themed-mode-panel';
+import ThemedModePanel from '../../storybook/themed-mode-panel';
 import Table, { type MRT_ColumnDef } from '../table';
 import EmptyState, { EMPTY_STATE_ILLUSTRATIONS, EMPTY_STATE_SIZES } from './empty-state';
 

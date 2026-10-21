@@ -2,7 +2,7 @@ import { useMemo, type ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { getThemeOptions } from '../src/design';
+import { getThemeOptions } from '../design';
 
 interface ThemedModePanelProps {
   mode: 'light' | 'dark';
