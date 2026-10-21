@@ -25,8 +25,41 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
+
+func TestShouldForceConfigurationUpdate(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name         string
+		portsChanged bool
+		status       inventoryv1.AgentStatus
+		expected     bool
+	}{
+		// The case PMM-14267 added the synchronous rebuild for: VictoriaMetrics would
+		// otherwise keep scraping this Agent at its previous address.
+		{"running Agent whose port changed", true, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, true},
+		{"running Agent whose port did not change", false, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, false},
+
+		// Nothing is scraped at any of these ports, so the batched update is enough. An
+		// Agent that cannot start reports a new port on every attempt, which is what made
+		// rebuilding here unbounded.
+		{"Agent that is still starting", true, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, false},
+		{"Agent that failed to start", true, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, false},
+		{"Agent waiting to be restarted", true, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, false},
+		{"Agent that is stopping", true, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, false},
+		{"Agent that has stopped", true, inventoryv1.AgentStatus_AGENT_STATUS_DONE, false},
+		{"Agent of unknown status", true, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.expected, shouldForceConfigurationUpdate(tc.portsChanged, tc.status))
+		})
+	}
+}
 
 func TestCheckPortChanged(t *testing.T) {
 	t.Parallel()

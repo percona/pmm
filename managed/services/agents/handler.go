@@ -261,7 +261,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	// For port changes, force immediate synchronous config update to prevent
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
-	if portsChanged {
+	if shouldForceConfigurationUpdate(portsChanged, req.Status) {
 		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
 		err := h.vmdb.ForceConfigurationUpdate(ctx)
 		if err != nil {
@@ -282,6 +282,23 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
+}
+
+// shouldForceConfigurationUpdate reports whether a listen port change is worth rebuilding the
+// VictoriaMetrics scrape configuration for synchronously, rather than leaving it to the batched
+// update.
+//
+// Only a running Agent's port is. That is the one VictoriaMetrics would otherwise keep scraping at
+// its old address, which is what PMM-14267 fixed. A port reported by an Agent that is starting,
+// failed to start, or has stopped is never scraped, so rebuilding for it spends two
+// victoriametrics -dryRun runs and a reload on nothing.
+//
+// It also bounds the cost of an Agent that cannot start at all: every attempt reserves a new port
+// and reports it, and answering each one synchronously - and then asking the Agent for another
+// state update - turns one broken exporter into a rebuild loop that ends only when the Agent is
+// fixed. Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
+func shouldForceConfigurationUpdate(portsChanged bool, status inventoryv1.AgentStatus) bool {
+	return portsChanged && status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
 }
 
 // checkPortChanged checks if the agent's listen port is changing.
