@@ -38,7 +38,7 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
 5. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
 ## Upgrade the operators
 
-The operators (VictoriaMetrics, ClickHouse, PostgreSQL) run as a separate Helm release (`pmm-operators`) installed from the `pmm-ha-dependencies` chart. `helm upgrade pmm-ha` does not touch them. Run these steps only if the operator versions in the [supported platforms table](../install-pmm/HA-clustered.md#check-if-your-platform-is-supported) differ between your current and target chart versions.
+Each PMM HA database (VictoriaMetrics, ClickHouse, and PostgreSQL) is managed by a Kubernetes operator that handles its lifecycle: scaling, failover, and version upgrades. These operators run as a separate Helm release (`pmm-operators`) installed from the `pmm-ha-dependencies` chart — `helm upgrade pmm-ha` does not touch them. Run these steps only if the operator versions in the [supported platforms table](../install-pmm/HA-clustered.md#check-if-your-platform-is-supported) differ between your current and target chart versions.
 
 To upgrade the operators:
 {.power-number}
