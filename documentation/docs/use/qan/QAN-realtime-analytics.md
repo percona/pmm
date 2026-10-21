@@ -5,7 +5,7 @@
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
-RTA displays live query data, updated every 1-5 seconds. Data is held in memory only and refreshes with each update. 
+RTA displays live query data, updated every 1-5 seconds. Data is held in memory only and refreshes with each update.
 
 Use the **Pause** button to freeze the view for investigation or to export a snapshot of the current data.
 
@@ -28,39 +28,68 @@ To start monitoring a MongoDB service:
 {.power-number}
 
 1. Go to **Query Analytics** in the sidebar.
-2. Select the **Real-time** tab.
-3. If no sessions are active, select a MongoDB service from the dropdown and click **Start session**.
+2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list: click **+ New session** there.
+3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
 
 The live operations table appears and begins updating automatically:
 
 ![RTA live table](../../images/RTA_live.png)
+
 ## Explore the Real-time view
+
+The Real-time view lists the operations that are running now. Use the toolbar to choose services, control updates and export what you see.
 
 ### Filter by service
 
-If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This lets you monitor multiple replica set members at once or track several services during an incident.
+If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This enables you to monitor multiple replica set members at once or track several services during an incident.
 
-Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members.
+Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one technology at a time, so you can't combine MongoDB and MySQL services in one view.
+
+### Read the overview
+
+Each row is one operation currently running. The table lists the longest-running operations first and has the following columns:
+
+| Column | Meaning |
+| ------ | ------- |
+| **Query text** | The operation's command, reconstructed as a query |
+| **Host** | The service the operation is running on |
+| **Operation ID** | The operation ID — the value you pass to `db.killOp()` |
+| **Elapsed time** | How long the operation has been running, for example `1.500 s`. Below 10 seconds the value has three decimals; from 10 seconds on, it is in whole seconds |
+
+**Elapsed time** stays pinned to the right edge so it remains visible while you scroll.
 
 ### Control the refresh rate
 
-Use the **Auto-refresh** drop-down to adjust how often the view updates. By default, RTA updates every 2 seconds, but you can set it anywhere from 1 to 5 seconds. Faster updates show more activity but add a small load to your database.
+Use **Auto-refresh** to adjust how often the view updates, from 1 to 5 seconds. The default is 2 seconds. The refresh rate only controls how often your browser reads the data that PMM Server already holds in memory, so a faster refresh adds no load to your database.
+
+The database is polled by the PMM Client at its own collect interval, 2 seconds by default. To change it, run the following command on the monitored host:
+
+```sh
+pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
+```
+
+Run `pmm-admin list` to find the agent ID of the `rta_mongodb_agent`.
 
 ### Pause the stream
 
-Click **Pause** to freeze the current view. This lets you investigate a specific operation without it disappearing when the next refresh happens.
+Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two icon buttons next to **Resume**:
 
-While paused, the display stops updating but the RTA agent continues collecting data in the background. Click **Resume** or use **Auto-refresh** for a one-time update while staying paused.
+- :material-refresh: **Refresh** reads the latest data once, without resuming live updates.
+- :material-download: **Export to CSV** downloads the current view. See [Export RTA data](#export-rta-data).
 
-Pausing also makes the **Export** button available, so you can export data as a snapshot of the current operations to CSV.
+Hover over an icon to see its name.
+
+Opening a row also pauses the view, and closing the **Details** pane resumes live updates if they were running when you opened it. The pane covers the toolbar, so it has its own :material-refresh: **Refresh** button next to the previous and next arrows. The pane shows the operation as it was when you opened it: **Refresh** checks whether the operation is still running and updates the list that the arrows move through. To see newer values, close the pane and open the row again.
+
+If the operation you opened finishes and you refresh, the **Details** pane keeps showing it and marks it as no longer running. The previous and next arrows still work: they move to the operations above and below the position the finished operation was last seen at.
 
 ### Export RTA data
 
-You can export a snapshot of the current RTA view to a CSV file. This is useful for capturing query data that is still in progress and may never appear in QAN. 
+You can export a snapshot of the current RTA view to a CSV file. This is useful for capturing query data that is still in progress and may never appear in QAN.
 
-For example, a long-running query that is killed before it completes will never appear in QAN, because QAN only records queries that finish. Exporting the RTA view captures its data at the moment of the snapshot, before it disappears.
+For example, a long-running query that is killed before it completes never appears in QAN, because QAN only records queries that finish. Exporting the RTA view captures its data at the moment of the snapshot, before it disappears.
 
-The **Export** button is hidden while auto-refresh is active and only appears once you pause.
+The :material-download: **Export to CSV** icon button is hidden while auto-refresh is active and appears once you pause.
 
 To export data:
 {.power-number}
@@ -68,9 +97,9 @@ To export data:
 1. Go to **Query Analytics > Real-time**.
 2. Click **Pause** to freeze the live feed.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click **Export** to download the file.
+4. Click :material-download: **Export to CSV** to download the file.
 
-The export includes all records across all pages, respects active filters and sort order, and is saved as `rta_export_{timestamp}.csv`.
+The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
 
 #### Exported fields
 
@@ -100,16 +129,17 @@ A MongoDB export currently contains:
 - `data_capture_time`: when PMM captured this snapshot
 - `raw_query`: reconstructed query text
 - `service_id`: identifier of the PMM service
-- `query_text`: query as shown in the **Query** column
+- `query_text`: query as shown in the **Query text** column
 
 ### Share your view
 
-Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter.
+Click the :material-share-variant: **Share session settings** icon in the page header to copy a link to your clipboard. The link preserves your selected cluster or service filter.
 
 When someone opens your link, they see live data with your filters applied, not the exact operations you were viewing, since RTA data updates continuously.
+
 ### View all sessions
 
-Click **All sessions** to see and manage all running RTA sessions. From here you can stop individual sessions or stop all sessions at once:
+Click **All sessions** to see and manage all running RTA sessions, for MongoDB and MySQL alike. From here you can stop one session with **Stop**, select several and click **Stop selected**, or click **Stop all**:
 
 ![Stop RTA session](../../images/stop_RTA_session.png)
 
@@ -120,7 +150,7 @@ Click **All sessions** to see and manage all running RTA sessions. From here you
 To identify operations that are taking too long:
 {.power-number}
 
-1. Click the **Elapsed time** column header to sort by duration, longest first.
+1. Look at the top of the table, which lists the longest-running operations first. To filter by duration, click :material-filter-variant: **Show/Hide filters** and enter a **Min** or **Max** value under **Elapsed time**.
 2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection, often a sign that an index is missing.
 
     ![RTA Details tab](../../images/RTA_Details_tab.png)
@@ -165,6 +195,7 @@ Use the timestamps in the **Details** tab to connect slow operations with other 
 Compare these with deployment times, traffic spikes, or alerts to understand what triggered the problem.
 
 ### Stop a problematic operation
+
 !!! caution
     Killing operations can leave data in an inconsistent state. Use carefully, especially for Write operations.
 
@@ -174,9 +205,10 @@ If you need to kill a long-running operation:
 1. Click the operation to open the **Details** tab.
 2. Copy the **Operation ID** value.
 3. Connect to your MongoDB instance and run:
-```javascript
-db.killOp(<operation_id>)
-```
+
+    ```javascript
+    db.killOp(<operation_id>)
+    ```
 
 ### View raw data
 
@@ -203,7 +235,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-In **Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
+Click **All sessions** and check that the session's status reads **Running for** a duration. If the status shows **Error**, hover over it to see the reason. Make sure that your database has active queries, because RTA doesn't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 

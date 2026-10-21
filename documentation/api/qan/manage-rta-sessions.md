@@ -221,7 +221,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 ### Session won't start
 
-You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL), or the exporter is not configured. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is refused with `INVALID_ARGUMENT`.
+You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL and PostgreSQL), or the exporter is not configured. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is refused with `INVALID_ARGUMENT`.
 
 When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.10.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
 

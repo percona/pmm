@@ -129,14 +129,13 @@ describe('ServicesAutocompleteInput', () => {
   });
 
   it('does not hijack Enter on a plain service row', () => {
-    // MUI's own Enter ignores a hover-set highlight, so nothing is selected unless the cluster
-    // toggle wrongly fires.
+    // MUI's own Enter may select the hovered row; only the cluster toggle would add its sibling.
     const { input, onServiceIdsChange } = renderPicker();
 
     highlight('alpha');
     fireEvent.keyDown(input, { key: 'Enter' });
 
-    expect(onServiceIdsChange).not.toHaveBeenCalled();
+    expect(onServiceIdsChange).not.toHaveBeenCalledWith(['a', 'b']);
   });
 
   it('does not toggle a disabled cluster', () => {
