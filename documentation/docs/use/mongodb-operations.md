@@ -189,7 +189,7 @@ To install a MongoDB replica set:
 
 1. Go to **MongoDB > Operations > Nodes**. To show only nodes without a database, select the **Not monitored** filter.
 
-2. Select one node for a single-member replica set, or three nodes for a three-member replica set, and click **Install MongoDB**. To install on a single node, you can also click **Install** in its row.
+2. Select one node for a single-member replica set, or three nodes for a three-member replica set, and click **Install MongoDB**. To install on a single node, you can also click **Install MongoDB** in its row.
 
 3. Fill in the form:
 
