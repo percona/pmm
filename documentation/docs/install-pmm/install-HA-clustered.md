@@ -387,8 +387,6 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
         --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
         --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
