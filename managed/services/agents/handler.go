@@ -300,6 +300,12 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 // reports it, and answering each one synchronously - then asking the Agent for another state
 // update - turns one broken exporter into a rebuild loop that ends only when the Agent is fixed.
 // Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
+//
+// Excluding it bounds the rate rather than removing the work. A stuck Agent's port is still in the
+// generated configuration - FindAgentsForScrapeConfig filters on NOT disabled and a non-null
+// listen_port, never on status - so each attempt still changes it, and the batched update still
+// validates, writes and reloads roughly every updateBatchDelay. That is one rebuild per 3s however
+// many Agents are stuck, instead of one per report per Agent.
 func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status inventoryv1.AgentStatus) bool {
 	if status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		return false
