@@ -68,17 +68,16 @@ To scan nodes now, go to **MongoDB > Operations > Nodes** and do one of the foll
 - To scan every node, click **Scan all**.
 - To scan one node, click **Scan** in the node's row. Use this right after you add a node, so you don't wait for the next scheduled scan.
 
-### Turn on automatic scans
+### Change the scan schedule
 
-Automatic scans are off by default. To scan every node on a schedule:
+When you enable Operations for MongoDB, PMM turns on automatic scans and scans every node every 10 minutes. PMM turns automatic scans back on whenever it restarts.
+
+To change how often PMM scans the nodes:
 {.power-number}
 
 1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
-2. Turn on **Automatic node scans**.
-3. In **Scan every** and **Period**, set how often PMM scans the nodes, for example every 10 minutes. Each scan sends a job to every node.
-4. Click **Save**. The changes take effect without a restart.
-
-If you turn off **Automatic node scans** later, only the schedule stops. You can still scan from the **Nodes** page, and PMM keeps the data it already collected.
+2. In **Scan every** and **Period**, set how often PMM scans the nodes. Each scan sends a job to every node.
+3. Click **Save**. The changes take effect without a restart.
 
 ### Choose what scans collect
 
@@ -87,25 +86,19 @@ The **Connect to MongoDB** setting on the **General** tab controls whether scans
 - **On**: scans also read each `mongod`'s replica set state and running version. This needs credentials.
 - **Off**: scans collect only process and OS details, and the installed MongoDB version. This needs no credentials.
 
-### Provide credentials for unmonitored MongoDB instances
+### Provide credentials for MongoDB instances
 
-When **Connect to MongoDB** is on, scans authenticate to `mongod`. How you provide credentials depends on whether PMM already monitors the instance:
+When **Connect to MongoDB** is on, which is the default, scans authenticate to `mongod`. Scans don't use the monitoring credentials that PMM holds, even for instances that PMM already monitors.
 
-=== "PMM-monitored instances"
+On every node that runs `mongod`, create the `/root/.mongodb_uri` file with one line:
 
-    Scans use the monitoring credentials that PMM already holds for the service. No setup is needed.
+```
+mongodb://<user>:<password>@<host>:<port>
+```
 
-=== "Unmonitored instances"
+Scans use only the user and password from this file and authenticate against the `admin` database. The user needs the `clusterMonitor` role. The PMM monitoring user already has this role.
 
-    On the node, create the `/root/.mongodb_uri` file with one line:
-
-    ```
-    mongodb://<user>:<password>@<host>:<port>
-    ```
-
-    Scans use only the user and password from this file and authenticate against the `admin` database. The user needs the `clusterMonitor` role. The PMM monitoring user already has this role.
-
-    Nodes without MongoDB don't need this file.
+Nodes without MongoDB don't need this file.
 
 ### Troubleshoot scans
 
@@ -156,6 +149,11 @@ Each node must meet the following requirements. PMM checks them during scans and
 
 **Reported only** means that the scan reports whether the requirement is met but doesn't fail if it isn't. The install fails if it isn't met.
 
+PMM doesn't check the following requirements before the install. If either is missing, the install fails when PMM forms the replica set, and PMM rolls it back:
+
+- **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
+- **Network access between members**: the members can reach each other on the MongoDB port.
+
 ### Node checks
 
 Before an install starts, PMM checks each node. If a node fails a check, it isn't eligible for automation, and the reason appears in the **Automation** column on the **Nodes** page.
@@ -167,8 +165,6 @@ Each node must meet the following conditions:
 - **Data directory**: the data directory (default `/var/lib/mongo`) is missing or empty, and has at least 5 GiB free.
 - **Free port**: nothing else listens on the chosen port (default `27017`).
 - **Not the PMM Server host**: the node isn't the host that runs PMM Server.
-- **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
-- **Network access between members**: the members can reach each other on the MongoDB port.
 
 ### Reduce security exposure during the install
 
@@ -179,7 +175,7 @@ Until that step, any host that can reach the MongoDB port on a node can connect 
 To reduce the risk:
 
 - Make sure the nodes aren't reachable from untrusted networks before you start the install.
-- Keep the default **Bind address**. By default, each member listens only on its own address and on `127.0.0.1`. Use `0.0.0.0` only if you need it.
+- Keep the default **Listen on** setting. By default, each member listens only on its own address and on `127.0.0.1`. Listen on all interfaces only if you need it.
 - Don't turn off Operations for MongoDB or restart PMM Server while an install is running. If the install stops, `mongod` stays without authentication until the install resumes.
 
 ### Run the install
@@ -196,6 +192,10 @@ To install a MongoDB replica set:
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB.
     - **Replica set name**.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
+
+        !!! note "Keep the default port"
+            In PMM 3.10.0, if you install on a port other than `27017`, PMM still registers the service for monitoring on port `27017`, so monitoring doesn't work. For details, see [PMM-15764](https://perconadev.atlassian.net/browse/PMM-15764).
+
     - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
     - Optional: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
     - Optional: **environment** and **cluster** labels for PMM.
