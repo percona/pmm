@@ -85,10 +85,11 @@ jobs:
             or should.
 
             Report a page only when this change makes it wrong or incomplete, or when a new
-            user-facing behaviour has no page at all. Do not report:
+            user-facing behaviour has no page at all. A user-visible change also needs a release-note
+            entry: in documentation/docs/release-notes/next.md, or in X.Y.Z.md for a fix to a
+            release in RC (this PR targets ${{ github.base_ref }}). Report it on that file when the
+            diff adds none. Do not report:
             - what the diff already updates under documentation/
-            - a missing release-note entry, unless the page for the version it ships in already
-              exists under documentation/docs/release-notes/
             - PMM_DEV_* and PMM_TEST_* variables, which are not for end users
             - refactors, tests, CI, or build changes with no user-visible effect
             - style, typos, or gaps that existed before this change
