@@ -203,7 +203,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-In **Inventory > Services**, click the **Monitoring** status of your MongoDB service and verify that the **Real-Time Analytics MongoDB agent** shows **Running**. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
+Start a session, then in **Inventory > Services**, click the **Monitoring** status of your MongoDB service and verify that the **Real-Time Analytics MongoDB agent** shows **Running**. When no session runs, it shows **Done**. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 

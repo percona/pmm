@@ -73,7 +73,7 @@ The **Status** column on the **Services** tab shows whether the database is avai
 
 The **Monitoring** column summarizes the status of all the agents assigned to a service or node:
 
-- **OK**: all agents are running.
+- **OK**: all agents are running, or disabled by design.
 - **Warning**: one or more agents are disabled.
 - **Failed**: one or more agents that must be running are not running.
 
@@ -112,7 +112,7 @@ The **Nodes** tab lists the nodes that PMM monitors, and the services and agents
 | **Services** | The services on the node. If the node has one service, click its name to show the service on the **Services** tab. Otherwise, the column shows the number of services, or **No services**. |
 | **Node ID** | The unique ID of the node. Hidden by default. |
 
-If PMM runs as an HA Cluster, turn on **List PMM Server only nodes** to show only the PMM Server nodes. **PMM HA > Identify Nodes** in the main menu opens the same view.
+If PMM runs as an HA Cluster, turn on **List PMM Server only nodes** to hide all other nodes. **PMM HA > Identify Nodes** in the main menu opens the same view.
 
 ### Node details
 
