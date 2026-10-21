@@ -322,7 +322,7 @@ To install PMM HA:
 
       You can use any project name. Replace `pmm` throughout these steps with your chosen name.
 
- 3. Install required operators. On OpenShift, the operators chart needs its own values file:
+    3. Install required operators. On OpenShift, the operators chart needs its own values file:
 
       Create `values-operators-openshift.yaml`:
 
@@ -387,8 +387,6 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
-        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
         --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
         --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
@@ -396,39 +394,63 @@ To install PMM HA:
         --namespace pmm
       ```
 
-      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
+      The chart creates a separate read-only ClickHouse user for the Grafana data source and stores its credentials in the `pmm-ha-clickhouse-datasource` secret. You don't need to add them to `pmm-secret`. To set them yourself, use the `clickhouse.datasource.user` and `clickhouse.datasource.password` Helm values.
 
     5. Create `values-openshift.yaml` with the required OpenShift settings:
 
       ```yaml
-      # Let OpenShift's SCC assign uid and fsGroup — do not request fixed values.
+      # restricted-v2 assigns user and group IDs from the project's range. Don't request fixed ones.
+      # openshift: true covers PMM Server and PMM Client; the other components are unpinned below.
       openshift: true
 
-      # kube-state-metrics pins uid/gid/fsGroup 65534, which falls outside the namespace's
-      # assigned UID range. Disable its securityContext so OpenShift can assign them.
       kube-state-metrics:
         securityContext:
           enabled: false
 
-      # restricted-v2 does not permit hostNetwork, hostPID, or hostPath volumes,
-      # so the bundled node-exporter cannot run. Use OpenShift's platform node-exporter
-      # (already running in openshift-monitoring) for host metrics instead.
+      # restricted-v2 doesn't allow hostNetwork, hostPID or hostPath, so the bundled node exporter
+      # can't run. Scrape OpenShift's own node exporter in openshift-monitoring instead.
       prometheus-node-exporter:
         enabled: false
       nodeExporter:
         mode: openshift
 
-      # restricted-v2 drops NET_BIND_SERVICE, so HAProxy cannot bind port 443.
-      # Use a port above 1024. Expose externally via an OpenShift Route (see below).
+      # restricted-v2 drops NET_BIND_SERVICE, so HAProxy can't bind 443. Expose it with a Route.
       haproxy:
         containerPorts:
           https: 8443
+        podSecurityContext:
+          runAsUser: null
 
-      # The PostgreSQL sidecar reaches PMM through HAProxy. Without the port, it dials 443,
-      # which HAProxy no longer publishes on OpenShift.
+      # The PostgreSQL PMM sidecar dials 443 unless the port is set.
       pg-db:
         pmm:
           serverHost: pmm-ha-haproxy:8443
+          containerSecurityContext:
+            runAsUser: null
+
+      clickhouse:
+        podSecurityContext:
+          runAsUser: null
+          runAsGroup: null
+          fsGroup: null
+        keeper:
+          podSecurityContext:
+            runAsUser: null
+            runAsGroup: null
+            fsGroup: null
+
+      jobs:
+        podSecurityContext:
+          runAsUser: null
+
+      centralBackupStorage:
+        tools:
+          podSecurityContext:
+            runAsUser: null
+            fsGroup: null
+
+      victoriaMetrics:
+        useStrictSecurity: false
       ```
 
     6. Install PMM HA:
@@ -438,11 +460,9 @@ To install PMM HA:
 
     7. Verify installation:
       ```sh
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pmm \
-        -n pmm --timeout=600s
+      kubectl rollout status statefulset/pmm-ha -n pmm --timeout=900s
 
-      kubectl get pods -l app.kubernetes.io/name=pmm -n pmm
+      kubectl get pods -l app.kubernetes.io/component=pmm-server -n pmm
       kubectl get pods -l app.kubernetes.io/name=haproxy -n pmm
       kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm
       ```
