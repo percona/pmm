@@ -1,23 +1,51 @@
 #!/bin/bash
 # Release notes pages, documentation/docs/release-notes/X.Y.Z.md. Entries are written on main.
+# A version is released once vX.Y.Z is tagged, and in RC while pmm-X.Y.Z exists without the tag.
 #
 #   release-notes.sh new VERSION
 #       Creates VERSION.md from the template and lists it in the index and nav, unless it exists.
 #       The RC job runs it on main for the next patch version when it creates pmm-X.Y.Z.
-#   release-notes.sh prune VERSION
-#       Removes the pages of versions newer than VERSION, with their index and nav lines. The site
-#       build runs it on pmm-VERSION, so a newer page that reached the release branch is never published.
+#   release-notes.sh open
+#       Fails when more than one page is neither released nor in RC: entries have one place to go.
 #   release-notes.sh check
-#       For each version in RC (pmm-X.Y.Z exists, vX.Y.Z doesn't), fails on every ticket in
-#       X.Y.Z.md here that X.Y.Z.md on origin/pmm-X.Y.Z doesn't have.
+#       For each version in RC, fails on every ticket in X.Y.Z.md here that pmm-X.Y.Z doesn't have.
+#   release-notes.sh publish VERSION
+#       Fails on any page other than VERSION.md that is not released. The site build runs it on pmm-VERSION.
 #
 # DOC_DIR replaces the documentation/ directory.
 
 set -o errexit -o nounset -o pipefail
-shopt -s nullglob
 
 doc=${DOC_DIR:-$(dirname "$0")/../..}
 pages=$doc/docs/release-notes
+errors=0
+
+error() {
+  echo "::error::$*"
+  errors=$((errors + 1))
+}
+
+versions() {
+  local page v
+  for page in "$pages"/*.md; do
+    v=$(basename "$page" .md)
+    if [[ $v =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "$v"
+    fi
+  done
+}
+
+released() {
+  git -C "$pages" rev-parse -q --verify "refs/tags/v$1" > /dev/null
+}
+
+in_rc() {
+  ! released "$1" && git -C "$pages" rev-parse -q --verify "origin/pmm-$1" > /dev/null
+}
+
+tickets() {
+  grep -o 'browse/PMM-[0-9]*' | sed 's#browse/##' | sort -u
+}
 
 new() {
   local version=$1 page=$pages/$1.md
@@ -32,53 +60,49 @@ new() {
   echo "Created $(basename "$page") from the template"
 }
 
-prune() {
-  local version=$1 page v
-  for page in "$pages"/[0-9]*.md; do
-    v=$(basename "$page" .md)
-    [ "$(printf '%s\n' "$version" "$v" | sort -V | tail -n 1)" != "$version" ] || continue
-    rm "$page"
-    unlist "$pages/index.md" "]($v.md)"
-    unlist "$doc/mkdocs-base.yml" "release-notes/$v.md"
-    echo "Removed $v.md"
+open() {
+  local v unreleased=()
+  for v in $(versions); do
+    if ! released "$v" && ! in_rc "$v"; then
+      unreleased+=("$v.md")
+    fi
   done
-}
-
-# unlist FILE TEXT deletes the lines of FILE that contain TEXT.
-unlist() {
-  local tmp
-  tmp=$(mktemp)
-  grep -vF -- "$2" "$1" > "$tmp" || true
-  cat "$tmp" > "$1"
-  rm -f "$tmp"
-}
-
-tickets() {
-  grep -o 'browse/PMM-[0-9]*' | sed 's#browse/##' | sort -u
+  if [ "${#unreleased[@]}" -gt 1 ]; then
+    error "More than one unreleased release notes page: ${unreleased[*]}. Keep the one matching VERSION in Percona-Lab/pmm-submodules and move the entries of the others into it."
+  fi
 }
 
 check() {
-  local page version path ticket errors=0
-  for page in "$pages"/[0-9]*.md; do
-    version=$(basename "$page" .md)
-    git -C "$pages" rev-parse -q --verify "origin/pmm-$version" > /dev/null || continue
-    ! git -C "$pages" rev-parse -q --verify "refs/tags/v$version" > /dev/null || continue
-    path=$(realpath --relative-to="$(git -C "$pages" rev-parse --show-toplevel)" "$page")
-    for ticket in $(comm -23 <(tickets < "$page") <(git -C "$pages" show "origin/pmm-$version:$path" 2> /dev/null | tickets)); do
-      echo "::error::$ticket is in $version.md on main but not on pmm-$version. Cherry-pick its fix to pmm-$version, or move the entry to the next release."
-      errors=$((errors + 1))
+  local v path ticket
+  for v in $(versions); do
+    in_rc "$v" || continue
+    path=$(realpath --relative-to="$(git -C "$pages" rev-parse --show-toplevel)" "$pages/$v.md")
+    for ticket in $(comm -23 <(tickets < "$pages/$v.md") <(git -C "$pages" show "origin/pmm-$v:$path" 2> /dev/null | tickets)); do
+      error "$ticket is in $v.md on main but not on pmm-$v. Cherry-pick its fix to pmm-$v, or move the entry to the next release."
     done
   done
-  [ "$errors" -eq 0 ] || exit 1
-  echo "Every release in RC has its entries on its release branch."
+}
+
+publish() {
+  local v
+  for v in $(versions); do
+    if [ "$v" != "$1" ] && ! released "$v"; then
+      error "$v.md is not released, so pmm-$1 can't publish it. Remove it from pmm-$1."
+    fi
+  done
 }
 
 case ${1:-} in
-  new | prune | check)
+  new)
     "$@"
     ;;
+  open | check | publish)
+    "$@"
+    [ "$errors" -eq 0 ] || exit 1
+    echo "Release notes pages are fine."
+    ;;
   *)
-    echo "Usage: $0 new VERSION | prune VERSION | check" >&2
+    echo "Usage: $0 new VERSION | open | check | publish VERSION" >&2
     exit 2
     ;;
 esac

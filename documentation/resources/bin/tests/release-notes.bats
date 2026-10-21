@@ -21,7 +21,7 @@ entry() {
   sed -i "/^## ✅ Fixed issues$/a - [$1](https://perconadev.atlassian.net/browse/$1): Fixed it." "$page"
 }
 
-# at REF commits the page and points REF (remotes/origin/pmm-3.11.0 or tags/v3.11.0) at it.
+# at REF commits the pages and points REF (remotes/origin/pmm-X.Y.Z or tags/vX.Y.Z) at them.
 at() {
   git -C "$repo" add -A
   git -C "$repo" commit -qm "$1" --allow-empty
@@ -42,17 +42,21 @@ at() {
   [ "$(grep -c '"PMM 3.11.0"' "$doc/mkdocs-base.yml")" -eq 1 ]
 }
 
-@test "prune: removes newer pages with their index and nav lines, keeps the rest" {
+@test "open: passes with one unreleased page next to released and RC ones" {
+  "$rn" new 3.10.0 > /dev/null
+  at tags/v3.10.0
   "$rn" new 3.10.1 > /dev/null
-  "$rn" new 3.11.1 > /dev/null
-  "$rn" new 3.12.0 > /dev/null
-  run "$rn" prune 3.11.0
+  at remotes/origin/pmm-3.10.1
+  touch "$doc/docs/release-notes/3.0.0_1.md"
+  run "$rn" open
   [ "$status" -eq 0 ]
-  [ -f "$page" ] && [ -f "$doc/docs/release-notes/3.10.1.md" ]
-  [ ! -e "$doc/docs/release-notes/3.11.1.md" ] && [ ! -e "$doc/docs/release-notes/3.12.0.md" ]
-  ! grep -qE '3\.11\.1|3\.12\.0' "$doc/docs/release-notes/index.md" "$doc/mkdocs-base.yml"
-  grep -qF 'release-notes/3.11.0.md' "$doc/mkdocs-base.yml"
-  grep -qF '](3.10.1.md)' "$doc/docs/release-notes/index.md"
+}
+
+@test "open: fails with two unreleased pages" {
+  "$rn" new 3.10.1 > /dev/null
+  run "$rn" open
+  [ "$status" -eq 1 ]
+  [[ $output == *"More than one unreleased release notes page: 3.10.1.md 3.11.0.md"* ]]
 }
 
 @test "check: passes when the release branch has every entry" {
@@ -74,16 +78,29 @@ at() {
   [[ $output != *"PMM-1 "* ]]
 }
 
-@test "check: skips a version without a release branch" {
+@test "check: skips versions not in RC" {
   entry PMM-1
+  run "$rn" check
+  [ "$status" -eq 0 ]
+  at remotes/origin/pmm-3.11.0
+  entry PMM-2
+  at tags/v3.11.0
   run "$rn" check
   [ "$status" -eq 0 ]
 }
 
-@test "check: skips a released version" {
-  at remotes/origin/pmm-3.11.0
-  entry PMM-1
-  at tags/v3.11.0
-  run "$rn" check
+@test "publish: passes with only released pages besides its own" {
+  "$rn" new 3.10.0 > /dev/null
+  at tags/v3.10.0
+  run "$rn" publish 3.11.0
   [ "$status" -eq 0 ]
+}
+
+@test "publish: fails on a later page and on an unreleased earlier one" {
+  "$rn" new 3.10.1 > /dev/null
+  "$rn" new 3.11.1 > /dev/null
+  run "$rn" publish 3.11.0
+  [ "$status" -eq 1 ]
+  [[ $output == *"3.10.1.md is not released, so pmm-3.11.0 can't publish it"* ]]
+  [[ $output == *"3.11.1.md is not released, so pmm-3.11.0 can't publish it"* ]]
 }
