@@ -17,7 +17,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 | Service name|The name or identifier associated with the service being monitored.|                                        
 | Node name | Name or identifier associated with a specific node.| 
 | Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are: <br><br> • <b style="color:#73BF69;">OK</b> - all agents are healthy <br> • <b style="color:#FF9830;">Warning</b> - multiple agents are disabled <br> • <b style="color:#e02f44;">Failed</b> - one or more agents are failing <br> • <b style="color:#6C757D;">Disabled</b> - agent is intentionally disabled <br> • <b style="color:#6C757D;">Stopped</b> - agent has stopped but is not disabled |
-|  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
+|  Address         | The address PMM Agent uses to connect to the service, as seen from the node the service runs on. `127.0.0.1` or `localhost` means the database is local to that node, not to PMM Server. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the :material-dots-vertical: icon <br> <br> * You can also check additional information about the service, by clicking on the :material-chevron-down: icon. This expands the service entry to show reference information like service labels and IDs.|
 
