@@ -448,9 +448,9 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         {.power-number}
 
         1. Select **Inventory > Services**. 
-        2. Find your MongoDB service in the list and verify it shows **Active** status.
-        3. Verify the **Service name**, **Addresses**, and other connection details are correct.
-        4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
+        2. Find your MongoDB service in the list and verify that its **Status** shows **Up**.
+        3. Verify the **Service Name**, **Address**, and other connection details are correct.
+        4. Click the status in the **Monitoring** column to check that all agents show **Running**.
 
 2. Verify data collection:
 
@@ -480,8 +480,9 @@ If you need to remove MongoDB service from PMM, follow these steps:
     {.power-number}
 
     1. Go to **Inventory > Services**.
-    2. In the **Status** column, check the box for the service you want to remove and click **Delete**.
-    3. On the confirmation pop-up, click **Delete service** and select **Force mode** if you want to also delete associated Clients.
+    2. Select the checkbox of the service that you want to remove, then click **Delete**.
+    3. To also remove the agents of the service, select **Force mode**.
+    4. Click **Yes, delete service**.
 
 ## Related topics
 
