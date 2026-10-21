@@ -1,64 +1,56 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ComponentType } from 'react';
 import Box from '@mui/material/Box';
-import { svgIconClasses } from '@mui/material/SvgIcon';
+import type { SvgIconProps } from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
-import { mergeSx } from '@/utils';
-import type { EmptyStateProps } from './empty-state.types';
+import {
+  NothingFoundIllustration,
+  RadarIllustration,
+  RealTimeDatabaseOffIllustration,
+  UnknownErrorIllustration,
+} from '../illustrations';
+import type { EmptyStateIllustration, EmptyStateProps, EmptyStateSize } from './empty-state.types';
 
-const SIZES = {
-  small: { py: 4, illustration: 48 },
-  medium: { py: 6, illustration: 64 },
-} as const;
+export const EMPTY_STATE_SIZES: Record<EmptyStateSize, { py: number; illustration: number }> = {
+  small: { py: 4, illustration: 80 },
+  medium: { py: 6, illustration: 120 },
+};
+
+export const EMPTY_STATE_ILLUSTRATIONS: Record<
+  EmptyStateIllustration,
+  ComponentType<SvgIconProps>
+> = {
+  'nothing-found': NothingFoundIllustration,
+  radar: RadarIllustration,
+  'unknown-error': UnknownErrorIllustration,
+  'real-time-database-off': RealTimeDatabaseOffIllustration,
+};
 
 const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
   (
-    {
-      title,
-      description,
-      illustration,
-      actions,
-      titleComponent = 'h3',
-      size = 'medium',
-      sx,
-      ...rest
-    },
+    { title, description, illustration, actions, titleComponent = 'h3', size = 'medium', ...rest },
     ref
   ) => {
-    const { py, illustration: illustrationSize } = SIZES[size];
+    const { py, illustration: illustrationSize } = EMPTY_STATE_SIZES[size];
+    const Illustration = illustration && EMPTY_STATE_ILLUSTRATIONS[illustration];
 
     return (
       <Box
         ref={ref}
-        sx={mergeSx(
-          {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 1,
-            py,
-            px: 2,
-            textAlign: 'center',
-          },
-          sx
-        )}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={1}
+        py={py}
+        px={2}
+        textAlign="center"
         {...rest}
       >
-        {illustration && (
-          <Box
-            aria-hidden
-            sx={{
-              display: 'flex',
-              [`& > .${svgIconClasses.root}`]: { fontSize: illustrationSize },
-            }}
-          >
-            {illustration}
-          </Box>
-        )}
+        {Illustration && <Illustration aria-hidden sx={{ fontSize: illustrationSize }} />}
         <Typography variant="subtitle1" component={titleComponent}>
           {title}
         </Typography>
         {description && (
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 520 }}>
+          <Typography variant="body2" component="div" color="text.secondary" sx={{ maxWidth: 520 }}>
             {description}
           </Typography>
         )}

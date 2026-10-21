@@ -1,17 +1,13 @@
 import { type Meta, type StoryObj } from '@storybook/react';
-import { useMemo } from 'react';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddOutlined from '@mui/icons-material/AddOutlined';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-import { getThemeOptions } from '../../design';
-import { NothingFoundIllustration, RadarIllustration } from '../illustrations';
+import ThemedModePanel from '../../../.storybook/themed-mode-panel';
 import Table, { type MRT_ColumnDef } from '../table';
-import EmptyState from './empty-state';
+import EmptyState, { EMPTY_STATE_ILLUSTRATIONS, EMPTY_STATE_SIZES } from './empty-state';
 
 interface Service {
   name: string;
@@ -34,11 +30,11 @@ const meta: Meta<typeof EmptyState> = {
     docs: {
       description: {
         component: [
-          'What a place shows when it has content, why it is empty right now, and the way forward, always in that order. Use it for an empty table (through the `emptyState` slot of `Table`), an empty card or section, or a page with nothing on it, instead of composing `Typography` and buttons by hand.',
+          'What a place shows when it has content, why it is empty right now, and the way forward, always in that order. Use it for an empty card or section, or a page with nothing on it, instead of composing `Typography` and buttons by hand. `Table` already renders one when `data` is empty; pass one to its `emptyState` slot to add a description, an illustration or actions.',
           '',
           'Low emphasis by design: an empty place on a fresh install is expected, not a problem, so it has no border or color of its own. Inside a card, a table or an outlined section the container already draws the frame; when it stands alone, add a border through `sx`.',
           '',
-          '`size` small fits a card, a table or a section; medium fits a page or a whole section. The title is an `h3` by default: set `titleComponent` to fit the page outline, and make it the `h1` only when the empty state is the whole page. The illustration is decorative and hidden from screen readers, so the title and description carry the message.',
+          '`size` small fits a card, a table or a section; medium fits a page or a whole section. It sets the padding and the illustration size, so the illustration is always the right size for its place. The title is an `h3` by default: set `titleComponent` to fit the page outline, and make it the `h1` only when the empty state is the whole page. The illustration is decorative and hidden from screen readers, so the title and description carry the message.',
           '',
           'Pass one or two MUI `Button`s or `Link`s as `actions`; the first is the way forward. Leave actions out when there is nothing to do: no button beats one that leads nowhere.',
         ].join('\n'),
@@ -72,7 +68,10 @@ const meta: Meta<typeof EmptyState> = {
       options: ['h2', 'h3', 'h4', 'p'],
       control: { type: 'select' },
     },
-    illustration: { control: false },
+    illustration: {
+      options: [undefined, ...Object.keys(EMPTY_STATE_ILLUSTRATIONS)],
+      control: { type: 'select' },
+    },
     actions: { control: false },
   },
 };
@@ -110,21 +109,20 @@ export const WithIllustration: Story = {
     controls: { disable: true },
     docs: {
       description: {
-        story:
-          'Pass a Peak illustration that names the moment: Nothing found for an empty search or filter result, Radar while a scan is still running. It is sized by `size` (64px medium, 48px small).',
+        story: `Name a Peak illustration that fits the moment: \`nothing-found\` for an empty search or filter result, \`radar\` while a scan is still running, \`unknown-error\` when loading failed, \`real-time-database-off\` when a feature is off. Only Peak illustrations are accepted, and \`size\` sets their size (${EMPTY_STATE_SIZES.medium.illustration}px medium, ${EMPTY_STATE_SIZES.small.illustration}px small), so every empty state draws from the same set at the same scale.`,
       },
     },
   },
   render: () => (
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
       <EmptyState
-        illustration={<NothingFoundIllustration />}
+        illustration="nothing-found"
         title="No matching services"
         description="No service matches “prod-eu”. Try another name, or clear the filters."
         actions={<Button variant="outlined">Clear filters</Button>}
       />
       <EmptyState
-        illustration={<RadarIllustration />}
+        illustration="radar"
         title="Looking for services"
         description="PMM is scanning the node. Services show up here as they are found."
       />
@@ -157,7 +155,8 @@ export const InsideTable: Story = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Pass it to `Table`'s `emptyState` slot, at small size.",
+        story:
+          'An empty `Table` renders a small `EmptyState` titled with `noDataMessage` on its own. Pass one to its `emptyState` slot when the table needs a description, an illustration or a way forward.',
       },
     },
   },
@@ -197,7 +196,7 @@ export const PageLevel: Story = {
   render: () => (
     <EmptyState
       titleComponent="h1"
-      illustration={<NothingFoundIllustration />}
+      illustration="nothing-found"
       title="Page not found"
       description="The page may have moved, or the link may be wrong."
       actions={
@@ -212,49 +211,33 @@ export const PageLevel: Story = {
   ),
 };
 
-const ModePanel = ({ mode, themeName }: { mode: 'light' | 'dark'; themeName: string }) => {
-  const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          flex: 1,
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          border: 1,
-          borderColor: 'divider',
-          borderRadius: 1,
-        }}
-      >
-        <Typography variant="overline" component="p" sx={{ px: 2, pt: 2 }}>
-          {mode === 'light' ? 'Light mode' : 'Dark mode'}
-        </Typography>
-        <EmptyState
-          illustration={<RadarIllustration />}
-          title="Start monitoring"
-          description="Add a database service to see its health here, or install a new database on one of your nodes."
-          actions={
-            <>
-              <Button variant="contained" startIcon={<AddOutlined />}>
-                Add service
-              </Button>
-              <Button variant="outlined">Install a database</Button>
-            </>
-          }
-        />
-      </Box>
-    </ThemeProvider>
-  );
-};
+const monitoringEmptyState = (
+  <EmptyState
+    illustration="radar"
+    title="Start monitoring"
+    description="Add a database service to see its health here, or install a new database on one of your nodes."
+    actions={
+      <>
+        <Button variant="contained" startIcon={<AddOutlined />}>
+          Add service
+        </Button>
+        <Button variant="outlined">Install a database</Button>
+      </>
+    }
+  />
+);
 
 export const ColorModes: Story = {
   name: 'Light and dark mode',
   parameters: { controls: { disable: true } },
   render: (_args, { globals }) => (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-      <ModePanel mode="light" themeName={globals.theme ?? 'base'} />
-      <ModePanel mode="dark" themeName={globals.theme ?? 'base'} />
+      <ThemedModePanel mode="light" themeName={globals.theme ?? 'base'}>
+        {monitoringEmptyState}
+      </ThemedModePanel>
+      <ThemedModePanel mode="dark" themeName={globals.theme ?? 'base'}>
+        {monitoringEmptyState}
+      </ThemedModePanel>
     </Box>
   ),
 };

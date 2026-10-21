@@ -19,6 +19,7 @@ import {
 } from 'material-react-table';
 import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
 import { mergeSx } from '@/utils';
+import EmptyState from '../empty-state';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
@@ -65,6 +66,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiFilterTextFieldProps,
     displayColumnDefOptions,
     noDataMessage = 'No data',
+    noDataVariant = 'empty-state',
     noDataAlertProps,
     emptyFilterResultsMessage = 'No data found',
     hideExpandAllIcon,
@@ -154,8 +156,10 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
           <NoDataAlertMessage message={emptyFilterResultsMessage} {...noDataAlertProps} />
         ) : emptyState ? (
           <Box>{emptyState}</Box>
-        ) : (
+        ) : noDataVariant === 'alert' ? (
           <NoDataAlertMessage message={noDataMessage} {...noDataAlertProps} />
+        ) : (
+          <EmptyState size="small" width="100%" title={noDataMessage} titleComponent="p" />
         )}
       </>
     ),

@@ -100,4 +100,3 @@ export * from './page-container';
 export { default as PageContainer } from './page-container';
 
 export * from './empty-state';
-export { default as EmptyState } from './empty-state';

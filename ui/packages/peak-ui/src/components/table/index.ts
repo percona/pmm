@@ -1,7 +1,7 @@
-import { type TableProps } from './table.types';
+import { type TableNoDataVariant, type TableProps } from './table.types';
 
 export { default } from './table';
-export { TableProps };
+export { TableNoDataVariant, TableProps };
 
 export {
   default as useNavigableRows,

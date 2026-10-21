@@ -20,13 +20,24 @@ import {
 } from 'material-react-table';
 import { type MutableRefObject } from 'react';
 
+export type TableNoDataVariant = 'empty-state' | 'alert';
+
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   tableInstanceRef?: MutableRefObject<MRT_TableInstance<T> | null>;
+  /** Title of the empty state shown when `data` is empty. */
   noDataMessage?: string;
   emptyFilterResultsMessage?: string;
   hideExpandAllIcon?: boolean;
   tableName: string;
+  /** Replaces the default empty state; pass an `EmptyState` with a description, an illustration or actions. */
   emptyState?: React.ReactNode;
+  /**
+   * How an empty table reads: `empty-state` renders a small `EmptyState`; `alert` keeps the
+   * info alert from before `EmptyState` existed, for tables not yet moved to it.
+   * @default 'empty-state'
+   */
+  noDataVariant?: TableNoDataVariant;
+  /** Props for the info alert: the empty-filter-results one, and the no-data one under `noDataVariant="alert"`. */
   noDataAlertProps?: AlertProps;
   enableRowHoverAction?: boolean;
   rowHoverAction?: (row: MRT_Row<T>) => void;

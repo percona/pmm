@@ -243,8 +243,15 @@ const meta = {
     noDataMessage: {
       control: 'text',
       description:
-        '**Peak UI prop.** Message shown when `data` is empty (and no `emptyState` is provided).',
+        '**Peak UI prop.** Title of the empty state shown when `data` is empty (and no `emptyState` is provided).',
       table: { category: 'Empty state', defaultValue: { summary: "'No data'" } },
+    },
+    noDataVariant: {
+      options: ['empty-state', 'alert'],
+      control: { type: 'inline-radio' },
+      description:
+        '**Peak UI prop.** How an empty table reads. `empty-state` renders a small `EmptyState`; `alert` keeps the info alert from before `EmptyState` existed, for tables not yet moved to it.',
+      table: { category: 'Empty state', defaultValue: { summary: "'empty-state'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
@@ -254,7 +261,7 @@ const meta = {
     emptyState: {
       control: false,
       description:
-        '**Peak UI prop.** React node that fully replaces the default empty-state alert; pass an `EmptyState`. See the [Empty state — custom](?path=/story/data-display-table--empty-state-custom) story.',
+        '**Peak UI prop.** React node that replaces the default empty state; pass an `EmptyState` with a description, an illustration or actions. See the [Empty state — custom](?path=/story/data-display-table--empty-state-custom) story.',
       table: { category: 'Empty state' },
     },
     enableTopToolbar: {
@@ -817,7 +824,7 @@ export const EmptyState: Story = {
     docs: {
       description: {
         story:
-          'Default empty state when `data` is empty. Customize via `noDataMessage`, or replace entirely with the `emptyState` slot (see next story).',
+          'When `data` is empty the table renders a small `EmptyState` titled with `noDataMessage`. Replace it through the `emptyState` slot to add a description, an illustration or actions (see next story). Tables that have not moved to `EmptyState` yet can keep the previous info alert with `noDataVariant="alert"`.',
       },
     },
   },
@@ -835,7 +842,7 @@ export const EmptyStateCustom: Story = {
     docs: {
       description: {
         story:
-          'The `emptyState` prop accepts any React node and replaces the default alert entirely. Pass an `EmptyState` at small size: what the table shows, why it is empty, and the way forward.',
+          'The `emptyState` prop accepts any React node and replaces the default empty state. Pass an `EmptyState` at small size: what the table shows, why it is empty, and the way forward.',
       },
     },
   },
