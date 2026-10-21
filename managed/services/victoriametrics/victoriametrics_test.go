@@ -19,9 +19,11 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -849,6 +851,28 @@ scrape_configs:
 		check.NoError(err)
 		check.Equal(expected, string(actual), "actual:\n%s", actual)
 	})
+}
+
+// TestConfigAndReloadSkipsIdenticalConfig covers the early return for a configuration that is
+// already on disk. Most callers regenerate the whole file on any change anywhere, so forced
+// updates - a changed listen port in particular - routinely ask for exactly what is already there,
+// and validating it forks victoriametrics twice.
+//
+// Neither VictoriaMetrics nor the validation binary is available here, which is the point: without
+// the early return this call reaches validateConfig and fails.
+func TestConfigAndReloadSkipsIdenticalConfig(t *testing.T) {
+	t.Parallel()
+
+	cfg := []byte("# Managed by pmm-managed. DO NOT EDIT.\n")
+	scrapeConfigPath := filepath.Join(t.TempDir(), "scrape.yml")
+	require.NoError(t, os.WriteFile(scrapeConfigPath, cfg, 0o600))
+
+	svc := &Service{
+		scrapeConfigPath: scrapeConfigPath,
+		l:                logrus.WithField("test", t.Name()),
+	}
+
+	require.NoError(t, svc.configAndReload(context.Background(), cfg))
 }
 
 func TestConfigReload(t *testing.T) {

@@ -17,6 +17,7 @@
 package victoriametrics
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -334,6 +335,16 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	oldCfg, err := os.ReadFile(svc.scrapeConfigPath)
 	if err != nil {
 		return err
+	}
+
+	// Nothing to validate, write or reload when the file already holds exactly this. Most
+	// callers regenerate the whole configuration from the database on any change anywhere, so
+	// an update that changes nothing is the common case rather than the exception, and
+	// validateConfig below forks victoriametrics twice for it.
+	if bytes.Equal(oldCfg, b) {
+		svc.l.Debug("Configuration unchanged, skipping validation and reload")
+
+		return nil
 	}
 
 	fi, err := os.Stat(svc.scrapeConfigPath)
