@@ -6,7 +6,7 @@
 
 Name:           percona-victoriametrics
 Version:        1.154.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
@@ -43,6 +43,9 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %changelog
+* Wed Oct 21 2026 Jiří Čtvrtka <jiri.ctvrtka@ext.percona.com> - 1.154.0-2
+- PMM-15761 rebuild with Go 1.27.3
+
 * Mon Oct 19 2026 Jiří Čtvrtka <jiri.ctvrtka@ext.percona.com> - 1.154.0-1
 - upgrade victoriametrics to 1.154.0 release
 
