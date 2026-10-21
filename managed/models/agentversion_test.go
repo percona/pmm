@@ -42,12 +42,12 @@ func TestPMMAgentSupported(t *testing.T) {
 		{
 			name:         "Empty version string",
 			agentVersion: "",
-			errString:    "failed to parse PMM agent version",
+			errString:    "not supported by pmm-agent",
 		},
 		{
 			name:         "Wrong version string",
 			agentVersion: "Some version",
-			errString:    "failed to parse PMM agent version",
+			errString:    "not supported by pmm-agent",
 		},
 		{
 			name:         "Less than min version",
@@ -91,6 +91,16 @@ func TestPMMAgentSupported(t *testing.T) {
 		err := models.IsAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "nil agent")
 	})
+
+	t.Run("Malformed version is AgentNotSupportedError", func(t *testing.T) {
+		agentModel := models.Agent{
+			AgentID: "Test agent ID",
+			Version: new("3.10.0-dependabot-npm_and_yarn-a4dbb6117a"),
+		}
+		err := models.IsAgentSupported(&agentModel, prefix, minVersion)
+		var target models.AgentNotSupportedError
+		require.ErrorAs(t, err, &target)
+	})
 }
 
 func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
@@ -131,6 +141,13 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 				RunsOnNodeID: new("N1"),
 				Version:      new("2.40.1"),
 			},
+
+			&models.Agent{
+				AgentID:      "Malformed",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: new("N1"),
+				Version:      new("3.10.0-dependabot-npm_and_yarn-a4dbb6117a"),
+			},
 		} {
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
@@ -154,6 +171,10 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 		},
 		{
 			"Old",
+			false,
+		},
+		{
+			"Malformed",
 			false,
 		},
 	}
