@@ -25,7 +25,12 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
-  "includes": [],
+  "includes": [
+    { "type": "panel", "name": "PMM Advisors" },
+    { "type": "panel", "name": "PMM Update" },
+    { "type": "panel", "name": "PTSummary" },
+    { "type": "datasource", "name": "PTSummary" }
+  ],
   "dependencies": {
     "grafanaDependency": ">=10.4.0",
     "plugins": []
