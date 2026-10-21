@@ -361,6 +361,34 @@ After you restore a backup into another namespace, the `pmm-ha-client` or Postgr
 
 **Fix:** Set `PMM_ADMIN_PASSWORD` in the new namespace's `pmm-secret` to the source installation's admin password, then restart the failing pods. See [Restore into another namespace](../install-pmm/backup-restore-HA-clustered.md#restore-into-another-namespace).
 
+## High memory usage
+
+PMM pods are consuming more memory than expected.
+
+**Cause:** Resource limits may be set too high for the workload, or retention settings are keeping more data than the cluster can sustain.
+
+**Fix:** Check which pods are using the most memory, then examine their resource configuration:
+
+```sh
+kubectl top pods -n pmm
+kubectl describe pod <pod-name> -n pmm
+```
+
+Adjust `resources.requests` and `resources.limits` in your values file, or reduce the retention period for VictoriaMetrics and ClickHouse.
+
+## Resources stay in Terminating state
+
+A pod or other resource stays in `Terminating` indefinitely during deletion or uninstall.
+
+**Cause:** Kubernetes finalizers are preventing deletion. PMM HA resources use finalizers to ensure clean shutdown. If the controller that processes them is removed first, the finalizers are never cleared and the resource blocks.
+
+**Fix:** Remove the finalizers manually:
+
+```sh
+kubectl patch <resource-type> <resource-name> -n pmm \
+  -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
+
 ## See also
 
 - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)

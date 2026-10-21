@@ -23,14 +23,10 @@ PMM HA is worth the added complexity when your monitoring must recover in second
 - **Network partitions**: HA can't monitor infrastructure segments that are completely cut off from PMM
 - **Operational overhead**: HA adds complexity to deployment, maintenance, and troubleshooting
 
-## No Kubernetes?
+## Feature comparison
 
-If you don't have Kubernetes, run PMM Server with `--restart always` and [Docker will restart it automatically after crashes or reboots](install-pmm-server/deployment-options/docker/index.md).
-
-## HA deployment options
-
-| | [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md) | [HA Cluster](HA-clustered.md) |
-|--|--|--|
+| Consideration | [Kubernetes single instance](HA-kubernetes-single-instance.md) | [HA Cluster](HA-clustered.md) |
+|---|---|---|
 | **Overview** | Kubernetes restarts PMM Server automatically if it fails. Persistent volumes keep your data across restarts. | Fast automatic failover with distributed databases. Supported on [Amazon EKS and OpenShift](HA-clustered.md#check-if-your-platform-is-supported). |
 | **PMM instances** | 1 | 3 |
 | **Failover time** | 2–5 min | 5–10 sec interruption on leader failover |

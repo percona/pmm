@@ -40,33 +40,34 @@ To install PMM HA:
     {.power-number}
 
     1. Add Percona Helm repositories:
-      ```sh
-      helm repo add percona https://percona.github.io/percona-helm-charts/
-      helm repo update
-      ```
 
-    2. Create namespace:
-      ```sh
-      kubectl create namespace pmm
-      ```
+        ```sh
+        helm repo add percona https://percona.github.io/percona-helm-charts/
+        helm repo update
+        ```
 
-      You can use any namespace name. Replace `pmm` throughout these steps with your chosen namespace.
+    2. Create namespace. You can use any namespace name. Replace `pmm` throughout these steps with your chosen namespace.
+
+        ```sh
+        kubectl create namespace pmm
+        ```
 
     3. Install required Kubernetes operators:
-      ```sh
-      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
-      
-      # Wait for all operators to be ready (typically 2-3 minutes)
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=victoria-metrics-operator \
-        -n pmm --timeout=300s
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=altinity-clickhouse-operator \
-        -n pmm --timeout=300s
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pg-operator \
-        -n pmm --timeout=300s
-      ```
+
+        ```sh
+        helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
+
+        # Wait for all operators to be ready (typically 2-3 minutes)
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=victoria-metrics-operator \
+          -n pmm --timeout=300s
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=altinity-clickhouse-operator \
+          -n pmm --timeout=300s
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=pg-operator \
+          -n pmm --timeout=300s
+        ```
 
     4. Create PMM secret with your passwords:
       ```sh
@@ -82,16 +83,18 @@ To install PMM HA:
       ```
 
     5. Install PMM HA:
-      ```sh
-      helm install pmm-ha percona/pmm-ha --namespace pmm
-      ```
+
+        ```sh
+        helm install pmm-ha percona/pmm-ha --namespace pmm
+        ```
 
     6. Wait for deployment to complete:
-      ```sh
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pmm \
-        -n pmm --timeout=600s
-      ```
+
+        ```sh
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=pmm \
+          -n pmm --timeout=600s
+        ```
 
 === "Full installation"
     For more control over your deployment, including custom configurations, manual operator installation, and detailed verification at each stage.
@@ -302,33 +305,34 @@ To install PMM HA:
     {.power-number}
 
     1. Add Percona Helm repositories:
-      ```sh
-      helm repo add percona https://percona.github.io/percona-helm-charts/
-      helm repo update
-      ```
 
-    2. Create a project:
-      ```sh
-      oc new-project pmm
-      ```
+        ```sh
+        helm repo add percona https://percona.github.io/percona-helm-charts/
+        helm repo update
+        ```
 
-      You can use any project name. Replace `pmm` throughout these steps with your chosen name.
+    2. Create a project. You can use any project name. Replace `pmm` throughout these steps with your chosen name.
+
+        ```sh
+        oc new-project pmm
+        ```
 
     3. Install required operators:
-      ```sh
-      helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
 
-      # Wait for all operators to be ready (typically 2-3 minutes)
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=victoria-metrics-operator \
-        -n pmm --timeout=300s
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=altinity-clickhouse-operator \
-        -n pmm --timeout=300s
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pg-operator \
-        -n pmm --timeout=300s
-      ```
+        ```sh
+        helm install pmm-operators percona/pmm-ha-dependencies --namespace pmm
+
+        # Wait for all operators to be ready (typically 2-3 minutes)
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=victoria-metrics-operator \
+          -n pmm --timeout=300s
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=altinity-clickhouse-operator \
+          -n pmm --timeout=300s
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=pg-operator \
+          -n pmm --timeout=300s
+        ```
 
     4. Create PMM secret with your passwords:
       ```sh
@@ -345,52 +349,54 @@ To install PMM HA:
 
     5. Create `values-openshift.yaml` with the required OpenShift settings:
 
-      ```yaml
-      # Let OpenShift's SCC assign uid and fsGroup — do not request fixed values.
-      openshift: true
+        ```yaml
+        # Let OpenShift's SCC assign uid and fsGroup — do not request fixed values.
+        openshift: true
 
-      # kube-state-metrics pins uid/gid/fsGroup 65534, which falls outside the namespace's
-      # assigned UID range. Disable its securityContext so OpenShift can assign them.
-      kube-state-metrics:
-        securityContext:
+        # kube-state-metrics pins uid/gid/fsGroup 65534, which falls outside the namespace's
+        # assigned UID range. Disable its securityContext so OpenShift can assign them.
+        kube-state-metrics:
+          securityContext:
+            enabled: false
+
+        # restricted-v2 does not permit hostNetwork, hostPID, or hostPath volumes,
+        # so the bundled node-exporter cannot run. Use OpenShift's platform node-exporter
+        # (already running in openshift-monitoring) for host metrics instead.
+        prometheus-node-exporter:
           enabled: false
+        nodeExporter:
+          mode: openshift
 
-      # restricted-v2 does not permit hostNetwork, hostPID, or hostPath volumes,
-      # so the bundled node-exporter cannot run. Use OpenShift's platform node-exporter
-      # (already running in openshift-monitoring) for host metrics instead.
-      prometheus-node-exporter:
-        enabled: false
-      nodeExporter:
-        mode: openshift
+        # restricted-v2 drops NET_BIND_SERVICE, so HAProxy cannot bind port 443.
+        # Use a port above 1024. Expose externally via an OpenShift Route (see below).
+        haproxy:
+          containerPorts:
+            https: 8443
 
-      # restricted-v2 drops NET_BIND_SERVICE, so HAProxy cannot bind port 443.
-      # Use a port above 1024. Expose externally via an OpenShift Route (see below).
-      haproxy:
-        containerPorts:
-          https: 8443
-
-      # The PostgreSQL sidecar reaches PMM through HAProxy. Without the port, it dials 443,
-      # which HAProxy no longer publishes on OpenShift.
-      pg-db:
-        pmm:
-          serverHost: pmm-ha-haproxy:8443
-      ```
+        # The PostgreSQL sidecar reaches PMM through HAProxy. Without the port, it dials 443,
+        # which HAProxy no longer publishes on OpenShift.
+        pg-db:
+          pmm:
+            serverHost: pmm-ha-haproxy:8443
+        ```
 
     6. Install PMM HA:
-      ```sh
-      helm install pmm-ha percona/pmm-ha --namespace pmm -f values-openshift.yaml
-      ```
+
+        ```sh
+        helm install pmm-ha percona/pmm-ha --namespace pmm -f values-openshift.yaml
+        ```
 
     7. Verify installation:
-      ```sh
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pmm \
-        -n pmm --timeout=600s
 
-      kubectl get pods -l app.kubernetes.io/name=pmm -n pmm
-      kubectl get pods -l app.kubernetes.io/name=haproxy -n pmm
-      kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm
-      ```
+        ```sh
+        kubectl wait --for=condition=ready pod \
+          -l app.kubernetes.io/name=pmm \
+          -n pmm --timeout=600s
+
+        kubectl get pods -l app.kubernetes.io/name=pmm -n pmm
+        kubectl get pods -l app.kubernetes.io/name=haproxy -n pmm
+        kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm
+        ```
 
 ## Install PMM HA into multiple namespaces
 
@@ -412,24 +418,30 @@ Each additional instance needs:
 !!! warning "Upgrade the operators first if you installed PMM HA before PMM 3.10.0"
     In earlier versions, the PostgreSQL and ClickHouse operators watch only their own namespace. If you install a second instance before upgrading them, its PostgreSQL and ClickHouse clusters are never created, and the PMM pods stay in `Init:1/2` indefinitely.
 
-    To upgrade the operators:
+### Upgrade the operators
 
-    1. Find the release name of your operators installation, usually `pmm-operators`:
-        ```sh
-        helm list --namespace pmm
-        ```
+To upgrade the operators:
+{.power-number}
 
-    2. Upgrade it:
-        ```sh
-        helm upgrade pmm-operators percona/pmm-ha-dependencies --namespace pmm
-        ```
+1. Find the release name of your operators installation, usually `pmm-operators`:
 
-    3. Wait for the new operator pods to roll out:
-        ```sh
-        kubectl rollout status deployment -l app.kubernetes.io/name=pg-operator -n pmm --timeout=300s
-        kubectl rollout status deployment -l app.kubernetes.io/name=altinity-clickhouse-operator -n pmm --timeout=300s
-        kubectl rollout status deployment -l app.kubernetes.io/name=victoria-metrics-operator -n pmm --timeout=300s
-        ```
+    ```sh
+    helm list --namespace pmm
+    ```
+
+2. Upgrade it:
+
+    ```sh
+    helm upgrade pmm-operators percona/pmm-ha-dependencies --namespace pmm
+    ```
+
+3. Wait for the new operator pods to roll out:
+
+    ```sh
+    kubectl rollout status deployment -l app.kubernetes.io/name=pg-operator -n pmm --timeout=300s
+    kubectl rollout status deployment -l app.kubernetes.io/name=altinity-clickhouse-operator -n pmm --timeout=300s
+    kubectl rollout status deployment -l app.kubernetes.io/name=victoria-metrics-operator -n pmm --timeout=300s
+    ```
 
 ### Install an additional instance
 
@@ -780,31 +792,33 @@ To enable external access when required, choose the configuration that matches y
 
     1. Create a `pmm-ha-route.yaml` file:
 
-      ```yaml
-      apiVersion: route.openshift.io/v1
-      kind: Route
-      metadata:
-        name: pmm-ha
-        namespace: pmm
-      spec:
-        to:
-          kind: Service
-          name: pmm-ha-haproxy
-        port:
-          targetPort: 8443
-        tls:
-          termination: passthrough
-      ```
+        ```yaml
+        apiVersion: route.openshift.io/v1
+        kind: Route
+        metadata:
+          name: pmm-ha
+          namespace: pmm
+        spec:
+          to:
+            kind: Service
+            name: pmm-ha-haproxy
+          port:
+            targetPort: 8443
+          tls:
+            termination: passthrough
+        ```
 
     2. Apply the Route:
-      ```sh
-      kubectl apply -f pmm-ha-route.yaml
-      ```
+
+        ```sh
+        kubectl apply -f pmm-ha-route.yaml
+        ```
 
     3. Get the Route hostname:
-      ```sh
-      kubectl get route pmm-ha -n pmm -o jsonpath='{.status.ingress[0].host}'
-      ```
+
+        ```sh
+        kubectl get route pmm-ha -n pmm -o jsonpath='{.status.ingress[0].host}'
+        ```
 
     4. Access PMM at `https://<route-hostname>`.
 
@@ -1336,45 +1350,13 @@ helm rollback pmm-ha 2 -n pmm
 
 This restores your previous Helm release configuration, reverting any settings changes you made.
 
-## Troubleshoot issues
+## Known issues
 
-**Issue**: Pods stuck in `Pending` state
+We are aware of the following known issues:
 
-**Solution**: Check PV provisioner and ensure sufficient cluster resources:
-
-```sh
-kubectl describe pod <pod-name> -n pmm
-kubectl get pv,pvc -n pmm
-```
-
-**Issue**: PMM not accessible after install
-
-**Solution**: Verify HAProxy service is running and has endpoints:
-
-```sh
-kubectl get svc pmm-ha-haproxy -n pmm
-kubectl get endpoints pmm-ha-haproxy -n pmm
-kubectl describe svc pmm-ha-haproxy -n pmm
-```
-
-**Issue**: High memory usage
-
-**Solution**: Adjust resource limits and check retention settings:
-
-```sh
-kubectl top pods -n pmm
-kubectl describe pod <pod-name> -n pmm
-```
-
-**Issue**: Resources stuck in "Terminating" state
-
-**Solution**: Some resources may have finalizers preventing deletion. Remove finalizers manually:
-
-```sh
-# Remove finalizer from a stuck resource
-kubectl patch <resource-type> <resource-name> -n pmm \
-  -p '{"metadata":{"finalizers":[]}}' --type=merge
-```
+| Issue | Impact | Workaround |
+|-------|--------|------------|
+| **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: Inconsistent PostgreSQL service count | The Inventory page shows 4-5 PostgreSQL services instead of the expected 6 | No workaround — cosmetic only |
 
 ### Scaling limitations
 
