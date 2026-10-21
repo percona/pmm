@@ -39,11 +39,13 @@ To start monitoring a PostgreSQL service:
 
 1. Go to **Query Analytics** in the sidebar.
 2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list: click **+ New session** there.
-3. Select a PostgreSQL service from the **Cluster/Service** drop-down and click **Start session**. The drop-down groups services by technology.
+3. Select a PostgreSQL service from the **Cluster/Service** drop-down and click **Start session**. The drop-down groups services by technology, and the services of a cluster under its name.
 
-![Cluster/Service drop-down with PostgreSQL services grouped by cluster](../../images/RTA_PostgreSQL_select_service.png)
+    ![Cluster/Service drop-down with PostgreSQL services grouped by cluster](../../images/RTA_PostgreSQL_select_service.png)
 
-The live query table appears and begins updating automatically.
+4. If the sessions list opens, click the service name to open the live query table.
+
+The live query table updates automatically.
 
 If you have multiple services registered, click **+ New session** to run sessions simultaneously — useful for watching a primary and its replicas during the same incident. The view shows one technology at a time, so you can't combine PostgreSQL services with MongoDB or MySQL services in one view.
 
@@ -108,12 +110,12 @@ This is what RTA is for. A session waiting on a lock carries a **Blocked by** ba
 
 | Field | Meaning |
 | ----- | ------- |
-| **Blocked by** | The process ID of the session to resolve, and how long this session has been waiting |
+| **Blocked by** | The process ID of the session at the head of the chain, and how long this session has been waiting |
 | **Blocker's statement** | What the blocking session is running. When the blocker is idle, this is the last query it ran, which is often, but not always, the query that took the lock: an earlier query in the same transaction may have taken it |
 | **Blocker state** | The blocker's state, such as `active` or `idle in transaction`, with how long its transaction has been open. For a background process that reports no state, its backend type |
 | **Blocker user** | Who owns the blocking session |
 
-RTA asks PostgreSQL which sessions block each waiting session with `pg_blocking_pids()`, and follows the chain to its head. **Root** marks a blocker that is not itself waiting on anything — the session at the head of the chain, and the one to resolve. When several sessions are queued for the same lock, the pane lists the sessions ahead of this one, which clear on their own once the root is resolved.
+RTA asks PostgreSQL which sessions block each waiting session with `pg_blocking_pids()`, and follows the chain to its head. The **Blocked by** badge and the pane name the session at the head of the chain: it is not itself waiting on anything, and it is the one to resolve. Sessions queued for the same lock ahead of this one are listed under **more transactions ahead**, and they clear on their own once the head of the chain is resolved. When several sessions hold the lock independently, the pane marks each of them **Root**, and the waiting session stays blocked until all of them are resolved.
 
 Only waits on heavyweight locks, the locks that `pg_locks` shows, have a blocker. A session waiting on I/O, a lightweight lock or a client is not blocked by another session: the **Wait event** field in the **Details** tab shows what it waits for.
 
@@ -161,11 +163,11 @@ In the **Details** tab, **Client app name**, **User name** and **Client address*
 
 ### Spot waits and long transactions
 
-**State** is the session's state in `pg_stat_activity`. **Wait event** shows what the session is waiting for, as `wait_event_type: wait_event`, for example `Lock: transactionid` for a session waiting on another transaction's row lock, or `IO: DataFileRead` for a session reading from disk. It is empty when the session is not waiting.
+**State** is the session's state in `pg_stat_activity`. **Wait event** shows what the session is waiting for, as `wait_event_type: wait_event`, for example `Lock: transactionid` for a session waiting on another transaction's row lock, or `IO: DataFileRead` for a session reading from disk. It shows **Unavailable** when the session is not waiting.
 
 **Transaction start time** shows when the session's transaction began. A transaction that stays open for long holds its locks and keeps `VACUUM` from removing dead rows.
 
-**Query ID** is PostgreSQL's query identifier, the same value as `queryid` in `pg_stat_statements`. PostgreSQL sets it on PostgreSQL 14 and later when `compute_query_id` is enabled, which is the default when `pg_stat_statements` is loaded. Otherwise the field is empty.
+**Query ID** is PostgreSQL's query identifier, the same value as `queryid` in `pg_stat_statements`. PostgreSQL sets it on PostgreSQL 14 and later when `compute_query_id` is enabled, which is the default when `pg_stat_statements` is loaded. PostgreSQL computes it only after it has opened the tables a query reads, so a query that is still waiting for a lock on one of them has none yet. Without a query ID, the field shows **Unavailable**.
 
 ### Long queries are truncated
 
@@ -189,7 +191,7 @@ To export the current view:
 3. Apply any filters or sort order you want reflected in the export.
 4. Click :material-download: **Export to CSV**.
 
-The export includes all records across all pages, respects active filters and sort order, and is saved as `postgresql_rta_export_{timestamp}.csv`. The `operation_id` column holds the backend process ID, and `pg_query_id` holds PostgreSQL's query identifier. `query_text_truncated` says whether the query text was cut short. When one session is blocking a query, `blocking_conn_id` and `blocking_query` name it, and `blocking_query_truncated` says whether its query text was cut short.
+The export includes all records across all pages, respects active filters and sort order, and is saved as `postgresql_rta_export_{timestamp}.csv`. The `operation_id` column holds the backend process ID, and `pg_query_id` holds PostgreSQL's query identifier. `query_text_truncated` says whether the query text was cut short. When one session is blocking a query, `blocking_conn_id` and `blocking_query` name it, and `blocking_query_truncated` says whether its query text was cut short. A negative `pg_query_id` is written with a leading apostrophe (`'`), so that spreadsheet applications don't read it as a formula.
 
 ## Known limitations
 
@@ -228,7 +230,7 @@ If a session can't start, its status shows **Error**. Hover over the status in t
 
 ### Other users' sessions are missing
 
-The monitoring user is not a superuser and not a member of `pg_read_all_stats`, so PostgreSQL shows it only its own sessions. The session still starts, and hovering over its status in the sessions list shows the warning:
+The monitoring user is not a superuser and not a member of `pg_read_all_stats`, so PostgreSQL shows it only its own sessions. The session still starts, and its status in the sessions list carries a warning icon. Hover over the status to see the warning:
 
 ![Sessions list with a running PostgreSQL session and its warning in the tooltip](../../images/RTA_PostgreSQL_session_warning.png)
 

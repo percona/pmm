@@ -30,8 +30,9 @@ To start monitoring a MongoDB service:
 1. Go to **Query Analytics** in the sidebar.
 2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list: click **+ New session** there.
 3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
+4. If the sessions list opens, click the service name to open the live operations table.
 
-The live operations table appears and begins updating automatically:
+The live operations table updates automatically:
 
 ![RTA live table](../../images/RTA_live.png)
 
