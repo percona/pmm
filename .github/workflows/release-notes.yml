@@ -1,43 +1,24 @@
 ---
 name: Release notes
 
-# While pmm-X.Y.Z is in RC, every entry in X.Y.Z.md on main must also be on pmm-X.Y.Z: a fix merged
-# to main but not cherry-picked fails this on push until it is, or its entry moves to the next release.
 on:
-  push:
-    branches:
-      - main
-      - "pmm-[0-9]+.[0-9]+.[0-9]+"
-    paths:
-      - "documentation/docs/release-notes/**"
   pull_request:
     paths:
       - ".github/workflows/release-notes.yml"
       - "documentation/resources/bin/release-notes.sh"
       - "documentation/resources/bin/tests/**"
-      - "documentation/resources/release-notes-template.md"
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  check:
-    name: Release notes
+  test:
+    name: Release notes script
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event_name != 'pull_request' && 'main' || '' }}
-          fetch-depth: 0
 
       - name: Test the script
-        if: github.event_name == 'pull_request'
         run: npx --yes bats@1.11.0 documentation/resources/bin/tests
-
-      # Not on PRs: a hotfix merges to main before it is cherry-picked.
-      - name: Check the releases in RC
-        if: github.event_name != 'pull_request'
-        run: documentation/resources/bin/release-notes.sh check

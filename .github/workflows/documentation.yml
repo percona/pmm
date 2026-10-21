@@ -106,8 +106,7 @@ jobs:
       - name: Check for unused images
         run: make doc-check-images
 
-      # A release branch recut from main, or a doc-hotfix copy, can carry the next version's page.
-      - name: Check no unreleased release notes are published
+      - name: Check the release notes match main
         run: documentation/resources/bin/release-notes.sh publish "$VERSION"
 
       # Builds Material-themed static web site in 'publish' branch

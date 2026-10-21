@@ -5,85 +5,72 @@ setup() {
   bin="$BATS_TEST_DIRNAME/.."
   repo="$BATS_TEST_TMPDIR/repo"
   doc="$repo/documentation"
-  mkdir -p "$doc/docs/release-notes" "$doc/resources"
+  pages="$doc/docs/release-notes"
+  mkdir -p "$pages" "$doc/resources"
   cp "$bin/../release-notes-template.md" "$doc/resources/"
-  cp "$bin/../../docs/release-notes/index.md" "$doc/docs/release-notes/"
+  cp "$bin/../release-notes-template.md" "$pages/next.md"
+  cp "$bin/../../docs/release-notes/index.md" "$pages/"
   cp "$bin/../../mkdocs-base.yml" "$doc/"
   export DOC_DIR="$doc" GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
   rn="$bin/release-notes.sh"
-  page="$doc/docs/release-notes/3.11.0.md"
   git -C "$repo" init -q
-  "$rn" new 3.11.0 > /dev/null
 }
 
-# entry TICKET adds a fixed-issue entry to 3.11.0.md.
+# entry FILE TICKET adds a fixed-issue entry to FILE.
 entry() {
-  sed -i "/^## ✅ Fixed issues$/a - [$1](https://perconadev.atlassian.net/browse/$1): Fixed it." "$page"
+  sed -i "/^## ✅ Fixed issues$/a - [$2](https://perconadev.atlassian.net/browse/$2): Fixed it." "$pages/$1"
 }
 
-# at REF commits the pages and points REF (remotes/origin/pmm-X.Y.Z or tags/vX.Y.Z) at them.
-at() {
+# commit REF commits everything and points REF at it.
+commit() {
   git -C "$repo" add -A
   git -C "$repo" commit -qm "$1" --allow-empty
   git -C "$repo" update-ref "refs/$1" HEAD
 }
 
-@test "new: creates the page from the template and lists it in the index and nav" {
-  grep -q '^# Percona Monitoring and Management 3.11.0$' "$page"
-  grep -qF -- '- [Percona Monitoring and Management 3.11.0](3.11.0.md)' "$doc/docs/release-notes/index.md"
+@test "rc: moves next.md to the version, lists it in the index and nav, and empties next.md" {
+  entry next.md PMM-1
+  run "$rn" rc 3.11.0
+  [ "$status" -eq 0 ]
+  grep -q '^# Percona Monitoring and Management 3.11.0$' "$pages/3.11.0.md"
+  grep -q 'browse/PMM-1)' "$pages/3.11.0.md"
+  cmp -s "$pages/next.md" "$doc/resources/release-notes-template.md"
+  grep -qF -- '- [Percona Monitoring and Management 3.11.0](3.11.0.md)' "$pages/index.md"
   grep -qF -- '- "PMM 3.11.0": release-notes/3.11.0.md' "$doc/mkdocs-base.yml"
 }
 
-@test "new: leaves an existing page, index and nav alone" {
-  entry PMM-1
-  run "$rn" new 3.11.0
+@test "rc: a rerun leaves the version and next.md alone" {
+  "$rn" rc 3.11.0 > /dev/null
+  entry next.md PMM-2
+  run "$rn" rc 3.11.0
   [ "$status" -eq 0 ]
-  grep -q 'browse/PMM-1)' "$page"
+  grep -q 'browse/PMM-2)' "$pages/next.md"
+  ! grep -q 'browse/PMM-2)' "$pages/3.11.0.md"
   [ "$(grep -c '"PMM 3.11.0"' "$doc/mkdocs-base.yml")" -eq 1 ]
 }
 
-@test "check: passes when the release branch has every entry" {
-  entry PMM-1
-  at remotes/origin/pmm-3.11.0
-  run "$rn" check
-  [ "$status" -eq 0 ]
-}
-
-@test "check: fails on each entry the release branch doesn't have" {
-  entry PMM-1
-  at remotes/origin/pmm-3.11.0
-  entry PMM-2
-  entry PMM-3
-  run "$rn" check
-  [ "$status" -eq 1 ]
-  [[ $output == *"PMM-2 is in 3.11.0.md on main but not on pmm-3.11.0"* ]]
-  [[ $output == *"PMM-3 is in 3.11.0.md on main but not on pmm-3.11.0"* ]]
-  [[ $output != *"PMM-1 "* ]]
-}
-
-@test "check: skips versions not in RC" {
-  entry PMM-1
-  run "$rn" check
-  [ "$status" -eq 0 ]
-  at remotes/origin/pmm-3.11.0
-  entry PMM-2
-  at tags/v3.11.0
-  run "$rn" check
-  [ "$status" -eq 0 ]
-}
-
-@test "publish: passes with only released pages besides its own" {
-  "$rn" new 3.10.0 > /dev/null
-  at tags/v3.10.0
+@test "publish: passes when the version matches main" {
+  "$rn" rc 3.11.0 > /dev/null
+  commit remotes/origin/main
   run "$rn" publish 3.11.0
   [ "$status" -eq 0 ]
 }
 
-@test "publish: fails on a later page and on an unreleased earlier one" {
-  "$rn" new 3.10.1 > /dev/null
-  "$rn" new 3.11.1 > /dev/null
+@test "publish: fails when the version differs from main" {
+  "$rn" rc 3.11.0 > /dev/null
+  commit heads/release
+  entry 3.11.0.md PMM-3
+  commit remotes/origin/main
+  git -C "$repo" checkout -q release
   run "$rn" publish 3.11.0
   [ "$status" -eq 1 ]
-  [[ $output == *"3.10.1.md is not released, so pmm-3.11.0 can't publish it"* ]]
-  [[ $output == *"3.11.1.md is not released, so pmm-3.11.0 can't publish it"* ]]
+  [[ $output == *"+- [PMM-3]"* || $output == *"-- [PMM-3]"* ]]
+  [[ $output == *"3.11.0.md differs between main and pmm-3.11.0"* ]]
+}
+
+@test "publish: fails when the version is missing" {
+  commit remotes/origin/main
+  run "$rn" publish 3.11.0
+  [ "$status" -eq 1 ]
+  [[ $output == *"3.11.0.md is missing on pmm-3.11.0"* ]]
 }

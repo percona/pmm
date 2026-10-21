@@ -12,7 +12,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Created on `main` by the RC job when the previous release branches; entries arrive with their PRs |
+| `documentation/docs/release-notes/` | One page per released version | Entries go to `next.md` on `main`; the RC job turns it into `X.Y.Z.md` |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -187,13 +187,11 @@ Rules for the entry:
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
 
-Put the entry on the page of the version your change ships in. A fix for a version in RC goes on that version's page, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick; never the other way.
+Put the entry in `documentation/docs/release-notes/next.md` on `main`: it holds the next release, whatever its number, and is never published. A fix for a version in RC goes in that version's `X.Y.Z.md` instead, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick.
 
-`main` has one unreleased page (no `vX.Y.Z` tag, no `pmm-X.Y.Z` branch), and that is where entries go. Its version is `VERSION` on the `v3` branch of [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION), the source of truth for the next release. When the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it bumps `VERSION` to the next patch and creates that page, `X.Y.(Z+1).md`, on `main` with `documentation/resources/bin/release-notes.sh new`: from `documentation/resources/release-notes-template.md`, listed in the index and nav. Bumping to a minor stays a human decision: the PR that bumps `VERSION` to `X.(Y+1).0` comes with a PR here that renames the page, for example `3.10.1.md` to `3.11.0.md` with its index and nav lines; its entries stay, since that code ships in the minor. Patch branches are cut from `main` like any other. The doc team writes the release summary, highlights, security updates and the `variables.yml` bump. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+Right before the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it runs `documentation/resources/bin/release-notes.sh rc X.Y.Z` on `main`: `next.md` becomes `X.Y.Z.md`, listed in the index and nav, and `next.md` starts over from `documentation/resources/release-notes-template.md`. The version comes from `VERSION` in [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION). The doc team writes the release summary, highlights, security updates and release date in `X.Y.Z.md`, on `main` and cherry-picked to `pmm-X.Y.Z`. An entry whose code is reverted on the release branch, as features are on a patch, comes out of `X.Y.Z.md` on both and goes back to `next.md`.
 
-The site build fails when `pmm-X.Y.Z` has an unreleased page other than `X.Y.Z.md`, so the next version's notes are never public.
-
-While `pmm-X.Y.Z` is in RC (no `vX.Y.Z` tag yet), `.github/workflows/release-notes.yml` fails on every ticket in `X.Y.Z.md` on `main` that `X.Y.Z.md` on `pmm-X.Y.Z` doesn't have. Cherry-pick its fix to `pmm-X.Y.Z`, or move the entry to the next release's page.
+At GA the site build runs `release-notes.sh publish X.Y.Z` and fails unless `X.Y.Z.md` is the same on `pmm-X.Y.Z` and on `main`.
 
 ## Content type templates
 
