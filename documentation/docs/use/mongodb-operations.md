@@ -102,9 +102,9 @@ Nodes without MongoDB don't need this file.
 
 ### Troubleshoot scans
 
-The summary at the top of the **Nodes** page shows how many nodes are eligible for automation, have no database, can't be scanned, or are failing. The **Automation** column shows each node's status. When a node shows **Needs attention**, the reason appears under the status.
+If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
-If a node still shows no data after a scan, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check for scan errors.
+If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
 
 ## View fleet health
 
@@ -122,14 +122,13 @@ To view fleet health:
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-3. To see a cluster's members, expand its row.
-4. To see individual services, select the **Services** tab.
+To see a cluster's members, expand its row. To see individual services, select the **Services** tab.
 
-The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
+If the data looks stale, click **Refresh** to load the latest.
 
 ## Install a replica set
 
-You can install a replica set with one member (1 node) or three members (3 nodes). PMM must have scanned each node at least once before you can install on it.
+PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.
 
 ### Node requirements
 
@@ -150,7 +149,7 @@ Before you scan or install on a node, make sure that it meets the requirements i
 
 **Reported only** means that the scan reports whether the node meets the requirement but doesn't fail if it doesn't. The install fails.
 
-#### Requirements that PMM doesn't check
+### Requirements PMM doesn't check before the install
 
 PMM doesn't check the following requirements before the install. If a node doesn't meet them, the install fails when PMM forms the replica set, and PMM rolls it back:
 
@@ -159,15 +158,13 @@ PMM doesn't check the following requirements before the install. If a node doesn
 
 ### Node checks
 
-Before an install starts, PMM checks each node. If a node fails a check, it isn't eligible for automation, and the reason appears in the **Automation** column on the **Nodes** page.
+Verify these conditions on each node before you start. PMM checks them automatically and blocks installation on any node that fails — the reason appears in the **Automation** column on the **Nodes** page:
 
-Each node must meet the following conditions:
-
-- **Supported OS**: the node runs Ubuntu or Rocky Linux, based on the `ID` value in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
-- **No existing MongoDB**: `mongod` isn't installed or running, `/etc/mongod.conf` doesn't exist, and PMM has no MongoDB service registered for the node.
-- **Data directory**: the data directory (default `/var/lib/mongo`) is missing or empty, and has at least 5 GiB free.
-- **Free port**: nothing else listens on the chosen port (default `27017`).
-- **Not the PMM Server host**: the node isn't the host that runs PMM Server.
+- **Supported OS**: Ubuntu or Rocky Linux only, matched on `ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
+- **No existing MongoDB**: `mongod` must not be installed or running, `/etc/mongod.conf` must not exist, and PMM must have no MongoDB service registered for the node.
+- **Free data directory**: the data directory (default `/var/lib/mongo`) must be missing or empty, with at least 5 GiB free.
+- **Free port**: nothing else must be listening on the chosen port (default `27017`).
+- **Not the PMM Server host**: don't install on the host that runs PMM Server.
 
 ### Reduce security exposure during the install
 
@@ -221,7 +218,7 @@ To stop an install that's running, expand it on the **Installs** tab and abort i
 
 ## Limitations
 
-This Developer Preview has the following limitations:
+As a Developer Preview in PMM 3.10.0, Operations for MongoDB has the following limitations:
 
 - **Replica set size**: you can install only replica sets with exactly 1 or 3 members, not sharded clusters or standalone instances. The **Fleet** page still shows sharded clusters that PMM already monitors.
 - **Encryption**: no TLS and no encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
