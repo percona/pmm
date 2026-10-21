@@ -42,23 +42,6 @@ at() {
   [ "$(grep -c '"PMM 3.11.0"' "$doc/mkdocs-base.yml")" -eq 1 ]
 }
 
-@test "open: passes with one unreleased page next to released and RC ones" {
-  "$rn" new 3.10.0 > /dev/null
-  at tags/v3.10.0
-  "$rn" new 3.10.1 > /dev/null
-  at remotes/origin/pmm-3.10.1
-  touch "$doc/docs/release-notes/3.0.0_1.md"
-  run "$rn" open
-  [ "$status" -eq 0 ]
-}
-
-@test "open: fails with two unreleased pages" {
-  "$rn" new 3.10.1 > /dev/null
-  run "$rn" open
-  [ "$status" -eq 1 ]
-  [[ $output == *"More than one unreleased release notes page: 3.10.1.md 3.11.0.md"* ]]
-}
-
 @test "check: passes when the release branch has every entry" {
   entry PMM-1
   at remotes/origin/pmm-3.11.0

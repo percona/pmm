@@ -5,8 +5,6 @@
 #   release-notes.sh new VERSION
 #       Creates VERSION.md from the template and lists it in the index and nav, unless it exists.
 #       The RC job runs it on main for the next patch version when it creates pmm-X.Y.Z.
-#   release-notes.sh open
-#       Fails when more than one page is neither released nor in RC: entries have one place to go.
 #   release-notes.sh check
 #       For each version in RC, fails on every ticket in X.Y.Z.md here that pmm-X.Y.Z doesn't have.
 #   release-notes.sh publish VERSION
@@ -60,18 +58,6 @@ new() {
   echo "Created $(basename "$page") from the template"
 }
 
-open() {
-  local v unreleased=()
-  for v in $(versions); do
-    if ! released "$v" && ! in_rc "$v"; then
-      unreleased+=("$v.md")
-    fi
-  done
-  if [ "${#unreleased[@]}" -gt 1 ]; then
-    error "More than one unreleased release notes page: ${unreleased[*]}. Keep the one matching VERSION in Percona-Lab/pmm-submodules and move the entries of the others into it."
-  fi
-}
-
 check() {
   local v path ticket
   for v in $(versions); do
@@ -96,13 +82,13 @@ case ${1:-} in
   new)
     "$@"
     ;;
-  open | check | publish)
+  check | publish)
     "$@"
     [ "$errors" -eq 0 ] || exit 1
     echo "Release notes pages are fine."
     ;;
   *)
-    echo "Usage: $0 new VERSION | open | check | publish VERSION" >&2
+    echo "Usage: $0 new VERSION | check | publish VERSION" >&2
     exit 2
     ;;
 esac

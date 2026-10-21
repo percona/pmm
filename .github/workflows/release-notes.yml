@@ -1,7 +1,6 @@
 ---
 name: Release notes
 
-# main has one unreleased release notes page, the one entries go to.
 # While pmm-X.Y.Z is in RC, every entry in X.Y.Z.md on main must also be on pmm-X.Y.Z: a fix merged
 # to main but not cherry-picked fails this on push until it is, or its entry moves to the next release.
 on:
@@ -14,7 +13,6 @@ on:
   pull_request:
     paths:
       - ".github/workflows/release-notes.yml"
-      - "documentation/docs/release-notes/**"
       - "documentation/resources/bin/release-notes.sh"
       - "documentation/resources/bin/tests/**"
       - "documentation/resources/release-notes-template.md"
@@ -38,9 +36,6 @@ jobs:
       - name: Test the script
         if: github.event_name == 'pull_request'
         run: npx --yes bats@1.11.0 documentation/resources/bin/tests
-
-      - name: Check there is one unreleased page
-        run: documentation/resources/bin/release-notes.sh open
 
       # Not on PRs: a hotfix merges to main before it is cherry-picked.
       - name: Check the releases in RC
