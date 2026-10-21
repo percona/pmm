@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import * as DocBlock from '@storybook/addon-docs/blocks';
-import ThemedModePanel from '../../../.storybook/themed-mode-panel';
+import ThemedModePanel from '../../storybook/themed-mode-panel';
 import Tooltip from './tooltip';
 import type { TooltipProps } from './tooltip.types';
 
