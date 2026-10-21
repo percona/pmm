@@ -624,10 +624,10 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     1. Navigate to **Inventory > Services**.
     2. In the **Services** tab, find your newly added MySQL service.
     3. Verify the **Service Name** and **Address** match your configuration.
-    4. Check the **Status** column shows as *Active*.
-    5. In the **Options** column, expand the **Details** section to confirm:
+    4. Check that the **Status** column shows **Up**.
+    5. Click the status in the **Monitoring** column to confirm that:
         - the correct agents are running
-        - your selected query source (Slow Log or Performance Schema) is active
+        - the agent for your selected query source is listed: **QAN MySQL Slow Query Log agent** or **QAN MySQL Performance Schema agent**
 
 #### Verify data collection
 
