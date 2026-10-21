@@ -201,6 +201,11 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		globalFlags.ServerURL.Hostname(),
 		globalFlags.SkipTLSCertificateCheck,
 	)
+	transport.Transport = &retryTransport{
+		next:     transport.Transport,
+		delay:    retryUnavailableDelay,
+		duration: retryUnavailableFor,
+	}
 
 	inventoryClient.Default.SetTransport(transport)
 	managementClient.Default.SetTransport(transport)
