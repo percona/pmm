@@ -8,7 +8,7 @@ import { BackupsSection } from './sections/BackupsSection';
 import { ClustersSection } from './sections/ClustersSection';
 import { DashboardsSection } from './sections/DashboardsSection';
 import { HubHeader } from './sections/HubHeader';
-import { HubStatusLine } from './sections/HubStatusLine';
+import { HubStatusBanner } from './sections/HubStatusBanner';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
 import { PrototypeMenu } from './sections/PrototypeMenu';
 import { QueriesSection } from './sections/QueriesSection';
@@ -79,22 +79,24 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           containerName: HUB_CONTAINER,
         }}
       >
-        <HubHeader
-          view={view}
-          icon={config.icon}
-          messages={messages}
-          setParams={setParams}
-          freshness={freshness}
-          refetch={refetch}
-        />
-        <HubStatusLine
-          status={view.status}
-          name={messages.name}
-          unit={messages.unit.cluster}
-          canSetUpBackup={view.capabilities.setUpBackup}
-          matchesNothing={view.environment.matchesNothing}
-          loading={isInitialLoading}
-        />
+        {/* The banner sits 16px under the header's divider, as in the Figma hub. */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <HubHeader
+            view={view}
+            icon={config.icon}
+            messages={messages}
+            setParams={setParams}
+            freshness={freshness}
+            refetch={refetch}
+          />
+          <HubStatusBanner
+            status={view.status}
+            name={messages.name}
+            unit={messages.unit.cluster}
+            matchesNothing={view.environment.matchesNothing}
+            loading={isInitialLoading}
+          />
+        </Box>
         {view.status.state !== 'empty' &&
           !(view.environment.matchesNothing && !view.attention.length) && (
             <NeedsAttentionSection
@@ -112,6 +114,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           messages={messages}
           onRetry={refetch}
           onShowAllEnvironments={() => setParams({ environment: null })}
+          onShowPatches={() => setParams({ patches: 'behind' })}
           onClearPatches={() => setParams({ patches: null })}
         />
         <Box

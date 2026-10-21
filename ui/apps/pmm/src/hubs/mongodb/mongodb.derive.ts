@@ -1,4 +1,4 @@
-import { higherSeverity, rankAttention } from 'hubs/template/hub.attention';
+import { rankAttention } from 'hubs/template/hub.attention';
 import { ALERT_TEMPLATES_PATH, ALERTS_PATH } from 'hubs/template/hub.doors';
 import { Messages as HubText } from 'hubs/template/hub.messages';
 import {
@@ -8,34 +8,29 @@ import {
 import type {
   HubAlertCoverage,
   HubDeriveContext,
+  HubHealth,
   HubParams,
   HubSectionId,
   HubSectionState,
   HubSourceId,
   HubSourceState,
   HubStatus,
+  HubTreeNode,
   HubViewModel,
 } from 'hubs/template/hub.types';
 import { deriveActions } from './mongodb.actions';
 import { deriveApps } from './mongodb.apps';
-import {
-  type AttentionEntry,
-  deriveAttention,
-  MONGODB_ATTENTION_ORDER,
-} from './mongodb.attention';
+import { deriveAttention, MONGODB_ATTENTION_ORDER } from './mongodb.attention';
 import { deriveBackups } from './mongodb.backups';
 import { deriveDashboards } from './mongodb.dashboards';
-import { listDashboard, MONGO_PATHS, sectionAnchor } from './mongodb.doors';
+import { listDashboard, MONGO_PATHS } from './mongodb.doors';
 import { worstHealth } from './mongodb.health';
 import { Messages, MONGODB_HUB_MESSAGES } from './mongodb.messages';
 import { deriveQueries } from './mongodb.queries';
 import {
   buildClusterTree,
-  type ClusterModel,
-  clusterMembers,
   expandedProblems,
   groupClusters,
-  isProblem,
 } from './mongodb.topology';
 import type {
   MongoAlertInput,
@@ -50,6 +45,27 @@ const KEY_TEMPLATES: Array<[string, string]> = [
   ['pmm_mongodb_replication_lag', Messages.coverage.lag],
   ['pmm_mongodb_oplog_window', Messages.coverage.oplog],
 ];
+
+/** No MongoDB template and no custom rule: nothing alerts on MongoDB yet. */
+const noRules = (rules: MongoAlertRulesInput) =>
+  !rules.templates.some((template) => template.startsWith('pmm_mongodb_')) &&
+  rules.custom === 0;
+
+const countHealth = (nodes: HubTreeNode[]): Record<HubHealth, number> => {
+  const counts: Record<HubHealth, number> = {
+    healthy: 0,
+    degraded: 0,
+    down: 0,
+    upgrading: 0,
+    noData: 0,
+  };
+
+  nodes.forEach((node) => {
+    counts[node.health] += 1;
+  });
+
+  return counts;
+};
 
 /** What the alert rules leave uncovered, if anything, with the way to cover it. */
 const alertCoverage = (
@@ -67,11 +83,7 @@ const alertCoverage = (
   const door = admin
     ? { door: { label: Messages.coverage.create, to: ALERT_TEMPLATES_PATH } }
     : {};
-  const none =
-    !rules.templates.some((template) => template.startsWith('pmm_mongodb_')) &&
-    rules.custom === 0;
-
-  if (none) {
+  if (noRules(rules)) {
     return {
       text: Messages.coverage.none,
       ...door,
@@ -154,25 +166,6 @@ const statusState = ({
   return worstHealth(clusters.map((node) => node.health));
 };
 
-/** The cluster an attention row is about, if any: its own, its service's, or the one its alert names. */
-const clusterKeyOf = (
-  { subject }: AttentionEntry,
-  clusterByService: Map<string, ClusterModel>,
-  clusters: ClusterModel[]
-): string | undefined => {
-  if (subject.clusterKey) {
-    return subject.clusterKey;
-  }
-  const byService = subject.serviceNames
-    .map((name) => clusterByService.get(name)?.key)
-    .find(Boolean);
-
-  return (
-    byService ??
-    clusters.find((cluster) => cluster.name === subject.cluster)?.key
-  );
-};
-
 /** The MongoDB snapshot as the hub's view: pure, so every rule is testable without React. */
 export const deriveMongoHub = (
   snapshot: MongoSnapshot,
@@ -246,34 +239,6 @@ export const deriveMongoHub = (
     filter,
     now: ctx.now,
   });
-  const clusterByService = new Map<string, ClusterModel>();
-
-  models.forEach((cluster) =>
-    clusterMembers(cluster).forEach((member) =>
-      clusterByService.set(member.service.serviceName, cluster)
-    )
-  );
-  const troubled = new Set<string>(
-    clusters.filter(isProblem).map((node) => node.id.replace(/^cluster:/, ''))
-  );
-
-  let otherIssues = 0;
-
-  entries.forEach((entry) => {
-    const key = clusterKeyOf(entry, clusterByService, models);
-
-    if (key) {
-      troubled.add(key);
-    } else {
-      otherIssues += 1;
-    }
-  });
-  const attentionSeverity = entries.reduce<HubStatus['attentionSeverity']>(
-    (worst, { item }) =>
-      worst ? higherSeverity(worst, item.severity) : item.severity,
-    undefined
-  );
-
   // Nothing monitored at all; a filter that matches nothing is not an empty estate.
   const empty =
     snapshot.services !== null &&
@@ -284,10 +249,12 @@ export const deriveMongoHub = (
   const status: HubStatus = {
     state: statusState({ empty, metricsOk, shown: services.length, clusters }),
     clusters: inventoryOk ? models.length : null,
-    needAttention: metricsOk && inventoryOk ? troubled.size : null,
-    otherIssues,
-    ...(attentionSeverity ? { attentionSeverity } : {}),
+    ...(metricsOk && inventoryOk ? { health: countHealth(clusters) } : {}),
     lastGoodBackup: inventoryOk ? backups.lastGoodBackup : 'unknown',
+    backupsFailed: backups.findings.length,
+    ...(inventoryOk && backups.coverage
+      ? { backupCoverage: backups.coverage }
+      : {}),
     ...(snapshot.updates && metricsOk
       ? {
           patches: {
@@ -303,28 +270,27 @@ export const deriveMongoHub = (
       : sources.alerts?.status === 'ready' && snapshot.alerts
         ? { alerts: alerts.length }
         : {}),
+    ...(snapshot.alertRules
+      ? { alertRules: noRules(snapshot.alertRules) ? 'none' : 'some' }
+      : {}),
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {
-      alerts: { label: Messages.doors.firingAlerts, to: ALERTS_PATH },
-      clusters: {
-        label: Messages.doors.clusters,
-        to: sectionAnchor({ ...params, patches: null }, 'clusters'),
-      },
-      patches: {
-        label: Messages.doors.behindOnPatches,
-        to: sectionAnchor({ ...params, patches: 'behind' }, 'clusters'),
-      },
-      attention: {
-        label: Messages.doors.needsAttention,
-        to: sectionAnchor(params, 'needs-attention'),
-      },
-      backup:
-        backups.lastGoodBackup === 'notSetUp' && capabilities.setUpBackup
-          ? { label: Messages.doors.setUpBackup, to: MONGO_PATHS.backupNew }
-          : {
-              label: Messages.doors.lastGoodBackup,
-              to: MONGO_PATHS.backupInventory,
+      ...(ctx.role === 'admin'
+        ? {
+            setUpAlerts: {
+              label: HubText.banner.setUpAlerts,
+              to: ALERT_TEMPLATES_PATH,
             },
+          }
+        : {}),
+      ...(capabilities.setUpBackup
+        ? {
+            setUpBackups: {
+              label: HubText.banner.setUpBackups,
+              to: MONGO_PATHS.backupNew,
+            },
+          }
+        : {}),
     },
   };
 

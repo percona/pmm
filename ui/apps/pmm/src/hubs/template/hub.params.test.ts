@@ -6,7 +6,6 @@ import {
   resolveHubCapabilities,
   resolveHubOperations,
   resolveHubRole,
-  serializeHubParams,
   writeHubSearch,
 } from './hub.params';
 import { HUB_NO_ENVIRONMENT } from './hub.types';
@@ -103,10 +102,10 @@ describe('writeHubSearch', () => {
   });
 });
 
-describe('serializeHubParams', () => {
+describe('writeHubSearch with every param', () => {
   it('writes only non-default hub params in a stable order', () => {
     expect(
-      serializeHubParams({
+      writeHubSearch('', {
         environment: 'prod',
         patches: null,
         connection: 'live',
@@ -115,7 +114,7 @@ describe('serializeHubParams', () => {
         role: 'live',
       })
     ).toBe('environment=prod&hubState=wrong&hubOps=off');
-    expect(serializeHubParams(DEFAULT_HUB_PARAMS)).toBe('');
+    expect(writeHubSearch('', DEFAULT_HUB_PARAMS)).toBe('');
   });
 });
 

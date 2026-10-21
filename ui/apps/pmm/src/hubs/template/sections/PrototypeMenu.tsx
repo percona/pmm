@@ -19,7 +19,13 @@ import type {
   HubScenario,
 } from '../hub.types';
 
-const SCENARIOS: HubScenario[] = ['healthy', 'wrong', 'empty', 'live'];
+const SCENARIOS: HubScenario[] = [
+  'healthy',
+  'incomplete',
+  'wrong',
+  'empty',
+  'live',
+];
 const OPS: HubOpsMode[] = ['live', 'on', 'off'];
 const ROLES: HubRoleMode[] = ['live', 'admin', 'viewer'];
 const CONNECTIONS: HubConnectionMode[] = ['live', 'lost'];

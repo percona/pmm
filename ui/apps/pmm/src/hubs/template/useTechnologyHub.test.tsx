@@ -84,7 +84,12 @@ const makeConfig = (
     treeColumns: [],
     attentionOrder: [],
     useLiveSnapshot,
-    fixtures: { empty: fixture, healthy: fixture, wrong: fixture },
+    fixtures: {
+      empty: fixture,
+      healthy: fixture,
+      incomplete: fixture,
+      wrong: fixture,
+    },
     derive,
   };
 

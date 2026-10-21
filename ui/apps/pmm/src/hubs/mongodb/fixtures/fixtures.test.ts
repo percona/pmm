@@ -5,7 +5,7 @@ import { deriveMongoHub } from '../mongodb.derive';
 import { deriveContext, NOW } from '../mongodb.testUtils';
 import { MONGODB_FIXTURES } from './index';
 
-const SCENARIOS = ['empty', 'healthy', 'wrong'] as const;
+const SCENARIOS = ['empty', 'healthy', 'incomplete', 'wrong'] as const;
 const OPS = [true, false];
 const ROLES = ['admin', 'viewer'] as const;
 
@@ -50,13 +50,15 @@ describe('fixtures', () => {
       });
     });
 
-    it('matches the design: 5 clusters, none need attention, last good backup 6h ago', () => {
+    it('matches the design: 5 clusters, all healthy, every cluster PBM can back up protected, last good backup 6h ago', () => {
       const result = view('healthy', true);
 
       expect(result.status).toMatchObject({
         state: 'healthy',
         clusters: 5,
-        needAttention: 0,
+        health: { healthy: 5, degraded: 0, down: 0, upgrading: 0, noData: 0 },
+        backupsFailed: 0,
+        backupCoverage: { protected: 4, protectable: 4 },
         lastGoodBackup: {
           at: new Date(NOW - 6 * 3600_000).toISOString(),
           cluster: 'billing',
@@ -65,9 +67,9 @@ describe('fixtures', () => {
       expect(result.backups.rows.map((row) => [row.cluster, row.pitr])).toEqual(
         [
           ['billing', 'on'],
+          ['catalog', 'off'],
           ['orders', 'off'],
           ['payments', 'off'],
-          ['catalog', 'off'],
           ['reports', 'notApplicable'],
         ]
       );
@@ -79,6 +81,35 @@ describe('fixtures', () => {
       expect(result.apps[0].summary?.text).toBe(
         '21 of 21 services up · last scan 4m ago'
       );
+    });
+  });
+
+  describe('incomplete', () => {
+    it('degrades orders and catalog, has no alert rule, and leaves catalog without backups', () => {
+      const result = view('incomplete', true);
+
+      expect(
+        result.clusters
+          .filter((node) => node.health !== 'healthy')
+          .map((node) => [node.name, node.health])
+      ).toEqual([
+        ['catalog', 'degraded'],
+        ['orders', 'degraded'],
+      ]);
+      expect(result.status).toMatchObject({
+        health: { healthy: 3, degraded: 2, down: 0, upgrading: 0, noData: 0 },
+        alertRules: 'none',
+        backupsFailed: 0,
+        backupCoverage: { protected: 3, protectable: 4 },
+      });
+      expect(result.alertCoverage?.text).toBe(
+        'No alert rules cover MongoDB yet.'
+      );
+      expect(result.backups.hint).toBe('PBM is not configured on catalog');
+      expect(result.attention.map((item) => item.kind)).toEqual([
+        'oplogShort',
+        'behind',
+      ]);
     });
   });
 
@@ -163,7 +194,7 @@ describe('fixtures', () => {
       expect(result.status).toMatchObject({
         state: 'down',
         clusters: 5,
-        needAttention: 5,
+        health: { healthy: 0, degraded: 3, down: 1, upgrading: 0, noData: 1 },
         lastGoodBackup: {
           at: new Date(NOW - 6 * 3600_000).toISOString(),
           cluster: 'billing',
@@ -198,7 +229,7 @@ describe('fixtures', () => {
         '17 of 21 services up · last scan 4m ago'
       );
       expect(result.apps[0].summary?.text).toBe(
-        '4 schedules · 1 failed in the last 24h'
+        '5 schedules · 1 failed in the last 24h'
       );
     });
 
@@ -211,7 +242,7 @@ describe('fixtures', () => {
         since: new Date(NOW - 9 * 60_000).toISOString(),
       });
       // billing, reports, orders and catalog; payments' mixed versions are its upgrade's.
-      expect(on.status.needAttention).toBe(4);
+      expect(on.status.health).toMatchObject({ upgrading: 1, healthy: 0 });
       expect(on.expanded['cluster:prod/payments']).toBeUndefined();
       // Without Operations nothing says an upgrade runs: the restarted member is inside its grace period, but the versions differ.
       expect(

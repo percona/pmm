@@ -9,7 +9,7 @@ export type HubHealth =
   | 'noData';
 export type HubSeverity = 'error' | 'warning' | 'info';
 export type HubLevel = 'ok' | 'warning' | 'error';
-export type HubScenario = 'live' | 'empty' | 'healthy' | 'wrong';
+export type HubScenario = 'live' | 'empty' | 'healthy' | 'incomplete' | 'wrong';
 export type HubOpsMode = 'live' | 'on' | 'off';
 export type HubRoleMode = 'live' | 'admin' | 'viewer';
 /** Prototype only: `lost` stops sample data refreshing, as a dropped connection would. */
@@ -146,34 +146,31 @@ export interface HubAttentionItem {
 }
 
 export interface HubStatus {
-  /** Worst health; with attentionSeverity, drives the StatusIcon. */
+  /** Worst health of the shown clusters. */
   state: HubHealth | 'empty';
   /** Null when the inventory failed. */
   clusters: number | null;
-  /** Clusters with a problem or an attention row; null when metrics or the inventory failed. */
-  needAttention: number | null;
-  /** Attention rows no cluster accounts for, such as a slower query or a failed install. */
-  otherIssues: number;
-  /** The most severe attention row, when any. */
-  attentionSeverity?: HubSeverity;
+  /** Shown clusters by health; absent when metrics or the inventory failed. */
+  health?: Record<HubHealth, number>;
   /** Clusters with an update available, and those the check could not answer for; absent while nothing checks. */
   patches?: { behind: number; unknown: number };
   /** Firing alerts about the technology or its hosts; null when they could not be read, absent while alerting is off. */
   alerts?: number | null;
+  /** none: no alert rule covers the technology yet; absent when the rules could not be read. */
+  alertRules?: 'none' | 'some';
   lastGoodBackup:
     | { at: string; cluster: string }
     | 'none'
     | 'notSetUp'
     | 'featureOff'
     | 'unknown';
+  /** Clusters whose newest backup failed lately, or whose point-in-time recovery stopped. */
+  backupsFailed: number;
+  /** Clusters a backup tool can protect (not standalones), and those with an enabled schedule; absent until backups are read. */
+  backupCoverage?: { protected: number; protectable: number };
   checkedAt: string;
-  doors: {
-    clusters: HubDoor;
-    attention: HubDoor;
-    backup: HubDoor;
-    patches: HubDoor;
-    alerts: HubDoor;
-  };
+  /** Where to set up what is missing; admins only. */
+  doors: { setUpAlerts?: HubDoor; setUpBackups?: HubDoor };
 }
 
 /** Which key conditions no alert rule covers, and where to create the rules. */
@@ -355,7 +352,7 @@ export interface HubLiveResult<TSnapshot> {
 
 export interface HubDeriveContext {
   now: number;
-  /** The URL's hub params, carried by doors back into the hub; without it they keep only scenario and environment. */
+  /** The URL's hub params; without them, only the scenario and environment are known. */
   params?: HubParams;
   scenario: HubScenario;
   environment: string | null;

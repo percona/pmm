@@ -21,6 +21,8 @@ export interface ClustersSectionProps {
   onRetry: () => void;
   /** Clears the environment filter. */
   onShowAllEnvironments: () => void;
+  /** Shows only the clusters behind on patches. */
+  onShowPatches: () => void;
   /** Clears the behind on patches filter. */
   onClearPatches: () => void;
 }
@@ -32,13 +34,17 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
   messages,
   onRetry,
   onShowAllEnvironments,
+  onShowPatches,
   onClearPatches,
 }) => {
   const { clusters, patchesFilter } = view;
-  // The chip leaves with its filter, so focus moves to the section's heading instead of falling to the page.
+  const behind = view.status.patches?.behind ?? 0;
   const clearPatches = () => {
     onClearPatches();
-    document.getElementById('clusters-title')?.focus();
+    // Without clusters behind the chip leaves with its filter, so focus moves to the section's heading instead of falling to the page.
+    if (!behind) {
+      document.getElementById('clusters-title')?.focus();
+    }
   };
   const empty = view.status.state === 'empty';
   const { matchesNothing } = view.environment;
@@ -94,14 +100,15 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
           </Paper>
         ) : (
           <>
-            {patchesFilter && (
+            {(patchesFilter || behind > 0) && (
               <Box sx={{ mb: 1.5 }}>
+                {/* A toggle: the same chip filters and clears, so focus stays on it. */}
                 <Chip
                   size="small"
-                  label={Messages.clusters.patchesFilter.label}
-                  aria-label={Messages.clusters.patchesFilter.clear}
-                  onClick={clearPatches}
-                  onDelete={clearPatches}
+                  label={Messages.clusters.patchesFilter.label(behind)}
+                  aria-pressed={patchesFilter}
+                  onClick={patchesFilter ? clearPatches : onShowPatches}
+                  {...(patchesFilter ? { onDelete: clearPatches } : {})}
                 />
               </Box>
             )}

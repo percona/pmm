@@ -29,7 +29,13 @@ export const DEFAULT_HUB_PARAMS: HubParams = {
   connection: 'live',
 };
 
-const SCENARIOS: readonly HubScenario[] = ['live', 'empty', 'healthy', 'wrong'];
+const SCENARIOS: readonly HubScenario[] = [
+  'live',
+  'empty',
+  'healthy',
+  'incomplete',
+  'wrong',
+];
 const OPS_MODES: readonly HubOpsMode[] = ['live', 'on', 'off'];
 const ROLE_MODES: readonly HubRoleMode[] = ['live', 'admin', 'viewer'];
 const CONNECTION_MODES: readonly HubConnectionMode[] = ['live', 'lost'];
@@ -111,10 +117,6 @@ export const writeHubSearch = (
 
   return [...kept, ...(ownString ? [ownString] : [])].join('&');
 };
-
-/** Only the hub params, in a stable order, for doors back into the hub. */
-export const serializeHubParams = (params: HubParams): string =>
-  writeHubSearch('', params);
 
 /** Signed-in role, which `hubRole=viewer` can lower; `admin` raises it only for sample data. */
 export const resolveHubRole = (

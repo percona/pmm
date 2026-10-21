@@ -13,9 +13,7 @@ import {
   queryQan,
   replsetSummary,
   routerSummary,
-  sectionAnchor,
 } from './mongodb.doors';
-import { DEFAULT_HUB_PARAMS } from 'hubs/template/hub.params';
 import { HUB_NO_ENVIRONMENT } from 'hubs/template/hub.types';
 
 const ORDERS = { environment: 'prod', cluster: 'orders' };
@@ -140,29 +138,5 @@ describe('alertDoor', () => {
       to: '/alerting/status?f.serviceName=orders-shard2-m2',
       context: 'for orders-shard2-m2',
     });
-  });
-});
-
-describe('sectionAnchor', () => {
-  it('keeps the hub params on in-page doors', () => {
-    expect(
-      sectionAnchor(
-        {
-          environment: 'prod',
-          patches: null,
-          connection: 'live',
-          scenario: 'wrong',
-          ops: 'off',
-          role: 'live',
-        },
-        'clusters'
-      )
-    ).toBe('?environment=prod&hubState=wrong&hubOps=off#clusters');
-  });
-
-  it('is the bare anchor with default params', () => {
-    expect(sectionAnchor(DEFAULT_HUB_PARAMS, 'needs-attention')).toBe(
-      '#needs-attention'
-    );
   });
 });

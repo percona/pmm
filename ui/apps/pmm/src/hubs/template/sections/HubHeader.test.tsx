@@ -55,7 +55,7 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(heading).toHaveAccessibleName('MongoDB');
     expect(heading).toHaveClass('MuiTypography-h3');
-    expect(screen.queryByTestId('hub-status-line')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('hub-status-banner')).not.toBeInTheDocument();
   });
 
   it('draws only Add in Peak’s neutral Base theme', () => {

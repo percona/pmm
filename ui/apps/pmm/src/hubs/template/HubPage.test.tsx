@@ -240,7 +240,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       settings: { backupManagementEnabled: true },
     });
 
-    expect(await screen.findByTestId('hub-status-line')).toHaveTextContent(
+    expect(await screen.findByTestId('hub-status-banner')).toHaveTextContent(
       'No MongoDB in this environment'
     );
     expect(

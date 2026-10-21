@@ -11,25 +11,35 @@ const MESSAGES = {
   clusters: { tableLabel: 'MongoDB clusters' },
 } as HubMessages;
 
-const renderSection = (view: Partial<HubViewModel>) => {
+const renderSection = (
+  view: Partial<HubViewModel>,
+  patches?: { behind: number; unknown: number }
+) => {
+  const onShowPatches = vi.fn();
   const onClearPatches = vi.fn();
+  const base = testView();
 
   renderHub(
     <ClustersSection
-      view={{ ...testView(), ...view }}
+      view={{
+        ...base,
+        ...view,
+        status: { ...base.status, ...(patches ? { patches } : {}) },
+      }}
       treeColumns={TEST_TREE_COLUMNS}
       messages={MESSAGES}
       onRetry={vi.fn()}
       onShowAllEnvironments={vi.fn()}
+      onShowPatches={onShowPatches}
       onClearPatches={onClearPatches}
     />
   );
 
-  return onClearPatches;
+  return { onShowPatches, onClearPatches };
 };
 
 describe('ClustersSection', () => {
-  it('shows no filter while every cluster shows', () => {
+  it('offers no patches filter while no cluster is behind', () => {
     renderSection({});
 
     expect(
@@ -37,26 +47,45 @@ describe('ClustersSection', () => {
     ).toBeNull();
   });
 
-  it('names the patches filter on a chip that clears it', () => {
-    const onClearPatches = renderSection({ patchesFilter: true });
+  it('filters to the clusters behind on patches with a toggle chip', () => {
+    const { onShowPatches } = renderSection({}, { behind: 2, unknown: 0 });
+    const chip = screen.getByRole('button', { name: '2 behind on patches' });
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Clear the filter: behind on patches',
-      })
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(chip);
+    expect(onShowPatches).toHaveBeenCalled();
+  });
+
+  it('clears the filter from the same chip, which keeps focus', () => {
+    const { onClearPatches } = renderSection(
+      { patchesFilter: true },
+      { behind: 2, unknown: 0 }
     );
+    const chip = screen.getByRole('button', { name: '2 behind on patches' });
+
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    chip.focus();
+    fireEvent.click(chip);
     expect(onClearPatches).toHaveBeenCalled();
-    expect(screen.getByRole('heading', { name: 'Clusters' })).toHaveFocus();
+    expect(chip).toHaveFocus();
     expect(
       screen.getByRole('table', { name: 'MongoDB clusters' })
     ).toBeInTheDocument();
+  });
+
+  it('moves focus to the heading when clearing removes the chip', () => {
+    const { onClearPatches } = renderSection({ patchesFilter: true });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Behind on patches' }));
+    expect(onClearPatches).toHaveBeenCalled();
+    expect(screen.getByRole('heading', { name: 'Clusters' })).toHaveFocus();
   });
 
   // EmptyState is not in the published Peak UI yet.
   it.skipIf(!hasPeakHub)(
     'says no cluster is behind instead of an empty table',
     () => {
-      const onClearPatches = renderSection({
+      const { onClearPatches } = renderSection({
         patchesFilter: true,
         clusters: [],
       });

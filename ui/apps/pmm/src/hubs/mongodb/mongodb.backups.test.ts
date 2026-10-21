@@ -59,9 +59,16 @@ describe('deriveBackups', () => {
   });
 
   it('says how to start when nothing is set up, with the PBM hint', () => {
-    const { backups, lastGoodBackup } = derive(
-      withBackups({ enabled: true, artifacts: [], scheduled: [] })
-    );
+    const snapshot = withBackups({
+      enabled: true,
+      artifacts: [],
+      scheduled: [],
+    });
+
+    if (snapshot.metrics) {
+      snapshot.metrics.pbmConfiguredByCluster.catalog = false;
+    }
+    const { backups, lastGoodBackup, coverage } = derive(snapshot);
 
     expect(backups.state).toBe('notSetUp');
     expect(backups.doors.setUp).toEqual({
@@ -69,8 +76,9 @@ describe('deriveBackups', () => {
       to: '/graph/backup/new',
     });
     expect(lastGoodBackup).toBe('notSetUp');
-    // PBM is configured on orders, billing and payments in the estate; reports is a standalone.
+    // reports is a standalone, which PBM cannot back up.
     expect(backups.hint).toBe('PBM is not configured on catalog');
+    expect(coverage).toEqual({ protected: 0, protectable: 4 });
   });
 
   it('lists clusters where PBM is not configured, never standalones', () => {
@@ -94,7 +102,7 @@ describe('deriveBackups', () => {
   });
 
   it('reads healthy backups per cluster: last good, PITR, next run', () => {
-    const { backups, lastGoodBackup, findings, schedules } = derive(
+    const { backups, lastGoodBackup, findings, schedules, coverage } = derive(
       healthySnapshot(NOW, false)
     );
 
@@ -109,14 +117,15 @@ describe('deriveBackups', () => {
       ])
     ).toEqual([
       ['billing', ago(6), 'ok', 'on', expect.stringMatching(/T03:00:00/)],
+      ['catalog', ago(9), 'ok', 'off', expect.stringMatching(/T05:00:00/)],
       ['orders', ago(7), 'ok', 'off', expect.stringMatching(/T02:00:00/)],
       ['payments', ago(8), 'ok', 'off', expect.stringMatching(/T04:00:00/)],
-      ['catalog', undefined, undefined, 'off', undefined],
       ['reports', undefined, undefined, 'notApplicable', undefined],
     ]);
     expect(lastGoodBackup).toEqual({ at: ago(6), cluster: 'billing' });
     expect(findings).toEqual([]);
-    expect(schedules).toBe(4);
+    expect(schedules).toBe(5);
+    expect(coverage).toEqual({ protected: 4, protectable: 4 });
   });
 
   it('finds a failure after the last success, and marks the stale success', () => {
@@ -155,7 +164,7 @@ describe('deriveBackups', () => {
   it('puts problems first, then clusters without a backup, then by name', () => {
     expect(
       derive(wrongSnapshot(NOW, false)).backups.rows.map((row) => row.cluster)
-    ).toEqual(['billing', 'orders', 'payments', 'catalog', 'reports']);
+    ).toEqual(['billing', 'orders', 'catalog', 'payments', 'reports']);
   });
 
   it('ignores a failure older than 24 hours for Needs attention but keeps it in the row', () => {

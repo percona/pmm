@@ -142,7 +142,7 @@ export const healthyMetrics = (now: number): MongoMetrics => {
       orders: true,
       billing: true,
       payments: true,
-      catalog: false,
+      catalog: true,
       reports: false,
     },
   };
@@ -204,8 +204,9 @@ export const ORDERS_SCHEDULE = 'nightly backup';
 export const BILLING_SCHEDULE = 'daily backup';
 export const BILLING_PITR = 'point-in-time recovery';
 export const PAYMENTS_SCHEDULE = 'payments daily';
+export const CATALOG_SCHEDULE = 'catalog daily';
 
-/** Orders nightly at 02:00, billing daily at 03:00 plus PITR, payments daily at 04:00; catalog and reports have none. */
+/** Orders nightly at 02:00, billing daily at 03:00 plus PITR, payments daily at 04:00, catalog daily at 05:00; reports, a standalone PBM cannot back up, has none. */
 export const healthyBackups = (now: number): MongoBackupsInput => ({
   enabled: true,
   scheduled: [
@@ -248,6 +249,16 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
       cronExpression: '0 4 * * *',
       nextRun: nextRunAt(now, 4),
     },
+    {
+      scheduledBackupId: 'sched-catalog',
+      name: CATALOG_SCHEDULE,
+      serviceId: serviceId('catalog-m1'),
+      serviceName: 'catalog-m1',
+      mode: 'snapshot',
+      enabled: true,
+      cronExpression: '0 5 * * *',
+      nextRun: nextRunAt(now, 5),
+    },
   ],
   artifacts: [
     {
@@ -285,6 +296,15 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
       mode: 'snapshot',
       status: 'success',
       createdAt: ago(now, 8 * HOUR_MS),
+    },
+    {
+      artifactId: 'art-catalog-snapshot',
+      name: `${CATALOG_SCHEDULE} 1`,
+      serviceId: serviceId('catalog-m1'),
+      serviceName: 'catalog-m1',
+      mode: 'snapshot',
+      status: 'success',
+      createdAt: ago(now, 9 * HOUR_MS),
     },
   ],
 });

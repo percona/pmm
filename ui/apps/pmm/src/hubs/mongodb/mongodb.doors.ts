@@ -1,4 +1,3 @@
-import { serializeHubParams } from 'hubs/template/hub.params';
 import {
   alertsLink,
   grafanaDashboard,
@@ -8,7 +7,7 @@ import {
   withIncidentFrame,
   withQuery,
 } from 'hubs/template/hub.doors';
-import type { HubDoor, HubParams } from 'hubs/template/hub.types';
+import type { HubDoor } from 'hubs/template/hub.types';
 import { Messages } from './mongodb.messages';
 
 /** `uid/slug` of each MongoDB dashboard the hub opens. */
@@ -180,10 +179,3 @@ export const manageDoor = (omClusterId?: string): HubDoor => ({
     cluster: omClusterId,
   }),
 });
-
-/** A door to a section of this page that keeps the hub's params. */
-export const sectionAnchor = (params: HubParams, anchor: string) => {
-  const search = serializeHubParams(params);
-
-  return search ? `?${search}#${anchor}` : `#${anchor}`;
-};

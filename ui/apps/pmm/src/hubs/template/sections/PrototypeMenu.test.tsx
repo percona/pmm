@@ -74,7 +74,7 @@ describe('PrototypeMenu', () => {
     const menu = screen.getByRole('menu');
     const radios = within(menu).getAllByRole('menuitemradio');
 
-    expect(radios).toHaveLength(12);
+    expect(radios).toHaveLength(13);
     expect(
       within(menu).getByRole('menuitemradio', { name: 'Best case' })
     ).toHaveAttribute('aria-checked', 'true');
@@ -101,8 +101,8 @@ describe('PrototypeMenu', () => {
     });
 
     expect(wrong).toHaveAccessibleDescription('Data');
-    expect(wrong).toHaveAttribute('aria-posinset', '2');
-    expect(wrong).toHaveAttribute('aria-setsize', '4');
+    expect(wrong).toHaveAttribute('aria-posinset', '3');
+    expect(wrong).toHaveAttribute('aria-setsize', '5');
     expect(
       within(menu).getByRole('menuitemradio', { name: 'As signed in' })
     ).toHaveAccessibleDescription('Signed in as');

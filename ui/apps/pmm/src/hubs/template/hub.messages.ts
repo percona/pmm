@@ -26,34 +26,68 @@ export const Messages = {
     noService: (name: string) => `No ${name} service is in this environment.`,
     pickAnother: 'Pick another one, or show them all.',
   },
-  status: {
-    empty: (name: string) => `No ${name} monitored yet`,
-    clusters: (count: number, [one, many]: [string, string]) =>
-      `${count} ${count === 1 ? one : many}`,
-    attention: (count: number) =>
-      count === 1 ? '1 needs attention' : `${count} need attention`,
-    noAttention: 'none need attention',
-    otherIssues: (count: number) =>
-      count === 1 ? '1 other issue' : `${count} other issues`,
-    alertsFiring: (count: number) =>
-      count === 1 ? '1 alert firing' : `${count} alerts firing`,
-    noAlertsFiring: 'no alerts firing',
-    alertsUnknown: '— alerts firing',
-    alertsUnknownHidden: 'Could not read the firing alerts',
-    patchesBehind: (count: number) => `${count} behind on patches`,
-    patchesNone: 'none behind on patches',
-    patchesUnknown: (count: number) => `, ${count} unknown`,
-    clustersUnknown: ([, many]: [string, string]) => `— ${many}`,
-    clustersUnknownHidden: ([, many]: [string, string]) =>
-      `Could not count the ${many}`,
-    attentionUnknown: '— need attention',
-    attentionUnknownHidden: 'Could not check what needs attention',
-    lastGoodBackup: (age: string) => `last good backup ${age}`,
-    noGoodBackup: 'no good backup yet',
-    notSetUp: 'no backups set up',
-    setUp: 'set up a backup',
-    featureOff: 'backup management is off',
-    backupUnknown: 'last good backup unknown',
+  banner: {
+    /** The banner's accessible name: "MongoDB status". */
+    label: (name: string) => `${name} status`,
+    health: {
+      checking: ([, many]: [string, string]) => `Checking ${many}...`,
+      empty: (name: string) => `No ${name} monitored yet`,
+      unknown: ([one]: [string, string]) =>
+        `${one.charAt(0).toUpperCase()}${one.slice(1)} health unknown`,
+      healthy: (total: number, [one, many]: [string, string]) =>
+        total === 1
+          ? `1 ${one} is healthy`
+          : `All ${total} ${many} are healthy`,
+      attention: (
+        count: number,
+        total: number,
+        [one, many]: [string, string]
+      ) =>
+        total === 1
+          ? `1 ${one} needs attention`
+          : count === total
+            ? `All ${total} ${many} need attention`
+            : `${count} of ${total} ${many} ${count === 1 ? 'needs' : 'need'} attention`,
+      degraded: (count: number, total: number, [one, many]: [string, string]) =>
+        total === 1
+          ? `1 ${one} is degraded`
+          : count === total
+            ? `All ${total} ${many} are degraded`
+            : `${count} of ${total} ${many} degraded`,
+      upgrading: (
+        count: number,
+        total: number,
+        [one, many]: [string, string]
+      ) =>
+        total === 1
+          ? `1 ${one} is upgrading`
+          : `${count} of ${total} ${many} upgrading`,
+    },
+    alerts: {
+      checking: 'Checking alerts...',
+      firing: (count: number) =>
+        count === 1 ? '1 alert firing' : `${count} alerts firing`,
+      none: 'No alerts firing',
+      notSetUp: 'No alerts set up',
+      unknown: 'Alerts unavailable',
+    },
+    backups: {
+      checking: 'Checking backups...',
+      onSchedule: (age: string) => `Backups on schedule, last ${age}`,
+      failed: (count: number, age?: string) =>
+        `${count === 1 ? '1 backup' : `${count} backups`} failed, ${age ? `last good ${age}` : 'no good backup yet'}`,
+      protected: (
+        count: number,
+        total: number,
+        [one, many]: [string, string]
+      ) => `${count} of ${total} ${total === 1 ? one : many} protected`,
+      notSetUp: 'No backups set up',
+      noneYet: 'No backup taken yet',
+      off: 'Backup management is off',
+      unknown: 'Backups unavailable',
+    },
+    setUpAlerts: 'Set up alerts',
+    setUpBackups: 'Set up backups',
   },
   sections: {
     attention: 'Needs attention',
@@ -104,8 +138,8 @@ export const Messages = {
       version: 'Version',
     },
     patchesFilter: {
-      label: 'Behind on patches',
-      clear: 'Clear the filter: behind on patches',
+      label: (count: number) =>
+        count > 0 ? `${count} behind on patches` : 'Behind on patches',
       none: 'No cluster is behind on patches',
       noneDescription:
         'Each one runs the newest patch release of its series, or its version check could not tell.',
@@ -184,6 +218,7 @@ export const Messages = {
     },
     scenario: {
       healthy: 'Best case',
+      incomplete: 'Incomplete setup',
       wrong: 'Worst case',
       empty: 'First run',
       live: 'Live data',

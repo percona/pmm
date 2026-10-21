@@ -9,10 +9,13 @@ import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { wrapWithSettings } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 
-// The published Peak UI 1.0.26 has no PageHeader or EmptyState; a local Peak UI with both does.
-export const hasPeakHub = ['PageHeader', 'EmptyState'].every(
-  (name) => (Peak as unknown as Record<string, unknown>)[name] != null
-);
+// The published Peak UI 1.0.26 has none of these; a local Peak UI with the hub's branches has them all.
+export const hasPeakHub = [
+  'PageHeader',
+  'EmptyState',
+  'StatusBanner',
+  'StateIndicator',
+].every((name) => (Peak as unknown as Record<string, unknown>)[name] != null);
 
 // Shows the router location, `/mongodb?hubState=wrong#clusters`, for assertions on URL writes.
 const LocationProbe = () => {

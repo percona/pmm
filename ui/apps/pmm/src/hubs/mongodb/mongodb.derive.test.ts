@@ -1,6 +1,7 @@
 import { HUB_NO_ENVIRONMENT } from 'hubs/template/hub.types';
 import { emptySnapshot } from './fixtures/empty';
 import { healthySnapshot } from './fixtures/healthy';
+import { incompleteSnapshot } from './fixtures/incomplete';
 import { wrongSnapshot } from './fixtures/wrong';
 import { deriveMongoHub } from './mongodb.derive';
 import type { MongoSnapshot } from './mongodb.types';
@@ -17,75 +18,85 @@ const derive = (snapshot: MongoSnapshot, options: ContextOptions = {}) =>
 const hours = (count: number) => new Date(NOW - count * 3600_000).toISOString();
 
 describe('deriveMongoHub status', () => {
-  it('reads a healthy estate as healthy, none need attention', () => {
+  const ready = sourcesWith('ready');
+
+  it('counts a healthy estate, every cluster PBM can back up protected', () => {
     const { status, attention } = derive(healthySnapshot(NOW, false), {
       scenario: 'healthy',
+      sources: ready,
     });
 
-    expect(status).toMatchObject({
+    expect(status).toEqual({
       state: 'healthy',
       clusters: 5,
-      needAttention: 0,
-      otherIssues: 0,
+      health: { healthy: 5, degraded: 0, down: 0, upgrading: 0, noData: 0 },
+      patches: { behind: 2, unknown: 0 },
+      alerts: 0,
+      alertRules: 'some',
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
+      backupsFailed: 0,
+      // reports is a standalone, which PBM cannot back up.
+      backupCoverage: { protected: 4, protectable: 4 },
       checkedAt: new Date(NOW).toISOString(),
+      doors: {
+        setUpAlerts: {
+          label: 'Set up alerts',
+          to: '/graph/alerting/alert-rule-templates',
+        },
+        setUpBackups: { label: 'Set up backups', to: '/graph/backup/new' },
+      },
     });
-    expect(status.attentionSeverity).toBeUndefined();
     expect(attention).toEqual([]);
   });
 
-  it('carries the worst row severity, counts rows outside any cluster, and leaves an upgrade out', () => {
-    const snapshot = healthySnapshot(NOW, true);
-
-    snapshot.alerts = [
-      {
-        name: 'MongoDB restarted',
-        templateName: 'pmm_mongodb_restarted',
-        severity: 'critical',
-        serviceName: 'billing-m1',
-        cluster: 'billing',
-        environment: 'prod',
-        activeAt: hours(1),
-      },
-    ];
-    snapshot.qan = wrongSnapshot(NOW, true).qan;
-    snapshot.operations = wrongSnapshot(NOW, true).operations;
-
+  it('counts an incomplete setup: two clusters degraded, no alert rule, catalog unprotected', () => {
     expect(
-      derive(snapshot, { scenario: 'healthy', operations: true }).status
+      derive(incompleteSnapshot(NOW, false), {
+        scenario: 'incomplete',
+        sources: ready,
+      }).status
     ).toMatchObject({
-      // Operations upgrades payments, which is planned work, not a cluster that needs attention.
-      state: 'upgrading',
-      needAttention: 1,
-      otherIssues: 3,
-      attentionSeverity: 'error',
+      state: 'degraded',
+      health: { healthy: 3, degraded: 2, down: 0, upgrading: 0, noData: 0 },
+      alerts: 0,
+      alertRules: 'none',
+      backupsFailed: 0,
+      backupCoverage: { protected: 3, protectable: 4 },
     });
   });
 
-  it('counts the clusters that need attention, not the rows', () => {
-    const { status, attention } = derive(wrongSnapshot(NOW, false));
+  it('counts the worst case by health, with its failed backups and firing alerts', () => {
+    const { status, attention } = derive(wrongSnapshot(NOW, false), {
+      sources: ready,
+    });
 
     expect(status).toMatchObject({
       state: 'down',
       clusters: 5,
       // Without Operations, payments' upgrade reads as drift, like catalog's.
-      needAttention: 5,
-      otherIssues: 1,
-      attentionSeverity: 'error',
+      health: { healthy: 0, degraded: 3, down: 1, upgrading: 0, noData: 1 },
+      alerts: 3,
+      // orders' snapshot failed and billing's point-in-time recovery stopped.
+      backupsFailed: 2,
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
     expect(attention).toHaveLength(14);
+  });
+
+  it('counts a cluster Operations is upgrading as upgrading, not as a problem', () => {
+    expect(
+      derive(wrongSnapshot(NOW, true), { operations: true }).status.health
+    ).toEqual({ healthy: 0, degraded: 2, down: 1, upgrading: 1, noData: 1 });
   });
 
   it('says nothing is monitored for an empty estate', () => {
     expect(derive(emptySnapshot(NOW, false)).status).toMatchObject({
       state: 'empty',
       clusters: 0,
-      needAttention: 0,
     });
   });
 
-  it('cannot say what needs attention when metrics failed', () => {
+  it('cannot count health when metrics failed', () => {
     const view = derive(
       { ...wrongSnapshot(NOW, false), metrics: null },
       {
@@ -95,7 +106,8 @@ describe('deriveMongoHub status', () => {
       }
     );
 
-    expect(view.status).toMatchObject({ state: 'noData', needAttention: null });
+    expect(view.status.state).toBe('noData');
+    expect(view.status.health).toBeUndefined();
     expect(view.clusters).toEqual([]);
     expect(view.sections.clusters).toEqual({
       status: 'error',
@@ -115,7 +127,7 @@ describe('deriveMongoHub status', () => {
     ]);
   });
 
-  it('cannot count clusters, problems or backups when the inventory failed', () => {
+  it('cannot count clusters, health or backups when the inventory failed', () => {
     const view = derive(
       { ...wrongSnapshot(NOW, false), services: null },
       {
@@ -128,42 +140,26 @@ describe('deriveMongoHub status', () => {
     expect(view.status).toMatchObject({
       state: 'noData',
       clusters: null,
-      needAttention: null,
       lastGoodBackup: 'unknown',
     });
+    expect(view.status.health).toBeUndefined();
+    expect(view.status.backupCoverage).toBeUndefined();
     expect(view.sections.clusters).toMatchObject({
       status: 'error',
       source: 'inventory',
     });
   });
 
-  it('links its figures back into the page, keeping the hub params', () => {
-    const { status } = derive(wrongSnapshot(NOW, false), {
-      environment: 'prod',
-    });
-
-    expect(status.doors.clusters.to).toBe(
-      '?environment=prod&hubState=wrong&hubOps=off&hubRole=admin#clusters'
-    );
-    expect(status.doors.attention.to).toBe(
-      '?environment=prod&hubState=wrong&hubOps=off&hubRole=admin#needs-attention'
-    );
-    expect(status.doors.backup.to).toBe('/graph/backup/inventory');
-  });
-
-  it('offers admins to set up a backup when none is', () => {
-    const snapshot = {
-      ...healthySnapshot(NOW, false),
-      backups: { enabled: true, artifacts: [], scheduled: [] },
-    };
-
-    expect(derive(snapshot).status.doors.backup).toEqual({
-      label: 'Set up a backup',
-      to: '/graph/backup/new',
-    });
-    expect(derive(snapshot, { role: 'viewer' }).status.doors.backup.to).toBe(
-      '/graph/backup/inventory'
-    );
+  it('offers only admins to set up alerts, and backups only with backup management on', () => {
+    expect(
+      derive(healthySnapshot(NOW, false), { role: 'viewer' }).status.doors
+    ).toEqual({});
+    expect(
+      Object.keys(
+        derive(healthySnapshot(NOW, false), { backupManagementEnabled: false })
+          .status.doors
+      )
+    ).toEqual(['setUpAlerts']);
   });
 });
 
@@ -188,9 +184,16 @@ describe('deriveMongoHub environment filter', () => {
       'reports',
       'catalog',
     ]);
-    expect(view.status).toMatchObject({ clusters: 2, needAttention: 2 });
-    // Every schedule and artifact belongs to prod.
-    expect(view.backups.state).toBe('notSetUp');
+    expect(view.status).toMatchObject({
+      clusters: 2,
+      health: { healthy: 0, degraded: 1, down: 0, upgrading: 0, noData: 1 },
+      // catalog is the only staging cluster PBM can back up.
+      backupCoverage: { protected: 1, protectable: 1 },
+    });
+    expect(view.backups.rows.map((row) => row.cluster)).toEqual([
+      'catalog',
+      'reports',
+    ]);
     // Query analytics is filtered by the server, so sample queries stay whatever the filter.
     expect(
       view.attention
@@ -485,10 +488,6 @@ describe('deriveMongoHub patches', () => {
 
     // payments and catalog run 7.0.24-13; billing's check is three days old.
     expect(status.patches).toEqual({ behind: 2, unknown: 1 });
-    expect(status.doors.patches).toEqual({
-      label: 'Clusters behind on patches',
-      to: '?patches=behind&hubState=wrong&hubOps=off&hubRole=admin#clusters',
-    });
   });
 
   it('says nothing about patches while nothing checks for updates', () => {
@@ -503,7 +502,7 @@ describe('deriveMongoHub patches', () => {
     ).toBe(true);
   });
 
-  it('shows only the clusters behind on patches while the filter is on, and its doors clear it', () => {
+  it('shows only the clusters behind on patches while the filter is on, and still counts them all', () => {
     const view = derive(healthySnapshot(NOW, false), {
       scenario: 'healthy',
       patches: 'behind',
@@ -518,23 +517,16 @@ describe('deriveMongoHub patches', () => {
       clusters: 5,
       patches: { behind: 2, unknown: 0 },
     });
-    expect(view.status.doors.clusters.to).toBe(
-      '?hubOps=off&hubRole=admin#clusters'
-    );
   });
 });
 
 describe('deriveMongoHub alerts', () => {
-  it('counts the firing alerts, host alerts included, and opens Alerts', () => {
+  it('counts the firing alerts, host alerts included', () => {
     const view = derive(wrongSnapshot(NOW, false), {
       sources: sourcesWith('ready'),
     });
 
     expect(view.status.alerts).toBe(3);
-    expect(view.status.doors.alerts).toEqual({
-      label: 'Firing alerts',
-      to: '/alerting/status',
-    });
     expect(
       view.attention.find((item) => item.title.startsWith('Node high CPU'))
     ).toMatchObject({

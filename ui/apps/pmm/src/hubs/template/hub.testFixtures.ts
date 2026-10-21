@@ -210,20 +210,19 @@ export const testView = (
   status: {
     state: 'down',
     clusters: 3,
-    needAttention: 3,
-    otherIssues: 0,
-    attentionSeverity: 'error',
+    health: { healthy: 1, degraded: 1, down: 1, upgrading: 0, noData: 0 },
+    alerts: 2,
+    alertRules: 'some',
     lastGoodBackup: { at: minutesAgo(360), cluster: 'billing' },
+    backupsFailed: 0,
+    backupCoverage: { protected: 3, protectable: 3 },
     checkedAt: minutesAgo(0),
     doors: {
-      clusters: testDoor('3 clusters', '/mongodb#clusters'),
-      attention: testDoor('3 need attention', '/mongodb#needs-attention'),
-      backup: testDoor('last good backup', '/graph/backup/inventory'),
-      patches: testDoor(
-        'Clusters behind on patches',
-        '/mongodb?patches=behind#clusters'
+      setUpAlerts: testDoor(
+        'Set up alerts',
+        '/graph/alerting/alert-rule-templates'
       ),
-      alerts: testDoor('Firing alerts', '/alerting/status'),
+      setUpBackups: testDoor('Set up backups', '/graph/backup/new'),
     },
   },
   attention: [],
