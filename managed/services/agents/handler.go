@@ -265,10 +265,16 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	// For port changes, force immediate synchronous config update to prevent
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
 	if shouldForceConfigurationUpdate(portsChanged, enteredRunning, req.Status) {
-		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
+		l.Debug("Agent became scrapeable, forcing immediate VictoriaMetrics configuration update")
 		err := h.vmdb.ForceConfigurationUpdate(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to force configuration update: %w", err)
+			// Fall through rather than return: giving up here would leave
+			// VictoriaMetrics scraping the stale address until some unrelated change
+			// happens to rebuild, and would skip the state update below. The batched
+			// path still converges on it, just not immediately. Same fallback as
+			// widenDisabledCollectors.
+			l.Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+			h.vmdb.RequestConfigurationUpdate()
 		}
 	} else {
 		// Normal async update
