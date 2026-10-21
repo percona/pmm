@@ -11,7 +11,7 @@ with port **443** free. If your user needs `sudo` for Docker, the script detects
 ## Install
 
 ```bash
-mkdir -p ~/pmm-adre && cd ~/pmm-adre
+mkdir -p ~/pmm-assistant && cd ~/pmm-assistant
 curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-holmes/dev/adre/deploy/{compose.yaml,install.sh}
 bash install.sh
 ```

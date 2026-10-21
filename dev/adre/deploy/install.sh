@@ -2,7 +2,7 @@
 #
 # One-command PMM + HolmesGPT (PMM Assistant) install on a single Docker host.
 #
-#   mkdir pmm-adre && cd pmm-adre
+#   mkdir pmm-assistant && cd pmm-assistant
 #   curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-holmes/dev/adre/deploy/{compose.yaml,install.sh}
 #   bash install.sh
 #
