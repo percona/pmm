@@ -36,6 +36,6 @@ For each query, you can see:
 - **Slowest at**: when the query reached its peak execution time within the time range. Use this to correlate a spike with a deployment or a load event.
 - **Service**: the PostgreSQL service the query ran on.
 - **Username**: the database user that executed the query.
-- **Query**: the query fingerprint. Click to expand the full query text.
+- **Query**: the query fingerprint. Inspect the cell to see the full fingerprint.
 - **Calls**: how many times the query ran during the time range.
 - **Execution Time**: average execution time per call.
