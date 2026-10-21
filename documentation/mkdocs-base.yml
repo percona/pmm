@@ -262,9 +262,7 @@ nav:
             - use/qan/qan_mongo.md
           - Real-time analytics: use/qan/QAN-realtime-analytics.md
 
-      - MongoDB Operations:
-          - use/mongodb-operations.md
-          - Install a replica set: use/install-mongodb-replica-set.md
+      - Operations for MongoDB: use/mongodb-operations.md
 
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
