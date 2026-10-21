@@ -129,13 +129,13 @@ func insertToSelect(matches []string) string {
 		}
 		return query.String()
 	}
-	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1])
+	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1]) //nolint:unqueryvet
 }
 
 func insertToSelectNoFields(matches []string) string {
-	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1])
+	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1]) //nolint:unqueryvet
 }
 
 func insertWithSetToSelect(matches []string) string {
-	return fmt.Sprintf("SELECT * FROM %s WHERE %s", matches[1], strings.ReplaceAll(matches[2], ",", " AND "))
+	return fmt.Sprintf("SELECT * FROM %s WHERE %s", matches[1], strings.ReplaceAll(matches[2], ",", " AND ")) //nolint:unqueryvet
 }
