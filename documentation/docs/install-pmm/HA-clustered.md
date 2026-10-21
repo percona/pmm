@@ -61,7 +61,7 @@ To check that your platform version is supported, before you install or upgrade:
 
     | `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift |
     |------------------------|-------------|------------|-----------|
-    | 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.18 to 4.22 |
+    | 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.19 to 4.22 |
 
     If your version is supported, continue with [Plan your resources](#plan-your-resources). If it isn't, upgrade your Amazon EKS or OpenShift cluster to a supported version, or use a chart version that supports your current version.
 
