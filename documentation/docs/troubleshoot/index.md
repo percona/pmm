@@ -6,7 +6,7 @@ To quickly identify the issues and find the appropriate solution, the issues are
 
 - [Upgrade issues](upgrade_issues.md)
 - [Kubernetes single instance issues](kubernetes_single_instance_issues.md)
-- [Kubernetes / OpenShift HA Cluster issues](ha_issues.md)
+- [Kubernetes/OpenShift HA Cluster issues](ha_issues.md)
 - [Configuration issues](config_issues.md)
 - [Percona Alerting issues](alerting_issues.md)
 - [QAN issues](qan_issues.md)
