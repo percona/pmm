@@ -329,6 +329,7 @@ RTA bounds the lock graph it collects, because contention grows quadratically wi
 ## See also
 
 - [Real-time Query Analytics for MongoDB](QAN-realtime-analytics.md)
+- [Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md)
 - [Query Analytics overview](index.md)
 - [Connect MySQL to PMM](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md)
 - [Stored metrics for MySQL](mysql.md)
