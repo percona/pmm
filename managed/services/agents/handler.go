@@ -222,7 +222,7 @@ func (h *Handler) runPingHandler(ctx context.Context, agent *pmmAgentInfo) {
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
-	var portsChanged bool
+	var portsChanged, enteredRunning bool
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 
 	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -235,9 +235,12 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		}
 
 		for _, agentID := range agentIDs {
-			// Check if port changed before updating
+			// Both read what is stored before updateAgentStatus below replaces it.
 			if checkPortChanged(tx.Querier, agentID, req.ListenPort) {
 				portsChanged = true
+			}
+			if checkEnteredRunning(tx.Querier, agentID, req.Status) {
+				enteredRunning = true
 			}
 
 			err := updateAgentStatus(
@@ -261,7 +264,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	// For port changes, force immediate synchronous config update to prevent
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
-	if shouldForceConfigurationUpdate(portsChanged, req.Status) {
+	if shouldForceConfigurationUpdate(portsChanged, enteredRunning, req.Status) {
 		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
 		err := h.vmdb.ForceConfigurationUpdate(ctx)
 		if err != nil {
@@ -284,21 +287,46 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	return nil
 }
 
-// shouldForceConfigurationUpdate reports whether a listen port change is worth rebuilding the
+// shouldForceConfigurationUpdate reports whether this report is worth rebuilding the
 // VictoriaMetrics scrape configuration for synchronously, rather than leaving it to the batched
 // update.
 //
-// Only a running Agent's port is. That is the one VictoriaMetrics would otherwise keep scraping at
-// its old address, which is what PMM-14267 fixed. A port reported by an Agent that is starting,
-// failed to start, or has stopped is never scraped, so rebuilding for it spends two
-// victoriametrics -dryRun runs and a reload on nothing.
+// Only a running Agent's address is worth it, and then in two cases: it has just become scrapeable
+// (entering RUNNING, which is how a restart on a new port arrives), or its port moved while it was
+// already running (a reconnect). Those are what VictoriaMetrics would otherwise keep scraping at a
+// stale address, which is what PMM-14267 fixed.
 //
-// It also bounds the cost of an Agent that cannot start at all: every attempt reserves a new port
-// and reports it, and answering each one synchronously - and then asking the Agent for another
-// state update - turns one broken exporter into a rebuild loop that ends only when the Agent is
-// fixed. Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
-func shouldForceConfigurationUpdate(portsChanged bool, status inventoryv1.AgentStatus) bool {
-	return portsChanged && status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
+// What this excludes is the Agent that cannot start at all. Every attempt reserves a new port and
+// reports it, and answering each one synchronously - then asking the Agent for another state
+// update - turns one broken exporter into a rebuild loop that ends only when the Agent is fixed.
+// Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
+func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status inventoryv1.AgentStatus) bool {
+	if status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+		return false
+	}
+
+	return portsChanged || enteredRunning
+}
+
+// checkEnteredRunning reports whether the Agent is entering RUNNING, which is when its address
+// first becomes scrapeable.
+//
+// Comparing ports alone never sees a normal restart: the Agent reports the new port with STARTING
+// first (one port is used for every status of a process - see the Supervisor's forwarder), and
+// updateAgentStatus stores it for every status, so by the time RUNNING arrives the stored port
+// already matches the reported one.
+func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv1.AgentStatus) bool {
+	if newStatus != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+		return false
+	}
+
+	agent, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		// Can't determine, assume no change
+		return false
+	}
+
+	return agent.Status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
 }
 
 // checkPortChanged checks if the agent's listen port is changing.
