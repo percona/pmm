@@ -189,9 +189,9 @@ Rules for the entry:
 
 Put the entry in `documentation/docs/release-notes/next.md` on `main`: it holds the next release, whatever its number, and is never published. A fix for a version in RC goes in that version's `X.Y.Z.md` instead, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick.
 
-Right before the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it runs `documentation/resources/bin/release-notes.sh rc X.Y.Z` on `main`: `next.md` becomes `X.Y.Z.md`, listed in the index and nav, and `next.md` starts over from `documentation/resources/release-notes-template.md`. The version comes from `VERSION` in [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION). The doc team writes the release summary, highlights, security updates and release date in `X.Y.Z.md`, on `main` and cherry-picked to `pmm-X.Y.Z`. An entry whose code is reverted on the release branch, as features are on a patch, comes out of `X.Y.Z.md` on both and goes back to `next.md`.
+Right before the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it turns `next.md` into `X.Y.Z.md` on `main`, lists it in the index and nav, and starts `next.md` over from `documentation/resources/release-notes-template.md`. It does nothing when `X.Y.Z.md` already exists. The version comes from `VERSION` in [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION). The doc team writes the release summary, highlights, security updates and release date in `X.Y.Z.md`, on `main` and cherry-picked to `pmm-X.Y.Z`. An entry whose code is reverted on the release branch, as features are on a patch, comes out of `X.Y.Z.md` on both and goes back to `next.md`.
 
-At GA the site build runs `release-notes.sh publish X.Y.Z` and fails unless `X.Y.Z.md` is the same on `pmm-X.Y.Z` and on `main`.
+At GA the site build fails unless `X.Y.Z.md` is the same on `pmm-X.Y.Z` and on `main`, and `next.md` on `pmm-X.Y.Z` is still empty: an entry there came with a cherry-picked fix and belongs in `X.Y.Z.md`.
 
 ## Content type templates
 

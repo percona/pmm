@@ -55,7 +55,8 @@ jobs:
           git config user.email "github-action@users.noreply.github.com"
           git fetch --depth=2 origin "$SHA"
           patch="$RUNNER_TEMP/doc.patch"
-          git diff --binary "${SHA}^1" "$SHA" -- documentation/ > "$patch"
+          # next.md holds unreleased notes; the release branch keeps it empty.
+          git diff --binary "${SHA}^1" "$SHA" -- documentation/ ':(exclude)documentation/docs/release-notes/next.md' > "$patch"
 
           if [ ! -s "$patch" ]; then
             echo "result=empty" >> "$GITHUB_OUTPUT"
