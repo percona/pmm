@@ -76,8 +76,8 @@ To install PMM HA:
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
@@ -206,8 +206,8 @@ To install PMM HA:
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
+          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+          --from-literal=PMM_HA_VM_PASSWORD="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
           --from-literal=GF_PASSWORD="your-grafana-password" \
           --namespace pmm
@@ -232,8 +232,8 @@ To install PMM HA:
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
           PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
           PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
-          VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
-          VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
+          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+          PMM_HA_VM_PASSWORD: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
           GF_PASSWORD: "your-grafana-password"
     ```
@@ -346,8 +346,8 @@ To install PMM HA:
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
