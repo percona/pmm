@@ -322,7 +322,7 @@ To install PMM HA:
 
       You can use any project name. Replace `pmm` throughout these steps with your chosen name.
 
- 3. Install required operators. On OpenShift, the operators chart needs its own values file:
+    3. Install required operators. On OpenShift, the operators chart needs its own values file:
 
       Create `values-operators-openshift.yaml`:
 
