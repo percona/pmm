@@ -33,7 +33,7 @@ To start monitoring a MongoDB service:
 
 The live operations table appears and begins updating automatically:
 
-![RTA live table for a MongoDB service](../../images/RTA_live.png)
+![RTA live table](../../images/RTA_live.png)
 
 ## Explore the Real-time view
 
@@ -141,7 +141,7 @@ When someone opens your link, they see live data with your filters applied, not 
 
 Click **All sessions** to see and manage all running RTA sessions, for MongoDB and MySQL alike. From here you can stop one session with **Stop**, select several and click **Stop selected**, or click **Stop all**:
 
-![Sessions list with one session selected and the Stop selected, Stop all and New session buttons](../../images/stop_RTA_session.png)
+![Stop RTA session](../../images/stop_RTA_session.png)
 
 ## Monitor and investigate operations
 
@@ -153,7 +153,7 @@ To identify operations that are taking too long:
 1. Look at the top of the table, which lists the longest-running operations first. To filter by duration, click :material-filter-variant: **Show/Hide filters** and enter a **Min** or **Max** value under **Elapsed time**.
 2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection, often a sign that an index is missing.
 
-    ![Details tab of a MongoDB operation whose Plan summary is COLLSCAN](../../images/RTA_Details_tab.png)
+    ![RTA Details tab](../../images/RTA_Details_tab.png)
 
 Repeated slow queries on the same collection often indicate it needs better indexing.
 
@@ -181,7 +181,7 @@ If operations seem stuck, open the **Raw data** tab and look for:
 - `waitingForLock: true`: the operation is blocked waiting for a lock
 - `locks`: shows which lock types the operation holds
 
-![Raw data tab of a MongoDB operation, showing the currentOp document](../../images/Raw_data_RTA.png)
+![RTA Raw Data tab](../../images/Raw_data_RTA.png)
 
 Operations waiting for locks may indicate write contention or long-running operations blocking others.
 
