@@ -77,6 +77,8 @@ The **Monitoring** column summarizes the status of all the agents assigned to a 
 - **Warning**: one or more agents are disabled.
 - **Failed**: one or more agents that must be running are not running.
 
+Some agents are disabled by design, so they don't cause **Warning**. The **Real-Time Analytics MongoDB agent** is disabled when no Real-Time Analytics session runs. A **QAN PostgreSQL pg_stat_statements agent** is disabled when the service uses `pg_stat_monitor` instead.
+
 To see the status of each agent, click the **Monitoring** status. For details, see [View agents](#view-agents).
 
 ### Organize services by cluster
