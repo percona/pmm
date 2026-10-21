@@ -268,6 +268,11 @@ func Fingerprint() (string, error) {
 	return getDefaultEncryption().Fingerprint()
 }
 
+// KeyFingerprint returns the Fingerprint of the given key, as it is given in KeyEnvVar or the key file.
+func KeyFingerprint(key string) (string, error) {
+	return (&Encryption{Key: strings.TrimSpace(key)}).Fingerprint()
+}
+
 // Fingerprint returns a stable identifier of the encryption key: a digest, so it cannot be used
 // to reconstruct the key. It is recorded next to the encrypted data so that a node can tell
 // whether it holds the right key without having an encrypted row to test against.

@@ -27,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/vault"
 )
@@ -126,6 +127,14 @@ type Watcher struct {
 	rotated map[string]string
 	// clickHouseWait is how long to wait for ClickHouse to read its changed users.
 	clickHouseWait time.Duration
+
+	// keyRef is the reference of the encryption key, which PMM Server reads itself, rather than vault-env. It cannot
+	// be applied while PMM Server runs, nor at all without its data, so a change is reported instead, see checkKey.
+	keyRef string
+	// keyInUse returns the fingerprint of the encryption key that PMM Server uses.
+	keyInUse func() (string, error)
+	// keyReported is the fingerprint of the key in Vault that was reported as not the one in use.
+	keyReported string
 }
 
 // New returns a Watcher of the variables of environ that vault-env resolved, which restarts the programs with sup.
@@ -142,6 +151,7 @@ func New(environ []string, sup *supervisord.Service) *Watcher {
 		rotated: make(map[string]string),
 
 		clickHouseWait: clickHouseReloadWait,
+		keyInUse:       encryption.Fingerprint,
 	}
 
 	env := make(map[string]string)
@@ -150,6 +160,9 @@ func New(environ []string, sup *supervisord.Service) *Watcher {
 		env[name] = value
 	}
 	w.env = env
+	if ref := env[encryption.KeyEnvVar]; vault.IsRef(ref) {
+		w.keyRef = ref
+	}
 	for name, value := range env {
 		if target, ok := strings.CutPrefix(name, refEnvPrefix); ok && vault.IsRef(value) {
 			w.refs[target] = value
@@ -171,7 +184,7 @@ func New(environ []string, sup *supervisord.Service) *Watcher {
 
 // Run checks the variables for changes in Vault at every interval, and applies them, until ctx is done.
 func (w *Watcher) Run(ctx context.Context, interval time.Duration) {
-	if len(w.refs) == 0 {
+	if len(w.refs) == 0 && w.keyRef == "" {
 		return
 	}
 
@@ -188,8 +201,46 @@ func (w *Watcher) Run(ctx context.Context, interval time.Duration) {
 	}
 }
 
+// checkKey reports, once for each, an encryption key in Vault that is not the one PMM Server uses. The secrets that
+// PMM Server stores are encrypted with the one it uses: it keeps using that one, and would not start with another.
+func (w *Watcher) checkKey(ctx context.Context) {
+	if w.keyRef == "" {
+		return
+	}
+
+	key, err := w.read(ctx, w.keyRef)
+	if err != nil {
+		w.l.Warnf("Cannot check %s for a change in Vault: %s.", encryption.KeyEnvVar, err)
+		return
+	}
+	inVault, err := encryption.KeyFingerprint(key)
+	if err != nil {
+		inVault = "invalid: " + err.Error()
+	}
+	inUse, err := w.keyInUse()
+	if err != nil {
+		w.l.Warnf("Cannot check %s for a change in Vault: %s.", encryption.KeyEnvVar, err)
+		return
+	}
+
+	switch {
+	case inVault == inUse:
+		if w.keyReported != "" {
+			w.l.Infof("%s in Vault is the key that PMM Server uses again.", encryption.KeyEnvVar)
+		}
+		w.keyReported = ""
+	case inVault != w.keyReported:
+		w.l.Errorf("%s in Vault is not the key that PMM Server uses, and encrypted the secrets it stores with: "+
+			"PMM Server keeps using the one it has, and would not start with the one in Vault. Put the key back in "+
+			"Vault, or change it with pmm-encryption-rotation, which encrypts the secrets with the new one.", encryption.KeyEnvVar)
+		w.keyReported = inVault
+	}
+}
+
 // check reads the variables from Vault, and applies those that changed.
 func (w *Watcher) check(ctx context.Context) {
+	w.checkKey(ctx)
+
 	changed := make(map[string]change)
 	for _, name := range slices.Sorted(maps.Keys(w.refs)) {
 		value, err := w.read(ctx, w.refs[name])

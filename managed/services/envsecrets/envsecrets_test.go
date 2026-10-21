@@ -21,8 +21,12 @@ import (
 	"maps"
 	"testing"
 
+	"github.com/sirupsen/logrus"
+	logtest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 // fakeActions records the actions taken.
@@ -254,4 +258,53 @@ func TestWatcher(t *testing.T) {
 		require.Empty(t, w.refs)
 		w.Run(t.Context(), 0)
 	})
+}
+
+func TestWatcherEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	keys := make([]string, 3)
+	for i := range keys {
+		var err error
+		keys[i], err = (&encryption.Encryption{}).GenerateKey()
+		require.NoError(t, err)
+	}
+	inUse, err := encryption.KeyFingerprint(keys[0])
+	require.NoError(t, err)
+
+	vault := map[string]string{"vault:pmm#key": keys[0]}
+	w, f := newTestWatcher(t, []string{"PMM_ENCRYPTION_KEY=vault:pmm#key"}, vault)
+	w.keyInUse = func() (string, error) { return inUse, nil }
+	logger, hook := logtest.NewNullLogger()
+	w.l = logrus.NewEntry(logger)
+	errorsLogged := func() int {
+		n := 0
+		for _, e := range hook.AllEntries() {
+			if e.Level == logrus.ErrorLevel {
+				n++
+			}
+		}
+		return n
+	}
+
+	w.check(t.Context())
+	assert.Zero(t, errorsLogged())
+
+	// Changed in Vault by hand: reported once, and never applied.
+	vault["vault:pmm#key"] = keys[1]
+	w.check(t.Context())
+	w.check(t.Context())
+	assert.Equal(t, 1, errorsLogged())
+	assert.Contains(t, hook.LastEntry().Message, "pmm-encryption-rotation")
+	assert.Empty(t, f.restarted)
+	assert.Zero(t, f.self)
+
+	vault["vault:pmm#key"] = keys[2]
+	w.check(t.Context())
+	assert.Equal(t, 2, errorsLogged(), "another key is reported again")
+
+	vault["vault:pmm#key"] = keys[0]
+	w.check(t.Context())
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Contains(t, hook.LastEntry().Message, "is the key that PMM Server uses again")
 }
