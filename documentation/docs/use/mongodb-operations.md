@@ -51,7 +51,7 @@ You can enable Operations for MongoDB from the PMM settings or with an environme
 
     Use this method to keep Operations for MongoDB enabled every time PMM Server starts, for example in a Docker Compose file or a startup script.
 
-    Start PMM Server with `PMM_ENABLE_OM=1`. This also locks the setting in the PMM UI.
+    Start PMM Server with `PMM_ENABLE_OM=1`. You then can't change the setting in the PMM UI: **Apply changes** returns an error.
 
 After you enable it, **MongoDB > Operations** appears in the sidebar with a **Preview** label and following pages:
 
