@@ -307,11 +307,12 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 // update - turns one broken exporter into a rebuild loop that ends only when the Agent is fixed.
 // Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
 //
-// Excluding it bounds the rate rather than removing the work. A stuck Agent's port is still in the
-// generated configuration - FindAgentsForScrapeConfig filters on NOT disabled and a non-null
-// listen_port, never on status - so each attempt still changes it, and the batched update still
-// validates, writes and reloads roughly every updateBatchDelay. That is one rebuild per 3s however
-// many Agents are stuck, instead of one per report per Agent.
+// Excluding it bounds the rate rather than removing the work. A stuck pull-mode Agent's port is
+// still in the generated configuration - FindAgentsForScrapeConfig filters on NOT disabled and a
+// non-null listen_port, never on status - so each attempt still changes it, and the batched update
+// still validates, writes and reloads roughly every updateBatchDelay. That is one rebuild per 3s
+// however many Agents are stuck, instead of one per report per Agent. A push-mode Agent is not in
+// that configuration at all, so for it the batched update finds nothing changed.
 func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status inventoryv1.AgentStatus) bool {
 	if status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		return false
@@ -337,6 +338,9 @@ func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv
 		// Can't determine, assume no change
 		return false
 	}
+	if !scrapedByServer(agent) {
+		return false
+	}
 
 	return agent.Status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
 }
@@ -348,10 +352,22 @@ func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
 		// Can't determine, assume no change
 		return false
 	}
+	if !scrapedByServer(agent) {
+		return false
+	}
 	oldPort := pointer.GetUint16(agent.ListenPort)
 	newPort16 := uint16(newPort) //nolint:gosec
 	// Port changed if old port exists and is different from new port
 	return oldPort != 0 && oldPort != newPort16
+}
+
+// scrapedByServer reports whether PMM Server's own VictoriaMetrics scrapes the Agent at its listen
+// port, the only case in which a stale port there is worth a synchronous rebuild. It mirrors what
+// FindAgentsForScrapeConfig selects for PMM Server's configuration: not disabled, with a port, and
+// not pushing through a vmagent. Built-in Agents report no port (stored as 0), and vmagents and
+// push-mode exporters are scraped by the vmagent on their own node.
+func scrapedByServer(agent *models.Agent) bool {
+	return !agent.Disabled && pointer.GetUint16(agent.ListenPort) != 0 && !agent.ExporterOptions.PushMetrics
 }
 
 func updateAgentStatus(

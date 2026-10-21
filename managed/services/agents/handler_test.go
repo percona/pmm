@@ -16,17 +16,21 @@
 package agents
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestShouldForceConfigurationUpdate(t *testing.T) {
@@ -78,13 +82,16 @@ func TestCheckEnteredRunning(t *testing.T) {
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
 	}
 
-	agentRow := func(agentID, status string) *sqlmock.Rows {
+	agentRowWith := func(agentID, status string, disabled bool, listenPort int, exporterOptions string) *sqlmock.Rows {
 		return sqlmock.NewRows(agentColumns).AddRow(
 			agentID, string(models.PMMAgentType), "test-node", nil, nil, nil, nil, nil,
-			time.Now(), time.Now(), false, status, 8080, nil, nil, false,
+			time.Now(), time.Now(), disabled, status, listenPort, nil, nil, false,
 			nil, nil, nil, false, false, nil,
-			`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			exporterOptions, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 		)
+	}
+	agentRow := func(agentID, status string) *sqlmock.Rows {
+		return agentRowWith(agentID, status, false, 8080, `{}`)
 	}
 
 	newDB := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
@@ -144,6 +151,31 @@ func TestCheckEnteredRunning(t *testing.T) {
 		assert.False(t, checkEnteredRunning(db.Querier, "missing-agent", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
+
+	// PMM Server never scrapes these, so a synchronous rebuild for them is pure cost.
+	for _, tc := range []struct {
+		name            string
+		disabled        bool
+		listenPort      int
+		exporterOptions string
+	}{
+		{"false for a push-mode Agent, scraped by its own vmagent", false, 8080, `{"push_metrics": true}`},
+		{"false for a built-in Agent, which has no port", false, 0, `{}`},
+		{"false for a disabled Agent", true, 8080, `{}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			db, mock := newDB(t)
+			mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+				WithArgs("test-agent-4").
+				WillReturnRows(agentRowWith("test-agent-4", inventoryv1.AgentStatus_AGENT_STATUS_STARTING.String(),
+					tc.disabled, tc.listenPort, tc.exporterOptions))
+
+			assert.False(t, checkEnteredRunning(db.Querier, "test-agent-4", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+			require.NoError(t, mock.ExpectationsWereMet())
+		})
+	}
 }
 
 func TestCheckPortChanged(t *testing.T) {
@@ -420,4 +452,169 @@ func TestCheckPortChanged(t *testing.T) {
 
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
+
+	t.Run("returns false for a push-mode agent, which PMM Server does not scrape", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("test-agent-5").
+			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
+				"test-agent-5",
+				string(models.NodeExporterType),
+				nil,
+				nil, nil, nil, nil, nil,
+				time.Now(), time.Now(),
+				false, "", 42000, nil, nil, false,
+				nil, nil, nil, false, false, nil,
+				`{"push_metrics": true}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			))
+
+		changed := checkPortChanged(db.Querier, "test-agent-5", uint32(42001))
+		assert.False(t, changed, "should ignore a port PMM Server's configuration does not contain")
+
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
+// fakeVMDB counts how stateChanged asks for a VictoriaMetrics configuration update.
+type fakeVMDB struct {
+	forced, requested int
+}
+
+func (f *fakeVMDB) RequestConfigurationUpdate() { f.requested++ }
+
+func (f *fakeVMDB) ForceConfigurationUpdate(context.Context) error {
+	f.forced++
+	return nil
+}
+
+func (f *fakeVMDB) BuildScrapeConfigForVMAgent(context.Context, string) ([]byte, error) {
+	return nil, nil
+}
+
+// TestStateChanged drives stateChanged through a sequence of reports, so the checks are tested
+// where they run: they must read the Agent as stored before updateAgentStatus replaces it, or a
+// restart on a new port is never forced (PMM-14267).
+func TestStateChanged(t *testing.T) {
+	t.Parallel()
+
+	agentColumns := []string{
+		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
+		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
+		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
+		"username", "password", "agent_password", "tls", "tls_skip_verify",
+		"log_level", "exporter_options", "qan_options", "rta_options",
+		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
+	}
+	const agentID = "test-exporter"
+	const selectAgent = `SELECT .+ FROM "agents" WHERE .+ LIMIT 1`
+
+	type stored struct {
+		status          inventoryv1.AgentStatus
+		listenPort      int
+		exporterOptions string
+	}
+	type report struct {
+		status     inventoryv1.AgentStatus
+		listenPort uint32
+		stored     stored // the row as stateChanged finds it for this report
+	}
+
+	// The exporter has no pmm_agent_id, so stateChanged returns before asking for a state update.
+	agentRow := func(s stored) *sqlmock.Rows {
+		return sqlmock.NewRows(agentColumns).AddRow(
+			agentID, string(models.NodeExporterType), nil, nil, "test-node", nil, nil, nil,
+			time.Now(), time.Now(), false, s.status.String(), s.listenPort, nil, nil, false,
+			nil, nil, nil, false, false, nil,
+			s.exporterOptions, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+		)
+	}
+
+	starting, running := inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
+
+	for _, tc := range []struct {
+		name            string
+		reports         []report
+		forced, request int
+	}{
+		{
+			name: "a restart on a new port is forced once, when it becomes RUNNING",
+			reports: []report{
+				{starting, 42001, stored{running, 42000, `{}`}},
+				{running, 42001, stored{starting, 42001, `{}`}},
+			},
+			forced: 1, request: 1,
+		},
+		{
+			name: "an Agent that cannot start is never forced",
+			reports: []report{
+				{starting, 42002, stored{starting, 42001, `{}`}},
+				{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, stored{starting, 42002, `{}`}},
+				{inventoryv1.AgentStatus_AGENT_STATUS_DONE, 42002, stored{inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 42002, `{}`}},
+			},
+			forced: 0, request: 3,
+		},
+		{
+			name: "a push-mode Agent becoming RUNNING is not forced",
+			reports: []report{
+				{running, 42001, stored{starting, 42001, `{"push_metrics": true}`}},
+			},
+			forced: 0, request: 1,
+		},
+		{
+			name: "a built-in Agent becoming RUNNING is not forced",
+			reports: []report{
+				{running, 0, stored{starting, 0, `{}`}},
+			},
+			forced: 0, request: 1,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			sqlDB, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			t.Cleanup(func() {
+				_ = mock.ExpectClose()
+				assert.NoError(t, sqlDB.Close())
+			})
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			vmdb := &fakeVMDB{}
+			h := &Handler{db: db, r: &Registry{roster: newRoster(db)}, vmdb: vmdb}
+			ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+
+			for _, r := range tc.reports {
+				mock.ExpectBegin()
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // checkPortChanged
+				if r.status == running {
+					mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // checkEnteredRunning
+				}
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // updateAgentStatus
+				mock.ExpectExec(`UPDATE "agents" SET`).WillReturnResult(sqlmock.NewResult(0, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // its pmm-agent
+
+				err := h.stateChanged(ctx, &agentv1.StateChangedRequest{
+					AgentId:    agentID,
+					Status:     r.status,
+					ListenPort: r.listenPort,
+				})
+				require.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.forced, vmdb.forced, "forced updates")
+			assert.Equal(t, tc.request, vmdb.requested, "batched updates")
+			require.NoError(t, mock.ExpectationsWereMet())
+		})
+	}
 }
