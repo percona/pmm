@@ -4,8 +4,8 @@ import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { describe, expect, it, vi } from 'vitest';
 import { getThemeOptions } from '../../design';
-import { NothingFoundIllustration } from '../illustrations';
-import EmptyState from './empty-state';
+import * as illustrations from '../illustrations';
+import EmptyState, { EMPTY_STATE_ILLUSTRATIONS, EMPTY_STATE_SIZES } from './empty-state';
 
 const renderInTheme = (node: ReactNode) =>
   render(
@@ -52,35 +52,56 @@ describe('EmptyState', () => {
   });
 
   it('hides the illustration from assistive technology', () => {
-    renderInTheme(
-      <EmptyState
-        title="No matching services"
-        illustration={<NothingFoundIllustration titleAccess="Magnifier" data-testid="art" />}
-      />
+    const { container } = renderInTheme(
+      <EmptyState title="No matching services" illustration="nothing-found" />
     );
 
-    expect(screen.getByTestId('art').parentElement).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
+  it('offers every Peak illustration by name', () => {
+    const exported = Object.keys(illustrations).filter((name) => name.endsWith('Illustration'));
+
+    expect(Object.values(EMPTY_STATE_ILLUSTRATIONS)).toHaveLength(exported.length);
+    exported.forEach((name) => {
+      expect(Object.values(EMPTY_STATE_ILLUSTRATIONS)).toContain(
+        illustrations[name as keyof typeof illustrations]
+      );
+    });
+  });
+
   it.each([
-    ['small', '48px', '32px'],
-    ['medium', '64px', '48px'],
+    ['small', '80px', '32px'],
+    ['medium', '120px', '48px'],
   ] as const)('sizes a %s empty state', (size, illustration, padding) => {
-    renderInTheme(
-      <EmptyState
-        size={size}
-        title="No services yet"
-        illustration={<NothingFoundIllustration fontSize="large" data-testid="art" />}
-        data-testid="empty"
-      />
+    const { container } = renderInTheme(
+      <EmptyState size={size} title="No services yet" illustration="radar" data-testid="empty" />
     );
 
-    expect(screen.getByTestId('art')).toHaveStyle({ fontSize: illustration });
+    expect(container.querySelector('svg')).toHaveStyle({ fontSize: illustration });
     expect(screen.getByTestId('empty')).toHaveStyle({
       paddingTop: padding,
       paddingBottom: padding,
     });
+    expect(EMPTY_STATE_SIZES[size].illustration).toBe(parseInt(illustration, 10));
+  });
+
+  it('renders the description as a block so it can hold more than text', () => {
+    renderInTheme(
+      <EmptyState
+        title="No services yet"
+        description={
+          <ul data-testid="list">
+            <li>Add a service</li>
+          </ul>
+        }
+      />
+    );
+
+    const description = screen.getByTestId('list').parentElement;
+    expect(description?.tagName).toBe('DIV');
+    expect(description?.closest('p')).toBeNull();
   });
 
   it('renders no wrappers for the slots it is not given', () => {
@@ -118,5 +139,18 @@ describe('EmptyState', () => {
     expect(ref.current).toBe(root);
     expect(root).toHaveAttribute('id', 'services-empty');
     expect(root).toHaveStyle({ paddingTop: '8px', display: 'flex' });
+  });
+
+  it('lets Box spacing props override the defaults', () => {
+    renderInTheme(
+      <EmptyState title="No services yet" data-testid="empty" py={0} gap={2} textAlign="left" />
+    );
+
+    expect(screen.getByTestId('empty')).toHaveStyle({
+      paddingTop: '0px',
+      paddingBottom: '0px',
+      gap: '16px',
+      textAlign: 'left',
+    });
   });
 });

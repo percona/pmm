@@ -1,2 +1,2 @@
-export { default } from './empty-state';
-export type { EmptyStateProps } from './empty-state.types';
+export { default, default as EmptyState } from './empty-state';
+export type { EmptyStateIllustration, EmptyStateProps, EmptyStateSize } from './empty-state.types';

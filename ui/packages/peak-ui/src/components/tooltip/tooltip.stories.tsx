@@ -1,13 +1,11 @@
-import { useMemo } from 'react';
 import { type Meta, type StoryObj } from '@storybook/react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import * as DocBlock from '@storybook/addon-docs/blocks';
-import { getThemeOptions } from '../../design';
+import ThemedModePanel from '../../../.storybook/themed-mode-panel';
 import Tooltip from './tooltip';
 import type { TooltipProps } from './tooltip.types';
 
@@ -224,54 +222,31 @@ export const RichContent: Story = {
   },
 };
 
-const themedSurfaceSx = {
-  display: 'flex',
-  flexDirection: 'column' as const,
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 12,
-  padding: '32px 24px',
-  borderRadius: 8,
-  minHeight: 200,
-  flex: 1,
-};
-
-const ModeShowcase = ({
-  mode,
-  themeName,
-}: {
-  mode: 'light' | 'dark';
-  themeName: 'base' | 'pmm' | 'sep';
-}) => {
-  const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          ...themedSurfaceSx,
-          backgroundColor: theme.palette.background.default,
-          color: theme.palette.text.primary,
-          border: `1px solid ${theme.palette.divider}`,
-        }}
+const ModeShowcase = ({ mode }: { mode: 'light' | 'dark' }) => (
+  <ThemedModePanel mode={mode} themeName="base" label={`App in ${mode} mode`}>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 160,
+        pt: 4,
+      }}
+    >
+      <Tooltip
+        title={`Inverted surface (${mode === 'light' ? 'dark' : 'light'})`}
+        arrow
+        open
+        disableHoverListener
+        disableFocusListener
+        disableTouchListener
+        placement="bottom"
       >
-        <Typography variant="overline">App in {mode} mode</Typography>
-        <Tooltip
-          title={`Inverted surface (${mode === 'light' ? 'dark' : 'light'})`}
-          arrow
-          open
-          disableHoverListener
-          disableFocusListener
-          disableTouchListener
-          placement="bottom"
-        >
-          <Button variant="outlined">Anchor</Button>
-        </Tooltip>
-        <Box sx={{ height: 4 }} />
-      </Box>
-    </ThemeProvider>
-  );
-};
+        <Button variant="outlined">Anchor</Button>
+      </Tooltip>
+    </Box>
+  </ThemedModePanel>
+);
 
 export const ModesShowcase: Story = {
   name: 'Modes (inversion)',
@@ -287,8 +262,8 @@ export const ModesShowcase: Story = {
   render: function Render() {
     return (
       <Box sx={{ display: 'flex', gap: 2 }}>
-        <ModeShowcase mode="light" themeName="base" />
-        <ModeShowcase mode="dark" themeName="base" />
+        <ModeShowcase mode="light" />
+        <ModeShowcase mode="dark" />
       </Box>
     );
   },
