@@ -20,7 +20,21 @@ To upgrade PMM Server on AWS:
     aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
     ```
 
-2. Go to **Configuration > Updates > Check updates now**  and click **Upgrade now** if a newer version is available.
+2. Connect to your PMM Server instance via SSH using the `admin` user.
+
+3. Update the PMM Server image in the environment file. Replace `X.Y.Z` with your target version:
+
+    ```sh
+    sed -i "s|PMM_IMAGE=.*|PMM_IMAGE=docker.io/percona/pmm-server:X.Y.Z|g" ~/.config/systemd/user/pmm-server.env
+    ```
+
+4. Pre-pull the new image and restart PMM Server:
+
+    ```sh
+    source ~/.config/systemd/user/pmm-server.env
+    podman pull ${PMM_IMAGE}
+    systemctl --user restart pmm-server
+    ```
 
 ## Post-upgrade tasks
 
