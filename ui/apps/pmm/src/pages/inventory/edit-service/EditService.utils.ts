@@ -1,5 +1,5 @@
 import type { RdsCredentials, RdsExporter } from 'types/agent.types';
-import type { ChangeServiceParams, ManagedService } from 'types/services.types';
+import type { BaseService, ChangeServiceParams } from 'types/services.types';
 import type { EditServiceFormValues } from './EditService.schema';
 import { RdsAuthMode } from './EditService.types';
 
@@ -41,7 +41,7 @@ export const getRdsAuthMode = (exporter: RdsExporter | null) => {
 };
 
 export const getInitialValues = (
-  service: ManagedService,
+  service: BaseService,
   exporter: RdsExporter | null
 ): EditServiceFormValues => ({
   environment: service.environment,
@@ -109,7 +109,7 @@ const areLabelsEqual = (a: Record<string, string>, b: Record<string, string>) =>
 // The ChangeService fields that differ from the service, or undefined when
 // none does
 export const toServiceChanges = (
-  service: ManagedService,
+  service: BaseService,
   values: EditServiceFormValues
 ): ChangeServiceParams | undefined => {
   // Labels left as they were are not parsed again, as a value can read like

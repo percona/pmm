@@ -16,7 +16,7 @@ import { Messages } from './AlertThresholds.messages';
 import type {
   AlertThresholdRow,
   AlertThresholdsFormValues,
-  AlertThresholdsNode,
+  AlertThresholdsProps,
 } from './AlertThresholds.types';
 import type {
   ListThresholdsResponse,
@@ -29,12 +29,7 @@ import {
   getRuleTitles,
 } from './AlertThresholds.utils';
 
-interface Props {
-  node: AlertThresholdsNode | null;
-  onClose: () => void;
-}
-
-const AlertThresholds: FC<Props> = ({ node, onClose }) => {
+const AlertThresholds: FC<AlertThresholdsProps> = ({ node, onClose }) => {
   const nodeId = node?.nodeId;
 
   const { data, isLoading, isError } = useNodeThresholds(nodeId ?? '', {

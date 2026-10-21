@@ -11,7 +11,7 @@ import { type FC, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import type { RdsExporter } from 'types/agent.types';
-import type { ManagedService } from 'types/services.types';
+import type { BaseService } from 'types/services.types';
 import { ConfirmChangesModal } from '../confirm-changes-modal';
 import { Messages } from '../EditService.messages';
 import {
@@ -30,7 +30,7 @@ import { RdsCredentials } from '../rds-credentials';
 const { labels } = Messages;
 
 interface Props {
-  service: ManagedService;
+  service: BaseService;
   exporter: RdsExporter | null;
 }
 

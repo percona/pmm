@@ -16,6 +16,8 @@ import { Messages } from './Services.messages';
 import type { ServiceRow, ServicesTableRow } from './Services.types';
 import { isClusterRow } from './Services.utils';
 
+export const SERVICES_TABLE_NAME = 'inventory-services';
+
 // Cluster rows hold no values, so they only match filters through their services
 const serviceValue =
   <K extends keyof ServiceRow>(key: K) =>

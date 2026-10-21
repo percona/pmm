@@ -1,4 +1,8 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosRequestConfig,
+  HttpStatusCode,
+  isAxiosError,
+} from 'axios';
 import {
   type ManagedAgent,
   type RdsExporter,
@@ -7,10 +11,12 @@ import {
 } from 'types/agent.types';
 import type { ManagedNode, NodeType } from 'types/nodes.types';
 import type {
+  BaseService,
   ManagedService,
   ManagedServiceType,
   ServiceStatus,
 } from 'types/services.types';
+import { api } from './api';
 
 // Inventory payloads carry user-defined label keys, which the case middleware
 // would rename, so they are parsed as is and mapped below.
@@ -21,6 +27,26 @@ export const RAW_RESPONSE: AxiosRequestConfig = {
 // Sends user-defined label keys as is, for the same reason
 export const RAW_REQUEST: AxiosRequestConfig = {
   transformRequest: axios.defaults.transformRequest,
+};
+
+const isNotFound = (error: unknown) =>
+  isAxiosError(error) && error.response?.status === HttpStatusCode.NotFound;
+
+// Resolves to null when the entity no longer exists, for the page to report
+// instead of the error notification
+export const getIfExists = async <T>(url: string): Promise<T | null> => {
+  try {
+    const res = await api.get<T>(url, {
+      ...RAW_RESPONSE,
+      disableNotifications: isNotFound,
+    });
+    return res.data;
+  } catch (error) {
+    if (isNotFound(error)) {
+      return null;
+    }
+    throw error;
+  }
 };
 
 type PayloadValue = string | number | boolean | null | object | undefined;
@@ -86,6 +112,23 @@ export interface ListNodesPayload {
 
 export interface ListServicesPayload {
   services?: ServicePayload[];
+}
+
+interface InventoryServicePayload {
+  service_id: string;
+  service_name: string;
+  node_id: string;
+  environment: string;
+  cluster: string;
+  replication_set: string;
+  custom_labels?: Record<string, string>;
+}
+
+// The service is nested under its type, e.g. { mysql: { ... } }
+export type GetServicePayload = Record<string, InventoryServicePayload>;
+
+export interface GetNodePayload {
+  node: NodePayload;
 }
 
 const SERVICE_MAIN_FIELDS = [
@@ -222,6 +265,18 @@ export const toManagedService = (payload: ServicePayload): ManagedService => ({
     ...payload.custom_labels,
     ...getScalarFields(payload, SERVICE_MAIN_FIELDS),
   },
+});
+
+export const toBaseService = (
+  payload: InventoryServicePayload
+): BaseService => ({
+  serviceId: payload.service_id,
+  serviceName: payload.service_name,
+  nodeId: payload.node_id,
+  environment: payload.environment,
+  cluster: payload.cluster,
+  replicationSet: payload.replication_set,
+  customLabels: payload.custom_labels ?? {},
 });
 
 export const toManagedNode = (payload: NodePayload): ManagedNode => ({

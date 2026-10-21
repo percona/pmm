@@ -24,14 +24,14 @@ import {
 import { Messages as InventoryMessages } from '../Inventory.messages';
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
 import { NodeDetails } from './node-details';
-import { NODES_COLUMNS } from './Nodes.constants';
+import {
+  NODES_COLUMNS,
+  NODES_TABLE_NAME,
+  PMM_SERVER_NODE_FILTER,
+} from './Nodes.constants';
 import { Messages } from './Nodes.messages';
 import type { NodeRow } from './Nodes.types';
 import { canRemoveNode, toNodeRows } from './Nodes.utils';
-
-const NODES_TABLE_NAME = 'inventory-nodes';
-
-const PMM_SERVER_NODE_FILTER = { id: 'isPmmServerNode', value: 'true' };
 
 export const Nodes: FC = () => {
   const { data, isLoading } = useNodes({
