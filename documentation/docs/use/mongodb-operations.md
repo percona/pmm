@@ -14,6 +14,28 @@ Before you enable Operations for MongoDB, prepare PMM Server:
 
 1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`.
 2. Publish port `4647` on the `pmm-server` container (`-p 4647:4647`). PMM Client nodes connect to this port to receive scan and install jobs. Without it, remote nodes cannot receive jobs.
+3. Connect PMM Server to PMM Extensions, so that PMM can turn on Operations for MongoDB manually: 
+
+    1. Generate a token, for example with `openssl rand -hex 32`. Treat it as a password.
+    2. Set these variables, using the same token on both containers:
+
+        - On `pmm-server`: `PMM_EXTENSIONS_URL=http://pmm-extensions:9000` and `PMM_EXTENSIONS_TOKEN=<token>`
+        - On `pmm-extensions`: `EXTENSIONS_INTERNAL_TOKEN=<token>`
+
+        For Docker Compose, keep the token in your `.env` file as `PMM_EXTENSIONS_TOKEN`:
+
+        ```yaml
+        services:
+          pmm-server:
+            environment:
+              PMM_EXTENSIONS_URL: http://pmm-extensions:9000
+              PMM_EXTENSIONS_TOKEN: ${PMM_EXTENSIONS_TOKEN}
+          pmm-extensions:
+            environment:
+              EXTENSIONS_INTERNAL_TOKEN: ${PMM_EXTENSIONS_TOKEN}
+        ```
+
+    3. Recreate both containers so they pick up the new variables. Restarting them isn't enough. With Docker Compose, run `docker compose up -d`.
 
 ## Enable Operations for MongoDB
 
