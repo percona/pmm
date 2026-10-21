@@ -20,14 +20,15 @@ const FIGMA_LINES: Record<string, number[]> = {
   caption: [18],
   button: [16],
   menuText: [18],
+  overline: [12],
   inputText: [24],
   inputLabel: [12],
   helperText: [15],
 };
 
-// Off-pixel lines on main that peak-ui #70 restyles to Figma's 11/12px and 16/20px.
+// Off-pixel line on main that peak-ui #70 restyles to Figma's 16/20px.
 // CONTRIBUTING and Foundations/Typography name the same exception; drop it from all three together.
-const PENDING_RESTYLE: Record<string, number> = { overline: 13.5, sectionHeading: 17.5 };
+const PENDING_RESTYLE: Record<string, number> = { sectionHeading: 17.5 };
 
 type Style = Record<string, unknown>;
 
