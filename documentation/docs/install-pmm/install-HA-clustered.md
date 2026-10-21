@@ -436,11 +436,9 @@ To install PMM HA:
 
     7. Verify installation:
       ```sh
-      kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=pmm \
-        -n pmm --timeout=600s
+      kubectl rollout status statefulset/pmm-ha -n pmm --timeout=900s
 
-      kubectl get pods -l app.kubernetes.io/name=pmm -n pmm
+      kubectl get pods -l app.kubernetes.io/component=pmm-server -n pmm
       kubectl get pods -l app.kubernetes.io/name=haproxy -n pmm
       kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm
       ```
