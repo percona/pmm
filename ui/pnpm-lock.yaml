@@ -400,7 +400,7 @@ importers:
         version: 3.24.0
       material-react-table:
         specifier: ^3.2.1
-        version: 3.2.1(ffd7a467fdfa2c805c677d05446fb4c4)
+        version: 3.2.1(798f107b3e8f5f21af0f8517b7ad74fa)
       prism-react-renderer:
         specifier: ^2.4.1
         version: 2.4.1(react@19.2.8)
@@ -13311,7 +13311,7 @@ snapshots:
 
   marked@16.3.0: {}
 
-  material-react-table@3.2.1(ffd7a467fdfa2c805c677d05446fb4c4):
+  material-react-table@3.2.1(798f107b3e8f5f21af0f8517b7ad74fa):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.18)(react@19.2.8)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
