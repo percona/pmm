@@ -6,7 +6,7 @@ Upload your public SSH key to enable direct SSH access to your PMM Server AMI in
 
 ## Configure SSH access
 
-PMM Server stores a single SSH key. Applying changes on this tab overwrites the whole `authorized_keys` file, so the key you submit replaces the previously configured one, which can no longer be used to log in.
+PMM Server stores a single SSH key. Applying changes on this tab overwrites the whole `authorized_keys` file, so the key you submit replaces the previously configured one, which can no longer be used to log in. On EC2 instances, this also replaces the key pair the instance was launched with, so the original `.pem` file stops working for SSH access after you apply a new key.
 
 To configure SSH access:
 {.power-number}
