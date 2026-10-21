@@ -43,7 +43,6 @@ func Setup() {
 		   $ pmm-agent setup
 		   We will use server address from config, not from run's flag.
 	*/
-
 	l := logrus.WithField("component", "setup")
 
 	configStorage := config.NewStorage(nil)
@@ -98,6 +97,7 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	fmt.Printf("Checking local pmm-agent status...\n")
 	status, err := localStatus()
 	l.Debugf("Status error: %#v", err)
+
 	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		if status.ConfigFilepath == "" {

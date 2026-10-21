@@ -1,0 +1,267 @@
+syntax = "proto3";
+
+package logs.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// LogFilter selects log lines; every logs call takes it.
+message LogFilter {
+  // Start of the time range.
+  google.protobuf.Timestamp start = 1 [(validate.rules).timestamp.required = true];
+  // End of the time range.
+  google.protobuf.Timestamp end = 2 [(validate.rules).timestamp.required = true];
+  // Only lines from these nodes.
+  repeated string node_names = 3;
+  // Only lines from these sources (the component for PMM Server logs, the node for client logs).
+  repeated string sources = 4;
+  // Only lines read with these parser presets.
+  repeated string presets = 5;
+  // Only lines with at least this OpenTelemetry severity number (17 error, 13 warning, 9 info).
+  int32 min_severity = 6;
+  // Only lines containing this text, ignoring case.
+  string text = 7;
+  // Only lines with this pattern, as returned by GetLogPatterns.
+  string pattern = 8;
+  // Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).
+  int32 max_severity = 9;
+  // No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.
+  repeated string exclude_node_names = 10;
+  // Only lines with this pattern hash, as returned with a line or pattern.
+  uint64 pattern_hash = 11;
+  // No lines with these pattern hashes.
+  repeated uint64 exclude_pattern_hashes = 12;
+  // Only lines from nodes running services in these clusters.
+  repeated string clusters = 13;
+  // Only lines from nodes running services in these environments.
+  repeated string environments = 14;
+  // Only lines from nodes running services in these replication sets.
+  repeated string replication_sets = 15;
+}
+
+// LogLine is one log entry.
+message LogLine {
+  google.protobuf.Timestamp time = 1;
+  string node_name = 2;
+  string source = 3;
+  string preset = 4;
+  string file_name = 5;
+  int32 severity_number = 6;
+  string severity_text = 7;
+  // Body, cut to 4 KiB in lists and 64 KiB in context.
+  string body = 8;
+  // True when body was cut.
+  bool body_truncated = 9;
+  map<string, string> attributes = 10;
+  // Hash of the line's pattern; filter with pattern_hash.
+  uint64 pattern_hash = 11;
+}
+
+// VolumeBucket counts lines per severity class in one time bucket.
+message VolumeBucket {
+  google.protobuf.Timestamp start = 1;
+  int64 error = 2;
+  int64 warning = 3;
+  int64 info = 4;
+  int64 other = 5;
+}
+
+// LogPattern is a group of lines that differ only in values.
+message LogPattern {
+  string pattern = 1;
+  // Lines with this pattern in the time range.
+  int64 count = 2;
+  int32 max_severity_number = 3;
+  google.protobuf.Timestamp first_seen = 4;
+  google.protobuf.Timestamp last_seen = 5;
+  // One line with this pattern.
+  string sample = 6;
+  // True when the pattern did not occur in the preceding range of the same length.
+  bool is_new = 7;
+  // Hash of the pattern; filter with pattern_hash.
+  uint64 pattern_hash = 8;
+  // Lines with this pattern in the preceding range of the same length.
+  int64 previous_count = 9;
+  // Up to three sources with the most lines of this pattern; only set when the filter has a pattern or pattern hash.
+  repeated string top_sources = 10;
+}
+
+// Facet is one filter value with its line count.
+message Facet {
+  string value = 1;
+  int64 count = 2;
+}
+
+message SearchLogsRequest {
+  LogFilter filter = 1 [(validate.rules).message.required = true];
+  // Cursor from the previous page's next_cursor.
+  string cursor = 2;
+  // Page size; 0 means 200.
+  int32 limit = 3 [(validate.rules).int32 = {
+    gte: 0
+    lte: 500
+  }];
+}
+
+message SearchLogsResponse {
+  // Lines, newest first.
+  repeated LogLine lines = 1;
+  // Cursor of the next page; empty on the last page.
+  string next_cursor = 2;
+}
+
+message GetLogVolumeRequest {
+  LogFilter filter = 1 [(validate.rules).message.required = true];
+}
+
+message GetLogVolumeResponse {
+  repeated VolumeBucket buckets = 1;
+  // Bucket width.
+  google.protobuf.Duration step = 2;
+}
+
+message GetLogPatternsRequest {
+  LogFilter filter = 1 [(validate.rules).message.required = true];
+}
+
+message GetLogPatternsResponse {
+  // Up to 50 patterns, most frequent first.
+  repeated LogPattern patterns = 1;
+}
+
+message GetLogContextRequest {
+  // Time of the line to show context for.
+  google.protobuf.Timestamp time = 1 [(validate.rules).timestamp.required = true];
+  string node_name = 2;
+  string file_name = 3 [(validate.rules).string.min_len = 1];
+  // Lines before and after; 0 means 50.
+  int32 lines = 4 [(validate.rules).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  // Source of the line; optional, narrows the scan.
+  string source = 5;
+}
+
+message GetLogContextResponse {
+  // Lines of the same node and file, oldest first.
+  repeated LogLine lines = 1;
+  // Index in lines of the line at the requested time.
+  int32 anchor_index = 2;
+}
+
+message GetLogFacetsRequest {
+  LogFilter filter = 1 [(validate.rules).message.required = true];
+}
+
+message GetLogFacetsResponse {
+  repeated Facet node_names = 1;
+  repeated Facet sources = 2;
+  repeated Facet presets = 3;
+  // Lines of the nodes running services with each label; a node with services of several clusters counts for each.
+  repeated Facet clusters = 4;
+  repeated Facet environments = 5;
+  repeated Facet replication_sets = 6;
+}
+
+message FindLogQueryRequest {
+  // Time of the line.
+  google.protobuf.Timestamp time = 1 [(validate.rules).timestamp.required = true];
+  // Node of the line.
+  string node_name = 2 [(validate.rules).string.min_len = 1];
+  // Body of the line, such as "statement: SELECT ..." from a PostgreSQL log or "Slow query" from a MongoDB log.
+  string body = 3 [(validate.rules).string = {
+    min_len: 1
+    max_len: 65536
+  }];
+  // Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.
+  map<string, string> attributes = 4;
+}
+
+message FindLogQueryResponse {
+  // QAN query ID; empty when no QAN query matches the line.
+  string query_id = 1;
+  // QAN service with the most executions of the query around the line's time.
+  string service_name = 2;
+  string service_id = 3;
+  // QAN fingerprint of the query.
+  string fingerprint = 4;
+}
+
+// LogsService reads the logs PMM collects.
+service LogsService {
+  // SearchLogs returns log lines, newest first, one page at a time.
+  rpc SearchLogs(SearchLogsRequest) returns (SearchLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:search"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Search logs"
+      description: "Returns log lines matching the filter, newest first, one page at a time."
+    };
+  }
+
+  // GetLogVolume returns line counts per severity class over time.
+  rpc GetLogVolume(GetLogVolumeRequest) returns (GetLogVolumeResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:getVolume"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get log volume"
+      description: "Returns line counts per severity class in up to 100 time buckets."
+    };
+  }
+
+  // GetLogPatterns groups lines that differ only in values.
+  rpc GetLogPatterns(GetLogPatternsRequest) returns (GetLogPatternsResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:getPatterns"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get log patterns"
+      description: "Returns the most frequent log patterns, marking those absent from the preceding range."
+    };
+  }
+
+  // GetLogContext returns the lines around one line of a file.
+  rpc GetLogContext(GetLogContextRequest) returns (GetLogContextResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:getContext"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get log context"
+      description: "Returns the lines before and after a line of the same node and file."
+    };
+  }
+
+  // FindLogQuery finds the QAN query a PostgreSQL statement or MongoDB slow-query line ran.
+  rpc FindLogQuery(FindLogQueryRequest) returns (FindLogQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:findQuery"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Find a log line's QAN query"
+      description: "Matches the statement of a PostgreSQL log line against the QAN fingerprints of its node within 30 minutes of the line, ignoring literals, placeholders, comments, case and spacing."
+    };
+  }
+
+  // GetLogFacets returns the nodes, sources and presets with lines in the time range.
+  rpc GetLogFacets(GetLogFacetsRequest) returns (GetLogFacetsResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs:getFacets"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get log facets"
+      description: "Returns the nodes, sources and parser presets with lines in the time range, with line counts."
+    };
+  }
+}

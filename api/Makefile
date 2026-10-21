@@ -21,6 +21,7 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1 \
 		qan/v1 \
 		realtimeanalytics/v1 \
+		logs/v1 \
 		platform/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
@@ -57,7 +58,8 @@ gen:            ## Generate PMM API
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		ha/v1beta1/json/v1beta1.json \
+		logs/v1/json/v1.json
 	go tool swagger validate swagger/swagger.json
 
 	# generate API spec with all PMM Server APIs (omit agentlocal)
@@ -75,7 +77,8 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		ha/v1beta1/json/v1beta1.json \
+		logs/v1/json/v1.json
 
 	go tool swagger validate swagger/swagger-dev.json
 
@@ -118,6 +121,7 @@ clean: clean-swagger  ## Remove generated files
 		accesscontrol/v1beta1 \
 		qan/v1 \
 		realtimeanalytics/v1 \
+		logs/v1 \
 		platform/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \

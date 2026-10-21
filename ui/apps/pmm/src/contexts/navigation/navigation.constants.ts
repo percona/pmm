@@ -1,4 +1,10 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_ASSISTANT_CONFIG_PATH,
+  PMM_ASSISTANT_PATH,
+  PMM_LOGS_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -11,11 +17,13 @@ import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import ReceiptLong from '@mui/icons-material/ReceiptLong';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import TroubleshootOutlined from '@mui/icons-material/TroubleshootOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -410,12 +418,38 @@ export const NAV_VALKEY: NavItem = {
 //
 // QAN
 //
+//
+// eBPF — OTel traces & service map (dashboard bundled with PMM dashboards)
+//
+export const NAV_EBPF: NavItem = {
+  id: 'ebpf',
+  icon: NetworkNodeIcon,
+  text: 'eBPF',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse/*`,
+  ],
+};
+
 export const NAV_QAN: NavItem = {
   id: 'qan',
   icon: QueryStatsIcon,
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
   matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
+};
+
+export const NAV_QAN_NATIVE: NavItem = {
+  id: 'qan',
+  icon: QueryStatsIcon,
+  text: 'Query Analytics (QAN)',
+  url: `${PMM_NEW_NAV_PATH}/qan`,
+  matches: [
+    `${PMM_NEW_NAV_PATH}/qan`,
+    `${PMM_NEW_NAV_PATH}/qan/*`,
+    `${PMM_NEW_NAV_PATH}/rta/*`,
+  ],
 };
 
 //
@@ -426,6 +460,32 @@ export const NAV_RTA: NavItem = {
   icon: QueryStatsIcon,
   text: 'Real-Time Query Analysis',
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
+};
+
+export const NAV_LOGS: NavItem = {
+  id: 'logs',
+  icon: ReceiptLong,
+  text: 'Logs',
+  url: PMM_LOGS_PATH,
+  matches: [PMM_LOGS_PATH, `${PMM_LOGS_PATH}/*`],
+};
+
+export const NAV_ASSISTANT: NavItem = {
+  id: 'assistant',
+  icon: NetworkIntelligenceIcon,
+  text: 'Assistant',
+  url: PMM_ASSISTANT_PATH,
+};
+
+export const NAV_INVESTIGATIONS: NavItem = {
+  id: 'investigations',
+  icon: TroubleshootOutlined,
+  text: 'Investigations',
+  url: `${PMM_NEW_NAV_PATH}/investigations`,
+  matches: [
+    `${PMM_NEW_NAV_PATH}/investigations`,
+    `${PMM_NEW_NAV_PATH}/investigations/*`,
+  ],
 };
 
 //
@@ -658,6 +718,7 @@ export const NAV_CONFIGURATION: NavItem = {
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/datasources/correlations`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/extensions`,
+    `${PMM_ASSISTANT_CONFIG_PATH}/*`,
   ],
   children: [
     {
@@ -673,6 +734,28 @@ export const NAV_CONFIGURATION: NavItem = {
       id: 'updates',
       text: 'Updates',
       url: `${PMM_NEW_NAV_PATH}/updates`,
+    },
+    {
+      id: 'assistant-config',
+      text: 'Assistant',
+      url: `${PMM_ASSISTANT_CONFIG_PATH}/configuration`,
+      children: [
+        {
+          id: 'assistant-configuration',
+          text: 'Configuration',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/configuration`,
+        },
+        {
+          id: 'assistant-deployment',
+          text: 'Deployment',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/deployment`,
+        },
+        {
+          id: 'assistant-usage',
+          text: 'AI usage',
+          url: `${PMM_ASSISTANT_CONFIG_PATH}/usage`,
+        },
+      ],
     },
     {
       id: 'org-management',

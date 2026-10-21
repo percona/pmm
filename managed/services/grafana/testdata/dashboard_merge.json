@@ -1,0 +1,26 @@
+{
+  "dashboard": {
+    "schemaVersion": 39,
+    "panels": [
+      { "id": 12, "type": "timeseries" }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "service_name",
+          "type": "query",
+          "multi": false,
+          "includeAll": false,
+          "current": { "value": "svc-default", "text": "svc-default" }
+        },
+        {
+          "name": "region",
+          "type": "custom",
+          "multi": true,
+          "includeAll": true,
+          "current": { "value": "", "text": "" }
+        }
+      ]
+    }
+  }
+}

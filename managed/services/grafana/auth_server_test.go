@@ -39,6 +39,12 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+func TestRulesObservabilityMapRequiresViewer(t *testing.T) {
+	role, ok := rules["/v1/grafana/observability-map"]
+	require.True(t, ok)
+	assert.Equal(t, viewer, role)
+}
+
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{
 		{"/inventory.Nodes/ListNodes", "/inventory.Nodes/", "/inventory.Nodes", "/inventory.", "/inventory", "/", "/"},
@@ -76,6 +82,10 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// Logs are readable by viewers; the support bundle stays admin-only.
+		{http.MethodPost, "/v1/logs:search", viewer},
+		{http.MethodPost, "/logs.v1.LogsService/SearchLogs", viewer},
+		{http.MethodGet, "/logs.zip", admin},
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {

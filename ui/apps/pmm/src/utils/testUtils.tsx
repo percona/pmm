@@ -106,6 +106,7 @@ export const wrapWithSettings = (
         telemetryEnabled: false,
         advisorEnabled: false,
         alertingEnabled: false,
+        nativeQanEnabled: false,
         pmmPublicAddress: '',
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
@@ -147,6 +148,7 @@ export const wrapWithGrafana = (
       isFrameLoaded: true,
       isFullScreen: false,
       isOnGrafanaPage: true,
+      grafanaDocumentTitle: null,
       ...props,
     }}
   >

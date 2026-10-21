@@ -72,14 +72,17 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	logsv1 "github.com/percona/pmm/api/logs/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/adre"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
+	"github.com/percona/pmm/managed/services/autoinvestigate"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -88,6 +91,8 @@ import (
 	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
+	"github.com/percona/pmm/managed/services/investigations"
+	logsservice "github.com/percona/pmm/managed/services/logs"
 	"github.com/percona/pmm/managed/services/management"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
@@ -99,6 +104,7 @@ import (
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
+	"github.com/percona/pmm/managed/services/slackbot"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
 	"github.com/percona/pmm/managed/services/user"
@@ -203,6 +209,67 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
+func addAdreHandlers(ctx context.Context, mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
+	h := adre.NewHandlers(db, grafanaClient, vm, ch)
+	h.SetChatInvestigator(investigations.NewHandlers(db))
+	go h.SyncShippedDeployment(ctx)
+	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			h.GetSettings(w, r)
+		case http.MethodPost:
+			h.PostSettings(w, r)
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/v1/adre/models", h.GetModels)
+	mux.HandleFunc("/v1/adre/chat", h.PostChat)
+	mux.HandleFunc("/v1/adre/alerts", h.GetAlerts)
+	mux.HandleFunc("/v1/adre/qan-insights", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			h.GetQanInsights(w, r)
+		case http.MethodPost:
+			h.PostQanInsights(w, r)
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/v1/adre/qan-insights/servicenow", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		h.PostQanInsightsServiceNow(w, r)
+	})
+	mux.HandleFunc("/v1/adre/conversations", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			h.ListConversations(w, r)
+		case http.MethodPost:
+			h.CreateConversation(w, r)
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/v1/adre/conversations/", h.ServeConversationSubroutes)
+	mux.HandleFunc("/v1/adre/deployment", h.ServeDeploymentSubroutes)
+	mux.HandleFunc("/v1/adre/deployment/", h.ServeDeploymentSubroutes)
+	mux.HandleFunc("/v1/adre/messages/search", h.SearchMessages)
+	mux.HandleFunc("/v1/adre/usage/summary", h.GetUsageSummary)
+	mux.HandleFunc("/v1/adre/usage/events", h.GetUsageEvents)
+	mux.HandleFunc("/v1/adre/usage/", h.ServeUsageSubroutes)
+	mux.HandleFunc("/v1/adre/metrics/snapshot", h.PostMetricsSnapshot)
+	mux.HandleFunc("/v1/adre/clickhouse/query", h.PostClickHouseQuery)
+}
+
+func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {
+	h := investigations.NewHandlers(db)
+	mux.Handle("/v1/investigations", h)
+	mux.Handle("/v1/investigations/", h)
+}
+
 type gRPCServerDeps struct {
 	db                        *reform.DB
 	ha                        *ha.Service
@@ -234,6 +301,7 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+	otelClickhouse            *sql.DB
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -330,6 +398,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
 	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
 
+	logsv1.RegisterLogsServiceServer(gRPCServer, logsservice.New(deps.otelClickhouse, deps.db))
+
 	// Start RTA store cleanup goroutine
 	go rtaStore.Run(ctx)
 
@@ -364,6 +434,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
+	db                 *reform.DB
+	grafanaClient      *grafana.Client
+	vmClient           *metrics.Client
+	clickhouse         adre.ClickHousePools
 	currentUserHandler http.Handler
 }
 
@@ -389,6 +463,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
 		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+		grpc_gateway.WithIncomingHeaderMatcher(func(key string) (string, bool) {
+			// nginx sets X-Proxy-Filter for users with label-based access filters (see auth_server.go).
+			if strings.EqualFold(key, "X-Proxy-Filter") {
+				return "x-proxy-filter", true
+			}
+			return grpc_gateway.DefaultHeaderMatcher(key)
+		}),
 	)
 
 	opts := []grpc.DialOption{
@@ -433,6 +514,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
+		logsv1.RegisterLogsServiceHandler,
+
 		userv1.RegisterUserServiceHandler,
 
 		hav1beta1.RegisterHAServiceHandler,
@@ -445,6 +528,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
+	addAdreHandlers(ctx, mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse)
+	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
+	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
+	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))
+	mux.Handle("/v1/grafana/observability-map", grafana.NewObservabilityMapHandler(deps.grafanaClient))
+	mux.Handle("/v1/grafana/render/blob/", grafana.NewBlobHandler())
+	addInvestigationsHandlers(mux, deps.db)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
@@ -967,6 +1057,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			},
 			HAParams: haParams,
 		},
+		db,
 	)
 
 	// Keep the agent always running, even on follower nodes.
@@ -1018,6 +1109,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
+	otelChURI := chParams.URL()
+	otelChURI.Path = "otel"
+	clickhouseOTelClient, err := newClickhouseDB(otelChURI.String(), clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	if err != nil {
+		l.Fatalf("Could not create Clickhouse otel client: %s", err)
+	}
+	adreClickHouse := adre.ClickHousePools{PMM: clickhouseClient, OTel: clickhouseOTelClient}
 	externalExporterStatusSvc := agents.NewExternalExporterStatusService(db, v1.NewAPI(vmClient))
 
 	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
@@ -1206,13 +1304,27 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				vmalert:                   vmalert,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
+				otelClickhouse:            clickhouseOTelClient,
 			})
 	})
+
+	// Auto-investigate: authoritative, idempotent investigations driven solely by the Slack alert scrape.
+	// The Service holds the episode dedup state and runs inside the leader-only adre-slack service below.
+	adreAutoL := logrus.WithField("component", "adre-auto-investigate")
+	adreSlackNotifier := slackbot.NewSlackNotifier(db, adreAutoL)
+	adreInvRunner := investigations.NewHandlers(db)
+	// Post finished auto-investigations back into the alert's Slack thread (scrape path); no-op otherwise.
+	adreInvRunner.SetReportNotifier(adreSlackNotifier)
+	autoInvestigateSvc := autoinvestigate.New(db, adreInvRunner, adreSlackNotifier, adreAutoL)
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:               logs,
 			authServer:         authServer,
+			db:                 db,
+			grafanaClient:      grafanaClient,
+			vmClient:           &vmClient,
+			clickhouse:         adreClickHouse,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})
@@ -1224,6 +1336,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 		return nil
+	}))
+
+	adreSlackL := logrus.WithField("component", "adre-slack")
+	haService.AddLeaderService(ha.NewContextService("adre-slack", func(ctx context.Context) error {
+		return slackbot.Run(ctx, db, autoInvestigateSvc, adreSlackL)
 	}))
 
 	wg.Go(func() {
