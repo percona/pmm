@@ -25,7 +25,7 @@ PMM HA is worth the added complexity when your monitoring must recover in second
 
 ## Feature comparison
 
-| Consideration | [Kubernetes single instance](HA-kubernetes-single-instance.md) | [HA Cluster](HA-clustered.md) |
+| Consideration | [Kubernetes single instance](kubernetes-single-instance.md) | [HA Cluster](HA-clustered.md) |
 |---|---|---|
 | **Overview** | Kubernetes restarts PMM Server automatically if it fails. Persistent volumes keep your data across restarts. | Fast automatic failover with distributed databases. Supported on [Amazon EKS and OpenShift](HA-clustered.md#check-if-your-platform-is-supported). |
 | **PMM instances** | 1 | 3 |

@@ -484,7 +484,7 @@ nav:
       - troubleshoot/plugin_issues.md
       - troubleshoot/pmm_dump.md
       - troubleshoot/data_issues.md
-      - Troubleshoot Single-Instance HA: troubleshoot/ha_single_instance_issues.md
+      - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
       - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
