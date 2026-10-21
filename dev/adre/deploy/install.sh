@@ -20,7 +20,7 @@ if [ -f .env ]; then
   done < .env
 fi
 
-export PMM_IMAGE="${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-16e7b4f}"
+export PMM_IMAGE="${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-7cc719e}"
 export HOLMES_IMAGE="${HOLMES_IMAGE:-robustadev/holmes:0.45.0}"
 export HOLMES_CONFIG_DIR="${HOLMES_CONFIG_DIR:-./holmes-config}"
 PMM_ADMIN_PASSWORD="${PMM_ADMIN_PASSWORD:-$(openssl rand -base64 18 | tr -d '/+=')}"
