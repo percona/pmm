@@ -43,7 +43,7 @@ You can enable Operations for MongoDB from the PMM settings or with an environme
 
 === "PMM settings"
 
-    Use this method to enable MongoDB Operations on a running PMM Server without restarting it. Go to **Configuration > Settings > Advanced Settings** and turn on **Operations for MongoDB**.
+    Use this method to enable Operations for MongoDB on a running PMM Server without restarting it. Go to **Configuration > Settings > Advanced Settings**, turn on **Operations for MongoDB**, and click **Apply changes**.
 
     If PMM can't reach PMM Extensions, the setting doesn't turn on. Check your PMM Extensions deployment and try again.
 
