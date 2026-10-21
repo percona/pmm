@@ -1,16 +1,16 @@
 # Install a MongoDB replica set
 
 !!! warning "Developer Preview"
-    This feature is part of MongoDB Operations, a Developer Preview in PMM 3.10.0, intended for evaluation by Percona engineers and selected customers. It is not recommended for production use. The install workflow has known limitations and may not complete successfully in all configurations.
+    Operations for MongoDB is still under development and not recommended for production environments. The install workflow has known limitations that will be addressed in future releases.
 
-MongoDB Operations can install Percona Server for MongoDB on 1 or 3 empty nodes and register the replica set in PMM monitoring, without SSH access to the nodes.
+From **Operations > Nodes**, you can install Percona Server for MongoDB on 1 or 3 empty nodes and register the replica set in PMM monitoring, without SSH access to the nodes.
 
 ## Prerequisites
 
 Before you start, make sure that:
 
 - MongoDB Operations is enabled. See [MongoDB Operations](mongodb-operations.md).
-- Each node has run at least one successful scan. A scan runs automatically every 10 minutes; to run one immediately, use the scan action on the **Nodes** page.
+- Each node has run at least one successful scan. To run one immediately, use the scan action on the **Nodes** page.
 
 ## Node requirements
 
@@ -43,7 +43,7 @@ PMM refuses a node for installation unless all of the following are true:
 To install a MongoDB replica set:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Nodes** and select **1 node** for a single-member replica set or **3 nodes** for a three-member replica set. Nodes that fail a check show the reason next to their name.
+1. Go to **Operations > Nodes** and select **1 node** for a single-member replica set or **3 nodes** for a three-member replica set. Nodes that fail a check show the reason next to their name.
 
 2. Click **Install MongoDB** and fill in the form:
 
@@ -60,7 +60,7 @@ To install a MongoDB replica set:
     !!! warning ""
         A generated password is shown only once. PMM deletes its copy after creating the user. Save it before you close the confirmation screen.
 
-4. Go to **Automations > Installs** to follow progress. Each node goes through these steps in order: pre-check, configure repository, install package, distribute keyfile, configure mongod, start service, and verify. After all nodes finish, PMM initiates the replica set, creates the users, and turns on authentication.
+4. Go to **Operations > Automations > Installs** to follow progress. Each node goes through these steps in order: pre-check, configure repository, install package, distribute keyfile, configure mongod, start service, and verify. After all nodes finish, PMM initiates the replica set, creates the users, and turns on authentication.
 
 5. If a step fails, PMM retries it once, then rolls back what it installed on all nodes. Pre-check failures are not retried.
 
