@@ -14,6 +14,7 @@ export const hasPeakHub = [
   'PageHeader',
   'EmptyState',
   'StatusBanner',
+  'StatusCard',
   'StateIndicator',
 ].every((name) => (Peak as unknown as Record<string, unknown>)[name] != null);
 

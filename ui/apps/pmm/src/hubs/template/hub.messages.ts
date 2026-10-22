@@ -62,6 +62,8 @@ export const Messages = {
         total === 1
           ? `1 ${one} is upgrading`
           : `${count} of ${total} ${many} upgrading`,
+      review: (count: number) =>
+        count === 1 ? 'Review 1 issue' : `Review ${count} issues`,
     },
     alerts: {
       checking: 'Checking alerts...',
@@ -86,6 +88,8 @@ export const Messages = {
       off: 'Backup management is off',
       unknown: 'Backups unavailable',
     },
+    openAlerts: 'Open alerts',
+    openBackups: 'Open backups',
     setUpAlerts: 'Set up alerts',
     setUpBackups: 'Set up backups',
   },

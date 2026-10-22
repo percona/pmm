@@ -13,6 +13,9 @@ export const ALERTS_PATH = '/alerting/status';
 export const ALERT_TEMPLATES_PATH = '/graph/alerting/alert-rule-templates';
 export const RTA_PATH = '/rta';
 
+/** The Needs attention section's id: a door to `#needs-attention` scrolls the hub down to it. */
+export const ATTENTION_SECTION_ID = 'needs-attention';
+
 /** Alerts' column filter for the service, as `useTableUrlState` reads it (`?f.serviceName=`). */
 export const ALERTS_SERVICE_FILTER_KEY = `${buildTableUrlParamKeys().filterPrefix}serviceName`;
 

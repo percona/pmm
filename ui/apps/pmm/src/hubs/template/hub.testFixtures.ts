@@ -218,6 +218,8 @@ export const testView = (
     backupCoverage: { protected: 3, protectable: 3 },
     checkedAt: minutesAgo(0),
     doors: {
+      alerts: testDoor('Open alerts', '/alerting/status'),
+      backups: testDoor('Open backups', '/graph/backup/inventory'),
       setUpAlerts: testDoor(
         'Set up alerts',
         '/graph/alerting/alert-rule-templates'

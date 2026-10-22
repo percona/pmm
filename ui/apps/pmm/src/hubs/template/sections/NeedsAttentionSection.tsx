@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { StatusIcon } from '@percona/peak-ui';
 import { type FC, type Ref, useEffect, useId, useRef, useState } from 'react';
 import { capAttention } from '../hub.attention';
+import { ATTENTION_SECTION_ID } from '../hub.doors';
 import { Messages } from '../hub.messages';
 import type {
   HubAlertCoverage,
@@ -135,7 +136,7 @@ export const NeedsAttentionSection: FC<NeedsAttentionSectionProps> = ({
 
   return (
     <HubSection
-      id="needs-attention"
+      id={ATTENTION_SECTION_ID}
       title={Messages.sections.attention}
       count={items.length ? items.length : undefined}
       countLabel={Messages.sectionCount.attention(items.length)}

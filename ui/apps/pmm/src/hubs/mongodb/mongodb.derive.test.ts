@@ -39,6 +39,8 @@ describe('deriveMongoHub status', () => {
       backupCoverage: { protected: 4, protectable: 4 },
       checkedAt: new Date(NOW).toISOString(),
       doors: {
+        alerts: { label: 'Open alerts', to: '/alerting/status' },
+        backups: { label: 'Open backups', to: '/graph/backup/inventory' },
         setUpAlerts: {
           label: 'Set up alerts',
           to: '/graph/alerting/alert-rule-templates',
@@ -150,16 +152,18 @@ describe('deriveMongoHub status', () => {
     });
   });
 
-  it('offers only admins to set up alerts, and backups only with backup management on', () => {
+  it('opens alerts and backups for everyone, but offers only admins to set them up', () => {
     expect(
-      derive(healthySnapshot(NOW, false), { role: 'viewer' }).status.doors
-    ).toEqual({});
+      Object.keys(
+        derive(healthySnapshot(NOW, false), { role: 'viewer' }).status.doors
+      )
+    ).toEqual(['alerts', 'backups']);
     expect(
       Object.keys(
         derive(healthySnapshot(NOW, false), { backupManagementEnabled: false })
           .status.doors
       )
-    ).toEqual(['setUpAlerts']);
+    ).toEqual(['alerts', 'backups', 'setUpAlerts']);
   });
 });
 

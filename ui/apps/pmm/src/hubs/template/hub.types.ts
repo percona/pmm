@@ -169,8 +169,13 @@ export interface HubStatus {
   /** Clusters a backup tool can protect (not standalones), and those with an enabled schedule; absent until backups are read. */
   backupCoverage?: { protected: number; protectable: number };
   checkedAt: string;
-  /** Where to set up what is missing; admins only. */
-  doors: { setUpAlerts?: HubDoor; setUpBackups?: HubDoor };
+  /** Where to look into firing alerts and failed backups, and to set up what is missing (admins only). */
+  doors: {
+    alerts: HubDoor;
+    backups: HubDoor;
+    setUpAlerts?: HubDoor;
+    setUpBackups?: HubDoor;
+  };
 }
 
 /** Which key conditions no alert rule covers, and where to create the rules. */

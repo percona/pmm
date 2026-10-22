@@ -10,6 +10,8 @@ const SET_UP_ALERTS = {
   to: '/graph/alerting/alert-rule-templates',
 };
 const SET_UP_BACKUPS = { label: 'Set up backups', to: '/graph/backup/new' };
+const OPEN_ALERTS = { label: 'Open alerts', to: '/alerting/status' };
+const OPEN_BACKUPS = { label: 'Open backups', to: '/graph/backup/inventory' };
 
 const HEALTHY: HubStatus = {
   state: 'healthy',
@@ -21,7 +23,12 @@ const HEALTHY: HubStatus = {
   backupsFailed: 0,
   backupCoverage: { protected: 4, protectable: 4 },
   checkedAt: hoursAgo(0),
-  doors: { setUpAlerts: SET_UP_ALERTS, setUpBackups: SET_UP_BACKUPS },
+  doors: {
+    alerts: OPEN_ALERTS,
+    backups: OPEN_BACKUPS,
+    setUpAlerts: SET_UP_ALERTS,
+    setUpBackups: SET_UP_BACKUPS,
+  },
 };
 
 const CONTEXT: HubStatusContext = {
@@ -29,6 +36,7 @@ const CONTEXT: HubStatusContext = {
   unit: ['cluster', 'clusters'],
   loading: false,
   matchesNothing: false,
+  issues: 0,
 };
 
 const facets = (
@@ -53,39 +61,86 @@ describe('statusFacets', () => {
     ]);
   });
 
-  it('reads Problematic with the filled state for clusters, and errors for alerts and backups', () => {
+  it('reads Problematic with the filled state for clusters, errors for alerts and backups, and a way into each', () => {
     expect(
-      facets({
-        state: 'down',
-        health: { healthy: 1, degraded: 2, down: 1, upgrading: 0, noData: 1 },
-        alerts: 3,
-        backupsFailed: 2,
-      })
+      facets(
+        {
+          state: 'down',
+          health: {
+            healthy: 1,
+            degraded: 2,
+            down: 1,
+            upgrading: 0,
+            noData: 1,
+          },
+          alerts: 3,
+          backupsFailed: 2,
+        },
+        { issues: 15 }
+      )
     ).toEqual([
       {
         id: 'health',
         state: 'mixedProblems',
         label: '4 of 5 clusters need attention',
+        action: { label: 'Review 15 issues', to: '#needs-attention' },
       },
-      { id: 'alerts', state: 'errors', label: '3 alerts firing' },
+      {
+        id: 'alerts',
+        state: 'errors',
+        label: '3 alerts firing',
+        action: OPEN_ALERTS,
+      },
       {
         id: 'backups',
         state: 'errors',
         label: '2 backups failed, last good 6h ago',
+        action: OPEN_BACKUPS,
       },
     ]);
   });
 
+  it('reviews a cluster problem down the page, only while Needs attention lists one', () => {
+    const degraded = {
+      health: { healthy: 4, degraded: 1, down: 0, upgrading: 0, noData: 0 },
+    };
+    const upgrading = {
+      health: { healthy: 4, degraded: 0, down: 0, upgrading: 1, noData: 0 },
+    };
+
+    expect(facets(degraded, { issues: 1 })[0].action).toEqual({
+      label: 'Review 1 issue',
+      to: '#needs-attention',
+    });
+    expect(facets(degraded, { issues: 0 })[0].action).toBeUndefined();
+    expect(facets({}, { issues: 3 })[0].action).toBeUndefined();
+    expect(facets(upgrading, { issues: 3 })[0].action).toBeUndefined();
+  });
+
   it('reads Incomplete with a way to set up alerts and backups', () => {
     expect(
-      facets({
-        state: 'degraded',
-        health: { healthy: 3, degraded: 2, down: 0, upgrading: 0, noData: 0 },
-        alertRules: 'none',
-        backupCoverage: { protected: 3, protectable: 4 },
-      })
+      facets(
+        {
+          state: 'degraded',
+          health: {
+            healthy: 3,
+            degraded: 2,
+            down: 0,
+            upgrading: 0,
+            noData: 0,
+          },
+          alertRules: 'none',
+          backupCoverage: { protected: 3, protectable: 4 },
+        },
+        { issues: 2 }
+      )
     ).toEqual([
-      { id: 'health', state: 'degraded', label: '2 of 5 clusters degraded' },
+      {
+        id: 'health',
+        state: 'degraded',
+        label: '2 of 5 clusters degraded',
+        action: { label: 'Review 2 issues', to: '#needs-attention' },
+      },
       {
         id: 'alerts',
         state: 'notSetUp',
@@ -105,7 +160,7 @@ describe('statusFacets', () => {
     const viewer = facets({
       alertRules: 'none',
       lastGoodBackup: 'notSetUp',
-      doors: {},
+      doors: { alerts: OPEN_ALERTS, backups: OPEN_BACKUPS },
     });
 
     expect(viewer.map((facet) => facet.action)).toEqual([
@@ -212,6 +267,7 @@ describe('statusFacets', () => {
       id: 'backups',
       state: 'errors',
       label: '1 backup failed, no good backup yet',
+      action: OPEN_BACKUPS,
     });
     expect(facets({ lastGoodBackup: 'none' })[2]).toEqual({
       id: 'backups',

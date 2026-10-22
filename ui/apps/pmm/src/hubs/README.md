@@ -4,17 +4,17 @@ A hub is the page a technology's sidebar entry opens: `/pmm-ui/mongodb` for Mong
 
 ## Demo variants
 
-The hub opens on sample data, so every variant shows the same estate (5 clusters, 21 members) in a different state. Pick one in the Prototype menu at the bottom of the page, or with `?hubState=` in the URL. The three status banner scenarios in the [Figma hub](https://www.figma.com/design/IcsWrmoejelWaTSuWhqnEI/Rethinking-wayfinding-in-PMM?node-id=1-2) map to the first three.
+The hub opens on sample data, so every variant shows the same estate (5 clusters, 21 members) in a different state. Pick one in the Prototype menu at the bottom of the page, or with `?hubState=` in the URL. The three status banner scenarios in the [Figma hub](https://www.figma.com/design/IcsWrmoejelWaTSuWhqnEI/Rethinking-wayfinding-in-PMM?node-id=1-2) map to the first three. A facet with something to do sits on a card with its action, in brackets below; a click anywhere on the card takes it.
 
-| Variant                 | Figma banner scenario | URL                                   | Status banner                                                                                          |
-| ----------------------- | --------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Best case (the default) | Healthy               | `/pmm-ui/mongodb`                     | All 5 clusters are healthy — No alerts firing — Backups on schedule, last 6h ago                       |
-| Incomplete setup        | Incomplete            | `/pmm-ui/mongodb?hubState=incomplete` | 2 of 5 clusters degraded — No alerts set up, Set up alerts — 3 of 4 clusters protected, Set up backups |
-| Worst case              | Problematic           | `/pmm-ui/mongodb?hubState=wrong`      | 4 of 5 clusters need attention — 3 alerts firing — 2 backups failed, last good 6h ago                  |
-| First run               |                       | `/pmm-ui/mongodb?hubState=empty`      | No MongoDB monitored yet                                                                               |
-| Live data               |                       | `/pmm-ui/mongodb?hubState=live`       | The local PMM's own MongoDB                                                                            |
+| Variant                 | Figma banner scenario | URL                                   | Status banner                                                                                                                         |
+| ----------------------- | --------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Best case (the default) | Healthy               | `/pmm-ui/mongodb`                     | All 5 clusters are healthy • No alerts firing • Backups on schedule, last 6h ago                                                      |
+| Incomplete setup        | Incomplete            | `/pmm-ui/mongodb?hubState=incomplete` | 2 of 5 clusters degraded [Review 2 issues] · No alerts set up [Set up alerts] · 3 of 4 clusters protected [Set up backups]            |
+| Worst case              | Problematic           | `/pmm-ui/mongodb?hubState=wrong`      | 4 of 5 clusters need attention [Review 15 issues] · 3 alerts firing [Open alerts] · 2 backups failed, last good 6h ago [Open backups] |
+| First run               |                       | `/pmm-ui/mongodb?hubState=empty`      | No MongoDB monitored yet                                                                                                              |
+| Live data               |                       | `/pmm-ui/mongodb?hubState=live`       | The local PMM's own MongoDB                                                                                                           |
 
-Operations is on by default; with it off (`hubOps=off`), the worst case reads payments' upgrade as version drift, so all 5 clusters need attention.
+Operations is on by default; with it off (`hubOps=off`), the worst case reads payments' upgrade as version drift, so all 5 clusters need attention. A viewer (`hubRole=viewer`) cannot set anything up, so the incomplete setup shows its alerts and backups facets without cards.
 
 ## Other switches
 
@@ -33,5 +33,6 @@ On live data, the switches can only take away what the signed-in user has, never
 ## Where things live
 
 - Sample data: `mongodb/fixtures/` (`healthy.ts`, `incomplete.ts`, `wrong.ts`, `empty.ts`), all built on the estate in `estate.ts`.
-- Status banner facets (cluster health, alerts, backups): `template/hub.status.ts`, drawn with Peak UI's `StatusBanner` and `StateIndicator`.
+- Status banner facets (cluster health, alerts, backups) and their actions: `template/hub.status.ts`, drawn with Peak UI's `StatusBanner`, `StatusCard` and `StateIndicator`.
+- Page layout: each row under the header is a `HubBand` (`template/sections/HubBand.tsx`) with its own max width. The status banner's is Peak's page width, 1000px; the rows below stay full width until their designs set one.
 - URL params: `template/hub.params.ts`.

@@ -1,13 +1,14 @@
 import type { StateIndicatorState } from '@percona/peak-ui';
+import { ATTENTION_SECTION_ID } from './hub.doors';
 import { Messages } from './hub.messages';
 import type { HubDoor, HubStatus } from './hub.types';
 import { formatAge } from './sections/hub.time';
 
 export interface HubStatusFacet {
   id: 'health' | 'alerts' | 'backups';
-  state: Exclude<StateIndicatorState, 'actionable'>;
+  state: StateIndicatorState;
   label: string;
-  /** Sets up what is missing; shown as a link after the label. */
+  /** What to do about it; the banner puts the facet on a card with this action. */
   action?: HubDoor;
 }
 
@@ -19,6 +20,8 @@ export interface HubStatusContext {
   loading: boolean;
   /** The environment filter matches no service, so there is nothing to count. */
   matchesNothing: boolean;
+  /** Items in Needs attention, where a cluster problem is reviewed. */
+  issues: number;
 }
 
 const B = Messages.banner;
@@ -26,12 +29,24 @@ const B = Messages.banner;
 /** Cluster health: problems first, then degraded, then upgrades in progress. */
 const healthFacet = (
   { state, clusters: total, health }: HubStatus,
-  { name, unit, loading, matchesNothing }: HubStatusContext
+  { name, unit, loading, matchesNothing, issues }: HubStatusContext
 ): HubStatusFacet => {
   const facet = (
     facetState: HubStatusFacet['state'],
     label: string
   ): HubStatusFacet => ({ id: 'health', state: facetState, label });
+  // A cluster problem is reviewed further down the page, in Needs attention.
+  const problem = (facetState: HubStatusFacet['state'], label: string) => ({
+    ...facet(facetState, label),
+    ...(issues > 0
+      ? {
+          action: {
+            label: B.health.review(issues),
+            to: `#${ATTENTION_SECTION_ID}`,
+          },
+        }
+      : {}),
+  });
 
   if (loading) {
     return facet('loading', B.health.checking(unit));
@@ -49,13 +64,13 @@ const healthFacet = (
   const failing = health.down + health.noData;
 
   if (failing) {
-    return facet(
+    return problem(
       'mixedProblems',
       B.health.attention(failing + health.degraded, total, unit)
     );
   }
   if (health.degraded) {
-    return facet('degraded', B.health.degraded(health.degraded, total, unit));
+    return problem('degraded', B.health.degraded(health.degraded, total, unit));
   }
   if (health.upgrading) {
     return facet(
@@ -82,7 +97,12 @@ const alertsFacet = (
     return { id: 'alerts', state: 'default', label: B.alerts.unknown };
   }
   if (alerts > 0) {
-    return { id: 'alerts', state: 'errors', label: B.alerts.firing(alerts) };
+    return {
+      id: 'alerts',
+      state: 'errors',
+      label: B.alerts.firing(alerts),
+      action: doors.alerts,
+    };
   }
   if (alertRules === 'none') {
     return {
@@ -122,6 +142,7 @@ const backupsFacet = (
           ? formatAge(lastGoodBackup.at)
           : undefined
       ),
+      action: doors.backups,
     };
   }
   if (lastGoodBackup === 'notSetUp') {

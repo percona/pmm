@@ -275,6 +275,11 @@ export const deriveMongoHub = (
       : {}),
     checkedAt: new Date(snapshot.fetchedAt || ctx.now).toISOString(),
     doors: {
+      alerts: { label: HubText.banner.openAlerts, to: ALERTS_PATH },
+      backups: {
+        label: HubText.banner.openBackups,
+        to: MONGO_PATHS.backupInventory,
+      },
       ...(ctx.role === 'admin'
         ? {
             setUpAlerts: {
