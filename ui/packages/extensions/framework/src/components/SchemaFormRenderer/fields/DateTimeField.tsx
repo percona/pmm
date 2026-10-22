@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useFormContext } from 'react-hook-form';
-import { TextInput } from '@percona/peak-ui';
+import { get, useFormContext, useFormState } from 'react-hook-form';
+import { DateTimeInput } from '../../DateTimeInput';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import { fieldHelp } from '../fieldHelp';
 import type { DateTimeField as DateTimeFieldType } from '../types';
@@ -30,27 +30,27 @@ interface DateTimeFieldProps {
  * Schema datetime widget.
  *
  * Form state holds a `datetime-local` wall-clock string; {@link fieldDefault} /
- * `buildFormDefaults` convert UTC ISO seeds on mount, and `coerceFormValues`
- * converts back to UTC ISO on submit.
+ * `buildFormDefaults` convert zoned ISO seeds to their UTC wall-clock on mount,
+ * and `coerceFormValues` submits the wall-clock unchanged (PMM-15707).
  */
 export function DateTimeField({ field }: DateTimeFieldProps) {
   const { control } = useFormContext();
+  // `DateTimeInput` owns the Controller, so the error has to be read from form
+  // state rather than taken from a `fieldState` this component never sees.
+  const { errors } = useFormState({ control, name: field.name });
+  // Dotted paths nest; see SchemaSelectShell.
+  const error = get(errors, field.name);
   const help = fieldHelp(field);
   return (
-    <TextInput
+    <DateTimeInput
       name={field.name}
-      label={field.label}
-      isRequired={field.required}
       control={control}
-      textFieldProps={{
-        label: (
-          <FieldLabelWithHelp label={field.label} description={help.tooltip} />
-        ),
-        type: 'datetime-local',
-        helperText: help.inline,
-        fullWidth: true,
-        InputLabelProps: { shrink: true },
-      }}
+      label={
+        <FieldLabelWithHelp label={field.label} description={help.tooltip} />
+      }
+      isRequired={field.required}
+      error={!!error}
+      helperText={(error?.message as string | undefined) ?? help.inline}
       controllerProps={{ rules: buildValidationRules(field) }}
     />
   );

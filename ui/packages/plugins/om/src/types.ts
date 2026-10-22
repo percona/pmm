@@ -205,6 +205,9 @@ export interface OmTopologyResponse {
 export interface OmServiceRow extends OmService {
   env_name?: string | null;
   cluster_name?: string | null;
+  /** The cluster's opaque, server-issued id -- see OmCluster.id. Group on this,
+   * not `cluster_name`, which two clusters can share or both lack. */
+  cluster_id: string;
 }
 
 /**
@@ -564,14 +567,12 @@ export interface OmBootstrapMemberConfig {
 /**
  * A bootstrap run accepted by the app, from
  * `POST /v1/om/inventory/hosts:bootstrap`.
- *
- * PMM-15347 PoC only. Carries no credentials: the run's generated MongoDB user
- * is created only once every host is up, minutes after this response - see
- * `run_id`'s own comment for how to watch it happen.
  */
 export interface OmHostBootstrapAccepted {
   /** The om_bootstrap run's id - pass to `useBootstrapRun` to watch its progress. */
   run_id: string;
+  /** The password PMM generated for a named administrator, present only when none was typed; shown once. */
+  generated_admin_password?: string;
 }
 
 /** One step's progress - a host's own, one of its rollback steps, or a run's own. */
