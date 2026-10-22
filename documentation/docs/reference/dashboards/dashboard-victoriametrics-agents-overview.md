@@ -12,7 +12,7 @@ The Overview section gives you a snapshot of agent activity across all monitored
 
 ### Current Uptime
 
-Shows how long each VMAgent instance has been running, with one row per node. Red means under 1 hour, orange means 1 to 24 hours, and green means over 24 hours.
+Shows how long each VMAgent instance has been running, with one row per node, shortest uptime first. Click the **Uptime** column header to reverse the order. Red means under 1 hour, orange means 1 to 24 hours, and green means over 24 hours.
 
 An agent restarts when a new service is added for monitoring, so a low value right after adding a service is expected. An unexpected low value at other times warrants investigation.
 
@@ -44,6 +44,8 @@ A non-zero value may indicate connectivity issues or a misconfiguration. Expand 
 
 Shows the up/down state of each VMAgent instance per node as a timeline. Green means the agent is up, red means it is down.
 
+The panel shows 8 nodes per page. When you select more nodes than that, page controls appear at the bottom of the panel. Nodes that are down are listed first, so problem nodes stay on the first page.
+
 Use this to spot agents that are down or that have restarted recently.
 
 ### Scraped Samples
@@ -60,7 +62,7 @@ Compare this with **Scraped Samples** to identify replication-related difference
 
 ### Dropped Samples (Persistent Queue)
 
-Shows the per-node rate of samples dropped from the persistent queue. VMAgent drops samples when both in-memory and on-disk queues are full and it cannot reach remote storage.
+Shows the per-node amount of data, in bytes, dropped from the persistent queue during each interval. VMAgent drops samples when both in-memory and on-disk queues are full and it cannot reach remote storage.
 
 A non-zero value means data is being lost. The maximum on-disk queue size is controlled by the `-remoteWrite.maxDiskUsagePerURL` flag.
 
@@ -72,7 +74,7 @@ A growing queue usually indicates connectivity problems. VMAgent buffers data to
 
 ### Dropped Samples (Relabeling)
 
-Shows the per-node rate of samples dropped by relabeling rules. This panel tracks only drops from `-remoteWrite.relabelConfig`.
+Shows the rate of samples dropped by relabeling rules, as one overall series and one series per remote write URL. This panel tracks only drops from `-remoteWrite.relabelConfig`.
 
 Use this to verify that relabeling rules are not discarding more data than expected.
 
@@ -92,7 +94,7 @@ Shows the per-node rate of scrape requests made by VMAgent.
 
 ### Samples
 
-Shows the per-node rate of samples collected per scrape.
+Shows the per-node rate of samples collected by scraping.
 
 ### Scrapes p0.95 Response Size
 

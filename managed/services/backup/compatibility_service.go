@@ -163,8 +163,8 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 		err := models.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
 			pmmAgentMinVersionForMongoBackupSoftwareCheck)
 		if err != nil {
-			var agentNotSupportedError models.AgentNotSupportedError
-			if errors.As(err, &agentNotSupportedError) {
+			_, ok := errors.AsType[models.AgentNotSupportedError](err)
+			if ok {
 				s.l.Warnf("Got versioner error message: %s.", err.Error())
 				return "", nil
 			}

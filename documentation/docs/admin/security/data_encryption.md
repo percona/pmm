@@ -65,6 +65,9 @@ If you deploy with the [PMM HA Helm chart](../../install-pmm/install-HA-clustere
 
 ### Upgrade an existing Docker HA cluster
 
+!!! warning "Check the encryption key before you upgrade"
+    Before you upgrade, make sure that every PMM Server node has the same encryption key. Otherwise, some nodes won't start after the upgrade.
+
 The HA Helm chart 3.10.0 has no upgrade path from earlier versions. Deploy a fresh cluster instead. Once on 3.10.0, you can upgrade to later Helm chart versions.
 
 If you are reusing an existing database on a fresh 3.10.0 cluster, make sure every node has the same key first:

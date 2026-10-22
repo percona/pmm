@@ -43,9 +43,9 @@ Find the address of your PMM Server to set as `PMM_AGENT_SERVER_ADDRESS` when yo
 
     1. Find PMM Server's Service:
 
-      ```sh
-      kubectl get svc -n <namespace>
-      ```
+        ```sh
+        kubectl get svc -n <namespace>
+        ```
 
         - The standard PMM Server Helm chart names this Service `monitoring-service` by default.
         - For PMM Server in [HA mode](../install-HA-clustered.md), register against the HAProxy Service instead, for example `pmm-ha-haproxy`. The HAProxy Service routes traffic to the active PMM leader; a Service that connects directly to a PMM pod bypasses leader election and does not.
