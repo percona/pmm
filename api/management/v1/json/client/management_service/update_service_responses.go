@@ -1322,6 +1322,9 @@ type UpdateServiceOKBodyAfterAgentsItems0 struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -2359,6 +2362,9 @@ type UpdateServiceOKBodyBeforeAgentsItems0 struct {
 
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
@@ -4811,6 +4817,9 @@ type UpdateServiceParamsBodyPostgresql struct {
 
 	// disable collectors
 	DisableCollectors *UpdateServiceParamsBodyPostgresqlDisableCollectors `json:"disable_collectors,omitempty"`
+
+	// enable collectors
+	EnableCollectors *UpdateServiceParamsBodyPostgresqlEnableCollectors `json:"enable_collectors,omitempty"`
 }
 
 // Validate validates this update service params body postgresql
@@ -4830,6 +4839,10 @@ func (o *UpdateServiceParamsBodyPostgresql) Validate(formats strfmt.Registry) er
 	}
 
 	if err := o.validateDisableCollectors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEnableCollectors(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4984,6 +4997,29 @@ func (o *UpdateServiceParamsBodyPostgresql) validateDisableCollectors(formats st
 	return nil
 }
 
+func (o *UpdateServiceParamsBodyPostgresql) validateEnableCollectors(formats strfmt.Registry) error {
+	if swag.IsZero(o.EnableCollectors) { // not required
+		return nil
+	}
+
+	if o.EnableCollectors != nil {
+		if err := o.EnableCollectors.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "postgresql" + "." + "enable_collectors")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "postgresql" + "." + "enable_collectors")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update service params body postgresql based on the context it is used
 func (o *UpdateServiceParamsBodyPostgresql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -4993,6 +5029,10 @@ func (o *UpdateServiceParamsBodyPostgresql) ContextValidate(ctx context.Context,
 	}
 
 	if err := o.contextValidateDisableCollectors(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateEnableCollectors(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5041,6 +5081,30 @@ func (o *UpdateServiceParamsBodyPostgresql) contextValidateDisableCollectors(ctx
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgresql" + "." + "disable_collectors")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdateServiceParamsBodyPostgresql) contextValidateEnableCollectors(ctx context.Context, formats strfmt.Registry) error {
+	if o.EnableCollectors != nil {
+
+		if swag.IsZero(o.EnableCollectors) { // not required
+			return nil
+		}
+
+		if err := o.EnableCollectors.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "postgresql" + "." + "enable_collectors")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "postgresql" + "." + "enable_collectors")
 			}
 
 			return err
@@ -5135,6 +5199,43 @@ func (o *UpdateServiceParamsBodyPostgresqlDisableCollectors) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *UpdateServiceParamsBodyPostgresqlDisableCollectors) UnmarshalBinary(b []byte) error {
 	var res UpdateServiceParamsBodyPostgresqlDisableCollectors
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+UpdateServiceParamsBodyPostgresqlEnableCollectors A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model UpdateServiceParamsBodyPostgresqlEnableCollectors
+*/
+type UpdateServiceParamsBodyPostgresqlEnableCollectors struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this update service params body postgresql enable collectors
+func (o *UpdateServiceParamsBodyPostgresqlEnableCollectors) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update service params body postgresql enable collectors based on context it is used
+func (o *UpdateServiceParamsBodyPostgresqlEnableCollectors) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdateServiceParamsBodyPostgresqlEnableCollectors) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdateServiceParamsBodyPostgresqlEnableCollectors) UnmarshalBinary(b []byte) error {
+	var res UpdateServiceParamsBodyPostgresqlEnableCollectors
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

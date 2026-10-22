@@ -222,6 +222,7 @@ func postgresqlServiceChange(p *managementv1.UpdatePostgreSQLServiceParams) *ser
 		agentPassword: p.AgentPassword,
 		exporter: models.ChangeExporterOptions{
 			DisabledCollectors: stringArray(p.DisableCollectors),
+			EnabledCollectors:  stringArray(p.EnableCollectors),
 			ExposeExporter:     p.ExposeExporter,
 			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 		},

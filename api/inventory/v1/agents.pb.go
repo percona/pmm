@@ -1045,6 +1045,8 @@ type PostgresExporter struct {
 	PushMetricsEnabled bool `protobuf:"varint,9,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,10,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `protobuf:"bytes,29,rep,name=enabled_collectors,json=enabledCollectors,proto3" json:"enabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,20,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
@@ -1163,6 +1165,13 @@ func (x *PostgresExporter) GetPushMetricsEnabled() bool {
 func (x *PostgresExporter) GetDisabledCollectors() []string {
 	if x != nil {
 		return x.DisabledCollectors
+	}
+	return nil
+}
+
+func (x *PostgresExporter) GetEnabledCollectors() []string {
+	if x != nil {
+		return x.EnabledCollectors
 	}
 	return nil
 }
@@ -11184,7 +11193,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"!enable_diagnostic_data_histograms\x18\x1f \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf1\a\n" +
 	"\x10PostgresExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11198,7 +11207,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\rcustom_labels\x18\b \x03(\v20.inventory.v1.PostgresExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
 	"\x14push_metrics_enabled\x18\t \x01(\bR\x12pushMetricsEnabled\x12/\n" +
 	"\x13disabled_collectors\x18\n" +
-	" \x03(\tR\x12disabledCollectors\x121\n" +
+	" \x03(\tR\x12disabledCollectors\x12-\n" +
+	"\x12enabled_collectors\x18\x1d \x03(\tR\x11enabledCollectors\x121\n" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12\x1f\n" +
 	"\vlisten_port\x18\x15 \x01(\rR\n" +
 	"listenPort\x12*\n" +

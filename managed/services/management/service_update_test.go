@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -728,6 +729,71 @@ func TestUpdateService(t *testing.T) {
 		agents := serviceAgents(t, s.db.Querier, serviceID)
 		assert.Contains(t, agents, models.QANPostgreSQLPgStatementsAgentType)
 		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
+	t.Run("PostgreSQLEnableCollectors", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+
+		// The exporter of pmm-agent 3.5.0 has no stat_io collector.
+		_, err := s.db.Exec(`UPDATE agents SET version = '3.5.0' WHERE agent_id = $1`, models.PMMServerAgentID)
+		require.NoError(t, err)
+
+		add := &managementv1.AddPostgreSQLServiceParams{
+			NodeId:              models.PMMServerNodeID,
+			PmmAgentId:          models.PMMServerAgentID,
+			ServiceName:         "postgresql-srv-1",
+			Address:             "127.0.0.1",
+			Port:                5432,
+			Username:            "postgres",
+			EnableCollectors:    []string{"stat_io"},
+			SkipConnectionCheck: true,
+		}
+		addRequest := &managementv1.AddServiceRequest{Service: &managementv1.AddServiceRequest_Postgresql{Postgresql: add}}
+		_, err = s.AddService(ctx, addRequest)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+			`collector "stat_io" needs pmm-agent 3.6.0 or newer, but the pmm-agent is 3.5.0`), err)
+
+		m.state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+		add.EnableCollectors = []string{"long_running_transactions"}
+		add.DisableCollectors = []string{"locks"}
+		resp, err := s.AddService(ctx, addRequest)
+		require.NoError(t, err)
+		serviceID := resp.GetPostgresql().Service.ServiceId
+
+		exporter := serviceAgents(t, s.db.Querier, serviceID)[models.PostgresExporterType]
+		assert.Equal(t, []string{"long_running_transactions"}, []string(exporter.ExporterOptions.EnabledCollectors))
+
+		// The new list is checked against the stored one of disabled collectors.
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					EnableCollectors: &common.StringArray{Values: []string{"long_running_transactions", "locks"}},
+				},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `collector "locks" is both enabled and disabled`), err)
+
+		m.expectApplied()
+		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					EnableCollectors:  &common.StringArray{Values: []string{"wal", "locks"}},
+					DisableCollectors: &common.StringArray{},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		exporter = serviceAgents(t, s.db.Querier, serviceID)[models.PostgresExporterType]
+		assert.Equal(t, []string{"wal", "locks"}, []string(exporter.ExporterOptions.EnabledCollectors))
+		assert.Empty(t, exporter.ExporterOptions.DisabledCollectors)
+		i := slices.IndexFunc(updated.After.Agents, func(a *managementv1.UniversalAgent) bool {
+			return a.AgentType == string(models.PostgresExporterType)
+		})
+		require.NotEqual(t, -1, i)
+		assert.Equal(t, []string{"wal", "locks"}, updated.After.Agents[i].EnabledCollectors)
 	})
 
 	t.Run("ExternalListenPort", func(t *testing.T) {
