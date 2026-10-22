@@ -6,7 +6,7 @@ Use the filters at the top to scope the view to a specific environment, cluster,
 
 ## Prerequisites
 
-To use this dashboard, first enable the `indexstats` collector by passing `--enable-all-collectors` when [adding the MongoDB service](../../install-pmm/install-pmm-client/connect-database/mongodb.md), or run `pmm-admin inventory change agent mongodb-exporter` on an existing service.
+To use this dashboard, enable the `indexstats` collector by passing `--enable-all-collectors` when [adding the MongoDB service](../../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 ![MongoDB Unused Indexes dashboard](../../images/dashboard-mongodb-unused-indexes.png)
 
