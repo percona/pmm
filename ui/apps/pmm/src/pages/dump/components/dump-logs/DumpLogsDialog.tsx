@@ -76,7 +76,12 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
           <Typography>{Messages.logs.empty}</Typography>
         )}
         {chunks.length > 0 && (
-          <CodeBlock content={logs} copyable wrap maxHeight={480} />
+          <CodeBlock
+            content={logs}
+            copyable
+            wrap
+            sx={{ maxHeight: 480, overflowY: 'auto' }}
+          />
         )}
       </DialogContent>
       <DialogActions>
