@@ -62,7 +62,7 @@ Compare this with **Scraped Samples** to identify replication-related difference
 
 ### Dropped Samples (Persistent Queue)
 
-Shows the per-node rate of samples dropped from the persistent queue. VMAgent drops samples when both in-memory and on-disk queues are full and it cannot reach remote storage.
+Shows the per-node amount of data, in bytes, dropped from the persistent queue during each interval. VMAgent drops samples when both in-memory and on-disk queues are full and it cannot reach remote storage.
 
 A non-zero value means data is being lost. The maximum on-disk queue size is controlled by the `-remoteWrite.maxDiskUsagePerURL` flag.
 
@@ -74,7 +74,7 @@ A growing queue usually indicates connectivity problems. VMAgent buffers data to
 
 ### Dropped Samples (Relabeling)
 
-Shows the per-node rate of samples dropped by relabeling rules. This panel tracks only drops from `-remoteWrite.relabelConfig`.
+Shows the rate of samples dropped by relabeling rules, as one overall series and one series per remote write URL. This panel tracks only drops from `-remoteWrite.relabelConfig`.
 
 Use this to verify that relabeling rules are not discarding more data than expected.
 

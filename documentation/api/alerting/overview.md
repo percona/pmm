@@ -29,7 +29,6 @@ Rules created before PMM 3.10.0 don't have a `rule_id` and don't support overrid
 ### Get started
 
 To override the alert threshold for one node without affecting the others:
-{.power-number}
 
 1. Create a rule from a Dynamic template, such as the built-in `pmm_node_high_cpu_load`. The `80` you pass becomes the rule's default for every node:
 
