@@ -9,7 +9,7 @@ Recover your PMM Server installation from a previously created volume snapshot.
 - Helm v3 installed and configured
 - Knowledge of the PMM version used in the backup
 
-## Preparing for restoration
+## Before you restore
 Before restoring, gather the necessary information:
 {.power-number}
 

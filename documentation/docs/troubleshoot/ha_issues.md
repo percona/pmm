@@ -16,7 +16,7 @@ export PASSWORD="<admin-password>"
 
 ## Check cluster health
 
-Start with these three commands. Together they show whether the pods are running, whether HA is enabled, and which node is the leader:
+Run these three commands first. They tell you whether the pods are up, whether HA is active, and which node holds the leader role:
 
 ```sh
 # 1. Are all PMM Server pods running and ready?
@@ -29,39 +29,40 @@ curl -sk -u admin:$PASSWORD "$PMM_URL/v1/ha/status"
 curl -sk -u admin:$PASSWORD "$PMM_URL/v1/ha/nodes"
 ```
 
-How to read the results:
+What to look for:
 
-- **Pods:** All three `pmm-ha-*` pods should show `Running` with all containers ready (for example, `1/1`). Pods in `Pending`, `CrashLoopBackOff`, or with restarts that keep climbing need attention first.
+- **Pods:** All three `pmm-ha-*` pods show `Running` with all containers ready (`1/1`). A pod in `Pending` or `CrashLoopBackOff`, or one with a rising restart count, is the first thing to fix.
 - **`/v1/ha/status`:** Returns `{"status":"Enabled"}` when HA is active. Any other value means the server is not running in HA mode.
-- **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader, and every other node is a follower. To spot a missing node, compare the number of entries in the list with `expected_nodes`. That field is the replica count PMM was installed with, not a live count, so it stays the same even when a node is down.
+- **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader and all other nodes as followers. If the number of entries is fewer than `expected_nodes`, a node is missing. `expected_nodes` reflects the replica count from installation and does not change when a node goes down.
 
 ## Find the logs for each component
 
-PMM Server and the components the operators manage store their logs in different places.
+Each component stores its logs differently. Use the table below to find the right pod and command for what you're investigating:
+{.power-number}
 
-| Component | Pods | How to read the logs |
-|-----------|------|----------------------|
-| **PMM Server** | `pmm-ha-0`, `-1`, `-2` | Files under `/srv/logs/` inside the pod (see below) |
-| **HAProxy** | `pmm-ha-haproxy-*` | `kubectl logs <pod> -n pmm` |
-| **ClickHouse** | `pmm-ha-pmmdb-0-0-0`, `-0-1-0`, `-0-2-0` | `kubectl logs <pod> -n pmm -c clickhouse` |
-| **ClickHouse Keeper** | `pmm-ha-keeper-keeper-0-*-0` | `kubectl logs <pod> -n pmm` |
-| **VictoriaMetrics** | `vmstorage-*`, `vmselect-*`, `vminsert-*` | `kubectl logs <pod> -n pmm` |
-| **PostgreSQL** | `pmm-ha-pg-db-instance1-*-0` | `kubectl logs <pod> -n pmm` |
-| **Operators** | `pmm-operators-*` | `kubectl logs <pod> -n pmm` |
+1. Find the pod name for the component you want to investigate. Pod names with a random suffix change on every deployment, so look them up by label:
 
-Pod names that contain a random suffix change on every deployment. Find them by label instead of copying them:
+    | Component | Pods | How to read the logs |
+    |-----------|------|----------------------|
+    | **PMM Server** | `pmm-ha-0`, `-1`, `-2` | Files under `/srv/logs/` inside the pod (see below) |
+    | **HAProxy** | `pmm-ha-haproxy-*` | `kubectl logs <pod> -n pmm` |
+    | **ClickHouse** | `pmm-ha-pmmdb-0-0-0`, `-0-1-0`, `-0-2-0` | `kubectl logs <pod> -n pmm -c clickhouse` |
+    | **ClickHouse Keeper** | `pmm-ha-keeper-keeper-0-*-0` | `kubectl logs <pod> -n pmm` |
+    | **VictoriaMetrics** | `vmstorage-*`, `vmselect-*`, `vminsert-*` | `kubectl logs <pod> -n pmm` |
+    | **PostgreSQL** | `pmm-ha-pg-db-instance1-*-0` | `kubectl logs <pod> -n pmm` |
+    | **Operators** | `pmm-operators-*` | `kubectl logs <pod> -n pmm` |
 
-```sh
-kubectl get pods -n pmm -l app.kubernetes.io/component=pmm-server
-kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
-kubectl get pods -n pmm -l app.kubernetes.io/name=haproxy
-```
+    ```sh
+    kubectl get pods -n pmm -l app.kubernetes.io/component=pmm-server
+    kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
+    kubectl get pods -n pmm -l app.kubernetes.io/name=haproxy
+    ```
 
-Always collect namespace events as well. Most installation problems are only visible there:
+2. Collect namespace events. Most installation problems are only visible there:
 
-```sh
-kubectl get events -n pmm --sort-by=.metadata.creationTimestamp
-```
+    ```sh
+    kubectl get events -n pmm --sort-by=.metadata.creationTimestamp
+    ```
 
 ## PMM Server logs show only startup messages
 
@@ -86,29 +87,34 @@ Every login attempt fails with 401 and the message `Invalid username or password
 
 **Cause:** Two different problems produce the same error:
 
-- Grafana's admin password is out of sync with the password stored in the `pmm-secret` secret.
 - Grafana has locked the admin user after five failed login attempts.
+- Grafana's admin password is out of sync with the password stored in the `pmm-secret` secret.
 
-**Fix:** First clear the failed login attempts, then try again:
+To fix it:
+{.power-number}
 
-```sh
-kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c '
-  H="${GF_DATABASE_HOST%%:*}"; P="${GF_DATABASE_HOST##*:}"
-  PGPASSWORD="$GF_DATABASE_PASSWORD" psql -h "$H" -p "$P" -U "$GF_DATABASE_USER" \
-    -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
-```
+1. Clear the failed login attempts, then try logging in again:
 
-If the login still fails, reset Grafana's admin password to the value in the secret:
+    ```sh
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c '
+      H="${GF_DATABASE_HOST%%:*}"; P="${GF_DATABASE_HOST##*:}"
+      PGPASSWORD="$GF_DATABASE_PASSWORD" psql -h "$H" -p "$P" -U "$GF_DATABASE_USER" \
+        -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
+    ```
 
-```sh
-kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | grafana-cli \
-  --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
-  --configOverrides "cfg:database.type=$GF_DATABASE_TYPE cfg:database.host=$GF_DATABASE_HOST cfg:database.name=$GF_DATABASE_NAME cfg:database.user=$GF_DATABASE_USER cfg:database.password=$GF_DATABASE_PASSWORD cfg:database.ssl_mode=$GF_DATABASE_SSL_MODE" \
-  admin reset-admin-password --password-from-stdin'
-```
+2. If the login still fails, reset the Grafana admin password to the value stored in the secret:
 
-!!! warning ""
-    Pass the database settings with `--configOverrides` as shown. Without them, `grafana-cli` writes to a local database that the running Grafana does not use, reports `Admin password changed successfully`, and changes nothing.
+    !!! warning "Keep the `--configOverrides` flag"
+        Without `--configOverrides`, `grafana-cli` writes to a local database that the running Grafana does not use. It reports `Admin password changed successfully` and changes nothing.
+
+    ```sh
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | grafana-cli \
+      --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
+      --configOverrides "cfg:database.type=$GF_DATABASE_TYPE cfg:database.host=$GF_DATABASE_HOST cfg:database.name=$GF_DATABASE_NAME cfg:database.user=$GF_DATABASE_USER cfg:database.password=$GF_DATABASE_PASSWORD cfg:database.ssl_mode=$GF_DATABASE_SSL_MODE" \
+      admin reset-admin-password --password-from-stdin'
+    ```
+
+3. Log in with the password from the secret.
 
 ## Pods stay in Pending state
 
@@ -143,7 +149,9 @@ Requests keep failing and do not recover.
 kubectl get endpoints pmm-ha-haproxy -n pmm
 ```
 
-If the endpoint list is empty, no pod is passing the leader health check. Ask each pod directly which one is the leader:
+If the endpoint list is empty, the HAProxy pods are not running or not ready. Check the pod logs to find out why.
+
+If endpoints exist but PMM is still unreachable, the HAProxy pods are up but no PMM Server pod is acting as leader. Ask each PMM Server pod directly which one is the leader:
 
 ```sh
 for p in pmm-ha-0 pmm-ha-1 pmm-ha-2; do
@@ -155,10 +163,10 @@ done
 
 Exactly one pod must answer 200. If none does, see the sections below.
 
-To reach PMM while you investigate, bypass the load balancer:
+To reach PMM while you investigate, connect directly to a PMM Server pod, bypassing HAProxy:
 
 ```sh
-kubectl port-forward -n pmm svc/pmm-ha-haproxy 18443:443
+kubectl port-forward -n pmm pmm-ha-0 18443:8443
 ```
 
 PMM is then available at `https://127.0.0.1:18443`.
@@ -167,7 +175,9 @@ PMM is then available at `https://127.0.0.1:18443`.
 
 PMM does not serve requests, or the cluster behaves inconsistently.
 
-**Fix:** Check the HA metrics. Query them through the Grafana data source proxy, using the UID of the Metrics data source:
+**Fix:** If PMM is unreachable, use the per-pod leader health checks above and inspect the surviving pods' logs as described in [No quorum](#no-quorum-cluster-is-unreachable-after-losing-multiple-replicas). The Grafana proxy is unavailable when HAProxy has no leader to route to.
+
+If PMM is reachable, check the HA metrics through the Grafana data source proxy, using the UID of the Metrics data source:
 
 ```sh
 curl -sk -u admin:$PASSWORD \
@@ -179,7 +189,7 @@ Interpret the result:
 | Query | Healthy value | Meaning if different |
 |-------|---------------|----------------------|
 | `sum(pmm_ha_leader_status)` | `1` | `0` means no leader; above `1` means split brain |
-| `count(pmm_ha_up{role="voter"} == 1)` | Number of replicas | A lower value means the cluster has lost quorum |
+| `count(pmm_ha_up{role="voter"} == 1)` | Number of replicas | If the count is lower than expected, a node is down. PMM still works with 2 out of 3 nodes alive. If only 1 node is alive, PMM stops. |
 | `pmm_ha_raft_term` | Stable | A rapidly increasing value means the leader keeps changing |
 
 The `node_id` label on these metrics is the pod name.
@@ -350,6 +360,34 @@ After you restore a backup into another namespace, the `pmm-ha-client` or Postgr
 **Cause:** The restore replaced the Grafana database, so PMM now uses the source installation's admin password. The new namespace's `pmm-secret` still holds its own password, so the clients can't authenticate.
 
 **Fix:** Set `PMM_ADMIN_PASSWORD` in the new namespace's `pmm-secret` to the source installation's admin password, then restart the failing pods. See [Restore into another namespace](../install-pmm/backup-restore-HA-clustered.md#restore-into-another-namespace).
+
+## High memory usage
+
+PMM pods are consuming more memory than expected.
+
+**Cause:** Resource limits may be set too high for the workload, or retention settings are keeping more data than the cluster can sustain.
+
+**Fix:** Check which pods are using the most memory, then examine their resource configuration:
+
+```sh
+kubectl top pods -n pmm
+kubectl describe pod <pod-name> -n pmm
+```
+
+Adjust `resources.requests` and `resources.limits` in your values file, or reduce the retention period for VictoriaMetrics and ClickHouse.
+
+## Resources stay in Terminating state
+
+A pod or other resource stays in `Terminating` indefinitely during deletion or uninstall.
+
+**Cause:** Kubernetes finalizers are preventing deletion. PMM HA resources use finalizers to ensure clean shutdown. If the controller that processes them is removed first, the finalizers are never cleared and the resource blocks.
+
+**Fix:** Remove the finalizers manually:
+
+```sh
+kubectl patch <resource-type> <resource-name> -n pmm \
+  -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
 
 ## See also
 

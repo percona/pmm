@@ -1,14 +1,19 @@
-# Upgrade PMM High Availability (HA) cluster using Helm
+# Upgrade PMM Server HA Cluster on Kubernetes
 
-Upgrade a [PMM HA Cluster](../install-pmm/HA-clustered.md) deployed with the `percona/pmm-ha` chart (three pods) when you want to move to a new PMM release. For single-instance deployments using the `percona/pmm` chart, see [Upgrade PMM Server using Helm](upgrade_helm.md) instead.
+Upgrade a [PMM Server High Availability (HA) Cluster](../install-pmm/HA-clustered.md) deployed with the [`percona/pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you want to move to a new PMM release.
+
+!!! caution "Requires PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0 or later"
+    In-place Helm upgrades for HA clusters are not supported on earlier versions. If you're running an earlier version, you cannot use this procedure.
 
 ## How PMM HA Helm upgrades work
 
 The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. HAProxy, PostgreSQL, VictoriaMetrics, ClickHouse, and the operators are not restarted and remain running throughout.
 
+If this PMM release updated operator versions, make sure to first [upgrade the operators](#upgrade-the-operators). 
+
 Traffic flows only to the active leader pod. When that pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
 
-## Before you begin
+## Prerequisites
 
 To avoid losing data or a long outage, follow these steps before you upgrade:
 {.power-number}
@@ -26,42 +31,46 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
 
-3. Back up your PMM HA Cluster before upgrading. Downgrades are not supported, so a backup is your only recovery option:
+3. [Back up your PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md#back-up-pmm-ha-cluster) before upgrading. Downgrades are not supported, so a backup is your only recovery option. If the upgrade fails, [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster).
 
-    === "Built-in backups"
+4. Check whether this PMM release updated operator versions. Compare the operator versions in the [supported platforms table](../install-pmm/HA-clustered.md#check-if-your-platform-is-supported) for your current and target chart versions. If they differ, complete [Upgrade the operators](#upgrade-the-operators) before running `helm upgrade pmm-ha`.
 
-        If you [turned on backups](../install-pmm/backup-restore-HA-clustered.md#turn-on-backups), take a backup of all components:
+5. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
+## Upgrade the operators
 
-        ```sh
-        kubectl exec -n <namespace> deploy/<release>-backup-tools -- pmm-backup.sh backup
-        ```
+Each PMM HA database (VictoriaMetrics, ClickHouse, and PostgreSQL) is managed by a Kubernetes operator that handles its lifecycle: scaling, failover, and version upgrades. These operators run as a separate Helm release (`pmm-operators`) installed from the `pmm-ha-dependencies` chart — `helm upgrade pmm-ha` does not touch them. Run these steps only if the operator versions in the [supported platforms table](../install-pmm/HA-clustered.md#check-if-your-platform-is-supported) differ between your current and target chart versions.
 
-        If the upgrade fails, you can [restore this backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster).
+To upgrade the operators:
+{.power-number}
 
-    === "Without built-in backups"
-
-        If you haven't turned on backups, back up each database cluster separately:
-
-        - **PostgreSQL** is backed up automatically by default. Confirm a recent backup exists:
-
-            ```sh
-            kubectl get perconapgbackup -n <namespace>
-            ```
-
-        - **ClickHouse and VictoriaMetrics** have no automatic backup. Back them up manually if you need to restore your Query Analytics data and metrics, for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/).
-
-4. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
-
-5. Pull the new PMM Server image on your cluster nodes in advance to reduce upgrade time:
+1. Find the release name of your operators installation, usually `pmm-operators`:
 
     ```sh
-    # Replace <version> with the version you're upgrading to
-    docker pull percona/pmm-server:<version>
+    helm list --namespace <namespace>
     ```
 
-## Upgrade
+2. Upgrade it:
 
-Once you've completed the steps in [Before you begin](#before-you-begin), run the upgrade:
+    ```sh
+    helm upgrade pmm-operators percona/pmm-ha-dependencies --namespace <namespace>
+    ```
+
+3. Wait for the new operator pods to roll out:
+
+    ```sh
+    kubectl rollout status deployment -l app.kubernetes.io/name=pg-operator -n <namespace> --timeout=300s
+    kubectl rollout status deployment -l app.kubernetes.io/name=altinity-clickhouse-operator -n <namespace> --timeout=300s
+    kubectl rollout status deployment -l app.kubernetes.io/name=victoria-metrics-operator -n <namespace> --timeout=300s
+    ```
+
+Upgrading the operators does not restart or change the database clusters they manage. The databases keep running under the new operator version automatically.
+
+!!! caution "PostgreSQL operator major version upgrades"
+    If the `pmm-ha-dependencies` chart bumps the Percona Operator for PostgreSQL to a new major version (for example, 2.x to 3.0.0), review the [operator upgrade notes](https://docs.percona.com/percona-operator-for-postgresql/latest/update.html) before upgrading. Major operator versions can include CRD changes that require manual steps.
+
+## Upgrade PMM HA Cluster
+
+Once you've completed the steps in [Prerequisites](#prerequisites), run the upgrade:
 {.power-number}
 
 1. Update the Helm repository:
@@ -70,39 +79,49 @@ Once you've completed the steps in [Before you begin](#before-you-begin), run th
     helm repo update percona
     ```
 
-2. Run the upgrade, replacing `<version>` with the target PMM version. Use `--reuse-values` to keep your existing configuration, or `-f values.yaml` if you manage settings in a values file:
+2. Find the chart version that ships the target PMM version. The **APP VERSION** column shows the PMM version:
+
+    ```sh
+    helm search repo percona/pmm-ha --versions
+    ```
+
+3. Run the upgrade, replacing `<chart-version>` with the chart version from the previous step and `<version>` with the target PMM version. Without `--version`, Helm installs the newest chart in the repository. Use `--reset-then-reuse-values` to keep your existing configuration and pick up the new chart's defaults, or `-f values.yaml` if you manage settings in a values file:
 
     ```sh
     helm upgrade pmm-ha percona/pmm-ha \
       --namespace pmm \
-      --reuse-values \
+      --version <chart-version> \
+      --reset-then-reuse-values \
       --set image.tag=<version>
     ```
 
     If this fails with `Job.batch "<release>-pmm-token-init" is invalid: spec.template: ... field is immutable`, see [Troubleshoot upgrade issues](../troubleshoot/upgrade_issues.md#pmm-ha-helm-upgrade-fails-with-field-is-immutable).
 
-3. Track the rollout progress. Expect a brief interruption when the leader pod restarts:
+4. Track the rollout progress. Expect a brief interruption when the leader pod restarts:
 
     ```sh
     kubectl rollout status statefulset/pmm-ha -n pmm
     ```
 
-4. Confirm all three pods are running the new version:
+5. Confirm all three pods are running the new version:
 
     ```sh
     kubectl get pods -l app.kubernetes.io/name=pmm -n pmm -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.containerStatuses[0].image}{"\n"}{end}'
     ```
 
-5. Confirm PMM Server is reachable and returning the new version:
+6. Confirm PMM Server is reachable and returning the new version:
 
     ```sh
     curl -k https://<pmm-ha-haproxy-endpoint>/v1/server/version
     ```
 
-6. Check the logs across all pods for errors:
+7. Check the PMM Server logs on each pod for errors. PMM Server writes them to files under `/srv/logs/`, so `kubectl logs` doesn't show them:
 
     ```sh
-    kubectl logs -l app.kubernetes.io/name=pmm -n pmm --tail=100
+    for p in pmm-ha-0 pmm-ha-1 pmm-ha-2; do
+      echo "--- $p"
+      kubectl exec -n pmm "$p" -c pmm-ha -- tail -50 /srv/logs/pmm-managed.log
+    done
     ```
 
 ### Built-in alert rules during the upgrade
@@ -126,7 +145,7 @@ If you cannot log in after upgrading, see [Cannot log in with the admin password
 
 ## Upgrade the underlying databases
 
-The `helm upgrade pmm-ha` command above upgraded PMM Server only. PostgreSQL, ClickHouse, and VictoriaMetrics are managed by their own operators and were not changed. Only upgrade a database when you have a specific reason, such as a version deadline or a required feature.
+Upgrading the operators does not change the database versions. Only upgrade a database when you have a specific reason, such as a version deadline or a required feature.
 
 If you need to upgrade one:
 
@@ -140,13 +159,7 @@ If you need to upgrade one:
 
 If the upgrade causes issues, you can restore your previous Helm configuration. Keep in mind that this only restores the PMM Server configuration, not any database changes PMM made during the upgrade. 
 
-To fully return to the pre-upgrade state, also restore your databases from the backups you took in [Before you begin](#before-you-begin):
-
-- If you used built-in backups, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-in-place). A backup can only be restored into the same PMM version it was taken from.
-- Otherwise, restore each database separately:
-    - [Restore PostgreSQL](https://docs.percona.com/percona-operator-for-postgresql/latest/backups-restore.html)
-    - [Restore ClickHouse](https://github.com/Altinity/clickhouse-backup?tab=readme-ov-file#usage)
-    - [Restore VictoriaMetrics](https://docs.victoriametrics.com/vmrestore/)
+To fully return to the pre-upgrade state, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster) you took in [Prerequisites](#prerequisites). A backup can only be restored into the same PMM version it was taken from.
 
 To roll back the Helm release to the previous version:
 {.power-number}
@@ -168,4 +181,3 @@ To roll back the Helm release to the previous version:
 - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
 - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
 - [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
-- [Upgrade PMM Server using Helm](upgrade_helm.md) (single-instance deployments)
