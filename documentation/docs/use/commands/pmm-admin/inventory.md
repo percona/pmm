@@ -46,6 +46,9 @@ pmm-admin inventory list services
 
 Modify agent configuration without removing and re-adding the service. Use this to update collector settings, enable or disable features, or change connection parameters.
 
+!!! hint "Change a whole service"
+    To change a service and all its agents at once, find the service by its name, and use the same flags as `pmm-admin add`, use [`pmm-admin update`](update.md).
+
 !!! note "PMM 3.7.0+"
     This command is available starting with PMM 3.7.0.
 
@@ -79,6 +82,12 @@ When you change connection-affecting parameters (username, password, TLS setting
 - Change TLS settings
 - Enable or disable an agent
 - Change log level
+
+**Use [`pmm-admin update`](update.md) for:**
+
+- Change the settings of a service and all its agents at once
+- Switch the Query Analytics source
+- Move the service to a new address
 
 **Use `remove` then `add` for:**
 
@@ -141,13 +150,10 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
 #### Collectors
 
-- `--enable-all-collectors`
-:   Enable all collectors
-
 - `--disable-collectors`
 :   Comma-separated list of collectors to disable
 
-- `--max-collections-limit`
+- `--collections-limit`
 :   Max collections to monitor (-1=PMM decides, 0=unlimited)
 
 - `--stats-collections`
@@ -159,10 +165,7 @@ You can also use `pmm-admin list` to see agents alongside their services.
 :   Custom user-assigned labels in `key=value,key=value` format
 
 - `--enable`
-:   Re-enable a disabled agent
-
-- `--disable`
-:   Disable the agent (stops metric collection)
+:   Re-enable a disabled agent; `--enable=false` disables the agent (stops metric collection)
 
 - `--log-level`
 :   Set agent log level (e.g., `info`, `debug`, `warn`, `error`)
@@ -199,11 +202,10 @@ You can also use `pmm-admin list` to see agents alongside their services.
       --custom-labels=env=production
     ```
 
-- Enable all MongoDB collectors:
+- Enable all MongoDB collectors, which `pmm-admin update` does by the service name:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --enable-all-collectors
+    pmm-admin update mongodb mongodb-prod --enable-all-collectors
     ```
 
 - Disable a specific collector:
@@ -217,7 +219,7 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --max-collections-limit=500
+      --collections-limit=500
     ```
 
 - Update stats collections:
@@ -231,7 +233,7 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --disable
+      --enable=false
     ```
 
 - Re-enable a disabled agent:
