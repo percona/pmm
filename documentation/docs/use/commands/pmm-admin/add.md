@@ -358,10 +358,10 @@ Control which metrics PMM collects:
 
 - `--enable-all-collectors`: Enable all collectors. By default, PMM enables only `diagnosticdata` and `replicasetstatus`. This flag also enables `collstats`, `dbstats`, `indexstats`, and `topmetrics`.
 
-- `--enable-diagnostic-data-histograms`: Enable histogram metrics from MongoDB's `getDiagnosticData` command. Disabled by default. This option is not included in `--enable-all-collectors` and must be set explicitly.
+- `--enable-diagnostic-data-histograms`: Collect histogram metrics from the MongoDB `getDiagnosticData` command. Off by default. `--enable-all-collectors` doesn't include this option, so pass it explicitly, even when you use `--enable-all-collectors`. This option sets the `mongodb_exporter` flag `--collector.diagnosticdata-histograms`.
 
-    !!! warning
-        Enabling diagnostic data histograms may significantly increase `mongodb_exporter` memory usage, depending on the number of histogram buckets returned by MongoDB. The underlying exporter flag is `--collector.diagnosticdata-histograms`.
+    !!! warning "Higher memory usage"
+        This option can significantly increase `mongodb_exporter` memory usage, depending on how many histogram buckets MongoDB returns.
 
 - `--disable-collectors`: Comma-separated list of collectors to exclude.
 
