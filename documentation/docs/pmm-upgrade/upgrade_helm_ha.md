@@ -70,7 +70,7 @@ Upgrading the operators does not restart or change the database clusters they ma
 
 ## Upgrade PMM HA Cluster
 
-Once you've completed the steps in [Before you begin](#before-you-begin), run the upgrade:
+Once you've completed the steps in [Prerequisites](#prerequisites), run the upgrade:
 {.power-number}
 
 1. Update the Helm repository:
@@ -159,7 +159,7 @@ If you need to upgrade one:
 
 If the upgrade causes issues, you can restore your previous Helm configuration. Keep in mind that this only restores the PMM Server configuration, not any database changes PMM made during the upgrade. 
 
-To fully return to the pre-upgrade state, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster) you took in [Before you begin](#before-you-begin). A backup can only be restored into the same PMM version it was taken from.
+To fully return to the pre-upgrade state, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster) you took in [Prerequisites](#prerequisites). A backup can only be restored into the same PMM version it was taken from.
 
 To roll back the Helm release to the previous version:
 {.power-number}
