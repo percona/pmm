@@ -24,12 +24,16 @@ import (
 	"testing"
 	"time"
 
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestNewInventoryMetricsCollector(t *testing.T) {
@@ -134,5 +138,69 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
+	})
+
+	t.Run("Agent cluster comes from its service", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		withCluster, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongos-with-cluster",
+			NodeID:      models.PMMServerNodeID,
+			Cluster:     "CL1",
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+		withoutCluster, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongos-without-cluster",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27018)),
+		})
+		require.NoError(t, err)
+
+		clusteredAgent, err := models.CreateAgent(db.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
+			PMMAgentID: models.PMMServerAgentID,
+			ServiceID:  withCluster.ServiceID,
+		})
+		require.NoError(t, err)
+		unclusteredAgent, err := models.CreateAgent(db.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
+			PMMAgentID: models.PMMServerAgentID,
+			ServiceID:  withoutCluster.ServiceID,
+		})
+		require.NoError(t, err)
+
+		registry := &mockAgentsRegistry{}
+		registry.Test(t)
+		t.Cleanup(func() { registry.AssertExpectations(t) })
+		registry.On("IsConnected", models.PMMServerAgentID).Return(true)
+
+		reg := prom.NewPedanticRegistry()
+		require.NoError(t, reg.Register(NewInventoryMetricsCollector(NewInventoryMetrics(db, registry))))
+		families, err := reg.Gather()
+		require.NoError(t, err)
+
+		clusters := make(map[string]string)
+		for _, family := range families {
+			if family.GetName() != "pmm_managed_inventory_agents" {
+				continue
+			}
+			for _, metric := range family.GetMetric() {
+				labels := make(map[string]string)
+				for _, label := range metric.GetLabel() {
+					labels[label.GetName()] = label.GetValue()
+				}
+				clusters[labels["agent_id"]] = labels["cluster"]
+			}
+		}
+
+		require.Contains(t, clusters, clusteredAgent.AgentID)
+		require.Contains(t, clusters, unclusteredAgent.AgentID)
+		require.Contains(t, clusters, models.PMMServerAgentID)
+		assert.Equal(t, "CL1", clusters[clusteredAgent.AgentID])
+		assert.Empty(t, clusters[unclusteredAgent.AgentID])
+		assert.Empty(t, clusters[models.PMMServerAgentID])
 	})
 }
