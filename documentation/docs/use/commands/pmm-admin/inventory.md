@@ -88,6 +88,7 @@ When you change connection-affecting parameters (username, password, TLS setting
 - Change the settings of a service and all its agents at once
 - Switch the Query Analytics source
 - Move the service to a new address
+- Change the environment and the labels of a node (`pmm-admin update node`)
 
 **Use `remove` then `add` for:**
 
