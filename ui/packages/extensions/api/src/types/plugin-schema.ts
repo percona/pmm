@@ -163,6 +163,7 @@ export interface StringField extends BaseField {
   max_length?: number;
   pattern?: string;
   placeholder?: string;
+  sensitive?: boolean;
 }
 
 export interface IntegerField extends BaseField {

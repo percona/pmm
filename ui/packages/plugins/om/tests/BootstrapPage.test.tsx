@@ -16,10 +16,11 @@
  */
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BootstrapPage } from '../src/BootstrapPage';
-import type { OmInventoryHost } from '../src/types';
+import type { OmHostBootstrapAccepted, OmInventoryHost } from '../src/types';
 
 const host = (i: number): OmInventoryHost => ({
   node_id: `node-${i}`,
@@ -53,7 +54,10 @@ const triggerState: { isError: boolean; error?: { message: string } } = {
 };
 
 /** The fleet the wizard sees, mutable for the same reason as triggerState. */
-const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
+const hostsState: { data: OmInventoryHost[]; isError: boolean } = {
+  data: HOSTS,
+  isError: false,
+};
 
 /** What the wizard actually asked for, so a test can assert the request itself. */
 const triggerCalls: Record<string, unknown>[] = [];
@@ -65,18 +69,28 @@ vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
     data: hostsState.data,
     isLoading: false,
-    isError: false,
+    isError: hostsState.isError,
+    error: hostsState.isError ? new Error('refresh failed') : null,
   }),
-  useTriggerHostBootstrap: () => ({
-    mutateAsync: async (request: Record<string, unknown>) => {
-      triggerCalls.push(request);
-      return { run_id: 'run-1' };
-    },
-    reset: vi.fn(),
-    isPending: false,
-    isError: triggerState.isError,
-    error: triggerState.error,
-  }),
+  // Keeps the accepted run as `data`, re-rendering like useMutation does.
+  useTriggerHostBootstrap: () => {
+    const [data, setData] = useState<OmHostBootstrapAccepted>();
+    return {
+      mutateAsync: async (request: Record<string, unknown>) => {
+        triggerCalls.push(request);
+        const accepted: OmHostBootstrapAccepted = request.adminPassword
+          ? { run_id: 'run-1' }
+          : { run_id: 'run-1', generated_admin_password: 'generated-secret' };
+        setData(accepted);
+        return accepted;
+      },
+      data,
+      reset: () => setData(undefined),
+      isPending: false,
+      isError: triggerState.isError,
+      error: triggerState.error,
+    };
+  },
 }));
 vi.mock('../src/topologyHooks', () => ({
   useOmTopology: () => ({ data: undefined }),
@@ -687,5 +701,135 @@ describe('BootstrapPage configure guidance', () => {
 
     await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
     expect(triggerCalls[0].cluster).toBe('orders');
+  });
+});
+
+describe('BootstrapPage database administrator', () => {
+  const renderWizard = () =>
+    render(
+      <MemoryRouter initialEntries={['/operations/nodes/install?nodes=node-1']}>
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+          <Route path="/operations/automations" element={<p>Automations</p>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+  const configure = () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs0' },
+    });
+  };
+
+  afterEach(() => {
+    triggerCalls.length = 0;
+  });
+
+  it('shows a generated password once and leaves only when the user has saved it', async () => {
+    renderWizard();
+    configure();
+    fireEvent.click(review());
+    expect(
+      screen.getByRole('rowheader', { name: 'Administrator' }).parentElement
+    ).toHaveTextContent('admin');
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    expect(triggerCalls[0].adminUsername).toBe('admin');
+    expect(triggerCalls[0].adminPassword).toBeUndefined();
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByDisplayValue('generated-secret')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Automations')).toBeNull();
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'I have saved it' })
+    );
+    expect(await screen.findByText('Automations')).toBeInTheDocument();
+  });
+
+  it('keeps the generated password on screen when a background refresh fails', async () => {
+    const { rerender } = renderWizard();
+    configure();
+    fireEvent.click(review());
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+    await screen.findByRole('dialog');
+
+    hostsState.isError = true;
+    try {
+      rerender(
+        <MemoryRouter
+          initialEntries={['/operations/nodes/install?nodes=node-1']}
+        >
+          <Routes>
+            <Route
+              path="/operations/nodes/install"
+              element={<BootstrapPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText('Could not load the nodes')).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('dialog')).getByDisplayValue('generated-secret')
+      ).toBeInTheDocument();
+    } finally {
+      hostsState.isError = false;
+    }
+  });
+
+  it("shows a typed password's own problems on the password field", () => {
+    renderWizard();
+    configure();
+    fireEvent.mouseDown(
+      screen.getByRole('combobox', { name: /Administrator password/ })
+    );
+    fireEvent.click(screen.getByRole('option', { name: 'Enter one' }));
+
+    fireEvent.change(screen.getByLabelText(/^Password/), {
+      target: { value: 'short' },
+    });
+
+    expect(screen.getByLabelText(/^Password/)).toHaveAccessibleDescription(
+      'Administrator password must be at least 8 characters.'
+    );
+    expect(
+      screen.getByLabelText(/^Confirm password/)
+    ).not.toHaveAccessibleDescription(
+      'Administrator password must be at least 8 characters.'
+    );
+  });
+
+  it('sends a typed password once both fields match, and shows no dialog', async () => {
+    renderWizard();
+    configure();
+    fireEvent.mouseDown(
+      screen.getByRole('combobox', { name: /Administrator password/ })
+    );
+    fireEvent.click(screen.getByRole('option', { name: 'Enter one' }));
+    fireEvent.change(screen.getByLabelText(/^Password/), {
+      target: { value: 'chosen-secret' },
+    });
+    fireEvent.change(screen.getByLabelText(/^Confirm password/), {
+      target: { value: 'chosen-secre' },
+    });
+    expect(review()).toBeDisabled();
+    expect(
+      screen.getByLabelText(/^Confirm password/)
+    ).toHaveAccessibleDescription('The administrator passwords do not match.');
+
+    fireEvent.change(screen.getByLabelText(/^Confirm password/), {
+      target: { value: 'chosen-secret' },
+    });
+    fireEvent.click(review());
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    expect(triggerCalls[0].adminPassword).toBe('chosen-secret');
+    expect(await screen.findByText('Automations')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
