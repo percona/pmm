@@ -20,7 +20,7 @@ Use it to:
 https://<pmm-server>/extensions
 ```
 
-All endpoint paths in this reference are appended to that base.
+Endpoint paths in this reference are full paths relative to the server root. To form a complete request URL, prepend `https://<pmm-server>` to the path shown.
 
 ## Authentication
 
