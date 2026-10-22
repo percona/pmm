@@ -103,7 +103,7 @@ To provide credentials:
 
     Scans read only the user and password from this line and log in to the `admin` database.
 
-3. To check the credentials, go to **MongoDB > Operations > Nodes** and click **Scan** in the node's row.
+3. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown, but scans don't report the replica set state.
 
 Nodes without MongoDB don't need this file.
 
