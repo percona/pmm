@@ -11,6 +11,10 @@ repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
 edit_uri: !ENV [EDIT_URI, 'edit/main/documentation/docs/']
 
+# Entries for the next release; release-notes.sh rc turns it into X.Y.Z.md.
+exclude_docs: |
+  release-notes/next.md
+
 theme:
   name: material
   custom_dir: overrides
