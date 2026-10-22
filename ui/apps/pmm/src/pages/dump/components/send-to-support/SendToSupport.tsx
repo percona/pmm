@@ -26,7 +26,7 @@ export const SendToSupport: FC<SendToSupportProps> = ({
   open,
   onClose,
 }) => {
-  const { mutateAsync: upload, isPending } = useUploadDumps();
+  const { mutate: upload, isPending } = useUploadDumps();
   const methods = useForm<SendToSupportFormValues>({
     resolver: zodResolver(sendToSupportSchema),
     defaultValues: SEND_TO_SUPPORT_DEFAULT_VALUES,
@@ -43,8 +43,8 @@ export const SendToSupport: FC<SendToSupportProps> = ({
     onClose();
   };
 
-  const onSubmit = async (values: SendToSupportFormValues) => {
-    await upload(
+  const onSubmit = (values: SendToSupportFormValues) =>
+    upload(
       { dumpIds, sftpParameters: values },
       {
         onSuccess: () => {
@@ -53,7 +53,6 @@ export const SendToSupport: FC<SendToSupportProps> = ({
         },
       }
     );
-  };
 
   return (
     <Dialog

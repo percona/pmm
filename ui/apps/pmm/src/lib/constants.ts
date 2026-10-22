@@ -20,6 +20,8 @@ export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
 export const PMM_HELP_PATH = `${PMM_NEW_NAV_PATH}/help`;
 export const PMM_DUMP_PATH = `${PMM_NEW_NAV_PATH}/pmm-dump`;
 export const PMM_DUMP_NEW_PATH = `${PMM_DUMP_PATH}/new`;
+// Served by nginx from /srv/dump, outside the /v1 API
+export const PMM_DUMP_ARCHIVE_PATH = '/dump';
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';

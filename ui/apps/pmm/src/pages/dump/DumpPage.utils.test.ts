@@ -28,6 +28,7 @@ describe('DumpPage utils', () => {
       '2026-07-10 12:01:00'
     );
     expect(formatDate('', 'UTC')).toBe('N/A');
+    expect(formatDate('not-a-date', 'UTC')).toBe('N/A');
     expect(formatTimeRange(dump)).toBe('2 hours');
   });
 });

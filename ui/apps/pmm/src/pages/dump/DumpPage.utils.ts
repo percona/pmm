@@ -1,17 +1,20 @@
 import { tz } from '@date-fns/tz/tz';
 import { formatDistanceStrict } from 'date-fns';
 import { format } from 'date-fns/format';
-import { TIME_FORMAT } from 'lib/constants';
+import { PMM_DUMP_ARCHIVE_PATH, TIME_FORMAT } from 'lib/constants';
 import { Dump, DumpStatus } from 'types/dump.types';
 import { DOWNLOAD_DELAY_MS } from './DumpPage.constants';
 import { Messages } from './DumpPage.messages';
 
 export const isDumpReady = ({ status }: Dump) => status === DumpStatus.Success;
 
-export const formatDate = (value: string, timezone: string) =>
-  value
-    ? format(new Date(value), TIME_FORMAT, { in: tz(timezone) })
+export const formatDate = (value: string, timezone: string) => {
+  const date = new Date(value);
+
+  return value && !Number.isNaN(date.getTime())
+    ? format(date, TIME_FORMAT, { in: tz(timezone) })
     : Messages.notAvailable;
+};
 
 export const formatTimeRange = (dump: Dump) => {
   if (!dump.startTime || !dump.endTime) {
@@ -22,7 +25,7 @@ export const formatTimeRange = (dump: Dump) => {
 };
 
 export const getDumpArchiveUrl = (dump: Dump) =>
-  `/dump/${dump.dumpId}.tar.gz${dump.encrypted ? '.enc' : ''}`;
+  `${PMM_DUMP_ARCHIVE_PATH}/${dump.dumpId}.tar.gz${dump.encrypted ? '.enc' : ''}`;
 
 const triggerDownload = (dump: Dump) => {
   const link = document.createElement('a');

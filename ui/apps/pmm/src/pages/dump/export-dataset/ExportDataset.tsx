@@ -40,7 +40,7 @@ export const ExportDataset: FC = () => {
     isError: isServicesError,
     refetch: refetchServices,
   } = useServices({}, { enabled: !!user?.isPMMAdmin });
-  const { mutateAsync: startDump, isPending } = useStartDump();
+  const { mutate: startDump, isPending } = useStartDump();
   const serviceOptions = useMemo(() => getServiceOptions(data), [data]);
   const methods = useForm<ExportDatasetFormValues>({
     resolver: zodResolver(exportDatasetSchema),
@@ -54,14 +54,13 @@ export const ExportDataset: FC = () => {
   } = methods;
   const enableEncryption = useWatch({ control, name: 'enableEncryption' });
 
-  const onSubmit = async (values: ExportDatasetFormValues) => {
-    await startDump(toStartDumpPayload(values), {
+  const onSubmit = (values: ExportDatasetFormValues) =>
+    startDump(toStartDumpPayload(values), {
       onSuccess: () => {
         enqueueSnackbar(Messages.success, { variant: 'success' });
         navigate(PMM_DUMP_PATH);
       },
     });
-  };
 
   return (
     <Page
@@ -138,6 +137,7 @@ export const ExportDataset: FC = () => {
                 <Controller
                   name="startTime"
                   control={control}
+                  rules={{ deps: 'endTime' }}
                   render={({ field, fieldState }) => (
                     <DateTimePicker
                       label={Messages.startTime}
@@ -159,6 +159,7 @@ export const ExportDataset: FC = () => {
                 <Controller
                   name="endTime"
                   control={control}
+                  rules={{ deps: 'startTime' }}
                   render={({ field, fieldState }) => (
                     <DateTimePicker
                       label={Messages.endTime}
@@ -233,12 +234,7 @@ export const ExportDataset: FC = () => {
                   type="submit"
                   variant="contained"
                   data-testid="create-dataset-submit-button"
-                  disabled={
-                    isPending ||
-                    !isValid ||
-                    serviceOptions.length === 0 ||
-                    isServicesError
-                  }
+                  disabled={isPending || !isValid}
                 >
                   {isPending ? Messages.creating : Messages.create}
                 </Button>

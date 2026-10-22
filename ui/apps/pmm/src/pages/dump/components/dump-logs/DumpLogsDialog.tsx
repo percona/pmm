@@ -17,11 +17,13 @@ import { Messages } from '../../DumpPage.messages';
 
 interface DumpLogsDialogProps {
   dumpId: string | null;
+  open: boolean;
   onClose: () => void;
 }
 
 export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
   dumpId,
+  open,
   onClose,
 }) => {
   const [offset, setOffset] = useState(0);
@@ -29,6 +31,7 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
   const { data, isError } = useDumpLogs(
     { dumpId: dumpId ?? '', offset, limit: LOG_CHUNK_LIMIT },
     {
+      enabled: open && !!dumpId,
       refetchInterval: (query) =>
         query.state.data?.end ? false : LOG_REFETCH_INTERVAL_MS,
     }
@@ -53,7 +56,7 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
 
   return (
     <Dialog
-      open={!!dumpId}
+      open={open}
       onClose={onClose}
       fullWidth
       maxWidth="md"

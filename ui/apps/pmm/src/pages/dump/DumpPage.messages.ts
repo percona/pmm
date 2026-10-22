@@ -26,9 +26,11 @@ export const Messages = {
   },
   actions: {
     download: 'Download',
-    downloadSelected: (count: number) => `Download ${count} items`,
+    downloadSelected: (count: number) =>
+      `Download ${count} ${count === 1 ? 'item' : 'items'}`,
     delete: 'Delete',
-    deleteSelected: (count: number) => `Delete ${count} items`,
+    deleteSelected: (count: number) =>
+      `Delete ${count} ${count === 1 ? 'item' : 'items'}`,
     sendToSupport: 'Send to Support',
     viewLogs: 'View logs',
   },
@@ -41,7 +43,6 @@ export const Messages = {
     cancel: 'Cancel',
     confirm: 'Delete',
   },
-  downloadError: 'Could not download the selected datasets.',
   logs: {
     title: (id: string) => `Logs for ${id}`,
     empty: 'No logs available.',

@@ -46,11 +46,12 @@ export const DumpPage: FC = () => {
   const { data, isLoading, isError } = useDumps({
     enabled: !!user?.isPMMAdmin,
   });
-  const { mutateAsync: remove, isPending: isDeleting } = useDeleteDumps();
+  const { mutate: remove, isPending: isDeleting } = useDeleteDumps();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [deleteIds, setDeleteIds] = useState<string[]>([]);
   const [supportIds, setSupportIds] = useState<string[]>([]);
   const [logsDumpId, setLogsDumpId] = useState<string | null>(null);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
   const dumps = data?.dumps ?? [];
   const selectedDumps = dumps.filter(({ dumpId }) => rowSelection[dumpId]);
   const allSelectedReady = selectedDumps.every(isDumpReady);
@@ -93,8 +94,8 @@ export const DumpPage: FC = () => {
     [timezone]
   );
 
-  const confirmDelete = async () => {
-    await remove(
+  const confirmDelete = () =>
+    remove(
       { dumpIds: deleteIds },
       {
         onSuccess: () => {
@@ -109,15 +110,6 @@ export const DumpPage: FC = () => {
         },
       }
     );
-  };
-
-  const handleDownload = async (items: Dump[]) => {
-    try {
-      await downloadDumps(items);
-    } catch {
-      enqueueSnackbar(Messages.downloadError, { variant: 'error' });
-    }
-  };
 
   return (
     <Page
@@ -172,7 +164,7 @@ export const DumpPage: FC = () => {
                 key="download"
                 disabled={!isDumpReady(row.original)}
                 onClick={() => {
-                  handleDownload([row.original]);
+                  downloadDumps([row.original]);
                   closeMenu();
                 }}
               >
@@ -198,6 +190,7 @@ export const DumpPage: FC = () => {
                 key="logs"
                 onClick={() => {
                   setLogsDumpId(row.original.dumpId);
+                  setIsLogsOpen(true);
                   closeMenu();
                 }}
               >
@@ -243,7 +236,7 @@ export const DumpPage: FC = () => {
                       startIcon={<DownloadIcon />}
                       data-testid="dump-download-selected"
                       disabled={!allSelectedReady}
-                      onClick={() => handleDownload(selectedDumps)}
+                      onClick={() => downloadDumps(selectedDumps)}
                     >
                       {Messages.actions.downloadSelected(selectedDumps.length)}
                     </Button>
@@ -308,7 +301,8 @@ export const DumpPage: FC = () => {
       <DumpLogsDialog
         key={logsDumpId}
         dumpId={logsDumpId}
-        onClose={() => setLogsDumpId(null)}
+        open={isLogsOpen}
+        onClose={() => setIsLogsOpen(false)}
       />
     </Page>
   );

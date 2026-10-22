@@ -43,7 +43,7 @@ export const useDumps = (
         ({ status }) => status === DumpStatus.InProgress
       )
         ? 5_000
-        : false,
+        : 30_000,
     ...options,
   });
 

@@ -22,7 +22,7 @@ describe('DumpLogsDialog', () => {
       isError: false,
     });
 
-    render(<DumpLogsDialog dumpId="dump-1" onClose={vi.fn()} />);
+    render(<DumpLogsDialog dumpId="dump-1" open onClose={vi.fn()} />);
 
     expect(await screen.findByText(/first line\s+second line/)).toBeVisible();
     fireEvent.click(screen.getByTestId('ContentCopyOutlinedIcon'));
@@ -40,7 +40,7 @@ describe('DumpLogsDialog', () => {
       isError: false,
     });
 
-    render(<DumpLogsDialog dumpId="dump-1" onClose={vi.fn()} />);
+    render(<DumpLogsDialog dumpId="dump-1" open onClose={vi.fn()} />);
 
     expect(screen.getByLabelText('Loading logs')).toBeVisible();
     expect(screen.queryByText('No logs available.')).not.toBeInTheDocument();
