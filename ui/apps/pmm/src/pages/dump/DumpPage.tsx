@@ -16,6 +16,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
+import type { TableRowProps } from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { Dialog, DialogTitle, Table } from '@percona/peak-ui';
 import { MRT_ColumnDef, MRT_RowSelectionState } from 'material-react-table';
@@ -131,6 +132,13 @@ export const DumpPage: FC = () => {
             data={dumps}
             noDataMessage={Messages.empty}
             getRowId={(row) => row.dumpId}
+            muiTableBodyRowProps={({ row, isDetailPanel }) =>
+              isDetailPanel
+                ? {}
+                : ({
+                    'data-testid': `dump-row-${row.original.dumpId}`,
+                  } as unknown as TableRowProps)
+            }
             enableRowSelection
             enableRowActions
             enableExpanding
