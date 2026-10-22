@@ -5,25 +5,6 @@
 
     For production-ready configuration options, see [Environment variables for PMM Server](../docker/env_var.md).
 
-## HA variables
-
-Use these variables to set up PMM Server nodes for High Availability (HA) yourself, for example with Docker. For a supported HA deployment, use [PMM HA Cluster](../../../HA-clustered.md) instead.
-
-| Variable                          | Description
-| --------------------------------- | --------------------------------------------------------------------------------------------------------
-| `PMM_HA_ENABLE`                   | Enable PMM to run in High Availability (HA) mode.
-| `PMM_HA_NODE_ID`                  | HA Node ID.
-| `PMM_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
-| `PMM_HA_GOSSIP_PORT`              | HA gossip port.
-| `PMM_HA_RAFT_PORT`                | HA raft port.
-| `PMM_HA_GRAFANA_GOSSIP_PORT`      | HA Grafana gossip port.
-| `PMM_HA_PEERS`                    | HA Peers.
-
-!!! caution "All HA nodes must share one encryption key"
-    HA nodes share one PostgreSQL database, but each node reads its encryption key from its own `/srv/pmm-encryption.key`. A node with a different key cannot decrypt the credentials stored by the other nodes, so PMM stops monitoring those services.
-
-    Generate the key once as described in [PMM data encryption](../../../../admin/security/data_encryption.md#ha-clusters-use-the-same-key-on-every-node), place it at `/srv/pmm-encryption.key` on every node before starting them. With `PMM_HA_ENABLE` set, a node without a key file refuses to start rather than generating one of its own.
-
 ## External ClickHouse variables
 
 | Variable                          | Description

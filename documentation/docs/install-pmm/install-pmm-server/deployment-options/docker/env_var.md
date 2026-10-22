@@ -180,6 +180,23 @@ Configure connections to external database services:
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
 
+### HA variables
+
+These variables run PMM Server nodes as a [PMM HA Cluster](../../../HA-clustered.md). The [PMM HA Helm chart](../../../install-HA-clustered.md) sets them for you. Leave them unchanged in `pmmEnv`, because changing them can break the cluster.
+
+| Variable | Description |
+|----------|-------------|
+| `PMM_HA_ENABLE` | Runs PMM Server in HA mode |
+| `PMM_HA_NODE_ID` | ID of this node in the cluster |
+| `PMM_HA_ADVERTISE_ADDRESS` | Address this node advertises to the other nodes |
+| `PMM_HA_GOSSIP_PORT` | Port for the gossip protocol. The Helm chart uses `9096` |
+| `PMM_HA_RAFT_PORT` | Port for Raft consensus. The Helm chart uses `9097` |
+| `PMM_HA_GRAFANA_GOSSIP_PORT` | Port for Grafana gossip. The Helm chart uses `9094` |
+| `PMM_HA_PEERS` | The nodes in the cluster. The Helm chart generates this list from the replica count |
+
+!!! caution "All HA nodes must share one encryption key"
+    Every node must use the same encryption key, or PMM stops monitoring the services whose credentials it can't decrypt. The Helm chart manages the shared key for you. If you set up HA nodes yourself, see [HA clusters: use the same key on every node](../../../../admin/security/data_encryption.md#ha-clusters-use-the-same-key-on-every-node).
+
 ### Nomad Garbage Collection (GC) settings
 
 !!! note
@@ -222,7 +239,7 @@ PMM Server passes these variables to integrated components:
 
 ## Preview variables
 
-PMM also includes preview variables, for example to set up HA nodes yourself or to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
+PMM also includes preview variables, for example to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
 
 
 !!! caution "For testing only"
