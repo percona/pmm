@@ -44,7 +44,11 @@ The live operations table appears and begins updating automatically:
 Use `pmm-admin inventory add agent rta-mongodb-agent` to start RTA on a specific MongoDB service:
 
 ```bash
-pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id>
+# Unlike the UI, this command does not reuse exporter connection settings.
+# For username/password authentication:
+pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id> <mongodb-user> --password='<mongodb-password>'
+# If TLS is required, also supply --tls and the necessary certificate options,
+# such as --tls-ca-file and --tls-certificate-key-file.
 ```
 
 Get the required IDs with:
