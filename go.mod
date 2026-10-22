@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.27.2
+go 1.27.3
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.22.9-percona
 
