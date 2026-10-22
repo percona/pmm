@@ -1,11 +1,14 @@
 export const Messages = {
   title: 'PMM Dump',
+  description:
+    'Simplify troubleshooting and accelerate issue resolution by securely sharing relevant data, ensuring a smoother support experience.',
   createDataset: 'Create dataset',
   empty: 'No dumps available',
   notAvailable: 'N/A',
   loading: 'Loading datasets',
   loadError: 'Could not load datasets.',
-  selectDatasets: 'Select one or more datasets to use bulk actions.',
+  selected: (count: number) =>
+    count > 1 ? `${count} rows selected:` : '1 row selected:',
   columns: {
     id: 'ID',
     status: 'Status',
@@ -44,8 +47,6 @@ export const Messages = {
     empty: 'No logs available.',
     loading: 'Loading logs',
     error: 'Could not load dump logs.',
-    copy: 'Copy logs',
-    copied: 'Logs copied to clipboard.',
     close: 'Close',
   },
 };

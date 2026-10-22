@@ -1,27 +1,16 @@
+import { tz } from '@date-fns/tz/tz';
 import { formatDistanceStrict } from 'date-fns';
+import { format } from 'date-fns/format';
+import { TIME_FORMAT } from 'lib/constants';
 import { Dump, DumpStatus } from 'types/dump.types';
 import { DOWNLOAD_DELAY_MS } from './DumpPage.constants';
 import { Messages } from './DumpPage.messages';
 
-export const getStatusLabel = (status: DumpStatus) => {
-  switch (status) {
-    case DumpStatus.InProgress:
-      return Messages.status.inProgress;
-    case DumpStatus.Success:
-      return Messages.status.success;
-    case DumpStatus.Error:
-      return Messages.status.error;
-    default:
-      return Messages.status.unspecified;
-  }
-};
+export const isDumpReady = ({ status }: Dump) => status === DumpStatus.Success;
 
-export const formatDate = (value: string) =>
+export const formatDate = (value: string, timezone: string) =>
   value
-    ? new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'medium',
-      }).format(new Date(value))
+    ? format(new Date(value), TIME_FORMAT, { in: tz(timezone) })
     : Messages.notAvailable;
 
 export const formatTimeRange = (dump: Dump) => {
@@ -45,11 +34,7 @@ const triggerDownload = (dump: Dump) => {
 };
 
 export const downloadDumps = async (dumps: Dump[]) => {
-  const downloadable = dumps.filter(
-    ({ status }) => status === DumpStatus.Success
-  );
-
-  for (const [index, dump] of downloadable.entries()) {
+  for (const [index, dump] of dumps.entries()) {
     if (index > 0) {
       await new Promise((resolve) => setTimeout(resolve, DOWNLOAD_DELAY_MS));
     }

@@ -14,6 +14,7 @@ import {
 } from 'api/dump';
 import {
   DeleteDumpsPayload,
+  DumpStatus,
   GetDumpLogsParams,
   GetDumpLogsResponse,
   ListDumpsResponse,
@@ -37,7 +38,12 @@ export const useDumps = (
   useQuery({
     queryKey: DUMP_QUERY_KEYS.list,
     queryFn: listDumps,
-    refetchInterval: 5_000,
+    refetchInterval: (query) =>
+      query.state.data?.dumps.some(
+        ({ status }) => status === DumpStatus.InProgress
+      )
+        ? 5_000
+        : false,
     ...options,
   });
 

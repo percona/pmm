@@ -1,13 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-} from '@mui/material';
-import { TextInput } from '@percona/percona-ui';
+import Button from '@mui/material/Button';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import Stack from '@mui/material/Stack';
+import { Dialog, DialogTitle, TextInput } from '@percona/peak-ui';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -17,10 +13,7 @@ import {
   SendToSupportFormValues,
   sendToSupportSchema,
 } from './SendToSupport.schema';
-import {
-  SEND_TO_SUPPORT_DEFAULT_VALUES,
-  toUploadPayload,
-} from './SendToSupport.utils';
+import { SEND_TO_SUPPORT_DEFAULT_VALUES } from './SendToSupport.utils';
 
 interface SendToSupportProps {
   dumpIds: string[];
@@ -51,12 +44,15 @@ export const SendToSupport: FC<SendToSupportProps> = ({
   };
 
   const onSubmit = async (values: SendToSupportFormValues) => {
-    await upload(toUploadPayload(values, dumpIds), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.success, { variant: 'success' });
-        close();
-      },
-    });
+    await upload(
+      { dumpIds, sftpParameters: values },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.success, { variant: 'success' });
+          close();
+        },
+      }
+    );
   };
 
   return (
@@ -65,11 +61,14 @@ export const SendToSupport: FC<SendToSupportProps> = ({
       onClose={isPending ? undefined : close}
       fullWidth
       maxWidth="sm"
+      loading={isPending}
       data-testid="dump-send-to-support-dialog"
     >
       <FormProvider {...methods}>
         <Stack component="form" onSubmit={handleSubmit(onSubmit)}>
-          <DialogTitle>{Messages.title}</DialogTitle>
+          <DialogTitle onClose={isPending ? undefined : close}>
+            {Messages.title}
+          </DialogTitle>
           <DialogContent>
             <Stack gap={2} pt={1}>
               <TextInput

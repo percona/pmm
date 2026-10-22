@@ -9,10 +9,6 @@ vi.mock('hooks/api/useDump', () => ({
   useDumpLogs: mocks.useDumpLogs,
 }));
 
-vi.mock('notistack', () => ({
-  enqueueSnackbar: vi.fn(),
-}));
-
 describe('DumpLogsDialog', () => {
   it('renders newline-separated chunks and copies them', async () => {
     mocks.useDumpLogs.mockReturnValue({
@@ -29,7 +25,7 @@ describe('DumpLogsDialog', () => {
     render(<DumpLogsDialog dumpId="dump-1" onClose={vi.fn()} />);
 
     expect(await screen.findByText(/first line\s+second line/)).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'Copy logs' }));
+    fireEvent.click(screen.getByTestId('ContentCopyOutlinedIcon'));
 
     await waitFor(() =>
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(

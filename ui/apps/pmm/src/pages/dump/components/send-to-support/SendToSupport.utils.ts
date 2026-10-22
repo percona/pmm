@@ -1,4 +1,3 @@
-import { UploadDumpsPayload } from 'types/dump.types';
 import { SendToSupportFormValues } from './SendToSupport.schema';
 
 export const SEND_TO_SUPPORT_DEFAULT_VALUES: SendToSupportFormValues = {
@@ -7,11 +6,3 @@ export const SEND_TO_SUPPORT_DEFAULT_VALUES: SendToSupportFormValues = {
   password: '',
   directory: '',
 };
-
-export const toUploadPayload = (
-  values: SendToSupportFormValues,
-  dumpIds: string[]
-): UploadDumpsPayload => ({
-  dumpIds,
-  sftpParameters: values,
-});

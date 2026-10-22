@@ -1,17 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Alert,
-  Autocomplete,
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
-import { SwitchInput, TextInput } from '@percona/percona-ui';
+import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { SwitchInput, TextInput } from '@percona/peak-ui';
 import { FC, useMemo } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -19,7 +17,8 @@ import { enqueueSnackbar } from 'notistack';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { useStartDump } from 'hooks/api/useDump';
-import { useManagedServices } from 'hooks/api/useServices';
+import { useServices } from 'hooks/api/useServices';
+import { PMM_DUMP_PATH } from 'lib/constants';
 import { OrgRole } from 'types/user.types';
 import { Messages } from './ExportDataset.messages';
 import {
@@ -40,12 +39,9 @@ export const ExportDataset: FC = () => {
     isLoading: isLoadingServices,
     isError: isServicesError,
     refetch: refetchServices,
-  } = useManagedServices({}, { enabled: !!user?.isPMMAdmin });
+  } = useServices({}, { enabled: !!user?.isPMMAdmin });
   const { mutateAsync: startDump, isPending } = useStartDump();
-  const serviceOptions = useMemo(
-    () => getServiceOptions(data?.services ?? []),
-    [data]
-  );
+  const serviceOptions = useMemo(() => getServiceOptions(data), [data]);
   const methods = useForm<ExportDatasetFormValues>({
     resolver: zodResolver(exportDatasetSchema),
     defaultValues: getDefaultValues(),
@@ -62,7 +58,7 @@ export const ExportDataset: FC = () => {
     await startDump(toStartDumpPayload(values), {
       onSuccess: () => {
         enqueueSnackbar(Messages.success, { variant: 'success' });
-        navigate('/pmm-dump');
+        navigate(PMM_DUMP_PATH);
       },
     });
   };
@@ -99,24 +95,23 @@ export const ExportDataset: FC = () => {
                     multiple
                     disableCloseOnSelect
                     options={serviceOptions}
-                    value={serviceOptions.filter(({ value }) =>
-                      field.value.includes(value)
-                    )}
-                    onChange={(_, selected) =>
-                      field.onChange(selected.map(({ value }) => value))
-                    }
+                    value={field.value}
+                    onChange={(_, selected) => field.onChange(selected)}
                     loading={isLoadingServices}
                     noOptionsText={Messages.noServices}
-                    getOptionLabel={({ label }) => label}
-                    isOptionEqualToValue={(option, value) =>
-                      option.value === value.value
-                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label={Messages.services}
-                        placeholder={Messages.allServices}
+                        placeholder={
+                          field.value.length ? undefined : Messages.allServices
+                        }
                         slotProps={{
+                          // A shrunk label keeps the placeholder visible while empty
+                          inputLabel: {
+                            ...params.InputLabelProps,
+                            shrink: true,
+                          },
                           input: {
                             ...params.InputProps,
                             endAdornment: (
@@ -227,7 +222,7 @@ export const ExportDataset: FC = () => {
               <Stack direction="row" gap={1} justifyContent="flex-end">
                 <Button
                   component={RouterLink}
-                  to="/pmm-dump"
+                  to={PMM_DUMP_PATH}
                   variant="outlined"
                   data-testid="cancel-button"
                   disabled={isPending}

@@ -12,6 +12,7 @@ describe('useDump', () => {
       defaultOptions: { mutations: { retry: false } },
     });
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    vi.mocked(startDump).mockResolvedValue({ dumpId: 'dump-2' });
     const wrapper = ({ children }: PropsWithChildren) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );

@@ -1,16 +1,12 @@
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import Typography from '@mui/material/Typography';
+import { CodeBlock, Dialog, DialogTitle } from '@percona/peak-ui';
 import { FC, useEffect, useState } from 'react';
-import { enqueueSnackbar } from 'notistack';
 import { useDumpLogs } from 'hooks/api/useDump';
 import { DumpLogChunk } from 'types/dump.types';
 import {
@@ -33,16 +29,10 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
   const { data, isError } = useDumpLogs(
     { dumpId: dumpId ?? '', offset, limit: LOG_CHUNK_LIMIT },
     {
-      enabled: !!dumpId,
       refetchInterval: (query) =>
         query.state.data?.end ? false : LOG_REFETCH_INTERVAL_MS,
     }
   );
-
-  useEffect(() => {
-    setOffset(0);
-    setChunks([]);
-  }, [dumpId]);
 
   useEffect(() => {
     if (!data?.logs.length) {
@@ -60,10 +50,6 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
   }, [data]);
 
   const logs = chunks.map(({ data }) => data).join('\n');
-  const copyLogs = async () => {
-    await navigator.clipboard.writeText(logs);
-    enqueueSnackbar(Messages.logs.copied, { variant: 'success' });
-  };
 
   return (
     <Dialog
@@ -73,7 +59,9 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
       maxWidth="md"
       data-testid="dump-logs-modal"
     >
-      <DialogTitle>{Messages.logs.title(dumpId ?? '')}</DialogTitle>
+      <DialogTitle onClose={onClose}>
+        {Messages.logs.title(dumpId ?? '')}
+      </DialogTitle>
       <DialogContent>
         {isError && <Alert severity="error">{Messages.logs.error}</Alert>}
         {!data?.end && chunks.length === 0 && !isError && (
@@ -85,28 +73,10 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
           <Typography>{Messages.logs.empty}</Typography>
         )}
         {chunks.length > 0 && (
-          <Box
-            component="pre"
-            sx={{
-              bgcolor: 'background.default',
-              borderRadius: 1,
-              m: 0,
-              p: 2,
-              maxHeight: 480,
-              overflow: 'auto',
-              whiteSpace: 'pre-wrap',
-              fontFamily: 'Roboto Mono, monospace',
-              fontSize: 12,
-            }}
-          >
-            {logs}
-          </Box>
+          <CodeBlock content={logs} copyable wrap maxHeight={480} />
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={copyLogs} disabled={chunks.length === 0}>
-          {Messages.logs.copy}
-        </Button>
         <Button onClick={onClose}>{Messages.logs.close}</Button>
       </DialogActions>
     </Dialog>

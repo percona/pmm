@@ -1,12 +1,7 @@
 import { subHours } from 'date-fns';
 import { StartDumpPayload } from 'types/dump.types';
-import { ManagedService } from 'types/services.types';
+import { ListServicesResponse } from 'types/services.types';
 import { ExportDatasetFormValues } from './ExportDataset.schema';
-
-export interface ServiceOption {
-  label: string;
-  value: string;
-}
 
 export const getDefaultValues = (): ExportDatasetFormValues => {
   const endTime = new Date();
@@ -23,21 +18,21 @@ export const getDefaultValues = (): ExportDatasetFormValues => {
   };
 };
 
-export const getServiceOptions = (
-  services: ManagedService[]
-): ServiceOption[] =>
-  Array.from(new Set(services.map(({ serviceName }) => serviceName)))
-    .sort()
-    .map((serviceName) => ({ label: serviceName, value: serviceName }));
+export const getServiceOptions = (response: ListServicesResponse = {}) =>
+  Array.from(
+    new Set(
+      Object.values(response).flatMap(
+        (services: { serviceName: string }[] = []) =>
+          services.map(({ serviceName }) => serviceName)
+      )
+    )
+  ).sort();
 
 export const toStartDumpPayload = (
   values: ExportDatasetFormValues
 ): StartDumpPayload => ({
-  serviceNames: values.serviceNames,
+  ...values,
   startTime: values.startTime.toISOString(),
   endTime: values.endTime.toISOString(),
-  exportQan: values.exportQan,
-  ignoreLoad: values.ignoreLoad,
-  enableEncryption: values.enableEncryption,
   encryptionPassword: values.enableEncryption ? values.encryptionPassword : '',
 });

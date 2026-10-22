@@ -1,8 +1,8 @@
 import { Dump, DumpStatus } from 'types/dump.types';
 import {
+  formatDate,
   formatTimeRange,
   getDumpArchiveUrl,
-  getStatusLabel,
 } from './DumpPage.utils';
 
 const dump: Dump = {
@@ -23,8 +23,11 @@ describe('DumpPage utils', () => {
     );
   });
 
-  it('formats status and time range values', () => {
-    expect(getStatusLabel(DumpStatus.InProgress)).toBe('In progress');
+  it('formats dates in the given timezone and time ranges', () => {
+    expect(formatDate(dump.createdAt, 'Europe/Bratislava')).toBe(
+      '2026-07-10 12:01:00'
+    );
+    expect(formatDate('', 'UTC')).toBe('N/A');
     expect(formatTimeRange(dump)).toBe('2 hours');
   });
 });
