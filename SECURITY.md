@@ -16,10 +16,7 @@ Fixes are delivered in the next PMM release; we do not backport to older minor v
 
 **Please do not report security vulnerabilities through public GitHub issues, pull requests, or the forums.**
 
-Report privately using either of:
-
-- [GitHub private vulnerability reporting](https://github.com/percona/pmm/security/advisories/new) — preferred.
-- [Percona Jira](https://perconadev.atlassian.net/jira/software/c/projects/PMM/issues), using the **PMM** project with the security level set so the issue is not public.
+Report privately through [GitHub private vulnerability reporting](https://github.com/percona/pmm/security/advisories/new).
 
 Please include as much of the following as you can:
 
