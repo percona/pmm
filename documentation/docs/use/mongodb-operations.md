@@ -103,13 +103,22 @@ To provide credentials:
 
     Scans read only the user and password from this line and log in to the `admin` database.
 
-3. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown, but scans don't report the replica set state.
+3. Make the file readable only by root, because it contains a password:
+
+    ```sh
+    chown root:root /root/.mongodb_uri
+    chmod 600 /root/.mongodb_uri
+    ```
+
+4. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown. Scans still report the running version, but not the replica set state.
 
 Nodes without MongoDB don't need this file.
 
 #### Scan without credentials
 
-To skip MongoDB login entirely, turn off **Connect to MongoDB** in **MongoDB > Operations > Settings > General**. With it off, scans collect only process and OS details and the installed MongoDB version, without connecting to `mongod`. No credentials needed, but scans won't report replica set state or running version.
+To skip MongoDB login entirely, go to **MongoDB > Operations > Settings > General**, turn off **Connect to MongoDB**, and click **Save**. The change applies to the next scan, without a restart. A scan that starts within about 30 seconds of saving can still use the previous setting.
+
+With **Connect to MongoDB** off, scans collect only process and OS details and the installed MongoDB version, without connecting to `mongod`. No credentials needed, but scans won't report replica set state or running version.
 
 ## Scan nodes
 
@@ -149,10 +158,14 @@ Check your nodes and reduce the security exposure before you start the install.
 Make sure each node meets the following conditions before you start. If a node doesn't, PMM blocks it and shows the reason in the **Automation** column on the **Nodes** page:
 
 - **Supported OS**: Ubuntu or Rocky Linux only, matched on `ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
-- **No existing MongoDB**: `mongod` must not be installed or running, `/etc/mongod.conf` must not exist, and PMM must have no MongoDB service registered for the node.
+- **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
+- **Not the PMM Server host**: don't install on the host that runs PMM Server.
+
+PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check:
+
+- **No MongoDB configuration**: `/etc/mongod.conf` must not exist.
 - **Free data directory**: the data directory (default `/var/lib/mongo`) must be missing or empty, with at least 5 GiB free.
 - **Free port**: nothing else must be listening on the chosen port (default `27017`).
-- **Not the PMM Server host**: don't install on the host that runs PMM Server.
 
 PMM doesn't check the following before the install starts. If they aren't met, the install fails when PMM forms the replica set and then rolls it back:
 
@@ -191,7 +204,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
             In PMM 3.10.0, PMM registers the service for monitoring on port `27017` even if you install on another port, so monitoring doesn't work. This is a [known issue](https://perconadev.atlassian.net/browse/PMM-15764).
 
     - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
-    - Optional: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
+    - Optional (for three-node installs only): per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
     - Optional: **environment** and **cluster** labels for PMM.
     - **Administrator user**: the default name is `admin`, with the `root` role. Enter a password of at least 8 characters, or use the generated one.
 
@@ -202,7 +215,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 
 5. Track progress in **MongoDB > Operations > Automations**. Expand the install on the **Installs** tab (installs are listed newest first) to see the status of each node. When all nodes finish, PMM forms the replica set, creates the users, and turns on authentication.
 
-The install takes a few minutes per node, mostly for downloading packages. When it finishes, the replica set appears on the **Fleet** page and PMM starts monitoring it.
+PMM installs on all nodes in parallel, so the install takes a few minutes in total, mostly for downloading packages. When it finishes, the replica set appears on the **Fleet** page and PMM starts monitoring it.
 
 ## View fleet health
 
@@ -234,6 +247,8 @@ If a node shows no data or **Needs attention** in the **Automation** column, che
 
 If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
 
+The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or go to **MongoDB > Operations > Fleet**, select the **Services** tab, and turn on the **Scan** column from the column chooser.
+
 ### Installs
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
@@ -245,6 +260,6 @@ To stop an install that's running, expand it on the **Installs** tab and abort i
 As a Developer Preview in PMM 3.10.0, Operations for MongoDB has the following limitations:
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
-- No TLS or encryption at rest, so members authenticate with a keyfile until both are added in a future release.
+- No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
 - Installs on Ubuntu and Rocky Linux only, using Percona packages.
 - Only PMM Admin users can access **MongoDB > Operations** and start installs.
