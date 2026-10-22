@@ -54,7 +54,7 @@ A node with a different key can't decrypt the credentials that other nodes store
 
 The [PMM HA Helm chart](../../install-pmm/install-HA-clustered.md#manage-the-encryption-key) manages the shared key for you, including across upgrades and rescaling.
 
-If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md):
+If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md#ha-variables):
 {.power-number}
 
 1. [Generate a single key](#set-up-a-custom-key) for the whole cluster.
@@ -116,7 +116,7 @@ To rotate the key:
 
 Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
 
-If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md), all nodes must switch to the new key together. Rotate it on one node, then copy it to the others:
+If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md#ha-variables), all nodes must switch to the new key together. Rotate it on one node, then copy it to the others:
 {.power-number}
 
 1. Stop PMM Server on every node except one. Any node left running keeps using the old key, which leaves the database encrypted with two different keys.

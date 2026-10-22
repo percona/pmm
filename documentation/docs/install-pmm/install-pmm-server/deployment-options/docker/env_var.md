@@ -220,13 +220,13 @@ PMM Server passes these variables to integrated components:
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
 
-## Experimental variables
+## Preview variables
 
-PMM includes experimental environment variables prefixed with `PERCONA_TEST_*` that are under development and subject to change. To see the complete list and details of experimental variables, see [Preview environment variables](preview_env_var.md).
+PMM also includes preview variables, for example to set up HA nodes yourself or to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
 
 
 !!! caution "For testing only"
-    Experimental variables are not supported for production use. Use these variables for testing purposes only.
+    Preview variables aren't supported in production. Use them for testing only.
 
 
 ### Variables for migrating from PMM v2 to PMM v3
