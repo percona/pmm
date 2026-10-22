@@ -31,6 +31,8 @@ export const AddressHeader: FC = () => (
         fontSize="small"
         color="action"
         tabIndex={0}
+        // The header label sorts the column on click
+        onClick={(event) => event.stopPropagation()}
         data-testid="address-info-icon"
       />
     </Tooltip>
