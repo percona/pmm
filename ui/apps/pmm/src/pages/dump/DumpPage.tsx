@@ -292,7 +292,6 @@ export const DumpPage: FC = () => {
             {Messages.delete.cancel}
           </Button>
           <Button
-            color="error"
             variant="contained"
             onClick={confirmDelete}
             disabled={isDeleting}
