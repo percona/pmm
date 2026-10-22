@@ -1,6 +1,6 @@
-# Troubleshoot Single-Instance HA issues
+# Troubleshoot a Kubernetes single instance
 
-Use this page when your PMM pod is not running, not accessible, or not persisting data. For problems that aren't specific to this deployment, such as dashboards, agents, or queries on an otherwise healthy server, see [Troubleshoot PMM](index.md).
+Use this page when your PMM pod is not running, not accessible, or not persisting data. If your pod is running and you're troubleshooting dashboards, agents, or queries, the [PMM troubleshooting guide](index.md) is where to start.
 
 ## Pod stuck in Pending state
 
@@ -10,7 +10,7 @@ Use this page when your PMM pod is not running, not accessible, or not persistin
 
 ```sh
 # Check why pod is pending
-kubectl describe pod -n monitoring -l app=pmm
+kubectl describe pod -n monitoring -l app.kubernetes.io/name=pmm
 
 # Check PVC status
 kubectl get pvc -n monitoring
@@ -33,10 +33,10 @@ Common causes:
 
 ```sh
 # View recent logs
-kubectl logs -n monitoring -l app=pmm --tail=100
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm --tail=100
 
 # View previous container logs
-kubectl logs -n monitoring -l app=pmm --previous
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm --previous
 ```
 
 Common causes:
@@ -71,21 +71,21 @@ If the LoadBalancer IP stays pending, verify that your cloud provider supports L
 
 **Problem**: PMM is consuming excessive memory.
 
-**Solution**: Reduce data retention or increase memory limits:
+**Solution**: Reduce data retention or increase memory limits.
+
+Check the current memory usage:
 
 ```sh
-# Check current memory usage
-kubectl top pod -n monitoring -l app=pmm
-
-# Reduce data retention
-kubectl exec -n monitoring -l app=pmm -- \
-  pmm-admin config --data-retention=7d
+kubectl top pod -n monitoring -l app.kubernetes.io/name=pmm
 ```
 
-To increase memory limits, update `values.yaml`:
+To reduce data retention or increase memory limits, update `values.yaml`:
 
 ```yaml
-resources:
+pmmEnv:
+  PMM_DATA_RETENTION: "168h"  # 7 days
+
+pmmResources:
   limits:
     memory: "16Gi"
 ```
@@ -112,14 +112,7 @@ kubectl get pvc -n monitoring
 kubectl get pv
 
 # Verify pod is using the PVC
-kubectl describe pod -n monitoring -l app=pmm | grep -A 5 Volumes
-```
-
-Also confirm that persistence is enabled in `values.yaml`:
-
-```yaml
-persistence:
-  enabled: true
+kubectl describe pod -n monitoring -l app.kubernetes.io/name=pmm | grep -A 5 Volumes
 ```
 
 ## Slow pod rescheduling
@@ -133,12 +126,12 @@ persistence:
 kubectl get nodes
 
 # Check pod events
-kubectl describe pod -n monitoring -l app=pmm
+kubectl describe pod -n monitoring -l app.kubernetes.io/name=pmm
 ```
 
 For cloud providers, volume detachment from a failed node can add time before the pod starts on a new node. Using a regional persistent disk (rather than a zonal one) reduces this delay.
 
 ## See also
 
-- [Understand Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md)
-- [Install PMM Single-Instance HA](../install-pmm/install-HA-kubernetes-single-instance.md)
+- [Understand PMM on a Kubernetes single instance](../install-pmm/kubernetes-single-instance.md)
+- [Install PMM on a Kubernetes single instance](../install-pmm/install-kubernetes-single-instance.md)

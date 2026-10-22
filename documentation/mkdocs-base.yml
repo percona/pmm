@@ -219,15 +219,15 @@ nav:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
       - Install PMM in HA mode:
         - Choose your HA deployment: install-pmm/HA.md
-        - Single-Instance HA:
-            - Understand: install-pmm/HA-kubernetes-single-instance.md
-            - Install: install-pmm/install-HA-kubernetes-single-instance.md
-            - Troubleshoot: troubleshoot/ha_single_instance_issues.md
+        - Kubernetes single instance:
+            - Understand Kubernetes single instance: install-pmm/kubernetes-single-instance.md
+            - Install Kubernetes single instance: install-pmm/install-kubernetes-single-instance.md
+            - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
         - HA Cluster:
-            - Understand PMM HA Cluster: install-pmm/HA-clustered.md
-            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
-            - Back up and restore PMM HA Cluster: install-pmm/backup-restore-HA-clustered.md
-            - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
+            - Understand HA Cluster: install-pmm/HA-clustered.md
+            - Install HA Cluster: install-pmm/install-HA-clustered.md
+            - Back up and restore HA Cluster: install-pmm/backup-restore-HA-clustered.md
+            - Troubleshoot HA Cluster: troubleshoot/ha_issues.md
 
   - Use:
       - use/using-pmm.md
@@ -460,9 +460,9 @@ nav:
           - Manual upgrade:
               - pmm-upgrade/upgrade_docker.md
               - pmm-upgrade/upgrade_podman.md
-          - Upgrade PMM Server in K8s:
-              - pmm-upgrade/upgrade_helm.md
-              - pmm-upgrade/upgrade_helm_ha.md
+          - Upgrade PMM in Kubernetes:
+              - Upgrade on a Kubernetes single instance: pmm-upgrade/upgrade_helm.md
+              - Upgrade HA Cluster on Kubernetes: pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
@@ -484,9 +484,11 @@ nav:
       - troubleshoot/plugin_issues.md
       - troubleshoot/pmm_dump.md
       - troubleshoot/data_issues.md
+      - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
+      - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
-      - "PMM 3.10.0 (2026-10-21)": release-notes/3.10.0.md
+      - "PMM 3.10.0 (2026-10-22)": release-notes/3.10.0.md
       - "PMM 3.9.1 (2026-08-19)": release-notes/3.9.1.md
       - "PMM 3.9.0 (2026-07-30)": release-notes/3.9.0.md
       - "PMM 3.8.1 (2026-05-10)": release-notes/3.8.1.md

@@ -13,7 +13,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
+Unlike a [Kubernetes single instance](../install-pmm/kubernetes-single-instance.md), where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -27,7 +27,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Choose your Kubernetes deployment type
 
-| Consideration | Single-instance | HA Cluster |
+| Consideration | Kubernetes single instance | HA Cluster |
 |--------------|----------------------|-----------------------------|
 | **Production status** | ✅ Production-ready | ✅ Production-ready |
 | **Failover time** | 2-5 minutes | Immediate |
@@ -48,30 +48,27 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 
-### Check if your platform is supported
+<a id="check-if-your-platform-is-supported"></a>
 
-You can deploy PMM as an HA Cluster on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. The Amazon EKS and OpenShift versions you can use depend on your `pmm-ha` Helm chart version, because each chart ships its own database operators.
+### Check supported platforms
 
-To check that your platform version is supported, before you install or upgrade:
-{.power-number}
+PMM HA Cluster runs on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. Supported versions depend on the `pmm-ha` chart version, because each chart ships its own database operators.
 
-1. Find your `pmm-ha` chart version. For a new installation, use the chart version you plan to install. For an existing installation, run `helm list -n <namespace>`.
+Find your chart version (`helm list -n <namespace>` for an existing installation) and check it against the table:
 
-2. In the following table, find the row for your chart version and check that your Amazon EKS or OpenShift version is between the versions listed for it. For example, chart 1.8.0 supports Amazon EKS 1.33, 1.34, 1.35 and 1.36:
+| `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift | VictoriaMetrics operator | ClickHouse operator | PostgreSQL operator |
+|------------------------|-------------|------------|-----------|--------------------------|---------------------|---------------------|
+| 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.19 to 4.22 | 0.67.3 | 0.27.3 | 3.0.0 |
 
-    | `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift |
-    |------------------------|-------------|------------|-----------|
-    | 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.19 to 4.22 |
+If your platform version isn't listed, upgrade the cluster or use a chart version that supports it.
 
-    If your version is supported, continue with [Plan your resources](#plan-your-resources). If it isn't, upgrade your Amazon EKS or OpenShift cluster to a supported version, or use a chart version that supports your current version.
-
-Other platforms, such as GKE, AKS or on-premises Kubernetes, might work but aren't tested. VMware Tanzu isn't supported.
+Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't tested. VMware Tanzu isn't supported.
 
 ## Plan your resources
 
 Choose the size of your Kubernetes cluster based on how many nodes you plan to monitor. Count each host that runs one database service with Query Analytics turned on as one node.
 
-If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. Each size handles the number of monitored nodes in its row:
+If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. These are recommended sizes, not minimum requirements. Each size handles the number of monitored nodes in its row:
 
 | Monitored nodes | Helm values to use | Each of the 3 worker nodes | Total storage |
 |-----------------|--------------------|----------------------------|---------------|
@@ -81,7 +78,14 @@ If you run three Kubernetes worker nodes and keep data for the default 30 days, 
 
 If you monitor fewer than 100 nodes, plan for the 100-node size anyway. The chart's default values request about 17 CPUs, 40 GB of memory and 465 GB of storage, whatever the number of nodes.
 
-For more than 100 nodes, pass the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha) when you install, for example `helm install pmm-ha percona/pmm-ha --namespace pmm -f values-500-nodes.yaml`. These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
+For more than 100 nodes, install with the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha). The values files ship inside the chart, so download the chart first, then pass the file to `helm install`. For example, for up to 500 nodes:
+
+```sh
+helm pull percona/pmm-ha --version 1.8.0 --untar
+helm install pmm-ha percona/pmm-ha --namespace pmm --version 1.8.0 -f pmm-ha/examples/values-500-nodes.yaml
+```
+
+These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
 
 Choose a larger size than your node count suggests if:
 
@@ -112,7 +116,7 @@ The architecture consists of:
 - HAProxy for routing traffic to the active leader and handling failover
 - operator-managed database clusters (ClickHouse, VictoriaMetrics, and PostgreSQL) for resilient data storage
 
-![HA Clustered diagram](../images/HA-diagram.jpg)
+[![HA Clustered diagram](../images/HA-diagram.jpg)](../images/HA-diagram.jpg)
 ### How operators manage databases
 
 PMM HA requires three Kubernetes operators to manage distributed databases:
@@ -136,11 +140,9 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **Health checks**: Comprehensive readiness and liveness probes on all components
 - **Rolling updates**: Upgrades restart each pod sequentially. Expect a brief interruption (around 5-10 seconds) when the active leader pod restarts and a new leader is elected.
 
-- Exporters in pull mode get no metrics, because nothing in the HA deployment scrapes them. Exporters on PMM Client nodes use push mode by default, so this affects only those set to pull mode, for example with `--metrics-mode=pull`. To switch an exporter to push mode, run `pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> --push-metrics` (see [`pmm-admin inventory change agent`](../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-change-agent)).
-- **[PMM-14680](https://perconadev.atlassian.net/browse/PMM-14680)**: PostgreSQL database instance nodes and services display with an incorrect 'pmm-' prefix in their names.
-- **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: HA cluster status always displays as "Healthy" even when follower or leader pods are deleted or not ready.
-- **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: The Inventory page shows inconsistent numbers of PostgreSQL services (4-5 instead of the expected 6 services).
-- **[PMM-14787](https://perconadev.atlassian.net/browse/PMM-14787)**: Data retention settings are not applied correctly, allowing metrics older than the configured retention period to remain visible.
+## Known issues: Exporters in pull mode get no metrics
+
+Exporters on PMM Client nodes use push mode by default, so this affects only those set to pull mode, for example with `--metrics-mode=pull`. To switch an exporter to push mode, run `pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> --push-metrics` (see [`pmm-admin inventory change agent`](../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-change-agent)).
 
 ## Ready to deploy?
 
@@ -152,4 +154,4 @@ The installation process uses Helm to set up all three replicas, configure HAPro
 
 ## Need to upgrade?
 
-When a new PMM release is available, see [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.
+When a new PMM release is available, [upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md) for the step-by-step procedure.
