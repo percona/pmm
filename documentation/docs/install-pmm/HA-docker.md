@@ -103,7 +103,7 @@ Choose the installation method that fits your needs and launch PMM Server with a
         - `--restart=always`: Ensures automatic container restart after failures or reboots
         - `-p 443:8443`: Exposes HTTPS port for secure web access
         - `-v pmm-data:/srv`: Persists PMM data across container restarts
-        - `-e PMM_ENABLE_UPDATES=0`: Disables automatic PMM updates (control updates manually)
+        - `-e PMM_ENABLE_UPDATES=0`: Disables version checks
         - `--ulimit=nofile=1000000:1000000`: Increases file descriptor limit for large deployments
 
     2. Access PMM UI at `https://localhost` and log in with default credentials: `admin`/`admin` (change immediately after first login).

@@ -6,13 +6,6 @@ Percona releases new chart versions to update containers when:
 - Significant changes are made
 - Critical vulnerabilities are addressed
 
-!!! caution alert alert-warning "UI Update feature disabled by default"
-    The UI update feature is disabled by default and should remain so. Do not modify or add the following parameter in your custom `values.yaml` file:
-    ```yaml
-    pmmEnv:
-    PMM_ENABLE_UPDATES: 'false'
-    ```
-
 ## Before you begin
 
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:

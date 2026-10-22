@@ -697,7 +697,7 @@ Leave these values unchanged, as modifying them can break the cluster:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "0"                   # Disables UI updates, which would upgrade one replica only. Update via Helm to keep all replicas in sync
+  PMM_ENABLE_UPDATES: "0"                   # Disables version checks. Upgrade with Helm to keep all replicas in sync
   PMM_HA_ENABLE: "1"                        # Enable HA clustering
   PMM_HA_GOSSIP_PORT: "9096"                # Gossip protocol port
   PMM_HA_RAFT_PORT: "9097"                  # Raft consensus port
