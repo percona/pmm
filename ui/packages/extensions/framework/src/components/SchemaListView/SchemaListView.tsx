@@ -32,11 +32,7 @@ import {
   type MRT_PaginationState,
   type MRT_TableInstance,
 } from 'material-react-table';
-import {
-  DEFAULT_PLUGIN_LIST_LIMIT,
-  type ListColumn,
-  type ListView,
-} from '@pmm-extensions/api';
+import { type ListColumn, type ListView } from '@pmm-extensions/api';
 import { EXTENSIONS_TABLE_CLASS } from '../../constants';
 import { formatTimestamp } from '../../utils/formatTimestamp';
 import { applyValueLabel } from '../../utils/valueLabels';
@@ -541,16 +537,12 @@ function SchemaListViewCore({
       // past its container — the two ways a semantic table ends up scrolling
       // sideways.
       layoutMode="grid"
+      enableTopToolbar={toolbarSlot !== null}
       renderTopToolbar={
-        toolbarSlot === undefined
-          ? undefined
-          : ({ table }) =>
-              toolbarSlot
-                ? createPortal(
-                    <ListToolbarControls table={table} />,
-                    toolbarSlot
-                  )
-                : null
+        toolbarSlot
+          ? ({ table }) =>
+              createPortal(<ListToolbarControls table={table} />, toolbarSlot)
+          : undefined
       }
       enablePagination
       manualPagination={manualPagination}
@@ -568,11 +560,12 @@ function SchemaListViewCore({
             }
           : undefined
       }
-      muiTablePaginationProps={
+      muiPaginationProps={
         manualPagination
           ? {
-              // Single option: MUI hides the select; see DEFAULT_PLUGIN_LIST_LIMIT.
-              rowsPerPageOptions: [DEFAULT_PLUGIN_LIST_LIMIT],
+              // One page size only: some plugins reject a larger limit; see
+              // DEFAULT_PLUGIN_LIST_LIMIT.
+              showRowsPerPage: false,
             }
           : undefined
       }
