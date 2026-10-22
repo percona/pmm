@@ -29,7 +29,7 @@ checks:
                   description = " is"
               return [{
                   "summary": "Test database{} detected: {}".format(description,dbs),
-                  "description": "Please Improve MySQL Installation Security by running program mysql_secure_installation",
+                  "description": "Improve MySQL Installation Security by running mysql_secure_installation",
                   "severity": "notice"
           }]
 

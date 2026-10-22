@@ -129,8 +129,7 @@ export const DumpPage: FC = () => {
   return (
     <Page
       title={Messages.title}
-      fullWidth
-      surface="paper"
+      maxWidth="full"
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
       <Stack gap={2} data-testid="pmm-dump-page">

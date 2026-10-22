@@ -18,7 +18,7 @@ package inventory
 
 import (
 	"context"
-	"os"
+	"slices"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -30,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	mgmtcommon "github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
@@ -74,7 +75,11 @@ func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegis
 	}
 
 	if row.AgentType == models.PMMAgentType {
-		agent.(*inventoryv1.PMMAgent).Connected = registry.IsConnected(row.AgentID) //nolint:forcetypeassert
+		pmmAgent, ok := agent.(*inventoryv1.PMMAgent)
+		if !ok {
+			return nil, unexpectedAgentTypeError(agent)
+		}
+		pmmAgent.Connected = registry.IsConnected(row.AgentID)
 	}
 	return agent, nil
 }
@@ -159,7 +164,11 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, p *inventoryv1.AddPMMA
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
+		pmmAgent, ok := aa.(*inventoryv1.PMMAgent)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = pmmAgent
 		return nil
 	})
 
@@ -186,7 +195,11 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+		nodeExporter, ok := aa.(*inventoryv1.NodeExporter)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = nodeExporter
 		return nil
 	})
 	if e != nil {
@@ -203,6 +216,111 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	return res, nil
 }
 
+// hasNewDisabledCollectors reports whether next disables a collector that current does not.
+func hasNewDisabledCollectors(current, next []string) bool {
+	for _, collector := range next {
+		if !slices.Contains(current, collector) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// disabledCollectorsUnion returns, without duplicates, every collector disabled either before or
+// after the change.
+func disabledCollectorsUnion(current, next []string) []string {
+	union := make([]string, 0, len(current)+len(next))
+	for _, collector := range slices.Concat(current, next) {
+		if !slices.Contains(union, collector) {
+			union = append(union, collector)
+		}
+	}
+
+	return union
+}
+
+// widenDisabledCollectors stores an intermediate disabled-collector set and rebuilds the
+// VictoriaMetrics configuration from it synchronously, the same way port changes are handled in
+// agents.Handler.stateChanged (PMM-14267). The set is a superset of what the running exporter has
+// disabled and of what it will have disabled after the restart, so the resulting collect[] names
+// only collectors that both processes know.
+//
+// It returns the set the agent had before, which the caller restores if the change it makes next
+// fails, or nil when next disables nothing new and no widening was needed.
+//
+// The read of the stored set and the write of the union share a transaction, so two concurrent
+// changes to the same agent cannot both widen from the same snapshot. They are still not
+// serialized against each other end to end: the union is committed before the rebuild reads it,
+// so a change that starts after this one commits and finishes before it applies the requested list
+// can still widen from a set that is about to be replaced. Full serialization is deferred to the
+// follow-up that serializes ForceConfigurationUpdate against victoriametrics.Service.reloadCh.
+//
+// The union is committed rather than staged, and it has to be - ForceConfigurationUpdate reads the
+// inventory through its own querier, so nothing uncommitted reaches the rebuild. That makes the
+// intermediate state durable rather than transient: if pmm-managed dies between this commit and
+// the caller's own change, or is killed during the forced rebuild, the agent keeps the union
+// - collectors the user never asked to disable stay disabled - until the next ChangeNodeExporter
+// call for that agent. Reconciling it on startup is deferred to the same follow-up.
+func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID string, next []string) ([]string, error) {
+	var widenedFrom []string
+
+	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		widenedFrom = nil
+
+		current, err := models.FindAgentByID(tx.Querier, agentID)
+		if err != nil {
+			return err
+		}
+
+		// Leave another agent type untouched: executeAgentChange rejects the request next, and nothing
+		// may be committed before it does.
+		if current.AgentType != models.NodeExporterType {
+			return nil
+		}
+
+		// empty but non-nil, so that restoring it reads as "nothing disabled" rather than as
+		// "no change" in models.ChangeExporterOptions
+		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
+		if !hasNewDisabledCollectors(previous, next) {
+			// nothing leaves the scrape config, so the asynchronous update keeps the right order
+			return nil
+		}
+
+		params := &models.ChangeAgentParams{
+			ExporterOptions: &models.ChangeExporterOptions{
+				DisabledCollectors: disabledCollectorsUnion(previous, next),
+			},
+		}
+
+		_, err = models.ApplyAgentChange(tx.Querier, current, params)
+		if err != nil {
+			return err
+		}
+
+		widenedFrom = previous
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if widenedFrom == nil {
+		return nil, nil
+	}
+
+	err = as.vmdb.ForceConfigurationUpdate(ctx)
+	if err != nil {
+		// The requested list is applied by the caller, so the asynchronous update still converges on
+		// it; scrapes may answer with HTTP 400 until it does.
+		logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+		as.vmdb.RequestConfigurationUpdate()
+	}
+
+	return widenedFrom, nil
+}
+
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
@@ -210,6 +328,8 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for node_exporter
+		SkipConnectionCheck: true,
 	}
 
 	// Set ExporterOptions
@@ -220,12 +340,55 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	// node_exporter answers the whole resolution endpoint with HTTP 400 when collect[] names a
+	// collector it does not know, so a collector being disabled has to leave the scrape config before
+	// the exporter restarts without it, while a collector being re-enabled may only enter the config
+	// after that restart. A single request can do both at once, so the configuration is first rebuilt
+	// from the union of the two sets - the collectors that stay enabled whichever process answers the
+	// scrape - and the requested list is applied afterwards. What the union holds back is picked up by
+	// the asynchronous update that agents.Handler.stateChanged triggers once the exporter is back up.
+	var widenedFrom []string
+	if p.DisableCollectors != nil {
+		var err error
+
+		widenedFrom, err = as.widenDisabledCollectors(ctx, agentID, p.DisableCollectors)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, models.NodeExporterType, params)
 	if err != nil {
+		if widenedFrom != nil {
+			// The widened set is already committed, so put the agent back the way the caller found it.
+			// This is best-effort: the error the caller gets is the one from the change it asked for,
+			// and a failed restore leaves the agent on the union - the same state a crash here would
+			// leave behind, and one that the next successful change of this agent clears.
+			restore := &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					DisabledCollectors: widenedFrom,
+				},
+			}
+
+			current, restoreErr := models.FindAgentByID(as.db.Querier, agentID)
+			if restoreErr == nil {
+				_, restoreErr = models.ApplyAgentChange(as.db.Querier, current, restore)
+			}
+			if restoreErr != nil {
+				logger.Get(ctx).Errorf("Failed to restore disabled collectors of agent %s: %s.", agentID, restoreErr)
+			}
+
+			as.vmdb.RequestConfigurationUpdate()
+		}
+
 		return nil, err
 	}
 
-	nodeExporter := agent.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+	nodeExporter, ok := agent.(*inventoryv1.NodeExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
+
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -239,72 +402,46 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var row *models.Agent
-	var agent *inventoryv1.MySQLdExporter
-
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
 	}
 	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		exporterOptions := models.ExporterOptions{
+
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		ExporterOptions: models.ExporterOptions{
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
 			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
-		}
-		params := &models.CreateAgentParams{
-			PMMAgentID:      p.PmmAgentId,
-			ServiceID:       p.ServiceId,
-			Username:        p.Username,
-			Password:        p.Password,
-			AgentPassword:   p.AgentPassword,
-			CustomLabels:    p.CustomLabels,
-			TLS:             p.Tls,
-			TLSSkipVerify:   p.TlsSkipVerify,
-			ExporterOptions: exporterOptions,
-			MySQLOptions:    mysqlOptions,
-			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
-		}
-		var err error
-		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+		},
+		MySQLOptions:        mysqlOptions,
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.MySQLdExporterType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	mysqldExporter, ok := agent.(*inventoryv1.MySQLdExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_MysqldExporter{
-			MysqldExporter: agent,
+			MysqldExporter: mysqldExporter,
 		},
 	}
 
@@ -315,14 +452,15 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set MySQLOptions
@@ -342,12 +480,15 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.MySQLdExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	mysqldExporter := agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+	mysqldExporter, ok := agent.(*inventoryv1.MySQLdExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mysqldExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -361,65 +502,47 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.MongoDBExporter
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:               p.PmmAgentId,
-			ServiceID:                p.ServiceId,
-			Username:                 p.Username,
-			Password:                 p.Password,
-			AgentPassword:            p.AgentPassword,
-			CustomLabels:             p.CustomLabels,
-			EnvironmentVariableNames: p.GetEnvironmentVariableNames(),
-			TLS:                      p.Tls,
-			TLSSkipVerify:            p.TlsSkipVerify,
-			MongoDBOptions:           models.MongoDBOptionsFromRequest(p),
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics:        p.PushMetrics,
-				DisabledCollectors: p.DisableCollectors,
-				ExposeExporter:     p.ExposeExporter,
-				ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
-			},
-			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-
-		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	// No existing agent to grandfather: this is a new agent, so any reserved name is rejected outright.
+	err := mgmtcommon.ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames(), nil)
+	if err != nil {
+		return nil, err
 	}
 
+	params := &models.CreateAgentParams{
+		PMMAgentID:               p.PmmAgentId,
+		ServiceID:                p.ServiceId,
+		Username:                 p.Username,
+		Password:                 p.Password,
+		AgentPassword:            p.AgentPassword,
+		CustomLabels:             p.CustomLabels,
+		EnvironmentVariableNames: p.GetEnvironmentVariableNames(),
+		TLS:                      p.Tls,
+		TLSSkipVerify:            p.TlsSkipVerify,
+		MongoDBOptions:           models.MongoDBOptionsFromRequest(p),
+		ExporterOptions: models.ExporterOptions{
+			PushMetrics:        p.PushMetrics,
+			DisabledCollectors: p.DisableCollectors,
+			ExposeExporter:     p.ExposeExporter,
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
+	}
+
+	agent, err := as.executeAgentAdd(ctx, models.MongoDBExporterType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	mongodbExporter, ok := agent.(*inventoryv1.MongoDBExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_MongodbExporter{
-			MongodbExporter: agent,
+			MongodbExporter: mongodbExporter,
 		},
 	}
 
@@ -432,28 +555,41 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
+	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged" and an empty
+	// list means "remove all". Neither can carry a reserved name, so in both cases there is nothing
+	// to validate and no reason to look up (and lock) the agent's currently-stored names.
+	var checkEnvVarNames func(current *models.Agent) error
+	if names := p.GetEnvironmentVariableNames().GetValues(); len(names) > 0 {
+		checkEnvVarNames = func(current *models.Agent) error {
+			return mgmtcommon.ValidateMongoDBExporterEnvVarNames(names, current.GrandfatheredEnvironmentVariableNames())
+		}
+	}
+
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:                  p.Enable,
+		Username:                 p.Username,
+		Password:                 p.Password,
+		TLS:                      p.Tls,
+		TLSSkipVerify:            p.TlsSkipVerify,
+		AgentPassword:            p.AgentPassword,
+		CustomLabels:             convertCustomLabels(p.CustomLabels),
+		EnvironmentVariableNames: convertEnvironmentVariableNames(p.EnvironmentVariableNames),
+		LogLevel:                 convertLogLevel(p.LogLevel),
+		SkipConnectionCheck:      p.GetSkipConnectionCheck(),
 	}
 
 	// Set MongoDBOptions
 	params.MongoDBOptions = &models.ChangeMongoDBOptions{
-		TLSCertificateKey:             p.TlsCertificateKey,
-		TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
-		TLSCa:                         p.TlsCa,
-		AuthenticationMechanism:       p.AuthenticationMechanism,
-		AuthenticationDatabase:        p.AuthenticationDatabase,
-		StatsCollections:              p.StatsCollections,
-		CollectionsLimit:              p.CollectionsLimit,
-		EnableAllCollectors:           p.EnableAllCollectors,
+		TLSCertificateKey:              p.TlsCertificateKey,
+		TLSCertificateKeyFilePassword:  p.TlsCertificateKeyFilePassword,
+		TLSCa:                          p.TlsCa,
+		AuthenticationMechanism:        p.AuthenticationMechanism,
+		AuthenticationDatabase:         p.AuthenticationDatabase,
+		StatsCollections:               p.StatsCollections,
+		CollectionsLimit:               p.CollectionsLimit,
+		EnableAllCollectors:            p.EnableAllCollectors,
+		EnableDiagnosticDataHistograms: p.EnableDiagnosticDataHistograms,
 	}
 
 	// Set ExporterOptions
@@ -465,12 +601,15 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChangeChecked(ctx, agentID, models.MongoDBExporterType, params, checkEnvVarNames)
 	if err != nil {
 		return nil, err
 	}
 
-	mongodbExporter := agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+	mongodbExporter, ok := agent.(*inventoryv1.MongoDBExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -484,63 +623,47 @@ func (as *AgentsService) ChangeMongoDBExporter(
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANMySQLPerfSchemaAgent
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
 	}
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength:          p.MaxQueryLength,
-				QueryExamplesDisabled:   p.DisableQueryExamples,
-				CommentsParsingDisabled: p.DisableCommentsParsing,
-			},
-			MySQLOptions: mysqlOptions,
-			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
 
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+		},
+		MySQLOptions:        mysqlOptions,
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANMySQLPerfSchemaAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLPerfSchemaAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanMysqlPerfschemaAgent{
-			QanMysqlPerfschemaAgent: agent,
+			QanMysqlPerfschemaAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
@@ -551,13 +674,14 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -580,12 +704,15 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMySQLPerfSchemaAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLPerfSchemaAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -598,67 +725,51 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANMySQLSlowlogAgent
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
 	}
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		// tweak according to API docs
-		maxSlowlogFileSize := max(p.MaxSlowlogFileSize, 0)
 
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength:          p.MaxQueryLength,
-				QueryExamplesDisabled:   p.DisableQueryExamples,
-				CommentsParsingDisabled: p.DisableCommentsParsing,
-				MaxQueryLogSize:         maxSlowlogFileSize,
-			},
-			MySQLOptions: mysqlOptions,
-			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
+	// tweak according to API docs
+	maxSlowlogFileSize := max(p.MaxSlowlogFileSize, 0)
 
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+			MaxQueryLogSize:         maxSlowlogFileSize,
+		},
+		MySQLOptions:        mysqlOptions,
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANMySQLSlowlogAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLSlowlogAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanMysqlSlowlogAgent{
-			QanMysqlSlowlogAgent: agent,
+			QanMysqlSlowlogAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
@@ -668,13 +779,14 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -698,12 +810,15 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMySQLSlowlogAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLSlowlogAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -716,64 +831,40 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.PostgresExporter
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		exporterOptions := models.ExporterOptions{
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		ExporterOptions: models.ExporterOptions{
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
 			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
-		}
-		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			ExporterOptions:   exporterOptions,
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+		},
+		PostgreSQLOptions:   models.PostgreSQLOptionsFromRequest(p),
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.PostgresExporterType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	postgresExporter, ok := agent.(*inventoryv1.PostgresExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_PostgresExporter{
-			PostgresExporter: agent,
+			PostgresExporter: postgresExporter,
 		},
 	}
 
@@ -787,14 +878,15 @@ func (as *AgentsService) ChangePostgresExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set PostgreSQLOptions
@@ -812,12 +904,15 @@ func (as *AgentsService) ChangePostgresExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.PostgresExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	postgresExporter := agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+	postgresExporter, ok := agent.(*inventoryv1.PostgresExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, postgresExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -830,63 +925,39 @@ func (as *AgentsService) ChangePostgresExporter(
 
 // AddValkeyExporter adds a valkey exporter with the given parameters.
 func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.AddValkeyExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.ValkeyExporter
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		exporterOptions := models.ExporterOptions{
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		LogLevel:      services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+		ExporterOptions: models.ExporterOptions{
 			PushMetrics:       p.PushMetrics,
 			ExposeExporter:    p.ExposeExporter,
 			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
-		}
-		params := &models.CreateAgentParams{
-			PMMAgentID:      p.PmmAgentId,
-			ServiceID:       p.ServiceId,
-			Username:        p.Username,
-			Password:        p.Password,
-			AgentPassword:   p.AgentPassword,
-			CustomLabels:    p.CustomLabels,
-			TLS:             p.Tls,
-			TLSSkipVerify:   p.TlsSkipVerify,
-			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
-			ExporterOptions: exporterOptions,
-			ValkeyOptions:   models.ValkeyOptionsFromRequest(p),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+		},
+		ValkeyOptions:       models.ValkeyOptionsFromRequest(p),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.ValkeyExporterType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	valkeyExporter, ok := agent.(*inventoryv1.ValkeyExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_ValkeyExporter{
-			ValkeyExporter: agent,
+			ValkeyExporter: valkeyExporter,
 		},
 	}
 
@@ -897,14 +968,15 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ValkeyOptions
@@ -923,12 +995,15 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ValkeyExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	valkeyExporter, ok := agent.(*inventoryv1.ValkeyExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, valkeyExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -941,59 +1016,41 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANMongoDBProfilerAgent
-
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength: p.MaxQueryLength,
-				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
-			},
-			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
-			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength: p.MaxQueryLength,
+			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+		},
+		MongoDBOptions:      models.MongoDBOptionsFromRequest(p),
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANMongoDBProfilerAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANMongoDBProfilerAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanMongodbProfilerAgent{
-			QanMongodbProfilerAgent: agent,
+			QanMongodbProfilerAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANMongoDBProfilerAgent updates MongoDB Profiler QAN Agent with given parameters.
@@ -1005,13 +1062,14 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1034,12 +1092,15 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMongoDBProfilerAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	mongodbProfilerAgent := agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+	mongodbProfilerAgent, ok := agent.(*inventoryv1.QANMongoDBProfilerAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbProfilerAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1052,59 +1113,41 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 
 // AddQANMongoDBMongologAgent adds MongoDB Mongolog QAN Agent.
 func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBMongologAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANMongoDBMongologAgent
-
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength: p.MaxQueryLength,
-				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
-			},
-			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
-			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength: p.MaxQueryLength,
+			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+		},
+		MongoDBOptions:      models.MongoDBOptionsFromRequest(p),
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANMongoDBMongologAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANMongoDBMongologAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanMongodbMongologAgent{
-			QanMongodbMongologAgent: agent,
+			QanMongodbMongologAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANMongoDBMongologAgent updates MongoDB Mongolog QAN Agent with given parameters.
@@ -1116,13 +1159,14 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1145,12 +1189,15 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMongoDBMongologAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	mongodbMongologAgent := agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	mongodbMongologAgent, ok := agent.(*inventoryv1.QANMongoDBMongologAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbMongologAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1163,63 +1210,39 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 
 // AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
 func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.ProxySQLExporter
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		exporterOptions := models.ExporterOptions{
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		ExporterOptions: models.ExporterOptions{
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
 			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
-		}
-		params := &models.CreateAgentParams{
-			PMMAgentID:      p.PmmAgentId,
-			ServiceID:       p.ServiceId,
-			Username:        p.Username,
-			Password:        p.Password,
-			AgentPassword:   p.AgentPassword,
-			CustomLabels:    p.CustomLabels,
-			TLS:             p.Tls,
-			TLSSkipVerify:   p.TlsSkipVerify,
-			ExporterOptions: exporterOptions,
-			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.ProxySQLExporterType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	proxysqlExporter, ok := agent.(*inventoryv1.ProxySQLExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_ProxysqlExporter{
-			ProxysqlExporter: agent,
+			ProxysqlExporter: proxysqlExporter,
 		},
 	}
 
@@ -1233,14 +1256,15 @@ func (as *AgentsService) ChangeProxySQLExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ExporterOptions
@@ -1252,12 +1276,15 @@ func (as *AgentsService) ChangeProxySQLExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ProxySQLExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	proxysqlExporter := agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+	proxysqlExporter, ok := agent.(*inventoryv1.ProxySQLExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, proxysqlExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1273,58 +1300,41 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 	ctx context.Context,
 	p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams,
 ) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANPostgreSQLPgStatementsAgent
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength:          p.MaxQueryLength,
-				CommentsParsingDisabled: p.DisableCommentsParsing,
-			},
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength:          p.MaxQueryLength,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+		},
+		PostgreSQLOptions:   models.PostgreSQLOptionsFromRequest(p),
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatementsAgent{
-			QanPostgresqlPgstatementsAgent: agent,
+			QanPostgresqlPgstatementsAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
@@ -1334,13 +1344,14 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1362,28 +1373,15 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
-	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
-	if exists && envVar != "" {
-		a, err := models.FindAgentByID(as.db.Querier, agentID)
-		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
-		}
-		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
-			return nil, status.Errorf(
-				codes.FailedPrecondition,
-				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar,
-			)
-		}
-	}
-
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANPostgreSQLPgStatementsAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	pgStatementsAgent := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+	pgStatementsAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, pgStatementsAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1399,59 +1397,42 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(
 	ctx context.Context,
 	p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams,
 ) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.QANPostgreSQLPgStatMonitorAgent
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: models.QANOptions{
-				MaxQueryLength:          p.MaxQueryLength,
-				QueryExamplesDisabled:   p.DisableQueryExamples,
-				CommentsParsingDisabled: p.DisableCommentsParsing,
-			},
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, params)
-		if err != nil {
-			return err
-		}
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		QANOptions: models.QANOptions{
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+		},
+		PostgreSQLOptions:   models.PostgreSQLOptionsFromRequest(p),
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatMonitorAgentType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	qanAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatmonitorAgent{
-			QanPostgresqlPgstatmonitorAgent: agent,
+			QanPostgresqlPgstatmonitorAgent: qanAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
@@ -1461,13 +1442,14 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1490,12 +1472,15 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANPostgreSQLPgStatMonitorAgentType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	pgStatMonitorAgent := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+	pgStatMonitorAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, pgStatMonitorAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1508,48 +1493,40 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 
 // AddRDSExporter inserts rds_exporter Agent with given parameters.
 func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddRDSExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.RDSExporter
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:   p.PmmAgentId,
-			NodeID:       p.NodeId,
-			CustomLabels: p.CustomLabels,
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
-			},
-			AWSOptions: models.AWSOptions{
-				AWSAccessKey:               p.AwsAccessKey,
-				AWSSecretKey:               p.AwsSecretKey,
-				RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
-				RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
-			},
-			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
-		if err != nil {
-			return err
-		}
-
+	params := &models.CreateAgentParams{
+		PMMAgentID:   p.PmmAgentId,
+		NodeID:       p.NodeId,
+		CustomLabels: p.CustomLabels,
+		ExporterOptions: models.ExporterOptions{
+			PushMetrics: p.PushMetrics,
+		},
+		AWSOptions: models.AWSOptions{
+			AWSAccessKey:               p.AwsAccessKey,
+			AWSSecretKey:               p.AwsSecretKey,
+			AWSRoleARN:                 p.AwsRoleArn,
+			RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
+			RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
+		},
+		LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		// Always skip the connection check for RDS (it uses a NodeID, not a ServiceID).
 		// TODO check connection to AWS: https://jira.percona.com/browse/PMM-5024
-		// if !p.SkipConnectionCheck {
-		// 	...
-		// }
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+		SkipConnectionCheck: true,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.RDSExporterType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	rdsExporter, ok := agent.(*inventoryv1.RDSExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_RdsExporter{
-			RdsExporter: agent,
+			RdsExporter: rdsExporter,
 		},
 	}
 
@@ -1563,12 +1540,15 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for RDS
+		SkipConnectionCheck: true,
 	}
 
 	// Set AWSOptions
 	params.AWSOptions = &models.ChangeAWSOptions{
 		AWSAccessKey:               p.AwsAccessKey,
 		AWSSecretKey:               p.AwsSecretKey,
+		AWSRoleARN:                 p.AwsRoleArn,
 		RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
 		RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
 	}
@@ -1579,12 +1559,23 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.RDSExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	rdsExporter := agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+	rdsExporter, ok := agent.(*inventoryv1.RDSExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
+
+	// If the change left the exporter with neither a role ARN nor an access key, it now uses the
+	// pmm-agent host's ambient AWS credentials. Warn so this identity change is not silent.
+	if p.AwsRoleArn != nil && *p.AwsRoleArn == "" && rdsExporter.AwsRoleArn == "" && rdsExporter.AwsAccessKey == "" {
+		logger.Get(ctx).Warnf("rds_exporter %s has no role ARN or access key after this change; "+
+			"it will use the pmm-agent host's ambient AWS credentials.", agentID)
+	}
+
 	as.state.RequestStateUpdate(ctx, rdsExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1623,7 +1614,11 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+		externalExporter, ok := aa.(*inventoryv1.ExternalExporter)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = externalExporter
 		PMMAgentID = row.PMMAgentID
 		return nil
 	})
@@ -1654,10 +1649,11 @@ func (as *AgentsService) ChangeExternalExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:      p.Enable,
-		Username:     p.Username,
-		ListenPort:   p.ListenPort,
-		CustomLabels: convertCustomLabels(p.CustomLabels),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		ListenPort:          p.ListenPort,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ExporterOptions
@@ -1668,7 +1664,7 @@ func (as *AgentsService) ChangeExternalExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ExternalExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1676,7 +1672,10 @@ func (as *AgentsService) ChangeExternalExporter(
 	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
-	externalExporter := agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+	externalExporter, ok := agent.(*inventoryv1.ExternalExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, externalExporter.RunsOnNodeId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1689,39 +1688,33 @@ func (as *AgentsService) ChangeExternalExporter(
 
 // AddAzureDatabaseExporter inserts azure_exporter Agent with given parameters.
 func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *inventoryv1.AddAzureDatabaseExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.AzureDatabaseExporter
-
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:   p.PmmAgentId,
-			NodeID:       p.NodeId,
-			CustomLabels: p.CustomLabels,
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
-			},
-			AzureOptions: models.AzureOptionsFromRequest(p),
-			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-		row, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, params)
-		if err != nil {
-			return err
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-		agent = aa.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:   p.PmmAgentId,
+		NodeID:       p.NodeId,
+		CustomLabels: p.CustomLabels,
+		ExporterOptions: models.ExporterOptions{
+			PushMetrics: p.PushMetrics,
+		},
+		AzureOptions: models.AzureOptionsFromRequest(p),
+		LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		// Always skip the connection check for Azure
+		SkipConnectionCheck: true,
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.AzureDatabaseExporterType, params, false)
+	if err != nil {
+		return nil, err
+	}
+
+	azureDatabaseExporter, ok := agent.(*inventoryv1.AzureDatabaseExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_AzureDatabaseExporter{
-			AzureDatabaseExporter: agent,
+			AzureDatabaseExporter: azureDatabaseExporter,
 		},
 	}
 
@@ -1739,6 +1732,8 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for Azure
+		SkipConnectionCheck: true,
 	}
 
 	// Set AzureOptions
@@ -1756,12 +1751,15 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.AzureDatabaseExporterType, params)
 	if err != nil {
 		return nil, err
 	}
 
-	azureDatabaseExporter := agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+	azureDatabaseExporter, ok := agent.(*inventoryv1.AzureDatabaseExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, azureDatabaseExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1777,14 +1775,19 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	// Convert protobuf parameters to model parameters
 	changeParams := &models.ChangeAgentParams{
 		Enabled: params.Enable,
+		// Always skip the connection check for Nomad
+		SkipConnectionCheck: true,
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, changeParams)
+	agent, err := as.executeAgentChange(ctx, agentID, models.NomadAgentType, changeParams)
 	if err != nil {
 		return nil, err
 	}
 
-	nomadAgent := agent.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	nomadAgent, ok := agent.(*inventoryv1.NomadAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, nomadAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1797,78 +1800,47 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 
 // AddRTAMongoDBAgent adds MongoDB Real-Time Analytics Agent.
 func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.RTAMongoDBAgent
-
-	// Set MongoDBOptions
-	mdbOptions := models.MongoDBOptions{}
-
-	mdbOptions.TLSCertificateKey = p.GetTlsCertificateKey()
-	mdbOptions.TLSCertificateKeyFilePassword = p.GetTlsCertificateKeyFilePassword()
-	mdbOptions.TLSCa = p.GetTlsCa()
-	mdbOptions.AuthenticationMechanism = p.GetAuthenticationMechanism()
-
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:     p.PmmAgentId,
-			ServiceID:      p.ServiceId,
-			Username:       p.Username,
-			Password:       p.Password,
-			CustomLabels:   p.CustomLabels,
-			TLS:            p.Tls,
-			TLSSkipVerify:  p.TlsSkipVerify,
-			MongoDBOptions: mdbOptions,
-			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-
-		// Set RTA options if provided
-		if p.RtaOptions != nil {
-			params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
-		}
-
-		row, err := models.CreateAgent(tx.Querier, models.RTAMongoDBAgentType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-
-		agent = aa.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
-
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		MongoDBOptions: models.MongoDBOptions{
+			TLSCertificateKey:             p.GetTlsCertificateKey(),
+			TLSCertificateKeyFilePassword: p.GetTlsCertificateKeyFilePassword(),
+			TLSCa:                         p.GetTlsCa(),
+			AuthenticationMechanism:       p.GetAuthenticationMechanism(),
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	agent, err := as.executeAgentAdd(ctx, models.RTAMongoDBAgentType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	rtaMongoDBAgent, ok := agent.(*inventoryv1.RTAMongoDBAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_RtaMongodbAgent{
-			RtaMongodbAgent: agent,
+			RtaMongodbAgent: rtaMongoDBAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
@@ -1890,6 +1862,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 			TLSCa:                         p.TlsCa,
 			AuthenticationMechanism:       p.AuthenticationMechanism,
 		},
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set RTA options if provided
@@ -1897,12 +1870,15 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
-	ag, err := as.executeAgentChange(ctx, agentID, changeParams)
+	ag, err := as.executeAgentChange(ctx, agentID, models.RTAMongoDBAgentType, changeParams)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+	agent, ok := ag.(*inventoryv1.RTAMongoDBAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(ag)
+	}
 	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1945,10 +1921,69 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	return nil
 }
 
+// unexpectedAgentTypeError returns error for when a type assertion on the agent fails.
+func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
+	return status.Errorf(codes.Internal, "unexpected agent type %T", agent)
+}
+
+// checkInternalPgQANEnvOverride rejects a request that would flip the enabled state of the QAN agent
+// of PMM's internal PostgreSQL server away from the state pinned by the PMM_ENABLE_INTERNAL_PG_QAN
+// environment variable.
+//
+// The agent argument is the stored row, before the requested change is applied.
+//
+// The guard deliberately stays in the service layer rather than moving into
+// models.ApplyAgentChange: Server.handleInternalQANToggle is the legitimate actor for this exact
+// state and calls ApplyAgentChange directly, so a guard down there would make the settings API trip
+// over its own pin.
+func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enable *bool) error {
+	// Only a request that actually flips the enabled state can contradict the variable.
+	if enable == nil || *enable == !agent.Disabled {
+		return nil
+	}
+
+	// Read before IsInternalPgQANAgent, which costs a query: with the variable unset -- the default
+	// -- nothing is pinned and there is nothing to check.
+	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil && lookupErr == nil {
+		return nil
+	}
+
+	internal, err := models.IsInternalPgQANAgent(q, agent)
+	if err != nil || !internal {
+		return err
+	}
+
+	if lookupErr != nil {
+		// pmm-managed-init rejects an unparsable value before PMM Server starts, so reaching here
+		// means that validation was bypassed. The intent to pin is clear even though the value is
+		// not, so refuse rather than silently unpin.
+		return status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is configured via an environment variable: %s.", lookupErr)
+	}
+	if *enable == *enabledByEnv {
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is set to %t via an environment variable.",
+		*enabledByEnv,
+	)
+}
+
 // Helper function to convert custom labels from protobuf to model format.
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
 		return &customLabels.Values
+	}
+
+	return nil
+}
+
+// Helper function to convert environment variable names from protobuf to model format.
+func convertEnvironmentVariableNames(envVarNames *common.StringArray) *[]string {
+	if envVarNames != nil {
+		return &envVarNames.Values
 	}
 
 	return nil
@@ -1991,16 +2026,118 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 }
 
 // Helper function to execute agent change and build response.
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+//
+// The expectedType argument is the agent type that the calling Change*Agent method knows how to
+// convert. The inventory API picks that method from the request payload and not from the type of the
+// agent being changed, so a request can name an agent of any type. Checking the type here, inside
+// the transaction, turns that into a rejected request; without it the change is committed and only
+// then fails the type assertion in the caller, leaving the agent modified, pmm-agent not notified
+// and the client with an internal error.
+//
+// The expectedType argument restates what the caller's own type assertion on the result already says, and the
+// compiler cannot tie the two together: keep them in sync, or a valid request becomes InvalidArgument.
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, expectedType models.AgentType, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn,lll
+	return as.executeAgentChangeChecked(ctx, agentID, expectedType, params, nil)
+}
+
+// executeAgentChangeChecked behaves like executeAgentChange, but if check is non-nil, it is called
+// with the agent's current row, locked (SELECT ... FOR UPDATE) for the rest of the transaction,
+// before the change is applied. Use this when a check's outcome depends on the row's current state
+// and must not be decided from a read taken outside this transaction: a concurrent change could
+// otherwise commit in between that read and this write, making the decision stale by the time it
+// takes effect.
+func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
+	ctx context.Context,
+	agentID string,
+	expectedType models.AgentType,
+	params *models.ChangeAgentParams,
+	check func(current *models.Agent) error,
+) (inventoryv1.Agent, error) {
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		row, err := models.ChangeAgent(tx.Querier, agentID, params)
+		findAgent := models.FindAgentByID
+		if check != nil {
+			findAgent = models.FindAgentByIDForUpdate
+		}
+
+		// Returning an error rolls the transaction back, so a rejected request leaves the agent untouched.
+		currentAgent, err := findAgent(tx.Querier, agentID)
 		if err != nil {
 			return err
 		}
 
-		agent, err = toInventoryAgent(tx.Querier, row, as.r)
+		if currentAgent.AgentType != expectedType {
+			return status.Errorf(codes.InvalidArgument, "Agent with ID %s has type %s, expected %s.", agentID, currentAgent.AgentType, expectedType)
+		}
+
+		err = checkInternalPgQANEnvOverride(tx.Querier, currentAgent, params.Enabled)
+		if err != nil {
+			return err
+		}
+
+		if check != nil {
+			err = check(currentAgent)
+			if err != nil {
+				return err
+			}
+		}
+
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, params)
+		if err != nil {
+			return err
+		}
+
+		if !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
+			service, err := models.FindServiceByID(tx.Querier, pointer.GetString(updatedAgent.ServiceID))
+			if err != nil {
+				return err
+			}
+
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, updatedAgent)
+			if err != nil {
+				return err
+			}
+		}
+
+		agent, err = toInventoryAgent(tx.Querier, updatedAgent, as.r)
+
+		return err
+	})
+
+	return agent, err
+}
+
+// executeAgentAdd creates an agent and returns the agent.
+func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
+	var agent inventoryv1.Agent
+
+	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		row, err := models.CreateAgent(tx.Querier, agentType, params)
+		if err != nil {
+			return err
+		}
+
+		if !params.SkipConnectionCheck && params.ServiceID != "" {
+			service, err := models.FindServiceByID(tx.Querier, params.ServiceID)
+			if err != nil {
+				return err
+			}
+
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
+				return err
+			}
+
+			if getServiceInfo {
+				err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		agent, err = services.ToAPIAgent(tx.Querier, row)
 
 		return err
 	})

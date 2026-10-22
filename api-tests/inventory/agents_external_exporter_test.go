@@ -453,7 +453,8 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: new("rotated-external-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("rotated-external-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -467,8 +468,9 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Scheme:      new("http"),
-					MetricsPath: new("/new-metrics"),
+					SkipConnectionCheck: new(true),
+					Scheme:              new("http"),
+					MetricsPath:         new("/new-metrics"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -527,7 +529,8 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: new("changed-external-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-external-user"),
 					// Note: custom labels, scheme, metrics path, push metrics are NOT specified
 				},
 			},
@@ -598,10 +601,11 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username:    new("changed-external-user"),
-					Scheme:      new("https"),
-					MetricsPath: new("/new-metrics"),
-					ListenPort:  new(int64(8080)),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-external-user"),
+					Scheme:              new("https"),
+					MetricsPath:         new("/new-metrics"),
+					ListenPort:          new(int64(8080)),
 					CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",

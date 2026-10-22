@@ -181,7 +181,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Password: new("new-rotated-mongodb-profiler-password"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-rotated-mongodb-profiler-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -195,8 +196,9 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username: new("new-mongodb-profiler-user"),
-					Password: new("another-new-mongodb-profiler-password"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-mongodb-profiler-user"),
+					Password:            new("another-new-mongodb-profiler-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -256,7 +258,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username: new("updated-profiler-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("updated-profiler-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -325,11 +328,12 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username:       new("changed-mongodb-user"),
-					Password:       new("changed-mongodb-password"),
-					MaxQueryLength: new(int32(4096)),
-					TLS:            new(true),
-					TLSSkipVerify:  new(false),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-mongodb-user"),
+					Password:            new("changed-mongodb-password"),
+					MaxQueryLength:      new(int32(4096)),
+					TLS:                 new(true),
+					TLSSkipVerify:       new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",

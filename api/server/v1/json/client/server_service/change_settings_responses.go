@@ -195,7 +195,7 @@ type ChangeSettingsBody struct {
 	// enable telemetry
 	EnableTelemetry *bool `json:"enable_telemetry,omitempty"`
 
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	// A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key
@@ -221,6 +221,9 @@ type ChangeSettingsBody struct {
 
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Enable OpenManager.
+	EnableOM *bool `json:"enable_om,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
@@ -982,6 +985,13 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

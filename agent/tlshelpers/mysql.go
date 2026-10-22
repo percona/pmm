@@ -21,6 +21,8 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // RegisterMySQLCerts is used for register TLS config before sql.Open is called.
@@ -35,8 +37,8 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 
 	var certs []tls.Certificate
 	// Only load client cert/key if both are provided
-	if files["tlsCert"] != "" && files["tlsKey"] != "" {
-		cert, err := tls.X509KeyPair([]byte(files["tlsCert"]), []byte(files["tlsKey"]))
+	if files[agentv1.TLSCertFileName] != "" && files[agentv1.TLSKeyFileName] != "" {
+		cert, err := tls.X509KeyPair([]byte(files[agentv1.TLSCertFileName]), []byte(files[agentv1.TLSKeyFileName]))
 		if err != nil {
 			return fmt.Errorf("register MySQL client cert failed: %w", err)
 		}
@@ -49,7 +51,7 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 	}
 
 	ca := x509.NewCertPool()
-	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
+	if ok := ca.AppendCertsFromPEM([]byte(files[agentv1.TLSCaFileName])); ok {
 		tlsConfig.RootCAs = ca
 	}
 

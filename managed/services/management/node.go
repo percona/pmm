@@ -117,21 +117,24 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		if err != nil {
 			return err
 		}
+
+		// Inside the transaction, so that a registration Grafana cannot complete registers nothing. A Node
+		// which keeps the name while the account its pmm-agent authenticates with was never created is one
+		// nothing can take back: pmm-agent stores no ID until the registration succeeds, so it registers
+		// again on every start, and every attempt meets the name the failed one left behind.
+		authHeaders, _ := auth.GetHeadersFromContext(ctx)
+		token := auth.GetTokenFromHeaders(authHeaders)
+		if token != "" {
+			res.Token = token
+			return nil
+		}
+
+		_, res.Token, err = services.CreateNodeServiceAccount(ctx, s.grafanaClient, req.NodeName, req.Reregister)
+
 		return err
 	})
 	if e != nil {
 		return nil, e
-	}
-
-	authHeaders, _ := auth.GetHeadersFromContext(ctx)
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token != "" {
-		res.Token = token
-	} else {
-		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-		if e != nil {
-			return nil, e
-		}
 	}
 
 	return res, nil
@@ -196,7 +199,15 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
-	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	// pmm-agent authenticates with a token of the Grafana service account named after the Node. Drop the
+	// account, so that the token does not outlive the Node. The removal is already committed here, so a
+	// client which gave up on the request must not leave the account behind.
+	//
+	// req.Force is deliberately not passed on: here it means "unregister the Node with everything on it",
+	// while DeleteServiceAccount reads it as "delete the account even when it holds tokens nobody here
+	// created". Decommissioning a host is not a licence to drop someone else's credentials. Grafana keeps
+	// such an account, deletes only pmm-agent's own token, and says so in the warning returned below.
+	warning, err := services.RemoveNodeServiceAccount(context.WithoutCancel(ctx), s.grafanaClient, node.NodeName, false)
 	if err != nil {
 		// TODO: need to pass the logger to the service
 		// s.l.WithError(err).Error("deleting service account")
@@ -288,19 +299,25 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		})
 	}
 
-	result, _, err := s.vmClient.Query(ctx, upQuery, time.Now())
+	metrics, err := s.queryNodeUpMetrics(ctx, upQuery, false)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+		return nil, err
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
-		nodeID := string(v.Metric[model.LabelName("node_id")])
-		// Sometimes we may see several metrics for the same node, so we just take the first one.
-		if _, ok := metrics[nodeID]; !ok {
-			metrics[nodeID] = int(v.Value)
+	// Same fallback as ListServices: while vmagents replay buffered data after an outage,
+	// VM has no fresh samples although nodes are fine. Use the last sample within
+	// staleStatusWindow for nodes whose pmm-agent is currently connected.
+	staleMetrics := map[string]int{}
+	for _, node := range nodes {
+		if _, ok := metrics[node.NodeID]; !ok {
+			staleMetrics, err = s.queryNodeUpMetrics(ctx, upQuery, true)
+			if err != nil {
+				return nil, err
+			}
+			break
 		}
 	}
+	connectedCache := make(map[string]bool)
 
 	res := make([]*managementv1.UniversalNode, len(nodes))
 	for i, node := range nodes {
@@ -310,33 +327,33 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		}
 
 		uNode := &managementv1.UniversalNode{
-			Address:         node.Address,
-			CustomLabels:    labels,
-			NodeId:          node.NodeID,
-			NodeName:        node.NodeName,
-			NodeType:        string(node.NodeType),
-			Az:              node.AZ,
-			CreatedAt:       timestamppb.New(node.CreatedAt),
-			ContainerId:     pointer.GetString(node.ContainerID),
-			ContainerName:   pointer.GetString(node.ContainerName),
-			Distro:          node.Distro,
-			MachineId:       pointer.GetString(node.MachineID),
-			NodeModel:       node.NodeModel,
-			Region:          pointer.GetString(node.Region),
-			UpdatedAt:       timestamppb.New(node.UpdatedAt),
-			InstanceId:      node.InstanceID,
-			IsPmmServerNode: node.IsPMMServerNode,
+			Address:           node.Address,
+			CustomLabels:      labels,
+			NodeId:            node.NodeID,
+			NodeName:          node.NodeName,
+			NodeType:          string(node.NodeType),
+			Az:                node.AZ,
+			CreatedAt:         timestamppb.New(node.CreatedAt),
+			ContainerId:       pointer.GetString(node.ContainerID),
+			ContainerName:     pointer.GetString(node.ContainerName),
+			Distro:            node.Distro,
+			MachineId:         pointer.GetString(node.MachineID),
+			NodeModel:         node.NodeModel,
+			Region:            pointer.GetString(node.Region),
+			UpdatedAt:         timestamppb.New(node.UpdatedAt),
+			InstanceId:        node.InstanceID,
+			IsPmmServerNode:   node.IsPMMServerNode,
+			IsPmmInternalNode: s.isInternalNode(node),
 		}
 
-		if metric, ok := metrics[node.NodeID]; ok {
-			switch metric {
-			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
-			case 0:
-				uNode.Status = managementv1.UniversalNode_STATUS_DOWN
-			case 1:
-				uNode.Status = managementv1.UniversalNode_STATUS_UP
-			}
-		} else {
+		freshUp, hasFresh := metrics[node.NodeID]
+		staleUp, hasStale := staleMetrics[node.NodeID]
+		switch {
+		case hasFresh:
+			uNode.Status = nodeStatusFromUp(freshUp)
+		case hasStale && s.nodeHasConnectedPMMAgent(agents, node.NodeID, connectedCache):
+			uNode.Status = nodeStatusFromUp(staleUp)
+		default:
 			uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 		}
 
@@ -365,17 +382,24 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 		return nil, err
 	}
 
-	result, _, err := s.vmClient.Query(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), time.Now())
+	metrics, err := s.queryNodeUpMetrics(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), false)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+		return nil, err
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
-		nodeID := string(v.Metric[model.LabelName("node_id")])
-		// Sometimes we may see several metrics for the same node, so we just take the first one.
-		if _, ok := metrics[nodeID]; !ok {
-			metrics[nodeID] = int(v.Value)
+	// Same fallback as ListNodes: use the last sample within staleStatusWindow
+	// when there is no fresh one and the node's pmm-agent is connected.
+	staleMetrics := map[string]int{}
+	connectedCache := make(map[string]bool)
+	var nodeAgents []*models.Agent
+	if _, ok := metrics[node.NodeID]; !ok {
+		staleMetrics, err = s.queryNodeUpMetrics(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), true)
+		if err != nil {
+			return nil, err
+		}
+		nodeAgents, err = models.FindAgents(s.db.WithContext(ctx), models.AgentFilters{NodeID: node.NodeID})
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -385,36 +409,103 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 	}
 
 	uNode := &managementv1.UniversalNode{
-		Address:         node.Address,
-		Az:              node.AZ,
-		CreatedAt:       timestamppb.New(node.CreatedAt),
-		ContainerId:     pointer.GetString(node.ContainerID),
-		ContainerName:   pointer.GetString(node.ContainerName),
-		CustomLabels:    labels,
-		Distro:          node.Distro,
-		MachineId:       pointer.GetString(node.MachineID),
-		NodeId:          node.NodeID,
-		NodeName:        node.NodeName,
-		NodeType:        string(node.NodeType),
-		NodeModel:       node.NodeModel,
-		Region:          pointer.GetString(node.Region),
-		UpdatedAt:       timestamppb.New(node.UpdatedAt),
-		IsPmmServerNode: node.IsPMMServerNode,
+		Address:           node.Address,
+		Az:                node.AZ,
+		CreatedAt:         timestamppb.New(node.CreatedAt),
+		ContainerId:       pointer.GetString(node.ContainerID),
+		ContainerName:     pointer.GetString(node.ContainerName),
+		CustomLabels:      labels,
+		Distro:            node.Distro,
+		MachineId:         pointer.GetString(node.MachineID),
+		NodeId:            node.NodeID,
+		NodeName:          node.NodeName,
+		NodeType:          string(node.NodeType),
+		NodeModel:         node.NodeModel,
+		Region:            pointer.GetString(node.Region),
+		UpdatedAt:         timestamppb.New(node.UpdatedAt),
+		IsPmmServerNode:   node.IsPMMServerNode,
+		IsPmmInternalNode: s.isInternalNode(node),
 	}
 
-	if metric, ok := metrics[node.NodeID]; ok {
-		switch metric {
-		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
-		case 0:
-			uNode.Status = managementv1.UniversalNode_STATUS_DOWN
-		case 1:
-			uNode.Status = managementv1.UniversalNode_STATUS_UP
-		}
-	} else {
+	freshUp, hasFresh := metrics[node.NodeID]
+	staleUp, hasStale := staleMetrics[node.NodeID]
+	switch {
+	case hasFresh:
+		uNode.Status = nodeStatusFromUp(freshUp)
+	case hasStale && s.nodeHasConnectedPMMAgent(nodeAgents, node.NodeID, connectedCache):
+		uNode.Status = nodeStatusFromUp(staleUp)
+	default:
 		uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 	}
 
 	return &managementv1.GetNodeResponse{
 		Node: uNode,
 	}, nil
+}
+
+// queryNodeUpMetrics returns the values of the node "up" metrics keyed by node ID.
+// With stale=true it returns the most recent sample within staleStatusWindow instead
+// of only fresh (non-stale) samples.
+func (s *ManagementService) queryNodeUpMetrics(ctx context.Context, query string, stale bool) (map[string]int, error) {
+	if stale {
+		query = fmt.Sprintf("last_over_time(%s[%s])", query, staleStatusWindow)
+	}
+
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+	}
+
+	vector, ok := result.(model.Vector)
+	if !ok {
+		return nil, fmt.Errorf("unexpected VM query result type %T", result)
+	}
+	metrics := make(map[string]int, len(vector))
+	for _, v := range vector {
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+	return metrics, nil
+}
+
+// nodeStatusFromUp converts an "up" metric value to a node status.
+func nodeStatusFromUp(up int) managementv1.UniversalNode_Status {
+	// We assume there can only be metric values of either 1(UP) or 0(DOWN).
+	switch up {
+	case 0:
+		return managementv1.UniversalNode_STATUS_DOWN
+	case 1:
+		return managementv1.UniversalNode_STATUS_UP
+	default:
+		return managementv1.UniversalNode_STATUS_UNKNOWN
+	}
+}
+
+// nodeHasConnectedPMMAgent reports whether a pmm-agent providing this node's metrics is
+// currently connected. The connectedCache map memoizes registry lookups within one request.
+func (s *ManagementService) nodeHasConnectedPMMAgent(agents []*models.Agent, nodeID string, connectedCache map[string]bool) bool {
+	for _, agent := range agents {
+		if pointer.GetString(agent.NodeID) != nodeID && pointer.GetString(agent.RunsOnNodeID) != nodeID {
+			continue
+		}
+		pmmAgentID := pointer.GetString(agent.PMMAgentID)
+		if agent.AgentType == models.PMMAgentType {
+			pmmAgentID = agent.AgentID
+		}
+		if pmmAgentID == "" {
+			continue
+		}
+		connected, ok := connectedCache[pmmAgentID]
+		if !ok {
+			connected = s.r.IsConnected(pmmAgentID)
+			connectedCache[pmmAgentID] = connected
+		}
+		if connected {
+			return true
+		}
+	}
+	return false
 }

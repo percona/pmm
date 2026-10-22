@@ -7,7 +7,7 @@ While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) captu
 
 RTA displays live query data, updated every 1-5 seconds. Data is held in memory only and refreshes with each update. 
 
-Use the **Pause** button to freeze the view for investigation.
+Use the **Pause** button to freeze the view for investigation or to export a snapshot of the current data.
 
 ## Before you start
 
@@ -52,11 +52,61 @@ Click **Pause** to freeze the current view. This lets you investigate a specific
 
 While paused, the display stops updating but the RTA agent continues collecting data in the background. Click **Resume** or use **Auto-refresh** for a one-time update while staying paused.
 
+Pausing also makes the **Export** button available, so you can export data as a snapshot of the current operations to CSV.
+
+### Export RTA data
+
+You can export a snapshot of the current RTA view to a CSV file. This is useful for capturing query data that is still in progress and may never appear in QAN. 
+
+For example, a long-running query that is killed before it completes will never appear in QAN, because QAN only records queries that finish. Exporting the RTA view captures its data at the moment of the snapshot, before it disappears.
+
+The **Export** button is hidden while auto-refresh is active and only appears once you pause.
+
+To export data:
+{.power-number}
+
+1. Go to **Query Analytics > Real-time**.
+2. Click **Pause** to freeze the live feed.
+3. Apply any filters or sort order you want reflected in the export.
+4. Click **Export** to download the file.
+
+The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
+
+#### Exported fields
+
+The columns are generated from the query data that PMM returns, so the exact set depends on your PMM version. Most column names match the API field names; a few keep shorter established names (`operation_id`, `elapsed_exec_time_sec`, `service`, `user_name`, `data_capture_time` and `raw_query`).
+
+When a PMM version returns additional query data, the new columns are appended after the ones listed below. If you process the file automatically, match columns by header name rather than by position or column count.
+
+A MongoDB export currently contains:
+
+<!-- The CSV columns are built at runtime from the API response, so this list documents the
+     current export rather than constraining it. Keep it in sync with the query fields in
+     api/realtimeanalytics/v1/query.proto and with the header overrides in
+     ui/apps/pmm/src/pages/rta/overview/export/exportRtaQueriesToCsv.ts -->
+
+- `operation_id`: unique identifier for the operation
+- `elapsed_exec_time_sec`: how long the operation has been running, in seconds
+- `db_instance_address`: address of the MongoDB instance
+- `client_address`: address of the client that sent the query
+- `database_name`: database the operation is running against
+- `service`:  PMM service name
+- `user_name`: MongoDB user who issued the query
+- `collection`: collection the operation is targeting
+- `operation`: type of operation (query, insert, update, command)
+- `plan_summary`: query plan summary (for example, `COLLSCAN` or `IXSCAN`)
+- `client_app_name`: name of the application that sent the query
+- `operation_start_time`: when the database started executing this operation
+- `data_capture_time`: when PMM captured this snapshot
+- `raw_query`: reconstructed query text
+- `service_id`: identifier of the PMM service
+- `query_text`: query as shown in the **Query** column
+
 ### Share your view
 
 Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter.
 
-When someone opens your link, they see live data with your filters applied—not the exact operations you were viewing, since RTA data updates continuously.
+When someone opens your link, they see live data with your filters applied, not the exact operations you were viewing, since RTA data updates continuously.
 ### View all sessions
 
 Click **All sessions** to see and manage all running RTA sessions. From here you can stop individual sessions or stop all sessions at once:
@@ -71,7 +121,7 @@ To identify operations that are taking too long:
 {.power-number}
 
 1. Click the **Elapsed time** column header to sort by duration, longest first.
-2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection—often a sign that an index is missing.
+2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection, often a sign that an index is missing.
 
     ![RTA Details tab](../../images/RTA_Details_tab.png)
 

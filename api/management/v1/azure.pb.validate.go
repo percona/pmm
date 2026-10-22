@@ -637,6 +637,8 @@ func (m *AddAzureDatabaseRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for PmmAgentId
+
 	if len(errors) > 0 {
 		return AddAzureDatabaseRequestMultiError(errors)
 	}

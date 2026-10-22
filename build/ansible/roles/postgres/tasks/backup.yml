@@ -32,7 +32,7 @@
     become_method: su
 
   - name: Run Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+    command: /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18 -o "-c logging_collector=off"
     become: true
     become_user: pmm
     become_method: su
@@ -55,7 +55,7 @@
       PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Stop Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    command: /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18
     become: true
     become_user: pmm
     become_method: su

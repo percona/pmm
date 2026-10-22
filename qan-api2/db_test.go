@@ -69,7 +69,7 @@ func cleanupDB(t *testing.T, dbName string) {
 	t.Helper()
 
 	cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, dbName)
-	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output() //nolint:gosec
+	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output()
 	assert.NoError(t, err, "Docker drop db: %v", out)
 }
 
@@ -92,7 +92,7 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("no so old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition + 1
-		DropOldPartition(db, "pmm_test_parts", days)
+		require.NoError(t, DropOldPartition(t.Context(), db, "pmm_test_parts", days))
 		err := db.Select(
 			&partitions,
 			query,
@@ -106,7 +106,7 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("delete one day old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition
-		DropOldPartition(db, "pmm_test_parts", days)
+		require.NoError(t, DropOldPartition(t.Context(), db, "pmm_test_parts", days))
 		err := db.Select(
 			&partitions,
 			query,

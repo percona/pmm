@@ -2,21 +2,27 @@ import { render, screen } from '@testing-library/react';
 import { CodeBlock } from './CodeBlock';
 
 describe('CodeBlock', () => {
-  it('shows inline if code is single line', () => {
+  it('renders single line code as inline <code>', () => {
     const code = `This is a single line`;
     render(<CodeBlock>{code}</CodeBlock>);
 
-    expect(screen.getByRole('paragraph')).toHaveStyle({
-      display: 'inline-block',
-    });
+    const element = screen.getByText(code);
+    expect(element.tagName).toBe('CODE');
   });
 
-  it('shows correctly for multiline code', () => {
+  it('renders multiline code as a <pre> block', () => {
     const code = `This is line 1\nThis is line 2`;
-    render(<CodeBlock>{code}</CodeBlock>);
+    const { container } = render(<CodeBlock>{code}</CodeBlock>);
 
-    expect(screen.getByRole('paragraph')).not.toHaveStyle({
-      display: 'inline-block',
-    });
+    expect(container.querySelector('pre')).toBeInTheDocument();
+  });
+
+  it('renders single line code with a language as a <pre> block', () => {
+    const code = `SELECT 1`;
+    const { container } = render(
+      <CodeBlock className="language-sql">{code}</CodeBlock>
+    );
+
+    expect(container.querySelector('pre')).toBeInTheDocument();
   });
 });

@@ -70,7 +70,6 @@ export const ExportDataset: FC = () => {
   return (
     <Page
       title={Messages.pageTitle}
-      surface="paper"
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
       <Card variant="outlined">

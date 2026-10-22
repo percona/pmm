@@ -42,3 +42,4 @@ The API call could return an error message in the details, containing a specific
 - ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 - ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for making a backup
 - ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact to perform a restore of the backup
+- ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB - target MongoDB version does not match the version recorded in the backup artifact

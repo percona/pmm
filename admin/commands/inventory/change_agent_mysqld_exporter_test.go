@@ -341,6 +341,41 @@ Configuration changes applied:
 		assert.JSONEq(t, expectedJSON, capturedRequestBody)
 	})
 
+	t.Run("KongParsingWithSkipConnectionCheck", func(t *testing.T) {
+		agentID := "test-mysqld-skip"
+
+		var capturedRequestBody string
+
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentMysqldExporterCommand
+		parser := kong.Must(&cmd)
+
+		args := []string{agentID, "--skip-connection-check"}
+
+		ctx, err := parser.Parse(args)
+		require.NoError(t, err)
+		require.NotNil(t, ctx)
+
+		require.NotNil(t, cmd.SkipConnectionCheck)
+		assert.True(t, *cmd.SkipConnectionCheck)
+
+		result, err := cmd.RunCmd()
+		require.NoError(t, err)
+		require.NotNil(t, result)
+
+		// Positive counterpart to KongParsingWithMinimalFlags: when the flag IS passed,
+		// the request body must carry skip_connection_check: true (not omitted).
+		expectedJSON := `{
+			"mysqld_exporter": {
+				"disable_collectors": null,
+				"skip_connection_check": true
+			}
+		}`
+		assert.JSONEq(t, expectedJSON, capturedRequestBody)
+	})
+
 	t.Run("KongParsingErrorCases", func(t *testing.T) {
 		t.Run("MissingRequiredArgument", func(t *testing.T) {
 			var cmd ChangeAgentMysqldExporterCommand
