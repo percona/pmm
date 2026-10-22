@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_quorum_at_risk
     version: 1
     summary: PMM HA quorum at risk
+    category: pmm
     # last_over_time drops nodes that stopped reporting out of the voter count, instead of
     # waiting out the metrics database's longer staleness window.
     expr: |-

@@ -3,6 +3,7 @@ templates:
   - name: pmm_node_swap_filled_up
     version: 1
     summary: Node high swap filling up
+    category: node
     expr: |-
       (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes))
       * 100

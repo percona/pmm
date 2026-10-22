@@ -3,6 +3,7 @@ templates:
   - name: pmm_valkey_down
     version: 1
     summary: Valkey down
+    category: valkey
     expr: |
       (
         # enabled exporters we should be watching (from inventory — always present)

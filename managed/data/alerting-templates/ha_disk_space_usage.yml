@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_disk_space_usage
     version: 1
     summary: PMM HA disk space usage is high
+    category: pmm
     # Every PVC in PMM's own namespace (pmm_ha_node_info, kept 5m across PMM restarts); without volume stats it stays Normal.
     # job="kubelet" drops the namespace="default" copies k3s also serves from the apiserver.
     queries:

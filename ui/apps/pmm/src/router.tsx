@@ -19,6 +19,8 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AlertTemplates } from 'pages/alerting/templates';
+import { CreateAlertFromTemplate } from 'pages/alerting/create-rule';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { OmApp } from '@pmm/plugins-om';
@@ -73,6 +75,19 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: 'alerting',
+              children: [
+                {
+                  path: 'alert-rule-templates',
+                  element: <AlertTemplates />,
+                },
+                {
+                  path: 'new-from-template',
+                  element: <CreateAlertFromTemplate />,
+                },
+              ],
             },
             {
               path: 'rta',

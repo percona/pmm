@@ -3,6 +3,7 @@ templates:
   - name: pmm_victoriametrics_down
     version: 1
     summary: PMM VictoriaMetrics is down
+    category: pmm
     # The job selector covers both topologies: a standalone PMM Server scrapes a single
     # 'victoriametrics' target, while a clustered deployment runs vmselect, vminsert,
     # vmstorage and vmagent as separate jobs. Where none of them are scraped the expression
