@@ -115,7 +115,8 @@ jobs:
             echo "::error::$VERSION.md must exist and be the same on main and pmm-$VERSION. Cherry-pick what is missing on either side."
             exit 1
           fi
-          if ! cmp -s "$notes/next.md" resources/release-notes-template.md; then
+          # Release branches cut before next.md existed (pmm-3.10.0) have none.
+          if [ -f "$notes/next.md" ] && ! cmp -s "$notes/next.md" resources/release-notes-template.md; then
             echo "::error::next.md on pmm-$VERSION has entries. Move them to $VERSION.md, on main and pmm-$VERSION."
             exit 1
           fi
