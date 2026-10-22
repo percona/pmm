@@ -72,6 +72,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     |------------------------------------------------------------------------------------------|-------------|
     | [MongoDB Collection Overview]                                               | Collection-level statistics
     | [MongoDB Oplog Details]                                                                  | Oplog operations and replication
+    | [MongoDB ClusterSync Details]                                                            | Percona ClusterSync for MongoDB lag, throughput, and HA roles
     | [MongoDB Cluster Summary]                                                                | Sharded cluster health and performance overview
     | [MongoDB Instance Summary]                                                               | MongoDB instance metrics and operations
     | [MongoDB Instances Compare]                                                              | Compare metrics across MongoDB instances
@@ -158,6 +159,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MySQL User Details]: ../../reference/dashboards/dashboard-mysql-user-details.md
 [MongoDB Collection Overview]: ../../reference/dashboards/dashboard-mongodb-collection_overview.md
 [MongoDB Oplog Details]: ../../reference/dashboards/dashboard-mongodb-oplog-details.md
+[MongoDB ClusterSync Details]: ../../reference/dashboards/dashboard-mongodb-clustersync-details.md
 [MongoDB Cluster Summary]: ../../reference/dashboards/dashboard-mongodb-cluster-summary.md
 [MongoDB Instance Summary]: ../../reference/dashboards/dashboard-mongodb-instance-summary.md
 [MongoDB Instances Overview]: ../../reference/dashboards/dashboard-mongodb-instances-overview.md
