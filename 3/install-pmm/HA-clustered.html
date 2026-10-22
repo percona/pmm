@@ -17,7 +17,7 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/HA-clustered.html">
       
       
-        <link rel="prev" href="HA-kubernetes-single-instance.html">
+        <link rel="prev" href="../troubleshoot/kubernetes_single_instance_issues.html">
       
       
         <link rel="next" href="install-HA-clustered.html">
@@ -48,7 +48,7 @@
 
     
       
-        <title>Understand PMM HA Cluster - Percona Monitoring and Management</title>
+        <title>Understand HA Cluster - Percona Monitoring and Management</title>
       
     
     
@@ -110,7 +110,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Understand PMM HA Cluster" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Understand HA Cluster" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -208,7 +208,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Understand PMM HA Cluster
+              Understand HA Cluster
             
           </span>
         </div>
@@ -3504,7 +3504,82 @@
   <span class="md-ellipsis">
     
   
-    Compare HA options
+    Choose your HA deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5_2" id="__nav_5_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes single instance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes single instance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kubernetes-single-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand Kubernetes single instance
   
 
     
@@ -3525,14 +3600,14 @@
   
   
     <li class="md-nav__item">
-      <a href="HA-docker.html" class="md-nav__link">
+      <a href="install-kubernetes-single-instance.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Docker HA
+    Install Kubernetes single instance
   
 
     
@@ -3553,14 +3628,14 @@
   
   
     <li class="md-nav__item">
-      <a href="HA-kubernetes-single-instance.html" class="md-nav__link">
+      <a href="../troubleshoot/kubernetes_single_instance_issues.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Kubernetes Single-Instance
+    Troubleshoot Kubernetes single instance
   
 
     
@@ -3569,6 +3644,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -3591,17 +3674,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_5_4" id="__nav_5_5_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_5_3" id="__nav_5_5_3_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Kubernetes Cluster
+    HA Cluster
   
 
     
@@ -3612,12 +3695,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_5_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_5_3">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Kubernetes Cluster
+    HA Cluster
   
 
           </label>
@@ -3646,7 +3729,7 @@
   <span class="md-ellipsis">
     
   
-    Understand PMM HA Cluster
+    Understand HA Cluster
   
 
     
@@ -3664,7 +3747,7 @@
   <span class="md-ellipsis">
     
   
-    Understand PMM HA Cluster
+    Understand HA Cluster
   
 
     
@@ -3735,10 +3818,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#check-if-your-platform-is-supported" class="md-nav__link">
+  <a href="#check-supported-platforms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Check if your platform is supported
+        Check supported platforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-if-your-metrics-workflows-are-supported" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check if your metrics workflows are supported
       
     </span>
   </a>
@@ -3763,43 +3857,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#minimum-cluster-requirements" class="md-nav__link">
+  <a href="#understand-where-the-resources-go" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimum cluster requirements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sizing-guidelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sizing guidelines
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#factors-affecting-resource-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factors affecting resource usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#understand-how-resources-are-distributed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Understand how resources are distributed
+        Understand where the resources go
       
     </span>
   </a>
@@ -3845,19 +3906,19 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues-exporters-in-pull-mode-get-no-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Known issues
+        Known issues: Exporters in pull mode get no metrics
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -3866,6 +3927,17 @@
     <span class="md-ellipsis">
       
         Ready to deploy?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-to-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Need to upgrade?
       
     </span>
   </a>
@@ -3895,7 +3967,63 @@
   <span class="md-ellipsis">
     
   
-    Install PMM HA Cluster
+    Install HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="backup-restore-HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back up and restore HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshoot/ha_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshoot HA Cluster
   
 
     
@@ -5069,6 +5197,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../use/mongodb-operations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -5078,10 +5234,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
         
           
-          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
             
   
   
@@ -5099,8 +5255,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5181,10 +5337,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3" id="__nav_6_7_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3" id="__nav_6_8_3_label" tabindex="0">
             
   
   
@@ -5202,8 +5358,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5256,10 +5412,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2" id="__nav_6_7_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2" id="__nav_6_8_3_2_label" tabindex="0">
             
   
   
@@ -5277,8 +5433,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5303,10 +5459,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_1" id="__nav_6_7_3_2_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_1" id="__nav_6_8_3_2_1_label" tabindex="0">
             
   
   
@@ -5324,8 +5480,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_1">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5582,10 +5738,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_2" id="__nav_6_7_3_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_2" id="__nav_6_8_3_2_2_label" tabindex="0">
             
   
   
@@ -5603,8 +5759,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -6253,10 +6409,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_3" id="__nav_6_7_3_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_3" id="__nav_6_8_3_2_3_label" tabindex="0">
             
   
   
@@ -6274,8 +6430,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -6560,10 +6716,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_4" id="__nav_6_7_3_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_4" id="__nav_6_8_3_2_4_label" tabindex="0">
             
   
   
@@ -6581,8 +6737,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -6727,10 +6883,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_5" id="__nav_6_7_3_2_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_5" id="__nav_6_8_3_2_5_label" tabindex="0">
             
   
   
@@ -6748,8 +6904,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_5">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7118,10 +7274,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_6" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_6" id="__nav_6_7_3_2_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_6" id="__nav_6_8_3_2_6_label" tabindex="0">
             
   
   
@@ -7139,8 +7295,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_6">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7369,10 +7525,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_2_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_7" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_2_7" id="__nav_6_7_3_2_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_2_7" id="__nav_6_8_3_2_7_label" tabindex="0">
             
   
   
@@ -7390,8 +7546,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_2_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_2_7">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_2_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7544,10 +7700,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_3" id="__nav_6_7_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_3" id="__nav_6_8_3_3_label" tabindex="0">
             
   
   
@@ -7565,8 +7721,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7591,10 +7747,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_3_1" id="__nav_6_7_3_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_3_1" id="__nav_6_8_3_3_1_label" tabindex="0">
             
   
   
@@ -7612,8 +7768,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_3_1">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_3_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7786,10 +7942,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_3_2" id="__nav_6_7_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_3_2" id="__nav_6_8_3_3_2_label" tabindex="0">
             
   
   
@@ -7807,8 +7963,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_3_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -7897,10 +8053,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_3_3" id="__nav_6_7_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_3_3" id="__nav_6_8_3_3_3_label" tabindex="0">
             
   
   
@@ -7918,8 +8074,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_3_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8072,10 +8228,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4" id="__nav_6_7_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4" id="__nav_6_8_3_4_label" tabindex="0">
             
   
   
@@ -8093,8 +8249,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8119,10 +8275,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4_1" id="__nav_6_7_3_4_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4_1" id="__nav_6_8_3_4_1_label" tabindex="0">
             
   
   
@@ -8140,8 +8296,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4_1">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8202,10 +8358,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4_2" id="__nav_6_7_3_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4_2" id="__nav_6_8_3_4_2_label" tabindex="0">
             
   
   
@@ -8223,8 +8379,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8481,10 +8637,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4_3" id="__nav_6_7_3_4_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4_3" id="__nav_6_8_3_4_3_label" tabindex="0">
             
   
   
@@ -8502,8 +8658,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8732,10 +8888,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4_4" id="__nav_6_7_3_4_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4_4" id="__nav_6_8_3_4_4_label" tabindex="0">
             
   
   
@@ -8753,8 +8909,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8843,10 +8999,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_4_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_4_5" id="__nav_6_7_3_4_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_4_5" id="__nav_6_8_3_4_5_label" tabindex="0">
             
   
   
@@ -8864,8 +9020,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_4_5">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_4_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8934,10 +9090,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_5" id="__nav_6_7_3_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_5" id="__nav_6_8_3_5_label" tabindex="0">
             
   
   
@@ -8955,8 +9111,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -8981,10 +9137,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_5_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_5_1" id="__nav_6_7_3_5_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_5_1" id="__nav_6_8_3_5_1_label" tabindex="0">
             
   
   
@@ -9002,8 +9158,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_5_1">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_5_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -9232,10 +9388,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_7_3_5_2" id="__nav_6_7_3_5_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_3_5_2" id="__nav_6_8_3_5_2_label" tabindex="0">
             
   
   
@@ -9253,8 +9409,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_7_3_5_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_3_5_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -9339,10 +9495,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9" >
         
           
-          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_9" id="__nav_6_9_label" tabindex="0">
             
   
   
@@ -9360,8 +9516,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -9434,6 +9590,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../alert/alert-thresholds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Override alert thresholds for individual nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../alert/contact_points.html" class="md-nav__link">
         
   
@@ -9470,6 +9654,34 @@
     
   
     List of available alert templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../alert/built_in_alerts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage the built-in alert rules
   
 
     
@@ -9562,10 +9774,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_10" >
         
           
-          <label class="md-nav__link" for="__nav_6_9" id="__nav_6_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_10" id="__nav_6_10_label" tabindex="0">
             
   
   
@@ -9583,8 +9795,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_9">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_10">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -9665,10 +9877,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_10_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_9_3" id="__nav_6_9_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_10_3" id="__nav_6_10_3_label" tabindex="0">
             
   
   
@@ -9686,8 +9898,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_9_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_9_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_10_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_10_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -9888,10 +10100,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_10_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_9_4" id="__nav_6_9_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_10_4" id="__nav_6_10_4_label" tabindex="0">
             
   
   
@@ -9909,8 +10121,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_9_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_9_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_10_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_10_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -10083,6 +10295,173 @@
     
   
     Delete a backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_11" id="__nav_6_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apps/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database management apps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apps/deploy-pmm-extensions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set up Apps: Deploy PMM Extensions with Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apps/mysql-backup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back up and restore MySQL databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apps/support-diagnostics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Collect and share database diagnostics
   
 
     
@@ -11341,7 +11720,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM Server in K8s
+    Upgrade PMM in Kubernetes
   
 
     
@@ -11357,7 +11736,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Upgrade PMM Server in K8s
+    Upgrade PMM in Kubernetes
   
 
           </label>
@@ -11377,7 +11756,35 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM Server using Helm
+    Upgrade on a Kubernetes single instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pmm-upgrade/upgrade_helm_ha.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade HA Cluster on Kubernetes
   
 
     
@@ -12074,6 +12481,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshoot/kubernetes_single_instance_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshoot Kubernetes single instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshoot/ha_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshoot HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -12143,6 +12606,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/3.10.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.10.0 (2026-10-22)
   
 
     
@@ -16513,10 +17004,21 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#check-if-your-platform-is-supported" class="md-nav__link">
+  <a href="#check-supported-platforms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Check if your platform is supported
+        Check supported platforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-if-your-metrics-workflows-are-supported" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check if your metrics workflows are supported
       
     </span>
   </a>
@@ -16541,43 +17043,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#minimum-cluster-requirements" class="md-nav__link">
+  <a href="#understand-where-the-resources-go" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimum cluster requirements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sizing-guidelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sizing guidelines
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#factors-affecting-resource-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factors affecting resource usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#understand-how-resources-are-distributed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Understand how resources are distributed
+        Understand where the resources go
       
     </span>
   </a>
@@ -16623,19 +17092,19 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues-exporters-in-pull-mode-get-no-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Known issues
+        Known issues: Exporters in pull mode get no metrics
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -16644,6 +17113,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-ellipsis">
       
         Ready to deploy?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-to-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Need to upgrade?
       
     </span>
   </a>
@@ -16679,23 +17159,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="understand-pmm-high-availability-cluster">Understand PMM High Availability Cluster<a class="headerlink" href="#understand-pmm-high-availability-cluster" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Technical Preview: Not production-ready</p>
-<p>This feature is in <strong>Technical Preview</strong> for testing and feedback only. Expect <a href="install-HA-clustered.html#known-issues">known issues</a>, breaking changes, and incomplete features.</p>
-<p><strong>Test in non-production environments only</strong> and <a href="install-HA-clustered.html#get-help-and-provide-feedback">provide feedback</a> to shape the GA release.</p>
-</div>
-<div class="admonition danger">
-<p class="admonition-title">VictoriaMetrics limitations</p>
-<p>This Tech Preview does not support:</p>
-<ul>
-<li><strong>Prometheus data imports</strong>: Cannot import existing Prometheus files</li>
-<li><strong>Metrics downsampling</strong>: No automatic historical data optimization</li>
-</ul>
-<p>If your strategy requires these features, evaluate carefully before testing.</p>
-</div>
 <p>Standard PMM monitoring goes offline for minutes during server failures. PMM HA Cluster keeps monitoring running by immediately switching to secondary servers when failures occur.</p>
 <p>PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.</p>
-<p>Unlike <a href="HA-kubernetes-single-instance.html">Single-Instance deployments</a> where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.</p>
+<p>Unlike a <a href="kubernetes-single-instance.html">Kubernetes single instance</a>, where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.</p>
 <p>Whether a server crashes, you&rsquo;re upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.</p>
 <h3 id="key-benefits">Key benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h3>
 <ul>
@@ -16710,15 +17176,15 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <thead>
 <tr>
 <th>Consideration</th>
-<th>Single-instance (GA)</th>
-<th>HA Cluster (Tech Preview)</th>
+<th>Kubernetes single instance</th>
+<th>HA Cluster</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>Production status</strong></td>
 <td>✅ Production-ready</td>
-<td>⚠️ Testing only</td>
+<td>✅ Production-ready</td>
 </tr>
 <tr>
 <td><strong>Failover time</strong></td>
@@ -16765,146 +17231,137 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h2 id="before-you-begin">Before you begin<a class="headerlink" href="#before-you-begin" title="Permanent link">&para;</a></h2>
 <h3 id="check-prerequisites">Check prerequisites<a class="headerlink" href="#check-prerequisites" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Kubernetes</strong>: 1.32 or higher</li>
-<li><strong>Helm</strong>: 3.2.0 or higher</li>
+<li><strong>Kubernetes</strong>: 1.32 or higher, because the Helm chart doesn&rsquo;t install on earlier versions. The <a href="#check-if-your-platform-is-supported">supported versions</a> depend on your platform.</li>
+<li><strong>Helm</strong>: 3.17.0 or higher</li>
 <li><strong>kubectl</strong>: configured to access your cluster</li>
 <li><strong>Persistent Volume Provisioner</strong>: available in your cluster</li>
 </ul>
-<h3 id="check-if-your-platform-is-supported">Check if your platform is supported<a class="headerlink" href="#check-if-your-platform-is-supported" title="Permanent link">&para;</a></h3>
-<div class="admonition info">
-<p class="admonition-title">Tested Platform: Amazon EKS only</p>
-<p>This Tech Preview is validated exclusively on <strong>Amazon EKS (Kubernetes 1.32+)</strong>. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.</p>
-</div>
-<h2 id="plan-your-resources">Plan your resources<a class="headerlink" href="#plan-your-resources" title="Permanent link">&para;</a></h2>
-<p>Before installing PMM HA, ensure your Kubernetes cluster has sufficient capacity to run the distributed architecture. This section helps you calculate the resources you&rsquo;ll need based on your monitoring requirements.</p>
-<h3 id="minimum-cluster-requirements">Minimum cluster requirements<a class="headerlink" href="#minimum-cluster-requirements" title="Permanent link">&para;</a></h3>
-<p>At minimum, your cluster needs:</p>
-<ul>
-<li><strong>CPU</strong>: 12+ cores</li>
-<li><strong>Memory</strong>: 20-40 GB RAM</li>
-<li><strong>Storage</strong>: 100+ GB with persistent volume provisioner</li>
-</ul>
-<p>This baseline supports monitoring <strong>1-10 database services</strong> with standard retention periods. </p>
-<p>If you&rsquo;re planning a larger deployment, use the sizing guidelines below to calculate your resource needs.</p>
-<h3 id="sizing-guidelines">Sizing guidelines<a class="headerlink" href="#sizing-guidelines" title="Permanent link">&para;</a></h3>
-<p>Use this table to estimate resources based on your monitoring scale:</p>
+<p><a id="check-if-your-platform-is-supported"></a></p>
+<h3 id="check-supported-platforms">Check supported platforms<a class="headerlink" href="#check-supported-platforms" title="Permanent link">&para;</a></h3>
+<p>PMM HA Cluster runs on Amazon EKS and Red Hat OpenShift, including ROSA with hosted control planes. Supported versions depend on the <code>pmm-ha</code> chart version, because each chart ships its own database operators.</p>
+<p>Find your chart version (<code>helm list -n &lt;namespace&gt;</code> for an existing installation) and check it against the table:</p>
 <table>
 <thead>
 <tr>
-<th>Monitored services</th>
-<th>PMM replicas</th>
-<th>ClickHouse replicas</th>
-<th>VictoriaMetrics storage</th>
-<th>Total CPU</th>
-<th>Total memory</th>
+<th><code>pmm-ha</code> chart version</th>
+<th>PMM version</th>
+<th>Amazon EKS</th>
+<th>OpenShift</th>
+<th>VictoriaMetrics operator</th>
+<th>ClickHouse operator</th>
+<th>PostgreSQL operator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.8.0</td>
+<td>3.10.0</td>
+<td>1.33 to 1.36</td>
+<td>4.19 to 4.22</td>
+<td>0.67.3</td>
+<td>0.27.3</td>
+<td>3.0.0</td>
+</tr>
+</tbody>
+</table>
+<p>If your platform version isn&rsquo;t listed, upgrade the cluster or use a chart version that supports it.</p>
+<p>Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren&rsquo;t tested. VMware Tanzu isn&rsquo;t supported.</p>
+<h3 id="check-if-your-metrics-workflows-are-supported">Check if your metrics workflows are supported<a class="headerlink" href="#check-if-your-metrics-workflows-are-supported" title="Permanent link">&para;</a></h3>
+<p>PMM HA Cluster doesn&rsquo;t support the following VictoriaMetrics Enterprise features:</p>
+<ul>
+<li><strong>Prometheus data imports</strong>: you can&rsquo;t import existing Prometheus data files.</li>
+<li><strong>Metrics downsampling</strong>: PMM doesn&rsquo;t automatically reduce the resolution of older metrics.</li>
+</ul>
+<p>If you rely on either feature, plan for it before you deploy PMM HA Cluster.</p>
+<h2 id="plan-your-resources">Plan your resources<a class="headerlink" href="#plan-your-resources" title="Permanent link">&para;</a></h2>
+<p>Choose the size of your Kubernetes cluster based on how many nodes you plan to monitor. Count each host that runs one database service with Query Analytics turned on as one node.</p>
+<p>If you run three Kubernetes worker nodes and keep data for the default 30 days, use the following sizes. These are recommended sizes, not minimum requirements. Each size handles the number of monitored nodes in its row:</p>
+<table>
+<thead>
+<tr>
+<th>Monitored nodes</th>
+<th>Helm values to use</th>
+<th>Each of the 3 worker nodes</th>
 <th>Total storage</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1-10</td>
-<td>3</td>
-<td>3</td>
-<td>3</td>
-<td>12 cores</td>
-<td>20 GB</td>
-<td>100 GB</td>
+<td>Up to 100</td>
+<td>The chart&rsquo;s default values</td>
+<td>16 CPUs, 32 GB memory</td>
+<td>About 0.5 TB</td>
 </tr>
 <tr>
-<td>11-50</td>
-<td>3</td>
-<td>3</td>
-<td>3</td>
-<td>15 cores</td>
-<td>30 GB</td>
-<td>200 GB</td>
+<td>Up to 500</td>
+<td><code>examples/values-500-nodes.yaml</code></td>
+<td>32 CPUs, 64 GB memory</td>
+<td>About 1.6 TB</td>
 </tr>
 <tr>
-<td>51-100</td>
-<td>3</td>
-<td>3</td>
-<td>5</td>
-<td>20 cores</td>
-<td>40 GB</td>
-<td>500 GB</td>
-</tr>
-<tr>
-<td>100+</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>30+ cores</td>
-<td>60+ GB</td>
-<td>1+ TB</td>
+<td>Up to 1,000</td>
+<td><code>examples/values-1000-nodes.yaml</code></td>
+<td>48 CPUs, 96 GB memory</td>
+<td>About 3.2 TB</td>
 </tr>
 </tbody>
 </table>
-<h3 id="factors-affecting-resource-usage">Factors affecting resource usage<a class="headerlink" href="#factors-affecting-resource-usage" title="Permanent link">&para;</a></h3>
-<p>Your actual resource needs may vary based on:</p>
+<p>If you monitor fewer than 100 nodes, plan for the 100-node size anyway. The chart&rsquo;s default values request about 17 CPUs, 40 GB of memory and 465 GB of storage, whatever the number of nodes.</p>
+<p>For more than 100 nodes, install with the matching values file from the <a href="https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha"><code>pmm-ha</code> chart</a>. The values files ship inside the chart, so download the chart first, then pass the file to <code>helm install</code>. For example, for up to 500 nodes:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>pull<span class="w"> </span>percona/pmm-ha<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.8.0<span class="w"> </span>--untar
+helm<span class="w"> </span>install<span class="w"> </span>pmm-ha<span class="w"> </span>percona/pmm-ha<span class="w"> </span>--namespace<span class="w"> </span>pmm<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.8.0<span class="w"> </span>-f<span class="w"> </span>pmm-ha/examples/values-500-nodes.yaml
+</code></pre></div>
+<p>These sizes also need a storage class that allows volume expansion (<code>allowVolumeExpansion: true</code>).</p>
+<p>Choose a larger size than your node count suggests if:</p>
 <ul>
-<li>number of monitored database instances</li>
-<li>metrics resolution and retention period</li>
-<li>Query Analytics (QAN) volume</li>
-<li>number of concurrent users</li>
-<li>custom dashboards and queries</li>
+<li>you monitor MySQL with per-table statistics, or MongoDB with many collections. These produce two to three times more metrics per node. To reduce them, <a href="install-pmm-client/connect-database/mysql/improve_perf.html#disable-table-statistics">turn off table statistics</a>.</li>
+<li>you keep data for longer than 30 days. Storage grows with retention, for example 90 days needs about three times the metrics storage.</li>
 </ul>
-<h3 id="understand-how-resources-are-distributed">Understand how resources are distributed<a class="headerlink" href="#understand-how-resources-are-distributed" title="Permanent link">&para;</a></h3>
-<p>PMM HA spreads resource consumption across multiple components to ensure high availability. Understanding this breakdown helps you identify which components to scale as your monitoring needs grow, and where bottlenecks might occur.</p>
+<h3 id="understand-where-the-resources-go">Understand where the resources go<a class="headerlink" href="#understand-where-the-resources-go" title="Permanent link">&para;</a></h3>
+<p>To see which component to watch as you add nodes or keep data longer, check what each one does, what it requests with the chart&rsquo;s default values and what makes it grow:</p>
 <table>
 <thead>
 <tr>
 <th>Component</th>
-<th>CPU</th>
-<th>Memory</th>
-<th>Storage</th>
-<th>Notes</th>
+<th>What it does</th>
+<th>Each pod requests by default</th>
+<th>What makes it grow</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Per PMM Server pod</strong></td>
-<td>2 cores</td>
-<td>4 GB</td>
-<td>Minimal</td>
-<td>Stores configuration only</td>
+<td>PMM Server (3 pods)</td>
+<td>Serves the PMM UI, the API and all traffic from PMM Clients. Only the leader pod does this work. The other two are on standby.</td>
+<td>2 CPUs, 4 GB memory, 40 GB storage</td>
+<td>More monitored nodes, because one pod handles all of them</td>
 </tr>
 <tr>
-<td><strong>HAProxy (3 replicas)</strong></td>
-<td>1 core</td>
-<td>2 GB</td>
-<td>-</td>
-<td>Routing and failover overhead</td>
+<td>HAProxy (3 pods)</td>
+<td>Sends every request to the PMM Server leader</td>
+<td>0.25 CPU, 128 MB memory</td>
+<td>PMM Clients sending buffered data all at once after a failover or an upgrade</td>
 </tr>
 <tr>
-<td><strong>ClickHouse cluster</strong></td>
-<td>3-6 cores</td>
-<td>8-12 GB</td>
-<td>50+ GB</td>
-<td>Stores QAN data and scales with query volume</td>
+<td>VictoriaMetrics storage (3 pods)</td>
+<td>Stores metrics. Other VictoriaMetrics pods receive, route and query them.</td>
+<td>0.5 CPU, 2 GB memory, 50 GB storage</td>
+<td>More monitored nodes and a longer retention period</td>
 </tr>
 <tr>
-<td><strong>VictoriaMetrics cluster</strong></td>
-<td>2-4 cores</td>
-<td>4-8 GB</td>
-<td>50+ GB</td>
-<td>Stores metrics and scales with retention period</td>
+<td>ClickHouse (3 pods)</td>
+<td>Stores Query Analytics data. Each pod holds a full copy.</td>
+<td>1 CPU, 4 GB memory, 50 GB storage</td>
+<td>More database services with Query Analytics and a longer retention period</td>
 </tr>
 <tr>
-<td><strong>PostgreSQL cluster</strong></td>
-<td>1-2 cores</td>
-<td>2-4 GB</td>
-<td>10 GB</td>
-<td>Grafana metadata storage</td>
-</tr>
-<tr>
-<td><strong>Kubernetes operators</strong></td>
-<td>1-2 cores</td>
-<td>2-4 GB</td>
-<td>-</td>
-<td>Operator management overhead</td>
+<td>PostgreSQL (3 pods)</td>
+<td>Stores PMM Server and Grafana data, such as your inventory, settings and alert rules</td>
+<td>0.5 CPU, 1 GB memory, 10 GB storage</td>
+<td>More PMM Server connections as you add monitored nodes</td>
 </tr>
 </tbody>
 </table>
+<p>The <code>values-500-nodes.yaml</code> and <code>values-1000-nodes.yaml</code> files raise these values for larger deployments.</p>
 <h2 id="learn-the-architecture">Learn the architecture<a class="headerlink" href="#learn-the-architecture" title="Permanent link">&para;</a></h2>
 <p>The PMM HA architecture diagram below shows how components interact and communicate. </p>
 <p>The architecture consists of:</p>
@@ -16913,7 +17370,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>HAProxy for routing traffic to the active leader and handling failover</li>
 <li>operator-managed database clusters (ClickHouse, VictoriaMetrics, and PostgreSQL) for resilient data storage</li>
 </ul>
-<p><img alt="HA Clustered diagram" src="../images/HA-diagram.jpg" /></p>
+<p><a href="../images/HA-diagram.jpg"><img alt="HA Clustered diagram" src="../images/HA-diagram.jpg" /></a></p>
 <h3 id="how-operators-manage-databases">How operators manage databases<a class="headerlink" href="#how-operators-manage-databases" title="Permanent link">&para;</a></h3>
 <p>PMM HA requires three Kubernetes operators to manage distributed databases:</p>
 <ul>
@@ -16931,22 +17388,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><strong>Automatic failover</strong>: HAProxy detects when the active leader becomes unhealthy and routes traffic to the new leader</li>
 <li><strong>Pod anti-affinity</strong>: Kubernetes scheduler distributes components across different nodes</li>
 <li><strong>Health checks</strong>: Comprehensive readiness and liveness probes on all components</li>
-<li><strong>Rolling updates</strong>: Zero-downtime upgrades with sequential pod updates</li>
+<li><strong>Rolling updates</strong>: Upgrades restart each pod sequentially. Expect a brief interruption (around 5-10 seconds) when the active leader pod restarts and a new leader is elected.</li>
 </ul>
-<h3 id="known-issues">Known issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Only databases deployed in the same Kubernetes cluster can be added to monitoring. Remote database monitoring will be added in a future release.</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14665">PMM-14665</a></strong>: When adding a service, the node list incorrectly includes PostgreSQL database instance nodes alongside PMM HA nodes.</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14678">PMM-14678</a></strong>: Database dashboards don&rsquo;t display metrics for services added via pmm-admin, though they work correctly for services added through the UI.</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14680">PMM-14680</a></strong>: PostgreSQL database instance nodes and services display with an incorrect &lsquo;pmm-&rsquo; prefix in their names.</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14734">PMM-14734</a></strong>: HA cluster status always displays as &ldquo;Healthy&rdquo; even when follower or leader pods are deleted or not ready.</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14742">PMM-14742</a></strong>: The Inventory page shows inconsistent numbers of PostgreSQL services (4-5 instead of the expected 6 services).</li>
-<li><strong><a href="https://perconadev.atlassian.net/browse/PMM-14787">PMM-14787</a></strong>: Data retention settings are not applied correctly, allowing metrics older than the configured retention period to remain visible.</li>
-</ul>
+<h2 id="known-issues-exporters-in-pull-mode-get-no-metrics">Known issues: Exporters in pull mode get no metrics<a class="headerlink" href="#known-issues-exporters-in-pull-mode-get-no-metrics" title="Permanent link">&para;</a></h2>
+<p>Exporters on PMM Client nodes use push mode by default, so this affects only those set to pull mode, for example with <code>--metrics-mode=pull</code>. To switch an exporter to push mode, run <code>pmm-admin inventory change agent &lt;AGENT_TYPE&gt; &lt;AGENT_ID&gt; --push-metrics</code> (see <a href="../use/commands/pmm-admin/inventory.html#pmm-admin-inventory-change-agent"><code>pmm-admin inventory change agent</code></a>).</p>
 <h2 id="ready-to-deploy">Ready to deploy?<a class="headerlink" href="#ready-to-deploy" title="Permanent link">&para;</a></h2>
 <p>Now that you understand how PMM HA Cluster works, you can deploy it on your Kubernetes cluster. </p>
 <p>The installation process uses Helm to set up all three replicas, configure HAProxy load balancing, and deploy the distributed databases automatically.</p>
 <p><a class="md-button" href="install-HA-clustered.html">Install PMM HA Cluster →</a></p>
+<h2 id="need-to-upgrade">Need to upgrade?<a class="headerlink" href="#need-to-upgrade" title="Permanent link">&para;</a></h2>
+<p>When a new PMM release is available, <a href="../pmm-upgrade/upgrade_helm_ha.html">upgrade PMM HA Cluster using Helm</a> for the step-by-step procedure.</p>
 
 
 
@@ -16969,7 +17420,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 29, 2026 11:57:53 UTC">June 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2026 13:41:16 UTC">October 22, 2026</span>
   </span>
 
     
