@@ -37,7 +37,7 @@ Before you enable Operations for MongoDB, prepare PMM Server:
 
     3. Recreate both containers so they pick up the new environment variables. A simple restart won't work, because Docker only reads environment variables when it creates a container. If you use Docker Compose, run `docker compose up -d`, which recreates any container whose configuration has changed.
 
-## Enable Operations for MongoDB
+### Enable Operations for MongoDB
 
 Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear in the side menu and PMM doesn't scan your nodes. You can enable it via PMM settings or an environment variable:
 
@@ -136,12 +136,6 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 !!! note "Keep automatic scans on"
     In PMM 3.10.0, turning off **Automatic node scans** also blocks **Scan** and **Scan all** on the **Nodes** page. PMM turns automatic scans back on the next time it restarts.
 
-### Troubleshoot scans
-
-If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
-
-If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
-
 ## Install a replica set
 
 PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.
@@ -210,12 +204,6 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 
 The install takes a few minutes per node, mostly for downloading packages. When it finishes, the replica set appears on the **Fleet** page and PMM starts monitoring it.
 
-### Troubleshoot installs
-
-If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
-
-To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
-
 ## View fleet health
 
 Check fleet health as part of your regular operational checks, or when a cluster isn't behaving as expected. It helps you spot replication lag early and confirm that your clusters run the versions you expect.
@@ -237,6 +225,20 @@ To view fleet health:
 5. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
+
+## Troubleshoot
+
+### Scans
+
+If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
+
+If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
+
+### Installs
+
+If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
+
+To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
 
 ## Limitations
 
