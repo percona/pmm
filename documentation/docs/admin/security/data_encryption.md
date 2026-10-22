@@ -52,7 +52,9 @@ In a [high availability (HA) cluster](../../install-pmm/install-HA-clustered.md)
 
 A node with a different key can't decrypt the credentials that other nodes stored. PMM detects the mismatch and stops that node from starting. Otherwise, the node would send unusable credentials to PMM Clients, and monitoring would stop for those services.
 
-If you deploy with the [PMM HA Helm chart](../../install-pmm/install-HA-clustered.md#manage-the-encryption-key), the chart manages the shared key for you. If you deploy with Docker:
+The [PMM HA Helm chart](../../install-pmm/install-HA-clustered.md#manage-the-encryption-key) manages the shared key for you, including across upgrades and rescaling.
+
+If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md):
 {.power-number}
 
 1. [Generate a single key](#set-up-a-custom-key) for the whole cluster.
@@ -63,25 +65,7 @@ If you deploy with the [PMM HA Helm chart](../../install-pmm/install-HA-clustere
 
 4. Start the nodes.
 
-### Upgrade an existing Docker HA cluster
-
-!!! warning "Check the encryption key before you upgrade"
-    Before you upgrade, make sure that every PMM Server node has the same encryption key. Otherwise, some nodes won't start after the upgrade.
-
-The HA Helm chart 3.10.0 has no upgrade path from earlier versions. Deploy a fresh cluster instead. Once on 3.10.0, you can upgrade to later Helm chart versions.
-
-If you are reusing an existing database on a fresh 3.10.0 cluster, make sure every node has the same key first:
-{.power-number}
-
-1. Find the node where monitoring works. Its key file is the one that matches the database.
-
-2. Copy that key file to every other node, using the same path.
-
-3. Start the nodes.
-
-If a node still has a different key, it logs `encryption key does not match the database` and doesn't start. Copy the key from a node that works, then restart the node.
-
-Clusters deployed with the PMM HA Helm chart need no action, because the chart already gives every node the same key.
+If a node has a different key, it logs `encryption key does not match the database` and doesn't start. To fix it, copy the key file from a node that works to the same path on that node, then restart the node.
 
 ## Rotate the encryption key
 
@@ -128,9 +112,11 @@ To rotate the key:
 
 5. Delete `pmm-encryption_old.key` or move it to secure offline storage. This file contains the previous key in plain text.
 
-### Rotate the key in a Docker HA cluster
+### Rotate the key on HA nodes
 
-All nodes must switch to the new key together, so rotate it on one node and then copy it to the others:
+Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
+
+If you set up HA nodes yourself with the [HA preview variables](../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md), all nodes must switch to the new key together. Rotate it on one node, then copy it to the others:
 {.power-number}
 
 1. Stop PMM Server on every node except one. Any node left running keeps using the old key, which leaves the database encrypted with two different keys.
@@ -140,8 +126,6 @@ All nodes must switch to the new key together, so rotate it on one node and then
 3. Copy the new key file from that node to every other node, using the same path.
 
 4. Start the other nodes.
-
-Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
 
 
 ## Recover from a failed rotation
