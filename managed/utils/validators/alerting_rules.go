@@ -48,7 +48,7 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	if err != nil {
 		return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
-	tempFile.Close()                 //nolint:errcheck
+	_ = tempFile.Close()
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
 	err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644) //nolint:gosec,mnd
