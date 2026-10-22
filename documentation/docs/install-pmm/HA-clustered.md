@@ -1,13 +1,5 @@
 # Understand PMM High Availability Cluster
 
-!!! danger "VictoriaMetrics limitations"
-    PMM HA Cluster does not support:
-    
-    - **Prometheus data imports**: Cannot import existing Prometheus files
-    - **Metrics downsampling**: No automatic historical data optimization
-    
-    If your strategy requires these features, evaluate carefully before testing.
- 
 Standard PMM monitoring goes offline for minutes during server failures. PMM HA Cluster keeps monitoring running by immediately switching to secondary servers when failures occur.
 
 
@@ -63,6 +55,15 @@ Find your chart version (`helm list -n <namespace>` for an existing installation
 If your platform version isn't listed, upgrade the cluster or use a chart version that supports it.
 
 Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't tested. VMware Tanzu isn't supported.
+
+### Check if your metrics workflows are supported
+
+PMM HA Cluster doesn't support the following VictoriaMetrics Enterprise features:
+
+- **Prometheus data imports**: you can't import existing Prometheus data files.
+- **Metrics downsampling**: PMM doesn't automatically reduce the resolution of older metrics.
+
+If you rely on either feature, plan for it before you deploy PMM HA Cluster.
 
 ## Plan your resources
 

@@ -1,11 +1,3 @@
-!!! danger "VictoriaMetrics limitations"
-    PMM HA Cluster does not support:
-    
-    - **Prometheus data imports**: Cannot import existing Prometheus files
-    - **Metrics downsampling**: No automatic historical data optimization
-    
-    If your strategy requires these features, evaluate carefully before testing.
-
 This sets up three PMM server replicas with Raft consensus, configures HAProxy for automatic load balancing, and deploys distributed databases (ClickHouse, VictoriaMetrics, PostgreSQL) via Kubernetes operators.
 
 Before you start, make sure you understand how HA Cluster works. See [Understand HA Cluster](../install-pmm/HA-clustered.md) for an overview of the architecture and how failover works.
@@ -1433,12 +1425,12 @@ Only scale down after confirming `pmm-0` is the leader.
 
 ### VictoriaMetrics limitations
 
-PMM HA Cluster does not support these VictoriaMetrics Enterprise features:
+PMM HA Cluster doesn't support the following VictoriaMetrics Enterprise features:
 
-- **Prometheus data file reading**: Cannot import existing Prometheus data files into PMM HA
-- **Metrics downsampling**: No automatic downsampling of historical metrics for long-term storage efficiency
+- **Prometheus data imports**: you can't import existing Prometheus data files.
+- **Metrics downsampling**: PMM doesn't automatically reduce the resolution of older metrics.
 
-**Impact**: If you currently rely on these features, plan accordingly for your monitoring strategy.
+If you rely on either feature, plan for it before you deploy PMM HA Cluster. For details, see [Check if your metrics workflows are supported](HA-clustered.md#check-if-your-metrics-workflows-are-supported).
 
 ## Uninstall PMM HA
 
