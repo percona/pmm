@@ -1306,6 +1306,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
 		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
 	},
+	126: {
+		`ALTER TABLE agents ADD COLUMN status_message TEXT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

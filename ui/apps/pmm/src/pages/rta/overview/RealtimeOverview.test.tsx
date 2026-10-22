@@ -3,11 +3,16 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import RealtimeOverview from './RealtimeOverview';
 import {
   TEST_MONGO_DB_QUERY_DATA,
+  TEST_MYSQL_QUERY_DATA,
   TEST_RAW_MONGO_DB_QUERY_DATA,
+  TEST_RAW_MYSQL_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
+  TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { BlockedStatus, RealtimeSessionStatus } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { Messages } from './RealtimeOverview.messages';
 
 const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
@@ -29,6 +34,17 @@ vi.mock('api/rta', () => ({
   searchQueries,
   getRunningSessions,
 }));
+
+// The selection's technology comes from matching the URL's serviceIds to running sessions.
+const renderMySqlSelection = () => {
+  getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+  // MySQL queries, or the columns under test would be read from the MongoDB payload.
+  searchQueries.mockResolvedValue({ queries: [TEST_RAW_MYSQL_QUERY_DATA] });
+
+  return renderComponent({
+    initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+  });
+};
 
 const renderComponent = ({
   initialEntry = '/rta/overview?serviceIds=123',
@@ -83,6 +99,459 @@ describe('RealtimeOverview', () => {
         screen.getAllByText(TEST_MONGO_DB_QUERY_DATA.serviceName)[0]
       ).toBeInTheDocument()
     );
+  });
+
+  it('should hide the database and user columns by default', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.queryByTestId(
+        `query-${TEST_MYSQL_QUERY_DATA.queryId}-database-cell`
+      )
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-user-cell`)
+    ).not.toBeInTheDocument();
+  });
+
+  it('should render database and user columns from the MySQL payload once revealed', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+    fireEvent.click(await screen.findByLabelText('Database'));
+    fireEvent.click(screen.getByLabelText('User'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId(
+          `query-${TEST_MYSQL_QUERY_DATA.queryId}-database-cell`
+        )
+      ).toHaveTextContent('mysql-database')
+    );
+    expect(
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-user-cell`)
+    ).toHaveTextContent('mysql-user');
+  });
+
+  it('should render elapsed time with millisecond precision, and 0 as a duration', async () => {
+    searchQueries.mockResolvedValue({
+      queries: [
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '3ms',
+          queryId: 'query-ms',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '0s',
+          queryId: 'query-zero',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: null,
+          queryId: 'query-missing',
+        },
+      ],
+    });
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('query-query-ms-elapsed-time-cell')
+      ).toHaveTextContent('0.003 s')
+    );
+    expect(
+      screen.getByTestId('query-query-zero-elapsed-time-cell')
+    ).toHaveTextContent('0.000 s');
+    expect(
+      screen.getByTestId('query-query-missing-elapsed-time-cell')
+    ).toHaveTextContent('Unavailable');
+  });
+
+  it('should hide the transaction control toggle for a MongoDB selection', async () => {
+    renderComponent();
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-hide-commit-toggle')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the transaction control toggle for a MySQL selection', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-hide-commit-toggle')
+      ).toHaveTextContent('Hide BEGIN/COMMIT')
+    );
+  });
+
+  it('should hide the blocked-only toggle for a MongoDB selection', async () => {
+    renderComponent();
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-blocked-only-toggle')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the blocked-only toggle for a MySQL selection', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-blocked-only-toggle')
+      ).toHaveTextContent('Blocked only')
+    );
+  });
+
+  it('should say blocking is unknown rather than report zero blocked', async () => {
+    const unknown = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '500',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [unknown] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    expect(toggle).toHaveTextContent('Blocked unknown');
+    expect(toggle).not.toHaveTextContent('(0)');
+    expect(toggle.querySelector('input[type="checkbox"]')).toBeDisabled();
+  });
+
+  it('keeps undecided rows when only one lock source answered', async () => {
+    // As on a stock MariaDB, which reads row locks but not metadata locks.
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'UPDATE accounts SET balance=999 WHERE id=1',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [
+          {
+            blockingConnId: '409',
+            blockingQuery: 'SELECT 1 FOR UPDATE',
+            blockingCommand: 'Sleep',
+            blockingUsername: 'u@h',
+            root: true,
+          },
+        ],
+      },
+    };
+    const undecided = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      queryText: 'ALTER TABLE accounts ENGINE=InnoDB',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [blocked, undecided] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    // Not "Blocked unknown": one row was judged, so the control still works.
+    expect(toggle).toHaveTextContent('Blocked only (1)');
+    expect(toggle.querySelector('input[type="checkbox"]')).not.toBeDisabled();
+
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+  });
+
+  it('labels an undecided row only when its state says it is waiting for a lock', async () => {
+    // Both rows are undecided, as on MySQL 5.7 or a stock MariaDB; only one is waiting.
+    const waiting = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '421',
+      queryText: 'SELECT * FROM accounts',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'Waiting for table metadata lock',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    const running = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '422',
+      queryText: 'SELECT SLEEP(10)',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'User sleep',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [waiting, running] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const waitingCell = await screen.findByTestId('query-421-query-text-cell');
+    const chip = waitingCell.querySelector(
+      '[data-testid="blocked-unknown-chip"]'
+    );
+    expect(chip).toHaveTextContent('Blocked: unknown');
+    expect(chip).toHaveAttribute('data-reason', 'unreadable');
+    expect(
+      screen
+        .getByTestId('query-422-query-text-cell')
+        .querySelector('[data-testid="blocked-unknown-chip"]')
+    ).toBeNull();
+  });
+
+  it('drops decided non-blocked rows while keeping undecided ones', async () => {
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [{ blockingConnId: '409', root: true }],
+      },
+    };
+    const undecided = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    const notBlocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '413',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({
+      queries: [blocked, undecided, notBlocked],
+    });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-413-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument();
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+  });
+
+  it('marks an unattributed row and keeps it under the blocked-only filter', async () => {
+    // Every lock source answered, so the tooltip must not describe a partial capability.
+    const unattributed = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '414',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unattributed,
+      },
+    };
+    const notBlocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '413',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [unattributed, notBlocked] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('blocked-unknown-chip')).toBeInTheDocument()
+    );
+    expect(screen.queryByTestId('blocked-chip')).not.toBeInTheDocument();
+
+    const toggle = screen.getByTestId('overview-table-blocked-only-toggle');
+    // Not counted as blocked, and the control still works.
+    expect(toggle).toHaveTextContent('Blocked only');
+    expect(toggle).not.toHaveTextContent('(');
+
+    fireEvent.mouseOver(toggle);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('1 statement could not be attributed');
+    expect(tooltip).not.toHaveTextContent('could not read every kind of lock');
+
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-413-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-414-host-cell')).toBeInTheDocument();
+  });
+
+  it('should chip the blocked row and filter to it when the toggle is on', async () => {
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'UPDATE sbtest1 SET k=k+1 WHERE id=1',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [
+          {
+            blockingConnId: '409',
+            blockingQuery: 'SELECT 1 FOR UPDATE',
+            blockingCommand: 'Sleep',
+            blockingUsername: 'u@h',
+            root: true,
+          },
+        ],
+      },
+    };
+    const running = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [blocked, running] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+    expect(screen.getByTestId('blocked-chip')).toHaveTextContent(
+      'Blocked by 409'
+    );
+    expect(
+      screen.getByTestId('overview-table-blocked-only-toggle')
+    ).toHaveTextContent('Blocked only (1)');
+
+    const toggle = screen
+      .getByTestId('overview-table-blocked-only-toggle')
+      .querySelector('input[type="checkbox"]');
+    expect(toggle).not.toBeNull();
+    fireEvent.click(toggle!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-412-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument();
+  });
+
+  it('should not offer services of another technology while one is selected', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    fireEvent.click(await screen.findByTitle('Open'));
+
+    expect(
+      await screen.findByTestId(
+        `service-option-${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`
+      )
+    ).not.toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByTestId(`service-option-${TEST_REAL_TIME_SESSION.serviceId}`)
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should watch only the first technology when the URL names both', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}&serviceIds=${TEST_REAL_TIME_SESSION.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(searchQueries).toHaveBeenLastCalledWith({
+        serviceIds: [TEST_REAL_TIME_SESSION_MYSQL.serviceId],
+      })
+    );
+  });
+
+  it('should keep elapsed time pinned without offering pin controls', async () => {
+    renderComponent();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.getByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-elapsed-time-cell`
+      )
+    ).toHaveAttribute('data-pinned', 'true');
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+
+    await waitFor(() => expect(screen.getByRole('menu')).toBeInTheDocument());
+    // The icon check still holds if MRT changes its tooltip labels.
+    expect(screen.queryByTestId('PushPinIcon')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to left')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to right')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Unpin')).not.toBeInTheDocument();
   });
 
   it("shouldn't call api if no serviceIds are provided", async () => {
@@ -331,6 +800,47 @@ describe('RealtimeOverview', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the opened statement in the pane once its connection moves on', async () => {
+    // The connection's next statement arrives under the same id and must not replace this one.
+    const sleeping = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'SELECT SLEEP(100)',
+      queryExecutionDuration: '10s',
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [sleeping] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    fireEvent.click(await screen.findByTestId('query-411-host-cell'));
+    await waitFor(() =>
+      expect(screen.getByTestId('query-details-pane')).toHaveAttribute(
+        'aria-hidden',
+        'false'
+      )
+    );
+    expect(
+      screen.queryByTestId('details-pane-finished')
+    ).not.toBeInTheDocument();
+
+    searchQueries.mockResolvedValue({
+      queries: [
+        { ...sleeping, queryText: 'COMMIT', queryExecutionDuration: '0.001s' },
+      ],
+    });
+    fireEvent.click(screen.getByTestId('details-pane-refresh-button'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('details-pane-finished')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-text')).toHaveTextContent(
+      'SELECT SLEEP(100)'
+    );
+  });
+
   it('refresh button fetches queries', async () => {
     renderComponent({
       initialEntry:
@@ -402,13 +912,105 @@ describe('RealtimeOverview', () => {
 
     fireEvent.click(screen.getByTestId('overview-table-export-button'));
 
-    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith([
-      expect.objectContaining({
-        queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
-        serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
-        queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
-        queryExecutionDurationMs: 10,
-      }),
+    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
+          serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
+          queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
+          queryExecutionDurationMs: 10,
+        }),
+      ],
+      ServiceType.mongodb
+    );
+  });
+
+  it('never asks the API for an empty selection after the pane is closed', async () => {
+    // Closing the pane restores fetching from before it opened, with nothing selected by then.
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByText(TEST_MYSQL_QUERY_DATA.serviceName)[0]
+      ).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getAllByText(TEST_MYSQL_QUERY_DATA.serviceName)[0]);
+    expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTitle('Clear'));
+    searchQueries.mockClear();
+    fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+    // The pane slides out rather than unmounting, so closing is observed via aria-hidden.
+    await waitFor(() =>
+      expect(screen.getByTestId('query-details-pane')).toHaveAttribute(
+        'aria-hidden',
+        'true'
+      )
+    );
+
+    for (const [payload] of searchQueries.mock.calls) {
+      expect(payload.serviceIds.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('treats a blank serviceIds parameter as no selection', async () => {
+    // "?serviceIds=" parses to one empty string, which the API rejects.
+    searchQueries.mockClear();
+    getRunningSessions.mockResolvedValue([]);
+
+    renderComponent({ initialEntry: '/rta/overview?serviceIds=' });
+
+    await waitFor(() => expect(getRunningSessions).toHaveBeenCalled());
+    expect(searchQueries).not.toHaveBeenCalled();
+  });
+
+  it('explains an empty view with the reason its session failed', async () => {
+    getRunningSessions.mockResolvedValue([
+      {
+        ...TEST_REAL_TIME_SESSION_MYSQL,
+        status: RealtimeSessionStatus.error,
+        statusMessage:
+          'Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics',
+      },
     ]);
+    searchQueries.mockResolvedValue({ queries: [] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    expect(
+      await screen.findByText(
+        /Real-Time Analytics could not start for Service 3: .*performance_schema is disabled/
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText('No queries available')).not.toBeInTheDocument();
+  });
+
+  it('marks a statement whose text MySQL cut short in the table', async () => {
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({
+      queries: [
+        {
+          ...TEST_RAW_MYSQL_QUERY_DATA,
+          mySqlPayload: {
+            ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+            queryTextTruncated: true,
+          },
+        },
+      ],
+    });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    expect(
+      await screen.findByTestId(
+        `query-${TEST_RAW_MYSQL_QUERY_DATA.queryId}-truncated-chip`
+      )
+    ).toHaveTextContent('Truncated');
   });
 });
