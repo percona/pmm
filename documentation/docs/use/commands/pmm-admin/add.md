@@ -59,7 +59,8 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 | Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
 |------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--disable-collectors`<br>Exclude collectors | ✓ | | ✓ | | ✓ | |
+| `--disable-collectors`<br>Exclude collectors | ✓ | ✓ | ✓ | | ✓ | |
+| `--enable-collectors`<br>Include collectors that are off by default | | ✓ | | | | |
 | `--enable-all-collectors`<br>Enable all collectors | | | ✓ | | | |
 | `--max-collections-limit`<br>Max collections to monitor | | | ✓ | | | |
 | `--stats-collections`<br>Collections for stats | | | ✓ | | | |
@@ -272,6 +273,17 @@ Control how PMM collects query data for Query Analytics (QAN):
 
 - `--comments-parsing`: Enable or disable parsing comments from queries into QAN filter groups: `on` or `off` (default).
 
+### Collector options
+
+PMM runs the collectors that postgres_exporter runs by default, and `wal`, which reports the number and size of the WAL files. `wal` needs a superuser or a member of `pg_monitor`, which the [PMM database user](../../../install-pmm/install-pmm-client/connect-database/postgresql.md#create-a-database-account-for-pmm) is.
+
+- `--enable-collectors`: Comma-separated list of collectors to turn on that postgres_exporter doesn't run by default: `long_running_transactions`, `postmaster`, `process_idle`, `stat_activity_autovacuum`, `stat_io` (PMM Client 3.6.0 and later), `stat_statements`, `stat_wal_receiver`, and `statio_user_indexes`. PMM refuses a name that isn't a postgres_exporter collector, and a collector that the exporter of the PMM Client doesn't have yet.
+
+- `--disable-collectors`: Comma-separated list of collectors to turn off, such as `locks` or `wal`. A collector can't be in both lists.
+
+!!! warning "Collectors that add many time series"
+    `stat_statements` adds time series for every query that it reports, and `statio_user_indexes` for every index. The collectors run together, at high resolution, so turn these two on only for a server with few distinct queries and indexes.
+
 ### Examples
 
 - Add PostgreSQL with `pg_stat_statements`:
@@ -314,6 +326,16 @@ Control how PMM collects query data for Query Analytics (QAN):
       --password=pass \
       --tls \
       --tls-ca-file=/path/to/ca.pem
+    ```
+
+- Add PostgreSQL with collectors that postgres_exporter doesn't run by default:
+
+    ```bash
+    pmm-admin add postgresql \
+      postgres-prod 192.168.1.30:5432 \
+      --username=pmm \
+      --password=pass \
+      --enable-collectors=long_running_transactions,stat_wal_receiver
     ```
 
 ## Add MongoDB
