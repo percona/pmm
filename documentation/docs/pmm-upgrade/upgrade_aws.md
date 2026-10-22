@@ -28,11 +28,11 @@ To upgrade PMM Server on AWS:
     sed -i "s|PMM_IMAGE=.*|PMM_IMAGE=docker.io/percona/pmm-server:X.Y.Z|g" ~/.config/systemd/user/pmm-server.env
     ```
 
-4. Pre-pull the new image and restart PMM Server:
+4. Pull the new image, then restart PMM Server. The `&&` operators stop the commands if the pull fails, so PMM Server keeps running the current version:
 
     ```sh
-    source ~/.config/systemd/user/pmm-server.env
-    podman pull ${PMM_IMAGE}
+    source ~/.config/systemd/user/pmm-server.env && \
+    podman pull "${PMM_IMAGE}" && \
     systemctl --user restart pmm-server
     ```
 
