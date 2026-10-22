@@ -87,6 +87,14 @@ Follow the sections through [Git and pull request checklist](#git-and-pull-reque
 
 For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — run PMM on a live server and verify against real data before calling it done (see [Definition of Done](#definition-of-done) and the full procedure in [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md)).
 
+### Specs, plans and decisions
+
+Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs), not in this repo. Each piece of work has a folder `<JIRA-KEY>-<short-name>/`, keyed by the epic when the work spans several tickets, otherwise by the ticket (e.g. [`PMM-15567-otel/`](https://github.com/Percona-Lab/pmm-specs/tree/main/PMM-15567-otel)).
+
+- **Before working on a ticket**, look for its folder or its epic's. If one exists, follow its `spec.md` and `plans/`, and record decisions made along the way back there.
+- **To create one** (epics, larger or cross-component changes only): add `spec.md`, `plans/NN-short-name.md` and `adr/ADR-NN-short-title.md` as needed, and open a PR in pmm-specs so it is reviewed before implementation starts. This overrides tool defaults such as `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+- Layout and rules: [pmm-specs README](https://github.com/Percona-Lab/pmm-specs#readme).
+
 ### Don'ts
 
 - Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
@@ -327,6 +335,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | [percona/azure_metrics_exporter](https://github.com/percona/azure_metrics_exporter) | Azure database metrics exporter    |
 | [percona/pmm-qa](https://github.com/percona/pmm-qa) | End-to-end UI tests, QA automation DB setups and CLI tests         |
 | [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules) | Feature build orchestration                |
+| [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs) | Specs, implementation plans and ADRs ([Specs, plans and decisions](#specs-plans-and-decisions)) |
 
 ## Tech Stack
 
