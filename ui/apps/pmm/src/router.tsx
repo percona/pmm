@@ -16,7 +16,11 @@ import {
   OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect, SettingsRedirect } from 'components/redirect';
+import {
+  PmmDumpRedirect,
+  Redirect,
+  SettingsRedirect,
+} from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { DumpPage, ExportDataset } from 'pages/dump';
@@ -173,6 +177,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/alerting/alerts',
               element: <Navigate to="/alerting/status" replace />,
+            },
+            {
+              path: 'graph/pmm-dump/*',
+              element: <PmmDumpRedirect />,
             },
             // Grafana routes are handled at the Main component level
             {
