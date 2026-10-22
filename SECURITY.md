@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-PMM versions starting from v2.0.0 are currently being supported.
+Only PMM 3.x receives security fixes. PMM 1.x and 2.x are end of life.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,20 +10,45 @@ PMM versions starting from v2.0.0 are currently being supported.
 | 2.x.x   | :x:                |
 | 3.x.x   | :white_check_mark: |
 
+Fixes are delivered in the next PMM release; we do not backport to older minor versions.
+
 ## Reporting a Vulnerability
 
-Please report any vulnerabilities to our project in [Jira](https://jira.percona.com/projects/PMM/issues).
+**Please do not report security vulnerabilities through public GitHub issues, pull requests, or the forums.**
 
-If the vulnerability is accepted and confirmed by our experts, you should normally expect us to deliver a version with a fix according to the timelines provided below:
+Report privately using either of:
 
-For software developed by Percona:
+- [GitHub private vulnerability reporting](https://github.com/percona/pmm/security/advisories/new) — preferred.
+- [Percona Jira](https://perconadev.atlassian.net/jira/software/c/projects/PMM/issues), using the **PMM** project with the security level set so the issue is not public.
 
-- Low/Medium: 120 days
-- High: 90 days
-- Critical: ASAP but should not exceed 30 days
+Please include as much of the following as you can:
 
-For third-party software (upstream/packaged), timelines begin when the vendor releases a patch:
+- PMM version (`pmm-admin --version`, or the PMM Server image tag) and deployment type (Docker, OVF, AMI, Helm).
+- The affected component (pmm-managed, pmm-agent, pmm-admin, an exporter, a bundled third-party package).
+- Steps to reproduce, a proof of concept, and the impact you believe it has.
+- Any CVE identifier if the issue is in a third-party dependency we ship.
 
-- Low/Medium: 2nd release from current version
-- High: Next release
-- Critical: Hotfix or no later than next release (our regular release cadence is once every month)
+Please give us a reasonable opportunity to fix the issue before any public disclosure, and coordinate the disclosure date with us.
+
+## Remediation Timelines
+
+Once a vulnerability is confirmed, we aim to deliver a fix within the following targets:
+
+- Critical: immediately, and no later than 14 days
+- High: as soon as possible, and no later than 30 days
+- Medium: within 60 days
+- Low: best effort within 90 days
+
+The same targets apply to vulnerabilities in third-party software we package or distribute, measured from the date the upstream vendor makes a patch available.
+
+Severity is assessed on the impact to PMM, so it may differ from the severity recorded by an upstream advisory or a scanner where compensating controls reduce the practical risk.
+
+## Scope
+
+In scope: the PMM components built in this repository (pmm-managed, pmm-agent, pmm-admin, qan-api2, vmproxy, the UI), the PMM Server distributions, and third-party components we package and ship.
+
+Out of scope: Percona's websites and corporate infrastructure, issues that only affect unsupported versions, and findings that require an already-compromised host or PMM administrator credentials. Vulnerabilities in other Percona products should be reported against their own repositories.
+
+## Security Contact
+
+- [@aaronormerod](https://github.com/aaronormerod)
