@@ -1781,7 +1781,7 @@
                 "type": "query"
             },
             {
-                "allValue": "",
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
