@@ -89,11 +89,10 @@ For **user-visible changes** (metric, dashboard, API, exporter, UI), passing uni
 
 ### Specs, plans and decisions
 
-Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs), not in this repo. Each piece of work has a folder `tickets/<JIRA-KEY>-<short-name>/`, keyed by the epic when the work spans several tickets, otherwise by the ticket (e.g. [`tickets/PMM-15567-otel/`](https://github.com/Percona-Lab/pmm-specs/tree/main/tickets/PMM-15567-otel)).
+Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs), not in this repo, one folder per epic or ticket: `tickets/<JIRA-KEY>-<short-name>/`.
 
-- **Before working on a ticket**, look for its folder or its epic's. If one exists, follow its `spec.md` and `plans/`, and record decisions made along the way back there.
-- **To create one** (epics, larger or cross-component changes only): add `spec.md`, `plans/NN-short-name.md` and `adr/ADR-NN-short-title.md` as needed, and open a PR in pmm-specs so it is reviewed before implementation starts. This overrides tool defaults such as `docs/superpowers/specs/` and `docs/superpowers/plans/`.
-- Layout and rules: [pmm-specs README](https://github.com/Percona-Lab/pmm-specs#readme).
+- **Before working on a ticket**, look for its folder or its epic's and follow it.
+- **To create one** (epics, larger or cross-component changes only), follow [pmm-specs `AGENTS.md`](https://github.com/Percona-Lab/pmm-specs/blob/main/AGENTS.md) and open a PR there. This overrides tool defaults such as `docs/superpowers/`.
 
 ### Don'ts
 
