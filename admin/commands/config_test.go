@@ -87,6 +87,25 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.True(t, switchedToTLS)
 	})
 
+	t.Run("Environment", func(t *testing.T) {
+		cmd := &ConfigCommand{
+			NodeAddress: "1.2.3.4",
+			NodeType:    "generic",
+			NodeName:    "node1",
+			Environment: "prod",
+		}
+		u, err := url.Parse("https://127.0.0.1")
+		require.NoError(t, err)
+		args, _ := cmd.args(&flags.GlobalFlags{ServerURL: u})
+		expected := []string{
+			"--server-address=127.0.0.1:443",
+			"setup",
+			"--environment=prod",
+			"1.2.3.4", "generic", "node1",
+		}
+		assert.Equal(t, expected, args)
+	})
+
 	t.Run("LoggingLevel", func(t *testing.T) {
 		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",

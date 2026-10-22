@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -92,6 +93,60 @@ func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest)
 	}
 
 	return node, nil
+}
+
+// errDryRun rolls back the transaction of a dry run.
+var errDryRun = errors.New("dry run")
+
+// ChangeNode changes the labels of a Node. With dry_run it validates the change and returns the Node as
+// it would be, without applying it.
+func (s *NodesService) ChangeNode(ctx context.Context, req *inventoryv1.ChangeNodeRequest) (inventoryv1.Node, error) { //nolint:ireturn
+	params := &models.ChangeNodeParams{
+		Environment: req.Environment,
+		NodeModel:   req.NodeModel,
+		Region:      req.Region,
+		AZ:          req.Az,
+	}
+	if req.CustomLabels != nil {
+		params.CustomLabels = req.GetCustomLabels().GetValues()
+		if params.CustomLabels == nil {
+			params.CustomLabels = map[string]string{}
+		}
+	}
+
+	var node *models.Node
+	var notify agentsToNotify
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		node, err = models.ChangeNode(tx.Querier, req.NodeId, params)
+		if err != nil {
+			return err
+		}
+
+		if req.DryRun {
+			return errDryRun
+		}
+
+		notify, err = agentsAffectedBy(tx.Querier, node.NodeID)
+		return err
+	})
+	if e != nil && !errors.Is(e, errDryRun) {
+		return nil, e
+	}
+
+	if req.DryRun {
+		return services.ToAPINode(node)
+	}
+
+	// The labels of a Node are on the metrics of the Node and of every Service on it. Pull mode takes
+	// them from the scrape configuration, push mode from the vmagent configuration of each pmm-agent.
+	s.vmdb.RequestConfigurationUpdate()
+	maps.Copy(notify.setState, notify.kick)
+	for id := range notify.setState {
+		s.state.RequestStateUpdate(ctx, id)
+	}
+
+	return services.ToAPINode(node)
 }
 
 // AddNode adds any type of Node.

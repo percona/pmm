@@ -16,6 +16,8 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	common "github.com/percona/pmm/api/common"
 )
 
 const (
@@ -107,8 +109,10 @@ type GenericNode struct {
 	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// True if this node is a PMM Server node (HA mode).
 	IsPmmServerNode bool `protobuf:"varint,10,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Environment name.
+	Environment   string `protobuf:"bytes,11,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenericNode) Reset() {
@@ -211,6 +215,13 @@ func (x *GenericNode) GetIsPmmServerNode() bool {
 	return false
 }
 
+func (x *GenericNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 // ContainerNode represents a Docker container.
 type ContainerNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -236,8 +247,10 @@ type ContainerNode struct {
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// True if this node is a PMM Server node (HA mode).
 	IsPmmServerNode bool `protobuf:"varint,11,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Environment name.
+	Environment   string `protobuf:"bytes,12,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ContainerNode) Reset() {
@@ -347,6 +360,13 @@ func (x *ContainerNode) GetIsPmmServerNode() bool {
 	return false
 }
 
+func (x *ContainerNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 // RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 type RemoteNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -363,7 +383,9 @@ type RemoteNode struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Environment name.
+	Environment   string `protobuf:"bytes,8,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -447,6 +469,13 @@ func (x *RemoteNode) GetCustomLabels() map[string]string {
 	return nil
 }
 
+func (x *RemoteNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 // RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 type RemoteRDSNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -465,7 +494,9 @@ type RemoteRDSNode struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// AWS DB instance identifier.
-	InstanceId    string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	InstanceId string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	// Environment name.
+	Environment   string `protobuf:"bytes,9,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -556,6 +587,13 @@ func (x *RemoteRDSNode) GetInstanceId() string {
 	return ""
 }
 
+func (x *RemoteRDSNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 type RemoteAzureDatabaseNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -572,7 +610,9 @@ type RemoteAzureDatabaseNode struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Environment name.
+	Environment   string `protobuf:"bytes,8,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -654,6 +694,13 @@ func (x *RemoteAzureDatabaseNode) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *RemoteAzureDatabaseNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
 }
 
 type ListNodesRequest struct {
@@ -1818,11 +1865,240 @@ func (x *RemoveNodeResponse) GetWarning() string {
 	return ""
 }
 
+type ChangeNodeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,2,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Node model.
+	NodeModel *string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3,oneof" json:"node_model,omitempty"`
+	// Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.
+	Region *string `protobuf:"bytes,4,opt,name=region,proto3,oneof" json:"region,omitempty"`
+	// Node availability zone.
+	Az *string `protobuf:"bytes,5,opt,name=az,proto3,oneof" json:"az,omitempty"`
+	// Replace all custom user-assigned labels.
+	CustomLabels *common.StringMap `protobuf:"bytes,6,opt,name=custom_labels,json=customLabels,proto3,oneof" json:"custom_labels,omitempty"`
+	// Validate the change and return the Node as it would be, without applying it.
+	DryRun        bool `protobuf:"varint,7,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeNodeRequest) Reset() {
+	*x = ChangeNodeRequest{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeNodeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeNodeRequest) ProtoMessage() {}
+
+func (x *ChangeNodeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeNodeRequest.ProtoReflect.Descriptor instead.
+func (*ChangeNodeRequest) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ChangeNodeRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *ChangeNodeRequest) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *ChangeNodeRequest) GetNodeModel() string {
+	if x != nil && x.NodeModel != nil {
+		return *x.NodeModel
+	}
+	return ""
+}
+
+func (x *ChangeNodeRequest) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
+}
+
+func (x *ChangeNodeRequest) GetAz() string {
+	if x != nil && x.Az != nil {
+		return *x.Az
+	}
+	return ""
+}
+
+func (x *ChangeNodeRequest) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *ChangeNodeRequest) GetDryRun() bool {
+	if x != nil {
+		return x.DryRun
+	}
+	return false
+}
+
+type ChangeNodeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Node:
+	//
+	//	*ChangeNodeResponse_Generic
+	//	*ChangeNodeResponse_Container
+	//	*ChangeNodeResponse_Remote
+	//	*ChangeNodeResponse_RemoteRds
+	//	*ChangeNodeResponse_RemoteAzureDatabase
+	Node          isChangeNodeResponse_Node `protobuf_oneof:"node"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeNodeResponse) Reset() {
+	*x = ChangeNodeResponse{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeNodeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeNodeResponse) ProtoMessage() {}
+
+func (x *ChangeNodeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeNodeResponse.ProtoReflect.Descriptor instead.
+func (*ChangeNodeResponse) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ChangeNodeResponse) GetNode() isChangeNodeResponse_Node {
+	if x != nil {
+		return x.Node
+	}
+	return nil
+}
+
+func (x *ChangeNodeResponse) GetGeneric() *GenericNode {
+	if x != nil {
+		if x, ok := x.Node.(*ChangeNodeResponse_Generic); ok {
+			return x.Generic
+		}
+	}
+	return nil
+}
+
+func (x *ChangeNodeResponse) GetContainer() *ContainerNode {
+	if x != nil {
+		if x, ok := x.Node.(*ChangeNodeResponse_Container); ok {
+			return x.Container
+		}
+	}
+	return nil
+}
+
+func (x *ChangeNodeResponse) GetRemote() *RemoteNode {
+	if x != nil {
+		if x, ok := x.Node.(*ChangeNodeResponse_Remote); ok {
+			return x.Remote
+		}
+	}
+	return nil
+}
+
+func (x *ChangeNodeResponse) GetRemoteRds() *RemoteRDSNode {
+	if x != nil {
+		if x, ok := x.Node.(*ChangeNodeResponse_RemoteRds); ok {
+			return x.RemoteRds
+		}
+	}
+	return nil
+}
+
+func (x *ChangeNodeResponse) GetRemoteAzureDatabase() *RemoteAzureDatabaseNode {
+	if x != nil {
+		if x, ok := x.Node.(*ChangeNodeResponse_RemoteAzureDatabase); ok {
+			return x.RemoteAzureDatabase
+		}
+	}
+	return nil
+}
+
+type isChangeNodeResponse_Node interface {
+	isChangeNodeResponse_Node()
+}
+
+type ChangeNodeResponse_Generic struct {
+	Generic *GenericNode `protobuf:"bytes,1,opt,name=generic,proto3,oneof"`
+}
+
+type ChangeNodeResponse_Container struct {
+	Container *ContainerNode `protobuf:"bytes,2,opt,name=container,proto3,oneof"`
+}
+
+type ChangeNodeResponse_Remote struct {
+	Remote *RemoteNode `protobuf:"bytes,3,opt,name=remote,proto3,oneof"`
+}
+
+type ChangeNodeResponse_RemoteRds struct {
+	RemoteRds *RemoteRDSNode `protobuf:"bytes,4,opt,name=remote_rds,json=remoteRds,proto3,oneof"`
+}
+
+type ChangeNodeResponse_RemoteAzureDatabase struct {
+	RemoteAzureDatabase *RemoteAzureDatabaseNode `protobuf:"bytes,5,opt,name=remote_azure_database,json=remoteAzureDatabase,proto3,oneof"`
+}
+
+func (*ChangeNodeResponse_Generic) isChangeNodeResponse_Node() {}
+
+func (*ChangeNodeResponse_Container) isChangeNodeResponse_Node() {}
+
+func (*ChangeNodeResponse_Remote) isChangeNodeResponse_Node() {}
+
+func (*ChangeNodeResponse_RemoteRds) isChangeNodeResponse_Node() {}
+
+func (*ChangeNodeResponse_RemoteAzureDatabase) isChangeNodeResponse_Node() {}
+
 var File_inventory_v1_nodes_proto protoreflect.FileDescriptor
 
 const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\n" +
-	"\x18inventory/v1/nodes.proto\x12\finventory.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x9b\x03\n" +
+	"\x18inventory/v1/nodes.proto\x12\finventory.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xbd\x03\n" +
 	"\vGenericNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1836,10 +2112,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x02az\x18\b \x01(\tR\x02az\x12P\n" +
 	"\rcustom_labels\x18\t \x03(\v2+.inventory.v1.GenericNode.CustomLabelsEntryR\fcustomLabels\x12+\n" +
 	"\x12is_pmm_server_node\x18\n" +
-	" \x01(\bR\x0fisPmmServerNode\x1a?\n" +
+	" \x01(\bR\x0fisPmmServerNode\x12 \n" +
+	"\venvironment\x18\v \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd1\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x03\n" +
 	"\rContainerNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1854,10 +2131,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x02az\x18\t \x01(\tR\x02az\x12R\n" +
 	"\rcustom_labels\x18\n" +
 	" \x03(\v2-.inventory.v1.ContainerNode.CustomLabelsEntryR\fcustomLabels\x12+\n" +
-	"\x12is_pmm_server_node\x18\v \x01(\bR\x0fisPmmServerNode\x1a?\n" +
+	"\x12is_pmm_server_node\x18\v \x01(\bR\x0fisPmmServerNode\x12 \n" +
+	"\venvironment\x18\f \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb5\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd7\x02\n" +
 	"\n" +
 	"RemoteNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
@@ -1867,10 +2145,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x04 \x01(\tR\tnodeModel\x12\x16\n" +
 	"\x06region\x18\x05 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x06 \x01(\tR\x02az\x12O\n" +
-	"\rcustom_labels\x18\a \x03(\v2*.inventory.v1.RemoteNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\a \x03(\v2*.inventory.v1.RemoteNode.CustomLabelsEntryR\fcustomLabels\x12 \n" +
+	"\venvironment\x18\b \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdc\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfe\x02\n" +
 	"\rRemoteRDSNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1881,10 +2160,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x02az\x18\x06 \x01(\tR\x02az\x12R\n" +
 	"\rcustom_labels\x18\a \x03(\v2-.inventory.v1.RemoteRDSNode.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
 	"\vinstance_id\x18\b \x01(\tR\n" +
-	"instanceId\x1a?\n" +
+	"instanceId\x12 \n" +
+	"\venvironment\x18\t \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf1\x02\n" +
 	"\x17RemoteAzureDatabaseNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1893,7 +2173,8 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x04 \x01(\tR\tnodeModel\x12\x16\n" +
 	"\x06region\x18\x05 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x06 \x01(\tR\x02az\x12\\\n" +
-	"\rcustom_labels\x18\a \x03(\v27.inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\a \x03(\v27.inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntryR\fcustomLabels\x12 \n" +
+	"\venvironment\x18\b \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"G\n" +
@@ -2000,14 +2281,36 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\".\n" +
 	"\x12RemoveNodeResponse\x12\x18\n" +
-	"\awarning\x18\x01 \x01(\tR\awarning*\xc3\x01\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning\"\xcb\x02\n" +
+	"\x11ChangeNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12%\n" +
+	"\venvironment\x18\x02 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"node_model\x18\x03 \x01(\tH\x01R\tnodeModel\x88\x01\x01\x12\x1b\n" +
+	"\x06region\x18\x04 \x01(\tH\x02R\x06region\x88\x01\x01\x12\x13\n" +
+	"\x02az\x18\x05 \x01(\tH\x03R\x02az\x88\x01\x01\x12;\n" +
+	"\rcustom_labels\x18\x06 \x01(\v2\x11.common.StringMapH\x04R\fcustomLabels\x88\x01\x01\x12\x17\n" +
+	"\adry_run\x18\a \x01(\bR\x06dryRunB\x0e\n" +
+	"\f_environmentB\r\n" +
+	"\v_node_modelB\t\n" +
+	"\a_regionB\x05\n" +
+	"\x03_azB\x10\n" +
+	"\x0e_custom_labels\"\xdf\x02\n" +
+	"\x12ChangeNodeResponse\x125\n" +
+	"\ageneric\x18\x01 \x01(\v2\x19.inventory.v1.GenericNodeH\x00R\ageneric\x12;\n" +
+	"\tcontainer\x18\x02 \x01(\v2\x1b.inventory.v1.ContainerNodeH\x00R\tcontainer\x122\n" +
+	"\x06remote\x18\x03 \x01(\v2\x18.inventory.v1.RemoteNodeH\x00R\x06remote\x12<\n" +
+	"\n" +
+	"remote_rds\x18\x04 \x01(\v2\x1b.inventory.v1.RemoteRDSNodeH\x00R\tremoteRds\x12[\n" +
+	"\x15remote_azure_database\x18\x05 \x01(\v2%.inventory.v1.RemoteAzureDatabaseNodeH\x00R\x13remoteAzureDatabaseB\x06\n" +
+	"\x04node*\xc3\x01\n" +
 	"\bNodeType\x12\x19\n" +
 	"\x15NODE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16NODE_TYPE_GENERIC_NODE\x10\x01\x12\x1c\n" +
 	"\x18NODE_TYPE_CONTAINER_NODE\x10\x02\x12\x19\n" +
 	"\x15NODE_TYPE_REMOTE_NODE\x10\x03\x12\x1d\n" +
 	"\x19NODE_TYPE_REMOTE_RDS_NODE\x10\x04\x12(\n" +
-	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\xe6\x04\n" +
+	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\x84\a\n" +
 	"\fNodesService\x12\x96\x01\n" +
 	"\tListNodes\x12\x1e.inventory.v1.ListNodesRequest\x1a\x1f.inventory.v1.ListNodesResponse\"H\x92A*\x12\n" +
 	"List Nodes\x1a\x1cReturns a list of all Nodes.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/inventory/nodes\x12\x9a\x01\n" +
@@ -2016,7 +2319,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\aAddNode\x12\x1c.inventory.v1.AddNodeRequest\x1a\x1d.inventory.v1.AddNodeResponse\";\x92A\x1a\x12\n" +
 	"Add a Node\x1a\fAdds a Node.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/inventory/nodes\x12\x99\x01\n" +
 	"\n" +
-	"RemoveNode\x12\x1f.inventory.v1.RemoveNodeRequest\x1a .inventory.v1.RemoveNodeResponse\"H\x92A \x12\rRemove a Node\x1a\x0fRemoves a Node.\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/inventory/nodes/{node_id}B\xa4\x01\n" +
+	"RemoveNode\x12\x1f.inventory.v1.RemoveNodeRequest\x1a .inventory.v1.RemoveNodeResponse\"H\x92A \x12\rRemove a Node\x1a\x0fRemoves a Node.\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/inventory/nodes/{node_id}\x12\x9b\x02\n" +
+	"\n" +
+	"ChangeNode\x12\x1f.inventory.v1.ChangeNodeRequest\x1a .inventory.v1.ChangeNodeResponse\"\xc9\x01\x92A\x9d\x01\x12\rChange a Node\x1a\x8b\x01Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed.\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/v1/inventory/nodes/{node_id}B\xa4\x01\n" +
 	"\x10com.inventory.v1B\n" +
 	"NodesProtoP\x01Z3github.com/percona/pmm/api/inventory/v1;inventoryv1\xa2\x02\x03IXX\xaa\x02\fInventory.V1\xca\x02\fInventory\\V1\xe2\x02\x18Inventory\\V1\\GPBMetadata\xea\x02\rInventory::V1b\x06proto3"
 
@@ -2034,7 +2339,7 @@ func file_inventory_v1_nodes_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 28)
+	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 30)
 	file_inventory_v1_nodes_proto_goTypes   = []any{
 		NodeType(0),                      // 0: inventory.v1.NodeType
 		(*GenericNode)(nil),              // 1: inventory.v1.GenericNode
@@ -2055,25 +2360,28 @@ var (
 		(*AddRemoteAzureNodeParams)(nil), // 16: inventory.v1.AddRemoteAzureNodeParams
 		(*RemoveNodeRequest)(nil),        // 17: inventory.v1.RemoveNodeRequest
 		(*RemoveNodeResponse)(nil),       // 18: inventory.v1.RemoveNodeResponse
-		nil,                              // 19: inventory.v1.GenericNode.CustomLabelsEntry
-		nil,                              // 20: inventory.v1.ContainerNode.CustomLabelsEntry
-		nil,                              // 21: inventory.v1.RemoteNode.CustomLabelsEntry
-		nil,                              // 22: inventory.v1.RemoteRDSNode.CustomLabelsEntry
-		nil,                              // 23: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
-		nil,                              // 24: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-		nil,                              // 25: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-		nil,                              // 26: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-		nil,                              // 27: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-		nil,                              // 28: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		(*ChangeNodeRequest)(nil),        // 19: inventory.v1.ChangeNodeRequest
+		(*ChangeNodeResponse)(nil),       // 20: inventory.v1.ChangeNodeResponse
+		nil,                              // 21: inventory.v1.GenericNode.CustomLabelsEntry
+		nil,                              // 22: inventory.v1.ContainerNode.CustomLabelsEntry
+		nil,                              // 23: inventory.v1.RemoteNode.CustomLabelsEntry
+		nil,                              // 24: inventory.v1.RemoteRDSNode.CustomLabelsEntry
+		nil,                              // 25: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+		nil,                              // 26: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+		nil,                              // 27: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+		nil,                              // 28: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+		nil,                              // 29: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+		nil,                              // 30: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		(*common.StringMap)(nil),         // 31: common.StringMap
 	}
 )
 
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
-	19, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
-	20, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
-	21, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
-	22, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
-	23, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
+	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
+	23, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
+	24, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
+	25, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
 	0,  // 5: inventory.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
 	1,  // 6: inventory.v1.ListNodesResponse.generic:type_name -> inventory.v1.GenericNode
 	2,  // 7: inventory.v1.ListNodesResponse.container:type_name -> inventory.v1.ContainerNode
@@ -2095,24 +2403,32 @@ var file_inventory_v1_nodes_proto_depIdxs = []int32{
 	3,  // 23: inventory.v1.AddNodeResponse.remote:type_name -> inventory.v1.RemoteNode
 	4,  // 24: inventory.v1.AddNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
 	5,  // 25: inventory.v1.AddNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	24, // 26: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-	25, // 27: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-	26, // 28: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-	27, // 29: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-	28, // 30: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
-	6,  // 31: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
-	8,  // 32: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
-	10, // 33: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
-	17, // 34: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
-	7,  // 35: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
-	9,  // 36: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
-	11, // 37: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
-	18, // 38: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
-	35, // [35:39] is the sub-list for method output_type
-	31, // [31:35] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	26, // 26: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+	27, // 27: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+	28, // 28: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+	29, // 29: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+	30, // 30: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+	31, // 31: inventory.v1.ChangeNodeRequest.custom_labels:type_name -> common.StringMap
+	1,  // 32: inventory.v1.ChangeNodeResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 33: inventory.v1.ChangeNodeResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 34: inventory.v1.ChangeNodeResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 35: inventory.v1.ChangeNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 36: inventory.v1.ChangeNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	6,  // 37: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
+	8,  // 38: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
+	10, // 39: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
+	17, // 40: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
+	19, // 41: inventory.v1.NodesService.ChangeNode:input_type -> inventory.v1.ChangeNodeRequest
+	7,  // 42: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
+	9,  // 43: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
+	11, // 44: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
+	18, // 45: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
+	20, // 46: inventory.v1.NodesService.ChangeNode:output_type -> inventory.v1.ChangeNodeResponse
+	42, // [42:47] is the sub-list for method output_type
+	37, // [37:42] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_nodes_proto_init() }
@@ -2141,13 +2457,21 @@ func file_inventory_v1_nodes_proto_init() {
 		(*AddNodeResponse_RemoteRds)(nil),
 		(*AddNodeResponse_RemoteAzureDatabase)(nil),
 	}
+	file_inventory_v1_nodes_proto_msgTypes[18].OneofWrappers = []any{}
+	file_inventory_v1_nodes_proto_msgTypes[19].OneofWrappers = []any{
+		(*ChangeNodeResponse_Generic)(nil),
+		(*ChangeNodeResponse_Container)(nil),
+		(*ChangeNodeResponse_Remote)(nil),
+		(*ChangeNodeResponse_RemoteRds)(nil),
+		(*ChangeNodeResponse_RemoteAzureDatabase)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_nodes_proto_rawDesc), len(file_inventory_v1_nodes_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

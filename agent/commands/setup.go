@@ -349,6 +349,7 @@ func unappliedSetupFlags(s *config.Setup) []string {
 		{"--node-model", s.NodeModel != ""},
 		{"--region", s.Region != ""},
 		{"--az", s.Az != ""},
+		{"--environment", s.Environment != ""},
 		{"--metrics-mode", s.MetricsMode != "" && s.MetricsMode != "auto"},
 		{"--disable-collectors", s.DisableCollectors != ""},
 		{"--custom-labels", s.CustomLabels != ""},
