@@ -89,7 +89,7 @@ PMM checks these requirements during scans and reports the results so you can fi
 
 ### Provide MongoDB credentials for scans
 
-Scans log in to MongoDB on each node to read the replica set state and the running MongoDB version. They don't use the monitoring credentials that PMM already holds, so you need to provide credentials even for instances that PMM monitors.
+Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so you need to provide credentials even for instances that PMM monitors.
 
 To provide credentials:
 {.power-number}
