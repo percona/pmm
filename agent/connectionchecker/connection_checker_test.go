@@ -288,7 +288,7 @@ func TestConnectionChecker(t *testing.T) {
 			Type:      inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),
 			TextFiles: mongoDBTextFiles,
-		}, rand.Uint32()) //nolint:gosec
+		}, rand.Uint32())
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Error)
 	})

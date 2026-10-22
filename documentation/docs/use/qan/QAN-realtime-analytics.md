@@ -24,6 +24,10 @@ For details on PMM roles, see [Standard role permissions](../../admin/roles/inde
 
 ## Start an RTA session
 
+You can start RTA from the PMM UI or from the command line.
+
+### From the UI
+
 To start monitoring a MongoDB service:
 {.power-number}
 
@@ -34,6 +38,52 @@ To start monitoring a MongoDB service:
 The live operations table appears and begins updating automatically:
 
 ![RTA live table](../../images/RTA_live.png)
+
+### From the command line
+
+Use `pmm-admin inventory add agent rta-mongodb-agent` to start RTA on a specific MongoDB service:
+
+```bash
+pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id>
+```
+
+Get the required IDs with:
+
+```bash
+# Get your PMM Agent ID
+pmm-admin status
+
+# Get the MongoDB service ID
+pmm-admin inventory list services
+```
+
+Make sure to [add the MongoDB service](../commands/pmm-admin/add.md#add-mongodb) first if you haven't already. 
+
+The output includes the RTA agent ID. Save it, as you will need it to stop RTA later. For the full flag reference, see [pmm-admin inventory add agent rta-mongodb-agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-add-agent-rta-mongodb-agent).
+
+## Stop an RTA session
+
+### From the UI
+
+To stop an RTA session, click **All sessions** in the **Real-time** view and click **Stop** next to the session, or click **Stop all sessions** to stop all at once.
+
+### From the command line
+
+Remove the RTA agent to stop Real-Time Analytics for that service:
+
+```bash
+# 1. Find the RTA agent ID
+pmm-admin inventory list agents
+
+# 2. Remove it
+pmm-admin inventory remove agent <rta-agent-id>
+```
+
+For the full flag reference, see [pmm-admin inventory remove agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-remove-agent).
+
+
+This stops Real-Time Analytics for that service but does not affect the MongoDB exporter or stored QAN metrics. To restart RTA, use `pmm-admin inventory add agent rta-mongodb-agent`.
+
 ## Explore the Real-time view
 
 ### Filter by service
@@ -74,6 +124,17 @@ The export includes all records across all pages, respects active filters and so
 
 #### Exported fields
 
+The columns are generated from the query data that PMM returns, so the exact set depends on your PMM version. Most column names match the API field names; a few keep shorter established names (`operation_id`, `elapsed_exec_time_sec`, `service`, `user_name`, `data_capture_time` and `raw_query`).
+
+When a PMM version returns additional query data, the new columns are appended after the ones listed below. If you process the file automatically, match columns by header name rather than by position or column count.
+
+A MongoDB export currently contains:
+
+<!-- The CSV columns are built at runtime from the API response, so this list documents the
+     current export rather than constraining it. Keep it in sync with the query fields in
+     api/realtimeanalytics/v1/query.proto and with the header overrides in
+     ui/apps/pmm/src/pages/rta/overview/export/exportRtaQueriesToCsv.ts -->
+
 - `operation_id`: unique identifier for the operation
 - `elapsed_exec_time_sec`: how long the operation has been running, in seconds
 - `db_instance_address`: address of the MongoDB instance
@@ -88,10 +149,12 @@ The export includes all records across all pages, respects active filters and so
 - `operation_start_time`: when the database started executing this operation
 - `data_capture_time`: when PMM captured this snapshot
 - `raw_query`: reconstructed query text
+- `service_id`: identifier of the PMM service
+- `query_text`: query as shown in the **Query** column
 
 ### Share your view
 
-Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter.
+Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter, query text filter, and page size.
 
 When someone opens your link, they see live data with your filters applied, not the exact operations you were viewing, since RTA data updates continuously.
 ### View all sessions

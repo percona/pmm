@@ -650,6 +650,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -1143,6 +1146,9 @@ type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
 
 	// True if all collectors are enabled.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// True if diagnostic data histograms are enabled.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 mongo DB options

@@ -241,6 +241,8 @@ message MongoDBExporter {
   repeated string environment_variable_names = 29;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 30;
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 31;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -660,6 +662,8 @@ message RDSExporter {
   string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
+  // AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+  string aws_role_arn = 7;
 
   //
   // Status fields below.
@@ -1139,6 +1143,8 @@ message AddMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 23 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 24;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1188,6 +1194,12 @@ message ChangeMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  optional bool enable_diagnostic_data_histograms = 23;
+  // Replace environment variable names passed to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  // An empty list removes all previously set environment variable names.
+  optional common.StringArray environment_variable_names = 24;
 }
 
 // Add/Change PostgresExporter
@@ -1816,6 +1828,12 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 11 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 message ChangeRDSExporterParams {
@@ -1837,6 +1855,12 @@ message ChangeRDSExporterParams {
   optional bool disable_enhanced_metrics = 8;
   // Log level for exporter.
   optional LogLevel log_level = 9;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  optional string aws_role_arn = 10 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 // Add/Change ExternalExporter

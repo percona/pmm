@@ -50,6 +50,7 @@ export const useHaInfo = (
       health,
       leader,
       nodes: nodesQuery.data?.nodes || [],
+      namespace: statusQuery.data?.namespace,
     },
     isLoading: nodesQuery.isLoading || statusQuery.isLoading,
   };

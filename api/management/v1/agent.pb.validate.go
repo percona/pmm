@@ -388,6 +388,8 @@ func (m *UniversalAgent) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for AwsRoleArn
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -1315,6 +1317,8 @@ func (m *UniversalAgent_MongoDBOptions) validate(all bool) error {
 	// no validation rules for CollectionsLimit
 
 	// no validation rules for EnableAllCollectors
+
+	// no validation rules for EnableDiagnosticDataHistograms
 
 	if len(errors) > 0 {
 		return UniversalAgent_MongoDBOptionsMultiError(errors)

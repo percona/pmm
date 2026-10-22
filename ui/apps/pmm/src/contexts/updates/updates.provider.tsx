@@ -8,11 +8,19 @@ import { useSettings } from 'contexts/settings';
 import { useUser } from 'contexts/user';
 
 export const UpdatesProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { settings } = useSettings();
+  const { settings, isLoading: isLoadingSettings } = useSettings();
   const [status, setStatus] = useState(UpdateStatus.Pending);
   const { user } = useUser();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates({
-    enabled: !settings?.frontend?.anonymousEnabled && !!user?.isPMMAdmin,
+    // wait for settings to settle, otherwise a full check can fire before we
+    // know whether this deployment allows one. Gate on loading rather than on
+    // success: if settings fail there is no retry, and blocking on that would
+    // cost us the version in the footer for the rest of the session.
+    enabled:
+      !isLoadingSettings &&
+      !settings?.frontend?.anonymousEnabled &&
+      !!user?.isPMMAdmin,
+    onlyInstalledVersion: settings?.updatesEnabled === false,
   });
   const { data: clients } = useAgentVersions({
     enabled: !settings?.frontend?.anonymousEnabled && !!user?.isPMMAdmin,

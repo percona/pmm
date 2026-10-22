@@ -831,6 +831,8 @@ func (m *MongoDBExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -2582,6 +2584,8 @@ func (m *RDSExporter) validate(all bool) error {
 	// no validation rules for AwsAccessKey
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for AwsRoleArn
 
 	// no validation rules for Status
 
@@ -9462,6 +9466,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9721,6 +9727,41 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
+	}
+
+	if m.EnableDiagnosticDataHistograms != nil {
+		// no validation rules for EnableDiagnosticDataHistograms
+	}
+
+	if m.EnvironmentVariableNames != nil {
+		if all {
+			switch v := interface{}(m.GetEnvironmentVariableNames()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetEnvironmentVariableNames()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeMongoDBExporterParamsValidationError{
+					field:  "EnvironmentVariableNames",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {
@@ -13029,6 +13070,19 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if m.GetAwsRoleArn() != "" {
+		if !_AddRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := AddRDSExporterParamsValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
 	}
@@ -13109,6 +13163,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSExporterParamsValidationError{}
+
+var _AddRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on ChangeRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13220,6 +13276,21 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.AwsRoleArn != nil {
+		if m.GetAwsRoleArn() != "" {
+			if !_ChangeRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "AwsRoleArn",
+					reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeRDSExporterParamsMultiError(errors)
 	}
@@ -13300,6 +13371,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRDSExporterParamsValidationError{}
+
+var _ChangeRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on AddExternalExporterParams with the rules
 // defined in the proto definition for this message. If any rules are

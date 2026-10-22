@@ -105,7 +105,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         2. Transfer `/srv` directory ownership:
 
             ```sh
-            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            docker exec -t <pmm-server> chown -R 1000:0 /srv
             ```
 
         3. List and note down your Docker volume:
@@ -147,7 +147,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         2. Transfer `/srv` directory ownership:
 
             ```sh
-            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            docker exec -t <pmm-server> chown -R 1000:0 /srv
             ```
 
         3. Identify the data container using either:
@@ -209,7 +209,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         5. Transfer `/srv` directory ownership:
 
             ```sh
-            kubectl exec pmm-0 -- chown -R pmm:pmm /srv
+            kubectl exec pmm-0 -- chown -R 1000:0 /srv
             ```
 
         6. Upgrade PMM using Helm:
@@ -241,7 +241,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
 
         3. Transfer `/srv` directory ownership:
             ```sh
-            podman exec pmm-server chown -R pmm:pmm /srv
+            podman exec pmm-server chown -R 1000:0 /srv
             ```
 
         4. Remove the existing systemd service file:

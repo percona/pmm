@@ -12,6 +12,8 @@ import {
   addHighAvailability,
   addUsersAndAccess,
   addHomePage,
+  addExtensionsApps,
+  addOm,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -30,9 +32,11 @@ import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
+import { useAuth } from 'contexts/auth';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
+  const { isLoggedIn } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
@@ -65,31 +69,59 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_DIVIDERS.home);
 
-    items.push(...addDashboardItems(currentServiceTypes, folders, user));
+    // Served by pmm-managed, so it is not gated with the PMM Extensions group --
+    // gated on the settings flag alone.
+    const mongoExtras =
+      user?.isPMMAdmin && settings?.omEnabled ? [addOm()] : [];
+
+    items.push(
+      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+    );
 
     items.push(NAV_QAN);
 
-    if (user && settings) {
-      if (settings.frontend.exploreEnabled && user.isEditor) {
+    if (user) {
+      if (settings?.frontend.exploreEnabled && user.isEditor) {
         items.push(
           addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
         );
       }
 
-      if (settings.frontend.unifiedAlertingEnabled) {
-        items.push(addAlerting(settings?.alertingEnabled, user));
-      }
+      items.push(
+        addAlerting(
+          settings?.alertingEnabled,
+          settings?.frontend.unifiedAlertingEnabled,
+          user
+        )
+      );
 
-      if (user.isEditor && settings.advisorEnabled) {
+      if (user.isEditor && settings?.advisorEnabled) {
         items.push(addAdvisors(advisors || []));
       }
 
+      items.push(NAV_DIVIDERS.inventory);
+
       if (user.isPMMAdmin) {
-        items.push(NAV_DIVIDERS.inventory);
-
         items.push(NAV_INVENTORY);
+      }
 
-        if (settings.backupManagementEnabled) {
+      // PMM Extensions apps mounted as native routes, grouped under "Apps" and
+      // placed right below Inventory so no pre-existing entry moves. Offered to
+      // every signed-in user, not only admins: the side-car's API serves its reads to
+      // any authenticated session and holds every unsafe method to
+      // administrators, so a non-admin gets a read-only view with no write
+      // control rendered (PMM-15358).
+      //
+      // Signed-in is the rule, so anonymous is excluded: it has no Grafana
+      // session cookie to exchange for a side-car bearer, and the entry would open
+      // on ExtensionsAuthGate's failure card rather than on the app. PMM Extensions navigation
+      // is also withheld when the integration is disabled (PMM_ENABLE_EXTENSIONS).
+      if (!user.isAnonymous && settings?.extensionsEnabled) {
+        items.push(...addExtensionsApps());
+      }
+
+      if (user.isPMMAdmin) {
+        if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }
 
@@ -97,28 +129,35 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         items.push(addConfiguration(status, versionInfo));
 
-        items.push(addUsersAndAccess(settings));
+        if (settings) {
+          items.push(addUsersAndAccess(settings));
+        }
       }
 
-      items.push(addAccount(user, colorMode, toggleColorMode));
+      if (isLoggedIn) {
+        items.push(addAccount(user, colorMode, toggleColorMode));
+      }
 
       items.push(NAV_HELP);
-    } else {
+    }
+
+    if (!isLoggedIn) {
       items.push(NAV_SIGN_IN);
     }
 
     return items;
   }, [
+    serviceTypes?.serviceTypes,
+    user,
+    haInfo,
+    folders,
+    settings,
+    colorMode,
+    toggleColorMode,
+    advisors,
     status,
     versionInfo,
-    serviceTypes,
-    folders,
-    user,
-    settings,
-    advisors,
-    colorMode,
-    haInfo,
-    toggleColorMode,
+    isLoggedIn,
   ]);
 
   return (

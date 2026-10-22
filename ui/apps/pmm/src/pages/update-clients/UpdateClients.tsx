@@ -24,7 +24,7 @@ import { PMM_DOCS_UPDATE_CLIENT_URL } from 'lib/constants';
 import { Messages } from './UpdateClients.messages';
 import { TextSelect } from 'components/text-select';
 import { FILTER_OPTIONS } from './UpdateClients.constants';
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { type MRT_ColumnDef } from 'material-react-table';
 import { HomeLink } from 'components/home-link';
 
@@ -66,7 +66,7 @@ export const UpdateClients: FC = () => {
   );
 
   return (
-    <Page title={Messages.pageTitle}>
+    <Page title={Messages.pageTitle} surface="canvas">
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>

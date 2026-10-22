@@ -51,8 +51,6 @@ theme:
     - content.action.view
 
 extra_css:
-  - https://unicons.iconscout.com/release/v4.0.8/css/line.css
-  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
   - css/nocopy.css
   - css/design.css
   - css/osano.css
@@ -130,8 +128,6 @@ plugins:
 extra:
   version:
     provider: mike
-  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
-  updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
 # Common navigation for percona.com, render.com and PDFnav:
 nav:
@@ -221,13 +217,17 @@ nav:
                   - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
               - External services monitoring:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-      - Install PMM in HA mode: 
-        - Compare HA options: install-pmm/HA.md
-        - Docker HA: install-pmm/HA-docker.md
-        - Kubernetes Single-Instance: install-pmm/HA-kubernetes-single-instance.md
-        - Kubernetes Cluster: 
-            - Understand PMM HA Cluster: install-pmm/HA-clustered.md
-            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
+      - Install PMM in HA mode:
+        - Choose your HA deployment: install-pmm/HA.md
+        - Kubernetes single instance:
+            - Understand Kubernetes single instance: install-pmm/kubernetes-single-instance.md
+            - Install Kubernetes single instance: install-pmm/install-kubernetes-single-instance.md
+            - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
+        - HA Cluster:
+            - Understand HA Cluster: install-pmm/HA-clustered.md
+            - Install HA Cluster: install-pmm/install-HA-clustered.md
+            - Back up and restore HA Cluster: install-pmm/backup-restore-HA-clustered.md
+            - Troubleshoot HA Cluster: troubleshoot/ha_issues.md
 
   - Use:
       - use/using-pmm.md
@@ -260,8 +260,9 @@ nav:
                 - Details panel: use/qan/panels/details.md
             - use/qan/mysql.md
             - use/qan/qan_mongo.md
-          - Real-time analytics: use/qan/QAN-realtime-analytics.md           
+          - Real-time analytics: use/qan/QAN-realtime-analytics.md
 
+      - Operations for MongoDB: use/mongodb-operations.md
 
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
@@ -345,6 +346,7 @@ nav:
               - Performance advisors:
                   - Generic performance checks:
                       - advisors/checks/multiple-mongod-running-in-a-node.md
+                      - advisors/checks/mysql-ahi-efficiency-performance-basic-check.md
                       - advisors/checks/performance-pg-low-cache-hit-ratio.md
                       - advisors/checks/configuration-pg-settings-changed.md
                       - advisors/checks/postgresql-tmpfiles-check.md
@@ -395,8 +397,10 @@ nav:
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
+          - alert/alert-thresholds.md
           - alert/contact_points.md
           - alert/templates_list.md
+          - alert/built_in_alerts.md
           - alert/silence_alerts.md
           - alert/disable_alerts.md
       - Back up and restore:
@@ -416,6 +420,11 @@ nav:
               - backup/mysql-backup/restore_mysql_backup.md
           - backup/edit_scheduled.md
           - backup/delete_a_backup.md
+      - Apps:
+          - apps/index.md
+          - apps/deploy-pmm-extensions.md
+          - apps/mysql-backup.md
+          - apps/support-diagnostics.md
   - Configure:
       - configure-pmm/configure.md
       - configure-pmm/metrics_res.md
@@ -452,8 +461,9 @@ nav:
           - Manual upgrade:
               - pmm-upgrade/upgrade_docker.md
               - pmm-upgrade/upgrade_podman.md
-          - Upgrade PMM Server in K8s:
-              - pmm-upgrade/upgrade_helm.md
+          - Upgrade PMM in Kubernetes:
+              - Upgrade on a Kubernetes single instance: pmm-upgrade/upgrade_helm.md
+              - Upgrade HA Cluster on Kubernetes: pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
@@ -475,8 +485,13 @@ nav:
       - troubleshoot/plugin_issues.md
       - troubleshoot/pmm_dump.md
       - troubleshoot/data_issues.md
+      - Troubleshoot Kubernetes single instance: troubleshoot/kubernetes_single_instance_issues.md
+      - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.10.0 (2026-10-22)": release-notes/3.10.0.md
+      - "PMM 3.9.1 (2026-08-19)": release-notes/3.9.1.md
+      - "PMM 3.9.0 (2026-07-30)": release-notes/3.9.0.md
       - "PMM 3.8.1 (2026-05-10)": release-notes/3.8.1.md
       - "PMM 3.8.0 (2026-05-28)": release-notes/3.8.0.md
       - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
@@ -557,6 +572,7 @@ nav:
               - reference/dashboards/dashboard-mysql-user-details.md
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
+              - reference/dashboards/dashboard-mongodb-unused-indexes.md
               - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md

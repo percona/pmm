@@ -144,11 +144,11 @@ func (l *Mongolog) Start(ctx context.Context) error {
 }
 
 // Stop stops running mongolog, waits until it stops.
-func (l *Mongolog) Stop() error {
+func (l *Mongolog) Stop() {
 	l.m.Lock()
 	defer l.m.Unlock()
 	if !l.running {
-		return nil
+		return
 	}
 
 	// notify goroutine to close
@@ -163,7 +163,6 @@ func (l *Mongolog) Stop() error {
 
 	// set state to "not running"
 	l.running = false
-	return nil
 }
 
 func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggregator, wg *sync.WaitGroup,
