@@ -39,7 +39,77 @@ const renderPage = (url = '/operations') =>
 const clusterRows = () =>
   screen
     .getAllByRole('row')
-    .filter((row) => within(row).queryByTestId('om-cluster-health'));
+    .filter(
+      (row) =>
+        within(row).queryByTestId('om-cluster-health') &&
+        !within(row).queryByTestId('om-cluster-group')
+    );
+
+const groupHeaders = () => screen.queryAllByTestId('om-cluster-group');
+
+/** Turn a hidden column on from the chooser, the way a reader would. */
+const showColumn = (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: /show\/hide columns/i }));
+  const item = screen
+    .getAllByRole('menuitem')
+    .find((menuItem) => menuItem.textContent === name) as HTMLElement;
+  fireEvent.click(item.querySelector('input') as HTMLInputElement);
+  fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+};
+
+const groupBy = (label: string) => {
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Group by' }));
+  fireEvent.click(screen.getByRole('option', { name: label }));
+};
+
+const down = { status: 'SERVICE_STATUS_DOWN' } as const;
+
+/** Two environments, one unnamed, each with a down-or-degraded cluster named last. */
+const twoEnvironments = () =>
+  topology([
+    {
+      env_name: 'production',
+      clusters: [
+        cluster({
+          name: 'alpha',
+          services: [
+            service({ service_name: 'alpha-1' }),
+            service({ service_name: 'alpha-2' }),
+            service({ service_name: 'alpha-3' }),
+          ],
+        }),
+        cluster({
+          name: 'zulu',
+          services: [
+            service({ service_name: 'zulu-1' }),
+            service({ service_name: 'zulu-2', ...down }),
+            service({ service_name: 'zulu-3' }),
+          ],
+        }),
+      ],
+    },
+    {
+      env_name: null,
+      clusters: [
+        cluster({
+          name: 'bravo',
+          services: [service({ service_name: 'bravo-1' })],
+        }),
+        cluster({
+          name: 'yankee',
+          services: [service({ service_name: 'yankee-1', ...down })],
+        }),
+      ],
+    },
+  ]);
+
+const clusterNames = () =>
+  clusterRows().map(
+    (row) =>
+      ['alpha', 'zulu', 'bravo', 'yankee'].find((name) =>
+        row.textContent?.includes(name)
+      ) ?? '?'
+  );
 
 describe('FleetClustersTab', () => {
   beforeEach(() => {
@@ -65,6 +135,7 @@ describe('FleetClustersTab', () => {
 
   it('labels the process type "Process", never "Role"', () => {
     renderPage();
+    showColumn('Process');
 
     expect(
       screen.getByRole('columnheader', { name: /Process/ })
@@ -197,8 +268,7 @@ describe('FleetClustersTab', () => {
       expect(colourOf(line('0 down'))).not.toBe(RED);
     });
 
-    it("states a cluster's members up as plain text, in every state", () => {
-      const down = { status: 'SERVICE_STATUS_DOWN' } as const;
+    it("states a cluster's members as up out of total, in plain text", () => {
       useOmTopology.mockReturnValue({
         data: topology([
           {
@@ -224,21 +294,151 @@ describe('FleetClustersTab', () => {
       });
       renderPage();
 
-      // Hidden by default; shown the way a reader would.
-      fireEvent.click(
-        screen.getByRole('button', { name: /show\/hide columns/i })
-      );
-      const upItem = screen
-        .getAllByRole('menuitem')
-        .find((item) => item.textContent === 'Up') as HTMLElement;
-      fireEvent.click(upItem.querySelector('input') as HTMLInputElement);
-
-      for (const text of [
-        '1 of 2 members up',
-        '0 of 0 members up',
-        '0 of 1 members up',
-      ]) {
+      for (const text of ['1/2', '0/0', '0/1']) {
         expect([RED, GREEN]).not.toContain(colourOf(screen.getByText(text)));
+      }
+    });
+
+    it('marks a group header "down" red only above zero', () => {
+      useOmTopology.mockReturnValue({
+        data: twoEnvironments(),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+
+      const [production] = groupHeaders();
+      expect(colourOf(within(production).getByText('down'))).toBe(RED);
+      expect(colourOf(within(production).getByText('up'))).not.toBe(RED);
+    });
+  });
+
+  describe('one table, grouped by a visible control (PMM-15712)', () => {
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: twoEnvironments(),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    it('renders every environment in one table, grouped by environment', () => {
+      renderPage();
+
+      expect(screen.getAllByRole('table')).toHaveLength(1);
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Environment');
+      const [production, unnamed] = groupHeaders();
+      expect(production).toHaveTextContent('production');
+      expect(production).toHaveTextContent(
+        /2 clusters.*6 services.*5 up.*1 down/
+      );
+      expect(unnamed).toHaveTextContent('Unassigned environment');
+      // The grouped column does not repeat on every row.
+      expect(
+        screen.queryByRole('columnheader', { name: /^Environment/ })
+      ).toBeNull();
+    });
+
+    it('keeps an environment named like the fallback apart from the unnamed one', () => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          ...twoEnvironments().environments,
+          {
+            env_name: 'Unassigned environment',
+            clusters: [
+              cluster({
+                name: 'xray',
+                services: [service({ service_name: 'xray-1' })],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+
+      const headers = groupHeaders();
+      expect(headers).toHaveLength(3);
+      expect(headers[1]).toHaveTextContent(
+        /Unassigned environment.*2 clusters/
+      );
+      expect(headers[2]).toHaveTextContent(
+        /Unassigned environment.*1 cluster(?!s)/
+      );
+    });
+
+    it('leads each group with its down or degraded cluster', () => {
+      renderPage();
+
+      expect(clusterNames()).toEqual(['zulu', 'alpha', 'yankee', 'bravo']);
+    });
+
+    it('folds a group away, keeping its header', () => {
+      renderPage();
+
+      const toggle = within(groupHeaders()[0]).getByRole('button', {
+        name: 'Collapse production',
+      });
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.click(toggle);
+
+      expect(clusterNames()).toEqual(['yankee', 'bravo']);
+      expect(
+        within(groupHeaders()[0]).getByRole('button', {
+          name: 'Expand production',
+        })
+      ).toHaveAttribute('aria-expanded', 'false');
+      expect(groupHeaders()).toHaveLength(2);
+    });
+
+    it('regroups by health, worst first, and flattens on None', () => {
+      renderPage();
+
+      groupBy('Health');
+      expect(
+        groupHeaders().map(
+          (header) =>
+            within(header).getByTestId('om-cluster-health').textContent
+        )
+      ).toEqual(['Down', 'Degraded', 'Healthy']);
+      expect(
+        screen.getByRole('columnheader', { name: /^Environment/ })
+      ).toBeInTheDocument();
+
+      groupBy('None');
+      expect(groupHeaders()).toHaveLength(0);
+      expect(clusterNames()).toEqual(['yankee', 'zulu', 'alpha', 'bravo']);
+    });
+
+    it('reads Members as 2/3, with no Up, Down or Process column by default', () => {
+      renderPage();
+
+      expect(
+        screen.getByRole('columnheader', { name: /^Members/ })
+      ).toBeInTheDocument();
+      expect(within(clusterRows()[0]).getByText('2/3')).toBeInTheDocument();
+      for (const name of ['Up', 'Down', 'Process']) {
+        expect(
+          screen.queryByRole('columnheader', { name: new RegExp(`^${name}`) })
+        ).toBeNull();
+      }
+
+      showColumn('Process');
+      expect(
+        screen.getByRole('columnheader', { name: /^Process/ })
+      ).toBeInTheDocument();
+    });
+
+    it('has no drag-to-group handle on any column header', () => {
+      renderPage();
+
+      for (const header of screen.getAllByRole('columnheader')) {
+        expect(
+          within(header).queryByRole('button', { name: /move/i })
+        ).toBeNull();
       }
     });
   });
