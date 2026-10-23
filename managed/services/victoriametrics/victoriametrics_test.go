@@ -19,9 +19,12 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -838,6 +841,70 @@ scrape_configs:
 		check.NoError(err)
 		check.Equal(expected, string(actual), "actual:\n%s", actual)
 	})
+}
+
+// TestConfigAndReloadSkipsIdenticalConfig covers the early return for a configuration that is
+// already on disk. Most callers regenerate the whole file on any change anywhere, so forced
+// updates - a changed listen port in particular - routinely ask for exactly what is already there,
+// and validating it forks victoriametrics twice.
+//
+// Neither VictoriaMetrics nor the validation binary is available here, which is the point: without
+// the early return this call reaches validateConfig and fails.
+func TestConfigAndReloadSkipsIdenticalConfig(t *testing.T) {
+	t.Parallel()
+
+	cfg := []byte("# Managed by pmm-managed. DO NOT EDIT.\n")
+	scrapeConfigPath := filepath.Join(t.TempDir(), "scrape.yml")
+	require.NoError(t, os.WriteFile(scrapeConfigPath, cfg, 0o600))
+
+	svc := &Service{
+		scrapeConfigPath: scrapeConfigPath,
+		l:                logrus.WithField("test", t.Name()),
+	}
+
+	require.NoError(t, svc.configAndReload(context.Background(), cfg))
+}
+
+// TestConfigAndReloadSerializes covers the lock that makes the byte-identical shortcut sound: a
+// second caller must not read the file while another is between writing it and reloading, or
+// restoring it after a failure. ForceConfigurationUpdate and the batched Run loop both arrive here.
+func TestConfigAndReloadSerializes(t *testing.T) {
+	t.Parallel()
+
+	cfg := []byte("# Managed by pmm-managed. DO NOT EDIT.\n")
+	scrapeConfigPath := filepath.Join(t.TempDir(), "scrape.yml")
+	require.NoError(t, os.WriteFile(scrapeConfigPath, cfg, 0o600))
+
+	svc := &Service{
+		scrapeConfigPath: scrapeConfigPath,
+		l:                logrus.WithField("test", t.Name()),
+	}
+
+	// Stands in for a call that is between writing the file and reloading it.
+	svc.reloadM.Lock()
+
+	done := make(chan error, 1)
+	go func() {
+		// Identical content, so this returns at the shortcut once it holds the lock -
+		// no VictoriaMetrics needed. Whether it waits for the lock is the point.
+		done <- svc.configAndReload(context.Background(), cfg)
+	}()
+
+	select {
+	case <-done:
+		svc.reloadM.Unlock()
+		t.Fatal("configAndReload ran while another caller held the reload lock")
+	case <-time.After(200 * time.Millisecond):
+	}
+
+	svc.reloadM.Unlock()
+
+	select {
+	case err := <-done:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("configAndReload never completed after the reload lock was released")
+	}
 }
 
 func TestConfigReload(t *testing.T) {
