@@ -130,6 +130,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			Hosts: []extensionsBootstrapHost{
 				{Host: "node00"},
 				{Host: "node01"},
@@ -174,6 +175,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
@@ -204,6 +206,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
@@ -239,6 +242,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
@@ -281,6 +285,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
 
@@ -316,6 +321,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
@@ -350,6 +356,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
 		svc.completeSucceededRun(t.Context(), run)
@@ -358,7 +365,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
 	})
 
-	t.Run("records the run as registered, so the sweep stops revisiting it", func(t *testing.T) {
+	t.Run("registers each host on the run's port and records the run, so the sweep stops revisiting it", func(t *testing.T) {
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -377,8 +384,15 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27018,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: node00})
+		require.NoError(t, err)
+		require.Len(t, services, 1)
+		require.NotNil(t, services[0].Port)
+		assert.Equal(t, uint16(27018), *services[0].Port)
 
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
 		require.NoError(t, err, "an unlabelled run gets its row on completion")
@@ -410,6 +424,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}, {Host: "node01"}},
 		})
 
@@ -442,6 +457,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
@@ -483,6 +499,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
+			Port:           27017,
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
