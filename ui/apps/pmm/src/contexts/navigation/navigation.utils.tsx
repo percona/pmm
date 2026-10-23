@@ -2,219 +2,23 @@ import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import Tune from '@mui/icons-material/Tune';
 import { NavItem } from 'types/navigation.types';
-import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
-import { Advisor } from 'types/advisors.types';
-import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH, OM_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
-  NAV_ADVISORS,
-  NAV_ADVISORS_INSIGHTS,
-  NAV_ALERTS_RULES,
-  NAV_ALERTS,
-  NAV_ALERTS_CONTACT_POINTS,
-  NAV_ALERTS_NOTIFICATION_POLICIES,
-  NAV_ALERTS_SETTINGS,
-  NAV_ALERTS_TEMPLATES,
-  NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
-  NAV_DASHBOARDS,
-  NAV_DASHBOARDS_BROWSE,
-  NAV_DASHBOARDS_LIBRARY_PANELS,
-  NAV_DASHBOARDS_PLAYLISTS,
-  NAV_DASHBOARDS_SHARED,
-  NAV_DASHBOARDS_SNAPSHOTS,
-  NAV_EXPLORE,
-  NAV_EXPLORE_BUILDER,
-  NAV_EXPLORE_METRICS,
-  NAV_FOLDER_MAP,
-  NAV_HAPROXY,
-  NAV_MONGO,
-  NAV_MYSQL,
-  NAV_OS,
-  NAV_OTHER_DASHBOARDS_TEMPLATE,
-  NAV_POSTGRESQL,
-  NAV_PROXYSQL,
+  NAV_HIGH_AVAILABILITY,
+  NAV_HOME_PAGE,
   NAV_SIGN_OUT,
   NAV_THEME_TOGGLE,
-  NAV_ALERTS_SILENCES,
-  NAV_ALERTS_GROUPS,
-  NAV_VALKEY,
-  NAV_HIGH_AVAILABILITY,
-  NAV_USERS_AND_ACCESS,
-  NAV_ACCESS_CONTROL,
-  NAV_HIGH_AVAILABILITY_NODES,
-  NAV_HIGH_AVAILABILITY_OVERVIEW,
-  NAV_HOME_PAGE,
-  NAV_MANAGEMENT,
-  NAV_EXTENSIONS_ATW,
-  NAV_EXTENSIONS_MYSQL_BACKUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
-import { capitalize } from 'utils/text.utils';
-import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
-import { PreviewChip } from 'components/preview-chip';
 import { HAInfo } from 'types/ha.types';
-
-export const addOtherDashboardsItem = (
-  rootNode: NavItem,
-  folders: DashboardFolder[]
-) => {
-  const id = rootNode.id + '-other-dashboards';
-  const folder = folders.find(
-    (f) => rootNode.id && NAV_FOLDER_MAP[rootNode.id] === f.title
-  );
-  const exists = rootNode.children?.some((i) => i.id === id);
-
-  if (folder && !exists) {
-    rootNode.children?.push({
-      ...NAV_OTHER_DASHBOARDS_TEMPLATE,
-      id,
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards/f/${folder.uid}/${rootNode.id}`,
-    });
-  }
-};
-
-export const addAllDashboardItem = (
-  types: ServiceType[],
-  user?: User
-): NavItem => {
-  const children: NavItem[] = [NAV_DASHBOARDS_BROWSE];
-
-  if (types.includes(ServiceType.proxysql)) {
-    children.push(NAV_PROXYSQL);
-  }
-
-  if (types.includes(ServiceType.haproxy)) {
-    children.push(NAV_HAPROXY);
-  }
-
-  if (user) {
-    children.push(NAV_DASHBOARDS_SHARED);
-    children.push(NAV_DASHBOARDS_PLAYLISTS);
-    children.push(NAV_DASHBOARDS_SNAPSHOTS);
-    children.push(NAV_DASHBOARDS_LIBRARY_PANELS);
-  }
-
-  return { ...NAV_DASHBOARDS, children };
-};
-
-/**
- * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
- * MongoDB service is monitored yet: OM's Hosts and Bootstrap pages exist for exactly
- * that estate, so hiding the menu with the dashboards would hide them too.
- */
-export const addDashboardItems = (
-  types: ServiceType[],
-  folders: DashboardFolder[],
-  user?: User,
-  mongoExtras: NavItem[] = []
-): NavItem[] => {
-  const children: NavItem[] = [];
-
-  if (types.includes(ServiceType.mysql)) {
-    addOtherDashboardsItem(NAV_MYSQL, folders);
-    children.push(NAV_MYSQL);
-  }
-
-  if (types.includes(ServiceType.mongodb)) {
-    addOtherDashboardsItem(NAV_MONGO, folders);
-    // A copy, so the extras never accumulate on the shared constant.
-    children.push({
-      ...NAV_MONGO,
-      children: [...(NAV_MONGO.children ?? []), ...mongoExtras],
-    });
-  } else if (mongoExtras.length) {
-    children.push({
-      ...NAV_MONGO,
-      url: mongoExtras[0].url,
-      children: mongoExtras,
-    });
-  }
-
-  if (types.includes(ServiceType.posgresql)) {
-    addOtherDashboardsItem(NAV_POSTGRESQL, folders);
-    children.push(NAV_POSTGRESQL);
-  }
-
-  if (types.includes(ServiceType.valkey)) {
-    addOtherDashboardsItem(NAV_VALKEY, folders);
-    children.push(NAV_VALKEY);
-  }
-
-  addOtherDashboardsItem(NAV_OS, folders);
-  children.push(NAV_OS);
-
-  children.push(addAllDashboardItem(types, user));
-
-  return children;
-};
-
-export const addAlerting = (
-  alertingEnabled = false,
-  unifiedAlertingEnabled = false,
-  user?: User
-): NavItem => {
-  const children: NavItem[] = [NAV_ALERTS_RULES];
-
-  if (alertingEnabled) {
-    children.push(NAV_ALERTS_STATUS);
-
-    if (user?.isEditor) {
-      children.push(NAV_ALERTS_TEMPLATES);
-    }
-  }
-
-  if (user) {
-    children.push(NAV_ALERTS_SILENCES);
-
-    if (!user.isAnonymous) {
-      children.push(NAV_ALERTS_GROUPS);
-
-      if (unifiedAlertingEnabled && user.isPMMAdmin) {
-        children.push(NAV_ALERTS_SETTINGS);
-      }
-    }
-
-    if (unifiedAlertingEnabled) {
-      children.push(NAV_ALERTS_CONTACT_POINTS);
-      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-    }
-  }
-
-  return { ...NAV_ALERTS, children };
-};
-
-export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
-  const children: NavItem[] = [NAV_EXPLORE_BUILDER];
-
-  if (exploreMetricsEnabled) {
-    children.push(NAV_EXPLORE_METRICS);
-  }
-
-  return { ...NAV_EXPLORE, children };
-};
-
-export const addAdvisors = (advisors: Advisor[]): NavItem => {
-  const children: NavItem[] = [NAV_ADVISORS_INSIGHTS];
-  const categories = groupAdvisorsIntoCategories(advisors);
-
-  for (const category of Object.keys(categories)) {
-    children.push({
-      id: `advisors-${category}`,
-      text: `${capitalize(category)} advisors`,
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
-    });
-  }
-
-  return { ...NAV_ADVISORS, children };
-};
 
 export const addAccount = (
   user: User,
@@ -282,33 +86,21 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
+// A single entry: the namespace rides on the link, and the plain dashboard path
+// in `matches` keeps the entry highlighted however the dashboard was reached.
 export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
-  const item = { ...NAV_HIGH_AVAILABILITY };
-  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+  const { url = '' } = NAV_HIGH_AVAILABILITY;
+  const item = { ...NAV_HIGH_AVAILABILITY, url, matches: [url] };
 
   if (namespace) {
-    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
-    item.url = `${item.url}?${namespaceParam}`;
-    overview.url = `${overview.url}?${namespaceParam}`;
+    item.url = `${url}?var-namespace=${encodeURIComponent(namespace)}`;
   }
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
-
   return item;
-};
-
-export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
-  const children: NavItem[] = [...(NAV_USERS_AND_ACCESS.children || [])];
-
-  if (settings?.enableAccessControl) {
-    children.push(NAV_ACCESS_CONTROL);
-  }
-
-  return { ...NAV_USERS_AND_ACCESS, children };
 };
 
 export const addHomePage = (preferences?: UserPreferences): NavItem => {
@@ -326,33 +118,10 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
   return NAV_HOME_PAGE;
 };
 
-// PMM Extensions apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
-// is lifted from the side-car's appNavConfig as data only — no PMM Extensions nav component is used.
-// Deliberately unconditional: reachability is not the gate, the per-control
-// mutation capability is (PMM-15358, and NavigationProvider for placement).
-// A collapsible with no children renders as an expandable shell that opens on
-// nothing, so a section drops out with its last child rather than outliving it.
-// Callers spread the result, which is what lets it contribute no entry at all.
-export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
-  children.length ? [{ ...section, children }] : [];
-
-export const addExtensionsApps = (): NavItem[] =>
-  addSection(
-    {
-      ...NAV_MANAGEMENT,
-      badge: <PreviewChip level="tech" />,
-      badgeAlwaysVisible: true,
-    },
-    [NAV_EXTENSIONS_MYSQL_BACKUPS, NAV_EXTENSIONS_ATW]
-  );
-
 /**
- * OM's navigation, deliberately not part of `addExtensionsApps`. Shown inside the
- * MongoDB menu, through `addDashboardItems`' `mongoExtras`.
- *
- * Those entries are gated as a group on PMM Extensions, and the group is expected to gain a
- * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
- * so hiding it when PMM Extensions is off or unreachable would hide a working page.
+ * OM's navigation: Operations for MongoDB and its four pages, which OM's own header
+ * leaves to the sidebar. The proposed sidebar lists OM as a single Apps entry
+ * instead (`NAV_APPS` in navigation.proposal.ts), with its pages as tabs.
  */
 export const addOm = (): NavItem => ({
   id: 'om',
