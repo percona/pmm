@@ -9,4 +9,5 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
-export const isMigratedPage = (src: string) => src.includes('/graph/settings');
+export const isMigratedPage = (src: string) =>
+  src.includes('/graph/settings') || src.includes('/graph/pmm-dump');
