@@ -221,6 +221,194 @@ var _ interface {
 	ErrorName() string
 } = AddExternalServiceParamsValidationError{}
 
+// Validate checks the field values on UpdateExternalServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateExternalServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateExternalServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateExternalServiceParamsMultiError, or nil if none found.
+func (m *UpdateExternalServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateExternalServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCustomLabels()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateExternalServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateExternalServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateExternalServiceParamsValidationError{
+				field:  "CustomLabels",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SkipConnectionCheck
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Scheme != nil {
+		// no validation rules for Scheme
+	}
+
+	if m.MetricsPath != nil {
+		// no validation rules for MetricsPath
+	}
+
+	if m.ListenPort != nil {
+		if val := m.GetListenPort(); val <= 0 || val >= 65536 {
+			err := UpdateExternalServiceParamsValidationError{
+				field:  "ListenPort",
+				reason: "value must be inside range (0, 65536)",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.Group != nil {
+		// no validation rules for Group
+	}
+
+	if m.MetricsMode != nil {
+		// no validation rules for MetricsMode
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if len(errors) > 0 {
+		return UpdateExternalServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateExternalServiceParamsMultiError is an error wrapping multiple
+// validation errors returned by UpdateExternalServiceParams.ValidateAll() if
+// the designated constraints aren't met.
+type UpdateExternalServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateExternalServiceParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateExternalServiceParamsMultiError) AllErrors() []error { return m }
+
+// UpdateExternalServiceParamsValidationError is the validation error returned
+// by UpdateExternalServiceParams.Validate if the designated constraints
+// aren't met.
+type UpdateExternalServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateExternalServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateExternalServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateExternalServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateExternalServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateExternalServiceParamsValidationError) ErrorName() string {
+	return "UpdateExternalServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateExternalServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateExternalServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = UpdateExternalServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateExternalServiceParamsValidationError{}
+
 // Validate checks the field values on ExternalServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
