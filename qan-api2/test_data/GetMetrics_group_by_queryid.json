@@ -9,7 +9,8 @@
 			"min": 113,
 			"max": 113,
 			"avg": 0.22221701,
-			"p99": 113
+			"p99": 113,
+			"percentOfTotal": 0.0035416917
 		},
 		"cpu_sys_time": {},
 		"cpu_user_time": {},
@@ -56,6 +57,8 @@
 			"sum": 67
 		},
 		"num_queries_with_warnings": {},
+		"parallel_workers_launched": {},
+		"parallel_workers_to_launch": {},
 		"plan_time": {},
 		"plans_calls": {},
 		"qc_hit": {},
@@ -67,7 +70,8 @@
 			"min": 0.000029,
 			"max": 0.000074,
 			"avg": 7.1323115e-8,
-			"p99": 0.000036268655
+			"p99": 0.000036268655,
+			"percentOfTotal": 0.00021991995
 		},
 		"response_length": {},
 		"rows_affected": {
@@ -84,7 +88,8 @@
 			"min": 1,
 			"max": 1,
 			"avg": 0.001966522,
-			"p99": 1
+			"p99": 1,
+			"percentOfTotal": 0.0053475937
 		},
 		"select_full_range_join": {},
 		"select_range": {},
@@ -113,10 +118,8 @@
 		"tmp_tables": {
 			"cnt": 67
 		},
-		"wal_bytes": {},
 		"wal_buffers_full": {},
-		"parallel_workers_to_launch": {},
-		"parallel_workers_launched": {},
+		"wal_bytes": {},
 		"wal_fpi": {},
 		"wal_records": {}
 	},
@@ -4089,7 +4092,8 @@
 			"sum": 21376790,
 			"max": 249,
 			"avg": 0.24002416,
-			"p99": 119.62389
+			"p99": 119.62389,
+			"percentOfTotal": 1
 		},
 		"cpu_sys_time": {},
 		"cpu_user_time": {},
@@ -4102,7 +4106,8 @@
 		"full_scan": {
 			"rate": 1.7311112,
 			"sum": 62320,
-			"avg": 0.0006997452
+			"avg": 0.0006997452,
+			"percentOfTotal": 1
 		},
 		"innodb_io_r_bytes": {},
 		"innodb_io_r_ops": {},
@@ -4123,7 +4128,8 @@
 			"sum": 5.54331,
 			"max": 0.00019,
 			"avg": 6.224173e-8,
-			"p99": 0.0000310202
+			"p99": 0.0000310202,
+			"percentOfTotal": 1
 		},
 		"locks_collection_acquire_count_read_shared": {},
 		"locks_database_acquire_count_read_shared": {},
@@ -4145,6 +4151,8 @@
 			"sum": 17870
 		},
 		"num_queries_with_warnings": {},
+		"parallel_workers_launched": {},
+		"parallel_workers_to_launch": {},
 		"plan_time": {},
 		"plans_calls": {},
 		"qc_hit": {},
@@ -4156,7 +4164,8 @@
 			"min": 0.000002,
 			"max": 0.024769,
 			"avg": 0.0000012406638,
-			"p99": 0.00061832543
+			"p99": 0.00061832543,
+			"percentOfTotal": 1
 		},
 		"response_length": {},
 		"rows_affected": {
@@ -4168,7 +4177,8 @@
 			"sum": 68227520,
 			"max": 1268,
 			"avg": 0.7660763,
-			"p99": 381.79922
+			"p99": 381.79922,
+			"percentOfTotal": 1
 		},
 		"rows_read": {},
 		"rows_sent": {
@@ -4177,7 +4187,8 @@
 			"sum": 125290,
 			"max": 1,
 			"avg": 0.0014067887,
-			"p99": 0.7011192
+			"p99": 0.7011192,
+			"percentOfTotal": 1
 		},
 		"select_full_range_join": {},
 		"select_range": {},
@@ -4201,7 +4212,8 @@
 		"tmp_table": {
 			"rate": 1.7311112,
 			"sum": 62320,
-			"avg": 0.0006997452
+			"avg": 0.0006997452,
+			"percentOfTotal": 1
 		},
 		"tmp_table_on_disk": {},
 		"tmp_table_sizes": {
@@ -4213,12 +4225,11 @@
 			"sum": 62320,
 			"max": 1,
 			"avg": 0.0006997452,
-			"p99": 0.3487409
+			"p99": 0.3487409,
+			"percentOfTotal": 1
 		},
-		"wal_bytes": {},
 		"wal_buffers_full": {},
-		"parallel_workers_to_launch": {},
-		"parallel_workers_launched": {},
+		"wal_bytes": {},
 		"wal_fpi": {},
 		"wal_records": {}
 	},
