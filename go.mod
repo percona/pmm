@@ -63,7 +63,7 @@ require (
 	github.com/ramr/go-reaper v0.3.1
 	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
 	github.com/sirupsen/logrus v1.10.0
-	github.com/stretchr/objx v0.5.3
+	github.com/stretchr/objx v0.8.0
 	github.com/stretchr/testify v1.12.1
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
 	github.com/xdg-go/stringprep v1.0.4
