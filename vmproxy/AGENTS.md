@@ -36,6 +36,11 @@ Client (Grafana / API)
   credential: nginx overwrites the header on every location that can reach the proxy, so a client
   cannot supply one, and the proxy listens on loopback only. Grafana's data source is never
   marked — `/graph` requires no role, so pmm-managed never authenticates it.
+- **Recording-rule writes** — `POST /api/v1/push` is forwarded only with
+  `Content-Type: application/x-protobuf` and no `X-Grafana-Id`, which is how Grafana's recording
+  rules write to the Metrics data source. Grafana's `/resources/` route forwards a user's POST body
+  to any path, but always with a form Content-Type and the user's `X-Grafana-Id`. Keep both checks:
+  each holds only as long as Grafana keeps that behaviour.
 - Invalid headers (bad base64 or JSON) return `412 Precondition Failed`
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty
@@ -51,8 +56,8 @@ to enumerate Grafana's URL forms, which is what PMM-15379 showed to be fragile.
 Admins reach snapshots and the rest of the admin surface either through the admin-gated
 `/prometheus/*` nginx location, which goes straight to VictoriaMetrics without crossing this
 proxy, or through the marker described above — which is why restricting a marked request would
-remove capability without removing exposure. Metric ingestion bypasses the proxy entirely via the
-exact-match `/victoriametrics/api/v1/write` location.
+remove capability without removing exposure. Agents' metric ingestion bypasses the proxy entirely
+via the exact-match `/victoriametrics/api/v1/write` location; only recording rules write through it.
 
 Adding a path here widens what any dashboard user can reach; check it is a read endpoint first.
 
