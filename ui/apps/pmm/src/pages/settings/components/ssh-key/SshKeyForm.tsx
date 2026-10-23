@@ -11,7 +11,6 @@ import { SshKeyFormValues, sshKeySchema } from './SshKeyForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { formControlClasses } from '@mui/material';
 import { SettingsSubmitButton } from '../settings-submit-button';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
@@ -72,9 +71,6 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
                 htmlInput: { 'data-testid': 'ssh-key' },
               },
             }}
-            formHelperTextProps={helperTextTestId(
-              'ssh-key-field-error-message'
-            )}
           />
         </Stack>
         <SettingsSubmitButton testId="ssh-key-button" />

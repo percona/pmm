@@ -185,8 +185,6 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 }
 
 func TestBasicAuthPermissions(t *testing.T) {
-	t.Parallel()
-
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -222,6 +220,39 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "viewer", login: viewer, statusCode: 403},
 			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
+		}},
+		{name: "advisor runs", url: "/v1/advisors/runs", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 200},
+			{userType: "admin", login: admin, statusCode: 200},
+		}},
+		{name: "advisor checks", url: "/v1/advisors/checks", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 200},
+			{userType: "admin", login: admin, statusCode: 200},
+		}},
+		// without a technology the request fails validation after passing auth
+		{name: "advisor check test targets", url: "/v1/advisors/checks:testTargets", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 400},
+			{userType: "admin", login: admin, statusCode: 400},
+		}},
+		// the check doesn't exist, so the request fails after passing auth and deletes nothing
+		{name: "advisor check delete", url: "/v1/advisors/checks/custom_auth_test_missing", method: "DELETE", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 404},
+			{userType: "admin", login: admin, statusCode: 404},
+		}},
+		// without recipients the request fails validation after passing auth, so no email is sent
+		{name: "advisor test notification", url: "/v1/advisors/notifications:test", method: "POST", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 403},
+			{userType: "admin", login: admin, statusCode: 400},
 		}},
 	}
 
@@ -325,8 +356,6 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
-	t.Parallel()
-
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
@@ -369,6 +398,19 @@ func TestServiceAccountPermissions(t *testing.T) {
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
 			{userType: "editor", serviceToken: editorToken, statusCode: 403},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
+		}},
+		{name: "advisor runs", url: "/v1/advisors/runs", method: "GET", userCase: []userCase{
+			{userType: "default", statusCode: 401},
+			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
+			{userType: "editor", serviceToken: editorToken, statusCode: 200},
+			{userType: "admin", serviceToken: adminToken, statusCode: 200},
+		}},
+		// without recipients the request fails validation after passing auth, so no email is sent
+		{name: "advisor test notification", url: "/v1/advisors/notifications:test", method: "POST", userCase: []userCase{
+			{userType: "default", statusCode: 401},
+			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
+			{userType: "editor", serviceToken: editorToken, statusCode: 403},
+			{userType: "admin", serviceToken: adminToken, statusCode: 400},
 		}},
 	}
 

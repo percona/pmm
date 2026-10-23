@@ -17,6 +17,7 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
 | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data (must be in multiples of 24h) | `720h` (30 days) |
+| `PMM_ADVISOR_HISTORY_RETENTION` | `30d` | Duration to retain Advisor runs and their insights, counted from when each run started (must be in multiples of 24h) | `720h` (30 days) |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | `5s` |
 | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval | `10s` |
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
@@ -44,6 +45,7 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_UPDATES` | `true` | Allows version checks and UI updates |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enables usage data collection |
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
+| `PMM_ENABLE_ADVISOR_NOTIFICATIONS` | `false` | Enables email notifications about failed Advisor checks. Emails go to the **Notification recipients** set under **Configuration > Settings > Advisors**, through the SMTP server that the `GF_SMTP_*` variables configure. See [Email notifications](../../../../advisors/advisors.md#email-notifications) |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_COMPONENT_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_component_alerts) for PMM's own components (VictoriaMetrics, ClickHouse, Grafana, and the Query Analytics API). Set to `false` to remove them. |
 | `PMM_ENABLE_HA_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_ha_alerts) for a PMM HA Cluster. Set to `false` to remove them. Has no effect on a standalone PMM Server. |

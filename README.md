@@ -110,7 +110,7 @@ For MySQL, PostgreSQL, MongoDB, Valkey/Redis, ProxySQL and HAProxy. Built on Gra
 <details>
 <summary><b>Advisors: automatic checks for security, configuration and performance</b></summary>
 
-![Advisor checks: failed checks by severity](documentation/docs/images/FailedChecks.png)
+![Advisor insights: findings from a check run, with service, category and severity](.github/readme/advisor-insights.png)
 
 </details>
 

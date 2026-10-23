@@ -2,12 +2,12 @@
 checks:
   - version: 2
     name: mysql_timezone
-    summary: MySQL configuration check
+    summary: MySQL time zone tables are not loaded
     description: Checks if time zone is correctly loaded.
     interval: standard
-    family: MYSQL
-    #author:tibi/the grinch
-    advisor: configuration_generic
+    technology: MYSQL
+    # author: tibi/the grinch
+    category: Durability
     queries:
       - type: MYSQL_SELECT
         query: count(*) as timezonecount from mysql.time_zone_name
@@ -35,7 +35,7 @@ checks:
                  "summary": "MySQL Time Zone data is not loaded",
                  "description": "MySQL Time Zone data is not loaded.",
                  "read_more_url":read_url.format("time-zone-data-not-loaded"),
-                 "severity": "notice",
+                 "severity": "warning",
                  "labels": {},
              })
            return results

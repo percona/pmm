@@ -1,0 +1,147 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package checks
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
+)
+
+// TestInsightToText locks the Go output to the UI's "Copy to text" format
+// (insightToText in ui/apps/pmm/src/pages/advisors/insights/AdvisorInsights.utils.ts).
+func TestInsightToText(t *testing.T) {
+	t.Parallel()
+
+	t.Run("all fields", func(t *testing.T) {
+		t.Parallel()
+
+		r := &models.Insight{
+			ID:             "insight-1",
+			RunID:          "run-1",
+			CheckName:      "mysql_version",
+			Category:       "Performance",
+			ServiceName:    "mysql-prod",
+			ServiceType:    "mysql",
+			NodeName:       "node-a",
+			Environment:    "prod",
+			Cluster:        "cluster-1",
+			ReplicationSet: "rs0",
+			Interval:       models.Standard,
+			TriggeredBy:    models.CheckTriggeredByScheduler,
+			IsRead:         false,
+			Summary:        "Outdated MySQL version",
+			Description:    "The MySQL version is old",
+			Outcome:        "Upgrade recommended",
+			Severity:       new(models.Severity(common.Warning)),
+			ReadMoreURL:    "https://example.com/more",
+			Status:         models.CheckResultFailed,
+			CheckedAt:      new(time.Date(2026, 7, 16, 10, 30, 0, 0, time.UTC)),
+		}
+		require.NoError(t, r.SetLabels(map[string]string{"tier": "db", "env": "prod"}))
+
+		want := `The Advisor Check "Outdated MySQL version" completed at 2026-07-16 10:30:00 with status "Failed".
+
+Check Details:
+  ID: insight-1
+  Run ID: run-1
+  Check Name: mysql_version
+  Category: Performance
+  Service Name: mysql-prod
+  Service Type: mysql
+  Node Name: node-a
+  Environment: prod
+  Cluster: cluster-1
+  Replication Set: rs0
+  Interval: Standard
+  Triggered By: Scheduler
+  Read: Unread
+  Summary: Outdated MySQL version
+  Description: The MySQL version is old
+  Outcome: Upgrade recommended
+  Severity: Warning
+  Read More: https://example.com/more
+  Labels: env=prod, tier=db`
+
+		got, err := insightToText(r)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("empty fields are omitted", func(t *testing.T) {
+		t.Parallel()
+
+		r := &models.Insight{
+			ID:          "insight-2",
+			RunID:       "run-2",
+			CheckName:   "pg_check",
+			Summary:     "Issue found",
+			Severity:    new(models.Severity(common.Error)),
+			Status:      models.CheckResultFailed,
+			TriggeredBy: models.CheckTriggeredByUser,
+			IsRead:      true,
+			CheckedAt:   new(time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)),
+		}
+
+		want := `The Advisor Check "Issue found" completed at 2026-07-16 12:00:00 with status "Failed".
+
+Check Details:
+  ID: insight-2
+  Run ID: run-2
+  Check Name: pg_check
+  Interval: Standard
+  Triggered By: User
+  Read: Read
+  Summary: Issue found
+  Severity: Error`
+
+		got, err := insightToText(r)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("a check that did not run has no completion time or severity", func(t *testing.T) {
+		t.Parallel()
+
+		r := &models.Insight{
+			ID:          "insight-3",
+			RunID:       "run-3",
+			CheckName:   "pg_check",
+			Summary:     "Check title",
+			Status:      models.CheckResultNotRun,
+			TriggeredBy: models.CheckTriggeredByUser,
+		}
+
+		want := `The Advisor Check "Check title" has status "Not run".
+
+Check Details:
+  ID: insight-3
+  Run ID: run-3
+  Check Name: pg_check
+  Interval: Standard
+  Triggered By: User
+  Read: Unread
+  Summary: Check title`
+
+		got, err := insightToText(r)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+}

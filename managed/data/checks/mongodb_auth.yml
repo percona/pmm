@@ -4,12 +4,14 @@ checks:
     name: mongodb_auth
     summary: MongoDB authentication
     description: Warns if MongoDB authentication is disabled.
-    family: MONGODB
-    advisor: security_authentication
+    technology: MONGODB
+    category: Security
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       def check_context(docs, context):
           """
           This check returns warnings if MongoDB authentication is disabled.
@@ -17,7 +19,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
 
@@ -33,7 +35,7 @@ checks:
               results.append({
                   "summary": "MongoDB authentication is disabled",
                   "description": "See the following for steps to enable",
-                  "read_more_url": "https://docs.mongodb.com/manual/tutorial/enable-authentication/",
+                  "read_more_url": read_url.format("mongodb-authentication"),
                   "severity": "warning",
               })
 

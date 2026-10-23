@@ -1,0 +1,42 @@
+import { AdvisorCheckResultStatus } from 'types/advisors.types';
+import { Severity } from 'types/severity.types';
+import { ADVISOR_RESULT_STATUS, SEVERITY } from 'lib/constants';
+import { Messages } from './AdvisorInsights.messages';
+
+// URL query-string key for each filter field (deep-linkable filters)
+export const FILTER_PARAM = {
+  serviceName: 'service',
+  nodeName: 'node',
+  category: 'category',
+  checkName: 'check',
+  severity: 'severity',
+  status: 'status',
+  isRead: 'read',
+} as const;
+
+// query-string params remembered across visits
+export const INSIGHT_FILTER_PARAMS = [
+  ...Object.values(FILTER_PARAM),
+  'runId',
+  'pageSize',
+];
+
+export const SEVERITY_FILTER_OPTIONS = [
+  Severity.critical,
+  Severity.error,
+  Severity.warning,
+  Severity.info,
+].map((severity) => ({ label: SEVERITY[severity], value: severity }));
+
+export const STATUS_FILTER_OPTIONS = [
+  AdvisorCheckResultStatus.ok,
+  AdvisorCheckResultStatus.failed,
+  AdvisorCheckResultStatus.error,
+  AdvisorCheckResultStatus.pending,
+  AdvisorCheckResultStatus.notRun,
+].map((status) => ({ label: ADVISOR_RESULT_STATUS[status], value: status }));
+
+export const READ_FILTER_OPTIONS = [
+  { label: Messages.read, value: 'true' },
+  { label: Messages.unread, value: 'false' },
+];

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ChangeSettingsReader is a Reader for the ChangeSettings structure.
@@ -225,6 +226,18 @@ type ChangeSettingsBody struct {
 	// Enable OpenManager.
 	EnableOM *bool `json:"enable_om,omitempty"`
 
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `json:"enable_advisor_notifications,omitempty"`
+
+	// Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
+	AdvisorNotificationSeverities []*string `json:"advisor_notification_severities"`
+
+	// advisor notification email addresses
+	AdvisorNotificationEmailAddresses *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses `json:"advisor_notification_email_addresses,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -238,6 +251,14 @@ type ChangeSettingsBody struct {
 // Validate validates this change settings body
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAdvisorNotificationSeverities(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAdvisorNotificationEmailAddresses(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
@@ -254,6 +275,68 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsBodyAdvisorNotificationSeveritiesItemsEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsBodyAdvisorNotificationSeveritiesItemsEnum = append(changeSettingsBodyAdvisorNotificationSeveritiesItemsEnum, v)
+	}
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeveritiesItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsBodyAdvisorNotificationSeveritiesItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeverities(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverities) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.AdvisorNotificationSeverities); i++ {
+		if swag.IsZero(o.AdvisorNotificationSeverities[i]) { // not required
+			continue
+		}
+
+		// value enum
+		if err := o.validateAdvisorNotificationSeveritiesItemsEnum("body"+"."+"advisor_notification_severities"+"."+strconv.Itoa(i), "body", *o.AdvisorNotificationSeverities[i]); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationEmailAddresses(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+		return nil
+	}
+
+	if o.AdvisorNotificationEmailAddresses != nil {
+		if err := o.AdvisorNotificationEmailAddresses.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -330,6 +413,10 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateAdvisorNotificationEmailAddresses(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -345,6 +432,30 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateAdvisorNotificationEmailAddresses(ctx context.Context, formats strfmt.Registry) error {
+	if o.AdvisorNotificationEmailAddresses != nil {
+
+		if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+			return nil
+		}
+
+		if err := o.AdvisorNotificationEmailAddresses.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -993,6 +1104,18 @@ type ChangeSettingsOKBodySettings struct {
 	// True if OpenManager is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
 
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severities of the Advisor insights that are emailed.
+	AdvisorNotificationSeverities []*string `json:"advisor_notification_severities"`
+
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
+
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -1003,6 +1126,10 @@ type ChangeSettingsOKBodySettings struct {
 // Validate validates this change settings OK body settings
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAdvisorNotificationSeverities(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
@@ -1015,6 +1142,45 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum = append(changeSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, v)
+	}
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeveritiesItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeverities(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverities) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.AdvisorNotificationSeverities); i++ {
+		if swag.IsZero(o.AdvisorNotificationSeverities[i]) { // not required
+			continue
+		}
+
+		// value enum
+		if err := o.validateAdvisorNotificationSeveritiesItemsEnum("changeSettingsOk"+"."+"settings"+"."+"advisor_notification_severities"+"."+strconv.Itoa(i), "body", *o.AdvisorNotificationSeverities[i]); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 
@@ -1264,6 +1430,43 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyAWSPartitions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
+*/
+type ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this change settings params body advisor notification email addresses
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body advisor notification email addresses based on context it is used
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
