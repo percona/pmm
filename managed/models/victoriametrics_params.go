@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/url"
 	"os"
 	"strings"
@@ -36,8 +37,6 @@ const (
 
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
 type VictoriaMetricsParams struct {
-	// VMAlertFlags additional flags for VMAlert.
-	VMAlertFlags []string
 	// BaseConfigPath defines path for basic prometheus config.
 	BaseConfigPath string
 	// url defines url of Victoria Metrics
@@ -165,7 +164,7 @@ func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, e
 		BaseConfigPath: basePath,
 		url:            URL,
 	}
-	err = vmp.UpdateParams()
+	err = vmp.ValidateBaseConfig()
 	if err != nil {
 		return vmp, err
 	}
@@ -173,41 +172,23 @@ func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, e
 	return vmp, nil
 }
 
-// UpdateParams - reads configuration file and updates corresponding flags.
-func (vmp *VictoriaMetricsParams) UpdateParams() error {
-	err := vmp.loadVMAlertParams()
-	if err != nil {
-		return fmt.Errorf("cannot update VMAlertFlags config param: %w", err)
-	}
-
-	return nil
-}
-
-// loadVMAlertParams - load params and converts it to vmalert flags.
-func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
+// ValidateBaseConfig returns an error when the user's base config exists but cannot be parsed.
+// pmm-managed refuses to start on it, which marks the container unhealthy so the mistake is
+// noticed instead of the file being silently ignored.
+func (vmp *VictoriaMetricsParams) ValidateBaseConfig() error {
 	buf, err := os.ReadFile(vmp.BaseConfigPath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("cannot read baseConfigPath for VMAlertParams: %w", err)
-		}
-		// fast return if users configuration doesn't exist with path
-		// /srv/prometheus/prometheus.base.yml,
-		// its maybe mounted into container by user.
+	if errors.Is(err, fs.ErrNotExist) {
 		return nil
 	}
+	if err != nil {
+		return fmt.Errorf("cannot read base config %s: %w", vmp.BaseConfigPath, err)
+	}
+
 	var cfg config.Config
 	err = yaml.Unmarshal(buf, &cfg)
 	if err != nil {
-		return fmt.Errorf("cannot unmarshal baseConfigPath for VMAlertFlags: %w", err)
+		return fmt.Errorf("cannot parse base config %s: %w", vmp.BaseConfigPath, err)
 	}
-	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))
-	for _, r := range cfg.RuleFiles {
-		vmalertFlags = append(vmalertFlags, "--rule="+r)
-	}
-	if cfg.GlobalConfig.EvaluationInterval != 0 {
-		vmalertFlags = append(vmalertFlags, "--evaluationInterval="+cfg.GlobalConfig.EvaluationInterval.String())
-	}
-	vmp.VMAlertFlags = vmalertFlags
 
 	return nil
 }

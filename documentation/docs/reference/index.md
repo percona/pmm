@@ -11,8 +11,8 @@ You can also monitor remote databases and cloud services, such as [Amazon RDS](.
 
 PMM Server receives data from PMM Clients, stores it, and presents it in [dashboards](../use/dashboards-panels/index.md) and other views of the [web interface](../reference/ui/ui_components.md). In a standard deployment, PMM Server runs as a single container that holds all of the components in this section.
 
-![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-light.png){ .only-light }
-![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-dark.png){ .only-dark }
+![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-light.png){ .only-light }
+![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-dark.png){ .only-dark }
 
 ### Web interface
 
@@ -26,8 +26,7 @@ PMM Server runs the following services:
 - **`pmm-managed`** manages the PMM Server configuration, the inventory of monitored services, and the connected PMM Clients. It forwards QAN data from PMM Clients to QAN API, and keeps RTA data in memory.
 - **QAN API** stores and serves Query Analytics data.
 - **[VictoriaMetrics](third-party/victoria.md)** stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.
-- **vmproxy** applies [label-based access control (LBAC)](../admin/roles/access-control/intro.md) filters to metrics queries before they reach VictoriaMetrics.
-- **vmalert** evaluates alerting and recording rules against VictoriaMetrics.
+- **vmproxy** applies [label-based access control (LBAC)](../admin/roles/access-control/intro.md) filters to metrics queries before they reach VictoriaMetrics, and passes the results of Grafana recording rules to VictoriaMetrics.
 - **[Grafana](https://grafana.com/docs/grafana/latest/)** renders dashboards, runs Alerting, and authenticates users.
 
 PMM Server also runs these supporting processes:
@@ -102,7 +101,7 @@ PMM Client and PMM Server communicate over these connections:
 - **Metrics in pull mode**: VictoriaMetrics scrapes each exporter directly. To choose the mode, use the `--metrics-mode` flag. For details, see [Push/Pull modes](third-party/victoria.md#pushpull-modes).
 - **Commands**: `pmm-admin` calls the local `pmm-agent` on port 7777 and the PMM Server API.
 
-Inside PMM Server, the web interface reads metrics from VictoriaMetrics through vmproxy, and query data from QAN API. It reads RTA data from `pmm-managed`, which keeps that data in memory only.
+Inside PMM Server, the web interface reads metrics from VictoriaMetrics through vmproxy, and query data from QAN API. It reads RTA data from `pmm-managed`, which keeps that data in memory only. Grafana writes the results of recording rules to VictoriaMetrics through vmproxy.
 
 ### Connection security
 

@@ -53,6 +53,4 @@ digraph packages {
 	"/services/telemetry.test" -> "/services/telemetry";
 	"/services/victoriametrics" -> "/models";
 	"/services/victoriametrics.test" -> "/services/victoriametrics";
-	"/services/vmalert" -> "/models";
-	"/services/vmalert.test" -> "/services/vmalert";
 }

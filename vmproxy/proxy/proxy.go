@@ -146,7 +146,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 // caller returns instead of proxying a path VictoriaMetrics must not be asked for.
 // The cleanedPath argument is the normalized path, and the one the caller must forward.
 func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, cleanedPath, adminHeaderName string) bool {
-	if isPathAllowed(cleanedPath, isAdminRequest(req, adminHeaderName)) {
+	if isPathAllowed(cleanedPath, isAdminRequest(req, adminHeaderName)) || isRecordingRuleWrite(req, cleanedPath) {
 		return false
 	}
 
@@ -181,6 +181,16 @@ func isPathAllowed(cleanedPath string, isAdmin bool) bool {
 	}
 
 	return labelValuesPath.MatchString(cleanedPath)
+}
+
+// isRecordingRuleWrite reports whether the request is a remote write from Grafana's recording rules.
+func isRecordingRuleWrite(req *http.Request, cleanedPath string) bool {
+	// Grafana's /resources/ route forwards a user's POST body too, but always with a form
+	// Content-Type and the user's X-Grafana-Id, so a user cannot pass for a rule (see PMM-15182).
+	return req.Method == http.MethodPost &&
+		cleanedPath == "/api/v1/push" &&
+		req.Header.Get("Content-Type") == "application/x-protobuf" &&
+		req.Header.Get("X-Grafana-Id") == ""
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
