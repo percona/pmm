@@ -1,6 +1,30 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import * as navConstants from './navigation.constants';
 import { NAV_SIGN_IN, NAV_SIGN_OUT } from './navigation.constants';
 import { consumeReturnTo } from 'contexts/auth/auth.returnTo';
+import type { NavItem } from 'types/navigation.types';
+
+describe('default child', () => {
+  it('marks at most one child of a menu as its default', () => {
+    const menusWithSeveralDefaults: string[] = [];
+    const visit = (item: NavItem) => {
+      const defaults = item.children?.filter((child) => child.isDefault) ?? [];
+      if (defaults.length > 1) {
+        menusWithSeveralDefaults.push(item.id);
+      }
+      item.children?.forEach(visit);
+    };
+
+    Object.values(navConstants)
+      .filter(
+        (value): value is NavItem =>
+          typeof value === 'object' && value !== null && 'id' in value
+      )
+      .forEach(visit);
+
+    expect(menusWithSeveralDefaults).toEqual([]);
+  });
+});
 
 describe('sign in / sign out', () => {
   const originalLocation = window.location;
