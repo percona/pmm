@@ -6,7 +6,7 @@ For guidance on selecting the best deployment method based on these requirements
 ## PMM Server resource requirements
 Resource requirements scale with the number of nodes and services monitored. Here are our recommendations for different deployment scales:
 
-=== "Typical deployment (1-30 nodes)"
+=== "Typical (1-30 nodes)"
 
     This is the most common deployment scenario, suitable for small to medium-sized environments:
 
@@ -36,6 +36,11 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Memory**: 32+ GB
     - **Storage**: 500+ GB
     - **Example workloads**: Large enterprises, mission-critical database fleets
+
+=== "Extra large (500+ nodes)"
+
+    At 500+ nodes, hardware requirements vary significantly based on your specific workload, topology, and data volumes. [Contact Percona experts](../../get-help.md) for sizing guidance specific to your environment.  
+    
 
 ### Optimize ClickHouse for limited memory
 
