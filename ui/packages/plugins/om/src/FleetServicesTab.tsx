@@ -57,6 +57,7 @@ import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
 import {
   GroupBySelect,
   NO_GROUPING,
+  useSessionGrouping,
   type GroupByOption,
 } from './components/GroupBySelect';
 import type {
@@ -117,6 +118,19 @@ const GROUP_BY_OPTIONS: GroupByOption[] = [
   { value: 'cluster_id', label: 'Cluster' },
   { value: NO_GROUPING, label: 'None' },
 ];
+
+/**
+ * Widths while grouped, which adds the expand column the flat table does not have.
+ *
+ * The default columns fill the ~1056px the page gets at 1440 with the nav open, so
+ * the expand column's 60px overflowed it. The column holds only the 28px toggle (a
+ * group's header runs across the row), and Member state's values (PRIMARY, RECOVERING)
+ * need far less than 185px; the service and node names keep their width (PMM-15767).
+ */
+const GROUPED_COLUMN_SIZING = {
+  'mrt-row-expand': 44,
+  state: 147,
+};
 
 /** What a group header calls a group whose services carry no name for it. */
 const UNNAMED_GROUP: Record<string, string> = {
@@ -502,7 +516,11 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
-  const [grouping, setGrouping] = useState(NO_GROUPING);
+  const [grouping, setGrouping] = useSessionGrouping<string>(
+    'om.fleet.services.grouping',
+    GROUP_BY_OPTIONS,
+    NO_GROUPING
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
@@ -646,6 +664,7 @@ export const FleetServicesTab = () => {
     }),
     state: {
       grouping: grouping === NO_GROUPING ? [] : [grouping],
+      columnSizing: grouping === NO_GROUPING ? {} : GROUPED_COLUMN_SIZING,
     },
     initialState: {
       density: 'compact',
