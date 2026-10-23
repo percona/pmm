@@ -155,6 +155,21 @@ func TestHeadersToLbacFilter(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')", filter)
 	})
+
+	// Role filters are not validated on save, and an empty result means no filtering at all.
+	t.Run("unparsable selector fails closed", func(t *testing.T) {
+		ctx := setup(t, `["service_type=\"mysql\""]`)
+		filter, err := headersToLbacFilter(ctx)
+		require.Error(t, err)
+		require.Empty(t, filter)
+	})
+
+	t.Run("unparsable selector among valid ones fails closed", func(t *testing.T) {
+		ctx := setup(t, `["{service_type=\"mysql\"}", "service_type=\"postgresql\""]`)
+		filter, err := headersToLbacFilter(ctx)
+		require.Error(t, err)
+		require.Empty(t, filter)
+	})
 }
 
 func TestMatchersToSQL(t *testing.T) {
