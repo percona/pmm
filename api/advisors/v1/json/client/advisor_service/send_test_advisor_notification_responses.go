@@ -344,8 +344,8 @@ type SendTestAdvisorNotificationDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// send test advisor notification default body details items0
-	SendTestAdvisorNotificationDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// send test advisor notification default body details items0 additional properties
+	SendTestAdvisorNotificationDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -380,7 +380,7 @@ func (o *SendTestAdvisorNotificationDefaultBodyDetailsItems0) UnmarshalJSON(data
 			}
 			result[k] = toadd
 		}
-		o.SendTestAdvisorNotificationDefaultBodyDetailsItems0 = result
+		o.SendTestAdvisorNotificationDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -401,12 +401,12 @@ func (o SendTestAdvisorNotificationDefaultBodyDetailsItems0) MarshalJSON() ([]by
 		return nil, err
 	}
 
-	if len(o.SendTestAdvisorNotificationDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.SendTestAdvisorNotificationDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.SendTestAdvisorNotificationDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.SendTestAdvisorNotificationDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

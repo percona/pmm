@@ -89,3 +89,14 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
     This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
+
+## Operations for MongoDB
+
+!!! caution alert alert-warning "Caution"
+    This is a Developer Preview feature.
+
+Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **MongoDB > Operations** in the sidebar, where you can check the health of your MongoDB clusters and install Percona Server for MongoDB replica sets.
+
+This setting requires [PMM Extensions](../apps/deploy-pmm-extensions.md). If PMM can't reach PMM Extensions, the setting doesn't turn on.
+
+If PMM Server was started with `PMM_ENABLE_OM=1`, you can't change the setting in the UI: **Apply changes** returns an error.

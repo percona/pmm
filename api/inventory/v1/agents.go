@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package inventoryv1
+// The package comment is in the generated *.pb.gw.go files.
+
+package inventoryv1 //nolint:revive
 
 //go-sumtype:decl Agent
 
