@@ -51,13 +51,16 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   const sttEnabled = watch('stt');
   const advisorNotificationsEnabled = watch('advisorNotifications');
 
-  // the test goes to the addresses currently in the field, unsaved edits
-  // included: verifying delivery is what the operator is about to rely on
+  // the test uses the recipients and severities currently in the form, unsaved
+  // edits included: verifying them is what the operator is about to rely on
   const testRecipients = splitEmailAddresses(
     watch('advisorNotificationEmails')
   );
+  const testSeverities = watch('advisorSeverities');
   const canSendTestEmail =
-    testRecipients.length > 0 && !errors.advisorNotificationEmails;
+    testRecipients.length > 0 &&
+    !errors.advisorNotificationEmails &&
+    testSeverities.length > 0;
 
   useEffect(() => {
     reset(toFormValues(settings));
@@ -82,7 +85,7 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
 
   const onSendTestEmail = () =>
     sendTestEmail(
-      { emailAddresses: testRecipients },
+      { emailAddresses: testRecipients, severities: testSeverities },
       {
         onSuccess: () =>
           enqueueSnackbar(m.sendTestEmailSuccess(testRecipients.join(', ')), {

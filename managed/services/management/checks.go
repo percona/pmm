@@ -32,6 +32,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -530,7 +531,21 @@ func (s *ChecksAPIService) SendTestAdvisorNotification(
 		return nil, status.Errorf(codes.InvalidArgument, "%v.", err)
 	}
 
-	err = s.checksService.SendTestNotification(req.EmailAddresses)
+	if len(req.Severities) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "At least one severity is required.")
+	}
+
+	severities := make([]common.Severity, 0, len(req.Severities))
+	for _, severity := range req.Severities {
+		cs := common.Severity(severity)
+		err = models.ValidateAdvisorNotificationSeverity(cs)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "%v.", err)
+		}
+		severities = append(severities, cs)
+	}
+
+	err = s.checksService.SendTestNotification(req.EmailAddresses, severities)
 	if err != nil {
 		// SMTP comes from the Grafana environment and cannot be fixed from this
 		// page, so the cause has to reach the operator intact

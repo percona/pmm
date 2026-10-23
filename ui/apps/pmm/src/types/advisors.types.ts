@@ -144,6 +144,7 @@ export enum AdvisorCheckTriggeredBy {
 
 export interface SendTestAdvisorNotificationRequest {
   emailAddresses: string[];
+  severities: Severity[];
 }
 
 export interface StartAdvisorChecksResponse {

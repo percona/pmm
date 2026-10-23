@@ -59,15 +59,40 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 
+	t.Run("no severities", func(t *testing.T) {
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
+			EmailAddresses: []string{"dba@example.com"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "At least one severity is required."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("unsupported severity", func(t *testing.T) {
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
+			EmailAddresses: []string{"dba@example.com"},
+			Severities:     []managementv1.Severity{managementv1.Severity_SEVERITY_DEBUG},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+			"advisor_notification_severities: unsupported severity level: debug."), err)
+		assert.Nil(t, resp)
+	})
+
 	t.Run("SMTP not configured", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("SendTestNotification", []string{"dba@example.com"}).
+		checksService.On("SendTestNotification", []string{"dba@example.com"}, []common.Severity{common.Critical}).
 			Return(fmt.Errorf("%w: GF_SMTP_ENABLED is not set", services.ErrSMTPNotConfigured))
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
 			EmailAddresses: []string{"dba@example.com"},
+			Severities:     []managementv1.Severity{managementv1.Severity_SEVERITY_CRITICAL},
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
 			"SMTP is not configured in PMM Server: GF_SMTP_ENABLED is not set."), err)
@@ -76,12 +101,20 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 
 	t.Run("sent", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("SendTestNotification", []string{"dba@example.com", "oncall@example.com"}).Return(nil)
+		checksService.On("SendTestNotification",
+			[]string{"dba@example.com", "oncall@example.com"},
+			[]common.Severity{common.Critical, common.Error, common.Warning},
+		).Return(nil)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
 			EmailAddresses: []string{"dba@example.com", "oncall@example.com"},
+			Severities: []managementv1.Severity{
+				managementv1.Severity_SEVERITY_CRITICAL,
+				managementv1.Severity_SEVERITY_ERROR,
+				managementv1.Severity_SEVERITY_WARNING,
+			},
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)

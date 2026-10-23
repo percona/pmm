@@ -137,7 +137,7 @@ To turn on Advisor notifications:
 5. Optional: To check that the emails arrive, click **Send test email**.
 6. Click **Apply changes**.
 
-The test email goes to the addresses that are currently in **Notification recipients**, so you can test them before you apply the changes. It contains sample findings only for the notification severities that are currently applied. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
+The test email uses the current values of **Notification recipients** and **Notification severities**, so you can test them before you apply the changes. It goes to the listed addresses and contains sample findings only for the selected severities. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
 
 If PMM Server runs with the [`PMM_ENABLE_ADVISOR_NOTIFICATIONS`](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#feature-controls) environment variable, the variable controls whether notifications are on, and you can't change **Advisor notifications** in the UI. You must still set **Notification recipients**, because PMM sends no email without them.
 

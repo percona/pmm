@@ -9,6 +9,7 @@ import (
 
 	models "github.com/percona/pmm/managed/models"
 	check "github.com/percona/pmm/managed/pi/check"
+	common "github.com/percona/pmm/managed/pi/common"
 	services "github.com/percona/pmm/managed/services"
 )
 
@@ -412,17 +413,17 @@ func (_m *mockChecksService) MarkInsightsReadByFilters(ctx context.Context, filt
 	return r0
 }
 
-// SendTestNotification provides a mock function with given fields: recipients
-func (_m *mockChecksService) SendTestNotification(recipients []string) error {
-	ret := _m.Called(recipients)
+// SendTestNotification provides a mock function with given fields: recipients, severities
+func (_m *mockChecksService) SendTestNotification(recipients []string, severities []common.Severity) error {
+	ret := _m.Called(recipients, severities)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendTestNotification")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(recipients)
+	if rf, ok := ret.Get(0).(func([]string, []common.Severity) error); ok {
+		r0 = rf(recipients, severities)
 	} else {
 		r0 = ret.Error(0)
 	}

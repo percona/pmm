@@ -234,6 +234,8 @@ message ChangeAdvisorChecksResponse {}
 message SendTestAdvisorNotificationRequest {
   // Addresses the sample report is emailed to.
   repeated string email_addresses = 1;
+  // Severities the sample report includes findings for.
+  repeated management.v1.Severity severities = 2;
 }
 
 message SendTestAdvisorNotificationResponse {}

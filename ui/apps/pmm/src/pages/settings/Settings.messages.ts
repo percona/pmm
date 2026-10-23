@@ -125,7 +125,7 @@ export const Messages = {
     sendTestEmail: 'Send test email',
     sendTestEmailPending: 'Sending…',
     sendTestEmailTooltip:
-      'Sends a sample report to the recipients above, using the addresses currently in the field. No checks are run.',
+      'Sends a sample report to the recipients above for the selected severities, unsaved changes included. No checks are run.',
     sendTestEmailSuccess: (recipients: string) =>
       `Test email sent to ${recipients}`,
   },

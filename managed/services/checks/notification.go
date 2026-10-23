@@ -90,20 +90,10 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 	s.l.Infof("Advisor notification: emailed %d insight(s) for run %s", len(texts), runID)
 }
 
-// SendTestNotification emails a sample Advisor report to the given recipients so that email
-// delivery can be verified without waiting for a run to produce findings. It executes no checks
-// and persists nothing; the findings in the report are made up.
-func (s *Service) SendTestNotification(recipients []string) error {
-	severities := models.DefaultAdvisorNotificationSeverities()
-	settings, err := models.GetSettings(s.db.Querier)
-	if err != nil {
-		// the report only needs the severities to describe itself, so a settings
-		// failure must not stand between the operator and a delivery test
-		s.l.Warnf("Advisor test notification: failed to load settings, reporting the default severities: %v", err)
-	} else {
-		severities = settings.AdvisorNotifications.Severities
-	}
-
+// SendTestNotification emails a sample Advisor report with the given severities to the given
+// recipients so that email delivery can be verified without waiting for a run to produce findings.
+// It executes no checks and persists nothing; the findings in the report are made up.
+func (s *Service) SendTestNotification(recipients []string, severities []common.Severity) error {
 	runID := uuid.New().String()
 	sCounts := make(map[common.Severity]int)
 	tCounts := make(map[models.ServiceType]int)

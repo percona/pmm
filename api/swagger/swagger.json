@@ -2806,6 +2806,27 @@
                     "type": "string"
                   },
                   "x-order": 0
+                },
+                "severities": {
+                  "description": "Severities the sample report includes findings for.",
+                  "type": "array",
+                  "items": {
+                    "description": "Severity represents severity level of the check result or alert.",
+                    "type": "string",
+                    "default": "SEVERITY_UNSPECIFIED",
+                    "enum": [
+                      "SEVERITY_UNSPECIFIED",
+                      "SEVERITY_EMERGENCY",
+                      "SEVERITY_ALERT",
+                      "SEVERITY_CRITICAL",
+                      "SEVERITY_ERROR",
+                      "SEVERITY_WARNING",
+                      "SEVERITY_NOTICE",
+                      "SEVERITY_INFO",
+                      "SEVERITY_DEBUG"
+                    ]
+                  },
+                  "x-order": 1
                 }
               }
             }

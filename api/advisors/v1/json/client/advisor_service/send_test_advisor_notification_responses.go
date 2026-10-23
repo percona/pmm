@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // SendTestAdvisorNotificationReader is a Reader for the SendTestAdvisorNotification structure.
@@ -189,10 +190,61 @@ swagger:model SendTestAdvisorNotificationBody
 type SendTestAdvisorNotificationBody struct {
 	// Addresses the sample report is emailed to.
 	EmailAddresses []string `json:"email_addresses"`
+
+	// Severities the sample report includes findings for.
+	Severities []*string `json:"severities"`
 }
 
 // Validate validates this send test advisor notification body
 func (o *SendTestAdvisorNotificationBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSeverities(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var sendTestAdvisorNotificationBodySeveritiesItemsEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		sendTestAdvisorNotificationBodySeveritiesItemsEnum = append(sendTestAdvisorNotificationBodySeveritiesItemsEnum, v)
+	}
+}
+
+func (o *SendTestAdvisorNotificationBody) validateSeveritiesItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, sendTestAdvisorNotificationBodySeveritiesItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SendTestAdvisorNotificationBody) validateSeverities(formats strfmt.Registry) error {
+	if swag.IsZero(o.Severities) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Severities); i++ {
+		if swag.IsZero(o.Severities[i]) { // not required
+			continue
+		}
+
+		// value enum
+		if err := o.validateSeveritiesItemsEnum("body"+"."+"severities"+"."+strconv.Itoa(i), "body", *o.Severities[i]); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

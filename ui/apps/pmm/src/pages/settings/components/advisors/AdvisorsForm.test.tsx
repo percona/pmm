@@ -45,7 +45,7 @@ describe('AdvisorsForm', () => {
     vi.clearAllMocks();
   });
 
-  it('emails a test report to the addresses currently in the field', async () => {
+  it('emails a test report with the recipients and severities currently in the form', async () => {
     sendTestMock.mockResolvedValue(undefined);
     renderForm();
 
@@ -53,6 +53,7 @@ describe('AdvisorsForm', () => {
       screen.getByTestId('advisorNotificationEmails-text-input'),
       { target: { value: 'dba@example.com, oncall@example.com' } }
     );
+    fireEvent.click(severityCheckbox('error'));
 
     await waitFor(() =>
       expect(screen.getByTestId('advisor-test-email-button')).toBeEnabled()
@@ -63,7 +64,20 @@ describe('AdvisorsForm', () => {
     await waitFor(() => expect(sendTestMock).toHaveBeenCalled());
     expect(sendTestMock.mock.calls[0][0]).toEqual({
       emailAddresses: ['dba@example.com', 'oncall@example.com'],
+      severities: [Severity.critical, Severity.error, Severity.warning],
     });
+  });
+
+  it('does not offer the test until a severity is selected', async () => {
+    renderForm();
+
+    fireEvent.click(severityCheckbox('critical'));
+    fireEvent.click(severityCheckbox('warning'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('advisor-test-email-button')).toBeDisabled()
+    );
+    expect(sendTestMock).not.toHaveBeenCalled();
   });
 
   it('does not offer the test until the recipients are valid', async () => {

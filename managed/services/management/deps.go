@@ -25,6 +25,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -74,7 +75,7 @@ type checksService interface { //nolint:interfacebloat
 	DeleteAdvisorCheck(ctx context.Context, name string) error
 	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
 	ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error)
-	SendTestNotification(recipients []string) error
+	SendTestNotification(recipients []string, severities []common.Severity) error
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

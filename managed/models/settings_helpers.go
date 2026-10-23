@@ -356,7 +356,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	for _, severity := range params.AdvisorNotificationSeverities {
-		err := validateAdvisorNotificationSeverity(severity)
+		err := ValidateAdvisorNotificationSeverity(severity)
 		if err != nil {
 			return err
 		}
@@ -375,9 +375,9 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	return nil
 }
 
-// validateAdvisorNotificationSeverity accepts only the severities advisors use;
+// ValidateAdvisorNotificationSeverity accepts only the severities advisors use;
 // the remaining common.Severity levels are retired for advisors.
-func validateAdvisorNotificationSeverity(s common.Severity) error {
+func ValidateAdvisorNotificationSeverity(s common.Severity) error {
 	switch s {
 	case common.Critical, common.Error, common.Warning, common.Info:
 		return nil
