@@ -49,19 +49,20 @@ PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                                                                    |
-| ------------------ | ----------------------------------------------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana)                                         |
-| `/updates`         | PMM Server updates                                                      |
-| `/updates/clients` | Client updates                                                          |
-| `/help`            | Help center                                                             |
-| `/rta`             | Real-time queries (RTA) entry, redirects to selection or sessions       |
-| `/rta/selection`   | RTA service selection                                                   |
-| `/rta/sessions`    | RTA sessions list                                                       |
-| `/rta/overview`    | RTA overview                                                            |
-| `/prototype/:slug` | Placeholder for a proposed sidebar entry without a page yet (PMM-15353) |
-| `/graph/*`         | Grafana iframe                                                          |
-| `*`                | Page not found (`NotFoundPage`)                                         |
+| Route              | Page                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `/`                | Redirects to `/graph` (Grafana)                                                                       |
+| `/updates`         | PMM Server updates                                                                                    |
+| `/updates/clients` | Client updates                                                                                        |
+| `/help`            | Help center                                                                                           |
+| `/rta`             | Real-time queries (RTA) entry, redirects to selection or sessions                                     |
+| `/rta/selection`   | RTA service selection                                                                                 |
+| `/rta/sessions`    | RTA sessions list                                                                                     |
+| `/rta/overview`    | RTA overview                                                                                          |
+| `/prototype/:slug` | Placeholder for a proposed sidebar entry without a page yet (PMM-15353)                               |
+| `/mongodb`         | MongoDB hub, opened by the sidebar's MongoDB entry (PMM-15353); demo variants in `src/hubs/README.md` |
+| `/graph/*`         | Grafana iframe                                                                                        |
+| `*`                | Page not found (`NotFoundPage`)                                                                       |
 
 ## State Management
 
@@ -114,6 +115,8 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
+- Say how something is doing with Peak's `StateIndicator`, put a state and the action that changes it on a `StatusCard`, and sum up a page's status with `StatusBanner`, as the hubs do; never pick status colors or icons yourself
+- Render an area in another Peak theme with `ThemeScope` (`src/components/theme-scope`), such as Peak's neutral Base theme for one quiet control; it follows the page's light or dark mode and reaches the area's menus and tooltips
 - Build native pages on the shared `Page` wrapper (`src/components/page`); it renders on the paper surface by default, so don't pass `surface="paper"`. Opt out with `surface="canvas"` only for a page composed of cards (Help center, Updates), where the darker tone makes the cards stand out
 
 ### Don't

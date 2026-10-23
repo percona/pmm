@@ -15,7 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   LinearProgress,
@@ -63,6 +64,19 @@ const UNNAMED_ENVIRONMENT = 'Unassigned environment';
 
 const environmentLabel = (row: OmClusterRow) =>
   row.env_name ?? UNNAMED_ENVIRONMENT;
+
+/** `?cluster=<OmCluster.id>`: the cluster a link from elsewhere in PMM opens Fleet on. */
+const FOCUS_CLUSTER_PARAM = 'cluster';
+
+const FOCUS_CLUSTER_ATTRIBUTE = 'data-focus-cluster';
+
+const FOCUSED_ROW_SX = {
+  '&:focus-visible': {
+    outline: '2px solid',
+    outlineColor: 'primary.main',
+    outlineOffset: -2,
+  },
+};
 
 /** `3 mongod · 1 Router`, in the document's own role order. */
 function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
@@ -381,11 +395,18 @@ const GroupHeader = ({
  * TanStack's expanded state cannot say "open unless closed": `true` would also unfold
  * every cluster's member table, and collapsing a row deletes its key rather than
  * storing `false`. So the two are kept apart - the groups a reader closed, and the
- * clusters they opened - and merged into the state the table reads.
+ * clusters they opened - and merged into the state the table reads. A cluster a link
+ * focuses starts open.
  */
-function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
+function useGroupedExpansion(
+  rows: OmClusterRow[],
+  grouping: ClusterGrouping,
+  focusClusterId?: string
+) {
   const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>({});
-  const [openClusters, setOpenClusters] = useState<Record<string, boolean>>({});
+  const [openClusters, setOpenClusters] = useState<Record<string, boolean>>(
+    () => (focusClusterId ? { [focusClusterId]: true } : {})
+  );
   // TanStack names a top-level group row `<columnId>:<groupingValue>`.
   const groupIds = useMemo(
     () =>
@@ -435,9 +456,19 @@ function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
  * One table rather than one per environment, so the clusters can be read by
  * environment, by health or flat without the page changing shape (PMM-15712).
  */
-const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
+const ClustersTable = ({
+  rows,
+  focusClusterId,
+}: {
+  rows: OmClusterRow[];
+  focusClusterId?: string;
+}) => {
   const [grouping, setGrouping] = useState<ClusterGrouping>(DEFAULT_GROUPING);
-  const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
+  const { expanded, onExpandedChange } = useGroupedExpansion(
+    rows,
+    grouping,
+    focusClusterId
+  );
   const columns = useColumns();
   const table = useMaterialReactTable({
     columns,
@@ -473,6 +504,10 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // the row order shifted between polls.
     getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
+    muiTableBodyRowProps: ({ row, isDetailPanel }) =>
+      !isDetailPanel && row.id === focusClusterId
+        ? { tabIndex: -1, [FOCUS_CLUSTER_ATTRIBUTE]: true, sx: FOCUSED_ROW_SX }
+        : {},
     // MRT labels every toggle "Expand" whatever its state; a group's says which
     // group and whether it is open.
     muiExpandButtonProps: ({ row }) =>
@@ -543,6 +578,17 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     },
   });
 
+  // On mount only: the asked-for row is in the first render, and later polls must not move focus.
+  useEffect(() => {
+    const row =
+      table.refs.tableContainerRef.current?.querySelector<HTMLElement>(
+        `[${FOCUS_CLUSTER_ATTRIBUTE}]`
+      );
+    row?.scrollIntoView({ block: 'center' });
+    row?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return <MaterialReactTable table={table} />;
 };
 
@@ -594,6 +640,11 @@ const Counts = ({
 export const FleetClustersTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
   const rows = useMemo(() => toClusterRows(data), [data]);
+  const [params] = useSearchParams();
+  const focus = params.get(FOCUS_CLUSTER_PARAM) ?? undefined;
+  const focusClusterId = rows.some(({ id }) => id === focus)
+    ? focus
+    : undefined;
 
   if (isPending) {
     return <LinearProgress />;
@@ -634,7 +685,7 @@ export const FleetClustersTab = () => {
             : FLEET_NOT_COLLECTED}
         </EmptyState>
       ) : (
-        <ClustersTable rows={rows} />
+        <ClustersTable rows={rows} focusClusterId={focusClusterId} />
       )}
     </Stack>
   );

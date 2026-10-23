@@ -134,6 +134,13 @@ export const KEYWORDS: Record<string, string[]> = {
       [techLabel(tech.text ?? '', 'Overview'), ...TECH_ALIASES[tech.id]],
     ])
   ),
+  // MongoDB opens its hub, so "MongoDB overview" names the dashboard, not the page.
+  [`page:${NAV_MONGO.id}`]: [
+    ...TECH_ALIASES[NAV_MONGO.id],
+    'clusters',
+    'replica set',
+    'sharded',
+  ],
 };
 
 type SearchItemFields = Omit<SearchItem, 'keywords' | 'dedupeKey' | 'order'> &

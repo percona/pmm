@@ -31,6 +31,7 @@ import {
 } from './extensions/mysql-backups/restoreExecuteConfirm';
 import { ExtensionsPage } from './extensions/ExtensionsPage';
 import { PrototypePlaceholderPage } from 'pages/prototype';
+import { hubRoutes } from 'hubs';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
 // shared PMM Extensions constants are absolute (the nav and each plugin's `routeBase` need
@@ -157,6 +158,7 @@ const router = createBrowserRouter(
                 </ExtensionsPage>
               ),
             },
+            ...hubRoutes,
             // Fallback
             {
               path: 'graph/settings/:tab?',

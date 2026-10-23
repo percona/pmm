@@ -1,5 +1,8 @@
 import { format } from 'date-fns/format';
-import { type MRT_Row } from 'material-react-table';
+import {
+  type MRT_ColumnFiltersState,
+  type MRT_Row,
+} from 'material-react-table';
 import { ALL_STATES_FILTER, SILENCED_FILTER } from '../AlertsPage.constants';
 import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
@@ -40,6 +43,27 @@ const toTimestamp = (bound: unknown): number | undefined => {
   const timestamp = bound.getTime();
   return Number.isNaN(timestamp) ? undefined : timestamp;
 };
+
+export const TRIGGERED_AT_COLUMN_ID = 'activeAt';
+
+const toDateBound = (bound: unknown): unknown => {
+  if (typeof bound !== 'string' || !bound) {
+    return bound;
+  }
+
+  const date = new Date(bound);
+  return Number.isNaN(date.getTime()) ? '' : date;
+};
+
+// The URL holds the Triggered at bounds as ISO strings; the picker and the filter need Dates.
+export const reviveTriggeredAtFilter = (
+  filters: MRT_ColumnFiltersState
+): MRT_ColumnFiltersState =>
+  filters.map((filter) =>
+    filter.id === TRIGGERED_AT_COLUMN_ID && Array.isArray(filter.value)
+      ? { ...filter, value: filter.value.map(toDateBound) }
+      : filter
+  );
 
 export const filterTriggeredAt = (
   row: MRT_Row<AlertsTableRow>,
