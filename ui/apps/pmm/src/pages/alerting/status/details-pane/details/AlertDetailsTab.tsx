@@ -3,7 +3,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import { Messages } from './AlertDetailsTab.messages';
 import DataPoint from 'components/details-pane/DataPoint';
 import ValueThreshold from './value-threshold/ValueThreshold';
-import { Chip, CodeBlock } from '@percona/peak-ui';
+import { Chip } from '@percona/peak-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
 import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
@@ -11,6 +11,7 @@ import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import AlertSeverityDetail from './severity/AlertSeverityDetail';
 import AlertDescription from './description/AlertDescription';
+import RuleExpression from './expression/RuleExpression';
 import { AlertDetailsPane } from '../AlertDetailsPane.types';
 
 interface Props {
@@ -77,7 +78,10 @@ const AlertDetailsTab: FC<Props> = ({
       </Grid>
       <Stack spacing={2}>
         <Typography variant="h6">{Messages.details.expression}</Typography>
-        <CodeBlock language="promql" content={expression} />
+        <RuleExpression
+          definition={ruleConfiguration.definition}
+          fallback={expression}
+        />
       </Stack>
       <Stack spacing={2}>
         <Typography variant="h6">
