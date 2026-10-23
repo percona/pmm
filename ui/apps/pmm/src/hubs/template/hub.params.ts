@@ -1,22 +1,25 @@
 import {
   HUB_NO_ENVIRONMENT,
   type HubCapabilities,
-  type HubConnectionMode,
+  type HubFreshnessMode,
   type HubOpsMode,
   type HubParams,
+  type HubRefresh,
   type HubRole,
   type HubRoleMode,
   type HubScenario,
 } from './hub.types';
 
-/** URL names of the hub's own params; the four prototype ones are removed before anything ships. */
+/** URL names of the hub's own params; the `hub*` ones are prototype only and removed before anything ships. */
 export const HUB_PARAM_KEYS = {
   environment: 'environment',
   patches: 'patches',
+  // Grafana's name for it, so a bookmark reopens with the same interval.
+  refresh: 'refresh',
   scenario: 'hubState',
   ops: 'hubOps',
   role: 'hubRole',
-  connection: 'hubConnection',
+  freshness: 'hubFreshness',
 } as const satisfies Record<keyof HubParams, string>;
 
 export const DEFAULT_HUB_PARAMS: HubParams = {
@@ -26,19 +29,47 @@ export const DEFAULT_HUB_PARAMS: HubParams = {
   scenario: 'healthy',
   ops: 'on',
   role: 'live',
-  connection: 'live',
+  refresh: '30s',
+  freshness: 'live',
 };
+
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+
+const REFRESH_MS: Record<Exclude<HubRefresh, 'off'>, number> = {
+  '5s': 5 * SECOND,
+  '10s': 10 * SECOND,
+  '30s': 30 * SECOND,
+  '1m': MINUTE,
+  '5m': 5 * MINUTE,
+  '15m': 15 * MINUTE,
+  '30m': 30 * MINUTE,
+  '1h': HOUR,
+  '2h': 2 * HOUR,
+  '1d': 24 * HOUR,
+};
+
+/** The auto-refresh choices, in the selector's order. */
+export const HUB_REFRESHES: readonly HubRefresh[] = [
+  'off',
+  ...(Object.keys(REFRESH_MS) as Array<Exclude<HubRefresh, 'off'>>),
+];
+
+/** An auto-refresh choice in ms; false for off. */
+export const refreshInterval = (refresh: HubRefresh): number | false =>
+  refresh === 'off' ? false : REFRESH_MS[refresh];
 
 const SCENARIOS: readonly HubScenario[] = [
   'live',
   'empty',
   'healthy',
   'incomplete',
-  'wrong',
+  'unhealthy',
 ];
 const OPS_MODES: readonly HubOpsMode[] = ['live', 'on', 'off'];
 const ROLE_MODES: readonly HubRoleMode[] = ['live', 'admin', 'viewer'];
-const CONNECTION_MODES: readonly HubConnectionMode[] = ['live', 'lost'];
+const FRESHNESS_MODES: readonly HubFreshnessMode[] = ['live', 'stale'];
 
 const oneOf = <T extends string>(
   values: readonly T[],
@@ -69,10 +100,15 @@ export const parseHubParams = (search: URLSearchParams | string): HubParams => {
       params.get(HUB_PARAM_KEYS.role),
       DEFAULT_HUB_PARAMS.role
     ),
-    connection: oneOf(
-      CONNECTION_MODES,
-      params.get(HUB_PARAM_KEYS.connection),
-      DEFAULT_HUB_PARAMS.connection
+    refresh: oneOf(
+      HUB_REFRESHES,
+      params.get(HUB_PARAM_KEYS.refresh),
+      DEFAULT_HUB_PARAMS.refresh
+    ),
+    freshness: oneOf(
+      FRESHNESS_MODES,
+      params.get(HUB_PARAM_KEYS.freshness),
+      DEFAULT_HUB_PARAMS.freshness
     ),
   };
 };
@@ -107,11 +143,13 @@ export const writeHubSearch = (
   if (merged.patches) {
     own.set(HUB_PARAM_KEYS.patches, merged.patches);
   }
-  (['scenario', 'ops', 'role', 'connection'] as const).forEach((key) => {
-    if (merged[key] !== DEFAULT_HUB_PARAMS[key]) {
-      own.set(HUB_PARAM_KEYS[key], merged[key]);
+  (['refresh', 'scenario', 'ops', 'role', 'freshness'] as const).forEach(
+    (key) => {
+      if (merged[key] !== DEFAULT_HUB_PARAMS[key]) {
+        own.set(HUB_PARAM_KEYS[key], merged[key]);
+      }
     }
-  });
+  );
 
   const ownString = own.toString();
 

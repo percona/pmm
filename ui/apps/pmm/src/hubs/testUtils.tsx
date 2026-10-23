@@ -18,7 +18,7 @@ export const hasPeakHub = [
   'StateIndicator',
 ].every((name) => (Peak as unknown as Record<string, unknown>)[name] != null);
 
-// Shows the router location, `/mongodb?hubState=wrong#clusters`, for assertions on URL writes.
+// Shows the router location, `/mongodb?hubState=unhealthy#clusters`, for assertions on URL writes.
 const LocationProbe = () => {
   const { pathname, search, hash } = useLocation();
 
@@ -37,7 +37,7 @@ export const closestTo = (element: Element | null, selector: string) => {
 };
 
 export interface RenderHubOptions {
-  /** Router path with its query, such as `/mongodb?hubState=wrong`. */
+  /** Router path with its query, such as `/mongodb?hubState=unhealthy`. */
   path?: string;
   user?: User;
   settings?: Partial<Settings>;

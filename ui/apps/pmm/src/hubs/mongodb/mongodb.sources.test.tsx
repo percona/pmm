@@ -707,6 +707,7 @@ describe('useMongoLiveSnapshot', () => {
       () =>
         useMongoLiveSnapshot({
           enabled: true,
+          refreshEvery: 30_000,
           environment: null,
           operations: false,
           role: 'admin',
@@ -781,6 +782,29 @@ describe('useMongoLiveSnapshot', () => {
     expect(Object.keys(result.current.snapshot.metrics?.up ?? {})).toHaveLength(
       12
     );
+  });
+
+  it('refreshes each source at the picked interval, a slow one never faster than its own, and none when off', async () => {
+    const { result } = renderLive({ refreshEvery: 10_000 });
+
+    await waitFor(() =>
+      expect(result.current.sources.qan.status).toBe('ready')
+    );
+
+    expect(result.current.sources.metrics.refreshEvery).toBe(10_000);
+    expect(result.current.sources.inventory.refreshEvery).toBe(10_000);
+    expect(result.current.sources.qan.refreshEvery).toBe(5 * 60_000);
+    await waitFor(() => expect(result.current.fetching).toBe(false));
+
+    const { result: off } = renderLive({ refreshEvery: false });
+
+    expect(off.current.fetching).toBe(true);
+    await waitFor(() =>
+      expect(off.current.sources.metrics.status).toBe('ready')
+    );
+
+    expect(off.current.sources.metrics.refreshEvery).toBeUndefined();
+    expect(off.current.sources.qan.refreshEvery).toBeUndefined();
   });
 
   it('fails a source that never loaded', async () => {

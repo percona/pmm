@@ -190,7 +190,7 @@ export const testView = (
   overrides: Partial<HubViewModel> = {}
 ): HubViewModel => ({
   technology: { id: 'mongodb', name: 'MongoDB' },
-  scenario: 'wrong',
+  scenario: 'unhealthy',
   role: 'admin',
   capabilities: {
     addService: true,

@@ -16,8 +16,7 @@ import type {
   TechnologyHubConfig,
 } from './hub.types';
 import {
-  HUB_LOST_FOR_MS,
-  HUB_SAMPLE_REFRESH_MS,
+  HUB_STALE_FOR_MS,
   liveFreshness,
   useTechnologyHub,
 } from './useTechnologyHub';
@@ -58,13 +57,15 @@ const MESSAGES: HubMessages = {
 };
 
 const makeConfig = (
-  liveSources: Record<HubSourceId, HubSourceState> = sources()
+  liveSources: Record<HubSourceId, HubSourceState> = sources(),
+  fetching = false
 ) => {
   const refetch = vi.fn();
   const useLiveSnapshot = vi.fn((_ctx: HubLiveContext) => ({
     snapshot: LIVE,
     sources: liveSources,
     refetch,
+    fetching,
   }));
   const derive = vi.fn((_snapshot: FakeSnapshot, ctx: HubDeriveContext) =>
     testView({ scenario: ctx.scenario, role: ctx.role })
@@ -88,7 +89,7 @@ const makeConfig = (
       empty: fixture,
       healthy: fixture,
       incomplete: fixture,
-      wrong: fixture,
+      unhealthy: fixture,
     },
     derive,
   };
@@ -135,6 +136,7 @@ describe('useTechnologyHub', () => {
 
     expect(useLiveSnapshot).toHaveBeenLastCalledWith({
       enabled: true,
+      refreshEvery: 30_000,
       environment: 'prod',
       operations: true,
       role: 'admin',
@@ -159,7 +161,12 @@ describe('useTechnologyHub', () => {
         extensions: false,
       },
     });
-    expect(result.current.hub.freshness).toEqual({ at: 3_000, stale: false });
+    expect(result.current.hub.freshness).toEqual({
+      state: 'live',
+      at: 3_000,
+      interval: '30s',
+      refreshing: false,
+    });
     expect(result.current.hub.isInitialLoading).toBe(false);
     expect(result.current.hub.access).toEqual({
       admin: true,
@@ -217,7 +224,7 @@ describe('useTechnologyHub', () => {
   it('derives sample data with every prototype value honoured, live sources off', () => {
     const { config, useLiveSnapshot, derive } = makeConfig();
     const { result } = renderTechnologyHub(config, {
-      path: '/mongodb?hubState=wrong&hubOps=on&hubRole=admin',
+      path: '/mongodb?hubState=unhealthy&hubOps=on&hubRole=admin',
       user: TEST_USER_VIEWER,
     });
     const [snapshot, ctx] = derive.mock.calls[derive.mock.calls.length - 1];
@@ -226,15 +233,17 @@ describe('useTechnologyHub', () => {
       expect.objectContaining({ enabled: false })
     );
     expect(snapshot).toMatchObject({ from: 'fixture', ops: true });
-    expect(ctx).toMatchObject({ scenario: 'wrong', role: 'admin' });
+    expect(ctx).toMatchObject({ scenario: 'unhealthy', role: 'admin' });
     expect(
       Object.values(ctx.sources).every(
         (source: HubSourceState) => source.status === 'ready'
       )
     ).toBe(true);
     expect(result.current.hub.freshness).toEqual({
+      state: 'live',
       at: snapshot.now,
-      stale: false,
+      interval: '30s',
+      refreshing: false,
     });
   });
 
@@ -249,7 +258,7 @@ describe('useTechnologyHub', () => {
 
     expect(derive.mock.calls[derive.mock.calls.length - 1][0]).toBe(first);
 
-    act(() => result.current.hub.setParams({ scenario: 'wrong' }));
+    act(() => result.current.hub.setParams({ scenario: 'unhealthy' }));
 
     expect(derive.mock.calls[derive.mock.calls.length - 1][0]).not.toBe(first);
   });
@@ -257,7 +266,7 @@ describe('useTechnologyHub', () => {
   it('refreshes sample data by building it again, and live data through its sources', () => {
     const { config, derive } = makeConfig();
     const { result } = renderTechnologyHub(config, {
-      path: '/mongodb?hubState=wrong',
+      path: '/mongodb?hubState=unhealthy',
     });
     const first = derive.mock.calls[derive.mock.calls.length - 1][0];
 
@@ -275,40 +284,110 @@ describe('useTechnologyHub', () => {
     expect(live.refetch).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes sample data on its own like live data, and stops with the connection lost', () => {
+  it('refreshes sample data at the picked interval, and not with auto-refresh off', () => {
     vi.useFakeTimers();
     try {
-      const { config, derive } = makeConfig();
+      const { config, derive, useLiveSnapshot } = makeConfig();
       const { result } = renderTechnologyHub(config, {
-        path: '/mongodb?hubState=wrong',
+        path: '/mongodb?hubState=unhealthy&refresh=10s',
       });
-      const first = derive.mock.calls[derive.mock.calls.length - 1][0];
+      const latest = () => derive.mock.calls[derive.mock.calls.length - 1][0];
+      const first = latest();
 
-      act(() => vi.advanceTimersByTime(HUB_SAMPLE_REFRESH_MS));
+      act(() => vi.advanceTimersByTime(10_000));
 
-      const second = derive.mock.calls[derive.mock.calls.length - 1][0];
-
-      expect(second).not.toBe(first);
-      expect(result.current.hub.freshness.stale).toBe(false);
-
-      act(() => result.current.hub.setParams({ connection: 'lost' }));
-
-      const lost = derive.mock.calls[derive.mock.calls.length - 1][0];
-
+      expect(latest()).not.toBe(first);
       expect(result.current.hub.freshness).toEqual({
-        at: (lost.now ?? 0) - HUB_LOST_FOR_MS,
-        stale: true,
+        state: 'live',
+        at: latest().now,
+        interval: '10s',
+        refreshing: false,
       });
+      expect(useLiveSnapshot).toHaveBeenLastCalledWith(
+        expect.objectContaining({ refreshEvery: 10_000 })
+      );
 
-      act(() => {
-        vi.advanceTimersByTime(HUB_SAMPLE_REFRESH_MS * 2);
-        result.current.hub.refetch();
+      act(() => result.current.hub.setParams({ refresh: 'off' }));
+      const off = latest();
+
+      act(() => vi.advanceTimersByTime(10 * 60_000));
+
+      // Off never goes stale: the reader chose not to refresh.
+      expect(latest()).toBe(off);
+      expect(result.current.hub.freshness).toMatchObject({
+        state: 'off',
+        at: off.now,
+        interval: 'off',
       });
+      expect(useLiveSnapshot).toHaveBeenLastCalledWith(
+        expect.objectContaining({ refreshEvery: false })
+      );
 
-      expect(derive.mock.calls[derive.mock.calls.length - 1][0]).toBe(lost);
+      // Refresh still works on demand.
+      act(() => result.current.hub.refetch());
+
+      expect(latest()).not.toBe(off);
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('simulates stale data 4 minutes old, stopping every refresh until Live', () => {
+    vi.useFakeTimers();
+    try {
+      const { config, derive, useLiveSnapshot } = makeConfig();
+      const { result } = renderTechnologyHub(config, {
+        path: '/mongodb?hubState=unhealthy&refresh=1m',
+      });
+      const latest = () => derive.mock.calls[derive.mock.calls.length - 1][0];
+
+      act(() => result.current.hub.setParams({ freshness: 'stale' }));
+      const stale = latest();
+
+      expect(result.current.hub.freshness).toEqual({
+        state: 'stale',
+        at: Date.now() - HUB_STALE_FOR_MS,
+        interval: '1m',
+        refreshing: false,
+      });
+      expect(useLiveSnapshot).toHaveBeenLastCalledWith(
+        expect.objectContaining({ refreshEvery: false })
+      );
+
+      act(() => {
+        vi.advanceTimersByTime(5 * 60_000);
+        result.current.hub.refetch();
+      });
+
+      // Retry finds nothing new, as a failed fetch would.
+      expect(latest()).toBe(stale);
+
+      // Back with the interval the reader had.
+      act(() => result.current.hub.setParams({ freshness: 'live' }));
+      act(() => vi.advanceTimersByTime(60_000));
+
+      expect(latest()).not.toBe(stale);
+      expect(result.current.hub.freshness).toMatchObject({
+        state: 'live',
+        interval: '1m',
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('says a refresh is in flight on live data only', () => {
+    const { config } = makeConfig(sources(), true);
+    const { result } = renderTechnologyHub(config, {
+      path: '/mongodb?hubState=live',
+    });
+
+    expect(result.current.hub.freshness.refreshing).toBe(true);
+
+    const sample = makeConfig(sources(), true);
+    const { result: sampleHub } = renderTechnologyHub(sample.config);
+
+    expect(sampleHub.current.hub.freshness.refreshing).toBe(false);
   });
 
   it('is loading at first until inventory and metrics answer', () => {
@@ -325,13 +404,13 @@ describe('useTechnologyHub', () => {
   it('writes params with replace, keeping other params byte for byte', () => {
     const { config } = makeConfig();
     const { result } = renderTechnologyHub(config, {
-      path: '/mongodb?from=now-1h&q=a%20b&hubState=wrong#clusters',
+      path: '/mongodb?from=now-1h&q=a%20b&hubState=unhealthy#clusters',
     });
 
     act(() => result.current.hub.setParams({ environment: 'prod' }));
 
     expect(result.current.location.search).toBe(
-      '?from=now-1h&q=a%20b&environment=prod&hubState=wrong'
+      '?from=now-1h&q=a%20b&environment=prod&hubState=unhealthy'
     );
     expect(result.current.location.hash).toBe('');
     expect(result.current.hub.params.environment).toBe('prod');
@@ -349,14 +428,14 @@ describe('useTechnologyHub', () => {
 describe('liveFreshness', () => {
   const NOW = 10 * 60_000;
 
-  it('reads the newest update while every source keeps up', () => {
+  it('reads live from the newest update while every source keeps up', () => {
     expect(
       liveFreshness(
         sources({
           inventory: {
             status: 'ready',
             updatedAt: NOW - 50_000,
-            refreshEvery: 60_000,
+            refreshEvery: 30_000,
           },
           metrics: {
             status: 'ready',
@@ -364,12 +443,13 @@ describe('liveFreshness', () => {
             refreshEvery: 30_000,
           },
         }),
-        NOW
+        NOW,
+        '30s'
       )
-    ).toEqual({ at: NOW - 20_000, stale: false });
+    ).toEqual({ state: 'live', at: NOW - 20_000 });
   });
 
-  it('reads stale from the oldest source that missed two refreshes, and not before two minutes', () => {
+  it('reads stale from the oldest source that missed two refreshes', () => {
     const late = sources({
       inventory: {
         status: 'ready',
@@ -378,17 +458,32 @@ describe('liveFreshness', () => {
       },
       metrics: {
         status: 'ready',
-        updatedAt: NOW - 90_000,
+        updatedAt: NOW - 61_000,
         refreshEvery: 30_000,
       },
       backups: { status: 'ready', updatedAt: NOW - 5_000 },
     });
 
-    // Metrics missed three refreshes but is not two minutes old; inventory is.
-    expect(liveFreshness(late, NOW)).toEqual({
+    expect(liveFreshness(late, NOW, '30s')).toEqual({
+      state: 'stale',
       at: NOW - 3 * 60_000,
-      stale: true,
     });
+  });
+
+  it('reads off with auto-refresh off, however old the data', () => {
+    expect(
+      liveFreshness(
+        sources({
+          inventory: {
+            status: 'ready',
+            updatedAt: NOW - 9 * 60_000,
+            refreshEvery: 30_000,
+          },
+        }),
+        NOW,
+        'off'
+      )
+    ).toEqual({ state: 'off', at: NOW - 9 * 60_000 });
   });
 
   it('ignores sources that refresh only on demand, are off or failed outright', () => {
@@ -399,8 +494,9 @@ describe('liveFreshness', () => {
           metrics: { status: 'error' },
           backups: { status: 'disabled' },
         }),
-        NOW
-      ).stale
-    ).toBe(false);
+        NOW,
+        '30s'
+      ).state
+    ).toBe('live');
   });
 });

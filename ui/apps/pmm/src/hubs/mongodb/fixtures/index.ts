@@ -4,7 +4,7 @@ import { emptySnapshot } from './empty';
 import { forEnvironment } from './environment';
 import { healthySnapshot } from './healthy';
 import { incompleteSnapshot } from './incomplete';
-import { wrongSnapshot } from './wrong';
+import { unhealthySnapshot } from './unhealthy';
 
 /** Raw snapshots for each prototype state, narrowed to the environment as live sources are; they run through the same derivation as live data. */
 export const MONGODB_FIXTURES: TechnologyHubConfig<MongoSnapshot>['fixtures'] =
@@ -15,6 +15,6 @@ export const MONGODB_FIXTURES: TechnologyHubConfig<MongoSnapshot>['fixtures'] =
       forEnvironment(healthySnapshot(now, ops), environment),
     incomplete: (now, ops, environment) =>
       forEnvironment(incompleteSnapshot(now, ops), environment),
-    wrong: (now, ops, environment) =>
-      forEnvironment(wrongSnapshot(now, ops), environment),
+    unhealthy: (now, ops, environment) =>
+      forEnvironment(unhealthySnapshot(now, ops), environment),
   };

@@ -8,11 +8,11 @@ import { AppsSection } from './sections/AppsSection';
 import { BackupsSection } from './sections/BackupsSection';
 import { ClustersSection } from './sections/ClustersSection';
 import { DashboardsSection } from './sections/DashboardsSection';
+import { DemoControls } from './sections/DemoControls';
 import { HubBand } from './sections/HubBand';
 import { HubHeader } from './sections/HubHeader';
 import { HubStatusBanner } from './sections/HubStatusBanner';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
-import { PrototypeMenu } from './sections/PrototypeMenu';
 import { QueriesSection } from './sections/QueriesSection';
 import { HUB_CONTAINER } from './sections/hub.sx';
 import { useTechnologyHub } from './useTechnologyHub';
@@ -22,6 +22,10 @@ const TWO_COLUMNS_FROM = 1040;
 
 // Each band takes its width from the Figma hub; the status banner sits at Peak's page width.
 const STATUS_WIDTH = DEFAULT_PAGE_MAX_WIDTH;
+
+// Prototype only: the dev server, or a build that asks for it (the demo host's), never a production one.
+const SHOW_DEMO_CONTROLS =
+  import.meta.env.DEV || import.meta.env.VITE_PMM_PROTOTYPE === 'true';
 
 // A pasted or cut link can hold a lone "%", which decodeURIComponent throws on.
 const sectionId = (hash: string) => {
@@ -59,15 +63,8 @@ export interface HubPageProps<TSnapshot> {
 
 /** A technology hub: status, what needs attention, the estate, and the ways into it. */
 export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
-  const {
-    view,
-    params,
-    setParams,
-    refetch,
-    freshness,
-    isInitialLoading,
-    access,
-  } = useTechnologyHub(config);
+  const { view, params, setParams, refetch, freshness, isInitialLoading } =
+    useTechnologyHub(config);
   const { messages } = config;
 
   useSectionFocus();
@@ -166,18 +163,15 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
             />
           </Box>
         </HubBand>
-        {/* Prototype only, kept out of the header so the page reads as it would ship. */}
-        <HubBand>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <PrototypeMenu
-              params={params}
-              setParams={setParams}
-              role={view.role}
-              operations={view.capabilities.operations}
-              access={access}
-            />
-          </Box>
-        </HubBand>
+        {SHOW_DEMO_CONTROLS && (
+          <DemoControls
+            name={messages.name}
+            params={params}
+            setParams={setParams}
+            operations={view.capabilities.operations}
+            admin={view.role === 'admin'}
+          />
+        )}
       </Box>
     </Page>
   );

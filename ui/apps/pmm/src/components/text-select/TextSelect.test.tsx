@@ -132,4 +132,61 @@ describe('TextSelect', () => {
       screen.getByTestId('start-icon')
     );
   });
+
+  it('shows a selected label that differs from its menu label', () => {
+    render(
+      <TextSelect
+        label="Auto-refresh"
+        value="two"
+        selectedLabel="OFF"
+        options={OPTIONS}
+        onChange={onChangeMock}
+      />
+    );
+
+    expect(screen.getByTestId('text-select-button')).toHaveTextContent(
+      'Auto-refresh: OFF'
+    );
+  });
+
+  it('says it opens a menu, and whether it is open', () => {
+    render(
+      <TextSelect value="one" options={OPTIONS} onChange={onChangeMock} />
+    );
+    const button = screen.getByTestId('text-select-button');
+
+    expect(button).toHaveAttribute('aria-haspopup', 'menu');
+    expect(button).not.toHaveAttribute('aria-expanded');
+
+    fireEvent.click(button);
+
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    expect(button).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('text-select-menu').id
+    );
+  });
+
+  it('can draw its button alone in the Base theme, with a compact menu under its arrow', () => {
+    render(
+      <TextSelect
+        value="one"
+        options={OPTIONS}
+        onChange={onChangeMock}
+        buttonTheme="base"
+        compactMenu
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('text-select-button'));
+
+    const menu = screen.getByTestId('text-select-menu');
+
+    expect(menu.querySelector('.MuiMenu-paper')).toHaveStyle({ minWidth: '0' });
+    // The list keeps its padding above the first option and below the last.
+    expect(menu.querySelector('.MuiMenu-list')).toHaveStyle({
+      paddingTop: '8px',
+      paddingBottom: '8px',
+    });
+  });
 });

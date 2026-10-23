@@ -34,7 +34,7 @@ const down = (
 };
 
 /** One of every attention kind on the shared estate: design section 6.3's list, a config server member recovering past its grace period, catalog's upgrade stopped halfway, payments mid-upgrade, billing's version check gone stale, an alert about a member's host, and no rule for lag or the oplog. */
-export const wrongSnapshot = (now: number, ops: boolean): MongoSnapshot => {
+export const unhealthySnapshot = (now: number, ops: boolean): MongoSnapshot => {
   const snapshot = healthySnapshot(now, ops);
   const metrics = snapshot.metrics;
 

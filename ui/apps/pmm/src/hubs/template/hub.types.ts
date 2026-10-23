@@ -9,11 +9,29 @@ export type HubHealth =
   | 'noData';
 export type HubSeverity = 'error' | 'warning' | 'info';
 export type HubLevel = 'ok' | 'warning' | 'error';
-export type HubScenario = 'live' | 'empty' | 'healthy' | 'incomplete' | 'wrong';
+export type HubScenario =
+  | 'live'
+  | 'empty'
+  | 'healthy'
+  | 'incomplete'
+  | 'unhealthy';
 export type HubOpsMode = 'live' | 'on' | 'off';
 export type HubRoleMode = 'live' | 'admin' | 'viewer';
-/** Prototype only: `lost` stops sample data refreshing, as a dropped connection would. */
-export type HubConnectionMode = 'live' | 'lost';
+/** How often the hub refreshes on its own: Grafana's interval set. */
+export type HubRefresh =
+  | 'off'
+  | '5s'
+  | '10s'
+  | '30s'
+  | '1m'
+  | '5m'
+  | '15m'
+  | '30m'
+  | '1h'
+  | '2h'
+  | '1d';
+/** Prototype only: `stale` shows data 4 minutes old and stops the real refresh. */
+export type HubFreshnessMode = 'live' | 'stale';
 export type HubRole = 'admin' | 'viewer';
 export type HubSourceId =
   | 'inventory'
@@ -50,8 +68,10 @@ export interface HubParams {
   ops: HubOpsMode;
   /** `?hubRole=` */
   role: HubRoleMode;
-  /** `?hubConnection=` */
-  connection: HubConnectionMode;
+  /** `?refresh=` */
+  refresh: HubRefresh;
+  /** `?hubFreshness=` */
+  freshness: HubFreshnessMode;
 }
 
 export interface HubDoor {
@@ -334,16 +354,24 @@ export interface HubSourceState {
   refreshEvery?: number;
 }
 
+/** Refreshing on its own, refreshing only on demand, or behind on its refreshes. */
+export type HubFreshnessState = 'live' | 'off' | 'stale';
+
 /** How current the page's data is. */
 export interface HubFreshness {
-  /** Epoch ms of the update the label reads: the latest, or the oldest overdue one. */
-  at: number;
-  /** A source missed its refreshes, as when the connection drops. */
-  stale: boolean;
+  state: HubFreshnessState;
+  /** Epoch ms of the last good update: the latest, or the oldest overdue one; null before any. */
+  at: number | null;
+  /** The auto-refresh interval the reader picked. */
+  interval: HubRefresh;
+  /** A refresh is in flight. */
+  refreshing: boolean;
 }
 
 export interface HubLiveContext {
   enabled: boolean;
+  /** How often scheduled sources refresh, in ms; false stops them. */
+  refreshEvery: number | false;
   environment: string | null;
   operations: boolean;
   role: HubRole;
@@ -353,6 +381,8 @@ export interface HubLiveResult<TSnapshot> {
   snapshot: TSnapshot;
   sources: Record<HubSourceId, HubSourceState>;
   refetch: () => void;
+  /** A scheduled or requested refresh is in flight. */
+  fetching: boolean;
 }
 
 export interface HubDeriveContext {

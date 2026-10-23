@@ -1,7 +1,7 @@
 import { rankAttention } from 'hubs/template/hub.attention';
 import { ALERTS_SERVICE_FILTER_KEY } from 'hubs/template/hub.doors';
 import type { HubAttentionItem } from 'hubs/template/hub.types';
-import { wrongSnapshot } from './fixtures/wrong';
+import { unhealthySnapshot } from './fixtures/unhealthy';
 import {
   alertSeverity,
   type AttentionInput,
@@ -474,9 +474,9 @@ describe('operations', () => {
   });
 });
 
-describe('the things-wrong estate', () => {
+describe('the unhealthy estate', () => {
   it('gives exactly the ranked list of the design', () => {
-    const snapshot = wrongSnapshot(NOW, true);
+    const snapshot = unhealthySnapshot(NOW, true);
     const services = snapshot.services ?? [];
     // As the derivation does: Operations' upgrade of payments rides on its cluster.
     const clusters = groupClusters(services, snapshot.metrics, NOW).map(
@@ -557,7 +557,7 @@ describe('the things-wrong estate', () => {
 
   it('keeps ids stable across refetches', () => {
     const ids = (now: number) => {
-      const snapshot = wrongSnapshot(now, false);
+      const snapshot = unhealthySnapshot(now, false);
 
       return deriveAttention({
         clusters: groupClusters(snapshot.services ?? [], snapshot.metrics),

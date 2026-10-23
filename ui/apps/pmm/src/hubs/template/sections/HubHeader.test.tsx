@@ -1,10 +1,11 @@
 import { describe } from 'vitest';
 import { createTheme } from '@mui/material/styles';
 import { baseThemeOptions, PerconaMoIcon } from '@percona/peak-ui';
-import { fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import { hasPeakHub, renderHub } from '../../testUtils';
 import { testView } from '../hub.testFixtures';
 import type { HubFreshness, HubMessages, HubViewModel } from '../hub.types';
+import { HUB_TURN_MS } from './HubFreshness';
 import { HubHeader } from './HubHeader';
 
 const MESSAGES = {
@@ -12,7 +13,12 @@ const MESSAGES = {
   unit: { cluster: ['cluster', 'clusters'] },
 } as HubMessages;
 
-const FRESH: HubFreshness = { at: Date.now() - 20_000, stale: false };
+const FRESH: HubFreshness = {
+  state: 'live',
+  at: Date.now() - 20_000,
+  interval: '30s',
+  refreshing: false,
+};
 
 const header = (
   view: Partial<HubViewModel> = {},
@@ -170,32 +176,162 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
-  it('says how fresh the data is and refreshes every source', () => {
+  it('reads Live as its interval on the RTA selector, with no ticking age, and refreshes on demand', () => {
     const { refetch } = renderHeader();
+    const widget = screen.getByTestId('hub-freshness');
 
-    expect(screen.getByText(/^Updated 2\ds ago$/)).toBeInTheDocument();
-    expect(screen.queryByRole('img', { name: 'Warning' })).toBeNull();
+    expect(screen.getByTestId('hub-auto-refresh')).toHaveTextContent(
+      /^Auto-refresh: 30s$/
+    );
+    expect(widget).not.toHaveTextContent(/ago/);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh now' }));
 
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
-  it('warns when the data is stale, in words and on focus, and says so to assistive tech', async () => {
-    renderHeader({}, { at: Date.now() - 32 * 60_000, stale: true });
+  it('turns Refresh while a refresh runs, disabled until a whole turn ends', () => {
+    vi.useFakeTimers();
+    try {
+      const handlers = { setParams: vi.fn(), refetch: vi.fn() };
+      const { rerender } = renderHub(header({}, FRESH, handlers));
+      const button = screen.getByRole('button', { name: 'Refresh now' });
+      const icon = () => button.querySelector('svg') as SVGElement;
 
-    const age = screen.getByText('Updated 32m ago');
+      expect(button).not.toHaveAttribute('aria-disabled');
 
-    expect(screen.getByRole('img', { name: 'Warning' })).toBeInTheDocument();
-    expect(age).toHaveAttribute('tabindex', '0');
-    expect(liveRegion()).toHaveTextContent(
-      'Data looks stale. Refresh, or check your connection.'
+      // An automatic refresh in flight, longer than a turn.
+      rerender(header({}, { ...FRESH, refreshing: true }, handlers));
+      act(() => vi.advanceTimersByTime(HUB_TURN_MS * 2));
+
+      expect(icon()).toHaveAttribute('data-turning', 'true');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      fireEvent.click(button);
+
+      expect(handlers.refetch).not.toHaveBeenCalled();
+
+      // It lands partway through the third turn, which still completes.
+      act(() => vi.advanceTimersByTime(HUB_TURN_MS / 2));
+      rerender(header({}, { ...FRESH, at: Date.now() }, handlers));
+      act(() => vi.advanceTimersByTime(HUB_TURN_MS / 2 - 1));
+
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      act(() => vi.advanceTimersByTime(1));
+
+      expect(button).not.toHaveAttribute('aria-disabled');
+      expect(icon()).not.toHaveAttribute('data-turning');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('turns Refresh once for a manual refresh, however quick', () => {
+    vi.useFakeTimers();
+    try {
+      const { refetch } = renderHeader();
+      const button = screen.getByRole('button', { name: 'Refresh now' });
+
+      fireEvent.click(button);
+
+      expect(refetch).toHaveBeenCalledTimes(1);
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      act(() => vi.advanceTimersByTime(HUB_TURN_MS));
+
+      expect(button).not.toHaveAttribute('aria-disabled');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows the selector in Peak’s neutral Base theme, right beside Refresh, with no tooltip', () => {
+    renderHeader();
+    const selector = screen.getByTestId('hub-auto-refresh');
+    const refresh = screen.getByRole('button', { name: 'Refresh now' });
+
+    expect(selector).toHaveClass('MuiButton-sizeMedium');
+    expect(
+      getComputedStyle(selector).getPropertyValue('--variant-textColor')
+    ).toBe(createTheme(baseThemeOptions('light')).palette.primary.main);
+    expect(refresh).toHaveClass('MuiIconButton-sizeMedium');
+    expect(refresh).not.toHaveClass('MuiIconButton-colorSecondary');
+    expect(screen.getByTestId('hub-freshness')).toHaveStyle({ gap: '0px' });
+
+    fireEvent.mouseOver(selector);
+
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('picks the interval from Grafana’s set, Off first', () => {
+    const { setParams } = renderHeader();
+
+    fireEvent.click(screen.getByTestId('hub-auto-refresh'));
+
+    expect(
+      within(screen.getByTestId('text-select-menu'))
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent)
+    ).toEqual([
+      'Off',
+      '5s',
+      '10s',
+      '30s',
+      '1m',
+      '5m',
+      '15m',
+      '30m',
+      '1h',
+      '2h',
+      '1d',
+    ]);
+
+    fireEvent.click(screen.getByTestId('text-select-option-1m'));
+
+    expect(setParams).toHaveBeenCalledWith({ refresh: '1m' });
+  });
+
+  it('reads OFF with auto-refresh off, keeping the selector and Refresh', () => {
+    renderHeader({}, { ...FRESH, state: 'off', interval: 'off' });
+
+    expect(screen.getByTestId('hub-auto-refresh')).toHaveTextContent(
+      /^Auto-refresh: OFF$/
+    );
+    expect(
+      screen.getByRole('button', { name: 'Refresh now' })
+    ).toBeInTheDocument();
+  });
+
+  it('warns when the data is stale, with how long ago, Retry, and once to assistive tech', () => {
+    const { refetch } = renderHeader(
+      {},
+      { ...FRESH, state: 'stale', at: Date.now() - 4 * 60_000 }
     );
 
-    fireEvent.mouseOver(age);
+    const line = screen.getByText('Data paused, last update 4m ago');
 
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Data looks stale. Refresh, or check your connection.'
+    // Peak's small State indicator: a 20px warning glyph on a body1 line.
+    expect(line.closest('[data-state="degraded"]')).not.toBeNull();
+    expect(getComputedStyle(line).fontSize).toBe('1rem');
+    expect(
+      screen
+        .getByTestId('hub-freshness')
+        .querySelector('[data-glyph="warning"]')
+    ).toHaveStyle({ width: '20px' });
+    expect(screen.getByRole('button', { name: 'Retry' })).toHaveClass(
+      'MuiButton-sizeMedium'
+    );
+    expect(screen.queryByTestId('hub-auto-refresh')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Refresh now' })).toBeNull();
+    expect(liveRegion()).toHaveTextContent('Data paused.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Retry' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
     );
   });
 
@@ -203,18 +339,18 @@ describe.skipIf(!hasPeakHub)('HubHeader', () => {
     const handlers = { setParams: vi.fn(), refetch: vi.fn() };
     const before = Date.now() - 20_000;
     const { rerender } = renderHub(
-      header({}, { at: before, stale: false }, handlers)
+      header({}, { ...FRESH, at: before }, handlers)
     );
 
     expect(liveRegion()).toHaveTextContent('');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
-    rerender(header({}, { at: before, stale: false }, handlers));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh now' }));
+    rerender(header({}, { ...FRESH, at: before }, handlers));
 
     expect(handlers.refetch).toHaveBeenCalledTimes(1);
     expect(liveRegion()).toHaveTextContent('');
 
-    rerender(header({}, { at: Date.now(), stale: false }, handlers));
+    rerender(header({}, { ...FRESH, at: Date.now() }, handlers));
 
     expect(liveRegion()).toHaveTextContent('Updated just now');
   });

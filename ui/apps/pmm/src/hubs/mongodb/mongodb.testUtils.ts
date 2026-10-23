@@ -46,7 +46,7 @@ export interface ContextOptions {
 
 /** A derive context as useTechnologyHub builds it, for sample data unless told otherwise. */
 export const deriveContext = ({
-  scenario = 'wrong',
+  scenario = 'unhealthy',
   patches = null,
   role = 'admin',
   operations = false,
@@ -62,7 +62,8 @@ export const deriveContext = ({
     params: {
       environment,
       patches,
-      connection: 'live',
+      refresh: '30s',
+      freshness: 'live',
       scenario,
       ops: operations ? 'on' : 'off',
       role,

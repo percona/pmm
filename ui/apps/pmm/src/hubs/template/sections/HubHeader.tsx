@@ -82,7 +82,11 @@ export const HubHeader: FC<HubHeaderProps> = ({
               </TextField>
             </>
           )}
-          <HubFreshness freshness={freshness} onRefresh={refetch} />
+          <HubFreshness
+            freshness={freshness}
+            onRefresh={refetch}
+            onIntervalChange={(refresh) => setParams({ refresh })}
+          />
         </>
       }
       actions={

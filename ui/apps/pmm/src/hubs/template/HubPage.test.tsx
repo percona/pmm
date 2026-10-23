@@ -4,7 +4,7 @@ import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { hasPeakHub, renderHub } from '../testUtils';
 import { HubRoute } from './HubRoute';
 
-type Scenario = 'empty' | 'healthy' | 'wrong';
+type Scenario = 'empty' | 'healthy' | 'unhealthy';
 type Ops = 'on' | 'off';
 type Role = 'admin' | 'viewer';
 
@@ -39,7 +39,7 @@ const appTitle = (name: string) =>
   });
 
 const MATRIX: Array<[Scenario, Ops, Role]> = (
-  ['empty', 'healthy', 'wrong'] as Scenario[]
+  ['empty', 'healthy', 'unhealthy'] as Scenario[]
 ).flatMap((scenario) =>
   (['on', 'off'] as Ops[]).flatMap((ops) =>
     (['admin', 'viewer'] as Role[]).map((role): [Scenario, Ops, Role] => [
@@ -79,7 +79,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       expect(screen.queryByText('Preview')).toBeNull();
     });
 
-    it('shows Needs attention only when there is an estate, and its list only when wrong', async () => {
+    it('shows Needs attention only when there is an estate, and its list only when unhealthy', async () => {
       renderPage({ scenario, ops, role });
 
       await screen.findByRole('heading', { level: 1 });
@@ -186,7 +186,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
   ])(
     'folds the rest of what is wrong behind Show more, Operations %s',
     async (ops, more) => {
-      renderPage({ scenario: 'wrong', ops, role: 'admin' });
+      renderPage({ scenario: 'unhealthy', ops, role: 'admin' });
 
       expect(
         await screen.findByRole('button', { name: `Show ${more} more` })

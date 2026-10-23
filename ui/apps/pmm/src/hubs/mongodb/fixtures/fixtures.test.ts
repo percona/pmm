@@ -5,7 +5,7 @@ import { deriveMongoHub } from '../mongodb.derive';
 import { deriveContext, NOW } from '../mongodb.testUtils';
 import { MONGODB_FIXTURES } from './index';
 
-const SCENARIOS = ['empty', 'healthy', 'incomplete', 'wrong'] as const;
+const SCENARIOS = ['empty', 'healthy', 'incomplete', 'unhealthy'] as const;
 const OPS = [true, false];
 const ROLES = ['admin', 'viewer'] as const;
 
@@ -113,10 +113,10 @@ describe('fixtures', () => {
     });
   });
 
-  describe('wrong', () => {
+  describe('unhealthy', () => {
     it('has at least one item of every kind but a lost member, which unit tests cover', () => {
       const kinds = new Set(
-        view('wrong', true).attention.map((item) => item.kind)
+        view('unhealthy', true).attention.map((item) => item.kind)
       );
 
       expect([...kinds].sort()).toEqual(
@@ -125,8 +125,8 @@ describe('fixtures', () => {
     });
 
     it('ranks every kind, 14 rows with Operations off and 15 on', () => {
-      const off = view('wrong', false).attention;
-      const on = view('wrong', true).attention;
+      const off = view('unhealthy', false).attention;
+      const on = view('unhealthy', true).attention;
       const steady = [
         'noPrimary',
         'memberDown',
@@ -166,8 +166,8 @@ describe('fixtures', () => {
     });
 
     it('shows the first five and folds 9 more off, 10 more on', () => {
-      const off = capAttention(view('wrong', false).attention, 5);
-      const on = capAttention(view('wrong', true).attention, 5);
+      const off = capAttention(view('unhealthy', false).attention, 5);
+      const on = capAttention(view('unhealthy', true).attention, 5);
 
       expect(off.visible.map((item) => item.kind)).toEqual([
         'noPrimary',
@@ -181,7 +181,7 @@ describe('fixtures', () => {
     });
 
     it('matches the design’s tree and status line', () => {
-      const result = view('wrong', false);
+      const result = view('unhealthy', false);
       const [billing, reports, , orders] = result.clusters;
 
       expect(result.clusters.map((node) => node.name)).toEqual([
@@ -225,7 +225,7 @@ describe('fixtures', () => {
       ]);
       expect(result.queries.slower[0].headline).toBe('6× slower than usual');
       expect(result.queries.runningLong[0].headline).toBe('running for 14m');
-      expect(view('wrong', true).apps[0].summary?.text).toBe(
+      expect(view('unhealthy', true).apps[0].summary?.text).toBe(
         '17 of 21 services up · last scan 4m ago'
       );
       expect(result.apps[0].summary?.text).toBe(
@@ -234,7 +234,7 @@ describe('fixtures', () => {
     });
 
     it('reads payments as Upgrading while Operations runs its upgrade, and keeps it out of the count', () => {
-      const on = view('wrong', true);
+      const on = view('unhealthy', true);
       const payments = on.clusters.find((node) => node.name === 'payments');
 
       expect(payments).toMatchObject({
@@ -246,14 +246,15 @@ describe('fixtures', () => {
       expect(on.expanded['cluster:prod/payments']).toBeUndefined();
       // Without Operations nothing says an upgrade runs: the restarted member is inside its grace period, but the versions differ.
       expect(
-        view('wrong', false).clusters.find((node) => node.name === 'payments')
-          ?.health
+        view('unhealthy', false).clusters.find(
+          (node) => node.name === 'payments'
+        )?.health
       ).toBe('degraded');
     });
 
     it('narrows queries, Operations counts and installs to the environment like live data', () => {
       const staging = deriveMongoHub(
-        MONGODB_FIXTURES.wrong(NOW, true, 'staging'),
+        MONGODB_FIXTURES.unhealthy(NOW, true, 'staging'),
         deriveContext({ operations: true, environment: 'staging' })
       );
 
@@ -273,7 +274,7 @@ describe('fixtures', () => {
     });
 
     it('reads the orders backup as failed after an old success', () => {
-      const orders = view('wrong', false).backups.rows.find(
+      const orders = view('unhealthy', false).backups.rows.find(
         (row) => row.cluster === 'orders'
       );
 

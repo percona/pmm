@@ -55,20 +55,20 @@ describe.skipIf(!hasPeakHub)('HubStatusBanner', () => {
   });
 
   it('reviews cluster problems down the page, keeping the hub’s params', () => {
-    renderBanner({}, { issues: 4, path: '/mongodb?hubState=wrong' });
+    renderBanner({}, { issues: 4, path: '/mongodb?hubState=unhealthy' });
 
     const review = screen.getByRole('link', { name: 'Review 4 issues' });
 
     expect(review).toHaveAttribute(
       'href',
-      '/mongodb?hubState=wrong#needs-attention'
+      '/mongodb?hubState=unhealthy#needs-attention'
     );
     expect(within(review).getByTestId('ArrowDownwardIcon')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('2 of 3 clusters need attention'));
 
     expect(location()).toHaveTextContent(
-      '/mongodb?hubState=wrong#needs-attention'
+      '/mongodb?hubState=unhealthy#needs-attention'
     );
   });
 

@@ -4,6 +4,7 @@ import { useSettings } from 'contexts/settings';
 import { useUser } from 'contexts/user';
 import {
   parseHubParams,
+  refreshInterval,
   resolveHubCapabilities,
   resolveHubOperations,
   resolveHubRole,
@@ -12,6 +13,7 @@ import {
 import type {
   HubFreshness,
   HubParams,
+  HubRefresh,
   HubSourceId,
   HubSourceState,
   HubViewModel,
@@ -21,39 +23,40 @@ import type {
 /** How often the derived view's clock moves, so ages and thresholds stay current between fetches. */
 export const HUB_NOW_TICK_MS = 30_000;
 
-/** Sample data refreshes as often as live metrics do, so its ages read like a live page's. */
-export const HUB_SAMPLE_REFRESH_MS = 30_000;
+/** How old the data reads when the prototype shows it stale. */
+export const HUB_STALE_FOR_MS = 4 * 60_000;
 
-/** A source reads stale once it misses two refreshes, and never sooner than this. */
-export const HUB_STALE_MIN_MS = 2 * 60_000;
-
-/** How old the sample data reads with the prototype's connection lost. */
-export const HUB_LOST_FOR_MS = 32 * 60_000;
-
+// A source reads stale once it misses two refreshes.
 const isOverdue = (source: HubSourceState, now: number) =>
   source.status === 'ready' &&
   source.updatedAt !== undefined &&
   source.refreshEvery !== undefined &&
-  now - source.updatedAt > Math.max(2 * source.refreshEvery, HUB_STALE_MIN_MS);
+  now - source.updatedAt > 2 * source.refreshEvery;
 
-/** The newest update while every source keeps up; the oldest overdue one, and stale, once any falls behind. */
+/** Off with auto-refresh off, which never goes stale; otherwise stale from the oldest overdue source, or live from the newest update. */
 export const liveFreshness = (
   sources: Record<HubSourceId, HubSourceState>,
-  now: number
-): HubFreshness => {
-  const states = Object.values(sources);
+  now: number,
+  interval: HubRefresh
+): Pick<HubFreshness, 'state' | 'at'> => {
+  const states = Object.values(sources).filter(
+    (source) => source.status === 'ready' || source.status === 'error'
+  );
+  const updated = states.flatMap((source) =>
+    source.updatedAt ? [source.updatedAt] : []
+  );
+  const at = updated.length ? Math.max(...updated) : null;
+
+  if (interval === 'off') {
+    return { state: 'off', at };
+  }
   const overdue = states
     .filter((source) => isOverdue(source, now))
     .map((source) => source.updatedAt as number);
 
-  if (overdue.length) {
-    return { at: Math.min(...overdue), stale: true };
-  }
-  const updated = states.flatMap((source) =>
-    source.updatedAt ? [source.updatedAt] : []
-  );
-
-  return { at: updated.length ? Math.max(...updated) : now, stale: false };
+  return overdue.length
+    ? { state: 'stale', at: Math.min(...overdue) }
+    : { state: 'live', at };
 };
 
 const SOURCE_IDS: HubSourceId[] = [
@@ -110,7 +113,9 @@ export const useTechnologyHub = <TSnapshot>(
   const params = useMemo(() => parseHubParams(search), [search]);
   const { scenario } = params;
   const live = scenario === 'live';
-  const connectionLost = !live && params.connection === 'lost';
+  // Simulated stale data stops the real refresh, live or sample.
+  const simulatedStale = params.freshness === 'stale';
+  const refreshEvery = simulatedStale ? false : refreshInterval(params.refresh);
 
   const isPMMAdmin = !!user?.isPMMAdmin;
   const operationsForUser = isPMMAdmin && settings?.omEnabled === true;
@@ -137,25 +142,23 @@ export const useTechnologyHub = <TSnapshot>(
 
   const liveResult = config.useLiveSnapshot({
     enabled: live,
+    refreshEvery,
     environment: params.environment,
     operations,
     role,
   });
 
-  // Refresh on sample data builds it again, so its ages restart like a fresh fetch; a lost connection stops it.
+  // Refresh on sample data builds it again, so its ages restart like a fresh fetch, at the picked interval.
   const [fixtureRun, setFixtureRun] = useState(0);
 
   useEffect(() => {
-    if (live || connectionLost) {
+    if (live || refreshEvery === false) {
       return;
     }
-    const id = setInterval(
-      () => setFixtureRun((run) => run + 1),
-      HUB_SAMPLE_REFRESH_MS
-    );
+    const id = setInterval(() => setFixtureRun((run) => run + 1), refreshEvery);
 
     return () => clearInterval(id);
-  }, [live, connectionLost]);
+  }, [live, refreshEvery]);
   const fixture = useMemo(() => {
     if (scenario === 'live') {
       return null;
@@ -199,15 +202,40 @@ export const useTechnologyHub = <TSnapshot>(
     ]
   );
 
+  // When the simulated failure began, so a stale page's age keeps growing from there.
+  const simulatedFrom = useMemo(
+    () => (params.freshness === 'stale' ? Date.now() : null),
+    [params.freshness]
+  );
+  const fetching = live && liveResult.fetching;
   const freshness = useMemo<HubFreshness>(() => {
-    if (fixture) {
-      return connectionLost
-        ? { at: fixture.now - HUB_LOST_FOR_MS, stale: true }
-        : { at: fixture.now, stale: false };
-    }
+    const interval = params.refresh;
 
-    return liveFreshness(sources, now);
-  }, [fixture, connectionLost, sources, now]);
+    if (simulatedStale) {
+      return {
+        state: 'stale',
+        at: (simulatedFrom ?? now) - HUB_STALE_FOR_MS,
+        interval,
+        refreshing: false,
+      };
+    }
+    const current = fixture
+      ? {
+          state: interval === 'off' ? ('off' as const) : ('live' as const),
+          at: fixture.now,
+        }
+      : liveFreshness(sources, now, interval);
+
+    return { ...current, interval, refreshing: fetching };
+  }, [
+    fixture,
+    params.refresh,
+    simulatedStale,
+    simulatedFrom,
+    sources,
+    now,
+    fetching,
+  ]);
 
   const isInitialLoading =
     live && INITIAL_SOURCES.some((id) => sources[id].status === 'loading');
@@ -225,18 +253,19 @@ export const useTechnologyHub = <TSnapshot>(
     [navigate, search]
   );
 
-  // With the connection lost, Refresh finds nothing new, as a failed fetch would.
-  const refreshFixture = useCallback(() => {
-    if (!connectionLost) {
-      setFixtureRun((run) => run + 1);
-    }
-  }, [connectionLost]);
+  const refreshFixture = useCallback(() => setFixtureRun((run) => run + 1), []);
+  // Simulated stale data finds nothing new on Retry, as a failed fetch would.
+  const noRefresh = useCallback(() => undefined, []);
 
   return {
     view,
     params,
     setParams,
-    refetch: live ? liveResult.refetch : refreshFixture,
+    refetch: simulatedStale
+      ? noRefresh
+      : live
+        ? liveResult.refetch
+        : refreshFixture,
     freshness,
     isInitialLoading,
     access,

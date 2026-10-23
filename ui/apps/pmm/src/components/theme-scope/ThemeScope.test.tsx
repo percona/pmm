@@ -49,6 +49,20 @@ describe('ThemeScope', () => {
     }
   );
 
+  it.each<[PaletteMode, PaletteMode]>([
+    ['light', 'dark'],
+    ['dark', 'light'],
+  ])('draws an inverse area of a %s page in %s mode', (page, inverse) => {
+    inPmm(
+      page,
+      <ThemeScope theme="pmm" mode="inverse">
+        <Primary id="scoped" />
+      </ThemeScope>
+    );
+
+    expect(screen.getByTestId('scoped')).toHaveAttribute('data-mode', inverse);
+  });
+
   it('reaches what its area opens in a portal, such as a menu', () => {
     const MenuProbe = () => {
       const { palette } = useTheme();

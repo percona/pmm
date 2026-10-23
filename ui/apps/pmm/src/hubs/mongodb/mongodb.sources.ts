@@ -491,6 +491,7 @@ const combine = (...states: HubSourceState[]): HubSourceState =>
 /** Every live source of the MongoDB hub, each its own query, so one failure blanks only its section. */
 export const useMongoLiveSnapshot = ({
   enabled,
+  refreshEvery,
   environment,
   operations,
 }: HubLiveContext): HubLiveResult<MongoSnapshot> => {
@@ -499,25 +500,33 @@ export const useMongoLiveSnapshot = ({
   const alertsEnabled = enabled && settings?.alertingEnabled === true;
   const backupsEnabled = enabled && settings?.backupManagementEnabled === true;
   const opsEnabled = enabled && operations;
+  const I = MONGO_HUB_INTERVALS;
+  // Each scheduled source at the picked interval, but a slow one never faster than its own; none with auto-refresh off.
+  const every = (own: number) =>
+    refreshEvery === false
+      ? undefined
+      : own > MINUTE
+        ? Math.max(own, refreshEvery)
+        : refreshEvery;
 
   // Scheduled sources catch up as soon as the tab is back, so a hidden tab never reads stale on return.
   const inventory = useQuery({
     queryKey: [MONGO_HUB_KEYS.services],
     queryFn: () => listManagedServicesQuietly(ServiceType.mongodb),
     enabled,
-    refetchInterval: MONGO_HUB_INTERVALS.inventory,
+    refetchInterval: every(I.inventory),
     refetchOnWindowFocus: true,
   });
   const metrics = useQuery({
     queryKey: [MONGO_HUB_KEYS.metrics, { environment }],
     queryFn: ({ signal }) => fetchMongoMetrics(environment, signal),
     enabled,
-    refetchInterval: MONGO_HUB_INTERVALS.metrics,
+    refetchInterval: every(I.metrics),
     refetchIntervalInBackground: true,
   });
   const alerts = usePrometheusAlertRules({
     enabled: alertsEnabled,
-    refetchInterval: MONGO_HUB_INTERVALS.alerts,
+    refetchInterval: every(I.alerts),
     refetchIntervalInBackground: true,
   });
   const backups = useQuery({
@@ -531,19 +540,19 @@ export const useMongoLiveSnapshot = ({
       return toBackupsInput(true, artifacts, scheduled);
     },
     enabled: backupsEnabled,
-    refetchInterval: MONGO_HUB_INTERVALS.backups,
+    refetchInterval: every(I.backups),
     refetchOnWindowFocus: true,
   });
   const qan = useQuery({
     queryKey: [MONGO_HUB_KEYS.qan, { environment }],
     queryFn: () => fetchQan(environment),
     enabled,
-    refetchInterval: MONGO_HUB_INTERVALS.qan,
+    refetchInterval: every(I.qan),
     refetchOnWindowFocus: true,
   });
   const sessions = useRealtimeSessions({
     enabled,
-    refetchInterval: MONGO_HUB_INTERVALS.realtimeSessions,
+    refetchInterval: every(I.realtimeSessions),
     refetchOnWindowFocus: true,
   });
   const services = useMemo(
@@ -566,7 +575,7 @@ export const useMongoLiveSnapshot = ({
     { serviceIds: sessionServiceIds },
     {
       enabled: enabled && sessionServiceIds.length > 0,
-      refetchInterval: MONGO_HUB_INTERVALS.realtimeQueries,
+      refetchInterval: every(I.realtimeQueries),
       refetchOnWindowFocus: true,
     }
   );
@@ -574,21 +583,21 @@ export const useMongoLiveSnapshot = ({
     queryKey: [MONGO_HUB_KEYS.topology],
     queryFn: getTopology,
     enabled: opsEnabled,
-    refetchInterval: MONGO_HUB_INTERVALS.topology,
+    refetchInterval: every(I.topology),
     refetchIntervalInBackground: true,
   });
   const runs = useQuery({
     queryKey: [MONGO_HUB_KEYS.runs, OM_RUNS_LIMIT],
     queryFn: () => getRuns(OM_RUNS_LIMIT),
     enabled: opsEnabled,
-    refetchInterval: MONGO_HUB_INTERVALS.runs,
+    refetchInterval: every(I.runs),
     refetchOnWindowFocus: true,
   });
   const bootstrapRuns = useQuery({
     queryKey: [MONGO_HUB_KEYS.bootstrapRuns, OM_RUNS_LIMIT],
     queryFn: () => getBootstrapRuns(OM_RUNS_LIMIT),
     enabled: opsEnabled,
-    refetchInterval: MONGO_HUB_INTERVALS.runs,
+    refetchInterval: every(I.runs),
     refetchOnWindowFocus: true,
   });
   const catalog = useQuery({
@@ -606,23 +615,22 @@ export const useMongoLiveSnapshot = ({
   });
 
   // Keyed by content, so the sources (and the snapshot) keep their identity between renders.
-  const I = MONGO_HUB_INTERVALS;
   const sourcesKey = JSON.stringify({
-    inventory: sourceState(enabled, inventory, I.inventory),
-    metrics: sourceState(enabled, metrics, I.metrics),
-    alerts: sourceState(alertsEnabled, alerts, I.alerts),
-    backups: sourceState(backupsEnabled, backups, I.backups),
-    qan: sourceState(enabled, qan, I.qan),
+    inventory: sourceState(enabled, inventory, every(I.inventory)),
+    metrics: sourceState(enabled, metrics, every(I.metrics)),
+    alerts: sourceState(alertsEnabled, alerts, every(I.alerts)),
+    backups: sourceState(backupsEnabled, backups, every(I.backups)),
+    qan: sourceState(enabled, qan, every(I.qan)),
     realtime: combine(
-      sourceState(enabled, sessions, I.realtimeSessions),
+      sourceState(enabled, sessions, every(I.realtimeSessions)),
       ...(sessionServiceIds.length
-        ? [sourceState(enabled, realtime, I.realtimeQueries)]
+        ? [sourceState(enabled, realtime, every(I.realtimeQueries))]
         : [])
     ),
     operations: combine(
-      sourceState(opsEnabled, topology, I.topology),
-      sourceState(opsEnabled, runs, I.runs),
-      sourceState(opsEnabled, bootstrapRuns, I.runs)
+      sourceState(opsEnabled, topology, every(I.topology)),
+      sourceState(opsEnabled, runs, every(I.runs)),
+      sourceState(opsEnabled, bootstrapRuns, every(I.runs))
     ),
     dashboards: sourceState(enabled, catalog),
   } satisfies Record<HubSourceId, HubSourceState>);
@@ -762,5 +770,18 @@ export const useMongoLiveSnapshot = ({
     refetchRecent,
   ]);
 
-  return { snapshot, sources, refetch };
+  const fetching = [
+    inventory,
+    metrics,
+    alerts,
+    backups,
+    qan,
+    sessions,
+    realtime,
+    topology,
+    runs,
+    bootstrapRuns,
+  ].some((query) => query.isFetching);
+
+  return { snapshot, sources, refetch, fetching };
 };

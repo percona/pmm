@@ -2,7 +2,7 @@ import type { OmCluster, OmService, OmTopologyResponse } from '@pmm/plugins-om';
 // The package exports this same function; its index would load the whole Operations UI here.
 import { toClusterRows } from '@pmm/plugins-om/src/topology';
 import { healthySnapshot } from './fixtures/healthy';
-import { wrongSnapshot } from './fixtures/wrong';
+import { unhealthySnapshot } from './fixtures/unhealthy';
 import {
   hasLostQuorum,
   hasNoPrimary,
@@ -600,7 +600,7 @@ describe('parity with Operations', () => {
   });
 
   it('agrees on counts for things wrong, and differs only where the hub has its own rule', () => {
-    const rows = compare(wrongSnapshot(NOW, false));
+    const rows = compare(unhealthySnapshot(NOW, false));
     const byCluster = Object.fromEntries(rows.map((row) => [row.cluster, row]));
 
     rows.forEach(({ om, hub }) => {

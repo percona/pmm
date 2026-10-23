@@ -2,7 +2,7 @@ import type { HubTreeNode } from 'hubs/template/hub.types';
 import { parseVector } from 'hubs/api/victoriaMetrics';
 import { RECORDED_SERVICES, RECORDED_VECTORS } from './fixtures/recorded';
 import { healthySnapshot } from './fixtures/healthy';
-import { wrongSnapshot } from './fixtures/wrong';
+import { unhealthySnapshot } from './fixtures/unhealthy';
 import { MONGO_QUERY_IDS, parseMongoMetrics } from './mongodb.promql';
 import { toServiceInputs } from './mongodb.sources';
 import {
@@ -244,7 +244,7 @@ describe('buildClusterTree', () => {
   });
 
   it('ranks No data next to Down, then Degraded, Upgrading and Healthy', () => {
-    const nodes = tree(wrongSnapshot(NOW, true), true, (clusters) =>
+    const nodes = tree(unhealthySnapshot(NOW, true), true, (clusters) =>
       clusters.map((cluster) =>
         cluster.name === 'payments'
           ? {
@@ -270,7 +270,7 @@ describe('buildClusterTree', () => {
   });
 
   it('keeps a sharded cluster’s shape: routers, config servers, then shards worst first', () => {
-    const orders = find(tree(wrongSnapshot(NOW, false)), 'orders');
+    const orders = find(tree(unhealthySnapshot(NOW, false)), 'orders');
 
     expect(orders).toMatchObject({
       type: 'Sharded cluster',
@@ -293,7 +293,7 @@ describe('buildClusterTree', () => {
   });
 
   it('keeps members in topology order: primary, secondaries, then unreported', () => {
-    const shard2 = find(tree(wrongSnapshot(NOW, false)), 'orders-shard2');
+    const shard2 = find(tree(unhealthySnapshot(NOW, false)), 'orders-shard2');
 
     expect(names(shard2?.children)).toEqual([
       'orders-shard2-m1',
@@ -308,7 +308,7 @@ describe('buildClusterTree', () => {
   });
 
   it('shows a member’s health only when it has a problem of its own, with since', () => {
-    const nodes = tree(wrongSnapshot(NOW, false));
+    const nodes = tree(unhealthySnapshot(NOW, false));
     const downMember = find(nodes, 'orders-shard2-m2');
 
     expect(find(nodes, 'orders-shard1-m1')?.showHealth).toBe(false);
@@ -351,7 +351,7 @@ describe('buildClusterTree', () => {
   });
 
   it('marks billing Down with no primary, 1 of 3 members up', () => {
-    const billing = find(tree(wrongSnapshot(NOW, false)), 'billing');
+    const billing = find(tree(unhealthySnapshot(NOW, false)), 'billing');
 
     expect(billing).toMatchObject({
       kind: 'cluster',
@@ -375,7 +375,7 @@ describe('buildClusterTree', () => {
   });
 
   it('marks reports No data, never up, as a standalone leaf', () => {
-    const reports = find(tree(wrongSnapshot(NOW, false)), 'reports');
+    const reports = find(tree(unhealthySnapshot(NOW, false)), 'reports');
 
     expect(reports).toMatchObject({
       type: 'Standalone',
@@ -387,7 +387,7 @@ describe('buildClusterTree', () => {
   });
 
   it('says why each row is not healthy, naming only what the row is not', () => {
-    const nodes = tree(wrongSnapshot(NOW, false));
+    const nodes = tree(unhealthySnapshot(NOW, false));
     const texts = (name: string) =>
       find(nodes, name)?.conditions?.map((condition) => condition.text);
 
@@ -433,7 +433,7 @@ describe('buildClusterTree', () => {
   });
 
   it('carries the worst secondary lag and the tightest shard window up to the cluster', () => {
-    const orders = find(tree(wrongSnapshot(NOW, false)), 'orders');
+    const orders = find(tree(unhealthySnapshot(NOW, false)), 'orders');
 
     expect(orders?.measures.lag).toMatchObject({
       kind: 'value',
@@ -448,7 +448,7 @@ describe('buildClusterTree', () => {
   });
 
   it('flags only the primary’s short window, and a lagging secondary', () => {
-    const nodes = tree(wrongSnapshot(NOW, false));
+    const nodes = tree(unhealthySnapshot(NOW, false));
 
     expect(find(nodes, 'orders-shard2-m1')?.measures.oplogWindow).toMatchObject(
       {
@@ -483,7 +483,7 @@ describe('buildClusterTree', () => {
   });
 
   it('expands only along non-healthy paths', () => {
-    const expanded = expandedProblems(tree(wrongSnapshot(NOW, false)));
+    const expanded = expandedProblems(tree(unhealthySnapshot(NOW, false)));
 
     expect(expanded).toEqual({
       'cluster:prod/billing': true,
@@ -551,7 +551,7 @@ describe('buildClusterTree', () => {
   });
 
   it('opens lag on its set over 3 hours and the oplog on Oplog details', () => {
-    const nodes = tree(wrongSnapshot(NOW, false));
+    const nodes = tree(unhealthySnapshot(NOW, false));
     const lag = find(nodes, 'orders-shard1-m3')?.measures.lag;
     const oplog = find(nodes, 'orders-shard2')?.measures.oplogWindow;
 
@@ -597,7 +597,7 @@ describe('versions', () => {
     );
 
   it('shows each member its own version and each group the lowest one its reachable members run', () => {
-    const nodes = withUpdates(wrongSnapshot(NOW, false));
+    const nodes = withUpdates(unhealthySnapshot(NOW, false));
 
     expect(find(nodes, 'catalog-m1')?.version).toEqual({
       effective: '7.0.24-13',

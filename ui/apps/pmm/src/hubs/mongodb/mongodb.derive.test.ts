@@ -2,7 +2,7 @@ import { HUB_NO_ENVIRONMENT } from 'hubs/template/hub.types';
 import { emptySnapshot } from './fixtures/empty';
 import { healthySnapshot } from './fixtures/healthy';
 import { incompleteSnapshot } from './fixtures/incomplete';
-import { wrongSnapshot } from './fixtures/wrong';
+import { unhealthySnapshot } from './fixtures/unhealthy';
 import { deriveMongoHub } from './mongodb.derive';
 import type { MongoSnapshot } from './mongodb.types';
 import {
@@ -67,8 +67,8 @@ describe('deriveMongoHub status', () => {
     });
   });
 
-  it('counts the worst case by health, with its failed backups and firing alerts', () => {
-    const { status, attention } = derive(wrongSnapshot(NOW, false), {
+  it('counts the unhealthy scenario by health, with its failed backups and firing alerts', () => {
+    const { status, attention } = derive(unhealthySnapshot(NOW, false), {
       sources: ready,
     });
 
@@ -87,7 +87,7 @@ describe('deriveMongoHub status', () => {
 
   it('counts a cluster Operations is upgrading as upgrading, not as a problem', () => {
     expect(
-      derive(wrongSnapshot(NOW, true), { operations: true }).status.health
+      derive(unhealthySnapshot(NOW, true), { operations: true }).status.health
     ).toEqual({ healthy: 0, degraded: 2, down: 1, upgrading: 1, noData: 1 });
   });
 
@@ -100,7 +100,7 @@ describe('deriveMongoHub status', () => {
 
   it('cannot count health when metrics failed', () => {
     const view = derive(
-      { ...wrongSnapshot(NOW, false), metrics: null },
+      { ...unhealthySnapshot(NOW, false), metrics: null },
       {
         sources: sourcesWith('ready', {
           metrics: { status: 'error', message: 'Request failed with 403' },
@@ -131,7 +131,7 @@ describe('deriveMongoHub status', () => {
 
   it('cannot count clusters, health or backups when the inventory failed', () => {
     const view = derive(
-      { ...wrongSnapshot(NOW, false), services: null },
+      { ...unhealthySnapshot(NOW, false), services: null },
       {
         sources: sourcesWith('ready', {
           inventory: { status: 'error', message: 'Request failed with 502' },
@@ -170,7 +170,7 @@ describe('deriveMongoHub status', () => {
 describe('deriveMongoHub environment filter', () => {
   it('offers every environment of the estate whatever the filter', () => {
     expect(
-      derive(wrongSnapshot(NOW, false), { environment: 'prod' }).environment
+      derive(unhealthySnapshot(NOW, false), { environment: 'prod' }).environment
     ).toEqual({
       selected: 'prod',
       options: [
@@ -182,7 +182,9 @@ describe('deriveMongoHub environment filter', () => {
   });
 
   it('narrows clusters, attention and backups to the environment', () => {
-    const view = derive(wrongSnapshot(NOW, false), { environment: 'staging' });
+    const view = derive(unhealthySnapshot(NOW, false), {
+      environment: 'staging',
+    });
 
     expect(view.clusters.map((node) => node.name)).toEqual([
       'reports',
@@ -381,7 +383,7 @@ describe('deriveMongoHub sections', () => {
 
   it('keeps every derived attention row when only alerts failed', () => {
     const view = derive(
-      { ...wrongSnapshot(NOW, false), alerts: null },
+      { ...unhealthySnapshot(NOW, false), alerts: null },
       {
         sources: sourcesWith('ready', {
           alerts: {
@@ -409,7 +411,7 @@ describe('deriveMongoHub sections', () => {
   it('fails the attention section outright when metrics failed', () => {
     expect(
       derive(
-        { ...wrongSnapshot(NOW, false), metrics: null, alerts: null },
+        { ...unhealthySnapshot(NOW, false), metrics: null, alerts: null },
         {
           sources: sourcesWith('ready', {
             metrics: { status: 'error' },
@@ -458,7 +460,7 @@ describe('deriveMongoHub sections', () => {
 
 describe('deriveMongoHub tree', () => {
   it('expands the problem path', () => {
-    expect(derive(wrongSnapshot(NOW, false)).expanded).toMatchObject({
+    expect(derive(unhealthySnapshot(NOW, false)).expanded).toMatchObject({
       'cluster:prod/billing': true,
       'cluster:prod/orders': true,
     });
@@ -488,7 +490,7 @@ describe('deriveMongoHub tree', () => {
 
 describe('deriveMongoHub patches', () => {
   it('counts the clusters behind on patches and those the check could not answer for', () => {
-    const { status } = derive(wrongSnapshot(NOW, false));
+    const { status } = derive(unhealthySnapshot(NOW, false));
 
     // payments and catalog run 7.0.24-13; billing's check is three days old.
     expect(status.patches).toEqual({ behind: 2, unknown: 1 });
@@ -496,7 +498,7 @@ describe('deriveMongoHub patches', () => {
 
   it('says nothing about patches while nothing checks for updates', () => {
     const view = derive(
-      { ...wrongSnapshot(NOW, false), updates: null },
+      { ...unhealthySnapshot(NOW, false), updates: null },
       { scenario: 'live' }
     );
 
@@ -526,7 +528,7 @@ describe('deriveMongoHub patches', () => {
 
 describe('deriveMongoHub alerts', () => {
   it('counts the firing alerts, host alerts included', () => {
-    const view = derive(wrongSnapshot(NOW, false), {
+    const view = derive(unhealthySnapshot(NOW, false), {
       sources: sourcesWith('ready'),
     });
 
@@ -543,19 +545,19 @@ describe('deriveMongoHub alerts', () => {
   it('cannot count alerts it could not read, and says nothing while alerting is off', () => {
     expect(
       derive(
-        { ...wrongSnapshot(NOW, false), alerts: null },
+        { ...unhealthySnapshot(NOW, false), alerts: null },
         { sources: sourcesWith('ready', { alerts: { status: 'error' } }) }
       ).status.alerts
     ).toBeNull();
     expect(
-      derive(wrongSnapshot(NOW, false), {
+      derive(unhealthySnapshot(NOW, false), {
         sources: sourcesWith('ready', { alerts: { status: 'disabled' } }),
       }).status.alerts
     ).toBeUndefined();
   });
 
   it('says what no alert rule covers, with templates for admins and an administrator for viewers', () => {
-    const admin = derive(wrongSnapshot(NOW, false));
+    const admin = derive(unhealthySnapshot(NOW, false));
 
     expect(admin.alertCoverage).toEqual({
       text: 'No rule from the replication lag or oplog window template yet.',
@@ -566,7 +568,7 @@ describe('deriveMongoHub alerts', () => {
     });
 
     const none = {
-      ...wrongSnapshot(NOW, false),
+      ...unhealthySnapshot(NOW, false),
       alertRules: { templates: ['pmm_grafana_down'], custom: 0 },
     };
 
@@ -586,7 +588,8 @@ describe('deriveMongoHub alerts', () => {
       derive(healthySnapshot(NOW, false), { scenario: 'healthy' }).alertCoverage
     ).toBeUndefined();
     expect(
-      derive({ ...wrongSnapshot(NOW, false), alertRules: null }).alertCoverage
+      derive({ ...unhealthySnapshot(NOW, false), alertRules: null })
+        .alertCoverage
     ).toBeUndefined();
     expect(derive(emptySnapshot(NOW, false)).alertCoverage).toBeUndefined();
   });

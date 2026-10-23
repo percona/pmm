@@ -179,7 +179,8 @@ export const deriveMongoHub = (
     scenario: ctx.scenario,
     ops: 'live',
     role: 'live',
-    connection: 'live',
+    refresh: '30s',
+    freshness: 'live',
   };
   const allServices = snapshot.services ?? [];
   const services = allServices.filter((service) =>

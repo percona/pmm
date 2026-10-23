@@ -1,5 +1,5 @@
 import { healthySnapshot } from './fixtures/healthy';
-import { wrongSnapshot } from './fixtures/wrong';
+import { unhealthySnapshot } from './fixtures/unhealthy';
 import { type BackupsInput, deriveBackups } from './mongodb.backups';
 import { groupClusters } from './mongodb.topology';
 import type { MongoBackupsInput, MongoSnapshot } from './mongodb.types';
@@ -129,7 +129,7 @@ describe('deriveBackups', () => {
   });
 
   it('finds a failure after the last success, and marks the stale success', () => {
-    const { backups, findings } = derive(wrongSnapshot(NOW, false));
+    const { backups, findings } = derive(unhealthySnapshot(NOW, false));
     const orders = backups.rows.find((row) => row.cluster === 'orders');
 
     expect(orders).toMatchObject({
@@ -148,7 +148,7 @@ describe('deriveBackups', () => {
 
   it('reports PITR stopped when its newest artifact failed', () => {
     const { backups, findings, lastGoodBackup } = derive(
-      wrongSnapshot(NOW, false)
+      unhealthySnapshot(NOW, false)
     );
 
     expect(backups.rows.find((row) => row.cluster === 'billing')?.pitr).toBe(
@@ -163,7 +163,9 @@ describe('deriveBackups', () => {
 
   it('puts problems first, then clusters without a backup, then by name', () => {
     expect(
-      derive(wrongSnapshot(NOW, false)).backups.rows.map((row) => row.cluster)
+      derive(unhealthySnapshot(NOW, false)).backups.rows.map(
+        (row) => row.cluster
+      )
     ).toEqual(['billing', 'orders', 'catalog', 'payments', 'reports']);
   });
 

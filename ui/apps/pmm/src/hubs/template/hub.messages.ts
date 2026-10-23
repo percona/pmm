@@ -1,17 +1,18 @@
-import type {
-  HubConnectionMode,
-  HubHealth,
-  HubOpsMode,
-  HubRoleMode,
-  HubScenario,
-  HubSeverity,
-} from './hub.types';
+import type { HubHealth, HubSeverity } from './hub.types';
 
 export const Messages = {
-  refresh: 'Refresh',
-  refreshed: 'Updated just now',
-  updated: (age: string) => `Updated ${age}`,
-  stale: 'Data looks stale. Refresh, or check your connection.',
+  freshness: {
+    selector: 'Auto-refresh',
+    offOption: 'Off',
+    offSelected: 'OFF',
+    notYet: 'Not updated yet',
+    stale: (age: string) => `Data paused, last update ${age}`,
+    refresh: 'Refresh now',
+    retry: 'Retry',
+    refreshed: 'Updated just now',
+    /** Said once, rather than an age that changes every minute. */
+    announceStale: 'Data paused.',
+  },
   add: 'Add',
   /** What Add adds, for assistive tech: "MongoDB". */
   addContext: (name: string) => name,
@@ -212,42 +213,20 @@ export const Messages = {
     recent: 'Recently visited',
     recentEmpty: 'Dashboards you open appear here.',
   },
-  prototype: {
-    trigger: (parts: string[]) => `Prototype: ${parts.join(' · ')}`,
+  demo: {
+    trigger: 'Demo controls',
     groups: {
-      data: 'Data',
-      operations: 'Operations',
-      role: 'Signed in as',
-      connection: 'Connection',
+      scenario: 'Scenario',
+      freshness: 'Freshness',
+      operations: (name: string) => `Operations for ${name}`,
     },
     scenario: {
-      healthy: 'Best case',
-      incomplete: 'Incomplete setup',
-      wrong: 'Worst case',
-      empty: 'First run',
-      live: 'Live data',
-    } satisfies Record<HubScenario, string>,
-    ops: {
-      live: 'As configured',
-      on: 'On',
-      off: 'Off',
-    } satisfies Record<HubOpsMode, string>,
-    opsSummary: {
-      off: 'Ops off',
+      healthy: 'Healthy',
+      incomplete: 'Incomplete',
+      unhealthy: 'Unhealthy',
     },
-    role: {
-      live: 'As signed in',
-      admin: 'Admin',
-      viewer: 'Viewer',
-    } satisfies Record<HubRoleMode, string>,
-    connection: {
-      live: 'Connected',
-      lost: 'Lost',
-    } satisfies Record<HubConnectionMode, string>,
-    connectionSummary: 'Connection lost',
-    hints: {
-      sampleOnly: 'Sample data only',
-      adminOnly: 'Admins only',
-    },
+    freshness: { live: 'Live', stale: 'Stale' },
+    operations: { on: 'On', off: 'Off' },
+    adminOnly: 'Admins only',
   },
 };

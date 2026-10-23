@@ -2,7 +2,9 @@ import {
   DEFAULT_HUB_PARAMS,
   environmentOptions,
   matchesEnvironment,
+  HUB_REFRESHES,
   parseHubParams,
+  refreshInterval,
   resolveHubCapabilities,
   resolveHubOperations,
   resolveHubRole,
@@ -17,7 +19,8 @@ describe('parseHubParams', () => {
       scenario: 'healthy',
       ops: 'on',
       role: 'live',
-      connection: 'live',
+      refresh: '30s',
+      freshness: 'live',
     });
   });
 
@@ -31,22 +34,25 @@ describe('parseHubParams', () => {
   it('reads every param', () => {
     expect(
       parseHubParams(
-        '?environment=prod&patches=behind&hubState=wrong&hubOps=off&hubRole=viewer&hubConnection=lost'
+        '?environment=prod&patches=behind&refresh=1h&hubState=unhealthy&hubOps=off&hubRole=viewer&hubFreshness=stale'
       )
     ).toEqual({
       environment: 'prod',
       patches: 'behind',
-      scenario: 'wrong',
+      refresh: '1h',
+      scenario: 'unhealthy',
       ops: 'off',
       role: 'viewer',
-      connection: 'lost',
+      freshness: 'stale',
     });
   });
 
   it('falls back to the defaults for unknown values', () => {
     expect(
       parseHubParams(
-        new URLSearchParams('hubState=broken&hubOps=maybe&hubRole=root')
+        new URLSearchParams(
+          'hubState=broken&hubOps=maybe&hubRole=root&refresh=2s&hubFreshness=off'
+        )
       )
     ).toEqual(DEFAULT_HUB_PARAMS);
   });
@@ -64,7 +70,9 @@ describe('parseHubParams', () => {
 
 describe('writeHubSearch', () => {
   it('leaves defaults out of the URL', () => {
-    expect(writeHubSearch('?hubState=wrong', { scenario: 'healthy' })).toBe('');
+    expect(writeHubSearch('?hubState=unhealthy', { scenario: 'healthy' })).toBe(
+      ''
+    );
   });
 
   it('writes Live data and As configured, which are not the defaults', () => {
@@ -76,17 +84,17 @@ describe('writeHubSearch', () => {
   it('keeps unrelated params byte for byte', () => {
     expect(
       writeHubSearch('?from=now-1h&q=a%20b+c&tag=x&tag=y', {
-        scenario: 'wrong',
+        scenario: 'unhealthy',
       })
-    ).toBe('from=now-1h&q=a%20b+c&tag=x&tag=y&hubState=wrong');
+    ).toBe('from=now-1h&q=a%20b+c&tag=x&tag=y&hubState=unhealthy');
   });
 
   it('replaces the hub params it is given and keeps the others', () => {
     expect(
-      writeHubSearch('environment=prod&hubState=wrong&hubRole=viewer', {
+      writeHubSearch('environment=prod&hubState=unhealthy&hubRole=viewer', {
         environment: 'staging',
       })
-    ).toBe('environment=staging&hubState=wrong&hubRole=viewer');
+    ).toBe('environment=staging&hubState=unhealthy&hubRole=viewer');
   });
 
   it('removes the environment when every environment is selected', () => {
@@ -108,13 +116,42 @@ describe('writeHubSearch with every param', () => {
       writeHubSearch('', {
         environment: 'prod',
         patches: null,
-        connection: 'live',
-        scenario: 'wrong',
+        refresh: 'off',
+        freshness: 'stale',
+        scenario: 'unhealthy',
         ops: 'off',
         role: 'live',
       })
-    ).toBe('environment=prod&hubState=wrong&hubOps=off');
+    ).toBe(
+      'environment=prod&refresh=off&hubState=unhealthy&hubOps=off&hubFreshness=stale'
+    );
     expect(writeHubSearch('', DEFAULT_HUB_PARAMS)).toBe('');
+  });
+});
+
+describe('refreshInterval', () => {
+  it('offers Grafana’s interval set, Off first', () => {
+    expect(HUB_REFRESHES).toEqual([
+      'off',
+      '5s',
+      '10s',
+      '30s',
+      '1m',
+      '5m',
+      '15m',
+      '30m',
+      '1h',
+      '2h',
+      '1d',
+    ]);
+  });
+
+  it('reads each choice in ms, and off as no interval', () => {
+    expect(refreshInterval('5s')).toBe(5_000);
+    expect(refreshInterval('30s')).toBe(30_000);
+    expect(refreshInterval('15m')).toBe(15 * 60_000);
+    expect(refreshInterval('1d')).toBe(24 * 60 * 60_000);
+    expect(refreshInterval('off')).toBe(false);
   });
 });
 
@@ -128,9 +165,9 @@ describe('resolveHubRole', () => {
     expect(resolveHubRole({ scenario: 'live', role: 'viewer' }, true)).toBe(
       'viewer'
     );
-    expect(resolveHubRole({ scenario: 'wrong', role: 'viewer' }, true)).toBe(
-      'viewer'
-    );
+    expect(
+      resolveHubRole({ scenario: 'unhealthy', role: 'viewer' }, true)
+    ).toBe('viewer');
   });
 
   it('ignores hubRole=admin on live data', () => {
@@ -163,7 +200,7 @@ describe('resolveHubOperations', () => {
       resolveHubOperations({ scenario: 'live', ops: 'off' }, 'admin', true)
     ).toBe(false);
     expect(
-      resolveHubOperations({ scenario: 'wrong', ops: 'off' }, 'admin', true)
+      resolveHubOperations({ scenario: 'unhealthy', ops: 'off' }, 'admin', true)
     ).toBe(false);
   });
 
@@ -181,7 +218,7 @@ describe('resolveHubOperations', () => {
 
   it('never gives a viewer Operations', () => {
     expect(
-      resolveHubOperations({ scenario: 'wrong', ops: 'on' }, 'viewer', true)
+      resolveHubOperations({ scenario: 'unhealthy', ops: 'on' }, 'viewer', true)
     ).toBe(false);
   });
 });
