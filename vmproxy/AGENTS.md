@@ -78,7 +78,7 @@ CLI flags (using **Kong**):
 The proxy is built on `net/http/httputil.ReverseProxy` with a custom `Director` function:
 
 1. **`director()`** / **`prepareRequest()`** — rewrites `req.URL` to target, sets Host and Authorization
-2. **`failOnDisallowedPath()`** / **`isReadOnlyPath()`** — refuses any path outside the read-only allow-list with 403, before the request is proxied
+2. **`failOnDisallowedPath()`** / **`isPathAllowed()`** / **`isRecordingRuleWrite()`** — refuses any path outside the read-only allow-list with 403, before the request is proxied, except Grafana's recording-rule writes
 3. **`failOnInvalidHeader()`** — if the filter header is present but malformed, returns 412
 4. **Filter injection** — removes existing `extra_filters[]`, parses header, adds each filter as `extra_filters[]`
 

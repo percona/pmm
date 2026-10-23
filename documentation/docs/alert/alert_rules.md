@@ -153,6 +153,14 @@ If the template has a **Dynamic** badge, you can later change the threshold of t
 
 ## Recording rules
 
-Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
+A recording rule runs a query on a schedule and stores the result as a new metric. Use one when the same query powers several alert rules or panels, for example, average CPU load across all nodes or replication lag across a cluster.
 
-To create a recording rule, click **Alerts > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
+PMM stores the results of recording rules in the **Metrics** data source. To create a recording rule:
+{.power-number}
+
+1. Go to **Alerts > Alert rules** and click **New recording rule**.
+2. Enter a **Name** for the rule and a **Metric** name for the result.
+3. In **Target data source**, select **Metrics**.
+4. Define the query, choose a folder and an evaluation group, then click **Save**.
+
+After the rule's first evaluation, the new metric is available in dashboards, **Explore** and alert rules. For all options, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
