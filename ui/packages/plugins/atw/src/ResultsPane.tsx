@@ -287,6 +287,7 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
     }
     return map;
@@ -312,6 +313,7 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
       return next;
     });
@@ -434,7 +436,7 @@ export function ResultsPane({
         >
           {/* A closed incident has no Collect pane to point at. */}
           {canMutate && acceptsRuns
-            ? 'No executions yet. Run snippets from the Collect pane to see results here.'
+            ? 'No executions yet. Run diagnostic scripts from Collect to see results here.'
             : 'No executions yet.'}
         </Typography>
       )}
@@ -555,7 +557,16 @@ export function ResultsPane({
         key={sendSessionKey}
         open={sendOpen}
         incidentId={incidentId}
-        executions={resend?.executions ?? selectedExecutions}
+        executions={
+          resend?.executions.map((execution) => ({
+            ...execution,
+            // Prefer a title from the loaded page; keep whatever the send log
+            // already carried when that row is off-page (paginated out).
+            snippet_title:
+              knownExecutions.get(execution.id)?.snippet_title ??
+              execution.snippet_title,
+          })) ?? selectedExecutions
+        }
         defaultCaseRef={resend?.caseRef ?? incident?.case_ref}
         onClose={closeSend}
       />
@@ -880,7 +891,7 @@ function ExecutionRow({
             color="text.secondary"
             sx={{ display: 'block' }}
           >
-            Snippet
+            Script file
           </Typography>
           <Typography
             variant="body2"
@@ -929,6 +940,7 @@ function ExecutionRow({
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
             maxHeight={360}
+            itemName="script"
           />
         )}
       </AccordionDetails>

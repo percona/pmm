@@ -123,13 +123,13 @@ describe('ResultsPane', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Run snippets from the Collect pane/i)
+        screen.getByText(/Run diagnostic scripts from Collect/i)
       ).toBeTruthy();
     });
     // An empty pane is not news: plain text, not an info alert.
     expect(
       screen
-        .getByText(/Run snippets from the Collect pane/i)
+        .getByText(/Run diagnostic scripts from Collect/i)
         .closest('[role="alert"]')
     ).toBeNull();
   });
@@ -679,6 +679,45 @@ describe('ResultsPane diagnostics send', () => {
     ).toBeNull();
   });
 
+  it('keeps an off-page re-send title from the send log when the page has none', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION],
+        total: 40,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                ...OFF_PAGE_EXECUTION,
+                snippet_title: 'Off-page Summary',
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Off-page Summary')).toBeTruthy();
+    });
+    expect(screen.queryByText('diag/off-page.sh')).toBeNull();
+  });
+
   it('flags a send history it could not load', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/send-jobs/')) {
@@ -1070,7 +1109,7 @@ describe('ResultsPane send-unavailable notice', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+      screen.getByText(/Sending to a support case needs a connection/i)
     ).toBeTruthy();
     expect(
       screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')

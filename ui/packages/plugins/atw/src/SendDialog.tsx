@@ -230,8 +230,11 @@ export function SendDialog({
               {executions.map((execution) => (
                 <ListItem key={execution.id} disableGutters>
                   <ListItemText
-                    primary={execution.snippet_filename}
-                    secondary={`Task #${execution.task_history_id}`}
+                    primary={
+                      execution.snippet_title?.trim() ||
+                      execution.snippet_filename
+                    }
+                    secondary={`Run #${execution.task_history_id}`}
                   />
                 </ListItem>
               ))}

@@ -18,6 +18,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SectionField } from '@pmm-extensions/api';
 import {
+  batchItemErrors,
   buildBatchPayload,
   fieldDeclaresGate,
   filterSnippetOptions,
@@ -25,14 +26,108 @@ import {
   mergeSnippetOptions,
   namespaceField,
   omitCliUsageTrapFields,
+  scriptListLabel,
+  scriptOptionCaption,
   snippetMatchesTerm,
 } from '../src/CollectPane';
-import type { AtwSnippetSummary } from '../src/types';
+import type { AtwBatchExecuteResponse, AtwSnippetSummary } from '../src/types';
 
 const snippets: AtwSnippetSummary[] = [
   { name: 'a.sh', title: 'A', description: '' },
   { name: 'b.sh', title: 'B', description: '' },
 ];
+
+describe('batchItemErrors', () => {
+  it('names each failed item by its title, falling back to the filename', () => {
+    const response = {
+      items: [
+        { snippet_filename: 'a.sh', task_history_id: 1, error: null },
+        { snippet_filename: 'b.sh', task_history_id: null, error: 'no host' },
+        { snippet_filename: 'gone.sh', task_history_id: null, error: {} },
+      ],
+    } as unknown as AtwBatchExecuteResponse;
+
+    expect(batchItemErrors(response, snippets)).toEqual([
+      { key: 'b.sh', message: 'B: no host' },
+      { key: 'gone.sh', message: 'gone.sh: validation failed' },
+    ]);
+  });
+
+  it('appends the filename when submitted scripts share a title', () => {
+    const twins: AtwSnippetSummary[] = [
+      { name: 'a.sh', title: 'Summary', description: '' },
+      { name: 'b.sh', title: 'Summary', description: '' },
+    ];
+    const response = {
+      items: [
+        { snippet_filename: 'a.sh', task_history_id: null, error: 'no host' },
+        { snippet_filename: 'b.sh', task_history_id: null, error: 'no host' },
+      ],
+    } as unknown as AtwBatchExecuteResponse;
+
+    const errors = batchItemErrors(response, twins);
+    expect(errors.map((item) => item.message)).toEqual([
+      'Summary (a.sh): no host',
+      'Summary (b.sh): no host',
+    ]);
+    expect(new Set(errors.map((item) => item.key)).size).toBe(2);
+  });
+});
+
+describe('scriptListLabel', () => {
+  it('uses the title alone when it is unique among peers', () => {
+    expect(
+      scriptListLabel('Summary', 'a.sh', [
+        { title: 'Summary' },
+        { title: 'Other' },
+      ])
+    ).toBe('Summary');
+  });
+
+  it('appends the filename when the title is shared', () => {
+    expect(
+      scriptListLabel('Summary', 'a.sh', [
+        { title: 'Summary' },
+        { title: 'Summary' },
+      ])
+    ).toBe('Summary (a.sh)');
+  });
+});
+
+describe('scriptOptionCaption', () => {
+  const a: AtwSnippetSummary = {
+    name: 'ops/a.sh',
+    title: 'Summary',
+    description: 'Toolkit summary.',
+  };
+  const b: AtwSnippetSummary = {
+    name: 'diag/b.sh',
+    title: 'Summary',
+    description: 'Diagnostic summary.',
+  };
+
+  it('prefers the description when titles are unique', () => {
+    expect(scriptOptionCaption(a, [a])).toBe('Toolkit summary.');
+  });
+
+  it('keeps distinct descriptions when titles collide', () => {
+    expect(scriptOptionCaption(a, [a, b])).toBe('Toolkit summary.');
+  });
+
+  it('falls back to the filename when titles collide and descriptions do not help', () => {
+    const empty: AtwSnippetSummary = {
+      name: 'ops/a.sh',
+      title: 'Summary',
+      description: '',
+    };
+    const twin: AtwSnippetSummary = {
+      name: 'diag/b.sh',
+      title: 'Summary',
+      description: '',
+    };
+    expect(scriptOptionCaption(empty, [empty, twin])).toBe('ops/a.sh');
+  });
+});
 
 describe('buildBatchPayload', () => {
   it('hoists executor_host and sudo and keeps other top-level values as shared args', () => {

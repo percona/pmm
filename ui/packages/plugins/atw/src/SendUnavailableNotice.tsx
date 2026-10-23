@@ -36,12 +36,12 @@ export function SendUnavailableNotice() {
             to={settingsPath}
             data-testid="atw-send-unavailable-settings"
           >
-            ServiceNow settings
+            Open Settings
           </Button>
         ) : undefined
       }
     >
-      Sending requires a valid ServiceNow connection.
+      Sending to a support case needs a connection to Percona Support.
     </Alert>
   );
 }
