@@ -2151,7 +2151,7 @@ func TestInventoryErrorMapping(t *testing.T) {
 			require.Error(t, err)
 			assert.Equal(t, tc.want, status.Code(err))
 			if tc.hides {
-				assert.Contains(t, status.Convert(err).Message(), "PMM's credential")
+				assert.Contains(t, status.Convert(err).Message(), "PMM's token does not match EXTENSIONS_INTERNAL_TOKEN")
 			}
 		})
 	}
