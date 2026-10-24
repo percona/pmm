@@ -573,6 +573,7 @@ nav:
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
               - reference/dashboards/dashboard-mongodb-unused-indexes.md
+              - reference/dashboards/dashboard-mongodb-top-queries.md
               - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md

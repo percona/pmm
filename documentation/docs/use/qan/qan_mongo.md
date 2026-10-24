@@ -10,3 +10,5 @@ Query Analytics can monitor MongoDB queries. Although MongoDB is not a relationa
 Query Analytics stored metrics captures completed MongoDB queries so you can review past performance and find queries to optimize.
 
 For real-time monitoring of currently executing MongoDB operations, see [Real-time Query Analytics](../qan/QAN-realtime-analytics.md).
+
+To rank the most expensive MongoDB queries across your services, use the [MongoDB Top Queries](../../reference/dashboards/dashboard-mongodb-top-queries.md) dashboard.
