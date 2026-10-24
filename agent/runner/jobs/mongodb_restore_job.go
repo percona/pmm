@@ -28,6 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/utils/poll"
+	"github.com/percona/pmm/agent/versioner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
@@ -216,6 +217,16 @@ func (j *MongoDBRestoreJob) findCurrentSnapshot(ctx context.Context, snapshotNam
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {
 	j.l.Infof("starting backup restore for: %s.", backupName)
 
+	pbmVersion, err := versioner.New(&versioner.RealExecFunctions{}).PBMVersion() //nolint:contextcheck // versioner applies its own timeout
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pbm version: %w", err)
+	}
+
+	args, err := pbmRestoreArgs(pbmVersion, backupName, j.pitrTimestamp)
+	if err != nil {
+		return nil, err
+	}
+
 	var restoreOutput pbmRestore
 	startTime := time.Now()
 	retryCount := 500
@@ -228,13 +239,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 			return false, nil
 		}
 
-		var cmdErr error
-		if j.pitrTimestamp.Unix() == 0 {
-			cmdErr = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
-		} else {
-			cmdErr = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
-		}
-
+		cmdErr := execPBMCommand(ctx, j.dbURL, &restoreOutput, args...)
 		if cmdErr != nil {
 			if strings.HasSuffix(cmdErr.Error(), "another operation in progress") && retryCount > 0 {
 				retryCount--

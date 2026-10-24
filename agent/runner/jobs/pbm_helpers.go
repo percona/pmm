@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
@@ -55,6 +56,9 @@ const (
 )
 
 var errPBMOperationFailed = errors.New("operation failed")
+
+// pbmRestoreConfirmationVersion is the first PBM version that asks for restore confirmation unless --yes is set.
+var pbmRestoreConfirmationVersion = version.Must(version.NewVersion("2.14.0"))
 
 type pbmSeverity int
 
@@ -196,6 +200,26 @@ type pbmConfigParams struct {
 	configFilePath string
 	forceResync    bool
 	dsn            string
+}
+
+// pbmRestoreArgs returns pbm restore command arguments for the given PBM version.
+func pbmRestoreArgs(pbmVersion, backupName string, pitrTimestamp time.Time) ([]string, error) {
+	v, err := version.NewVersion(pbmVersion)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse pbm version '%s': %w", pbmVersion, err)
+	}
+
+	args := []string{pbmCmdRestore}
+	if pitrTimestamp.Unix() == 0 {
+		args = append(args, backupName)
+	} else {
+		args = append(args, "--time="+pitrTimestamp.Format("2006-01-02T15:04:05"))
+	}
+
+	if !v.Core().LessThan(pbmRestoreConfirmationVersion) {
+		args = append(args, "--yes")
+	}
+	return args, nil
 }
 
 func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) error {
