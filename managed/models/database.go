@@ -1201,23 +1201,14 @@ var databaseSchema = [][]string{
 		`UPDATE dumps SET encrypted = false`,
 	},
 	119: {
-		// Before environment variable names were restricted to agents pmm-agent starts as a separate
-		// process, addMongoDB copied the requested names onto the QAN and RTA agents it created
-		// alongside mongodb_exporter. Nothing ever read them there: only mongodbExporterConfig calls
-		// GetEnvironmentVariableNames, and no API type exposes the field for those agent types, so
-		// the rows have no way to be cleared through the API and would keep the dead value forever.
+		// Only mongodb_exporter reads environment variables; clear the unused copies on other agents.
 		`UPDATE agents SET environment_variables = NULL
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
-		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
-		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
-		// identifier as the address, so a bare address is the identifier. An endpoint address is
-		// left alone: its first label is only right for a standard instance endpoint, not for a
-		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
-		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
-		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		// Lowercase RDS instance IDs, as AWS stores them and rds_exporter matches them exactly; fill missing
+		// ones from a bare address, which is the instance identifier (endpoint addresses are left alone).
 		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
 		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
