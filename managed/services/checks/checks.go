@@ -61,11 +61,8 @@ import (
 )
 
 const (
-	defaultStartDelay = time.Minute
-
-	// Environment variables that affect checks service; only for testing.
-	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
-	builtinChecksPath    = "/usr/local/percona/checks"
+	startDelay        = time.Minute
+	builtinChecksPath = "/usr/local/percona/checks"
 
 	// How often the leader looks for runs queued and schedules changed on other HA nodes.
 	queuedRunPollInterval = time.Minute
@@ -101,8 +98,7 @@ type Service struct {
 	vmClient        v1.API
 	clickhouseDB    *sql.DB
 
-	l          *logrus.Entry
-	startDelay time.Duration
+	l *logrus.Entry
 
 	// wakeCh asks runChecksLoop to start a run queued on this node, or to pick
 	// up a schedule changed on it, right away rather than at its next poll.
@@ -142,9 +138,8 @@ func New(
 		vmClient:        vmClient,
 		clickhouseDB:    clickhouseDB,
 
-		l:          l,
-		startDelay: defaultStartDelay,
-		wakeCh:     make(chan struct{}, 1),
+		l:      l,
+		wakeCh: make(chan struct{}, 1),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -172,11 +167,6 @@ func New(
 	s.execute = s.run
 	s.now = models.Now
 
-	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
-		l.Warn("Start delay disabled.")
-		s.startDelay = 0
-	}
-
 	return s
 }
 
@@ -197,7 +187,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.UpdateAdvisorsList(ctx)
 
 	// delay for the first run to allow all agents to connect
-	startCtx, startCancel := context.WithTimeout(ctx, s.startDelay)
+	startCtx, startCancel := context.WithTimeout(ctx, startDelay)
 	<-startCtx.Done()
 	startCancel()
 	if ctx.Err() != nil { // check the main context, not the startCtx
