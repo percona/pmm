@@ -277,15 +277,6 @@ func TestServer(t *testing.T) {
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAdvisor: new(true),
 		}))
-
-		s.envSettings.EnableAdvisorNotifications = new(true)
-		expected = status.New(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisorNotifications: new(false),
-		}))
-		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisorNotifications: new(true),
-		}))
 	})
 
 	t.Run("DataRetentionIsEnvOnlyInHA", func(t *testing.T) {

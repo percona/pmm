@@ -29,9 +29,7 @@ import (
 // run completed.
 //
 // It resolves the effective post-change state rather than looking at the request alone, because
-// enablement and recipients are separate fields and either one may already be stored. Callers that
-// bypass the API - PMM_ENABLE_ADVISOR_NOTIFICATIONS via UpdateSettingsFromEnv - are not covered, so
-// the delivery path still logs when it finds no recipients.
+// enablement and recipients are separate fields and either one may already be stored.
 func validateAdvisorNotificationRecipients(oldSettings *models.Settings, params *models.ChangeSettingsParams) error {
 	enabled := oldSettings.IsAdvisorNotificationsEnabled()
 	if params.EnableAdvisorNotifications != nil {

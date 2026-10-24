@@ -558,11 +558,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
-	if req.EnableAdvisorNotifications != nil && s.envSettings.EnableAdvisorNotifications != nil &&
-		*req.EnableAdvisorNotifications != *s.envSettings.EnableAdvisorNotifications {
-		return status.Error(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
-	}
-
 	err := s.validateEnableOm(ctx, req.EnableOm)
 	if err != nil {
 		return err

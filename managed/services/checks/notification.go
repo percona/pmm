@@ -64,8 +64,6 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, run *models.
 			}
 		}
 	}
-	// ChangeSettings rejects this combination, so it only happens when notifications were enabled
-	// through PMM_ENABLE_ADVISOR_NOTIFICATIONS without recipients ever being configured.
 	if len(recipients) == 0 {
 		s.l.Warnf("Advisor notification: enabled, but no recipients are configured, so run %s was "+
 			"not emailed. Set the Advisor notification email addresses in the PMM settings.", runID)
