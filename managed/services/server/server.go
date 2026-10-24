@@ -584,10 +584,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.AdvisorHistoryRetention.AsDuration(), s.envSettings.AdvisorHistoryRetention) {
-		return status.Error(codes.FailedPrecondition, "Advisor check results history retention is set via PMM_ADVISOR_HISTORY_RETENTION environment variable.")
-	}
-
 	return nil
 }
 
