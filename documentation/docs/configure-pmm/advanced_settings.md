@@ -49,7 +49,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ## Advisors
 
-Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set the **Check run interval** and **Advisor history retention**, and configure **Advisor notifications**. PMM reports the findings on the **Advisors > Insights** page.
+Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set **Advisor history retention**, and configure **Advisor notifications**, including the **Default recipients** and **Default severities**. PMM reports the findings on the **Advisors > Insights** page. To choose when the checks run, see [Schedule Advisor checks](../advisors/schedule-advisor-checks.md).
 
 See [Working with Advisor checks](../advisors/advisors.md).
 
@@ -65,7 +65,7 @@ Enable this setting to troubleshoot PMM Server performance issues, monitor resou
 
 When enabled, open **Query Analytics (QAN)** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
 
-You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
+You'll see queries related to PMM's inventory, settings, Advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
 
 !!! warning
     The default `postgres` database should only be used by PMM's internal operations. Applications should always use dedicated databases.

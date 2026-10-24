@@ -266,7 +266,8 @@ nav:
 
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
-          - Develop custom advisors: advisors/develop-advisor-checks.md
+          - Schedule Advisor checks: advisors/schedule-advisor-checks.md
+          - Develop Advisor checks: advisors/develop-advisor-checks.md
           - List of advisors and checks:
               - advisors/advisor-details.md
               - Connections:

@@ -39,10 +39,6 @@ A summary panel with key numbers across all monitored environments:
 - **Min Node Uptime**: How long the most recently restarted node has been running. A very low value may mean an unexpected restart or crash.
 - **Min DB Uptime**: How long the most recently restarted database has been running. A low value may point to a crash or a restart you weren't aware of.
 
-## Advisor Insights
-
-Shows how many Advisor checks failed in their last run. Use it to quickly spot configuration or security issues across your environments.
-
 ## PMM Upgrade
 
 Shows whether a newer version of PMM is available and lets you upgrade directly from the dashboard.

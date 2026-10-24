@@ -5,59 +5,40 @@ Percona advisors provide automated insights and recommendations within Percona M
 Advisor checks are grouped by category: Connections, Durability, Logging, Maintenance, Performance, Replication, Resources, Schema and indexes, Security and Versions. Each category offers a set of automated checks, which investigate a specific range of possible issues. You can browse all checks on the **Advisors > Catalog** page.
 
 ## Enable/Disable
-Advisors are bundled with every PMM installation and automatically loaded by PMM Server when starting up. PMM runs automatic advisor checks in the background when the **Advisors** option is enabled under **Configuration > Settings > Advisors**. This option is enabled by default, but you can disable it at any time if you do not need to check the health and performance of your connected databases.
+Advisors are bundled with every PMM installation and automatically loaded by PMM Server when starting up. PMM runs automatic Advisor checks in the background when the **Advisors** option is enabled under **Configuration > Settings > Advisors**. This option is enabled by default, but you can disable it at any time if you do not need to check the health and performance of your connected databases.
 
 To turn off a single check, go to **Advisors > Catalog** and use the **Status** switch in the check's row. To turn off a check only for some services, click the :material-dns-outline: **Disable for services** icon in the check's row, select the services, and click **Disable**. The check keeps running on the other services of its type.
 
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
 
-By default, PMM runs checks every 24 hours, only for database types present in your inventory. This keeps your results focused and avoids unnecessary checks.
+PMM runs checks automatically on the schedules that you set on the **Advisors > Scheduler** page. By default, the **All checks daily** schedule runs every check on every service each day at 06:00 UTC. To change when checks run, which checks and services each run covers, and who gets the email report, see [Schedule Advisor checks](schedule-advisor-checks.md).
+
+PMM runs checks only for database types present in your inventory. This keeps your results focused and avoids unnecessary checks.
 
 For example, if you only monitor PostgreSQL services, PMM skips MySQL and MongoDB checks. **Advisors > Catalog** still lists all available checks, but only PostgreSQL checks are executed and can show as Failed.
 
 Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
 
-## Configure execution intervals
-To control when and how often advisor checks run:
-
-- for all checks: Navigate to **Configuration > Settings > Advisors** and use the **Rare**, **Standard**, and **Frequent** fields under **Check run interval** to set global default intervals.
-- for individual checks: Navigate to **Advisors > Catalog** and select an interval in the check's **Interval** column.
-
-### Change run interval for automatic advisors
-You can change the standard 24-hour interval to a custom frequency for each advisor check:
-
- - *Rare interval* - 72 hours
- - *Standard interval* (default) - 24 hours
- - *Frequent interval* - 4 hours
-
-To change the frequency of an automatic check:
-{.power-number}
-
-1. Go to **Advisors > Catalog**.
-2. Find your check. To narrow the list, type in **Search checks**, which matches the name, summary, description, category and technology of each check, or use the **Category**, **Technology**, **Interval** and **Status** filters.
-
-    !!! hint "Tip"
-        If you need to share the filtered list of checks with your team members, send them the PMM URL. The URL keeps your search and filters.
-3. In the check's **Interval** column, select **Rare**, **Standard** or **Frequent**. The new interval applies right away, and a message confirms the change.
-
 ## Manual checks
-In addition to the automatic checks that run every 24 hours, you can also run checks manually, for ad-hoc assessments of your database health and performance.
+In addition to the scheduled runs, you can also run checks manually, for ad-hoc assessments of your database health and performance.
 
 To run checks manually, go to **Advisors > Catalog** and do one of the following:
 
 - To run all checks, click the :material-play-outline: **Run all** icon. This icon is available only when no search or filter is applied.
-- To run some checks, narrow the list with **Search checks** or the filters, then click the :material-playlist-check: **Run selected** icon. PMM runs every enabled check in the filtered list.
+- To run some checks, narrow the list with **Search checks** or the **Category**, **Technology** and **Status** filters, then click the :material-playlist-check: **Run selected** icon. PMM runs every enabled check in the filtered list.
 - To run a single check, click the :material-play-outline: **Run** icon in the check's row.
+
+**Search checks** matches the name, summary, description, category and technology of each check. The PMM URL keeps your search and filters, so you can share the filtered list with your team members.
 
 A message confirms that the checks started. To see their results, click **View results** in the message.
 
 ## One run at a time
-PMM runs one set of advisor checks at a time, whether you start the checks manually or they run automatically.
+PMM runs one set of Advisor checks at a time, whether you start the checks manually or they run automatically.
 
 If you start checks while another run is queued or in progress, PMM doesn't start them. Instead, an error message tells you who started the current run and how long ago. Try again when the current run finishes.
 
-If automatic checks become due while another run is in progress, PMM starts them as soon as that run finishes. Automatic checks of different intervals that become due at the same time run together, as one run.
+If a schedule falls due while another run is queued or in progress, PMM starts it as soon as that run finishes. Schedules that fall due at the same time run one after another, each as its own run. For details, see [When schedules run](schedule-advisor-checks.md#when-schedules-run).
 
 ### Run status
 To see the status of each run, go to **Advisors > Run history**. The **Duration** column shows one of the following:
@@ -70,7 +51,16 @@ To see the status of each run, go to **Advisors > Run history**. The **Duration*
 
 While a run is in progress, the **Run history** and **Insights** pages refresh every 10 seconds, so you can follow the run as it progresses.
 
-The **Triggered by** column shows who started the run: **User** or **Scheduler**. If the run was limited to some interval groups, the column also lists them, for example **Scheduler · Frequent**. A run that wasn't limited to interval groups shows only who started it, for example **Scheduler**.
+### Scheduled runs in Run history
+The **Triggered by** column shows what started each run:
+
+- The name of the schedule, such as **All checks daily**, for a run that a schedule started
+- **User** and the name of the schedule, such as **User · All checks daily**, for a run that a user started with **Run now** on a schedule
+- **User** for any other run that a user started
+
+To see only the runs of one schedule, use the **Schedule** filter. To see only the runs that schedules started, or only the runs that users started, use the **Triggered by** filter.
+
+If a scheduled run started more than a minute late because it waited for another run to finish, a :material-clock-outline: icon appears next to its time in the **Started** column. Hover over the icon to see why, for example: *Scheduled for 06:00 UTC. Started 7 min late, after the run started at 05:55 UTC (a user run).* The text names the run that the scheduled run started right after. If a schedule started that run, the text names the schedule instead of *a user run*.
 
 ### Run coverage
 When a run starts, PMM works out every check-and-service pair that the run will execute. This is the run's plan. The **Checks** and **Services** columns show how much of its plan the run covered, as *n*/*N*:
@@ -86,19 +76,10 @@ Some runs show one of the following values instead:
 - **0/0**: The run completed with nothing to check. There are no MySQL, PostgreSQL or MongoDB services, or every check that applies to them is disabled.
 
 ### Run again
-To repeat a run, go to **Advisors > Run history**, click the :material-dots-vertical: icon in the run's row, and select **Run again**. PMM starts a new run with the same scope: the same checks, services and interval groups. As with any other run, PMM doesn't start it while another run is queued or in progress.
+To repeat a run, go to **Advisors > Run history**, click the :material-dots-vertical: icon in the run's row, and select **Run again**. PMM starts a new run with the same scope: the same checks and services. As with any other run, PMM doesn't start it while another run is queued or in progress.
 
 ## Advisor results
-The results are sent to PMM Server, where you can review them on the **Advisors > Insights** page. For an overview, the **Advisor Insights** panel on the [Environments Overview](../reference/dashboards/dashboard-env-overview.md) dashboard shows how many checks failed in their most recent run, by severity:
-
-- <b style="color:#e02f44;">Critical</b>
-- <b style="color:#e36526;">Error</b>
-- <b style="color:#ecbb13;">Warning</b>
-- <b style="color:#3274d9;">Info</b>
-
-![!Advisor Insights panel](../images/HomeDashboard.png)
-
-To see more details about the available checks and any checks that failed, click the :material-magnify-expand: *Advisors* icon on the main menu.
+PMM Server runs the checks and stores their results. For database queries, it uses the pmm-agent that monitors the service. You can review the results on the **Advisors > Insights** page.
 
 ### Insight status
 **Advisors > Insights** lists the outcome of each check on each service. When a run starts, PMM records a **Pending** insight for every check-and-service pair in the run's plan. As each check finishes, its insight changes to one of the following statuses:
@@ -132,17 +113,22 @@ To turn on Advisor notifications:
 
 1. Go to **Configuration > Settings > Advisors**. The notification settings appear only when the **Advisors** option is enabled.
 2. Turn on **Advisor notifications**.
-3. In **Notification recipients**, enter up to 20 email addresses, separated by commas. Enter plain addresses, such as `dba@example.com`, without display names.
-4. In **Notification severities**, select the severities of the findings that PMM emails: **Critical**, **Error**, **Warning** or **Info**. You must select at least one. By default, **Critical** and **Error** are selected.
+3. In **Default severities**, select the severities of the findings that PMM emails: **Critical**, **Error**, **Warning** or **Info**. You must select at least one. By default, **Critical** and **Error** are selected.
+4. In **Default recipients**, enter up to 20 email addresses, separated by commas. Enter plain addresses, such as `dba@example.com`, without display names.
 5. Optional: To check that the emails arrive, click **Send test email**.
 6. Click **Apply changes**.
 
-The test email uses the current values of **Notification recipients** and **Notification severities**, so you can test them before you apply the changes. It goes to the listed addresses and contains sample findings only for the selected severities. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
+The test email uses the current values of **Default recipients** and **Default severities**, so you can test them before you apply the changes. It goes to the listed addresses and contains sample findings only for the selected severities. No checks are run, and nothing is recorded in PMM. If PMM can't send the email, for example because a `GF_SMTP_*` variable is missing, an error message shows the cause.
 
-If PMM Server runs with the [`PMM_ENABLE_ADVISOR_NOTIFICATIONS`](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#feature-controls) environment variable, the variable controls whether notifications are on, and you can't change **Advisor notifications** in the UI. You must still set **Notification recipients**, because PMM sends no email without them.
+If PMM Server runs with the [`PMM_ENABLE_ADVISOR_NOTIFICATIONS`](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#feature-controls) environment variable, the variable controls whether notifications are on, and you can't change **Advisor notifications** in the UI. You must still set **Default recipients**, because the runs that use them send no email without them.
+
+### Recipients and severities of each run
+Each schedule emails the default recipients with the default severities, unless the schedule sets its own. To choose them for a schedule, go to **Advisors > Scheduler**, which the note under **Default recipients** links to. For details, see [Email reports](schedule-advisor-checks.md#email-reports).
+
+Runs that a user starts from **Advisors > Catalog**, **Advisors > Insights** or **Advisors > Run history**, such as **Run all** or **Run again**, always use the default recipients and severities. **Run now** on a schedule uses the choices of that schedule.
 
 ### Email contents
-When a run completes with findings of the selected severities, PMM sends one email about that run. Runs without such findings send no email, and neither do runs that are interrupted or aborted. The email lists only failed checks, not checks that passed or couldn't run.
+When a run completes with findings of its email severities, PMM sends one email about that run. Runs without such findings send no email, and neither do runs that are interrupted or aborted. The email lists only failed checks, not checks that passed or couldn't run. For a run of a schedule, the subject of the email names the schedule.
 
 The email contains the following:
 

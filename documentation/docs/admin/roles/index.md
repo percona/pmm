@@ -57,8 +57,9 @@ Use the matrix below to check which permissions users have based on their assign
     Run Advisor checks | ✗ | ✓ | ✓
     Create, edit, clone, test, delete custom Advisor checks | ✗ | ✓ | ✓
     Enable or disable Advisor checks, for all or specific services | ✗ | ✓ | ✓
-    Change the interval of an Advisor check | ✗ | ✓ | ✓
-    Change Advisors settings (on/off, run intervals, history retention, email notifications) | ✗ | ✗ | ✓
+    View, create, edit, enable, disable, delete and run Advisor schedules | ✗ | ✓ | ✓
+    Send a test Advisor email from a schedule | ✗ | ✓ | ✓
+    Change Advisors settings (on/off, history retention, email notifications, default recipients and severities) | ✗ | ✗ | ✓
 
 === "Configuration & Management"
     Permission | Viewer | Editor | Admin
@@ -86,8 +87,7 @@ Use the matrix below to check which permissions users have based on their assign
     :--- | :--- | :---
     `/v1/alerting` | Viewer | Access alert information
     `/v1/advisors` | Editor | Access advisor functionality
-    `/v1/advisors/checks:` | Editor | Run and test advisor checks
-    `/v1/advisors/notifications:` | Admin | Send a test Advisor notification email
+    `/v1/advisors/checks:` | Editor | Run and test Advisor checks
     `/v1/actions/` | Viewer | View and execute actions
     `/v1/backups` | Admin | Manage backups
     `/v1/inventory/` | Admin | Manage inventory items

@@ -1,4 +1,4 @@
-# Developing Advisor checks
+# Develop Advisor checks
 
 PMM ships with built-in Advisor checks that detect common security threats, performance degradation, data loss and data corruption. You can also create custom checks in the PMM UI to cover use cases that are specific to your database infrastructure. PMM stores custom checks in its database and runs them together with the built-in checks.
 
@@ -29,7 +29,6 @@ The **Advisors > Catalog** page lists both kinds of checks. The **Source** colum
 | Action | Built-in | Custom |
 |--------|:--------:|:------:|
 | Run the check right away | ✓ | ✓ |
-| Change the interval in the **Interval** column | ✓ | ✓ |
 | Enable or disable the check with the **Status** switch | ✓ | ✓ |
 | Disable the check for specific services | ✓ | ✓ |
 | View the details and the script, copy the script, test or clone the check | ✓ | ✓ |
@@ -62,7 +61,7 @@ To create a custom check:
 To run your check and review its results:
 {.power-number}
 
-1. Custom checks run according to their interval, like built-in checks. To run a check right away, find it in **Advisors > Catalog** and click the :material-play-outline: **Run** icon in its row.
+1. Custom checks run on [schedules](schedule-advisor-checks.md), like built-in checks, and schedules set to **All checks** include them automatically. To run a check right away, find it in **Advisors > Catalog** and click the :material-play-outline: **Run** icon in its row.
 2. In the confirmation message, click **View results**. **Advisors > Insights** opens, filtered by the ID of the run, and shows the check's results for each service. From there:
 
     - To see only the insights of your check, across all runs, click the :material-dots-vertical: icon in one of its rows and select **Filter by name**.
@@ -84,7 +83,6 @@ The check form has the following fields, and all of them are required:
 - **Description**: A longer description of what the check verifies.
 - **Category**: Groups the check with related checks, for example **Security** or **Performance**. Select an existing category or type a new one.
 - **Technology**: **MySQL**, **PostgreSQL** or **MongoDB**. The check runs on services of this technology, and the technology determines which query types you can use.
-- **Interval**: **Standard**, **Rare** or **Frequent**. This sets how often the check runs automatically. For the length of each interval, see [Change run interval for automatic advisors](advisors.md#change-run-interval-for-automatic-advisors).
 - **Queries**: One or more queries, each with a **Type**, a **Query** and optional parameters. For the available types, see [Query types](#query-types). For the parameters, see [Query parameters](#query-parameters).
 - **Script**: The Starlark script that processes the query results. For details, see [Check script](#check-script).
 
@@ -176,7 +174,7 @@ def check_context(docs, context):
 
 ## Check severity levels
 
-You can label your advisor checks with one of the following available severity levels:
+You can label your Advisor checks with one of the following available severity levels:
 
 - Critical
 - Error
