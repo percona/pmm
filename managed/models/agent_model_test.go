@@ -444,6 +444,24 @@ func TestValkey(t *testing.T) {
 		require.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 
+	t.Run("Socket DSN", func(t *testing.T) {
+		t.Parallel()
+
+		agent := &models.Agent{
+			Username:  new("username"),
+			Password:  new("s3cur3 p@$$w0r4."),
+			AgentType: models.ValkeyExporterType,
+			TLS:       true,
+		}
+		service := &models.Service{
+			Socket: new("/var/opt/gitlab/redis/redis.socket"),
+		}
+
+		expected := "unix://username:s3cur3%20p%40$$w0r4.@/var/opt/gitlab/redis/redis.socket"
+
+		require.Equal(t, expected, agent.DSN(service, models.DSNParams{}, nil, nil))
+	})
+
 	t.Run("Files", func(t *testing.T) {
 		t.Parallel()
 
