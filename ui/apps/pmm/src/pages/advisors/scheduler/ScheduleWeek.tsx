@@ -9,6 +9,7 @@ import { type AdvisorSchedule } from 'types/advisors.types';
 import { MONO_FONT, Swatch } from './AdvisorScheduler.components';
 import { Messages } from './AdvisorScheduler.messages';
 import {
+  assignLanes,
   formatLocalWeekdayTime,
   formatUtcDay,
   formatUtcTime,
@@ -21,6 +22,8 @@ const DAY_MS = 86_400_000;
 const AXIS_HOURS = [0, 3, 6, 9, 12, 15, 18, 21, 24];
 // markers closer than this share of a day would overlap, so they stack
 const COLLISION = 0.06;
+const ROW_HEIGHT = 34;
+const LANE_HEIGHT = 17;
 
 const todayBackground = (theme: Theme) =>
   alpha(theme.palette.primary.main, 0.09);
@@ -30,23 +33,10 @@ interface Mark {
   at: Date;
   // position within the day, 0 to 1
   x: number;
-  // 0 centered, 1 upper, 2 lower
+  // lane from the top within its group of colliding markers, and the group's lane count
   lane: number;
+  lanes: number;
 }
-
-// stacks markers that would collide into an upper and a lower lane
-const assignLanes = (marks: Mark[]) => {
-  marks.forEach((mark, i) => {
-    const prev = marks[i - 1];
-    if (!prev || mark.x - prev.x >= COLLISION) {
-      return;
-    }
-    mark.lane = prev.lane === 1 ? 2 : 1;
-    if (prev.lane === 0) {
-      prev.lane = mark.lane === 1 ? 2 : 1;
-    }
-  });
-};
 
 interface ScheduleWeekProps {
   schedules: AdvisorSchedule[];
@@ -147,10 +137,14 @@ export const ScheduleWeek: FC<ScheduleWeekProps> = ({
                   at,
                   x: (at.getTime() - dayStart.getTime()) / DAY_MS,
                   lane: 0,
+                  lanes: 1,
                 }))
               )
               .sort((a, b) => a.x - b.x);
-            assignLanes(marks);
+            const rowHeight = Math.max(
+              ROW_HEIGHT,
+              assignLanes(marks, COLLISION) * LANE_HEIGHT
+            );
 
             return [
               <Box
@@ -158,7 +152,7 @@ export const ScheduleWeek: FC<ScheduleWeekProps> = ({
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  height: 34,
+                  height: rowHeight,
                   borderTop: 1,
                   borderColor: 'divider',
                   fontSize: 12.5,
@@ -174,7 +168,7 @@ export const ScheduleWeek: FC<ScheduleWeekProps> = ({
                 key={`track-${i}`}
                 sx={{
                   position: 'relative',
-                  height: 34,
+                  height: rowHeight,
                   borderTop: 1,
                   borderColor: 'divider',
                   backgroundImage: (theme) =>
@@ -233,16 +227,16 @@ export const ScheduleWeek: FC<ScheduleWeekProps> = ({
                         sx={{
                           position: 'absolute',
                           left: `${mark.x * 100}%`,
-                          top: ['50%', '25%', '75%'][mark.lane],
+                          top: `${((mark.lane + 0.5) / mark.lanes) * 100}%`,
                           transform: 'translate(-50%, -50%)',
-                          height: mark.lane ? 16 : 20,
+                          height: mark.lanes > 1 ? 16 : 20,
                           px: '7px',
                           borderRadius: '10px',
                           border: `1.5px solid ${color}`,
                           bgcolor: color,
                           color: 'background.paper',
                           fontFamily: MONO_FONT,
-                          fontSize: mark.lane ? 10 : 11,
+                          fontSize: mark.lanes > 1 ? 10 : 11,
                           fontWeight: 500,
                           whiteSpace: 'nowrap',
                           opacity: mark.at < now ? 0.4 : 1,

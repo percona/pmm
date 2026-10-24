@@ -47,7 +47,7 @@ describe('waitedForText', () => {
         },
       })
     ).toBe(
-      'Scheduled for 06:00 UTC. Waited 7 min for the run started at 05:55 UTC (a user run) to finish.'
+      'Scheduled for 06:00 UTC. Started 7 min late, after the run started at 05:55 UTC (a user run).'
     );
     expect(
       waitedForText({
@@ -61,7 +61,7 @@ describe('waitedForText', () => {
         },
       })
     ).toBe(
-      'Scheduled for 06:00 UTC. Waited 1 h 5 min for the run started at 05:30 UTC (Prod security) to finish.'
+      'Scheduled for 06:00 UTC. Started 1 h 5 min late, after the run started at 05:30 UTC (Prod security).'
     );
   });
 

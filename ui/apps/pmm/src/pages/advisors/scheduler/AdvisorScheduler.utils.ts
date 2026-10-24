@@ -161,6 +161,37 @@ export const nextRuns = (
     new Date(after.getTime() + (7 * count + 1) * DAY_MS)
   ).slice(0, count);
 
+// spreads items sorted by x over lanes, each taking the lowest lane whose last item is minGap away;
+// sets the lane count of each group of colliding items and returns the largest one
+export const assignLanes = <
+  T extends { x: number; lane: number; lanes: number },
+>(
+  items: T[],
+  minGap: number
+): number => {
+  let most = 1;
+  let start = 0;
+  items.forEach((item, i) => {
+    const next = items[i + 1];
+    if (next && next.x - item.x < minGap) {
+      return;
+    }
+    const group = items.slice(start, i + 1);
+    const ends: number[] = [];
+    group.forEach((g) => {
+      const free = ends.findIndex((end) => g.x - end >= minGap);
+      g.lane = free === -1 ? ends.length : free;
+      ends[g.lane] = g.x;
+    });
+    group.forEach((g) => {
+      g.lanes = ends.length;
+    });
+    most = Math.max(most, ends.length);
+    start = i + 1;
+  });
+  return most;
+};
+
 export const formatUtcTime = (date: Date): string =>
   `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
 

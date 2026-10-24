@@ -322,9 +322,14 @@ export const getScheduleColumns = (
       const names = scopeServices(ctx.services ?? [], ids).map(
         (s) => s.serviceName
       );
+      // picks removed from the inventory since the schedule was saved
+      const primary =
+        ctx.services && names.length < ids.length
+          ? Messages.servicesOf(names.length, ids.length)
+          : Messages.servicesCount(ids.length);
       return (
         <TwoLine
-          primary={Messages.servicesCount(ids.length)}
+          primary={primary}
           secondary={`${names.slice(0, 2).join(', ')}${names.length > 2 ? '…' : ''}`}
         />
       );

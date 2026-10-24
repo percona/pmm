@@ -75,6 +75,8 @@ export const Messages = {
   allServices: 'All services',
   checksCount: (n: number) => plural(n, 'check', 'checks'),
   servicesCount: (n: number) => plural(n, 'service', 'services'),
+  servicesOf: (n: number, total: number) =>
+    `${n} of ${plural(total, 'service', 'services')}`,
   today: (n: number) => `${n} today`,
   targetsNoService: 'Targets no existing service',
   targetsNoCheck: 'Targets no existing check',

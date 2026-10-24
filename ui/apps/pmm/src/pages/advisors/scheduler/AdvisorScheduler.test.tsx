@@ -212,6 +212,23 @@ describe('AdvisorScheduler', () => {
     expect(
       screen.queryByTestId('schedule-daily-targets-nothing')
     ).not.toBeInTheDocument();
+    expect(screen.getByTestId('schedule-row-prod')).toHaveTextContent(
+      '0 of 1 service'
+    );
+  });
+
+  it('counts only the picked services that still exist', async () => {
+    vi.mocked(advisorsApi.listAdvisorSchedules).mockResolvedValue([
+      { ...PROD, serviceIds: ['mysql-1', 'removed-service'] },
+    ]);
+    renderPage();
+
+    const prod = await screen.findByTestId('schedule-row-prod');
+    await waitFor(() => expect(prod).toHaveTextContent('1 of 2 services'));
+    expect(prod).toHaveTextContent('mysql-prod-01');
+    expect(
+      screen.queryByTestId('schedule-prod-targets-nothing')
+    ).not.toBeInTheDocument();
   });
 
   it('pauses a schedule by replacing it with enabled off', async () => {

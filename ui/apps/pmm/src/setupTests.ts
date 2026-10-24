@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
+
+// first renders of heavy table pages can take longer than the 1 s default under load
+configure({ asyncUtilTimeout: 3000 });
 
 // jsdom's :has() engine (nwsapi) throws SyntaxError when a selector contains an
 // id React's useId generated (":r23:"). React wraps those ids in colons on

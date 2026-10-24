@@ -36,7 +36,7 @@ export const Messages = {
     aborted:
       'The run stopped before running any check. See the PMM Server logs for the cause.',
     waited: (scheduled: string, waited: string, started: string, who: string) =>
-      `Scheduled for ${scheduled} UTC. Waited ${waited} for the run started at ${started} UTC (${who}) to finish.`,
+      `Scheduled for ${scheduled} UTC. Started ${waited} late, after the run started at ${started} UTC (${who}).`,
     userRun: 'a user run',
     scheduledRun: 'a scheduled run',
     startedLate: 'Started late',

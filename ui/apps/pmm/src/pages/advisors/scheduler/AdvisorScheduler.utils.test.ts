@@ -8,6 +8,7 @@ import {
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import {
+  assignLanes,
   copyName,
   coveredChecks,
   daysPhrase,
@@ -99,6 +100,50 @@ describe('nextRuns', () => {
     expect(nextRuns([], '06:00', friday, 1)).toEqual([]);
     expect(nextRuns([1], '6:00', friday, 1)).toEqual([]);
     expect(nextRuns([1], '24:00', friday, 1)).toEqual([]);
+  });
+});
+
+describe('assignLanes', () => {
+  const lanesOf = (xs: number[]) => {
+    const items = xs.map((x) => ({ x, lane: 0, lanes: 1 }));
+    const most = assignLanes(items, 0.1);
+    return { most, lanes: items.map((i) => [i.lane, i.lanes]) };
+  };
+
+  it('keeps markers that do not collide in one lane', () => {
+    expect(lanesOf([0.1, 0.5, 0.9])).toEqual({
+      most: 1,
+      lanes: [
+        [0, 1],
+        [0, 1],
+        [0, 1],
+      ],
+    });
+  });
+
+  it('gives each of several colliding markers its own lane', () => {
+    expect(lanesOf([0.5, 0.51, 0.51, 0.55, 0.55, 0.9])).toEqual({
+      most: 5,
+      lanes: [
+        [0, 5],
+        [1, 5],
+        [2, 5],
+        [3, 5],
+        [4, 5],
+        [0, 1],
+      ],
+    });
+  });
+
+  it('reuses a lane once its last marker is far enough', () => {
+    expect(lanesOf([0.1, 0.15, 0.2])).toEqual({
+      most: 2,
+      lanes: [
+        [0, 2],
+        [1, 2],
+        [0, 2],
+      ],
+    });
   });
 });
 
