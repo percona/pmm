@@ -568,6 +568,17 @@ func TestServer(t *testing.T) {
 		}, settings.Settings.AdvisorNotificationSeverities)
 		assert.Equal(t, durationpb.New(48*time.Hour), settings.Settings.AdvisorHistoryRetention)
 		assert.Equal(t, []string{"dba@percona.com"}, settings.Settings.AdvisorNotificationEmailAddresses)
+
+		// protojson decodes an empty JSON array as nil Values
+		_, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisorNotifications:        new(false),
+			AdvisorNotificationEmailAddresses: &common.StringArray{},
+		})
+		require.NoError(t, err)
+
+		settings, err = server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
+		require.NoError(t, err)
+		assert.Empty(t, settings.Settings.AdvisorNotificationEmailAddresses)
 	})
 }
 

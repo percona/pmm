@@ -1349,22 +1349,7 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (name)
 		)`,
 
-		// Carry over globally-disabled check names recorded by earlier PMM
-		// versions in the settings JSON. Content columns are placeholders: the
-		// startup reconcile refreshes them from the shipped check files and
-		// prunes rows of checks that no longer exist.
-		`INSERT INTO advisor_checks (
-			name, source, version, summary, description, category,
-			technology, disabled, queries, script, created_at, updated_at
-		)
-		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', true, '[]', '', now(), now()
-		FROM settings, jsonb_array_elements_text(
-			CASE WHEN jsonb_typeof(settings #> '{sass,disabled_advisors}') = 'array'
-				THEN settings #> '{sass,disabled_advisors}'
-				ELSE '[]'::jsonb END
-		) AS x(name)
-		WHERE x.name <> ''`,
-
+		// Checks disabled in earlier versions are not carried over.
 		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
 
 		// Per-check interval overrides, replaced by Advisor schedules.
@@ -1398,9 +1383,8 @@ var databaseSchema = [][]string{
 			gen_random_uuid()::text, 'All checks daily', true, '{0,1,2,3,4,5,6}', '06:00', '{}', '{}',
 			'settings', '{}', '{}', (NOW() AT TIME ZONE 'utc'), (NOW() AT TIME ZONE 'utc')
 		)`,
-
-		// One row per Advisor checks execution. Counts are denormalized on
-		// completion, so listing runs does not aggregate their insights.
+	},
+	129: {
 		`CREATE TABLE advisor_runs (
 			id VARCHAR NOT NULL,
 			triggered_by VARCHAR NOT NULL,
@@ -1434,7 +1418,7 @@ var databaseSchema = [][]string{
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
-// Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
+// Go's zero values and non-zero default values in database don't play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.

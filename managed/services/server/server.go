@@ -688,8 +688,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		if req.AdvisorNotificationEmailAddresses != nil {
-			// Nil treated as "do not change", empty slice treated as "clear the recipients"
-			settingsParams.AdvisorNotificationEmailAddresses = req.AdvisorNotificationEmailAddresses.Values
+			// Nil treated as "do not change", empty slice treated as "clear the recipients";
+			// protojson decodes an empty array as nil, hence the non-nil copy.
+			settingsParams.AdvisorNotificationEmailAddresses = append([]string{}, req.AdvisorNotificationEmailAddresses.Values...)
 		}
 
 		// Notifications with nobody to notify would fail silently at run-completion time, so
