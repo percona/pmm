@@ -4,7 +4,6 @@ checks:
     name: postgresql_number_of_index_check
     summary: Check for relations with a high number of indexes
     description: This check lists relations with more than 10 indexes
-    interval: standard
     technology: POSTGRESQL
     category: Schema & indexes
     queries:

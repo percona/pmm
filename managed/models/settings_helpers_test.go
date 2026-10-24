@@ -48,15 +48,8 @@ func TestSettings(t *testing.T) {
 			DataRetention:           30 * 24 * time.Hour,
 			AdvisorHistoryRetention: 30 * 24 * time.Hour,
 			AWSPartitions:           []string{"aws"},
-			SaaS: models.Advisors{
-				AdvisorRunIntervals: models.AdvisorsRunIntervals{
-					StandardInterval: 24 * time.Hour,
-					RareInterval:     72 * time.Hour,
-					FrequentInterval: 4 * time.Hour,
-				},
-			},
-			DefaultRoleID:  1,
-			EncryptedItems: actual.EncryptedItems,
+			DefaultRoleID:           1,
+			EncryptedItems:          actual.EncryptedItems,
 		}
 		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, actual)
@@ -75,13 +68,6 @@ func TestSettings(t *testing.T) {
 			DataRetention:           30 * 24 * time.Hour,
 			AdvisorHistoryRetention: 30 * 24 * time.Hour,
 			AWSPartitions:           []string{"aws"},
-			SaaS: models.Advisors{
-				AdvisorRunIntervals: models.AdvisorsRunIntervals{
-					StandardInterval: 24 * time.Hour,
-					RareInterval:     72 * time.Hour,
-					FrequentInterval: 4 * time.Hour,
-				},
-			},
 		}
 		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, s)

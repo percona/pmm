@@ -19,9 +19,11 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
@@ -30,26 +32,136 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func dueOf(groups ...check.Interval) map[check.Interval]struct{} {
-	due := make(map[check.Interval]struct{}, len(groups))
-	for _, group := range groups {
-		due[group] = struct{}{}
-	}
-	return due
-}
-
-func TestNextRun(t *testing.T) {
+// setupScheduleDB opens a test database without the default schedule.
+func setupScheduleDB(t *testing.T) *reform.DB {
+	t.Helper()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	_, err := db.Exec("DELETE FROM " + models.AdvisorScheduleTable.Name())
+	require.NoError(t, err)
+	return db
+}
+
+// createSchedule stores an enabled schedule that runs every day at the given time.
+func createSchedule(t *testing.T, db *reform.DB, name string, at time.Time) *models.AdvisorSchedule {
+	t.Helper()
+	sc := &models.AdvisorSchedule{
+		Name:       name,
+		Enabled:    true,
+		DaysOfWeek: pq.Int64Array{0, 1, 2, 3, 4, 5, 6},
+		TimeOfDay:  at.UTC().Format("15:04"),
+		CheckNames: []string{"check_" + strings.ToLower(name)},
+		EmailMode:  models.AdvisorScheduleEmailSettings,
+	}
+	require.NoError(t, models.CreateAdvisorSchedule(t.Context(), db.Querier, sc))
+	return sc
+}
+
+func TestDueSchedules(t *testing.T) {
+	db := setupScheduleDB(t)
+	s := New(db, nil, nil, nil)
+
+	// created now, so every schedule below was last changed before it falls due
+	at := models.Now().Truncate(time.Minute).Add(2 * time.Minute)
+	daily := createSchedule(t, db, "Daily", at)
+	later := createSchedule(t, db, "Later", at.Add(time.Minute))
+	off := createSchedule(t, db, "Off", at)
+	off.Enabled = false
+	require.NoError(t, models.UpdateAdvisorSchedule(t.Context(), db.Querier, off))
+
+	t.Run("nothing is due before its time", func(t *testing.T) {
+		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at.Add(-time.Second))
+		require.NoError(t, err)
+		assert.Empty(t, due)
+		assert.Equal(t, at, next)
+	})
+
+	t.Run("a schedule is due at its time", func(t *testing.T) {
+		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at)
+		require.NoError(t, err)
+		assert.Equal(t, []scheduledRun{{scheduleID: daily.ID, scheduleName: "Daily", scheduledFor: at}}, due)
+		assert.Equal(t, at.Add(time.Minute), next)
+	})
+
+	t.Run("a time already looked at is not due again", func(t *testing.T) {
+		due, next, err := s.dueSchedules(t.Context(), at, at.Add(30*time.Second))
+		require.NoError(t, err)
+		assert.Empty(t, due)
+		assert.Equal(t, at.Add(time.Minute), next)
+	})
+
+	t.Run("every schedule due in the window is returned", func(t *testing.T) {
+		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at.Add(5*time.Minute))
+		require.NoError(t, err)
+		assert.Equal(t, []scheduledRun{
+			{scheduleID: daily.ID, scheduleName: "Daily", scheduledFor: at},
+			{scheduleID: later.ID, scheduleName: "Later", scheduledFor: at.Add(time.Minute)},
+		}, due)
+		assert.Equal(t, at.Add(24*time.Hour), next)
+	})
+
+	t.Run("a schedule changed after its time waits for the next one", func(t *testing.T) {
+		_, err := db.Exec("UPDATE "+models.AdvisorScheduleTable.Name()+" SET updated_at = $1 WHERE id = $2",
+			at.Add(time.Second), daily.ID)
+		require.NoError(t, err)
+
+		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at.Add(30*time.Second))
+		require.NoError(t, err)
+		assert.Empty(t, due)
+		assert.Equal(t, at.Add(time.Minute), next)
+	})
+
+	t.Run("no enabled schedule means no next time", func(t *testing.T) {
+		_, err := db.Exec("UPDATE " + models.AdvisorScheduleTable.Name() + " SET enabled = false")
+		require.NoError(t, err)
+
+		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at.Add(5*time.Minute))
+		require.NoError(t, err)
+		assert.Empty(t, due)
+		assert.True(t, next.IsZero())
+	})
+}
+
+func TestAddWaiting(t *testing.T) {
+	t.Parallel()
+
+	logger, hook := logrustest.NewNullLogger()
+	s := New(nil, nil, nil, nil)
+	s.l = logrus.NewEntry(logger)
+
+	at := time.Date(2026, 10, 24, 6, 0, 0, 0, time.UTC)
+	alpha := scheduledRun{scheduleID: "a", scheduleName: "Alpha", scheduledFor: at}
+	beta := scheduledRun{scheduleID: "b", scheduleName: "Beta", scheduledFor: at}
+	early := scheduledRun{scheduleID: "e", scheduleName: "Zulu", scheduledFor: at.Add(-time.Minute)}
+
+	waiting := s.addWaiting(nil, []scheduledRun{beta, alpha}, "")
+	assert.Equal(t, []scheduledRun{alpha, beta}, waiting, "same time: by name")
+	assert.Empty(t, hook.AllEntries(), "nothing is deferred while no run is in progress")
+
+	waiting = s.addWaiting(waiting, []scheduledRun{early}, "run-1")
+	assert.Equal(t, []scheduledRun{early, alpha, beta}, waiting, "by the time they fell due first")
+	entry := hook.LastEntry()
+	require.NotNil(t, entry)
+	assert.Equal(t, logrus.WarnLevel, entry.Level)
+	assert.Equal(t, "Advisor schedule 'Zulu' is deferred until run run-1 finishes.", entry.Message)
+
+	hook.Reset()
+	again := scheduledRun{scheduleID: "a", scheduleName: "Alpha", scheduledFor: at.Add(24 * time.Hour)}
+	waiting = s.addWaiting(waiting, []scheduledRun{again}, "run-1")
+	assert.Equal(t, []scheduledRun{early, alpha, beta}, waiting, "a waiting schedule is not queued twice")
+	assert.Empty(t, hook.AllEntries())
+}
+
+func TestNextRun(t *testing.T) {
+	db := setupScheduleDB(t)
 	logger, hook := logrustest.NewNullLogger()
 	s := New(db, nil, nil, nil)
 	s.l = logrus.NewEntry(logger)
@@ -65,32 +177,40 @@ func TestNextRun(t *testing.T) {
 		s.finishRun(t.Context(), id, models.AdvisorRunStatusCompleted)
 	}
 
-	t.Run("nothing due and nothing queued starts nothing", func(t *testing.T) {
-		assert.Nil(t, s.nextRun(t.Context(), dueOf()))
+	at := time.Date(2026, 10, 24, 6, 0, 0, 0, time.UTC)
+	alpha := createSchedule(t, db, "Alpha", at)
+	beta := createSchedule(t, db, "Beta", at)
+	waitingFor := func(schedules ...*models.AdvisorSchedule) []scheduledRun {
+		res := make([]scheduledRun, 0, len(schedules))
+		for _, sc := range schedules {
+			res = append(res, scheduledRun{scheduleID: sc.ID, scheduleName: sc.Name, scheduledFor: at})
+		}
+		return res
+	}
+
+	t.Run("nothing waiting and nothing queued starts nothing", func(t *testing.T) {
+		run, waiting := s.nextRun(t.Context(), nil)
+		assert.Nil(t, run)
+		assert.Empty(t, waiting)
 	})
 
-	t.Run("due groups start as one scheduled run", func(t *testing.T) {
-		due := dueOf(check.Standard, check.Frequent)
-
-		run := s.nextRun(t.Context(), due)
+	t.Run("the first waiting schedule starts as a scheduled run", func(t *testing.T) {
+		run, waiting := s.nextRun(t.Context(), waitingFor(alpha, beta))
 		require.NotNil(t, run)
-		assert.Empty(t, due)
+		assert.Equal(t, waitingFor(beta), waiting)
 
 		stored := reload(t, run.ID)
 		assert.Equal(t, models.AdvisorRunStatusRunning, stored.Status)
 		assert.Equal(t, models.CheckTriggeredByScheduler, stored.TriggeredBy)
-		assert.Equal(t, []string{"frequent", "standard"}, []string(stored.Intervals))
+		assert.Equal(t, alpha.ID, *stored.ScheduleID)
+		assert.Equal(t, "Alpha", stored.ScheduleName)
+		assert.Equal(t, at, *stored.ScheduledFor)
+		assert.Equal(t, []string{"check_alpha"}, []string(stored.CheckNames))
+		assert.Empty(t, stored.ServiceIDs)
 		finish(t, run.ID)
 	})
 
-	t.Run("every group due is a full run", func(t *testing.T) {
-		run := s.nextRun(t.Context(), dueOf(check.Rare, check.Standard, check.Frequent))
-		require.NotNil(t, run)
-		assert.Empty(t, reload(t, run.ID).Intervals)
-		finish(t, run.ID)
-	})
-
-	t.Run("a queued run starts first, and the due groups wait", func(t *testing.T) {
+	t.Run("a queued run starts first, and the schedules wait", func(t *testing.T) {
 		queuedAt := models.Now().Add(-time.Hour)
 		queued := &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
@@ -101,13 +221,11 @@ func TestNextRun(t *testing.T) {
 		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, queued))
 
 		hook.Reset()
-		due := dueOf(check.Standard)
-		run := s.nextRun(t.Context(), due)
+		run, waiting := s.nextRun(t.Context(), waitingFor(beta))
 		require.NotNil(t, run)
 		assert.Equal(t, queued.ID, run.ID)
-		assert.Empty(t, run.Intervals)
 		assert.Equal(t, []string{"check_a"}, []string(run.CheckNames))
-		assert.Contains(t, due, check.Standard)
+		assert.Equal(t, waitingFor(beta), waiting)
 
 		stored := reload(t, queued.ID)
 		assert.Equal(t, models.AdvisorRunStatusRunning, stored.Status)
@@ -117,52 +235,85 @@ func TestNextRun(t *testing.T) {
 		entry := hook.LastEntry()
 		require.NotNil(t, entry)
 		assert.Equal(t, logrus.WarnLevel, entry.Level)
-		assert.Equal(t, "Scheduled Advisor checks are deferred until run "+queued.ID+" finishes.", entry.Message)
+		assert.Equal(t, "Advisor schedule 'Beta' is deferred until run "+queued.ID+" finishes.", entry.Message)
 
 		finish(t, queued.ID)
-		run = s.nextRun(t.Context(), due)
+		run, waiting = s.nextRun(t.Context(), waiting)
 		require.NotNil(t, run)
-		assert.Equal(t, []string{"standard"}, []string(run.Intervals))
+		assert.Equal(t, "Beta", run.ScheduleName)
+		assert.Empty(t, waiting)
 		finish(t, run.ID)
 	})
 
-	t.Run("a run started elsewhere defers the due groups", func(t *testing.T) {
+	t.Run("a run started elsewhere defers the schedules", func(t *testing.T) {
 		other := &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByScheduler,
 			Status:      models.AdvisorRunStatusRunning,
 		}
 		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, other))
 
-		due := dueOf(check.Rare)
-		assert.Nil(t, s.nextRun(t.Context(), due))
-		assert.Contains(t, due, check.Rare)
+		hook.Reset()
+		run, waiting := s.nextRun(t.Context(), waitingFor(alpha))
+		assert.Nil(t, run)
+		assert.Equal(t, waitingFor(alpha), waiting)
+		entry := hook.LastEntry()
+		require.NotNil(t, entry)
+		assert.Equal(t, "Scheduled Advisor checks are deferred until run "+other.ID+" finishes.", entry.Message)
 
 		finish(t, other.ID)
-		run := s.nextRun(t.Context(), due)
+		run, waiting = s.nextRun(t.Context(), waiting)
 		require.NotNil(t, run)
-		assert.Equal(t, []string{"rare"}, []string(run.Intervals))
+		assert.Equal(t, "Alpha", run.ScheduleName)
+		assert.Empty(t, waiting)
 		finish(t, run.ID)
 	})
 
-	t.Run("due groups are dropped while advisors are disabled", func(t *testing.T) {
+	t.Run("deleted and disabled schedules are skipped", func(t *testing.T) {
+		gone := createSchedule(t, db, "Gone", at)
+		paused := createSchedule(t, db, "Paused", at)
+		require.NoError(t, models.RemoveAdvisorSchedule(t.Context(), db.Querier, gone.ID))
+		paused.Enabled = false
+		require.NoError(t, models.UpdateAdvisorSchedule(t.Context(), db.Querier, paused))
+
+		run, waiting := s.nextRun(t.Context(), waitingFor(gone, paused, beta))
+		require.NotNil(t, run)
+		assert.Equal(t, "Beta", run.ScheduleName)
+		assert.Empty(t, waiting)
+		finish(t, run.ID)
+	})
+
+	t.Run("schedules are dropped while advisors are disabled", func(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 		settings.SaaS.Enabled = new(false)
 		require.NoError(t, models.SaveSettings(db, settings))
 
-		due := dueOf(check.Frequent)
-		assert.Nil(t, s.nextRun(t.Context(), due))
-		assert.Empty(t, due)
+		run, waiting := s.nextRun(t.Context(), waitingFor(alpha))
+		assert.Nil(t, run)
+		assert.Empty(t, waiting)
 	})
 }
 
-func TestRunChecksLoop(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
+// fakeClock is a scheduling clock that tests move by hand.
+type fakeClock struct {
+	m   sync.Mutex
+	now time.Time
+}
 
-	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+func (c *fakeClock) Now() time.Time {
+	c.m.Lock()
+	defer c.m.Unlock()
+	return c.now
+}
+
+func (c *fakeClock) Set(t time.Time) {
+	c.m.Lock()
+	defer c.m.Unlock()
+	c.now = t
+}
+
+func TestRunChecksLoop(t *testing.T) {
+	db := setupScheduleDB(t)
 	logger, hook := logrustest.NewNullLogger()
 	s := New(db, nil, nil, nil)
 	s.l = logrus.NewEntry(logger)
@@ -191,6 +342,14 @@ func TestRunChecksLoop(t *testing.T) {
 			return nil
 		}
 	}
+	noRun := func(t *testing.T) {
+		t.Helper()
+		select {
+		case run := <-startedCh:
+			require.FailNow(t, "unexpected run", "%+v", run)
+		case <-time.After(200 * time.Millisecond):
+		}
+	}
 	waitIdle := func(t *testing.T) {
 		t.Helper()
 		require.Eventually(t, func() bool {
@@ -198,62 +357,74 @@ func TestRunChecksLoop(t *testing.T) {
 			return err == nil && active == nil
 		}, 10*time.Second, 10*time.Millisecond)
 	}
+	deferred := func(name, runID string) func() bool {
+		return func() bool {
+			for _, entry := range hook.AllEntries() {
+				if entry.Level == logrus.WarnLevel && entry.Message == "Advisor schedule '"+name+"' is deferred until run "+runID+" finishes." {
+					return true
+				}
+			}
+			return false
+		}
+	}
 
-	rare, standard, frequent := make(chan time.Time), make(chan time.Time), make(chan time.Time)
+	// the schedules are created now, before any of their times
+	at := models.Now().Truncate(time.Minute).Add(2 * time.Minute)
+	createSchedule(t, db, "Beta", at)
+	createSchedule(t, db, "Alpha", at)
+	createSchedule(t, db, "Gamma", at.Add(time.Minute))
+
+	clock := &fakeClock{now: at.Add(-time.Minute)}
+	s.now = clock.Now
 	ctx, cancel := context.WithCancel(t.Context())
 	loopDone := make(chan struct{})
 	go func() {
 		defer close(loopDone)
-		s.runChecksLoop(ctx, rare, standard, frequent)
+		s.runChecksLoop(ctx, clock.Now())
 	}()
 
-	// every group is due on start, as one full run
-	first := next(t)
-	assert.Equal(t, models.CheckTriggeredByScheduler, first.TriggeredBy)
-	assert.Empty(t, first.Intervals)
+	// nothing runs at start
+	noRun(t)
+
+	// schedules due together run one after another, by name
+	clock.Set(at)
+	s.wake()
+	alpha := next(t)
+	assert.Equal(t, models.CheckTriggeredByScheduler, alpha.TriggeredBy)
+	assert.Equal(t, "Alpha", alpha.ScheduleName)
+	assert.Equal(t, at, *alpha.ScheduledFor)
+	require.Eventually(t, deferred("Beta", alpha.ID), 10*time.Second, 10*time.Millisecond)
 
 	// a user request is rejected while a run is in progress
-	_, err := s.StartChecks(ctx, nil, nil, nil)
+	_, err := s.StartChecks(ctx, nil, nil)
 	_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
 	assert.True(t, inProgress, "%v", err)
 
-	// ticks during a run are deferred and logged, then run together once it ends
-	hook.Reset()
-	standard <- time.Now()
-	frequent <- time.Now()
-	require.Eventually(t, func() bool {
-		var deferred int
-		for _, entry := range hook.AllEntries() {
-			if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "deferred until run "+first.ID) {
-				deferred++
-			}
-		}
-		return deferred == 2
-	}, 10*time.Second, 10*time.Millisecond)
-
 	release <- struct{}{}
-	deferred := next(t)
-	assert.Equal(t, models.CheckTriggeredByScheduler, deferred.TriggeredBy)
-	assert.Equal(t, []string{"frequent", "standard"}, []string(deferred.Intervals))
+	beta := next(t)
+	assert.Equal(t, "Beta", beta.ScheduleName)
+	assert.Equal(t, at, *beta.ScheduledFor)
 
-	// ticks that fall due together while nothing runs make a single run
+	// a schedule that falls due during a run starts once the run ends
+	clock.Set(at.Add(time.Minute))
+	s.wake()
+	require.Eventually(t, deferred("Gamma", beta.ID), 10*time.Second, 10*time.Millisecond)
 	release <- struct{}{}
-	waitIdle(t)
-	standard <- time.Now()
-	frequent <- time.Now()
-	together := next(t)
-	assert.Equal(t, []string{"frequent", "standard"}, []string(together.Intervals))
+	gamma := next(t)
+	assert.Equal(t, "Gamma", gamma.ScheduleName)
+	assert.Equal(t, at.Add(time.Minute), *gamma.ScheduledFor)
 
 	// a user request starts right away once the run slot is free
 	release <- struct{}{}
 	waitIdle(t)
-	id, err := s.StartChecks(ctx, []string{"check_a"}, nil, nil)
+	id, err := s.StartChecks(ctx, []string{"check_a"}, nil)
 	require.NoError(t, err)
 	user := next(t)
 	assert.Equal(t, id, user.ID)
 	assert.Equal(t, models.CheckTriggeredByUser, user.TriggeredBy)
 	assert.Equal(t, models.AdvisorRunStatusRunning, user.Status)
 	assert.Equal(t, []string{"check_a"}, []string(user.CheckNames))
+	assert.Nil(t, user.ScheduleID)
 
 	// shutdown waits for the run in progress to close out
 	cancel()
@@ -265,4 +436,31 @@ func TestRunChecksLoop(t *testing.T) {
 	stored := &models.AdvisorRun{ID: id}
 	require.NoError(t, db.Reload(stored))
 	assert.Equal(t, models.AdvisorRunStatusInterrupted, stored.Status)
+}
+
+func TestRunSchedule(t *testing.T) {
+	db := setupScheduleDB(t)
+	s := New(db, nil, nil, nil)
+
+	sc := createSchedule(t, db, "Weekly", time.Date(2026, 10, 24, 6, 0, 0, 0, time.UTC))
+	sc.Enabled = false
+	sc.ServiceIDs = []string{"service-1"}
+	require.NoError(t, models.UpdateAdvisorSchedule(t.Context(), db.Querier, sc))
+
+	// a paused schedule can still be run now, with its own scope
+	id, err := s.RunSchedule(t.Context(), sc.ID)
+	require.NoError(t, err)
+	run := &models.AdvisorRun{ID: id}
+	require.NoError(t, db.Reload(run))
+	assert.Equal(t, models.AdvisorRunStatusQueued, run.Status)
+	assert.Equal(t, models.CheckTriggeredByUser, run.TriggeredBy)
+	assert.Equal(t, sc.ID, *run.ScheduleID)
+	assert.Equal(t, "Weekly", run.ScheduleName)
+	assert.Nil(t, run.ScheduledFor)
+	assert.Equal(t, []string{"check_weekly"}, []string(run.CheckNames))
+	assert.Equal(t, []string{"service-1"}, []string(run.ServiceIDs))
+
+	_, err = s.RunSchedule(t.Context(), sc.ID)
+	_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
+	assert.True(t, inProgress, "%v", err)
 }

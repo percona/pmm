@@ -33,7 +33,9 @@ func (v *advisorRunTableType) Columns() []string {
 		"status",
 		"check_names",
 		"service_ids",
-		"intervals",
+		"schedule_id",
+		"schedule_name",
+		"scheduled_for",
 		"started_at",
 		"finished_at",
 		"planned_checks_count",
@@ -72,7 +74,9 @@ var AdvisorRunTable = &advisorRunTableType{
 			{Name: "Status", Type: "AdvisorRunStatus", Column: "status"},
 			{Name: "CheckNames", Type: "pq.StringArray", Column: "check_names"},
 			{Name: "ServiceIDs", Type: "pq.StringArray", Column: "service_ids"},
-			{Name: "Intervals", Type: "pq.StringArray", Column: "intervals"},
+			{Name: "ScheduleID", Type: "*string", Column: "schedule_id"},
+			{Name: "ScheduleName", Type: "string", Column: "schedule_name"},
+			{Name: "ScheduledFor", Type: "*time.Time", Column: "scheduled_for"},
 			{Name: "StartedAt", Type: "time.Time", Column: "started_at"},
 			{Name: "FinishedAt", Type: "*time.Time", Column: "finished_at"},
 			{Name: "PlannedChecksCount", Type: "int", Column: "planned_checks_count"},
@@ -90,22 +94,24 @@ var AdvisorRunTable = &advisorRunTableType{
 
 // String returns a string representation of this struct or record.
 func (s AdvisorRun) String() string {
-	res := make([]string, 15)
+	res := make([]string, 17)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	res[2] = "Status: " + reform.Inspect(s.Status, true)
 	res[3] = "CheckNames: " + reform.Inspect(s.CheckNames, true)
 	res[4] = "ServiceIDs: " + reform.Inspect(s.ServiceIDs, true)
-	res[5] = "Intervals: " + reform.Inspect(s.Intervals, true)
-	res[6] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
-	res[7] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
-	res[8] = "PlannedChecksCount: " + reform.Inspect(s.PlannedChecksCount, true)
-	res[9] = "PlannedServicesCount: " + reform.Inspect(s.PlannedServicesCount, true)
-	res[10] = "ChecksCount: " + reform.Inspect(s.ChecksCount, true)
-	res[11] = "ServicesCount: " + reform.Inspect(s.ServicesCount, true)
-	res[12] = "FindingsCount: " + reform.Inspect(s.FindingsCount, true)
-	res[13] = "ErrorsCount: " + reform.Inspect(s.ErrorsCount, true)
-	res[14] = "SeverityCounts: " + reform.Inspect(s.SeverityCounts, true)
+	res[5] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
+	res[6] = "ScheduleName: " + reform.Inspect(s.ScheduleName, true)
+	res[7] = "ScheduledFor: " + reform.Inspect(s.ScheduledFor, true)
+	res[8] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
+	res[9] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
+	res[10] = "PlannedChecksCount: " + reform.Inspect(s.PlannedChecksCount, true)
+	res[11] = "PlannedServicesCount: " + reform.Inspect(s.PlannedServicesCount, true)
+	res[12] = "ChecksCount: " + reform.Inspect(s.ChecksCount, true)
+	res[13] = "ServicesCount: " + reform.Inspect(s.ServicesCount, true)
+	res[14] = "FindingsCount: " + reform.Inspect(s.FindingsCount, true)
+	res[15] = "ErrorsCount: " + reform.Inspect(s.ErrorsCount, true)
+	res[16] = "SeverityCounts: " + reform.Inspect(s.SeverityCounts, true)
 	return strings.Join(res, ", ")
 }
 
@@ -118,7 +124,9 @@ func (s *AdvisorRun) Values() []interface{} {
 		s.Status,
 		s.CheckNames,
 		s.ServiceIDs,
-		s.Intervals,
+		s.ScheduleID,
+		s.ScheduleName,
+		s.ScheduledFor,
 		s.StartedAt,
 		s.FinishedAt,
 		s.PlannedChecksCount,
@@ -140,7 +148,9 @@ func (s *AdvisorRun) Pointers() []interface{} {
 		&s.Status,
 		&s.CheckNames,
 		&s.ServiceIDs,
-		&s.Intervals,
+		&s.ScheduleID,
+		&s.ScheduleName,
+		&s.ScheduledFor,
 		&s.StartedAt,
 		&s.FinishedAt,
 		&s.PlannedChecksCount,

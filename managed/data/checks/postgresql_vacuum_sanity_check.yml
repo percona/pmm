@@ -4,7 +4,6 @@ checks:
     name: postgresql_vacuum_sanity_check
     summary: PostgreSQL vacuum setting quick check
     description: This performs a quick check of some vacuum parameters
-    interval: standard
     technology: POSTGRESQL
     category: Maintenance
     queries:

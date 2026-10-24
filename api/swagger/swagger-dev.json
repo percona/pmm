@@ -1368,18 +1368,6 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "interval": {
-                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                          "ADVISOR_CHECK_INTERVAL_STANDARD",
-                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                          "ADVISOR_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 4
-                      },
                       "technology": {
                         "type": "string",
                         "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -1389,17 +1377,17 @@
                           "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                           "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                         ],
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "category": {
                         "description": "Category the check belongs to.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "user_defined": {
                         "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "queries": {
                         "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -1428,12 +1416,12 @@
                             }
                           }
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "script": {
                         "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "disabled_service_ids": {
                         "description": "IDs of services for which this check is disabled.",
@@ -1441,7 +1429,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       }
                     }
                   },
@@ -1522,18 +1510,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 4
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -1543,17 +1519,17 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "user_defined": {
                       "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "queries": {
                       "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -1582,12 +1558,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "script": {
                       "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_service_ids": {
                       "description": "IDs of services for which this check is disabled.",
@@ -1595,7 +1571,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -1634,18 +1610,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 4
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -1655,17 +1619,17 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "user_defined": {
                       "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "queries": {
                       "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -1694,12 +1658,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "script": {
                       "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_service_ids": {
                       "description": "IDs of services for which this check is disabled.",
@@ -1707,7 +1671,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -1796,18 +1760,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 4
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -1817,17 +1769,17 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "user_defined": {
                       "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "queries": {
                       "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -1856,12 +1808,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "script": {
                       "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_service_ids": {
                       "description": "IDs of services for which this check is disabled.",
@@ -1869,7 +1821,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -1946,18 +1898,6 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 2
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -1967,12 +1907,12 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 4
+                      "x-order": 3
                     },
                     "queries": {
                       "description": "Data-collection queries.",
@@ -2001,12 +1941,12 @@
                           }
                         }
                       },
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "script": {
                       "description": "Starlark source script.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -2045,18 +1985,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 4
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -2066,17 +1994,17 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "user_defined": {
                       "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "queries": {
                       "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -2105,12 +2033,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "script": {
                       "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_service_ids": {
                       "description": "IDs of services for which this check is disabled.",
@@ -2118,7 +2046,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -2218,7 +2146,7 @@
     },
     "/v1/advisors/checks:batchChange": {
       "post": {
-        "description": "Enables/disables advisor checks or changes their exec interval.",
+        "description": "Enables/disables advisor checks, globally or for specific services.",
         "tags": [
           "AdvisorService"
         ],
@@ -2248,25 +2176,13 @@
                         "x-nullable": true,
                         "x-order": 1
                       },
-                      "interval": {
-                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                          "ADVISOR_CHECK_INTERVAL_STANDARD",
-                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                          "ADVISOR_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 2
-                      },
                       "service_ids": {
-                        "description": "IDs of services to apply the enable/disable to. When set, enable/disable\naffects only the given services instead of the whole check; interval\nchanges are not allowed in the same params entry.",
+                        "description": "IDs of services to apply the enable/disable to. When set, enable/disable\naffects only the given services instead of the whole check.",
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 3
+                        "x-order": 2
                       }
                     }
                   },
@@ -2348,14 +2264,6 @@
                     "type": "string"
                   },
                   "x-order": 1
-                },
-                "intervals": {
-                  "description": "Interval groups whose checks should be started, as AdvisorCheckInterval names\n(e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.\nA string rather than the enum, so that a misspelled name is rejected instead of\nbeing dropped by the JSON decoder, which would start checks of every interval.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 2
                 }
               }
             }
@@ -2449,18 +2357,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "interval": {
-                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "ADVISOR_CHECK_INTERVAL_STANDARD",
-                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                        "ADVISOR_CHECK_INTERVAL_RARE"
-                      ],
-                      "x-order": 4
-                    },
                     "technology": {
                       "type": "string",
                       "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
@@ -2470,17 +2366,17 @@
                         "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
                         "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "category": {
                       "description": "Category the check belongs to.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "user_defined": {
                       "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "queries": {
                       "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
@@ -2509,12 +2405,12 @@
                           }
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "script": {
                       "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_service_ids": {
                       "description": "IDs of services for which this check is disabled.",
@@ -2522,7 +2418,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -2904,57 +2800,45 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "interval": {
-                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                        "type": "string",
-                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                        "enum": [
-                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                          "ADVISOR_CHECK_INTERVAL_STANDARD",
-                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                          "ADVISOR_CHECK_INTERVAL_RARE"
-                        ],
-                        "x-order": 4
-                      },
                       "service_id": {
                         "description": "ID of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "service_name": {
                         "description": "Name of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "service_type": {
                         "description": "Type of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "node_id": {
                         "description": "ID of the node the service runs on.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "node_name": {
                         "description": "Name of the node the service runs on.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "environment": {
                         "description": "Environment of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "cluster": {
                         "description": "Cluster of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "replication_set": {
                         "description": "Replication set of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "status": {
                         "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
@@ -2968,27 +2852,27 @@
                           "ADVISOR_CHECK_RESULT_STATUS_PENDING",
                           "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
                         ],
-                        "x-order": 13
+                        "x-order": 12
                       },
                       "summary": {
                         "description": "Short human-readable summary of the result.",
                         "type": "string",
-                        "x-order": 14
+                        "x-order": 13
                       },
                       "description": {
                         "description": "Long human-readable description of the result.",
                         "type": "string",
-                        "x-order": 15
+                        "x-order": 14
                       },
                       "read_more_url": {
                         "description": "URL containing information on how to resolve a detected issue.",
                         "type": "string",
-                        "x-order": 16
+                        "x-order": 15
                       },
                       "outcome": {
                         "description": "Output returned by the check run (finding details or execution error).",
                         "type": "string",
-                        "x-order": 17
+                        "x-order": 16
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -3005,7 +2889,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 18
+                        "x-order": 17
                       },
                       "labels": {
                         "description": "Result labels.",
@@ -3013,18 +2897,18 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 19
+                        "x-order": 18
                       },
                       "checked_at": {
                         "description": "Time when the check ran; unset while it is pending or when it did not run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 20
+                        "x-order": 19
                       },
                       "is_read": {
                         "description": "Whether the result has been marked as read.",
                         "type": "boolean",
-                        "x-order": 21
+                        "x-order": 20
                       },
                       "triggered_by": {
                         "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
@@ -3035,17 +2919,17 @@
                           "ADVISOR_CHECK_TRIGGERED_BY_USER",
                           "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
                         ],
-                        "x-order": 22
+                        "x-order": 21
                       },
                       "region": {
                         "description": "Cloud region of the node the service runs on, empty when not applicable.",
                         "type": "string",
-                        "x-order": 23
+                        "x-order": 22
                       },
                       "az": {
                         "description": "Cloud availability zone of the node the service runs on, empty when not applicable.",
                         "type": "string",
-                        "x-order": 24
+                        "x-order": 23
                       }
                     }
                   },
@@ -3444,6 +3328,12 @@
             "description": "Filter by run ID.",
             "name": "run_id",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by schedule ID.",
+            "name": "schedule_id",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3598,25 +3488,1423 @@
                         },
                         "x-order": 13
                       },
-                      "intervals": {
-                        "description": "Interval groups the run was narrowed to; empty means all.",
-                        "type": "array",
-                        "items": {
-                          "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
-                          "type": "string",
-                          "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                          "enum": [
-                            "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
-                            "ADVISOR_CHECK_INTERVAL_STANDARD",
-                            "ADVISOR_CHECK_INTERVAL_FREQUENT",
-                            "ADVISOR_CHECK_INTERVAL_RARE"
-                          ]
-                        },
+                      "schedule_id": {
+                        "description": "ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;\nempty for other runs and once the schedule is deleted.",
+                        "type": "string",
                         "x-order": 14
+                      },
+                      "schedule_name": {
+                        "description": "Name the schedule had when the run started; empty for runs not tied to a schedule.",
+                        "type": "string",
+                        "x-order": 15
+                      },
+                      "scheduled_for": {
+                        "description": "When the schedule fell due; unset for runs a user started.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "waited_for_run": {
+                        "description": "AdvisorRunReference identifies another Advisor run.",
+                        "type": "object",
+                        "properties": {
+                          "run_id": {
+                            "description": "ID of the run.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "triggered_by": {
+                            "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                            "type": "string",
+                            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                            "enum": [
+                              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                            ],
+                            "x-order": 1
+                          },
+                          "schedule_name": {
+                            "description": "Name of the schedule the run belongs to; empty for runs not tied to a schedule.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "started_at": {
+                            "description": "When the run began.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 17
                       }
                     }
                   },
                   "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/schedules": {
+      "get": {
+        "description": "Returns the Advisor schedules with their next and most recent runs.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Advisor Schedules",
+        "operationId": "ListAdvisorSchedules",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schedules": {
+                  "description": "Schedules ordered by time of day, then name.",
+                  "type": "array",
+                  "items": {
+                    "description": "AdvisorSchedule runs Advisor checks on the given days at a time of day, both in UTC.",
+                    "type": "object",
+                    "properties": {
+                      "schedule_id": {
+                        "description": "Unique identifier of the schedule.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "description": "Unique name, shown in Run history and in notification emails.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "enabled": {
+                        "description": "True if the schedule runs.",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "days_of_week": {
+                        "description": "Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.",
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "x-order": 3
+                      },
+                      "time_of_day": {
+                        "description": "Time the schedule runs at, in UTC, as HH:MM.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "check_names": {
+                        "description": "Names of the checks to run; empty means all checks, including ones added later.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
+                      "service_ids": {
+                        "description": "IDs of the services to run the checks against; empty means all services, including ones added later.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "email_mode": {
+                        "description": "AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.\n\n - ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS: Email the default recipients from the Advisor settings.\n - ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM: Email the schedule's own recipients.\n - ADVISOR_SCHEDULE_EMAIL_MODE_OFF: Send no email.",
+                        "type": "string",
+                        "default": "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                          "ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS",
+                          "ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM",
+                          "ADVISOR_SCHEDULE_EMAIL_MODE_OFF"
+                        ],
+                        "x-order": 7
+                      },
+                      "email_addresses": {
+                        "description": "Recipients of the CUSTOM email mode.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 8
+                      },
+                      "email_severities": {
+                        "description": "Severities of the emailed findings, most severe first; empty means the default severities from the Advisor settings.",
+                        "type": "array",
+                        "items": {
+                          "description": "Severity represents severity level of the check result or alert.",
+                          "type": "string",
+                          "default": "SEVERITY_UNSPECIFIED",
+                          "enum": [
+                            "SEVERITY_UNSPECIFIED",
+                            "SEVERITY_EMERGENCY",
+                            "SEVERITY_ALERT",
+                            "SEVERITY_CRITICAL",
+                            "SEVERITY_ERROR",
+                            "SEVERITY_WARNING",
+                            "SEVERITY_NOTICE",
+                            "SEVERITY_INFO",
+                            "SEVERITY_DEBUG"
+                          ]
+                        },
+                        "x-order": 9
+                      },
+                      "next_run_at": {
+                        "description": "When the schedule next runs; unset while it is disabled.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 10
+                      },
+                      "last_run": {
+                        "description": "AdvisorRun is a single execution of Advisor checks. While it is running, its\ntotals cover the checks executed so far.",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "ID shared by every insight the run produced.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "triggered_by": {
+                            "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                            "type": "string",
+                            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                            "enum": [
+                              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                            ],
+                            "x-order": 1
+                          },
+                          "started_at": {
+                            "description": "When the run began.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 2
+                          },
+                          "finished_at": {
+                            "description": "When the run completed; unset while it is queued or running.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 3
+                          },
+                          "checks_count": {
+                            "description": "Number of distinct checks that passed or detected an issue on at least one service.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          },
+                          "services_count": {
+                            "description": "Number of distinct services on which at least one check passed or detected an issue.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 5
+                          },
+                          "findings_count": {
+                            "description": "Number of findings, i.e. checks that detected an issue.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 6
+                          },
+                          "errors_count": {
+                            "description": "Number of checks that could not be executed at all.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 7
+                          },
+                          "severity_counts": {
+                            "description": "Number of findings per severity, most severe first. A repeated field rather\nthan a map so severity stays a typed enum instead of a free-form key.",
+                            "type": "array",
+                            "items": {
+                              "description": "SeverityCount is the number of findings a run produced at a single severity.",
+                              "type": "object",
+                              "properties": {
+                                "severity": {
+                                  "description": "Severity represents severity level of the check result or alert.",
+                                  "type": "string",
+                                  "default": "SEVERITY_UNSPECIFIED",
+                                  "enum": [
+                                    "SEVERITY_UNSPECIFIED",
+                                    "SEVERITY_EMERGENCY",
+                                    "SEVERITY_ALERT",
+                                    "SEVERITY_CRITICAL",
+                                    "SEVERITY_ERROR",
+                                    "SEVERITY_WARNING",
+                                    "SEVERITY_NOTICE",
+                                    "SEVERITY_INFO",
+                                    "SEVERITY_DEBUG"
+                                  ],
+                                  "x-order": 0
+                                },
+                                "count": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 1
+                                }
+                              }
+                            },
+                            "x-order": 8
+                          },
+                          "status": {
+                            "description": "AdvisorRunStatus is the state of an Advisor run.\n\n - ADVISOR_RUN_STATUS_QUEUED: The run was requested and waits for the leader to start it.\n - ADVISOR_RUN_STATUS_RUNNING: The run is executing checks.\n - ADVISOR_RUN_STATUS_COMPLETED: The run finished normally.\n - ADVISOR_RUN_STATUS_INTERRUPTED: PMM restarted before the run finished; the insights it saved are kept.\n - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.",
+                            "type": "string",
+                            "default": "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                              "ADVISOR_RUN_STATUS_QUEUED",
+                              "ADVISOR_RUN_STATUS_RUNNING",
+                              "ADVISOR_RUN_STATUS_COMPLETED",
+                              "ADVISOR_RUN_STATUS_INTERRUPTED",
+                              "ADVISOR_RUN_STATUS_ABORTED"
+                            ],
+                            "x-order": 9
+                          },
+                          "planned_checks_count": {
+                            "description": "Number of distinct checks the run planned to execute; zero while it is queued.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 10
+                          },
+                          "planned_services_count": {
+                            "description": "Number of distinct services the run planned to cover; zero while it is queued.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 11
+                          },
+                          "check_names": {
+                            "description": "Names of the checks the run was narrowed to; empty means all.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 12
+                          },
+                          "service_ids": {
+                            "description": "IDs of the services the run was narrowed to; empty means all.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 13
+                          },
+                          "schedule_id": {
+                            "description": "ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;\nempty for other runs and once the schedule is deleted.",
+                            "type": "string",
+                            "x-order": 14
+                          },
+                          "schedule_name": {
+                            "description": "Name the schedule had when the run started; empty for runs not tied to a schedule.",
+                            "type": "string",
+                            "x-order": 15
+                          },
+                          "scheduled_for": {
+                            "description": "When the schedule fell due; unset for runs a user started.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 16
+                          },
+                          "waited_for_run": {
+                            "description": "AdvisorRunReference identifies another Advisor run.",
+                            "type": "object",
+                            "properties": {
+                              "run_id": {
+                                "description": "ID of the run.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "triggered_by": {
+                                "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                                "type": "string",
+                                "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                                "enum": [
+                                  "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                                  "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                                  "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                                ],
+                                "x-order": 1
+                              },
+                              "schedule_name": {
+                                "description": "Name of the schedule the run belongs to; empty for runs not tied to a schedule.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "started_at": {
+                                "description": "When the run began.",
+                                "type": "string",
+                                "format": "date-time",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 17
+                          }
+                        },
+                        "x-order": 11
+                      },
+                      "created_at": {
+                        "description": "When the schedule was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "updated_at": {
+                        "description": "When the schedule was last changed.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a schedule that runs Advisor checks on the given days at a time of day, both in UTC.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Create Advisor Schedule",
+        "operationId": "CreateAdvisorSchedule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Unique name, case-insensitively.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "enabled": {
+                  "description": "True if the schedule runs; absent means true.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "days_of_week": {
+                  "description": "Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "x-order": 2
+                },
+                "time_of_day": {
+                  "description": "Time the schedule runs at, in UTC, as HH:MM.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "check_names": {
+                  "description": "Names of the checks to run; empty means all checks, including ones added later.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "service_ids": {
+                  "description": "IDs of the services to run the checks against; empty means all services, including ones added later.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "email_mode": {
+                  "description": "AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.\n\n - ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS: Email the default recipients from the Advisor settings.\n - ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM: Email the schedule's own recipients.\n - ADVISOR_SCHEDULE_EMAIL_MODE_OFF: Send no email.",
+                  "type": "string",
+                  "default": "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                  "enum": [
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_OFF"
+                  ],
+                  "x-order": 6
+                },
+                "email_addresses": {
+                  "description": "Recipients of the CUSTOM email mode, at most 20; ignored in the other modes.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 7
+                },
+                "email_severities": {
+                  "description": "Severities of the emailed findings; empty means the default severities from the Advisor settings. Ignored in the OFF mode.",
+                  "type": "array",
+                  "items": {
+                    "description": "Severity represents severity level of the check result or alert.",
+                    "type": "string",
+                    "default": "SEVERITY_UNSPECIFIED",
+                    "enum": [
+                      "SEVERITY_UNSPECIFIED",
+                      "SEVERITY_EMERGENCY",
+                      "SEVERITY_ALERT",
+                      "SEVERITY_CRITICAL",
+                      "SEVERITY_ERROR",
+                      "SEVERITY_WARNING",
+                      "SEVERITY_NOTICE",
+                      "SEVERITY_INFO",
+                      "SEVERITY_DEBUG"
+                    ]
+                  },
+                  "x-order": 8
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schedule": {
+                  "description": "AdvisorSchedule runs Advisor checks on the given days at a time of day, both in UTC.",
+                  "type": "object",
+                  "properties": {
+                    "schedule_id": {
+                      "description": "Unique identifier of the schedule.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "name": {
+                      "description": "Unique name, shown in Run history and in notification emails.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "enabled": {
+                      "description": "True if the schedule runs.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "days_of_week": {
+                      "description": "Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.",
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      "x-order": 3
+                    },
+                    "time_of_day": {
+                      "description": "Time the schedule runs at, in UTC, as HH:MM.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "check_names": {
+                      "description": "Names of the checks to run; empty means all checks, including ones added later.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "service_ids": {
+                      "description": "IDs of the services to run the checks against; empty means all services, including ones added later.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "email_mode": {
+                      "description": "AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.\n\n - ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS: Email the default recipients from the Advisor settings.\n - ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM: Email the schedule's own recipients.\n - ADVISOR_SCHEDULE_EMAIL_MODE_OFF: Send no email.",
+                      "type": "string",
+                      "default": "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_OFF"
+                      ],
+                      "x-order": 7
+                    },
+                    "email_addresses": {
+                      "description": "Recipients of the CUSTOM email mode.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "email_severities": {
+                      "description": "Severities of the emailed findings, most severe first; empty means the default severities from the Advisor settings.",
+                      "type": "array",
+                      "items": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ]
+                      },
+                      "x-order": 9
+                    },
+                    "next_run_at": {
+                      "description": "When the schedule next runs; unset while it is disabled.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 10
+                    },
+                    "last_run": {
+                      "description": "AdvisorRun is a single execution of Advisor checks. While it is running, its\ntotals cover the checks executed so far.",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "ID shared by every insight the run produced.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "triggered_by": {
+                          "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                          "type": "string",
+                          "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                          "enum": [
+                            "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                            "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                            "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                          ],
+                          "x-order": 1
+                        },
+                        "started_at": {
+                          "description": "When the run began.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 2
+                        },
+                        "finished_at": {
+                          "description": "When the run completed; unset while it is queued or running.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 3
+                        },
+                        "checks_count": {
+                          "description": "Number of distinct checks that passed or detected an issue on at least one service.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        },
+                        "services_count": {
+                          "description": "Number of distinct services on which at least one check passed or detected an issue.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 5
+                        },
+                        "findings_count": {
+                          "description": "Number of findings, i.e. checks that detected an issue.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 6
+                        },
+                        "errors_count": {
+                          "description": "Number of checks that could not be executed at all.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
+                        },
+                        "severity_counts": {
+                          "description": "Number of findings per severity, most severe first. A repeated field rather\nthan a map so severity stays a typed enum instead of a free-form key.",
+                          "type": "array",
+                          "items": {
+                            "description": "SeverityCount is the number of findings a run produced at a single severity.",
+                            "type": "object",
+                            "properties": {
+                              "severity": {
+                                "description": "Severity represents severity level of the check result or alert.",
+                                "type": "string",
+                                "default": "SEVERITY_UNSPECIFIED",
+                                "enum": [
+                                  "SEVERITY_UNSPECIFIED",
+                                  "SEVERITY_EMERGENCY",
+                                  "SEVERITY_ALERT",
+                                  "SEVERITY_CRITICAL",
+                                  "SEVERITY_ERROR",
+                                  "SEVERITY_WARNING",
+                                  "SEVERITY_NOTICE",
+                                  "SEVERITY_INFO",
+                                  "SEVERITY_DEBUG"
+                                ],
+                                "x-order": 0
+                              },
+                              "count": {
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              }
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AdvisorRunStatus is the state of an Advisor run.\n\n - ADVISOR_RUN_STATUS_QUEUED: The run was requested and waits for the leader to start it.\n - ADVISOR_RUN_STATUS_RUNNING: The run is executing checks.\n - ADVISOR_RUN_STATUS_COMPLETED: The run finished normally.\n - ADVISOR_RUN_STATUS_INTERRUPTED: PMM restarted before the run finished; the insights it saved are kept.\n - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.",
+                          "type": "string",
+                          "default": "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                            "ADVISOR_RUN_STATUS_QUEUED",
+                            "ADVISOR_RUN_STATUS_RUNNING",
+                            "ADVISOR_RUN_STATUS_COMPLETED",
+                            "ADVISOR_RUN_STATUS_INTERRUPTED",
+                            "ADVISOR_RUN_STATUS_ABORTED"
+                          ],
+                          "x-order": 9
+                        },
+                        "planned_checks_count": {
+                          "description": "Number of distinct checks the run planned to execute; zero while it is queued.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 10
+                        },
+                        "planned_services_count": {
+                          "description": "Number of distinct services the run planned to cover; zero while it is queued.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 11
+                        },
+                        "check_names": {
+                          "description": "Names of the checks the run was narrowed to; empty means all.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 12
+                        },
+                        "service_ids": {
+                          "description": "IDs of the services the run was narrowed to; empty means all.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 13
+                        },
+                        "schedule_id": {
+                          "description": "ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;\nempty for other runs and once the schedule is deleted.",
+                          "type": "string",
+                          "x-order": 14
+                        },
+                        "schedule_name": {
+                          "description": "Name the schedule had when the run started; empty for runs not tied to a schedule.",
+                          "type": "string",
+                          "x-order": 15
+                        },
+                        "scheduled_for": {
+                          "description": "When the schedule fell due; unset for runs a user started.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 16
+                        },
+                        "waited_for_run": {
+                          "description": "AdvisorRunReference identifies another Advisor run.",
+                          "type": "object",
+                          "properties": {
+                            "run_id": {
+                              "description": "ID of the run.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "triggered_by": {
+                              "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                              "type": "string",
+                              "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                              "enum": [
+                                "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                                "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                                "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                              ],
+                              "x-order": 1
+                            },
+                            "schedule_name": {
+                              "description": "Name of the schedule the run belongs to; empty for runs not tied to a schedule.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "started_at": {
+                              "description": "When the run began.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 17
+                        }
+                      },
+                      "x-order": 11
+                    },
+                    "created_at": {
+                      "description": "When the schedule was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 12
+                    },
+                    "updated_at": {
+                      "description": "When the schedule was last changed.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/schedules/{schedule_id}": {
+      "put": {
+        "description": "Replaces the whole schedule identified by the ID in the path, so every field must be sent.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Update Advisor Schedule",
+        "operationId": "UpdateAdvisorSchedule",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the schedule to replace.",
+            "name": "schedule_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Unique name, case-insensitively.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "enabled": {
+                  "description": "True if the schedule runs; absent means true.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "days_of_week": {
+                  "description": "Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "x-order": 2
+                },
+                "time_of_day": {
+                  "description": "Time the schedule runs at, in UTC, as HH:MM.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "check_names": {
+                  "description": "Names of the checks to run; empty means all checks, including ones added later.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "service_ids": {
+                  "description": "IDs of the services to run the checks against; empty means all services, including ones added later.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "email_mode": {
+                  "description": "AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.\n\n - ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS: Email the default recipients from the Advisor settings.\n - ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM: Email the schedule's own recipients.\n - ADVISOR_SCHEDULE_EMAIL_MODE_OFF: Send no email.",
+                  "type": "string",
+                  "default": "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                  "enum": [
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM",
+                    "ADVISOR_SCHEDULE_EMAIL_MODE_OFF"
+                  ],
+                  "x-order": 6
+                },
+                "email_addresses": {
+                  "description": "Recipients of the CUSTOM email mode, at most 20; ignored in the other modes.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 7
+                },
+                "email_severities": {
+                  "description": "Severities of the emailed findings; empty means the default severities from the Advisor settings. Ignored in the OFF mode.",
+                  "type": "array",
+                  "items": {
+                    "description": "Severity represents severity level of the check result or alert.",
+                    "type": "string",
+                    "default": "SEVERITY_UNSPECIFIED",
+                    "enum": [
+                      "SEVERITY_UNSPECIFIED",
+                      "SEVERITY_EMERGENCY",
+                      "SEVERITY_ALERT",
+                      "SEVERITY_CRITICAL",
+                      "SEVERITY_ERROR",
+                      "SEVERITY_WARNING",
+                      "SEVERITY_NOTICE",
+                      "SEVERITY_INFO",
+                      "SEVERITY_DEBUG"
+                    ]
+                  },
+                  "x-order": 8
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schedule": {
+                  "description": "AdvisorSchedule runs Advisor checks on the given days at a time of day, both in UTC.",
+                  "type": "object",
+                  "properties": {
+                    "schedule_id": {
+                      "description": "Unique identifier of the schedule.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "name": {
+                      "description": "Unique name, shown in Run history and in notification emails.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "enabled": {
+                      "description": "True if the schedule runs.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "days_of_week": {
+                      "description": "Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.",
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      "x-order": 3
+                    },
+                    "time_of_day": {
+                      "description": "Time the schedule runs at, in UTC, as HH:MM.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "check_names": {
+                      "description": "Names of the checks to run; empty means all checks, including ones added later.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "service_ids": {
+                      "description": "IDs of the services to run the checks against; empty means all services, including ones added later.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "email_mode": {
+                      "description": "AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.\n\n - ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS: Email the default recipients from the Advisor settings.\n - ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM: Email the schedule's own recipients.\n - ADVISOR_SCHEDULE_EMAIL_MODE_OFF: Send no email.",
+                      "type": "string",
+                      "default": "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM",
+                        "ADVISOR_SCHEDULE_EMAIL_MODE_OFF"
+                      ],
+                      "x-order": 7
+                    },
+                    "email_addresses": {
+                      "description": "Recipients of the CUSTOM email mode.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "email_severities": {
+                      "description": "Severities of the emailed findings, most severe first; empty means the default severities from the Advisor settings.",
+                      "type": "array",
+                      "items": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ]
+                      },
+                      "x-order": 9
+                    },
+                    "next_run_at": {
+                      "description": "When the schedule next runs; unset while it is disabled.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 10
+                    },
+                    "last_run": {
+                      "description": "AdvisorRun is a single execution of Advisor checks. While it is running, its\ntotals cover the checks executed so far.",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "ID shared by every insight the run produced.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "triggered_by": {
+                          "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                          "type": "string",
+                          "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                          "enum": [
+                            "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                            "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                            "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                          ],
+                          "x-order": 1
+                        },
+                        "started_at": {
+                          "description": "When the run began.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 2
+                        },
+                        "finished_at": {
+                          "description": "When the run completed; unset while it is queued or running.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 3
+                        },
+                        "checks_count": {
+                          "description": "Number of distinct checks that passed or detected an issue on at least one service.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        },
+                        "services_count": {
+                          "description": "Number of distinct services on which at least one check passed or detected an issue.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 5
+                        },
+                        "findings_count": {
+                          "description": "Number of findings, i.e. checks that detected an issue.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 6
+                        },
+                        "errors_count": {
+                          "description": "Number of checks that could not be executed at all.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
+                        },
+                        "severity_counts": {
+                          "description": "Number of findings per severity, most severe first. A repeated field rather\nthan a map so severity stays a typed enum instead of a free-form key.",
+                          "type": "array",
+                          "items": {
+                            "description": "SeverityCount is the number of findings a run produced at a single severity.",
+                            "type": "object",
+                            "properties": {
+                              "severity": {
+                                "description": "Severity represents severity level of the check result or alert.",
+                                "type": "string",
+                                "default": "SEVERITY_UNSPECIFIED",
+                                "enum": [
+                                  "SEVERITY_UNSPECIFIED",
+                                  "SEVERITY_EMERGENCY",
+                                  "SEVERITY_ALERT",
+                                  "SEVERITY_CRITICAL",
+                                  "SEVERITY_ERROR",
+                                  "SEVERITY_WARNING",
+                                  "SEVERITY_NOTICE",
+                                  "SEVERITY_INFO",
+                                  "SEVERITY_DEBUG"
+                                ],
+                                "x-order": 0
+                              },
+                              "count": {
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              }
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AdvisorRunStatus is the state of an Advisor run.\n\n - ADVISOR_RUN_STATUS_QUEUED: The run was requested and waits for the leader to start it.\n - ADVISOR_RUN_STATUS_RUNNING: The run is executing checks.\n - ADVISOR_RUN_STATUS_COMPLETED: The run finished normally.\n - ADVISOR_RUN_STATUS_INTERRUPTED: PMM restarted before the run finished; the insights it saved are kept.\n - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.",
+                          "type": "string",
+                          "default": "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                            "ADVISOR_RUN_STATUS_QUEUED",
+                            "ADVISOR_RUN_STATUS_RUNNING",
+                            "ADVISOR_RUN_STATUS_COMPLETED",
+                            "ADVISOR_RUN_STATUS_INTERRUPTED",
+                            "ADVISOR_RUN_STATUS_ABORTED"
+                          ],
+                          "x-order": 9
+                        },
+                        "planned_checks_count": {
+                          "description": "Number of distinct checks the run planned to execute; zero while it is queued.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 10
+                        },
+                        "planned_services_count": {
+                          "description": "Number of distinct services the run planned to cover; zero while it is queued.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 11
+                        },
+                        "check_names": {
+                          "description": "Names of the checks the run was narrowed to; empty means all.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 12
+                        },
+                        "service_ids": {
+                          "description": "IDs of the services the run was narrowed to; empty means all.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 13
+                        },
+                        "schedule_id": {
+                          "description": "ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;\nempty for other runs and once the schedule is deleted.",
+                          "type": "string",
+                          "x-order": 14
+                        },
+                        "schedule_name": {
+                          "description": "Name the schedule had when the run started; empty for runs not tied to a schedule.",
+                          "type": "string",
+                          "x-order": 15
+                        },
+                        "scheduled_for": {
+                          "description": "When the schedule fell due; unset for runs a user started.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 16
+                        },
+                        "waited_for_run": {
+                          "description": "AdvisorRunReference identifies another Advisor run.",
+                          "type": "object",
+                          "properties": {
+                            "run_id": {
+                              "description": "ID of the run.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "triggered_by": {
+                              "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                              "type": "string",
+                              "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                              "enum": [
+                                "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                                "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                                "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                              ],
+                              "x-order": 1
+                            },
+                            "schedule_name": {
+                              "description": "Name of the schedule the run belongs to; empty for runs not tied to a schedule.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "started_at": {
+                              "description": "When the run began.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 17
+                        }
+                      },
+                      "x-order": 11
+                    },
+                    "created_at": {
+                      "description": "When the schedule was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 12
+                    },
+                    "updated_at": {
+                      "description": "When the schedule was last changed.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an Advisor schedule. Its runs stay in the run history under the schedule's name.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Delete Advisor Schedule",
+        "operationId": "DeleteAdvisorSchedule",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the schedule to delete.",
+            "name": "schedule_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/schedules/{schedule_id}:run": {
+      "post": {
+        "description": "Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Run Advisor Schedule",
+        "operationId": "RunAdvisorSchedule",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the schedule to run.",
+            "name": "schedule_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "ID assigned to this run.",
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
@@ -38819,42 +40107,20 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "advisor_run_intervals": {
-                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                      "type": "object",
-                      "properties": {
-                        "standard_interval": {
-                          "description": "Standard check interval.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "rare_interval": {
-                          "description": "Interval for rare check runs.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "frequent_interval": {
-                          "description": "Interval for frequent check runs.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 10
-                    },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -38862,38 +40128,38 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "enable_internal_pg_qan": {
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "extensions_enabled": {
                       "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "om_enabled": {
                       "description": "True if OpenManager is enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "advisor_notifications_enabled": {
                       "description": "True if Advisor email notifications are enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "advisor_notification_severities": {
                       "description": "Severities of the Advisor insights that are emailed.",
@@ -38914,7 +40180,7 @@
                           "SEVERITY_DEBUG"
                         ]
                       },
-                      "x-order": 21
+                      "x-order": 20
                     },
                     "advisor_notification_email_addresses": {
                       "description": "Email addresses Advisor notifications are sent to.",
@@ -38922,12 +40188,12 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 22
+                      "x-order": 21
                     },
                     "advisor_history_retention": {
                       "description": "Advisor check results history retention.",
                       "type": "string",
-                      "x-order": 23
+                      "x-order": 22
                     }
                   },
                   "x-order": 0
@@ -39060,68 +40326,46 @@
                   "x-nullable": true,
                   "x-order": 8
                 },
-                "advisor_run_intervals": {
-                  "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                  "type": "object",
-                  "properties": {
-                    "standard_interval": {
-                      "description": "Standard check interval.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "rare_interval": {
-                      "description": "Interval for rare check runs.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "frequent_interval": {
-                      "description": "Interval for frequent check runs.",
-                      "type": "string",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 9
-                },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 10
+                  "x-order": 9
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 11
+                  "x-order": 10
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
                   "x-nullable": true,
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "enable_internal_pg_qan": {
                   "description": "Enable Query Analytics for PMM's internal PG database.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "enable_om": {
                   "description": "Enable OpenManager.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 14
+                  "x-order": 13
                 },
                 "advisor_history_retention": {
                   "description": "A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 15
+                  "x-order": 14
                 },
                 "enable_advisor_notifications": {
                   "description": "Enable Advisor email notifications.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 16
+                  "x-order": 15
                 },
                 "advisor_notification_severities": {
                   "description": "Severities of the Advisor insights that are emailed. Empty leaves them unchanged.",
@@ -39142,7 +40386,7 @@
                       "SEVERITY_DEBUG"
                     ]
                   },
-                  "x-order": 17
+                  "x-order": 16
                 },
                 "advisor_notification_email_addresses": {
                   "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
@@ -39157,7 +40401,7 @@
                     }
                   },
                   "x-nullable": true,
-                  "x-order": 18
+                  "x-order": 17
                 }
               }
             }
@@ -39239,42 +40483,20 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "advisor_run_intervals": {
-                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                      "type": "object",
-                      "properties": {
-                        "standard_interval": {
-                          "description": "Standard check interval.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "rare_interval": {
-                          "description": "Interval for rare check runs.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "frequent_interval": {
-                          "description": "Interval for frequent check runs.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 10
-                    },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -39282,38 +40504,38 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "enable_internal_pg_qan": {
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "extensions_enabled": {
                       "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "om_enabled": {
                       "description": "True if OpenManager is enabled.",
                       "type": "boolean",
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "advisor_notifications_enabled": {
                       "description": "True if Advisor email notifications are enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "advisor_notification_severities": {
                       "description": "Severities of the Advisor insights that are emailed.",
@@ -39334,7 +40556,7 @@
                           "SEVERITY_DEBUG"
                         ]
                       },
-                      "x-order": 21
+                      "x-order": 20
                     },
                     "advisor_notification_email_addresses": {
                       "description": "Email addresses Advisor notifications are sent to.",
@@ -39342,12 +40564,12 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 22
+                      "x-order": 21
                     },
                     "advisor_history_retention": {
                       "description": "Advisor check results history retention.",
                       "type": "string",
-                      "x-order": 23
+                      "x-order": 22
                     }
                   },
                   "x-order": 0

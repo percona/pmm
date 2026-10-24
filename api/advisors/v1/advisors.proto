@@ -8,14 +8,6 @@ import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-// AdvisorCheckInterval represents possible execution interval values for checks.
-enum AdvisorCheckInterval {
-  ADVISOR_CHECK_INTERVAL_UNSPECIFIED = 0;
-  ADVISOR_CHECK_INTERVAL_STANDARD = 1;
-  ADVISOR_CHECK_INTERVAL_FREQUENT = 2;
-  ADVISOR_CHECK_INTERVAL_RARE = 3;
-}
-
 enum AdvisorCheckTechnology {
   ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED = 0;
   ADVISOR_CHECK_TECHNOLOGY_MYSQL = 1;
@@ -70,8 +62,9 @@ message AdvisorCheck {
   string description = 3;
   // Short human-readable summary.
   string summary = 4;
-  // Check execution interval.
-  AdvisorCheckInterval interval = 5;
+  // Field 5 (interval) was removed when Advisor schedules replaced check intervals.
+  reserved 5;
+  reserved "interval";
   // DB technology.
   AdvisorCheckTechnology technology = 6;
   // Category the check belongs to.
@@ -92,8 +85,9 @@ message AdvisorCheckDefinition {
   string description = 1;
   // Short human-readable summary.
   string summary = 2;
-  // Check execution interval.
-  AdvisorCheckInterval interval = 3;
+  // Field 3 (interval) was removed when Advisor schedules replaced check intervals.
+  reserved 3;
+  reserved "interval";
   // DB technology.
   AdvisorCheckTechnology technology = 4;
   // Category the check belongs to.
@@ -109,11 +103,11 @@ message ChangeAdvisorCheckParams {
   // The name of the check to change.
   string name = 1;
   optional bool enable = 2;
-  // check execution interval.
-  AdvisorCheckInterval interval = 4;
+  // Field 4 (interval) was removed when Advisor schedules replaced check intervals.
+  reserved 4;
+  reserved "interval";
   // IDs of services to apply the enable/disable to. When set, enable/disable
-  // affects only the given services instead of the whole check; interval
-  // changes are not allowed in the same params entry.
+  // affects only the given services instead of the whole check.
   repeated string service_ids = 5;
 }
 
@@ -123,11 +117,9 @@ message StartAdvisorChecksRequest {
   // IDs of the services to run the checks against. When empty, the checks run
   // against every monitored service of a matching technology.
   repeated string service_ids = 2;
-  // Interval groups whose checks should be started, as AdvisorCheckInterval names
-  // (e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.
-  // A string rather than the enum, so that a misspelled name is rejected instead of
-  // being dropped by the JSON decoder, which would start checks of every interval.
-  repeated string intervals = 3;
+  // Field 3 (intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 3;
+  reserved "intervals";
 }
 
 message StartAdvisorChecksResponse {
@@ -250,8 +242,9 @@ message Insight {
   string check_name = 3;
   // Category the check belongs to.
   string category = 4;
-  // Check execution interval.
-  AdvisorCheckInterval interval = 5;
+  // Field 5 (interval) was removed when Advisor schedules replaced check intervals.
+  reserved 5;
+  reserved "interval";
   // ID of the monitored service on which the check ran.
   string service_id = 6;
   // Name of the monitored service on which the check ran.
@@ -422,8 +415,30 @@ message AdvisorRun {
   repeated string check_names = 13;
   // IDs of the services the run was narrowed to; empty means all.
   repeated string service_ids = 14;
-  // Interval groups the run was narrowed to; empty means all.
-  repeated AdvisorCheckInterval intervals = 15;
+  // Field 15 (intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 15;
+  reserved "intervals";
+  // ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;
+  // empty for other runs and once the schedule is deleted.
+  string schedule_id = 16;
+  // Name the schedule had when the run started; empty for runs not tied to a schedule.
+  string schedule_name = 17;
+  // When the schedule fell due; unset for runs a user started.
+  google.protobuf.Timestamp scheduled_for = 18;
+  // The run this scheduled run waited for; set only when it started more than a minute after falling due.
+  AdvisorRunReference waited_for_run = 19;
+}
+
+// AdvisorRunReference identifies another Advisor run.
+message AdvisorRunReference {
+  // ID of the run.
+  string run_id = 1;
+  // The actor that initiated the run.
+  AdvisorCheckTriggeredBy triggered_by = 2;
+  // Name of the schedule the run belongs to; empty for runs not tied to a schedule.
+  string schedule_name = 3;
+  // When the run began.
+  google.protobuf.Timestamp started_at = 4;
 }
 
 // SeverityCount is the number of findings a run produced at a single severity.
@@ -445,6 +460,8 @@ message ListRunsRequest {
   google.protobuf.Timestamp to = 5;
   // Filter by run ID.
   string run_id = 6;
+  // Filter by schedule ID.
+  string schedule_id = 7;
 }
 
 message ListRunsResponse {
@@ -454,6 +471,153 @@ message ListRunsResponse {
   int32 total_pages = 2;
   // Runs, most recently started first.
   repeated AdvisorRun results = 3;
+}
+
+// AdvisorScheduleEmailMode selects who the runs of an Advisor schedule are emailed to.
+enum AdvisorScheduleEmailMode {
+  ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED = 0;
+  // Email the default recipients from the Advisor settings.
+  ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS = 1;
+  // Email the schedule's own recipients.
+  ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM = 2;
+  // Send no email.
+  ADVISOR_SCHEDULE_EMAIL_MODE_OFF = 3;
+}
+
+// AdvisorSchedule runs Advisor checks on the given days at a time of day, both in UTC.
+message AdvisorSchedule {
+  // Unique identifier of the schedule.
+  string schedule_id = 1;
+  // Unique name, shown in Run history and in notification emails.
+  string name = 2;
+  // True if the schedule runs.
+  bool enabled = 3;
+  // Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.
+  repeated int32 days_of_week = 4;
+  // Time the schedule runs at, in UTC, as HH:MM.
+  string time_of_day = 5;
+  // Names of the checks to run; empty means all checks, including ones added later.
+  repeated string check_names = 6;
+  // IDs of the services to run the checks against; empty means all services, including ones added later.
+  repeated string service_ids = 7;
+  // Who the runs are emailed to.
+  AdvisorScheduleEmailMode email_mode = 8;
+  // Recipients of the CUSTOM email mode.
+  repeated string email_addresses = 9;
+  // Severities of the emailed findings, most severe first; empty means the default severities from the Advisor settings.
+  repeated management.v1.Severity email_severities = 10;
+  // When the schedule next runs; unset while it is disabled.
+  google.protobuf.Timestamp next_run_at = 11;
+  // The most recent run of the schedule, scheduled or started with RunAdvisorSchedule; unset if there is none.
+  AdvisorRun last_run = 12;
+  // When the schedule was created.
+  google.protobuf.Timestamp created_at = 13;
+  // When the schedule was last changed.
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+message ListAdvisorSchedulesRequest {}
+
+message ListAdvisorSchedulesResponse {
+  // Schedules ordered by time of day, then name.
+  repeated AdvisorSchedule schedules = 1;
+}
+
+message CreateAdvisorScheduleRequest {
+  // Unique name, case-insensitively.
+  string name = 1 [(validate.rules).string = {
+    min_len: 1
+    max_len: 100
+  }];
+  // True if the schedule runs; absent means true.
+  optional bool enabled = 2;
+  // Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.
+  repeated int32 days_of_week = 3 [(validate.rules).repeated = {
+    min_items: 1
+    items: {
+      int32: {
+        gte: 0
+        lte: 6
+      }
+    }
+  }];
+  // Time the schedule runs at, in UTC, as HH:MM.
+  string time_of_day = 4 [(validate.rules).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+  // Names of the checks to run; empty means all checks, including ones added later.
+  repeated string check_names = 5;
+  // IDs of the services to run the checks against; empty means all services, including ones added later.
+  repeated string service_ids = 6;
+  // Who the runs are emailed to.
+  AdvisorScheduleEmailMode email_mode = 7 [(validate.rules).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // Recipients of the CUSTOM email mode, at most 20; ignored in the other modes.
+  repeated string email_addresses = 8;
+  // Severities of the emailed findings; empty means the default severities from the Advisor settings. Ignored in the OFF mode.
+  repeated management.v1.Severity email_severities = 9;
+}
+
+message CreateAdvisorScheduleResponse {
+  AdvisorSchedule schedule = 1;
+}
+
+message UpdateAdvisorScheduleRequest {
+  // ID of the schedule to replace.
+  string schedule_id = 1 [(validate.rules).string.min_len = 1];
+  // Unique name, case-insensitively.
+  string name = 2 [(validate.rules).string = {
+    min_len: 1
+    max_len: 100
+  }];
+  // True if the schedule runs; absent means true.
+  optional bool enabled = 3;
+  // Days the schedule runs on, in UTC: 0 is Sunday, 6 is Saturday.
+  repeated int32 days_of_week = 4 [(validate.rules).repeated = {
+    min_items: 1
+    items: {
+      int32: {
+        gte: 0
+        lte: 6
+      }
+    }
+  }];
+  // Time the schedule runs at, in UTC, as HH:MM.
+  string time_of_day = 5 [(validate.rules).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+  // Names of the checks to run; empty means all checks, including ones added later.
+  repeated string check_names = 6;
+  // IDs of the services to run the checks against; empty means all services, including ones added later.
+  repeated string service_ids = 7;
+  // Who the runs are emailed to.
+  AdvisorScheduleEmailMode email_mode = 8 [(validate.rules).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // Recipients of the CUSTOM email mode, at most 20; ignored in the other modes.
+  repeated string email_addresses = 9;
+  // Severities of the emailed findings; empty means the default severities from the Advisor settings. Ignored in the OFF mode.
+  repeated management.v1.Severity email_severities = 10;
+}
+
+message UpdateAdvisorScheduleResponse {
+  AdvisorSchedule schedule = 1;
+}
+
+message DeleteAdvisorScheduleRequest {
+  // ID of the schedule to delete.
+  string schedule_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteAdvisorScheduleResponse {}
+
+message RunAdvisorScheduleRequest {
+  // ID of the schedule to run.
+  string schedule_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message RunAdvisorScheduleResponse {
+  // ID assigned to this run.
+  string run_id = 1;
 }
 
 // AdvisorService service provides public Management API methods for Advisor Service.
@@ -512,7 +676,7 @@ service AdvisorService {
       description: "List advisor checks available to the user, ordered by name."
     };
   }
-  // ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
+  // ChangeAdvisorChecks enables/disables Advisor checks, globally or for specific services.
   rpc ChangeAdvisorChecks(ChangeAdvisorChecksRequest) returns (ChangeAdvisorChecksResponse) {
     option (google.api.http) = {
       post: "/v1/advisors/checks:batchChange"
@@ -520,7 +684,7 @@ service AdvisorService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Advisor Checks"
-      description: "Enables/disables advisor checks or changes their exec interval."
+      description: "Enables/disables advisor checks, globally or for specific services."
     };
   }
   // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
@@ -578,6 +742,55 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Delete Advisor Check"
       description: "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted."
+    };
+  }
+  // ListAdvisorSchedules returns the Advisor schedules.
+  rpc ListAdvisorSchedules(ListAdvisorSchedulesRequest) returns (ListAdvisorSchedulesResponse) {
+    option (google.api.http) = {get: "/v1/advisors/schedules"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Schedules"
+      description: "Returns the Advisor schedules with their next and most recent runs."
+    };
+  }
+  // CreateAdvisorSchedule creates an Advisor schedule.
+  rpc CreateAdvisorSchedule(CreateAdvisorScheduleRequest) returns (CreateAdvisorScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/schedules"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create Advisor Schedule"
+      description: "Creates a schedule that runs Advisor checks on the given days at a time of day, both in UTC."
+    };
+  }
+  // UpdateAdvisorSchedule replaces an Advisor schedule.
+  rpc UpdateAdvisorSchedule(UpdateAdvisorScheduleRequest) returns (UpdateAdvisorScheduleResponse) {
+    option (google.api.http) = {
+      put: "/v1/advisors/schedules/{schedule_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update Advisor Schedule"
+      description: "Replaces the whole schedule identified by the ID in the path, so every field must be sent."
+    };
+  }
+  // DeleteAdvisorSchedule deletes an Advisor schedule.
+  rpc DeleteAdvisorSchedule(DeleteAdvisorScheduleRequest) returns (DeleteAdvisorScheduleResponse) {
+    option (google.api.http) = {delete: "/v1/advisors/schedules/{schedule_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Advisor Schedule"
+      description: "Deletes an Advisor schedule. Its runs stay in the run history under the schedule's name."
+    };
+  }
+  // RunAdvisorSchedule starts a run of an Advisor schedule now.
+  rpc RunAdvisorSchedule(RunAdvisorScheduleRequest) returns (RunAdvisorScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/schedules/{schedule_id}:run"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Run Advisor Schedule"
+      description: "Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION."
     };
   }
   // SendTestAdvisorNotification emails a sample Advisor report to the given addresses.

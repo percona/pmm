@@ -6,7 +6,6 @@ checks:
     description: Checks to see if there are too many WAL files retained in the WAL directory
     # author: Jorge Torralba
     category: Resources
-    interval: standard
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT

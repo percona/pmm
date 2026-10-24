@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: Jobin Augustine
     category: Durability
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: name, setting FROM pg_settings WHERE name = 'fsync'

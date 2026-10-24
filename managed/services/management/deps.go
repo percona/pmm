@@ -56,7 +56,7 @@ type prometheusService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface { //nolint:interfacebloat
-	StartChecks(ctx context.Context, checkNames, serviceIDs []string, intervals []check.Interval) (string, error)
+	StartChecks(ctx context.Context, checkNames, serviceIDs []string) (string, error)
 	GetChecks() (map[string]check.Check, error)
 	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)
 	GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error)
@@ -69,13 +69,19 @@ type checksService interface { //nolint:interfacebloat
 	EnableChecks(ctx context.Context, checkNames []string) error
 	DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
 	EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
-	ChangeInterval(ctx context.Context, params map[string]check.Interval) error
 	CreateAdvisorCheck(ctx context.Context, c check.Check) error
 	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
 	DeleteAdvisorCheck(ctx context.Context, name string) error
 	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
 	ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error)
 	SendTestNotification(recipients []string, severities []common.Severity) error
+	GetRunsWaitedFor(ctx context.Context, runs []*models.AdvisorRun) (map[string]*models.AdvisorRun, error)
+	GetSchedules(ctx context.Context) ([]*models.AdvisorSchedule, error)
+	GetLastScheduleRuns(ctx context.Context) (map[string]*models.AdvisorRun, error)
+	CreateSchedule(ctx context.Context, sc *models.AdvisorSchedule) error
+	UpdateSchedule(ctx context.Context, sc *models.AdvisorSchedule) error
+	DeleteSchedule(ctx context.Context, id string) error
+	RunSchedule(ctx context.Context, scheduleID string) (string, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

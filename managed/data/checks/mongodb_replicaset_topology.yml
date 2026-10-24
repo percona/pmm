@@ -8,7 +8,6 @@ checks:
     technology: MONGODB
     # author: Corrado Pandiani
     category: Replication
-    interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
     script: |

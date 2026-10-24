@@ -207,14 +207,20 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
-		// Advisors: editors run and author checks; the test email goes with the admin-only settings.
+		// Advisors: editors run and author checks and schedules, and send test emails to schedule recipients.
 		{http.MethodPost, "/v1/advisors/checks:start", editor},
 		{http.MethodPost, "/v1/advisors/checks", editor},
 		{http.MethodPut, "/v1/advisors/checks/custom_check", editor},
 		{http.MethodDelete, "/v1/advisors/checks/custom_check", editor},
-		{http.MethodPost, "/v1/advisors/notifications:test", admin},
+		{http.MethodGet, "/v1/advisors/schedules", editor},
+		{http.MethodPost, "/v1/advisors/schedules", editor},
+		{http.MethodPut, "/v1/advisors/schedules/schedule-1", editor},
+		{http.MethodDelete, "/v1/advisors/schedules/schedule-1", editor},
+		{http.MethodPost, "/v1/advisors/schedules/schedule-1:run", editor},
+		{http.MethodPost, "/v1/advisors/notifications:test", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/StartAdvisorChecks", editor},
-		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/RunAdvisorSchedule", editor},
+		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", editor},
 
 		// OM: reads are viewer; writes need editor or admin.
 		{http.MethodGet, "/v1/om/topology", viewer},

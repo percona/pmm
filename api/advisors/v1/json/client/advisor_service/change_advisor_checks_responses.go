@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ChangeAdvisorChecksReader is a Reader for the ChangeAdvisorChecks structure.
@@ -533,75 +532,13 @@ type ChangeAdvisorChecksParamsBodyParamsItems0 struct {
 	// enable
 	Enable *bool `json:"enable,omitempty"`
 
-	// AdvisorCheckInterval represents possible execution interval values for checks.
-	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
-	Interval *string `json:"interval,omitempty"`
-
 	// IDs of services to apply the enable/disable to. When set, enable/disable
-	// affects only the given services instead of the whole check; interval
-	// changes are not allowed in the same params entry.
+	// affects only the given services instead of the whole check.
 	ServiceIds []string `json:"service_ids"`
 }
 
 // Validate validates this change advisor checks params body params items0
 func (o *ChangeAdvisorChecksParamsBodyParamsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateInterval(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum = append(changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALUNSPECIFIED captures enum value "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-	ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALUNSPECIFIED string = "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-
-	// ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALSTANDARD captures enum value "ADVISOR_CHECK_INTERVAL_STANDARD"
-	ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALSTANDARD string = "ADVISOR_CHECK_INTERVAL_STANDARD"
-
-	// ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALFREQUENT captures enum value "ADVISOR_CHECK_INTERVAL_FREQUENT"
-	ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALFREQUENT string = "ADVISOR_CHECK_INTERVAL_FREQUENT"
-
-	// ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE captures enum value "ADVISOR_CHECK_INTERVAL_RARE"
-	ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE string = "ADVISOR_CHECK_INTERVAL_RARE"
-)
-
-// prop value enum
-func (o *ChangeAdvisorChecksParamsBodyParamsItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAdvisorChecksParamsBodyParamsItems0) validateInterval(formats strfmt.Registry) error {
-	if swag.IsZero(o.Interval) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
-		return err
-	}
-
 	return nil
 }
 

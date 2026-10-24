@@ -7,7 +7,6 @@ checks:
     technology: MYSQL
     category: Performance
     # author: Kedar Vaijanapurkar
-    interval: standard
     queries:
       - type: MYSQL_SHOW
         query: "global status where variable_name='Created_tmp_disk_tables' or variable_name='Created_tmp_tables'"

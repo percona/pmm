@@ -4,7 +4,6 @@ checks:
     name: mysql_config_binlog_row_image
     summary: Binlogs raw image is not set to FULL
     description: Please consider setting binlog_row_image=FULL.
-    interval: standard
     category: Durability
     # author: The Grinch
     technology: MYSQL

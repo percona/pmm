@@ -4,7 +4,6 @@ checks:
     name: mysql_config_tmp_table_size_limit
     summary: Temp table size is larger than Heap Table size
     description: Check if the Temporary table size exceeds the heap table size.
-    interval: standard
     category: Performance
     # author: The Grinch
     technology: MYSQL

@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: Sergey Kuzmichev
     category: Connections
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: name, setting FROM pg_settings WHERE name = 'max_connections'

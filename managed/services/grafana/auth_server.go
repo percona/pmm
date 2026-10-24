@@ -78,15 +78,11 @@ var rules = map[string]role{
 	"/om.v1.OmService/TriggerHostBootstrap":          admin,
 	"/om.v1.OmService/CancelBootstrapRun":            admin,
 
-	// sending a test email belongs with the notification settings, which are admin-only
-	"/advisors.v1.AdvisorService/SendTestAdvisorNotification": admin,
-
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
 	"/v1/alerting/thresholds":         admin,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
-	"/v1/advisors/notifications:":     admin,
 	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,

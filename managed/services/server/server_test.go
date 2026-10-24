@@ -835,3 +835,33 @@ func TestApplyOMSwitch(t *testing.T) {
 		s.applyOMSwitch(t.Context(), settings(false), settings(false))
 	})
 }
+
+func TestCreateDefaultAdvisorSchedule(t *testing.T) {
+	t.Parallel()
+
+	settings := func(enabled bool) *models.Settings {
+		s := &models.Settings{}
+		s.SaaS.Enabled = &enabled
+		return s
+	}
+
+	t.Run("turning Advisors on creates the default schedule and starts no run", func(t *testing.T) {
+		t.Parallel()
+
+		checks := newMockChecksService(t)
+		checks.On("CreateDefaultSchedule", mock.Anything).Return(nil).Once()
+		s := &Server{checksService: checks, l: logrus.WithField("test", t.Name())}
+		s.createDefaultAdvisorSchedule(t.Context(), settings(false), settings(true))
+	})
+
+	t.Run("no other change creates it", func(t *testing.T) {
+		t.Parallel()
+
+		// the mock fails the test on any call
+		checks := newMockChecksService(t)
+		s := &Server{checksService: checks, l: logrus.WithField("test", t.Name())}
+		s.createDefaultAdvisorSchedule(t.Context(), settings(true), settings(true))
+		s.createDefaultAdvisorSchedule(t.Context(), settings(true), settings(false))
+		s.createDefaultAdvisorSchedule(t.Context(), settings(false), settings(false))
+	})
+}

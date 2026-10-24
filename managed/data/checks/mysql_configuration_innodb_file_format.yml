@@ -4,7 +4,6 @@ checks:
     name: mysql_configuration_innodb_file_format
     summary: MySQL InnoDB file format
     description: Check if InnoDB is configured with recommended file format
-    interval: standard
     category: Performance
     # author: The Grinch
     technology: MYSQL

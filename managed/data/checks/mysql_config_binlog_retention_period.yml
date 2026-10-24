@@ -4,7 +4,6 @@ checks:
     name: mysql_config_binlog_retention_period
     summary: Binlogs retention check
     description: Binlogs should not be rotated too often, except very specific cases.
-    interval: standard
     category: Durability
     technology: MYSQL
     queries:

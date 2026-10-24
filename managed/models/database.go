@@ -1312,7 +1312,6 @@ var databaseSchema = [][]string{
 			run_id VARCHAR NOT NULL,
 			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
 			category VARCHAR NOT NULL,
-			interval VARCHAR NOT NULL,
 			service_id VARCHAR NOT NULL,
 			service_name VARCHAR NOT NULL,
 			service_type VARCHAR NOT NULL,
@@ -1349,8 +1348,6 @@ var databaseSchema = [][]string{
 			description TEXT NOT NULL,
 			category VARCHAR NOT NULL,
 			technology VARCHAR NOT NULL,
-			interval VARCHAR NOT NULL,
-			interval_override VARCHAR,
 			disabled BOOLEAN NOT NULL,
 			disabled_service_ids JSONB,
 			queries TEXT NOT NULL,
@@ -1361,40 +1358,56 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (name)
 		)`,
 
-		// Carry over interval overrides recorded by earlier PMM versions in the
-		// check_settings table. Content columns are placeholders: the startup
-		// reconcile refreshes them from the shipped check files and prunes rows
-		// of checks that no longer exist.
-		`INSERT INTO advisor_checks (
-			name, source, version, summary, description, category,
-			technology, interval, interval_override, disabled, queries, script,
-			created_at, updated_at
-		)
-		SELECT name, 'builtin', 2, '', '', '', '', '', interval, false, '[]', '', now(), now()
-		FROM check_settings
-		WHERE name <> ''`,
-
 		// Carry over globally-disabled check names recorded by earlier PMM
-		// versions in the settings JSON.
+		// versions in the settings JSON. Content columns are placeholders: the
+		// startup reconcile refreshes them from the shipped check files and
+		// prunes rows of checks that no longer exist.
 		`INSERT INTO advisor_checks (
 			name, source, version, summary, description, category,
-			technology, interval, interval_override, disabled, queries, script,
-			created_at, updated_at
+			technology, disabled, queries, script, created_at, updated_at
 		)
-		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', NULL, true, '[]', '', now(), now()
+		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', true, '[]', '', now(), now()
 		FROM settings, jsonb_array_elements_text(
 			CASE WHEN jsonb_typeof(settings #> '{sass,disabled_advisors}') = 'array'
 				THEN settings #> '{sass,disabled_advisors}'
 				ELSE '[]'::jsonb END
 		) AS x(name)
-		WHERE x.name <> ''
-		ON CONFLICT (name) DO UPDATE SET disabled = true`,
+		WHERE x.name <> ''`,
 
 		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
 
+		// Per-check interval overrides, replaced by Advisor schedules.
 		`DROP TABLE IF EXISTS check_settings`,
 	},
 	128: {
+		// Days are time.Weekday values and the time of day is HH:MM, both in UTC;
+		// empty check names or service IDs mean all.
+		`CREATE TABLE advisor_schedules (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			enabled BOOLEAN NOT NULL,
+			days_of_week SMALLINT[] NOT NULL,
+			time_of_day VARCHAR(5) NOT NULL,
+			check_names VARCHAR[] NOT NULL,
+			service_ids VARCHAR[] NOT NULL,
+			email_mode VARCHAR NOT NULL,
+			email_addresses VARCHAR[] NOT NULL,
+			email_severities SMALLINT[] NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE UNIQUE INDEX advisor_schedules_name_idx ON advisor_schedules (lower(name))`,
+		// The default schedule, see models.DefaultAdvisorSchedule.
+		`INSERT INTO advisor_schedules (
+			id, name, enabled, days_of_week, time_of_day, check_names, service_ids,
+			email_mode, email_addresses, email_severities, created_at, updated_at
+		) VALUES (
+			gen_random_uuid()::text, 'All checks daily', true, '{0,1,2,3,4,5,6}', '06:00', '{}', '{}',
+			'settings', '{}', '{}', (NOW() AT TIME ZONE 'utc'), (NOW() AT TIME ZONE 'utc')
+		)`,
+
 		// One row per Advisor checks execution. Counts are denormalized on
 		// completion, so listing runs does not aggregate their insights.
 		`CREATE TABLE advisor_runs (
@@ -1403,7 +1416,9 @@ var databaseSchema = [][]string{
 			status VARCHAR NOT NULL,
 			check_names VARCHAR[],
 			service_ids VARCHAR[],
-			intervals VARCHAR[],
+			schedule_id VARCHAR REFERENCES advisor_schedules (id) ON DELETE SET NULL,
+			schedule_name VARCHAR NOT NULL,
+			scheduled_for TIMESTAMP,
 			started_at TIMESTAMP NOT NULL,
 			finished_at TIMESTAMP,
 			planned_checks_count INTEGER NOT NULL,
@@ -1417,14 +1432,13 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
+		`CREATE INDEX advisor_runs_schedule_id_idx ON advisor_runs (schedule_id)`,
 		// At most one queued or running run, so claiming the run slot is a single
 		// atomic insert on every HA node.
 		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
 
-		// Move servers still on the former 78h rare interval default to 72h;
-		// the settings JSON stores durations in nanoseconds.
-		`UPDATE settings SET settings = jsonb_set(settings, '{sass,advisor_run_intervals,rare_interval}', '259200000000000')
-		WHERE settings #> '{sass,advisor_run_intervals,rare_interval}' = '280800000000000'`,
+		// Advisor schedules replace the interval settings.
+		`UPDATE settings SET settings = settings #- '{sass,advisor_run_intervals}'`,
 	},
 }
 

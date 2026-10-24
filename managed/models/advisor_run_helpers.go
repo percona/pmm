@@ -221,6 +221,7 @@ func LastInsightTimeForRun(ctx context.Context, q *reform.Querier, runID string)
 // AdvisorRunFilters specifies filters for querying Advisor runs.
 type AdvisorRunFilters struct {
 	RunID       string
+	ScheduleID  string
 	TriggeredBy *CheckTriggeredBy
 	From        *time.Time
 	To          *time.Time
@@ -234,6 +235,10 @@ func advisorRunConditions(q *reform.Querier, filters AdvisorRunFilters) (string,
 	if filters.RunID != "" {
 		conditions = append(conditions, "id = "+q.Placeholder(len(args)+1))
 		args = append(args, filters.RunID)
+	}
+	if filters.ScheduleID != "" {
+		conditions = append(conditions, "schedule_id = "+q.Placeholder(len(args)+1))
+		args = append(args, filters.ScheduleID)
 	}
 	if filters.TriggeredBy != nil {
 		conditions = append(conditions, "triggered_by = "+q.Placeholder(len(args)+1))
@@ -267,6 +272,12 @@ func FindAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRunF
 		args = append(args, pageIndex*pageSize)
 	}
 
+	return selectAdvisorRuns(ctx, q, tail, args...)
+}
+
+// selectAdvisorRuns returns the runs the query tail selects. A running run
+// reports its totals so far.
+func selectAdvisorRuns(ctx context.Context, q *reform.Querier, tail string, args ...any) ([]*AdvisorRun, error) {
 	rows, err := q.WithContext(ctx).SelectAllFrom(AdvisorRunTable, tail, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select advisor runs: %w", err)
@@ -288,6 +299,46 @@ func FindAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRunF
 		runs = append(runs, run)
 	}
 	return runs, nil
+}
+
+// FindLastAdvisorRunsBySchedule returns the most recently started run of every
+// schedule that has one, by schedule ID.
+func FindLastAdvisorRunsBySchedule(ctx context.Context, q *reform.Querier) (map[string]*AdvisorRun, error) {
+	runs, err := selectAdvisorRuns(ctx, q, "WHERE id IN (SELECT DISTINCT ON (schedule_id) id FROM "+AdvisorRunTable.Name()+
+		" WHERE schedule_id IS NOT NULL ORDER BY schedule_id, started_at DESC)")
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]*AdvisorRun, len(runs))
+	for _, r := range runs {
+		res[*r.ScheduleID] = r
+	}
+	return res, nil
+}
+
+// FindAdvisorRunsWaitedFor returns, by run ID, the run each of the given
+// scheduled runs waited for when it started more than lateAfter after falling
+// due: the run before it, if that one ended after it fell due.
+func FindAdvisorRunsWaitedFor(ctx context.Context, q *reform.Querier, runs []*AdvisorRun, lateAfter time.Duration) (map[string]*AdvisorRun, error) {
+	res := make(map[string]*AdvisorRun)
+	for _, r := range runs {
+		if r.ScheduledFor == nil || r.StartedAt.Sub(*r.ScheduledFor) <= lateAfter {
+			continue
+		}
+
+		row, err := q.WithContext(ctx).SelectOneFrom(AdvisorRunTable,
+			"WHERE started_at < $1 AND id <> $2 AND (finished_at IS NULL OR finished_at >= $3) ORDER BY started_at DESC LIMIT 1",
+			r.StartedAt, r.ID, *r.ScheduledFor)
+		if errors.Is(err, reform.ErrNoRows) {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to select the run advisor run %s waited for: %w", r.ID, err)
+		}
+		res[r.ID] = row.(*AdvisorRun) //nolint:forcetypeassert
+	}
+	return res, nil
 }
 
 // CountAdvisorRuns returns the number of Advisor runs matching the filters.

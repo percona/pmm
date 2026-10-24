@@ -6,7 +6,6 @@ checks:
     description: Checks to see if the currently installed PostgreSQL version is end of life and no longer supported
     # author: Jorge Torralba
     category: Versions
-    interval: standard
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT

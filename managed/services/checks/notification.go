@@ -23,27 +23,50 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
 )
 
-// maybeSendAdvisorNotification emails the completed run's insights to the configured recipients
-// when notifications are enabled. It is best-effort: every failure is logged and swallowed so it
-// never affects the check run.
-func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string, triggeredBy models.CheckTriggeredBy) {
+// maybeSendAdvisorNotification emails the completed run's insights when notifications are
+// enabled: to the recipients and for the severities its schedule chose, or those in the settings.
+// It is best-effort: every failure is logged and swallowed so it never affects the check run.
+func (s *Service) maybeSendAdvisorNotification(ctx context.Context, run *models.AdvisorRun) {
+	runID := run.ID
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to load settings: %v", err)
 		return
 	}
-	an := settings.AdvisorNotifications
 	if !settings.IsAdvisorNotificationsEnabled() {
 		return
 	}
+
+	recipients, severities := settings.AdvisorNotifications.EmailAddresses, settings.AdvisorNotifications.Severities
+	if run.ScheduleID != nil {
+		sc, err := models.FindAdvisorScheduleByID(ctx, s.db.Querier, *run.ScheduleID)
+		switch {
+		case status.Code(err) == codes.NotFound:
+			// deleted while it ran, so its choices are gone
+		case err != nil:
+			s.l.Warnf("Advisor notification: failed to load the schedule of run %s: %v", runID, err)
+			return
+		case sc.EmailMode == models.AdvisorScheduleEmailOff:
+			return
+		default:
+			if sc.EmailMode == models.AdvisorScheduleEmailCustom {
+				recipients = sc.EmailAddresses
+			}
+			if len(sc.EmailSeverities) != 0 {
+				severities = sc.Severities()
+			}
+		}
+	}
 	// ChangeSettings rejects this combination, so it only happens when notifications were enabled
 	// through PMM_ENABLE_ADVISOR_NOTIFICATIONS without recipients ever being configured.
-	if len(an.EmailAddresses) == 0 {
+	if len(recipients) == 0 {
 		s.l.Warnf("Advisor notification: enabled, but no recipients are configured, so run %s was "+
 			"not emailed. Set the Advisor notification email addresses in the PMM settings.", runID)
 		return
@@ -62,7 +85,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 	texts := make([]string, 0, len(results))
 	for _, r := range results {
 		severity := common.Severity(pointer.Get(r.Severity))
-		if !slices.Contains(an.Severities, severity) {
+		if !slices.Contains(severities, severity) {
 			continue
 		}
 		text, err := insightToText(r)
@@ -80,9 +103,12 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 	}
 
 	subject := fmt.Sprintf("PMM Advisor Insights: %d finding(s) for run %s", len(texts), runID)
-	body := buildAdvisorEmailReport(runID, triggeredBy, an.Severities, sCounts, tCounts, texts)
+	if run.ScheduleName != "" {
+		subject = fmt.Sprintf("PMM Advisor Insights: %d finding(s) for %s", len(texts), run.ScheduleName)
+	}
+	body := buildAdvisorEmailReport(run, severities, sCounts, tCounts, texts)
 
-	err = s.sendAdvisorEmail(an.EmailAddresses, subject, body)
+	err = s.sendAdvisorEmail(recipients, subject, body)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to email run %s: %v", runID, err)
 		return
@@ -117,7 +143,7 @@ func (s *Service) SendTestNotification(recipients []string, severities []common.
 
 	subject := fmt.Sprintf("[Test] PMM Advisor Insights: %d sample finding(s)", len(texts))
 	body := testReportPreamble + buildAdvisorEmailReport(
-		runID, models.CheckTriggeredByUser, severities, sCounts, tCounts, texts,
+		&models.AdvisorRun{ID: runID, TriggeredBy: models.CheckTriggeredByUser}, severities, sCounts, tCounts, texts,
 	)
 
 	return s.sendAdvisorEmail(recipients, subject, body)
@@ -177,7 +203,6 @@ func sampleInsight(
 		RunID:          runID,
 		CheckName:      checkName,
 		Category:       category,
-		Interval:       models.Standard,
 		ServiceID:      "sample-service-id",
 		ServiceName:    serviceName,
 		ServiceType:    serviceType,
@@ -213,8 +238,7 @@ var advisorTechnologies = []struct {
 // and per-technology summaries, suggested next steps, and then the insights (formatted like the
 // UI's "Copy to text") one after another.
 func buildAdvisorEmailReport(
-	runID string,
-	triggeredBy models.CheckTriggeredBy,
+	run *models.AdvisorRun,
 	severities []common.Severity,
 	sCounts map[common.Severity]int,
 	tCounts map[models.ServiceType]int,
@@ -229,7 +253,7 @@ func buildAdvisorEmailReport(
 	fmt.Fprintf(&b, "Percona Monitoring and Management runs Advisor checks against your monitored "+
 		"databases to surface potential issues. This report covers run %s, which was %s. It found %d "+
 		"insight(s) with the selected severities (%s) that may need your attention.\n\n",
-		runID, triggerPhrase(triggeredBy), len(insights), strings.Join(labels, ", "))
+		run.ID, triggerPhrase(run), len(insights), strings.Join(labels, ", "))
 
 	b.WriteString("Findings by severity:\n")
 	for i, sev := range severities {
@@ -256,11 +280,15 @@ func buildAdvisorEmailReport(
 }
 
 // triggerPhrase describes, in prose, how the run was initiated.
-func triggerPhrase(triggeredBy models.CheckTriggeredBy) string {
-	switch triggeredBy {
-	case models.CheckTriggeredByScheduler:
+func triggerPhrase(run *models.AdvisorRun) string {
+	switch {
+	case run.TriggeredBy == models.CheckTriggeredByScheduler && run.ScheduleName != "":
+		return fmt.Sprintf("run automatically by the schedule '%s'", run.ScheduleName)
+	case run.TriggeredBy == models.CheckTriggeredByScheduler:
 		return "run automatically on schedule"
-	case models.CheckTriggeredByUser:
+	case run.TriggeredBy == models.CheckTriggeredByUser && run.ScheduleName != "":
+		return fmt.Sprintf("triggered manually by an operator from the schedule '%s'", run.ScheduleName)
+	case run.TriggeredBy == models.CheckTriggeredByUser:
 		return "triggered manually by an operator"
 	default:
 		return "run"

@@ -51,12 +51,17 @@ type AdvisorRun struct {
 	ID          string           `reform:"id,pk"`
 	TriggeredBy CheckTriggeredBy `reform:"triggered_by"`
 	Status      AdvisorRunStatus `reform:"status"`
-	// CheckNames, ServiceIDs and Intervals narrow the run; empty means all.
+	// CheckNames and ServiceIDs narrow the run; empty means all.
 	CheckNames pq.StringArray `reform:"check_names"`
 	ServiceIDs pq.StringArray `reform:"service_ids"`
-	Intervals  pq.StringArray `reform:"intervals"`
-	StartedAt  time.Time      `reform:"started_at"`
-	FinishedAt *time.Time     `reform:"finished_at"`
+	// ScheduleID links a run to the schedule it ran for, or was started from with Run now;
+	// ScheduleName keeps the name it had then.
+	ScheduleID   *string `reform:"schedule_id"`
+	ScheduleName string  `reform:"schedule_name"`
+	// ScheduledFor is when the schedule fell due; nil for runs a user started.
+	ScheduledFor *time.Time `reform:"scheduled_for"`
+	StartedAt    time.Time  `reform:"started_at"`
+	FinishedAt   *time.Time `reform:"finished_at"`
 	// PlannedChecksCount and PlannedServicesCount count the checks and services the run planned to cover.
 	PlannedChecksCount   int `reform:"planned_checks_count"`
 	PlannedServicesCount int `reform:"planned_services_count"`
@@ -92,6 +97,10 @@ func (r *AdvisorRun) BeforeUpdate() error {
 // AfterFind implements reform.AfterFinder interface.
 func (r *AdvisorRun) AfterFind() error {
 	r.StartedAt = r.StartedAt.UTC()
+	if r.ScheduledFor != nil {
+		scheduledFor := r.ScheduledFor.UTC()
+		r.ScheduledFor = &scheduledFor
+	}
 	if r.FinishedAt != nil {
 		finished := r.FinishedAt.UTC()
 		r.FinishedAt = &finished

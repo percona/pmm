@@ -4,7 +4,6 @@ checks:
     name: mysql_security_open_to_world_host
     summary: User(s) has/have host definition '%' which is too open
     description: Host definition should never be '%' given it is too open .
-    interval: standard
     category: Security
     # author: The Grinch
     technology: MYSQL

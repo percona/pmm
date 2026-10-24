@@ -7,7 +7,6 @@ checks:
     technology: MYSQL
     # author: Kedar Vaijanapurkar
     category: Versions
-    interval: standard
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service,@@version_comment as comment, @@basedir as basedir,@@datadir as datadir, datediff('2023-10-23',date(now())) as days;"

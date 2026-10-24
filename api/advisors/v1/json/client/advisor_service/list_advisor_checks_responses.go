@@ -541,10 +541,6 @@ type ListAdvisorChecksOKBodyChecksItems0 struct {
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// AdvisorCheckInterval represents possible execution interval values for checks.
-	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
-	Interval *string `json:"interval,omitempty"`
-
 	// technology
 	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
 	Technology *string `json:"technology,omitempty"`
@@ -569,10 +565,6 @@ type ListAdvisorChecksOKBodyChecksItems0 struct {
 func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateInterval(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateTechnology(formats); err != nil {
 		res = append(res, err)
 	}
@@ -584,54 +576,6 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum, v)
-	}
-}
-
-const (
-
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALUNSPECIFIED captures enum value "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALUNSPECIFIED string = "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALSTANDARD captures enum value "ADVISOR_CHECK_INTERVAL_STANDARD"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALSTANDARD string = "ADVISOR_CHECK_INTERVAL_STANDARD"
-
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALFREQUENT captures enum value "ADVISOR_CHECK_INTERVAL_FREQUENT"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALFREQUENT string = "ADVISOR_CHECK_INTERVAL_FREQUENT"
-
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALRARE captures enum value "ADVISOR_CHECK_INTERVAL_RARE"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALRARE string = "ADVISOR_CHECK_INTERVAL_RARE"
-)
-
-// prop value enum
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateInterval(formats strfmt.Registry) error {
-	if swag.IsZero(o.Interval) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
-		return err
-	}
-
 	return nil
 }
 

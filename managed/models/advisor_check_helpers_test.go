@@ -37,7 +37,6 @@ func builtinCheck(name string) *models.AdvisorCheck {
 		Description: "Test description",
 		Category:    "Test",
 		Technology:  "POSTGRESQL",
-		Interval:    "standard",
 		Queries:     []byte(`[{"type":"POSTGRESQL_SELECT","query":"1"}]`),
 		Script:      "def check(): return []",
 	}
@@ -73,18 +72,15 @@ func TestAdvisorCheckHelpers(t *testing.T) { //nolint:tparallel
 		assert.Equal(t, models.BuiltinCheckSource, c.Source)
 		assert.Equal(t, "Test summary", c.Summary)
 		assert.False(t, c.Disabled)
-		assert.Nil(t, c.IntervalOverride)
 
 		updated := builtinCheck("check1")
 		updated.Summary = "New summary"
-		updated.Interval = "rare"
 		err = models.UpsertAdvisorCheckContent(ctx, q, updated)
 		require.NoError(t, err)
 
 		c, err = models.FindAdvisorCheckByName(q, "check1")
 		require.NoError(t, err)
 		assert.Equal(t, "New summary", c.Summary)
-		assert.Equal(t, "rare", c.Interval)
 	})
 
 	t.Run("upsert preserves settings columns", func(t *testing.T) {
@@ -95,8 +91,6 @@ func TestAdvisorCheckHelpers(t *testing.T) { //nolint:tparallel
 		require.NoError(t, err)
 
 		// record user overrides
-		_, err = models.ChangeAdvisorCheckInterval(ctx, q, "check1", models.Rare)
-		require.NoError(t, err)
 		err = models.SetAdvisorChecksDisabled(ctx, q, []string{"check1"}, true)
 		require.NoError(t, err)
 		_, err = models.ChangeAdvisorCheckDisabledServices(ctx, q, "check1", []string{"svc-1"})
@@ -108,7 +102,6 @@ func TestAdvisorCheckHelpers(t *testing.T) { //nolint:tparallel
 
 		c, err := models.FindAdvisorCheckByName(q, "check1")
 		require.NoError(t, err)
-		assert.Equal(t, new("rare"), c.IntervalOverride)
 		assert.True(t, c.Disabled)
 		ids, err := c.GetDisabledServiceIDs()
 		require.NoError(t, err)
@@ -211,8 +204,6 @@ func TestAdvisorCheckHelpers(t *testing.T) { //nolint:tparallel
 		_, err := models.CreateAdvisorCheck(q, user)
 		require.NoError(t, err)
 
-		_, err = models.ChangeAdvisorCheckInterval(ctx, q, "user1", models.Frequent)
-		require.NoError(t, err)
 		err = models.SetAdvisorChecksDisabled(ctx, q, []string{"user1"}, true)
 		require.NoError(t, err)
 
@@ -226,7 +217,6 @@ func TestAdvisorCheckHelpers(t *testing.T) { //nolint:tparallel
 		require.NoError(t, err)
 		assert.Equal(t, "Edited summary", c.Summary)
 		assert.Equal(t, models.UserCheckSource, c.Source)
-		assert.Equal(t, new("frequent"), c.IntervalOverride)
 		assert.True(t, c.Disabled)
 	})
 }

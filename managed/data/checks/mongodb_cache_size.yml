@@ -4,7 +4,6 @@ checks:
     name: mongodb_cache_size
     summary: Mongo Storage Cache
     description: Mongo wiredtiger cache size is greater then default 50%
-    interval: standard
     technology: MONGODB
     category: Resources
     queries:

@@ -4,7 +4,6 @@ checks:
     name: mongodb_EOL
     summary: MongoDB version EOL
     description: This check returns errors or warnings if your current PSMDB or MongoDB version has reached or is about to reach End-of-Life.
-    interval: standard
     technology: MONGODB
     category: Versions
     # author: Parag Bhayani

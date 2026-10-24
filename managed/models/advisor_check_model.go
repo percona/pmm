@@ -25,16 +25,6 @@ import (
 
 //go:generate go tool reform
 
-// Interval represents check execution interval.
-type Interval string
-
-// Available check execution intervals.
-const (
-	Standard Interval = "standard"
-	Frequent Interval = "frequent"
-	Rare     Interval = "rare"
-)
-
 // CheckSource represents the origin of an advisor check.
 type CheckSource string
 
@@ -48,9 +38,9 @@ const (
 
 // AdvisorCheck represents an advisor check stored in the database.
 // Percona-shipped checks are reconciled from disk into this table at startup;
-// user-authored checks are created via the API. Interval overrides and
-// enable/disable state (global and per-service) live in dedicated columns so
-// that a content refresh never touches them.
+// user-authored checks are created via the API. The enable/disable state
+// (global and per-service) lives in dedicated columns so that a content
+// refresh never touches it.
 //
 //reform:advisor_checks
 type AdvisorCheck struct {
@@ -61,10 +51,6 @@ type AdvisorCheck struct {
 	Description string      `reform:"description"`
 	Category    string      `reform:"category"`
 	Technology  string      `reform:"technology"`
-	// Interval is the original author-defined execution interval.
-	Interval string `reform:"interval"`
-	// IntervalOverride is the user-set execution interval; nil means no override.
-	IntervalOverride *string `reform:"interval_override"`
 	// Disabled reports whether the check is disabled globally.
 	Disabled bool `reform:"disabled"`
 	// DisabledServiceIDs holds a JSON-encoded array of service IDs for which

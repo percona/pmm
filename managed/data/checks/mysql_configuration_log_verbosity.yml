@@ -7,7 +7,6 @@ checks:
     technology: MYSQL
     # author: Carlos Tutte
     category: Logging
-    interval: standard
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

@@ -4,7 +4,6 @@ checks:
     name: mongodb_psa_architecture_check
     summary: MongoDB PSA Architecture
     description: This check returns an error if the replicaSet is using a PSA architecture.
-    interval: standard
     technology: MONGODB
     category: Replication
     # author: Parag Bhayani

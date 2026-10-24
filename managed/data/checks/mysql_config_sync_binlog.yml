@@ -4,7 +4,6 @@ checks:
     name: mysql_config_sync_binlog
     summary: Sync binlog is disabled
     description: Check if the binlog synchronized before transaction is committed.
-    interval: standard
     category: Durability
     # author: The Grinch
     technology: MYSQL

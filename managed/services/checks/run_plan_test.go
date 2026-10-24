@@ -62,7 +62,6 @@ func TestRunPlan(t *testing.T) {
 			Version:    check.MaxSupportedVersion,
 			Summary:    name + " summary",
 			Technology: check.MySQL,
-			Interval:   check.Standard,
 			Queries:    []check.Query{{Type: check.MySQLShow, Query: "VARIABLES"}},
 		}
 	}
@@ -94,7 +93,7 @@ func TestRunPlan(t *testing.T) {
 	t.Run("plans reachable services and records unreachable ones as errors", func(t *testing.T) {
 		ri := start(t)
 
-		plan, err := s.planRun(t.Context(), nil, nil, nil, ri)
+		plan, err := s.planRun(t.Context(), nil, nil, ri)
 		require.NoError(t, err)
 		require.Len(t, plan, 2)
 		for _, p := range plan {
@@ -148,7 +147,7 @@ func TestRunPlan(t *testing.T) {
 			}
 		}
 
-		plan, err := s.planRun(t.Context(), nil, []string{"check_b"}, []string{noAgentID}, ri)
+		plan, err := s.planRun(t.Context(), []string{"check_b"}, []string{noAgentID}, ri)
 		require.NoError(t, err)
 		assert.Empty(t, plan)
 
@@ -161,7 +160,7 @@ func TestRunPlan(t *testing.T) {
 
 	t.Run("an executed check completes its pending insight in place", func(t *testing.T) {
 		ri := start(t)
-		plan, err := s.planRun(t.Context(), nil, []string{"check_a"}, nil, ri)
+		plan, err := s.planRun(t.Context(), []string{"check_a"}, nil, ri)
 		require.NoError(t, err)
 		require.Len(t, plan, 1)
 
@@ -190,7 +189,7 @@ func TestRunPlan(t *testing.T) {
 
 	t.Run("a stopped run leaves its checks pending until it is closed as not run", func(t *testing.T) {
 		ri := start(t)
-		plan, err := s.planRun(t.Context(), nil, nil, nil, ri)
+		plan, err := s.planRun(t.Context(), nil, nil, ri)
 		require.NoError(t, err)
 		require.Len(t, plan, 2)
 
@@ -221,5 +220,140 @@ func TestRunPlan(t *testing.T) {
 		assert.Equal(t, models.AdvisorRunStatusInterrupted, run.Status)
 		assert.Equal(t, 2, run.PlannedChecksCount)
 		assert.Zero(t, run.ChecksCount)
+	})
+}
+
+// A scheduled run copies its schedule's scope, which can name services deleted
+// since; neither those nor a service deleted mid-run make the run fail.
+func TestRunScopeWithDeletedServices(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "scope-node"})
+	require.NoError(t, err)
+	serviceID := func(t *testing.T, name string) string {
+		t.Helper()
+		setup(t, db, name, node.NodeID, "3.1.0")
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{})
+		require.NoError(t, err)
+		for _, svc := range services {
+			if svc.ServiceName == name {
+				return svc.ServiceID
+			}
+		}
+		require.FailNow(t, "service not found", name)
+		return ""
+	}
+	remove := func(t *testing.T, id string) {
+		t.Helper()
+		require.NoError(t, models.RemoveService(db.Querier, id, models.RemoveCascade))
+	}
+	keptID := serviceID(t, "mysql-kept")
+
+	m, err := userCheckToModel(check.Check{
+		Name:        "check_a",
+		Version:     check.MaxSupportedVersion,
+		Summary:     "check_a summary",
+		Description: "check_a description",
+		Category:    "Test",
+		Technology:  check.MySQL,
+		Queries:     []check.Query{{Type: check.MySQLShow, Query: "VARIABLES"}},
+		Script:      "results = []\nreturn results",
+	})
+	require.NoError(t, err)
+	_, err = models.CreateAdvisorCheck(db.Querier, m)
+	require.NoError(t, err)
+
+	registry := &mockAgentsRegistry{}
+	s := New(db, registry, nil, nil)
+	// every run reloads the checks; an invalid one would be dropped and leave nothing to run
+	s.UpdateAdvisorsList(t.Context())
+	checks, err := s.GetChecks()
+	require.NoError(t, err)
+	require.Contains(t, checks, "check_a")
+	runWith := func(t *testing.T, triggeredBy models.CheckTriggeredBy, serviceIDs ...string) *models.AdvisorRun {
+		t.Helper()
+		run := &models.AdvisorRun{
+			TriggeredBy: triggeredBy,
+			Status:      models.AdvisorRunStatusRunning,
+			CheckNames:  []string{"check_a"},
+			ServiceIDs:  serviceIDs,
+		}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, run))
+		require.NoError(t, s.run(t.Context(), run))
+		return run
+	}
+	insights := func(t *testing.T, runID string) map[string]*models.Insight {
+		t.Helper()
+		rows, err := models.FindInsights(t.Context(), db.Querier, models.InsightFilters{RunID: runID}, 0, 0)
+		require.NoError(t, err)
+		res := make(map[string]*models.Insight, len(rows))
+		for _, r := range rows {
+			res[r.ServiceName] = r
+		}
+		return res
+	}
+	startAction := func() *mock.Call {
+		return registry.On(
+			"StartMySQLQueryShowAction",
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+		)
+	}
+	notConnected := errors.New("pmm-agent is not connected")
+
+	goneID := serviceID(t, "mysql-gone")
+	remove(t, goneID)
+
+	t.Run("a deleted service in the scope is skipped", func(t *testing.T) {
+		startAction().Return(notConnected).Once()
+
+		run := runWith(t, models.CheckTriggeredByScheduler, keptID, goneID)
+		registry.AssertExpectations(t)
+
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.Equal(t, 1, run.PlannedServicesCount)
+		got := insights(t, run.ID)
+		require.Len(t, got, 1)
+		assert.Equal(t, models.CheckResultError, got["mysql-kept"].Status)
+	})
+
+	midRunID := serviceID(t, "mysql-deleted-mid-run")
+
+	t.Run("a service deleted during the run is recorded and the run completes", func(t *testing.T) {
+		// the service is deleted while the first planned check executes
+		startAction().Run(func(mock.Arguments) { remove(t, midRunID) }).Return(notConnected).Once()
+		startAction().Return(notConnected).Once()
+
+		run := runWith(t, models.CheckTriggeredByScheduler, keptID, midRunID)
+		registry.AssertExpectations(t)
+
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.Equal(t, 2, run.PlannedServicesCount)
+		assert.Equal(t, 2, run.ErrorsCount)
+		got := insights(t, run.ID)
+		require.Len(t, got, 2)
+		for _, name := range []string{"mysql-kept", "mysql-deleted-mid-run"} {
+			assert.Equal(t, models.CheckResultError, got[name].Status, name)
+			assert.Equal(t, "check query failed: failed to start mySQL show action: pmm-agent is not connected", got[name].Outcome, name)
+		}
+	})
+
+	t.Run("a scheduled run whose services are all gone is discarded", func(t *testing.T) {
+		run := runWith(t, models.CheckTriggeredByScheduler, goneID, midRunID)
+		require.ErrorIs(t, db.Reload(run), reform.ErrNoRows)
+	})
+
+	t.Run("the same scope started by a user is kept", func(t *testing.T) {
+		run := runWith(t, models.CheckTriggeredByUser, goneID, midRunID)
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.Zero(t, run.PlannedServicesCount)
+		assert.Empty(t, insights(t, run.ID))
 	})
 }

@@ -41,7 +41,6 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -152,14 +151,21 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
+	var oldSettings, newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx, envSettings)
+		var err error
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		newSettings, err = models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	s.createDefaultAdvisorSchedule(ctx, oldSettings, newSettings)
 
 	s.retentionM.Lock()
 	s.retentionFromEnv = envSettings.DataRetention
@@ -434,11 +440,6 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
 		},
-		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
-		},
 		DataRetention:                     durationpb.New(settings.DataRetention),
 		AdvisorHistoryRetention:           durationpb.New(settings.AdvisorHistoryRetention),
 		AdvisorNotificationSeverities:     advisorSeveritiesToAPI(settings.AdvisorNotifications.Severities),
@@ -658,7 +659,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		metricsRes := req.MetricsResolutions
-		advisorsRunInterval := req.AdvisorRunIntervals
 		settingsParams := &models.ChangeSettingsParams{
 			EnableUpdates:          req.EnableUpdates,
 			EnableTelemetry:        req.EnableTelemetry,
@@ -670,11 +670,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
 			EnableOM:               req.EnableOm,
-			AdvisorsRunInterval: models.AdvisorsRunIntervals{
-				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
-				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
-				FrequentInterval: advisorsRunInterval.GetFrequentInterval().AsDuration(),
-			},
 			MetricsResolutions: models.MetricsResolutions{
 				HR: metricsRes.GetHr().AsDuration(),
 				MR: metricsRes.GetMr().AsDuration(),
@@ -763,26 +758,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		return nil, err
 	}
 
-	// If Advisors run intervals are changed reset timers.
-	if oldSettings.SaaS.AdvisorRunIntervals != newSettings.SaaS.AdvisorRunIntervals {
-		s.checksService.UpdateIntervals(
-			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
-			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
-			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval,
-		)
-	}
-
-	// When Advisor is moved from disabled to enabled state, force checks download and execution.
-	var advisorsStarted bool
-	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
-		advisorsStarted = true
-		_, err := s.checksService.StartChecks(ctx, nil, nil, nil)
-		_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
-		// a run in progress is already logged, and the scheduled runs cover it
-		if err != nil && !inProgress {
-			s.l.Error(err)
-		}
-	}
+	s.createDefaultAdvisorSchedule(ctx, oldSettings, newSettings)
 
 	// When Advisor is moved from enabled to disabled state, drop all existing check results.
 	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
@@ -793,9 +769,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	// If telemetry switched off that will drop previously downloaded files.
 	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
-		if !advisorsStarted {
-			s.checksService.UpdateAdvisorsList(ctx)
-		}
+		s.checksService.UpdateAdvisorsList(ctx)
 	}
 
 	s.applyOMSwitch(ctx, oldSettings, newSettings)
@@ -803,6 +777,19 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
+}
+
+// createDefaultAdvisorSchedule creates the default Advisor schedule when Advisors
+// are turned on and no schedule exists. Turning them on starts no run.
+func (s *Server) createDefaultAdvisorSchedule(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	if oldSettings.IsAdvisorsEnabled() || !newSettings.IsAdvisorsEnabled() {
+		return
+	}
+
+	err := s.checksService.CreateDefaultSchedule(ctx)
+	if err != nil {
+		s.l.Error(err)
+	}
 }
 
 // applyOMSwitch runs in the background because its PMM Extensions calls can outlast the client's timeout

@@ -60,7 +60,7 @@ Insight A
 
 Insight B`
 
-	got := buildAdvisorEmailReport("7394c7d1-53ae-4094-98b3-b7fe561dbac1", models.CheckTriggeredByUser,
-		[]common.Severity{common.Error, common.Warning}, sCounts, tCounts, insights)
+	run := &models.AdvisorRun{ID: "7394c7d1-53ae-4094-98b3-b7fe561dbac1", TriggeredBy: models.CheckTriggeredByUser}
+	got := buildAdvisorEmailReport(run, []common.Severity{common.Error, common.Warning}, sCounts, tCounts, insights)
 	require.Equal(t, want, got)
 }

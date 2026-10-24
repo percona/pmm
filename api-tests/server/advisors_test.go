@@ -115,9 +115,13 @@ func TestStartChecks(t *testing.T) {
 		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 		waitForNoActiveRun(t)
 
-		frequent := "ADVISOR_CHECK_INTERVAL_FREQUENT"
+		checks, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
+		require.NoError(t, err)
+		require.NotEmpty(t, checks.Payload.Checks)
+		name := checks.Payload.Checks[0].Name
+
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
-			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{frequent}},
+			Body:    advisor.StartAdvisorChecksBody{Names: []string{name}},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -132,8 +136,7 @@ func TestStartChecks(t *testing.T) {
 		require.Len(t, runs.Payload.Results, 1)
 		run := runs.Payload.Results[0]
 		assert.Equal(t, runID, run.ID)
-		require.Len(t, run.Intervals, 1)
-		assert.Equal(t, frequent, *run.Intervals[0])
+		assert.Equal(t, []string{name}, run.CheckNames)
 		assert.LessOrEqual(t, run.ChecksCount, run.PlannedChecksCount)
 		assert.LessOrEqual(t, run.ServicesCount, run.PlannedServicesCount)
 
@@ -145,18 +148,6 @@ func TestStartChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Empty(t, insights.Payload.Results)
-	})
-
-	t.Run("an unknown interval name is rejected", func(t *testing.T) {
-		toggleAdvisorChecks(t, true)
-		t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
-			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{"ADVISOR_CHECK_INTERVAL_BOGUS"}},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown advisor check interval 'ADVISOR_CHECK_INTERVAL_BOGUS'")
-		assert.Nil(t, resp)
 	})
 
 	t.Run("with advisors disabled", func(t *testing.T) {
@@ -231,84 +222,6 @@ func TestChangeAdvisorChecks(t *testing.T) {
 				}
 			}
 		})
-
-		t.Run("unrecognized interval is ignored", func(t *testing.T) {
-			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
-
-			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
-
-			check := resp.Payload.Checks[0]
-			interval := *check.Interval
-			params := &advisor.ChangeAdvisorChecksParams{
-				Body: advisor.ChangeAdvisorChecksBody{
-					Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
-						{
-							Name:     check.Name,
-							Interval: new("unknown_interval"),
-						},
-					},
-				},
-				Context: pmmapitests.Context,
-			}
-
-			_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
-			require.NoError(t, err)
-
-			resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
-
-			var found bool
-			for _, c := range resp.Payload.Checks {
-				if c.Name == check.Name {
-					found = true
-					assert.Equal(t, interval, *c.Interval)
-				}
-			}
-
-			assert.True(t, found, "required check wasn't found")
-		})
-
-		t.Run("change interval normal", func(t *testing.T) {
-			t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
-
-			// convert all checks to RARE interval
-			pp := make([]*advisor.ChangeAdvisorChecksParamsBodyParamsItems0, len(resp.Payload.Checks))
-			for i, check := range resp.Payload.Checks {
-				pp[i] = &advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
-					Name:     check.Name,
-					Interval: new(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE),
-				}
-			}
-
-			params := &advisor.ChangeAdvisorChecksParams{
-				Body:    advisor.ChangeAdvisorChecksBody{Params: pp},
-				Context: pmmapitests.Context,
-			}
-			_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
-			require.NoError(t, err)
-
-			resp, err = advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
-
-			for _, check := range resp.Payload.Checks {
-				assert.Equal(t, "ADVISOR_CHECK_INTERVAL_RARE", *check.Interval)
-			}
-
-			t.Run("intervals should be preserved on restart", func(t *testing.T) {
-				resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-				require.NoError(t, err)
-				require.NotEmpty(t, resp.Payload.Checks)
-				assert.Equal(t, "ADVISOR_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)
-			})
-		})
 	})
 
 	t.Run("per service", func(t *testing.T) {
@@ -348,15 +261,6 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			c = listed(t)
 			assert.True(t, c.Enabled)
 			assert.Empty(t, c.DisabledServiceIds)
-		})
-
-		t.Run("interval cannot be changed per service", func(t *testing.T) {
-			err := change(&advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
-				Name:       name,
-				ServiceIds: []string{serviceID},
-				Interval:   new(advisor.ChangeAdvisorChecksParamsBodyParamsItems0IntervalADVISORCHECKINTERVALRARE),
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Interval of check %s cannot be changed per service.", name)
 		})
 
 		t.Run("enable flag is required", func(t *testing.T) {
@@ -407,7 +311,6 @@ func TestCustomAdvisorCheck(t *testing.T) {
 		assert.Equal(t, "API test check", c.Summary)
 		assert.Equal(t, "API tests", c.Category)
 		assert.Equal(t, advisor.GetAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYMYSQL, *c.Technology)
-		assert.Equal(t, advisor.GetAdvisorCheckOKBodyCheckIntervalADVISORCHECKINTERVALSTANDARD, *c.Interval)
 		assert.Equal(t, customCheckScript, c.Script)
 		require.Len(t, c.Queries, 1)
 		assert.Equal(t, "METRICS_INSTANT", c.Queries[0].Type)
@@ -434,7 +337,6 @@ func TestCustomAdvisorCheck(t *testing.T) {
 	t.Run("update", func(t *testing.T) {
 		body := updateCheckBody()
 		body.Summary = "Updated API test check"
-		body.Interval = new(advisor.UpdateAdvisorCheckParamsBodyCheckIntervalADVISORCHECKINTERVALRARE)
 		_, err := advisorClient.Default.AdvisorService.UpdateAdvisorCheck(&advisor.UpdateAdvisorCheckParams{
 			Name:    name,
 			Body:    advisor.UpdateAdvisorCheckBody{Check: body},
@@ -448,7 +350,6 @@ func TestCustomAdvisorCheck(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, "Updated API test check", resp.Payload.Check.Summary)
-		assert.Equal(t, advisor.GetAdvisorCheckOKBodyCheckIntervalADVISORCHECKINTERVALRARE, *resp.Payload.Check.Interval)
 		assert.True(t, resp.Payload.Check.UserDefined)
 	})
 

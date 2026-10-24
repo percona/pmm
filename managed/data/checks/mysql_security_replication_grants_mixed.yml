@@ -4,7 +4,6 @@ checks:
     name: mysql_security_replication_grants_mixed
     summary: Replication privileges
     description: Check if replication privileges is mixed with more elevated privileges
-    interval: standard
     # author: The Grinch
     category: Security
     technology: MYSQL

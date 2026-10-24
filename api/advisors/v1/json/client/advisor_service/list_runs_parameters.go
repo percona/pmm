@@ -88,6 +88,12 @@ type ListRunsParams struct {
 	*/
 	RunID *string
 
+	/* ScheduleID.
+
+	   Filter by schedule ID.
+	*/
+	ScheduleID *string
+
 	/* To.
 
 	   Return only runs started at or before this time.
@@ -213,6 +219,17 @@ func (o *ListRunsParams) SetRunID(runID *string) {
 	o.RunID = runID
 }
 
+// WithScheduleID adds the scheduleID to the list runs params
+func (o *ListRunsParams) WithScheduleID(scheduleID *string) *ListRunsParams {
+	o.SetScheduleID(scheduleID)
+	return o
+}
+
+// SetScheduleID adds the scheduleId to the list runs params
+func (o *ListRunsParams) SetScheduleID(scheduleID *string) {
+	o.ScheduleID = scheduleID
+}
+
 // WithTo adds the to to the list runs params
 func (o *ListRunsParams) WithTo(to *strfmt.DateTime) *ListRunsParams {
 	o.SetTo(to)
@@ -301,6 +318,22 @@ func (o *ListRunsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 		qRunID := qrRunID
 		if qRunID != "" {
 			if err := r.SetQueryParam("run_id", qRunID); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.ScheduleID != nil {
+
+		// query param schedule_id
+		var qrScheduleID string
+
+		if o.ScheduleID != nil {
+			qrScheduleID = *o.ScheduleID
+		}
+		qScheduleID := qrScheduleID
+		if qScheduleID != "" {
+			if err := r.SetQueryParam("schedule_id", qScheduleID); err != nil {
 				return err
 			}
 		}

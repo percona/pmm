@@ -8,7 +8,6 @@ checks:
     technology: MONGODB
     # author: Corrado Pandiani
     category: Durability
-    interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |

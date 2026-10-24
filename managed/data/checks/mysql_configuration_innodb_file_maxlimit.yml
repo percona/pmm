@@ -4,7 +4,6 @@ checks:
     name: mysql_configuration_innodb_file_maxlimit
     summary: InnoDB Tablespace size has a maximum limit
     description: Check if InnoDB is configured with recommended auto-extend
-    interval: standard
     category: Resources
     # author: The Grinch
     technology: MYSQL

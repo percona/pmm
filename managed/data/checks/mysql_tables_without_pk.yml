@@ -4,7 +4,6 @@ checks:
     name: mysql_tables_without_pk
     summary: MySQL check for table without Primary Key
     description: Checks tables without primary keys.
-    interval: standard
     technology: MYSQL
     # author: tibi/the grinch
     category: Schema & indexes

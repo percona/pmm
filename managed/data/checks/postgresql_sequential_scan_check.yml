@@ -4,7 +4,6 @@ checks:
     name: postgresql_sequential_scan_check
     summary: PostgreSQL sequential scan check
     description: This check for tables with excessive sequential scans
-    interval: standard
     technology: POSTGRESQL
     category: Schema & indexes
     queries:

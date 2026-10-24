@@ -4,7 +4,6 @@ checks:
     name: mysql_require_secure_transport
     summary: Secure transport is not required
     description: Checks if require_secure_transport is enabled.
-    interval: standard
     technology: MYSQL
     category: Security
     # author: tibi/the grinch

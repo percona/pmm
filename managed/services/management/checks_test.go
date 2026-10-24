@@ -125,7 +125,7 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil), []check.Interval{}).Return("", errors.New("random error"))
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -136,7 +136,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil), []check.Interval{}).Return("", services.ErrAdvisorsDisabled)
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -152,7 +152,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 			Now: now,
 		}
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string(nil), []check.Interval{}).Return("", inProgress)
+		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string(nil)).Return("", inProgress)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -164,43 +164,17 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("passes the scope through", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string{"svc-1"},
-			[]check.Interval{check.Frequent, check.Rare}).Return("run-1", nil)
+		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string{"svc-1"}).Return("run-1", nil)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
 			Names:      []string{"check_a"},
 			ServiceIds: []string{"svc-1"},
-			Intervals:  []string{"ADVISOR_CHECK_INTERVAL_FREQUENT", "ADVISOR_CHECK_INTERVAL_RARE"},
 		})
 		require.NoError(t, err)
 		assert.Equal(t, "run-1", resp.RunId)
 		checksService.AssertExpectations(t)
-	})
-
-	t.Run("unspecified interval rejected", func(t *testing.T) {
-		var checksService mockChecksService
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
-			Intervals: []string{"ADVISOR_CHECK_INTERVAL_UNSPECIFIED"},
-		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "invalid advisor check interval"), err)
-		assert.Nil(t, resp)
-	})
-
-	t.Run("unknown interval rejected", func(t *testing.T) {
-		var checksService mockChecksService
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
-			Intervals: []string{"ADVISOR_CHECK_INTERVAL_FREQUENT", "FREQUENT"},
-		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "unknown advisor check interval 'FREQUENT'"), err)
-		assert.Nil(t, resp)
 	})
 }
 
@@ -213,7 +187,6 @@ func TestTestAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
-		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
 		Script:      "def check_context(docs, context):\n    return []",
 	}
@@ -269,7 +242,6 @@ func TestTestAdvisorCheck(t *testing.T) {
 			Description: "Check description",
 			Category:    "configuration",
 			Technology:  check.MySQL,
-			Interval:    check.Standard,
 			Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
 			Script:      "def check_context(docs, context):\n    return []",
 		}
@@ -361,18 +333,23 @@ func TestListRuns(t *testing.T) {
 			models.Severity(common.Error):   4,
 			models.Severity(common.Warning): 22,
 		}))
-		// a run still in flight has no completion and no totals yet
+		// a run still in flight has no completion and no totals yet; it waited for the one above
+		scheduledFor := startedAt.Add(time.Minute)
 		running := &models.AdvisorRun{
-			ID:          "run-2",
-			TriggeredBy: models.CheckTriggeredByScheduler,
-			Status:      models.AdvisorRunStatusRunning,
-			Intervals:   []string{string(models.Frequent)},
-			StartedAt:   startedAt.Add(5 * time.Minute),
+			ID:           "run-2",
+			TriggeredBy:  models.CheckTriggeredByScheduler,
+			Status:       models.AdvisorRunStatusRunning,
+			ScheduleID:   new("schedule-1"),
+			ScheduleName: "All checks daily",
+			ScheduledFor: &scheduledFor,
+			StartedAt:    startedAt.Add(5 * time.Minute),
 		}
 
 		var checksService mockChecksService
 		checksService.On("GetRuns", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return([]*models.AdvisorRun{finished, running}, 3, nil)
+		checksService.On("GetRunsWaitedFor", mock.Anything, []*models.AdvisorRun{finished, running}).
+			Return(map[string]*models.AdvisorRun{"run-2": finished}, nil)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -404,10 +381,17 @@ func TestListRuns(t *testing.T) {
 					},
 				},
 				{
-					Id:             "run-2",
-					TriggeredBy:    advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER,
-					Status:         advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING,
-					Intervals:      []advisorsv1.AdvisorCheckInterval{advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
+					Id:           "run-2",
+					TriggeredBy:  advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER,
+					Status:       advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING,
+					ScheduleId:   "schedule-1",
+					ScheduleName: "All checks daily",
+					ScheduledFor: timestamppb.New(scheduledFor),
+					WaitedForRun: &advisorsv1.AdvisorRunReference{
+						RunId:       "run-1",
+						TriggeredBy: advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER,
+						StartedAt:   timestamppb.New(startedAt),
+					},
 					StartedAt:      timestamppb.New(startedAt.Add(5 * time.Minute)),
 					SeverityCounts: []*advisorsv1.SeverityCount{},
 				},
@@ -429,10 +413,13 @@ func TestListRuns(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetRuns", mock.Anything, models.AdvisorRunFilters{
 			RunID:       "run-1",
+			ScheduleID:  "schedule-1",
 			TriggeredBy: &triggeredBy,
 			From:        &from,
 			To:          &to,
 		}, 0, 25).Return([]*models.AdvisorRun{}, 0, nil)
+		checksService.On("GetRunsWaitedFor", mock.Anything, []*models.AdvisorRun{}).
+			Return(map[string]*models.AdvisorRun{}, nil)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -442,6 +429,7 @@ func TestListRuns(t *testing.T) {
 			From:        timestamppb.New(from),
 			To:          timestamppb.New(to),
 			RunId:       "run-1",
+			ScheduleId:  "schedule-1",
 		})
 		require.NoError(t, err)
 		checksService.AssertExpectations(t)
@@ -521,7 +509,6 @@ func TestListInsights(t *testing.T) {
 			ID:          "id1",
 			CheckName:   "test_check",
 			Category:    "configuration",
-			Interval:    models.Standard,
 			ServiceID:   "test_svc",
 			ServiceName: "svc",
 			ServiceType: models.MySQLServiceType,
@@ -541,7 +528,6 @@ func TestListInsights(t *testing.T) {
 		pending := &models.Insight{
 			ID:          "id2",
 			CheckName:   "test_check",
-			Interval:    models.Standard,
 			ServiceID:   "test_svc",
 			ServiceType: models.MySQLServiceType,
 			Status:      models.CheckResultPending,
@@ -566,7 +552,6 @@ func TestListInsights(t *testing.T) {
 					Id:          "id1",
 					CheckName:   "test_check",
 					Category:    "configuration",
-					Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 					ServiceId:   "test_svc",
 					ServiceName: "svc",
 					ServiceType: string(models.MySQLServiceType),
@@ -585,7 +570,6 @@ func TestListInsights(t *testing.T) {
 				{
 					Id:          "id2",
 					CheckName:   "test_check",
-					Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 					ServiceId:   "test_svc",
 					ServiceType: string(models.MySQLServiceType),
 					Status:      advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_PENDING,
@@ -712,10 +696,10 @@ func TestListAdvisorChecks(t *testing.T) {
 			Return(map[string][]string{"three": {"svc-1", "svc-2"}}, nil)
 		checksService.On("GetChecks").
 			Return(map[string]check.Check{
-				"one":   {Name: "one", Interval: check.Standard},
-				"two":   {Name: "two", Interval: check.Frequent},
-				"three": {Name: "three", Interval: check.Rare},
-				"four":  {Name: "four", Interval: ""},
+				"one":   {Name: "one"},
+				"two":   {Name: "two"},
+				"three": {Name: "three"},
+				"four":  {Name: "four"},
 			}, nil)
 
 		s := NewChecksAPIService(&checksService)
@@ -727,10 +711,10 @@ func TestListAdvisorChecks(t *testing.T) {
 		assert.Equal(
 			t,
 			[]*advisorsv1.AdvisorCheck{
-				{Name: "four", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
-				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
-				{Name: "three", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE, DisabledServiceIds: []string{"svc-1", "svc-2"}},
-				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
+				{Name: "four", Enabled: true},
+				{Name: "one", Enabled: true},
+				{Name: "three", Enabled: true, DisabledServiceIds: []string{"svc-1", "svc-2"}},
+				{Name: "two", Enabled: false},
 			},
 			resp.Checks,
 		)
@@ -757,7 +741,6 @@ func TestGetAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Technology:  check.PostgreSQL,
-		Interval:    check.Rare,
 		UserDefined: true,
 		Queries: []check.Query{{
 			Type:       check.PostgreSQLSelect,
@@ -787,7 +770,6 @@ func TestGetAdvisorCheck(t *testing.T) {
 				Summary:     "Check summary",
 				Description: "Check description",
 				Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL,
-				Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE,
 				Category:    "configuration",
 				UserDefined: true,
 				Queries: []*advisorsv1.AdvisorCheckQuery{{
@@ -866,7 +848,6 @@ func TestCreateAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
-		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT,
 		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
 		Script:      "def check_context(docs, context):\n    return []",
 	}
@@ -876,7 +857,6 @@ func TestCreateAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Technology:  check.MySQL,
-		Interval:    check.Frequent,
 		Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
 		Script:      "def check_context(docs, context):\n    return []",
 	}
@@ -947,7 +927,6 @@ func TestCreateAdvisorCheck(t *testing.T) {
 				Summary:     "Check summary",
 				Description: "Check description",
 				Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
-				Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT,
 				Category:    "configuration",
 				UserDefined: true,
 				Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
@@ -966,7 +945,6 @@ func TestUpdateAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
-		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
 		Script:      "def check_context(docs, context):\n    return []",
 	}
@@ -993,7 +971,6 @@ func TestUpdateAdvisorCheck(t *testing.T) {
 			Description: "Check description",
 			Category:    "configuration",
 			Technology:  check.MySQL,
-			Interval:    check.Standard,
 			Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
 			Script:      "def check_context(docs, context):\n    return []",
 		}
@@ -1073,40 +1050,6 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 
-	t.Run("change interval error", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("ChangeInterval", mock.Anything, mock.Anything).Return(errors.New("random error"))
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
-			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
-				Name:     "check-name",
-				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
-			}},
-		})
-		require.EqualError(t, err, "failed to change advisor check interval: random error")
-		assert.Nil(t, resp)
-	})
-
-	t.Run("ChangeInterval success", func(t *testing.T) {
-		var checksService mockChecksService
-		checksService.On("ChangeInterval", mock.Anything, mock.Anything).Return(nil)
-		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(nil)
-		checksService.On("DisableChecks", mock.Anything, mock.Anything).Return(nil)
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
-			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
-				Name:     "check-name",
-				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,
-			}},
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
-	})
-
 	t.Run("disable for services", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("DisableChecksForServices", mock.Anything, "check-name", []string{"svc-1", "svc-2"}).Return(nil)
@@ -1149,23 +1092,6 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		checksService.AssertCalled(t, "EnableChecksForServices", mock.Anything, "check-name", []string{"svc-1"})
 	})
 
-	t.Run("interval change with services rejected", func(t *testing.T) {
-		var checksService mockChecksService
-
-		s := NewChecksAPIService(&checksService)
-
-		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
-			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
-				Name:       "check-name",
-				Interval:   advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE,
-				ServiceIds: []string{"svc-1"},
-			}},
-		})
-		require.Error(t, err)
-		assert.Equal(t, codes.InvalidArgument, status.Code(err))
-		assert.Nil(t, resp)
-	})
-
 	t.Run("services without enable flag rejected", func(t *testing.T) {
 		var checksService mockChecksService
 
@@ -1180,46 +1106,6 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Nil(t, resp)
-	})
-}
-
-func TestConvertIntervals(t *testing.T) {
-	t.Parallel()
-
-	t.Run("round-trips every specified API interval", func(t *testing.T) {
-		t.Parallel()
-
-		for value, name := range advisorsv1.AdvisorCheckInterval_name {
-			apiInterval := advisorsv1.AdvisorCheckInterval(value)
-			if apiInterval == advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
-				continue
-			}
-
-			interval, err := convertAPIInterval(apiInterval)
-			require.NoError(t, err, name)
-			assert.Equal(t, apiInterval, convertInterval(interval), name)
-
-			optional := convertAPIIntervalOptional(apiInterval)
-			assert.Equal(t, interval, optional, name)
-			assert.Equal(t, apiInterval, convertModelInterval(models.Interval(optional)), name)
-		}
-	})
-
-	t.Run("unspecified and unknown values", func(t *testing.T) {
-		t.Parallel()
-
-		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD, convertInterval(""))
-		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED, convertInterval("hourly"))
-		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD, convertModelInterval(""))
-		assert.Equal(t, advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED, convertModelInterval("hourly"))
-
-		_, err := convertAPIInterval(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED)
-		require.EqualError(t, err, "invalid advisor check interval")
-		_, err = convertAPIInterval(advisorsv1.AdvisorCheckInterval(999))
-		require.EqualError(t, err, "unknown advisor check interval")
-
-		assert.Empty(t, convertAPIIntervalOptional(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED))
-		assert.Empty(t, convertAPIIntervalOptional(advisorsv1.AdvisorCheckInterval(999)))
 	})
 }
 

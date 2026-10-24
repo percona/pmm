@@ -6,7 +6,6 @@ checks:
     description: Identifies databases with name 'test' or 'test_%'
     technology: MYSQL
     category: Security
-    interval: standard
     queries:
       - type: MYSQL_SHOW
         query: "DATABASES WHERE `Database` = 'test' or `Database` like 'test_%'"

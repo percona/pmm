@@ -201,26 +201,6 @@ func (f Technology) Validate() error {
 	}
 }
 
-// Supported check intervals.
-const (
-	Standard = Interval("standard")
-	Frequent = Interval("frequent")
-	Rare     = Interval("rare")
-)
-
-// Interval represents check execution interval.
-type Interval string
-
-// Validate validates check interval.
-func (i Interval) Validate() error {
-	switch i {
-	case Standard, Frequent, Rare, "":
-		return nil
-	default:
-		return fmt.Errorf("unknown check interval: %s", i)
-	}
-}
-
 // Parameter represents query parameter.
 type Parameter string
 
@@ -278,7 +258,6 @@ type Check struct {
 	Description string     `yaml:"description"`
 	Category    string     `yaml:"category"`
 	Technology  Technology `yaml:"technology"`
-	Interval    Interval   `yaml:"interval,omitempty"`
 	Queries     []Query    `yaml:"queries"`
 	Script      string     `yaml:"script"`
 	// UserDefined is true for checks authored by a user and stored in the DB,
@@ -303,12 +282,7 @@ func (c *Check) Validate() error {
 			c.Name, c.Version, MaxSupportedVersion)
 	}
 
-	err := c.Interval.Validate()
-	if err != nil {
-		return err
-	}
-
-	err = c.validateScript()
+	err := c.validateScript()
 	if err != nil {
 		return err
 	}

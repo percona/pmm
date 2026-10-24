@@ -8,7 +8,6 @@ checks:
     technology: MONGODB
     # author: Vinicius Grippa
     category: Performance
-    interval: standard
     queries:
       - type: MONGODB_GETPARAMETER
       - type: MONGODB_BUILDINFO

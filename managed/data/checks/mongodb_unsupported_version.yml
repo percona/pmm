@@ -4,7 +4,6 @@ checks:
     name: mongodb_unsupported_version
     summary: MongoDB Unsupported version check
     description: This check returns errors if your current PSMDB or MongoDB version is not supported.
-    interval: standard
     technology: MONGODB
     category: Versions
     # author: Parag Bhayani

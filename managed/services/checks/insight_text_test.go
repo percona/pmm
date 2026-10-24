@@ -44,7 +44,6 @@ func TestInsightToText(t *testing.T) {
 			Environment:    "prod",
 			Cluster:        "cluster-1",
 			ReplicationSet: "rs0",
-			Interval:       models.Standard,
 			TriggeredBy:    models.CheckTriggeredByScheduler,
 			IsRead:         false,
 			Summary:        "Outdated MySQL version",
@@ -70,7 +69,6 @@ Check Details:
   Environment: prod
   Cluster: cluster-1
   Replication Set: rs0
-  Interval: Standard
   Triggered By: Scheduler
   Read: Unread
   Summary: Outdated MySQL version
@@ -106,7 +104,6 @@ Check Details:
   ID: insight-2
   Run ID: run-2
   Check Name: pg_check
-  Interval: Standard
   Triggered By: User
   Read: Read
   Summary: Issue found
@@ -135,7 +132,6 @@ Check Details:
   ID: insight-3
   Run ID: run-3
   Check Name: pg_check
-  Interval: Standard
   Triggered By: User
   Read: Unread
   Summary: Check title`

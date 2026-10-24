@@ -4,7 +4,6 @@ checks:
     name: postgresql_extension_check
     summary: Check for outdated extensions
     description: This check will list outdated extensions with newer versions available
-    interval: standard
     technology: POSTGRESQL
     category: Versions
     queries:

@@ -4,7 +4,6 @@ checks:
     name: exampleV2
     summary: Check format V2
     description: Checks something important
-    interval: standard
     category: Security
     technology: MYSQL
     queries:

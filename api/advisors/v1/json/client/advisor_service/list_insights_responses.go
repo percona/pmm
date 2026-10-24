@@ -547,10 +547,6 @@ type ListInsightsOKBodyResultsItems0 struct {
 	// Category the check belongs to.
 	Category string `json:"category,omitempty"`
 
-	// AdvisorCheckInterval represents possible execution interval values for checks.
-	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
-	Interval *string `json:"interval,omitempty"`
-
 	// ID of the monitored service on which the check ran.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -629,10 +625,6 @@ type ListInsightsOKBodyResultsItems0 struct {
 func (o *ListInsightsOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateInterval(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -652,54 +644,6 @@ func (o *ListInsightsOKBodyResultsItems0) Validate(formats strfmt.Registry) erro
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var listInsightsOkBodyResultsItems0TypeIntervalPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listInsightsOkBodyResultsItems0TypeIntervalPropEnum = append(listInsightsOkBodyResultsItems0TypeIntervalPropEnum, v)
-	}
-}
-
-const (
-
-	// ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALUNSPECIFIED captures enum value "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-	ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALUNSPECIFIED string = "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-
-	// ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALSTANDARD captures enum value "ADVISOR_CHECK_INTERVAL_STANDARD"
-	ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALSTANDARD string = "ADVISOR_CHECK_INTERVAL_STANDARD"
-
-	// ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALFREQUENT captures enum value "ADVISOR_CHECK_INTERVAL_FREQUENT"
-	ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALFREQUENT string = "ADVISOR_CHECK_INTERVAL_FREQUENT"
-
-	// ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALRARE captures enum value "ADVISOR_CHECK_INTERVAL_RARE"
-	ListInsightsOKBodyResultsItems0IntervalADVISORCHECKINTERVALRARE string = "ADVISOR_CHECK_INTERVAL_RARE"
-)
-
-// prop value enum
-func (o *ListInsightsOKBodyResultsItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listInsightsOkBodyResultsItems0TypeIntervalPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListInsightsOKBodyResultsItems0) validateInterval(formats strfmt.Registry) error {
-	if swag.IsZero(o.Interval) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
-		return err
-	}
-
 	return nil
 }
 

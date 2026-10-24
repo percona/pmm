@@ -49,12 +49,6 @@ func TestSettings(t *testing.T) {
 			Lr: "60s",
 		}
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
-		expectedAdvisorRunIntervals := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-			FrequentInterval: "14400s",
-			StandardInterval: "86400s",
-			RareInterval:     "259200s",
-		}
-		assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 		assert.True(t, res.Payload.Settings.UpdatesEnabled)
@@ -408,22 +402,6 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							FrequentInterval: "1",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`invalid google.protobuf.Duration value "1"`)
-				assert.Empty(t, res)
-			})
-
 			// This test case triggers Grafana restart that may affect the other tests.
 			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
 				defer serverTest.RestoreSettingsDefaults(t)
@@ -440,38 +418,6 @@ func TestSettings(t *testing.T) {
 				// Wait until the server is ready again, otherwise the next tests will fail because of Grafana being restarted.
 				serverReadyErr := pmmapitests.WaitServerReady(t.Context())
 				require.NoError(t, serverReadyErr)
-			})
-
-			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							StandardInterval: "0.9s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: standard_interval: minimal resolution is 1s.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							RareInterval: "1.5s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: rare_interval: should be a natural number of seconds.`)
-				assert.Empty(t, res)
 			})
 
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
@@ -614,63 +560,6 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
 					assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
 					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
-				})
-			})
-
-			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							RareInterval:     "28800s", // 8 hours
-							StandardInterval: "1800s",  // 30 minutes
-							FrequentInterval: "20s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-				expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
-					RareInterval:     "28800s",
-					StandardInterval: "1800s",
-					FrequentInterval: "20s",
-				}
-				assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
-
-				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
-				require.NoError(t, err)
-				getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-					RareInterval:     "28800s",
-					StandardInterval: "1800s",
-					FrequentInterval: "20s",
-				}
-				assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
-
-				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
-					defer serverTest.RestoreSettingsDefaults(t)
-
-					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-						Body:    server.ChangeSettingsBody{},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
-						RareInterval:     "28800s",
-						StandardInterval: "1800s",
-						FrequentInterval: "20s",
-					}
-					assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
-
-					// Check if the values were persisted
-					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
-					require.NoError(t, err)
-					getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-						RareInterval:     "28800s",
-						StandardInterval: "1800s",
-						FrequentInterval: "20s",
-					}
-					assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
 				})
 			})
 

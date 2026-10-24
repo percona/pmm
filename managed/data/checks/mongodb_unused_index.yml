@@ -4,7 +4,6 @@ checks:
     name: mongodb_unused_index
     summary: MongoDB - Unused Indexes
     description: This check returns a warning if there are unused indexes on any database collection in your instance (Need to enable "indexStats" collector).
-    interval: standard
     technology: MONGODB
     category: Schema & indexes
     # author: Parag Bhayani

@@ -7,7 +7,6 @@ checks:
     technology: MONGODB
     category: Versions
     # author: Parag Bhayani
-    interval: standard
     queries:
       - type: MONGODB_BUILDINFO
     script: |

@@ -62,8 +62,6 @@ func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 type Advisors struct {
 	// Advisor checks disabled, false by default.
 	Enabled *bool `json:"enabled"`
-	// Advisor run intervals
-	AdvisorRunIntervals AdvisorsRunIntervals `json:"advisor_run_intervals"`
 }
 
 // Settings contains PMM Server settings.
@@ -99,7 +97,7 @@ type Settings struct {
 
 	Nomad struct {
 		Enabled *bool `json:"enabled"`
-	}
+	} `json:"Nomad"`
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
@@ -247,13 +245,6 @@ func DurationToDays(d time.Duration) int {
 	return int(d.Hours() / 24) //nolint:mnd
 }
 
-// AdvisorsRunIntervals represents intervals between Advisors checks.
-type AdvisorsRunIntervals struct {
-	StandardInterval time.Duration `json:"standard_interval"`
-	RareInterval     time.Duration `json:"rare_interval"`
-	FrequentInterval time.Duration `json:"frequent_interval"`
-}
-
 // fillDefaults sets zero values to their default values.
 // Used for migrating settings to the newer version.
 func (s *Settings) fillDefaults() {
@@ -283,17 +274,5 @@ func (s *Settings) fillDefaults() {
 
 	if len(s.AWSPartitions) == 0 {
 		s.AWSPartitions = []string{awsPartitionID}
-	}
-
-	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 72 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
 	}
 }

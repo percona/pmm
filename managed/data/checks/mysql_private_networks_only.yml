@@ -6,7 +6,6 @@ checks:
     description: Discovers MySQL accounts currently allowed to connect from public networks.
     technology: MYSQL
     category: Security
-    interval: standard
     queries:
       - type: MYSQL_SELECT
         query: ' * FROM mysql.user'

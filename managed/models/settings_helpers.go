@@ -44,7 +44,7 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 
 	var s Settings
 
-	err = json.Unmarshal(b, &s) //nolint:musttag
+	err = json.Unmarshal(b, &s)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal settings: %w", err)
 	}
@@ -81,9 +81,6 @@ type ChangeSettingsParams struct {
 	EnableAdvisors *bool
 
 	EnableNomad *bool
-
-	// Advisors run intervals
-	AdvisorsRunInterval AdvisorsRunIntervals
 
 	// Enable Azure Discover features.
 	EnableAzurediscover *bool
@@ -215,16 +212,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Nomad.Enabled = params.EnableNomad
 	}
 
-	if params.AdvisorsRunInterval.RareInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.RareInterval = params.AdvisorsRunInterval.RareInterval
-	}
-	if params.AdvisorsRunInterval.StandardInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.StandardInterval = params.AdvisorsRunInterval.StandardInterval
-	}
-	if params.AdvisorsRunInterval.FrequentInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
-	}
-
 	if params.EnableVMCache != nil {
 		settings.VictoriaMetrics.CacheEnabled = params.EnableVMCache
 	}
@@ -274,7 +261,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error {
-	// TODO: consider refactoring this and the validation for Advisors run intervals
 	checkCases := []struct {
 		dur       time.Duration
 		fieldName string
@@ -289,32 +275,6 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 
 		_, err := validators.ValidateMetricResolution(v.dur)
-		if err != nil {
-			switch err.(type) { //nolint:errorlint
-			case validators.DurationNotAllowedError:
-				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
-			case validators.MinDurationError:
-				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
-			default:
-				return fmt.Errorf("%s: %w", v.fieldName, err)
-			}
-		}
-	}
-
-	checkCases = []struct {
-		dur       time.Duration
-		fieldName string
-	}{
-		{params.AdvisorsRunInterval.RareInterval, "rare_interval"},
-		{params.AdvisorsRunInterval.StandardInterval, "standard_interval"},
-		{params.AdvisorsRunInterval.FrequentInterval, "frequent_interval"},
-	}
-	for _, v := range checkCases {
-		if v.dur == 0 {
-			continue
-		}
-
-		_, err := validators.ValidateAdvisorRunInterval(v.dur)
 		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
@@ -393,20 +353,28 @@ const maxAdvisorNotificationEmailAddresses = 20
 // ValidateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
 // "clear" respectively) and otherwise requires every entry to be a bare, parseable address.
 func ValidateAdvisorNotificationEmailAddresses(addresses []string) error {
+	err := validateEmailAddresses(addresses)
+	if err != nil {
+		return fmt.Errorf("advisor_notification_email_addresses: %w", err)
+	}
+	return nil
+}
+
+// validateEmailAddresses checks the length of an Advisor recipient list and every address in it.
+func validateEmailAddresses(addresses []string) error {
 	if len(addresses) > maxAdvisorNotificationEmailAddresses {
-		return fmt.Errorf("advisor_notification_email_addresses: at most %d addresses are allowed, got %d",
-			maxAdvisorNotificationEmailAddresses, len(addresses))
+		return fmt.Errorf("at most %d addresses are allowed, got %d", maxAdvisorNotificationEmailAddresses, len(addresses))
 	}
 
 	for _, a := range addresses {
 		parsed, err := mail.ParseAddress(a)
 		if err != nil {
-			return fmt.Errorf("advisor_notification_email_addresses: invalid address '%s'", a)
+			return fmt.Errorf("invalid address '%s'", a)
 		}
 		// ParseAddress also accepts `Name <addr>`; the sender only needs the address itself, and
 		// accepting display names here would make the stored list ambiguous.
 		if parsed.Address != a {
-			return fmt.Errorf("advisor_notification_email_addresses: expected a bare email address, got '%s'", a)
+			return fmt.Errorf("expected a bare email address, got '%s'", a)
 		}
 	}
 

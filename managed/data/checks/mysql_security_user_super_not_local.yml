@@ -4,7 +4,6 @@ checks:
     name: mysql_security_user_super_not_local
     summary: Users have super privileges with remote or lack access restrictions
     description: Users have super privileges but are not connecting from local or the host is not fully restricted (i.e. 192.168.%).
-    interval: standard
     category: Security
     # author: The Grinch
     technology: MYSQL

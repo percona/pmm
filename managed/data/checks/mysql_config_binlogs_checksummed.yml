@@ -4,7 +4,6 @@ checks:
     name: mysql_config_binlogs_checksummed
     summary: Binlogs are not checksummed
     description: Please consider setting binlog_checksum=CRC32 to improve consistency and reliability.
-    interval: standard
     category: Durability
     # author: The Grinch
     technology: MYSQL

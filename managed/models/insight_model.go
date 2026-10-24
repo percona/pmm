@@ -59,7 +59,6 @@ type Insight struct {
 	ID             string            `reform:"id,pk"`
 	CheckName      string            `reform:"check_name"`
 	Category       string            `reform:"category"`
-	Interval       Interval          `reform:"interval"`
 	ServiceID      string            `reform:"service_id"`
 	ServiceName    string            `reform:"service_name"`
 	ServiceType    ServiceType       `reform:"service_type"`

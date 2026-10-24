@@ -74,7 +74,6 @@ func (t *Target) Copy() Target {
 type CheckResult struct {
 	CheckName string
 	Category  string
-	Interval  check.Interval
 	Target    Target
 	Result    check.Result
 }

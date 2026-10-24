@@ -4,7 +4,6 @@ checks:
     name: mysql_config_local_infile
     summary: Load data in file active
     description: Identify if a load data in file is active.
-    interval: standard
     category: Security
     # author: The Grinch
     technology: MYSQL

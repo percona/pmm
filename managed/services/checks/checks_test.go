@@ -280,50 +280,6 @@ func runAllChecks(t *testing.T, s *Service) *models.AdvisorRun {
 	return run
 }
 
-func TestChangeInterval(t *testing.T) {
-	t.Run("normal", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		t.Cleanup(func() {
-			require.NoError(t, sqlDB.Close())
-		})
-
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-		s := New(db, nil, vmClient, clickhouseDB)
-		seedUserCheck(t, db)
-
-		s.UpdateAdvisorsList(t.Context())
-
-		checks, err := s.GetChecks()
-		require.NoError(t, err)
-		assert.NotEmpty(t, checks)
-
-		// change all check intervals from standard to rare
-		params := make(map[string]check.Interval)
-		for _, c := range checks {
-			params[c.Name] = check.Rare
-		}
-		err = s.ChangeInterval(t.Context(), params)
-		require.NoError(t, err)
-
-		updatedChecks, err := s.GetChecks()
-		require.NoError(t, err)
-		for _, c := range updatedChecks {
-			assert.Equal(t, check.Rare, c.Interval)
-		}
-
-		t.Run("preserve intervals on restarts", func(t *testing.T) {
-			runAllChecks(t, s)
-
-			checks, err := s.GetChecks()
-			require.NoError(t, err)
-			for _, c := range checks {
-				assert.Equal(t, check.Rare, c.Interval)
-			}
-		})
-	})
-}
-
 func TestChecksForServices(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -433,7 +389,7 @@ func TestStartChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.l = logrus.NewEntry(logger)
 
-		id, err := s.StartChecks(t.Context(), []string{"check_a"}, []string{"svc-1"}, []check.Interval{check.Frequent})
+		id, err := s.StartChecks(t.Context(), []string{"check_a"}, []string{"svc-1"})
 		require.NoError(t, err)
 
 		run := &models.AdvisorRun{ID: id}
@@ -442,7 +398,6 @@ func TestStartChecks(t *testing.T) {
 		assert.Equal(t, models.CheckTriggeredByUser, run.TriggeredBy)
 		assert.Equal(t, []string{"check_a"}, []string(run.CheckNames))
 		assert.Equal(t, []string{"svc-1"}, []string(run.ServiceIDs))
-		assert.Equal(t, []string{string(check.Frequent)}, []string(run.Intervals))
 
 		select {
 		case <-s.wakeCh:
@@ -450,7 +405,7 @@ func TestStartChecks(t *testing.T) {
 			t.Fatal("StartChecks did not wake the run loop")
 		}
 
-		_, err = s.StartChecks(t.Context(), nil, nil, nil)
+		_, err = s.StartChecks(t.Context(), nil, nil)
 		inProgress, ok := errors.AsType[*services.AdvisorRunInProgressError](err)
 		require.True(t, ok, "%v", err)
 		require.NotNil(t, inProgress.Run)
@@ -491,7 +446,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		_, err = s.StartChecks(t.Context(), nil, nil, nil)
+		_, err = s.StartChecks(t.Context(), nil, nil)
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
@@ -622,7 +577,6 @@ func TestTestAdvisorCheck(t *testing.T) {
 		Description: "Diagnosis probe",
 		Category:    "test",
 		Technology:  check.PostgreSQL,
-		Interval:    check.Standard,
 		Queries:     []check.Query{{Type: check.PostgreSQLSelect, Query: "1"}},
 		Script:      "def check_context(docs, context):\n    return []",
 	}
@@ -712,16 +666,7 @@ func TestNewInitializesRunLoopDeps(t *testing.T) {
 	s := New(nil, nil, nil, nil)
 	require.NotNil(t, s.wakeCh)
 	require.NotNil(t, s.execute)
-}
-
-func TestUpdateIntervalsBeforeRun(t *testing.T) {
-	t.Parallel()
-	// UpdateIntervals must not panic when Run has not created the tickers yet
-	// (e.g. a settings change on a node that is not the leader).
-	s := New(nil, nil, nil, nil)
-	assert.NotPanics(t, func() {
-		s.UpdateIntervals(time.Hour, time.Minute, time.Second)
-	})
+	require.NotNil(t, s.now)
 }
 
 func TestFilterChecks(t *testing.T) {
@@ -942,40 +887,21 @@ func TestListTestTargets(t *testing.T) {
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
-func TestFilterChecksByInterval(t *testing.T) {
+func TestFilterChecksByName(t *testing.T) {
 	t.Parallel()
 	s := New(nil, nil, vmClient, clickhouseDB)
 
-	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
-	standardCheck := check.Check{Name: "standardCheck", Interval: check.Standard}
-	frequentCheck := check.Check{Name: "frequentCheck", Interval: check.Frequent}
-	emptyCheck := check.Check{Name: "emptyCheck"}
-
 	checks := map[string]check.Check{
-		rareCheck.Name:     rareCheck,
-		standardCheck.Name: standardCheck,
-		frequentCheck.Name: frequentCheck,
-		emptyCheck.Name:    emptyCheck,
+		"a": {Name: "a"},
+		"b": {Name: "b"},
+		"c": {Name: "c"},
 	}
 
-	rareChecks := s.filterChecks(checks, []check.Interval{check.Rare}, nil, nil)
-	assert.Equal(t, map[string]check.Check{"rareCheck": rareCheck}, rareChecks)
-
-	standardChecks := s.filterChecks(checks, []check.Interval{check.Standard}, nil, nil)
-	assert.Equal(t, map[string]check.Check{"standardCheck": standardCheck, "emptyCheck": emptyCheck}, standardChecks)
-
-	frequentChecks := s.filterChecks(checks, []check.Interval{check.Frequent}, nil, nil)
-	assert.Equal(t, map[string]check.Check{"frequentCheck": frequentCheck}, frequentChecks)
-
-	mergedChecks := s.filterChecks(checks, []check.Interval{check.Frequent, check.Standard}, nil, nil)
-	assert.Equal(t, map[string]check.Check{
-		"frequentCheck": frequentCheck,
-		"standardCheck": standardCheck,
-		"emptyCheck":    emptyCheck,
-	}, mergedChecks)
-
-	allChecks := s.filterChecks(checks, nil, nil, nil)
-	assert.Equal(t, checks, allChecks)
+	assert.Equal(t, checks, s.filterChecks(checks, nil, nil))
+	assert.Equal(t, map[string]check.Check{"a": checks["a"], "c": checks["c"]}, s.filterChecks(checks, nil, []string{"a", "c", "gone"}))
+	assert.Equal(t, map[string]check.Check{"a": checks["a"], "c": checks["c"]}, s.filterChecks(checks, []string{"b"}, nil))
+	assert.Equal(t, map[string]check.Check{"c": checks["c"]}, s.filterChecks(checks, []string{"a"}, []string{"a", "c"}))
+	assert.Empty(t, s.filterChecks(checks, nil, []string{"gone"}))
 }
 
 func TestFillQueryPlaceholders(t *testing.T) {

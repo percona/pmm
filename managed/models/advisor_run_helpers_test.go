@@ -147,7 +147,6 @@ func TestAdvisorRuns(t *testing.T) {
 			Status:      models.AdvisorRunStatusQueued,
 			CheckNames:  []string{"check_a"},
 			ServiceIDs:  []string{"svc-1"},
-			Intervals:   []string{string(models.Frequent)},
 			StartedAt:   time.Date(2026, 8, 3, 9, 0, 0, 0, time.UTC),
 		})
 
@@ -168,7 +167,6 @@ func TestAdvisorRuns(t *testing.T) {
 		assert.Equal(t, models.AdvisorRunStatusQueued, active.Status)
 		assert.Equal(t, []string{"check_a"}, []string(active.CheckNames))
 		assert.Equal(t, []string{"svc-1"}, []string(active.ServiceIDs))
-		assert.Equal(t, []string{string(models.Frequent)}, []string(active.Intervals))
 
 		startedAt := time.Date(2026, 8, 3, 9, 0, 40, 0, time.UTC)
 		ok, err := models.StartQueuedAdvisorRun(t.Context(), q, queued.ID, startedAt)
@@ -399,7 +397,6 @@ func createInsight(
 		ServiceID:   serviceID,
 		ServiceName: serviceID,
 		ServiceType: models.MySQLServiceType,
-		Interval:    models.Standard,
 		Status:      status,
 	}
 	if severity != common.Unknown {

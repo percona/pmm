@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: Sergey Kuzmichev
     category: Replication
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: slot_name, pg_current_wal_insert_lsn()-restart_lsn stale_bytes, (SELECT setting FROM pg_settings WHERE name = 'max_wal_size') max_wal_size FROM pg_replication_slots WHERE active = FALSE AND temporary = FALSE AND restart_lsn IS NOT NULL

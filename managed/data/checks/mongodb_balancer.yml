@@ -4,7 +4,6 @@ checks:
     name: mongodb_balancer
     summary: MongoDB Balancer is disabled
     description: This check warns if the balancer process is disabled
-    interval: standard
     technology: MONGODB
     category: Replication
     # author: Parag bhayani

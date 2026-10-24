@@ -4,7 +4,6 @@ checks:
     name: mysql_security_root_not_local
     summary: Root user can connect from non local location
     description: Root user has host definition that is not 127.0.0.1 or localhost.
-    interval: standard
     category: Security
     # author: The Grinch
     technology: MYSQL

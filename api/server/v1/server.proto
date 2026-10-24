@@ -131,16 +131,6 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// AdvisorRunIntervals represents intervals between each run of Advisor checks.
-message AdvisorRunIntervals {
-  // Standard check interval.
-  google.protobuf.Duration standard_interval = 1;
-  // Interval for rare check runs.
-  google.protobuf.Duration rare_interval = 2;
-  // Interval for frequent check runs.
-  google.protobuf.Duration frequent_interval = 3;
-}
-
 // Settings represents PMM Server settings.
 message Settings {
   // True if updates are enabled.
@@ -158,8 +148,9 @@ message Settings {
   bool alerting_enabled = 10;
   // PMM Server public address.
   string pmm_public_address = 11;
-  // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 12;
+  // Field 12 (advisor_run_intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 12;
+  reserved "advisor_run_intervals";
   // True if Backup Management is enabled.
   bool backup_management_enabled = 13;
   // True if Azure Discover is enabled.
@@ -242,8 +233,9 @@ message ChangeSettingsRequest {
   optional bool enable_alerting = 8;
   // PMM Server public address.
   optional string pmm_public_address = 9;
-  // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 10;
+  // Field 10 (advisor_run_intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 10;
+  reserved "advisor_run_intervals";
   // Enable Azure Discover.
   optional bool enable_azurediscover = 11;
   // Enable Backup Management.

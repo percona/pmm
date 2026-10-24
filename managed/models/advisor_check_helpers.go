@@ -66,8 +66,8 @@ func CreateAdvisorCheck(q *reform.Querier, c *AdvisorCheck) (*AdvisorCheck, erro
 }
 
 // UpdateAdvisorCheck updates the content of an existing user-authored advisor check,
-// preserving its creation time, source and settings (interval override, disabled state,
-// per-service disables). It returns reform.ErrNoRows if the check does not exist.
+// preserving its creation time, source and settings (disabled state, per-service
+// disables). It returns reform.ErrNoRows if the check does not exist.
 func UpdateAdvisorCheck(q *reform.Querier, c *AdvisorCheck) (*AdvisorCheck, error) {
 	existing := &AdvisorCheck{Name: c.Name}
 	err := q.Reload(existing)
@@ -77,7 +77,6 @@ func UpdateAdvisorCheck(q *reform.Querier, c *AdvisorCheck) (*AdvisorCheck, erro
 
 	c.CreatedAt = existing.CreatedAt
 	c.Source = existing.Source
-	c.IntervalOverride = existing.IntervalOverride
 	c.Disabled = existing.Disabled
 	c.DisabledServiceIDs = existing.DisabledServiceIDs
 	err = q.Update(c)
@@ -90,17 +89,17 @@ func UpdateAdvisorCheck(q *reform.Querier, c *AdvisorCheck) (*AdvisorCheck, erro
 
 // UpsertAdvisorCheckContent inserts a built-in advisor check or refreshes its
 // content columns if a row with the same name already exists. Settings columns
-// (interval_override, disabled, disabled_service_ids) are never touched on update,
-// so user-set overrides survive content refreshes across restarts.
+// (disabled, disabled_service_ids) are never touched on update, so user-set
+// overrides survive content refreshes across restarts.
 func UpsertAdvisorCheckContent(ctx context.Context, q *reform.Querier, c *AdvisorCheck) error {
 	now := Now()
 	_, err := q.ExecContext(ctx, `
 		INSERT INTO advisor_checks (
 			name, source, version, summary, description, category,
-			technology, interval, interval_override, disabled, disabled_service_ids,
+			technology, disabled, disabled_service_ids,
 			queries, script, created_at, updated_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, NULL, false, NULL, $9, $10, $11, $11
+			$1, $2, $3, $4, $5, $6, $7, false, NULL, $8, $9, $10, $10
 		)
 		ON CONFLICT (name) DO UPDATE SET
 			source = EXCLUDED.source,
@@ -109,12 +108,11 @@ func UpsertAdvisorCheckContent(ctx context.Context, q *reform.Querier, c *Adviso
 			description = EXCLUDED.description,
 			category = EXCLUDED.category,
 			technology = EXCLUDED.technology,
-			interval = EXCLUDED.interval,
 			queries = EXCLUDED.queries,
 			script = EXCLUDED.script,
 			updated_at = EXCLUDED.updated_at`,
 		c.Name, BuiltinCheckSource, c.Version, c.Summary, c.Description, c.Category,
-		c.Technology, c.Interval, c.Queries, c.Script, now)
+		c.Technology, c.Queries, c.Script, now)
 	if err != nil {
 		return fmt.Errorf("failed to upsert advisor check %s: %w", c.Name, err)
 	}
@@ -187,24 +185,6 @@ func SetAdvisorChecksDisabled(ctx context.Context, q *reform.Querier, names []st
 	}
 
 	return nil
-}
-
-// ChangeAdvisorCheckInterval sets the user interval override for the named advisor check.
-// It returns reform.ErrNoRows if the check does not exist.
-func ChangeAdvisorCheckInterval(ctx context.Context, q *reform.Querier, name string, interval Interval) (*AdvisorCheck, error) {
-	c, err := FindAdvisorCheckByName(q.WithContext(ctx), name)
-	if err != nil {
-		return nil, err
-	}
-
-	override := string(interval)
-	c.IntervalOverride = &override
-	err = q.WithContext(ctx).Update(c)
-	if err != nil {
-		return nil, fmt.Errorf("failed to change interval of advisor check %s: %w", name, err)
-	}
-
-	return c, nil
 }
 
 // ChangeAdvisorCheckDisabledServices replaces the set of service IDs for which the

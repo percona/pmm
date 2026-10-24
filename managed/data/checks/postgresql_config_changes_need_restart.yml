@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: Charly Batista
     category: Maintenance
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: name, setting, short_desc, reset_val FROM pg_settings WHERE pending_restart IS true

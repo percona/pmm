@@ -4,7 +4,6 @@ checks:
     name: mongodb_read_tickets
     summary: MongoDB Read Tickets
     description: This check returns warnings if MongoDB is using more than 128 read tickets.
-    interval: standard
     technology: MONGODB
     category: Performance
     # author: Vinicius Grippa/Parag Bhayani

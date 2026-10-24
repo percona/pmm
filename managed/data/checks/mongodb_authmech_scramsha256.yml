@@ -7,7 +7,6 @@ checks:
     technology: MONGODB
     # author: Kimberly Wilkins
     category: Security
-    interval: standard
     queries:
       - type: MONGODB_GETPARAMETER
     script: |

@@ -592,8 +592,19 @@ type ListRunsOKBodyResultsItems0 struct {
 	// IDs of the services the run was narrowed to; empty means all.
 	ServiceIds []string `json:"service_ids"`
 
-	// Interval groups the run was narrowed to; empty means all.
-	Intervals []*string `json:"intervals"`
+	// ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;
+	// empty for other runs and once the schedule is deleted.
+	ScheduleID string `json:"schedule_id,omitempty"`
+
+	// Name the schedule had when the run started; empty for runs not tied to a schedule.
+	ScheduleName string `json:"schedule_name,omitempty"`
+
+	// When the schedule fell due; unset for runs a user started.
+	// Format: date-time
+	ScheduledFor strfmt.DateTime `json:"scheduled_for,omitempty"`
+
+	// waited for run
+	WaitedForRun *ListRunsOKBodyResultsItems0WaitedForRun `json:"waited_for_run,omitempty"`
 }
 
 // Validate validates this list runs OK body results items0
@@ -620,7 +631,11 @@ func (o *ListRunsOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateIntervals(formats); err != nil {
+	if err := o.validateScheduledFor(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateWaitedForRun(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -783,40 +798,36 @@ func (o *ListRunsOKBodyResultsItems0) validateStatus(formats strfmt.Registry) er
 	return nil
 }
 
-var listRunsOkBodyResultsItems0IntervalsItemsEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listRunsOkBodyResultsItems0IntervalsItemsEnum = append(listRunsOkBodyResultsItems0IntervalsItemsEnum, v)
-	}
-}
-
-func (o *ListRunsOKBodyResultsItems0) validateIntervalsItemsEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listRunsOkBodyResultsItems0IntervalsItemsEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListRunsOKBodyResultsItems0) validateIntervals(formats strfmt.Registry) error {
-	if swag.IsZero(o.Intervals) { // not required
+func (o *ListRunsOKBodyResultsItems0) validateScheduledFor(formats strfmt.Registry) error {
+	if swag.IsZero(o.ScheduledFor) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Intervals); i++ {
-		if swag.IsZero(o.Intervals[i]) { // not required
-			continue
-		}
+	if err := validate.FormatOf("scheduled_for", "body", "date-time", o.ScheduledFor.String(), formats); err != nil {
+		return err
+	}
 
-		// value enum
-		if err := o.validateIntervalsItemsEnum("intervals"+"."+strconv.Itoa(i), "body", *o.Intervals[i]); err != nil {
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0) validateWaitedForRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.WaitedForRun) { // not required
+		return nil
+	}
+
+	if o.WaitedForRun != nil {
+		if err := o.WaitedForRun.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("waited_for_run")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("waited_for_run")
+			}
+
 			return err
 		}
-
 	}
 
 	return nil
@@ -827,6 +838,10 @@ func (o *ListRunsOKBodyResultsItems0) ContextValidate(ctx context.Context, forma
 	var res []error
 
 	if err := o.contextValidateSeverityCounts(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateWaitedForRun(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -856,6 +871,30 @@ func (o *ListRunsOKBodyResultsItems0) contextValidateSeverityCounts(ctx context.
 
 				return err
 			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0) contextValidateWaitedForRun(ctx context.Context, formats strfmt.Registry) error {
+	if o.WaitedForRun != nil {
+
+		if swag.IsZero(o.WaitedForRun) { // not required
+			return nil
+		}
+
+		if err := o.WaitedForRun.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("waited_for_run")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("waited_for_run")
+			}
+
+			return err
 		}
 	}
 
@@ -986,6 +1025,127 @@ func (o *ListRunsOKBodyResultsItems0SeverityCountsItems0) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *ListRunsOKBodyResultsItems0SeverityCountsItems0) UnmarshalBinary(b []byte) error {
 	var res ListRunsOKBodyResultsItems0SeverityCountsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListRunsOKBodyResultsItems0WaitedForRun AdvisorRunReference identifies another Advisor run.
+swagger:model ListRunsOKBodyResultsItems0WaitedForRun
+*/
+type ListRunsOKBodyResultsItems0WaitedForRun struct {
+	// ID of the run.
+	RunID string `json:"run_id,omitempty"`
+
+	// AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
+	//
+	//  - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.
+	//  - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.
+	// Enum: ["ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED","ADVISOR_CHECK_TRIGGERED_BY_USER","ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"]
+	TriggeredBy *string `json:"triggered_by,omitempty"`
+
+	// Name of the schedule the run belongs to; empty for runs not tied to a schedule.
+	ScheduleName string `json:"schedule_name,omitempty"`
+
+	// When the run began.
+	// Format: date-time
+	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+}
+
+// Validate validates this list runs OK body results items0 waited for run
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTriggeredBy(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStartedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listRunsOkBodyResultsItems0WaitedForRunTypeTriggeredByPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED","ADVISOR_CHECK_TRIGGERED_BY_USER","ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listRunsOkBodyResultsItems0WaitedForRunTypeTriggeredByPropEnum = append(listRunsOkBodyResultsItems0WaitedForRunTypeTriggeredByPropEnum, v)
+	}
+}
+
+const (
+
+	// ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYUNSPECIFIED captures enum value "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+	ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYUNSPECIFIED string = "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+
+	// ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYUSER captures enum value "ADVISOR_CHECK_TRIGGERED_BY_USER"
+	ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYUSER string = "ADVISOR_CHECK_TRIGGERED_BY_USER"
+
+	// ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYSCHEDULER captures enum value "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+	ListRunsOKBodyResultsItems0WaitedForRunTriggeredByADVISORCHECKTRIGGEREDBYSCHEDULER string = "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+)
+
+// prop value enum
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) validateTriggeredByEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listRunsOkBodyResultsItems0WaitedForRunTypeTriggeredByPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) validateTriggeredBy(formats strfmt.Registry) error {
+	if swag.IsZero(o.TriggeredBy) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTriggeredByEnum("waited_for_run"+"."+"triggered_by", "body", *o.TriggeredBy); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) validateStartedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("waited_for_run"+"."+"started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list runs OK body results items0 waited for run based on context it is used
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListRunsOKBodyResultsItems0WaitedForRun) UnmarshalBinary(b []byte) error {
+	var res ListRunsOKBodyResultsItems0WaitedForRun
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

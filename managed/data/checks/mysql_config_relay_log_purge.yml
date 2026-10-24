@@ -4,7 +4,6 @@ checks:
     name: mysql_config_relay_log_purge
     summary: Automatic relay log purging is off
     description: Identify if a replica node has relay-logs purge set.
-    interval: standard
     category: Replication
     # author: The Grinch
     technology: MYSQL

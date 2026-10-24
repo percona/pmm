@@ -47,7 +47,6 @@ func TestRunLifecycle(t *testing.T) {
 			CheckName:   "check_" + string(status),
 			ServiceID:   "svc-1",
 			ServiceType: models.MySQLServiceType,
-			Interval:    models.Standard,
 			Status:      status,
 		}
 		if status != models.CheckResultPending {

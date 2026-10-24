@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: David Gonzales
     category: Durability
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: |

@@ -6,7 +6,6 @@ checks:
     description: Checks to see if recommended minimum logging features are enabled.
     category: Logging
     # author: Jorge Torralba
-    interval: standard
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT

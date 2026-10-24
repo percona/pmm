@@ -7,7 +7,6 @@ checks:
     technology: MYSQL
     # author: Carlos Tutte
     category: Resources
-    interval: standard
     queries:
       - type: MYSQL_SELECT
         query: "@@global.version_compile_machine as version_compile_machine"

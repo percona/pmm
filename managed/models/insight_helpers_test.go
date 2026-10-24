@@ -52,7 +52,6 @@ func TestInsights(t *testing.T) {
 		cr := &models.Insight{
 			CheckName:   "c1",
 			Category:    "performance",
-			Interval:    models.Standard,
 			ServiceID:   svc,
 			ServiceName: "find-me",
 			ServiceType: models.MySQLServiceType,

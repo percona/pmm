@@ -35,8 +35,6 @@ func (v *advisorCheckTableType) Columns() []string {
 		"description",
 		"category",
 		"technology",
-		"interval",
-		"interval_override",
 		"disabled",
 		"disabled_service_ids",
 		"queries",
@@ -74,8 +72,6 @@ var AdvisorCheckTable = &advisorCheckTableType{
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Category", Type: "string", Column: "category"},
 			{Name: "Technology", Type: "string", Column: "technology"},
-			{Name: "Interval", Type: "string", Column: "interval"},
-			{Name: "IntervalOverride", Type: "*string", Column: "interval_override"},
 			{Name: "Disabled", Type: "bool", Column: "disabled"},
 			{Name: "DisabledServiceIDs", Type: "[]uint8", Column: "disabled_service_ids"},
 			{Name: "Queries", Type: "[]uint8", Column: "queries"},
@@ -90,7 +86,7 @@ var AdvisorCheckTable = &advisorCheckTableType{
 
 // String returns a string representation of this struct or record.
 func (s AdvisorCheck) String() string {
-	res := make([]string, 15)
+	res := make([]string, 13)
 	res[0] = "Name: " + reform.Inspect(s.Name, true)
 	res[1] = "Source: " + reform.Inspect(s.Source, true)
 	res[2] = "Version: " + reform.Inspect(s.Version, true)
@@ -98,14 +94,12 @@ func (s AdvisorCheck) String() string {
 	res[4] = "Description: " + reform.Inspect(s.Description, true)
 	res[5] = "Category: " + reform.Inspect(s.Category, true)
 	res[6] = "Technology: " + reform.Inspect(s.Technology, true)
-	res[7] = "Interval: " + reform.Inspect(s.Interval, true)
-	res[8] = "IntervalOverride: " + reform.Inspect(s.IntervalOverride, true)
-	res[9] = "Disabled: " + reform.Inspect(s.Disabled, true)
-	res[10] = "DisabledServiceIDs: " + reform.Inspect(s.DisabledServiceIDs, true)
-	res[11] = "Queries: " + reform.Inspect(s.Queries, true)
-	res[12] = "Script: " + reform.Inspect(s.Script, true)
-	res[13] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[14] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[7] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[8] = "DisabledServiceIDs: " + reform.Inspect(s.DisabledServiceIDs, true)
+	res[9] = "Queries: " + reform.Inspect(s.Queries, true)
+	res[10] = "Script: " + reform.Inspect(s.Script, true)
+	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -120,8 +114,6 @@ func (s *AdvisorCheck) Values() []interface{} {
 		s.Description,
 		s.Category,
 		s.Technology,
-		s.Interval,
-		s.IntervalOverride,
 		s.Disabled,
 		s.DisabledServiceIDs,
 		s.Queries,
@@ -142,8 +134,6 @@ func (s *AdvisorCheck) Pointers() []interface{} {
 		&s.Description,
 		&s.Category,
 		&s.Technology,
-		&s.Interval,
-		&s.IntervalOverride,
 		&s.Disabled,
 		&s.DisabledServiceIDs,
 		&s.Queries,

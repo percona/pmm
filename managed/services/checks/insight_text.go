@@ -46,12 +46,6 @@ var insightSeverityText = map[models.Severity]string{
 	models.Severity(common.Info):     "Info",
 }
 
-var insightIntervalText = map[models.Interval]string{
-	models.Standard: "Standard",
-	models.Rare:     "Rare",
-	models.Frequent: "Frequent",
-}
-
 var insightTriggeredByText = map[models.CheckTriggeredBy]string{
 	models.CheckTriggeredByUser:      "User",
 	models.CheckTriggeredByScheduler: "Scheduler",
@@ -87,7 +81,6 @@ func insightToText(r *models.Insight) (string, error) {
 		{"Environment", r.Environment},
 		{"Cluster", r.Cluster},
 		{"Replication Set", r.ReplicationSet},
-		{"Interval", insightIntervalLabel(r.Interval)},
 		{"Triggered By", insightTriggeredByText[r.TriggeredBy]},
 		{"Read", insightReadLabel(r.IsRead)},
 		{"Summary", r.Summary},
@@ -118,18 +111,6 @@ func insightToText(r *models.Insight) (string, error) {
 		"The Advisor Check %q completed at %s with status %q.\n\nCheck Details:\n%s",
 		r.Summary, r.CheckedAt.Format(insightTimeFormat), insightStatusLabel(r.Status), text,
 	), nil
-}
-
-// insightIntervalLabel maps a stored interval to its display label; an empty interval means
-// standard (see convertModelInterval in managed/services/management/checks.go).
-func insightIntervalLabel(interval models.Interval) string {
-	if interval == "" {
-		return insightIntervalText[models.Standard]
-	}
-	if label, ok := insightIntervalText[interval]; ok {
-		return label
-	}
-	return "Unspecified"
 }
 
 func insightStatusLabel(status models.CheckResultStatus) string {

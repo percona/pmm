@@ -4,7 +4,6 @@ checks:
     name: mongodb_write_tickets
     summary: MongoDB write Tickets
     description: This check returns warnings if the MongoDB startup options set more than 128 write tickets, or, starting with MongoDB 7.0, a fixed number of write tickets.
-    interval: standard
     technology: MONGODB
     category: Performance
     # author: Vinicius Grippa/Parag Bhayani

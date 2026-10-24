@@ -115,7 +115,6 @@ func (s *ChecksAPIService) ListInsights(
 			RunId:          r.RunID,
 			Category:       r.Category,
 			Severity:       managementv1.Severity(pointer.Get(r.Severity)), //nolint:gosec // severity is a bounded enum (0-8), no overflow
-			Interval:       convertModelInterval(r.Interval),
 			ServiceId:      r.ServiceID,
 			ServiceName:    r.ServiceName,
 			ServiceType:    string(r.ServiceType),
@@ -170,7 +169,7 @@ func (s *ChecksAPIService) ListRuns(
 		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
-	filters := models.AdvisorRunFilters{RunID: req.RunId}
+	filters := models.AdvisorRunFilters{RunID: req.RunId, ScheduleID: req.ScheduleId}
 	if req.TriggeredBy != nil {
 		if tb := convertAPITriggeredBy(*req.TriggeredBy); tb != "" {
 			filters.TriggeredBy = &tb
@@ -190,36 +189,17 @@ func (s *ChecksAPIService) ListRuns(
 		return nil, fmt.Errorf("failed to get advisor runs: %w", err)
 	}
 
+	waitedFor, err := s.checksService.GetRunsWaitedFor(ctx, runs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find the runs late advisor runs waited for: %w", err)
+	}
+
 	items := make([]*advisorsv1.AdvisorRun, 0, len(runs))
 	for _, r := range runs {
-		severityCounts, err := r.GetSeverityCounts()
+		item, err := advisorRunToAPI(r, waitedFor[r.ID])
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode severity counts for advisor run %s: %w", r.ID, err)
+			return nil, err
 		}
-
-		item := &advisorsv1.AdvisorRun{
-			Id:                   r.ID,
-			TriggeredBy:          convertModelTriggeredBy(r.TriggeredBy),
-			Status:               convertModelRunStatus(r.Status),
-			StartedAt:            timestamppb.New(r.StartedAt),
-			PlannedChecksCount:   int32(r.PlannedChecksCount),   //nolint:gosec
-			PlannedServicesCount: int32(r.PlannedServicesCount), //nolint:gosec
-			ChecksCount:          int32(r.ChecksCount),          //nolint:gosec
-			ServicesCount:        int32(r.ServicesCount),        //nolint:gosec
-			FindingsCount:        int32(r.FindingsCount),        //nolint:gosec
-			ErrorsCount:          int32(r.ErrorsCount),          //nolint:gosec
-			SeverityCounts:       convertSeverityCounts(severityCounts),
-			CheckNames:           r.CheckNames,
-			ServiceIds:           r.ServiceIDs,
-		}
-		for _, interval := range r.Intervals {
-			item.Intervals = append(item.Intervals, convertModelInterval(models.Interval(interval)))
-		}
-		// left unset while the run is still going
-		if r.FinishedAt != nil {
-			item.FinishedAt = timestamppb.New(*r.FinishedAt)
-		}
-
 		items = append(items, item)
 	}
 
@@ -236,6 +216,48 @@ func (s *ChecksAPIService) ListRuns(
 		TotalItems: int32(totalItems), //nolint:gosec
 		TotalPages: int32(totalPages),
 	}, nil
+}
+
+// advisorRunToAPI converts an Advisor run, and the run it waited for if any, to its API representation.
+func advisorRunToAPI(r, waitedFor *models.AdvisorRun) (*advisorsv1.AdvisorRun, error) {
+	severityCounts, err := r.GetSeverityCounts()
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode severity counts for advisor run %s: %w", r.ID, err)
+	}
+
+	item := &advisorsv1.AdvisorRun{
+		Id:                   r.ID,
+		TriggeredBy:          convertModelTriggeredBy(r.TriggeredBy),
+		Status:               convertModelRunStatus(r.Status),
+		StartedAt:            timestamppb.New(r.StartedAt),
+		PlannedChecksCount:   int32(r.PlannedChecksCount),   //nolint:gosec
+		PlannedServicesCount: int32(r.PlannedServicesCount), //nolint:gosec
+		ChecksCount:          int32(r.ChecksCount),          //nolint:gosec
+		ServicesCount:        int32(r.ServicesCount),        //nolint:gosec
+		FindingsCount:        int32(r.FindingsCount),        //nolint:gosec
+		ErrorsCount:          int32(r.ErrorsCount),          //nolint:gosec
+		SeverityCounts:       convertSeverityCounts(severityCounts),
+		CheckNames:           r.CheckNames,
+		ServiceIds:           r.ServiceIDs,
+		ScheduleId:           pointer.GetString(r.ScheduleID),
+		ScheduleName:         r.ScheduleName,
+	}
+	// left unset while the run is still going
+	if r.FinishedAt != nil {
+		item.FinishedAt = timestamppb.New(*r.FinishedAt)
+	}
+	if r.ScheduledFor != nil {
+		item.ScheduledFor = timestamppb.New(*r.ScheduledFor)
+	}
+	if waitedFor != nil {
+		item.WaitedForRun = &advisorsv1.AdvisorRunReference{
+			RunId:        waitedFor.ID,
+			TriggeredBy:  convertModelTriggeredBy(waitedFor.TriggeredBy),
+			ScheduleName: waitedFor.ScheduleName,
+			StartedAt:    timestamppb.New(waitedFor.StartedAt),
+		}
+	}
+	return item, nil
 }
 
 // ListInsightsFilterValues returns the distinct values usable as insights filters.
@@ -296,20 +318,7 @@ func (s *ChecksAPIService) MarkInsightsRead(
 
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
 func (s *ChecksAPIService) StartAdvisorChecks(ctx context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
-	intervals := make([]check.Interval, 0, len(req.Intervals))
-	for _, name := range req.Intervals {
-		value, ok := advisorsv1.AdvisorCheckInterval_value[name]
-		if !ok {
-			return nil, status.Errorf(codes.InvalidArgument, "unknown advisor check interval '%s'", name)
-		}
-		interval, err := convertAPIInterval(advisorsv1.AdvisorCheckInterval(value))
-		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
-		intervals = append(intervals, interval)
-	}
-
-	runID, err := s.checksService.StartChecks(ctx, req.Names, req.ServiceIds, intervals)
+	runID, err := s.checksService.StartChecks(ctx, req.Names, req.ServiceIds)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -357,7 +366,6 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 			Summary:            c.Summary,
 			Technology:         convertTechnology(c.Technology),
 			Description:        c.Description,
-			Interval:           convertInterval(c.Interval),
 			Category:           c.Category,
 			UserDefined:        c.UserDefined,
 			DisabledServiceIds: disServices[c.Name],
@@ -367,11 +375,9 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
-// ChangeAdvisorChecks enables/disables advisor checks — globally or for specific
-// services — by names, or changes their execution interval.
+// ChangeAdvisorChecks enables/disables advisor checks by names, globally or for specific services.
 func (s *ChecksAPIService) ChangeAdvisorChecks(ctx context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
 	var enableChecks, disableChecks []string
-	changeIntervalParams := make(map[string]check.Interval)
 	for _, p := range req.Params {
 		if len(p.ServiceIds) != 0 {
 			err := s.changeChecksForServices(ctx, p)
@@ -381,27 +387,12 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(ctx context.Context, req *advisor
 			continue
 		}
 
-		if p.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
-			interval, err := convertAPIInterval(p.Interval)
-			if err != nil {
-				return nil, err
-			}
-			changeIntervalParams[p.Name] = interval
-		}
-
 		if p.Enable != nil {
 			if *p.Enable {
 				enableChecks = append(enableChecks, p.Name)
 			} else {
 				disableChecks = append(disableChecks, p.Name)
 			}
-		}
-	}
-
-	if len(changeIntervalParams) != 0 {
-		err := s.checksService.ChangeInterval(ctx, changeIntervalParams)
-		if err != nil {
-			return nil, fmt.Errorf("failed to change advisor check interval: %w", err)
 		}
 	}
 
@@ -419,12 +410,8 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(ctx context.Context, req *advisor
 }
 
 // changeChecksForServices applies a per-service enable/disable params entry:
-// the change affects only the given services. The interval stays check-wide
-// and cannot be mixed into such an entry.
+// the change affects only the given services.
 func (s *ChecksAPIService) changeChecksForServices(ctx context.Context, p *advisorsv1.ChangeAdvisorCheckParams) error {
-	if p.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
-		return status.Errorf(codes.InvalidArgument, "Interval of check %s cannot be changed per service.", p.Name)
-	}
 	if p.Enable == nil {
 		return status.Errorf(codes.InvalidArgument, "Enable flag is required to change check %s per service.", p.Name)
 	}
@@ -630,34 +617,6 @@ func (s *ChecksAPIService) getCheck(ctx context.Context, name string) (check.Che
 	return c, enabled, disServices[name], nil
 }
 
-// convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.
-func convertInterval(interval check.Interval) advisorsv1.AdvisorCheckInterval {
-	switch interval {
-	case check.Standard, "": // empty interval means standard
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
-	case check.Frequent:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
-	case check.Rare:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
-	default:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
-	}
-}
-
-// convertModelInterval converts models.Interval type to advisorsv1.AdvisorCheckInterval.
-func convertModelInterval(interval models.Interval) advisorsv1.AdvisorCheckInterval {
-	switch interval {
-	case models.Standard, "": // empty interval means standard
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
-	case models.Frequent:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
-	case models.Rare:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
-	default:
-		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
-	}
-}
-
 // convertModelResultStatus converts models.CheckResultStatus to advisorsv1.AdvisorCheckResultStatus.
 func convertModelResultStatus(status models.CheckResultStatus) advisorsv1.AdvisorCheckResultStatus {
 	switch status {
@@ -768,22 +727,6 @@ func convertTechnology(technology check.Technology) advisorsv1.AdvisorCheckTechn
 	}
 }
 
-// convertAPIInterval converts advisorsv1.AdvisorCheckInterval type to check.Interval.
-func convertAPIInterval(interval advisorsv1.AdvisorCheckInterval) (check.Interval, error) {
-	switch interval {
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
-		return check.Standard, nil
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
-		return check.Frequent, nil
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
-		return check.Rare, nil
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED:
-		return "", errors.New("invalid advisor check interval")
-	default:
-		return "", errors.New("unknown advisor check interval")
-	}
-}
-
 // convertAPITechnology converts advisorsv1.AdvisorCheckTechnology to check.Technology.
 // An unspecified technology maps to an empty technology, which fails check validation.
 func convertAPITechnology(technology advisorsv1.AdvisorCheckTechnology) check.Technology {
@@ -799,22 +742,6 @@ func convertAPITechnology(technology advisorsv1.AdvisorCheckTechnology) check.Te
 	}
 }
 
-// convertAPIIntervalOptional converts advisorsv1.AdvisorCheckInterval to check.Interval.
-// Unlike convertAPIInterval, an unspecified interval maps to an empty interval
-// (treated as standard by the loader) rather than an error.
-func convertAPIIntervalOptional(interval advisorsv1.AdvisorCheckInterval) check.Interval {
-	switch interval {
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
-		return check.Standard
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
-		return check.Frequent
-	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
-		return check.Rare
-	default:
-		return ""
-	}
-}
-
 // advisorCheckToAPI converts a check.Check into its full API representation, including queries and script.
 func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string) *advisorsv1.AdvisorCheck {
 	return &advisorsv1.AdvisorCheck{
@@ -823,7 +750,6 @@ func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string)
 		Summary:            c.Summary,
 		Description:        c.Description,
 		Technology:         convertTechnology(c.Technology),
-		Interval:           convertInterval(c.Interval),
 		Category:           c.Category,
 		UserDefined:        c.UserDefined,
 		Queries:            convertQueriesToAPI(c.Queries),
@@ -840,7 +766,6 @@ func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
 		Description: c.Description,
 		Category:    c.Category,
 		Technology:  convertAPITechnology(c.Technology),
-		Interval:    convertAPIIntervalOptional(c.Interval),
 		Queries:     convertAPIQueries(c.Queries),
 		Script:      c.Script,
 	}
@@ -854,7 +779,6 @@ func apiDefinitionToAdvisorCheck(name string, d *advisorsv1.AdvisorCheckDefiniti
 		Description: d.Description,
 		Category:    d.Category,
 		Technology:  convertAPITechnology(d.Technology),
-		Interval:    convertAPIIntervalOptional(d.Interval),
 		Queries:     convertAPIQueries(d.Queries),
 		Script:      d.Script,
 	}

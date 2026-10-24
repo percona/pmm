@@ -18,12 +18,10 @@ package server
 import (
 	"context"
 	"net/url"
-	"time"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/pi/check"
 )
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
@@ -53,10 +51,9 @@ type prometheusService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(ctx context.Context, checkNames, serviceIDs []string, intervals []check.Interval) (string, error)
+	CreateDefaultSchedule(ctx context.Context) error
 	UpdateAdvisorsList(ctx context.Context)
 	CleanupCheckResults()
-	UpdateIntervals(rare, standard, frequent time.Duration)
 }
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.

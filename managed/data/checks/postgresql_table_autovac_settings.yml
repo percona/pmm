@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: Jobin Augustine
     category: Maintenance
-    interval: standard
     queries:
       - type: POSTGRESQL_SELECT
         query: " * FROM (SELECT c.relname, pg_catalog.array_to_string(c.reloptions || array(select 'toast.' || x from pg_catalog.unnest(tc.reloptions) x), ', ')  as opts FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid) ) AS tabopts WHERE opts like '%vacuum%'"

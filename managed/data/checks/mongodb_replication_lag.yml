@@ -8,7 +8,6 @@ checks:
     category: Replication
     technology: MONGODB
     # author: Ivan Groenewold
-    interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
     script: |

@@ -55,13 +55,19 @@ type ClientService interface {
 
 	CreateAdvisorCheck(params *CreateAdvisorCheckParams, opts ...ClientOption) (*CreateAdvisorCheckOK, error)
 
+	CreateAdvisorSchedule(params *CreateAdvisorScheduleParams, opts ...ClientOption) (*CreateAdvisorScheduleOK, error)
+
 	DeleteAdvisorCheck(params *DeleteAdvisorCheckParams, opts ...ClientOption) (*DeleteAdvisorCheckOK, error)
+
+	DeleteAdvisorSchedule(params *DeleteAdvisorScheduleParams, opts ...ClientOption) (*DeleteAdvisorScheduleOK, error)
 
 	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
 
 	ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error)
 
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
+
+	ListAdvisorSchedules(params *ListAdvisorSchedulesParams, opts ...ClientOption) (*ListAdvisorSchedulesOK, error)
 
 	ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error)
 
@@ -71,6 +77,8 @@ type ClientService interface {
 
 	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
 
+	RunAdvisorSchedule(params *RunAdvisorScheduleParams, opts ...ClientOption) (*RunAdvisorScheduleOK, error)
+
 	SendTestAdvisorNotification(params *SendTestAdvisorNotificationParams, opts ...ClientOption) (*SendTestAdvisorNotificationOK, error)
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
@@ -79,13 +87,15 @@ type ClientService interface {
 
 	UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...ClientOption) (*UpdateAdvisorCheckOK, error)
 
+	UpdateAdvisorSchedule(params *UpdateAdvisorScheduleParams, opts ...ClientOption) (*UpdateAdvisorScheduleOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
 ChangeAdvisorChecks changes advisor checks
 
-Enables/disables advisor checks or changes their exec interval.
+Enables/disables advisor checks, globally or for specific services.
 */
 func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...ClientOption) (*ChangeAdvisorChecksOK, error) {
 	// NOTE: parameters are not validated before sending
@@ -171,6 +181,50 @@ func (a *Client) CreateAdvisorCheck(params *CreateAdvisorCheckParams, opts ...Cl
 }
 
 /*
+CreateAdvisorSchedule creates advisor schedule
+
+Creates a schedule that runs Advisor checks on the given days at a time of day, both in UTC.
+*/
+func (a *Client) CreateAdvisorSchedule(params *CreateAdvisorScheduleParams, opts ...ClientOption) (*CreateAdvisorScheduleOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCreateAdvisorScheduleParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CreateAdvisorSchedule",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/schedules",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CreateAdvisorScheduleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CreateAdvisorScheduleOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CreateAdvisorScheduleDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 DeleteAdvisorCheck deletes advisor check
 
 Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted.
@@ -210,6 +264,50 @@ func (a *Client) DeleteAdvisorCheck(params *DeleteAdvisorCheckParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteAdvisorSchedule deletes advisor schedule
+
+Deletes an Advisor schedule. Its runs stay in the run history under the schedule's name.
+*/
+func (a *Client) DeleteAdvisorSchedule(params *DeleteAdvisorScheduleParams, opts ...ClientOption) (*DeleteAdvisorScheduleOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDeleteAdvisorScheduleParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteAdvisorSchedule",
+		Method:             "DELETE",
+		PathPattern:        "/v1/advisors/schedules/{schedule_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteAdvisorScheduleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DeleteAdvisorScheduleOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DeleteAdvisorScheduleDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -342,6 +440,50 @@ func (a *Client) ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...Clie
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAdvisorChecksDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListAdvisorSchedules lists advisor schedules
+
+Returns the Advisor schedules with their next and most recent runs.
+*/
+func (a *Client) ListAdvisorSchedules(params *ListAdvisorSchedulesParams, opts ...ClientOption) (*ListAdvisorSchedulesOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListAdvisorSchedulesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAdvisorSchedules",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/schedules",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAdvisorSchedulesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListAdvisorSchedulesOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListAdvisorSchedulesDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -523,6 +665,50 @@ func (a *Client) MarkInsightsRead(params *MarkInsightsReadParams, opts ...Client
 }
 
 /*
+RunAdvisorSchedule runs advisor schedule
+
+Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.
+*/
+func (a *Client) RunAdvisorSchedule(params *RunAdvisorScheduleParams, opts ...ClientOption) (*RunAdvisorScheduleOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewRunAdvisorScheduleParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RunAdvisorSchedule",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/schedules/{schedule_id}:run",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RunAdvisorScheduleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*RunAdvisorScheduleOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*RunAdvisorScheduleDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 SendTestAdvisorNotification sends test advisor notification
 
 Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing.
@@ -694,6 +880,50 @@ func (a *Client) UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UpdateAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateAdvisorSchedule updates advisor schedule
+
+Replaces the whole schedule identified by the ID in the path, so every field must be sent.
+*/
+func (a *Client) UpdateAdvisorSchedule(params *UpdateAdvisorScheduleParams, opts ...ClientOption) (*UpdateAdvisorScheduleOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateAdvisorScheduleParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateAdvisorSchedule",
+		Method:             "PUT",
+		PathPattern:        "/v1/advisors/schedules/{schedule_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateAdvisorScheduleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateAdvisorScheduleOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateAdvisorScheduleDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

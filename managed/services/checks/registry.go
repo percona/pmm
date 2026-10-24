@@ -16,26 +16,27 @@
 package checks
 
 import (
+	"maps"
+	"slices"
 	"sync"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 
-	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 )
 
 // registry keeps a snapshot of the current check results and exposes it as the insights metric.
 type registry struct {
 	rw sync.RWMutex
-	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
-	checkResults map[check.Interval]map[string][]services.CheckResult
+	// Results stored by check name.
+	checkResults map[string][]services.CheckResult
 	mInsights    *prom.GaugeVec
 }
 
 // newRegistry creates a new registry.
 func newRegistry() *registry {
 	return &registry{
-		checkResults: make(map[check.Interval]map[string][]services.CheckResult),
+		checkResults: make(map[string][]services.CheckResult),
 		mInsights: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
@@ -51,16 +52,7 @@ func (r *registry) set(checkResults []services.CheckResult) {
 	defer r.rw.Unlock()
 
 	for _, result := range checkResults {
-		// Empty interval means standard.
-		if result.Interval == "" {
-			result.Interval = check.Standard
-		}
-
-		if _, ok := r.checkResults[result.Interval]; !ok {
-			r.checkResults[result.Interval] = make(map[string][]services.CheckResult)
-		}
-
-		r.checkResults[result.Interval][result.CheckName] = append(r.checkResults[result.Interval][result.CheckName], result)
+		r.checkResults[result.CheckName] = append(r.checkResults[result.CheckName], result)
 	}
 }
 
@@ -68,54 +60,38 @@ func (r *registry) set(checkResults []services.CheckResult) {
 func (r *registry) deleteByName(checkNames []string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
-	for _, intervalGroup := range r.checkResults {
-		for _, name := range checkNames {
-			delete(intervalGroup, name)
-		}
+
+	for _, name := range checkNames {
+		delete(r.checkResults, name)
 	}
 }
 
-// deleteByNameAndService removes results for the specified checks, but only those
-// produced for the specified services, leaving other services' results in place.
+// deleteByNameAndService removes the results the specified checks, or all checks
+// when none are specified, produced for the specified services, leaving other
+// services' results in place.
 func (r *registry) deleteByNameAndService(checkNames, serviceIDs []string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	wanted := make(map[string]struct{}, len(serviceIDs))
-	for _, id := range serviceIDs {
-		wanted[id] = struct{}{}
+	if len(checkNames) == 0 {
+		checkNames = slices.Collect(maps.Keys(r.checkResults))
 	}
 
-	for _, intervalGroup := range r.checkResults {
-		for _, name := range checkNames {
-			results, ok := intervalGroup[name]
-			if !ok {
-				continue
-			}
-
-			kept := make([]services.CheckResult, 0, len(results))
-			for _, result := range results {
-				_, drop := wanted[result.Target.ServiceID]
-				if !drop {
-					kept = append(kept, result)
-				}
-			}
-
-			if len(kept) == 0 {
-				delete(intervalGroup, name)
-				continue
-			}
-			intervalGroup[name] = kept
+	for _, name := range checkNames {
+		results, ok := r.checkResults[name]
+		if !ok {
+			continue
 		}
+
+		kept := slices.DeleteFunc(slices.Clone(results), func(result services.CheckResult) bool {
+			return slices.Contains(serviceIDs, result.Target.ServiceID)
+		})
+		if len(kept) == 0 {
+			delete(r.checkResults, name)
+			continue
+		}
+		r.checkResults[name] = kept
 	}
-}
-
-// deleteByInterval removes results for specified interval.
-func (r *registry) deleteByInterval(interval check.Interval) {
-	r.rw.Lock()
-	defer r.rw.Unlock()
-
-	delete(r.checkResults, interval)
 }
 
 // cleanup removes all check results from the registry.
@@ -123,7 +99,7 @@ func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
+	r.checkResults = make(map[string][]services.CheckResult)
 }
 
 // getCheckResults returns checks results for all services.
@@ -132,10 +108,8 @@ func (r *registry) getCheckResults() []services.CheckResult {
 	defer r.rw.RUnlock()
 
 	var results []services.CheckResult
-	for _, intervalGroup := range r.checkResults {
-		for _, checkNameGroup := range intervalGroup {
-			results = append(results, checkNameGroup...)
-		}
+	for _, checkNameGroup := range r.checkResults {
+		results = append(results, checkNameGroup...)
 	}
 
 	return results
