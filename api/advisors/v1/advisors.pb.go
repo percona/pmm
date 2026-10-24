@@ -3740,6 +3740,278 @@ func (x *RunAdvisorScheduleResponse) GetRunId() string {
 	return ""
 }
 
+type ListAdvisorServicesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAdvisorServicesRequest) Reset() {
+	*x = ListAdvisorServicesRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAdvisorServicesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAdvisorServicesRequest) ProtoMessage() {}
+
+func (x *ListAdvisorServicesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAdvisorServicesRequest.ProtoReflect.Descriptor instead.
+func (*ListAdvisorServicesRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{50}
+}
+
+// AdvisorTargetService is a service Advisor checks can run against.
+type AdvisorTargetService struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique identifier of the service.
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Name of the service.
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Technology of the checks that apply to the service.
+	Technology AdvisorCheckTechnology `protobuf:"varint,3,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
+	// Name of the node the service runs on.
+	NodeName string `protobuf:"bytes,4,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Environment of the service.
+	Environment string `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
+	// Cluster of the service.
+	Cluster       string `protobuf:"bytes,6,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvisorTargetService) Reset() {
+	*x = AdvisorTargetService{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvisorTargetService) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvisorTargetService) ProtoMessage() {}
+
+func (x *AdvisorTargetService) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvisorTargetService.ProtoReflect.Descriptor instead.
+func (*AdvisorTargetService) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *AdvisorTargetService) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *AdvisorTargetService) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *AdvisorTargetService) GetTechnology() AdvisorCheckTechnology {
+	if x != nil {
+		return x.Technology
+	}
+	return AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED
+}
+
+func (x *AdvisorTargetService) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *AdvisorTargetService) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *AdvisorTargetService) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+type ListAdvisorServicesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// MySQL, PostgreSQL and MongoDB services, ordered by name.
+	Services      []*AdvisorTargetService `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAdvisorServicesResponse) Reset() {
+	*x = ListAdvisorServicesResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAdvisorServicesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAdvisorServicesResponse) ProtoMessage() {}
+
+func (x *ListAdvisorServicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAdvisorServicesResponse.ProtoReflect.Descriptor instead.
+func (*ListAdvisorServicesResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *ListAdvisorServicesResponse) GetServices() []*AdvisorTargetService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
+type GetAdvisorNotificationSettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAdvisorNotificationSettingsRequest) Reset() {
+	*x = GetAdvisorNotificationSettingsRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAdvisorNotificationSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAdvisorNotificationSettingsRequest) ProtoMessage() {}
+
+func (x *GetAdvisorNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAdvisorNotificationSettingsRequest.ProtoReflect.Descriptor instead.
+func (*GetAdvisorNotificationSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{53}
+}
+
+// GetAdvisorNotificationSettingsResponse holds the Advisor notification settings, which are read-only here and changed with ChangeSettings.
+type GetAdvisorNotificationSettingsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// True if Advisor email notifications are enabled.
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Default recipients of the Advisor email reports.
+	EmailAddresses []string `protobuf:"bytes,2,rep,name=email_addresses,json=emailAddresses,proto3" json:"email_addresses,omitempty"`
+	// Default severities of the emailed findings, most severe first.
+	Severities    []v1.Severity `protobuf:"varint,3,rep,packed,name=severities,proto3,enum=management.v1.Severity" json:"severities,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAdvisorNotificationSettingsResponse) Reset() {
+	*x = GetAdvisorNotificationSettingsResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAdvisorNotificationSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAdvisorNotificationSettingsResponse) ProtoMessage() {}
+
+func (x *GetAdvisorNotificationSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAdvisorNotificationSettingsResponse.ProtoReflect.Descriptor instead.
+func (*GetAdvisorNotificationSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *GetAdvisorNotificationSettingsResponse) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *GetAdvisorNotificationSettingsResponse) GetEmailAddresses() []string {
+	if x != nil {
+		return x.EmailAddresses
+	}
+	return nil
+}
+
+func (x *GetAdvisorNotificationSettingsResponse) GetSeverities() []v1.Severity {
+	if x != nil {
+		return x.Severities
+	}
+	return nil
+}
+
 var File_advisors_v1_advisors_proto protoreflect.FileDescriptor
 
 const file_advisors_v1_advisors_proto_rawDesc = "" +
@@ -4069,7 +4341,27 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\vschedule_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"scheduleId\"3\n" +
 	"\x1aRunAdvisorScheduleResponse\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId*\xb5\x01\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x1c\n" +
+	"\x1aListAdvisorServicesRequest\"\xf6\x01\n" +
+	"\x14AdvisorTargetService\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12C\n" +
+	"\n" +
+	"technology\x18\x03 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
+	"technology\x12\x1b\n" +
+	"\tnode_name\x18\x04 \x01(\tR\bnodeName\x12 \n" +
+	"\venvironment\x18\x05 \x01(\tR\venvironment\x12\x18\n" +
+	"\acluster\x18\x06 \x01(\tR\acluster\"\\\n" +
+	"\x1bListAdvisorServicesResponse\x12=\n" +
+	"\bservices\x18\x01 \x03(\v2!.advisors.v1.AdvisorTargetServiceR\bservices\"'\n" +
+	"%GetAdvisorNotificationSettingsRequest\"\xa4\x01\n" +
+	"&GetAdvisorNotificationSettingsResponse\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12'\n" +
+	"\x0femail_addresses\x18\x02 \x03(\tR\x0eemailAddresses\x127\n" +
+	"\n" +
+	"severities\x18\x03 \x03(\x0e2\x17.management.v1.SeverityR\n" +
+	"severities*\xb5\x01\n" +
 	"\x16AdvisorCheckTechnology\x12(\n" +
 	"$ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eADVISOR_CHECK_TECHNOLOGY_MYSQL\x10\x01\x12'\n" +
@@ -4097,7 +4389,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"'ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED\x10\x00\x12(\n" +
 	"$ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS\x10\x01\x12&\n" +
 	"\"ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM\x10\x02\x12#\n" +
-	"\x1fADVISOR_SCHEDULE_EMAIL_MODE_OFF\x10\x032\xef)\n" +
+	"\x1fADVISOR_SCHEDULE_EMAIL_MODE_OFF\x10\x032\x8e/\n" +
 	"\x0eAdvisorService\x12\xcb\x01\n" +
 	"\bListRuns\x12\x1c.advisors.v1.ListRunsRequest\x1a\x1d.advisors.v1.ListRunsResponse\"\x81\x01\x92Ae\x12\x11List Advisor Runs\x1aPReturns the chronological history of Advisor check executions with their totals.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/advisors/runs\x12\xe1\x01\n" +
 	"\fListInsights\x12 .advisors.v1.ListInsightsRequest\x1a!.advisors.v1.ListInsightsResponse\"\x8b\x01\x92Ak\x12\x15List Advisor Insights\x1aRReturns the history of Advisor check results (insights), including their outcomes.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/insights\x12\xbc\x02\n" +
@@ -4116,7 +4408,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x15CreateAdvisorSchedule\x12).advisors.v1.CreateAdvisorScheduleRequest\x1a*.advisors.v1.CreateAdvisorScheduleResponse\"\x9b\x01\x92Aw\x12\x17Create Advisor Schedule\x1a\\Creates a schedule that runs Advisor checks on the given days at a time of day, both in UTC.\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/advisors/schedules\x12\x98\x02\n" +
 	"\x15UpdateAdvisorSchedule\x12).advisors.v1.UpdateAdvisorScheduleRequest\x1a*.advisors.v1.UpdateAdvisorScheduleResponse\"\xa7\x01\x92Au\x12\x17Update Advisor Schedule\x1aZReplaces the whole schedule identified by the ID in the path, so every field must be sent.\x82\xd3\xe4\x93\x02):\x01*\x1a$/v1/advisors/schedules/{schedule_id}\x12\x93\x02\n" +
 	"\x15DeleteAdvisorSchedule\x12).advisors.v1.DeleteAdvisorScheduleRequest\x1a*.advisors.v1.DeleteAdvisorScheduleResponse\"\xa2\x01\x92As\x12\x17Delete Advisor Schedule\x1aXDeletes an Advisor schedule. Its runs stay in the run history under the schedule's name.\x82\xd3\xe4\x93\x02&*$/v1/advisors/schedules/{schedule_id}\x12\x9a\x03\n" +
-	"\x12RunAdvisorSchedule\x12&.advisors.v1.RunAdvisorScheduleRequest\x1a'.advisors.v1.RunAdvisorScheduleResponse\"\xb2\x02\x92A\xfb\x01\x12\x14Run Advisor Schedule\x1a\xe2\x01Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.\x82\xd3\xe4\x93\x02-:\x01*\"(/v1/advisors/schedules/{schedule_id}:run\x12\xd7\x02\n" +
+	"\x12RunAdvisorSchedule\x12&.advisors.v1.RunAdvisorScheduleRequest\x1a'.advisors.v1.RunAdvisorScheduleResponse\"\xb2\x02\x92A\xfb\x01\x12\x14Run Advisor Schedule\x1a\xe2\x01Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.\x82\xd3\xe4\x93\x02-:\x01*\"(/v1/advisors/schedules/{schedule_id}:run\x12\x87\x02\n" +
+	"\x13ListAdvisorServices\x12'.advisors.v1.ListAdvisorServicesRequest\x1a(.advisors.v1.ListAdvisorServicesResponse\"\x9c\x01\x92A|\x12\x15List Advisor Services\x1acReturns the MySQL, PostgreSQL and MongoDB services Advisor checks can run against, ordered by name.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/services\x12\x92\x03\n" +
+	"\x1eGetAdvisorNotificationSettings\x122.advisors.v1.GetAdvisorNotificationSettingsRequest\x1a3.advisors.v1.GetAdvisorNotificationSettingsResponse\"\x86\x02\x92A\xd9\x01\x12!Get Advisor Notification Settings\x1a\xb3\x01Returns whether Advisor email notifications are enabled, and their default recipients and severities, which Advisor schedules can override. Read-only: ChangeSettings changes them.\x82\xd3\xe4\x93\x02#\x12!/v1/advisors/notificationSettings\x12\xd7\x02\n" +
 	"\x1bSendTestAdvisorNotification\x12/.advisors.v1.SendTestAdvisorNotificationRequest\x1a0.advisors.v1.SendTestAdvisorNotificationResponse\"\xd4\x01\x92A\xa6\x01\x12\x1eSend Test Advisor Notification\x1a\x83\x01Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/advisors/notifications:testB\xa0\x01\n" +
 	"\x0fcom.advisors.v1B\rAdvisorsProtoP\x01Z1github.com/percona/pmm/api/advisors/v1;advisorsv1\xa2\x02\x03AXX\xaa\x02\vAdvisors.V1\xca\x02\vAdvisors\\V1\xe2\x02\x17Advisors\\V1\\GPBMetadata\xea\x02\fAdvisors::V1b\x06proto3"
 
@@ -4134,73 +4428,78 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 
 var (
 	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 53)
+	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 58)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
-		AdvisorCheckTechnology(0),                   // 0: advisors.v1.AdvisorCheckTechnology
-		AdvisorCheckResultStatus(0),                 // 1: advisors.v1.AdvisorCheckResultStatus
-		AdvisorCheckTriggeredBy(0),                  // 2: advisors.v1.AdvisorCheckTriggeredBy
-		AdvisorRunStatus(0),                         // 3: advisors.v1.AdvisorRunStatus
-		AdvisorScheduleEmailMode(0),                 // 4: advisors.v1.AdvisorScheduleEmailMode
-		(*AdvisorCheckQuery)(nil),                   // 5: advisors.v1.AdvisorCheckQuery
-		(*AdvisorCheck)(nil),                        // 6: advisors.v1.AdvisorCheck
-		(*AdvisorCheckDefinition)(nil),              // 7: advisors.v1.AdvisorCheckDefinition
-		(*ChangeAdvisorCheckParams)(nil),            // 8: advisors.v1.ChangeAdvisorCheckParams
-		(*StartAdvisorChecksRequest)(nil),           // 9: advisors.v1.StartAdvisorChecksRequest
-		(*StartAdvisorChecksResponse)(nil),          // 10: advisors.v1.StartAdvisorChecksResponse
-		(*ListAdvisorChecksRequest)(nil),            // 11: advisors.v1.ListAdvisorChecksRequest
-		(*ListAdvisorChecksResponse)(nil),           // 12: advisors.v1.ListAdvisorChecksResponse
-		(*GetAdvisorCheckRequest)(nil),              // 13: advisors.v1.GetAdvisorCheckRequest
-		(*GetAdvisorCheckResponse)(nil),             // 14: advisors.v1.GetAdvisorCheckResponse
-		(*CreateAdvisorCheckRequest)(nil),           // 15: advisors.v1.CreateAdvisorCheckRequest
-		(*CreateAdvisorCheckResponse)(nil),          // 16: advisors.v1.CreateAdvisorCheckResponse
-		(*UpdateAdvisorCheckRequest)(nil),           // 17: advisors.v1.UpdateAdvisorCheckRequest
-		(*UpdateAdvisorCheckResponse)(nil),          // 18: advisors.v1.UpdateAdvisorCheckResponse
-		(*DeleteAdvisorCheckRequest)(nil),           // 19: advisors.v1.DeleteAdvisorCheckRequest
-		(*DeleteAdvisorCheckResponse)(nil),          // 20: advisors.v1.DeleteAdvisorCheckResponse
-		(*TestAdvisorCheckRequest)(nil),             // 21: advisors.v1.TestAdvisorCheckRequest
-		(*TestAdvisorCheckResult)(nil),              // 22: advisors.v1.TestAdvisorCheckResult
-		(*TestAdvisorCheckResponse)(nil),            // 23: advisors.v1.TestAdvisorCheckResponse
-		(*ListAdvisorCheckTestTargetsRequest)(nil),  // 24: advisors.v1.ListAdvisorCheckTestTargetsRequest
-		(*AdvisorCheckTestTarget)(nil),              // 25: advisors.v1.AdvisorCheckTestTarget
-		(*ListAdvisorCheckTestTargetsResponse)(nil), // 26: advisors.v1.ListAdvisorCheckTestTargetsResponse
-		(*ChangeAdvisorChecksRequest)(nil),          // 27: advisors.v1.ChangeAdvisorChecksRequest
-		(*ChangeAdvisorChecksResponse)(nil),         // 28: advisors.v1.ChangeAdvisorChecksResponse
-		(*SendTestAdvisorNotificationRequest)(nil),  // 29: advisors.v1.SendTestAdvisorNotificationRequest
-		(*SendTestAdvisorNotificationResponse)(nil), // 30: advisors.v1.SendTestAdvisorNotificationResponse
-		(*Insight)(nil),                             // 31: advisors.v1.Insight
-		(*ListInsightsRequest)(nil),                 // 32: advisors.v1.ListInsightsRequest
-		(*ListInsightsResponse)(nil),                // 33: advisors.v1.ListInsightsResponse
-		(*ListInsightsFilterValuesRequest)(nil),     // 34: advisors.v1.ListInsightsFilterValuesRequest
-		(*ListInsightsFilterValuesResponse)(nil),    // 35: advisors.v1.ListInsightsFilterValuesResponse
-		(*InsightsFilters)(nil),                     // 36: advisors.v1.InsightsFilters
-		(*MarkInsightsReadRequest)(nil),             // 37: advisors.v1.MarkInsightsReadRequest
-		(*MarkInsightsReadResponse)(nil),            // 38: advisors.v1.MarkInsightsReadResponse
-		(*AdvisorRun)(nil),                          // 39: advisors.v1.AdvisorRun
-		(*AdvisorRunReference)(nil),                 // 40: advisors.v1.AdvisorRunReference
-		(*SeverityCount)(nil),                       // 41: advisors.v1.SeverityCount
-		(*ListRunsRequest)(nil),                     // 42: advisors.v1.ListRunsRequest
-		(*ListRunsResponse)(nil),                    // 43: advisors.v1.ListRunsResponse
-		(*AdvisorSchedule)(nil),                     // 44: advisors.v1.AdvisorSchedule
-		(*ListAdvisorSchedulesRequest)(nil),         // 45: advisors.v1.ListAdvisorSchedulesRequest
-		(*ListAdvisorSchedulesResponse)(nil),        // 46: advisors.v1.ListAdvisorSchedulesResponse
-		(*CreateAdvisorScheduleRequest)(nil),        // 47: advisors.v1.CreateAdvisorScheduleRequest
-		(*CreateAdvisorScheduleResponse)(nil),       // 48: advisors.v1.CreateAdvisorScheduleResponse
-		(*UpdateAdvisorScheduleRequest)(nil),        // 49: advisors.v1.UpdateAdvisorScheduleRequest
-		(*UpdateAdvisorScheduleResponse)(nil),       // 50: advisors.v1.UpdateAdvisorScheduleResponse
-		(*DeleteAdvisorScheduleRequest)(nil),        // 51: advisors.v1.DeleteAdvisorScheduleRequest
-		(*DeleteAdvisorScheduleResponse)(nil),       // 52: advisors.v1.DeleteAdvisorScheduleResponse
-		(*RunAdvisorScheduleRequest)(nil),           // 53: advisors.v1.RunAdvisorScheduleRequest
-		(*RunAdvisorScheduleResponse)(nil),          // 54: advisors.v1.RunAdvisorScheduleResponse
-		nil,                                         // 55: advisors.v1.AdvisorCheckQuery.ParametersEntry
-		nil,                                         // 56: advisors.v1.TestAdvisorCheckResult.LabelsEntry
-		nil,                                         // 57: advisors.v1.Insight.LabelsEntry
-		v1.Severity(0),                              // 58: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),               // 59: google.protobuf.Timestamp
+		AdvisorCheckTechnology(0),                      // 0: advisors.v1.AdvisorCheckTechnology
+		AdvisorCheckResultStatus(0),                    // 1: advisors.v1.AdvisorCheckResultStatus
+		AdvisorCheckTriggeredBy(0),                     // 2: advisors.v1.AdvisorCheckTriggeredBy
+		AdvisorRunStatus(0),                            // 3: advisors.v1.AdvisorRunStatus
+		AdvisorScheduleEmailMode(0),                    // 4: advisors.v1.AdvisorScheduleEmailMode
+		(*AdvisorCheckQuery)(nil),                      // 5: advisors.v1.AdvisorCheckQuery
+		(*AdvisorCheck)(nil),                           // 6: advisors.v1.AdvisorCheck
+		(*AdvisorCheckDefinition)(nil),                 // 7: advisors.v1.AdvisorCheckDefinition
+		(*ChangeAdvisorCheckParams)(nil),               // 8: advisors.v1.ChangeAdvisorCheckParams
+		(*StartAdvisorChecksRequest)(nil),              // 9: advisors.v1.StartAdvisorChecksRequest
+		(*StartAdvisorChecksResponse)(nil),             // 10: advisors.v1.StartAdvisorChecksResponse
+		(*ListAdvisorChecksRequest)(nil),               // 11: advisors.v1.ListAdvisorChecksRequest
+		(*ListAdvisorChecksResponse)(nil),              // 12: advisors.v1.ListAdvisorChecksResponse
+		(*GetAdvisorCheckRequest)(nil),                 // 13: advisors.v1.GetAdvisorCheckRequest
+		(*GetAdvisorCheckResponse)(nil),                // 14: advisors.v1.GetAdvisorCheckResponse
+		(*CreateAdvisorCheckRequest)(nil),              // 15: advisors.v1.CreateAdvisorCheckRequest
+		(*CreateAdvisorCheckResponse)(nil),             // 16: advisors.v1.CreateAdvisorCheckResponse
+		(*UpdateAdvisorCheckRequest)(nil),              // 17: advisors.v1.UpdateAdvisorCheckRequest
+		(*UpdateAdvisorCheckResponse)(nil),             // 18: advisors.v1.UpdateAdvisorCheckResponse
+		(*DeleteAdvisorCheckRequest)(nil),              // 19: advisors.v1.DeleteAdvisorCheckRequest
+		(*DeleteAdvisorCheckResponse)(nil),             // 20: advisors.v1.DeleteAdvisorCheckResponse
+		(*TestAdvisorCheckRequest)(nil),                // 21: advisors.v1.TestAdvisorCheckRequest
+		(*TestAdvisorCheckResult)(nil),                 // 22: advisors.v1.TestAdvisorCheckResult
+		(*TestAdvisorCheckResponse)(nil),               // 23: advisors.v1.TestAdvisorCheckResponse
+		(*ListAdvisorCheckTestTargetsRequest)(nil),     // 24: advisors.v1.ListAdvisorCheckTestTargetsRequest
+		(*AdvisorCheckTestTarget)(nil),                 // 25: advisors.v1.AdvisorCheckTestTarget
+		(*ListAdvisorCheckTestTargetsResponse)(nil),    // 26: advisors.v1.ListAdvisorCheckTestTargetsResponse
+		(*ChangeAdvisorChecksRequest)(nil),             // 27: advisors.v1.ChangeAdvisorChecksRequest
+		(*ChangeAdvisorChecksResponse)(nil),            // 28: advisors.v1.ChangeAdvisorChecksResponse
+		(*SendTestAdvisorNotificationRequest)(nil),     // 29: advisors.v1.SendTestAdvisorNotificationRequest
+		(*SendTestAdvisorNotificationResponse)(nil),    // 30: advisors.v1.SendTestAdvisorNotificationResponse
+		(*Insight)(nil),                                // 31: advisors.v1.Insight
+		(*ListInsightsRequest)(nil),                    // 32: advisors.v1.ListInsightsRequest
+		(*ListInsightsResponse)(nil),                   // 33: advisors.v1.ListInsightsResponse
+		(*ListInsightsFilterValuesRequest)(nil),        // 34: advisors.v1.ListInsightsFilterValuesRequest
+		(*ListInsightsFilterValuesResponse)(nil),       // 35: advisors.v1.ListInsightsFilterValuesResponse
+		(*InsightsFilters)(nil),                        // 36: advisors.v1.InsightsFilters
+		(*MarkInsightsReadRequest)(nil),                // 37: advisors.v1.MarkInsightsReadRequest
+		(*MarkInsightsReadResponse)(nil),               // 38: advisors.v1.MarkInsightsReadResponse
+		(*AdvisorRun)(nil),                             // 39: advisors.v1.AdvisorRun
+		(*AdvisorRunReference)(nil),                    // 40: advisors.v1.AdvisorRunReference
+		(*SeverityCount)(nil),                          // 41: advisors.v1.SeverityCount
+		(*ListRunsRequest)(nil),                        // 42: advisors.v1.ListRunsRequest
+		(*ListRunsResponse)(nil),                       // 43: advisors.v1.ListRunsResponse
+		(*AdvisorSchedule)(nil),                        // 44: advisors.v1.AdvisorSchedule
+		(*ListAdvisorSchedulesRequest)(nil),            // 45: advisors.v1.ListAdvisorSchedulesRequest
+		(*ListAdvisorSchedulesResponse)(nil),           // 46: advisors.v1.ListAdvisorSchedulesResponse
+		(*CreateAdvisorScheduleRequest)(nil),           // 47: advisors.v1.CreateAdvisorScheduleRequest
+		(*CreateAdvisorScheduleResponse)(nil),          // 48: advisors.v1.CreateAdvisorScheduleResponse
+		(*UpdateAdvisorScheduleRequest)(nil),           // 49: advisors.v1.UpdateAdvisorScheduleRequest
+		(*UpdateAdvisorScheduleResponse)(nil),          // 50: advisors.v1.UpdateAdvisorScheduleResponse
+		(*DeleteAdvisorScheduleRequest)(nil),           // 51: advisors.v1.DeleteAdvisorScheduleRequest
+		(*DeleteAdvisorScheduleResponse)(nil),          // 52: advisors.v1.DeleteAdvisorScheduleResponse
+		(*RunAdvisorScheduleRequest)(nil),              // 53: advisors.v1.RunAdvisorScheduleRequest
+		(*RunAdvisorScheduleResponse)(nil),             // 54: advisors.v1.RunAdvisorScheduleResponse
+		(*ListAdvisorServicesRequest)(nil),             // 55: advisors.v1.ListAdvisorServicesRequest
+		(*AdvisorTargetService)(nil),                   // 56: advisors.v1.AdvisorTargetService
+		(*ListAdvisorServicesResponse)(nil),            // 57: advisors.v1.ListAdvisorServicesResponse
+		(*GetAdvisorNotificationSettingsRequest)(nil),  // 58: advisors.v1.GetAdvisorNotificationSettingsRequest
+		(*GetAdvisorNotificationSettingsResponse)(nil), // 59: advisors.v1.GetAdvisorNotificationSettingsResponse
+		nil,                           // 60: advisors.v1.AdvisorCheckQuery.ParametersEntry
+		nil,                           // 61: advisors.v1.TestAdvisorCheckResult.LabelsEntry
+		nil,                           // 62: advisors.v1.Insight.LabelsEntry
+		v1.Severity(0),                // 63: management.v1.Severity
+		(*timestamppb.Timestamp)(nil), // 64: google.protobuf.Timestamp
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	55, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
+	60, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
 	0,  // 1: advisors.v1.AdvisorCheck.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	5,  // 2: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
 	0,  // 3: advisors.v1.AdvisorCheckDefinition.technology:type_name -> advisors.v1.AdvisorCheckTechnology
@@ -4212,97 +4511,104 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	7,  // 9: advisors.v1.UpdateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheckDefinition
 	6,  // 10: advisors.v1.UpdateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
 	6,  // 11: advisors.v1.TestAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	58, // 12: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
-	56, // 13: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
+	63, // 12: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
+	61, // 13: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
 	22, // 14: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
 	0,  // 15: advisors.v1.ListAdvisorCheckTestTargetsRequest.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	25, // 16: advisors.v1.ListAdvisorCheckTestTargetsResponse.targets:type_name -> advisors.v1.AdvisorCheckTestTarget
 	8,  // 17: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
-	58, // 18: advisors.v1.SendTestAdvisorNotificationRequest.severities:type_name -> management.v1.Severity
+	63, // 18: advisors.v1.SendTestAdvisorNotificationRequest.severities:type_name -> management.v1.Severity
 	1,  // 19: advisors.v1.Insight.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	58, // 20: advisors.v1.Insight.severity:type_name -> management.v1.Severity
-	57, // 21: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
-	59, // 22: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
+	63, // 20: advisors.v1.Insight.severity:type_name -> management.v1.Severity
+	62, // 21: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
+	64, // 22: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
 	2,  // 23: advisors.v1.Insight.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	1,  // 24: advisors.v1.ListInsightsRequest.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	59, // 25: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
-	59, // 26: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
-	58, // 27: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
+	64, // 25: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
+	64, // 26: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
+	63, // 27: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
 	2,  // 28: advisors.v1.ListInsightsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	31, // 29: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
-	58, // 30: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
+	63, // 30: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
 	1,  // 31: advisors.v1.InsightsFilters.status:type_name -> advisors.v1.AdvisorCheckResultStatus
 	36, // 32: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
 	2,  // 33: advisors.v1.AdvisorRun.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	59, // 34: advisors.v1.AdvisorRun.started_at:type_name -> google.protobuf.Timestamp
-	59, // 35: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
+	64, // 34: advisors.v1.AdvisorRun.started_at:type_name -> google.protobuf.Timestamp
+	64, // 35: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
 	41, // 36: advisors.v1.AdvisorRun.severity_counts:type_name -> advisors.v1.SeverityCount
 	3,  // 37: advisors.v1.AdvisorRun.status:type_name -> advisors.v1.AdvisorRunStatus
-	59, // 38: advisors.v1.AdvisorRun.scheduled_for:type_name -> google.protobuf.Timestamp
+	64, // 38: advisors.v1.AdvisorRun.scheduled_for:type_name -> google.protobuf.Timestamp
 	40, // 39: advisors.v1.AdvisorRun.waited_for_run:type_name -> advisors.v1.AdvisorRunReference
 	2,  // 40: advisors.v1.AdvisorRunReference.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	59, // 41: advisors.v1.AdvisorRunReference.started_at:type_name -> google.protobuf.Timestamp
-	58, // 42: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
+	64, // 41: advisors.v1.AdvisorRunReference.started_at:type_name -> google.protobuf.Timestamp
+	63, // 42: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
 	2,  // 43: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	59, // 44: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
-	59, // 45: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
+	64, // 44: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
+	64, // 45: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
 	39, // 46: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
 	4,  // 47: advisors.v1.AdvisorSchedule.email_mode:type_name -> advisors.v1.AdvisorScheduleEmailMode
-	58, // 48: advisors.v1.AdvisorSchedule.email_severities:type_name -> management.v1.Severity
-	59, // 49: advisors.v1.AdvisorSchedule.next_run_at:type_name -> google.protobuf.Timestamp
+	63, // 48: advisors.v1.AdvisorSchedule.email_severities:type_name -> management.v1.Severity
+	64, // 49: advisors.v1.AdvisorSchedule.next_run_at:type_name -> google.protobuf.Timestamp
 	39, // 50: advisors.v1.AdvisorSchedule.last_run:type_name -> advisors.v1.AdvisorRun
-	59, // 51: advisors.v1.AdvisorSchedule.created_at:type_name -> google.protobuf.Timestamp
-	59, // 52: advisors.v1.AdvisorSchedule.updated_at:type_name -> google.protobuf.Timestamp
+	64, // 51: advisors.v1.AdvisorSchedule.created_at:type_name -> google.protobuf.Timestamp
+	64, // 52: advisors.v1.AdvisorSchedule.updated_at:type_name -> google.protobuf.Timestamp
 	44, // 53: advisors.v1.ListAdvisorSchedulesResponse.schedules:type_name -> advisors.v1.AdvisorSchedule
 	4,  // 54: advisors.v1.CreateAdvisorScheduleRequest.email_mode:type_name -> advisors.v1.AdvisorScheduleEmailMode
-	58, // 55: advisors.v1.CreateAdvisorScheduleRequest.email_severities:type_name -> management.v1.Severity
+	63, // 55: advisors.v1.CreateAdvisorScheduleRequest.email_severities:type_name -> management.v1.Severity
 	44, // 56: advisors.v1.CreateAdvisorScheduleResponse.schedule:type_name -> advisors.v1.AdvisorSchedule
 	4,  // 57: advisors.v1.UpdateAdvisorScheduleRequest.email_mode:type_name -> advisors.v1.AdvisorScheduleEmailMode
-	58, // 58: advisors.v1.UpdateAdvisorScheduleRequest.email_severities:type_name -> management.v1.Severity
+	63, // 58: advisors.v1.UpdateAdvisorScheduleRequest.email_severities:type_name -> management.v1.Severity
 	44, // 59: advisors.v1.UpdateAdvisorScheduleResponse.schedule:type_name -> advisors.v1.AdvisorSchedule
-	42, // 60: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
-	32, // 61: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
-	34, // 62: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
-	37, // 63: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
-	9,  // 64: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	11, // 65: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	27, // 66: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	13, // 67: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
-	15, // 68: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
-	17, // 69: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
-	21, // 70: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
-	24, // 71: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
-	19, // 72: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
-	45, // 73: advisors.v1.AdvisorService.ListAdvisorSchedules:input_type -> advisors.v1.ListAdvisorSchedulesRequest
-	47, // 74: advisors.v1.AdvisorService.CreateAdvisorSchedule:input_type -> advisors.v1.CreateAdvisorScheduleRequest
-	49, // 75: advisors.v1.AdvisorService.UpdateAdvisorSchedule:input_type -> advisors.v1.UpdateAdvisorScheduleRequest
-	51, // 76: advisors.v1.AdvisorService.DeleteAdvisorSchedule:input_type -> advisors.v1.DeleteAdvisorScheduleRequest
-	53, // 77: advisors.v1.AdvisorService.RunAdvisorSchedule:input_type -> advisors.v1.RunAdvisorScheduleRequest
-	29, // 78: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
-	43, // 79: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
-	33, // 80: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
-	35, // 81: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
-	38, // 82: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
-	10, // 83: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	12, // 84: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	28, // 85: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	14, // 86: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
-	16, // 87: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
-	18, // 88: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
-	23, // 89: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
-	26, // 90: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
-	20, // 91: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
-	46, // 92: advisors.v1.AdvisorService.ListAdvisorSchedules:output_type -> advisors.v1.ListAdvisorSchedulesResponse
-	48, // 93: advisors.v1.AdvisorService.CreateAdvisorSchedule:output_type -> advisors.v1.CreateAdvisorScheduleResponse
-	50, // 94: advisors.v1.AdvisorService.UpdateAdvisorSchedule:output_type -> advisors.v1.UpdateAdvisorScheduleResponse
-	52, // 95: advisors.v1.AdvisorService.DeleteAdvisorSchedule:output_type -> advisors.v1.DeleteAdvisorScheduleResponse
-	54, // 96: advisors.v1.AdvisorService.RunAdvisorSchedule:output_type -> advisors.v1.RunAdvisorScheduleResponse
-	30, // 97: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
-	79, // [79:98] is the sub-list for method output_type
-	60, // [60:79] is the sub-list for method input_type
-	60, // [60:60] is the sub-list for extension type_name
-	60, // [60:60] is the sub-list for extension extendee
-	0,  // [0:60] is the sub-list for field type_name
+	0,  // 60: advisors.v1.AdvisorTargetService.technology:type_name -> advisors.v1.AdvisorCheckTechnology
+	56, // 61: advisors.v1.ListAdvisorServicesResponse.services:type_name -> advisors.v1.AdvisorTargetService
+	63, // 62: advisors.v1.GetAdvisorNotificationSettingsResponse.severities:type_name -> management.v1.Severity
+	42, // 63: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
+	32, // 64: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
+	34, // 65: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
+	37, // 66: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
+	9,  // 67: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	11, // 68: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	27, // 69: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	13, // 70: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
+	15, // 71: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
+	17, // 72: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
+	21, // 73: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
+	24, // 74: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
+	19, // 75: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
+	45, // 76: advisors.v1.AdvisorService.ListAdvisorSchedules:input_type -> advisors.v1.ListAdvisorSchedulesRequest
+	47, // 77: advisors.v1.AdvisorService.CreateAdvisorSchedule:input_type -> advisors.v1.CreateAdvisorScheduleRequest
+	49, // 78: advisors.v1.AdvisorService.UpdateAdvisorSchedule:input_type -> advisors.v1.UpdateAdvisorScheduleRequest
+	51, // 79: advisors.v1.AdvisorService.DeleteAdvisorSchedule:input_type -> advisors.v1.DeleteAdvisorScheduleRequest
+	53, // 80: advisors.v1.AdvisorService.RunAdvisorSchedule:input_type -> advisors.v1.RunAdvisorScheduleRequest
+	55, // 81: advisors.v1.AdvisorService.ListAdvisorServices:input_type -> advisors.v1.ListAdvisorServicesRequest
+	58, // 82: advisors.v1.AdvisorService.GetAdvisorNotificationSettings:input_type -> advisors.v1.GetAdvisorNotificationSettingsRequest
+	29, // 83: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
+	43, // 84: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
+	33, // 85: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
+	35, // 86: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
+	38, // 87: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
+	10, // 88: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	12, // 89: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	28, // 90: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	14, // 91: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
+	16, // 92: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
+	18, // 93: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
+	23, // 94: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
+	26, // 95: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
+	20, // 96: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
+	46, // 97: advisors.v1.AdvisorService.ListAdvisorSchedules:output_type -> advisors.v1.ListAdvisorSchedulesResponse
+	48, // 98: advisors.v1.AdvisorService.CreateAdvisorSchedule:output_type -> advisors.v1.CreateAdvisorScheduleResponse
+	50, // 99: advisors.v1.AdvisorService.UpdateAdvisorSchedule:output_type -> advisors.v1.UpdateAdvisorScheduleResponse
+	52, // 100: advisors.v1.AdvisorService.DeleteAdvisorSchedule:output_type -> advisors.v1.DeleteAdvisorScheduleResponse
+	54, // 101: advisors.v1.AdvisorService.RunAdvisorSchedule:output_type -> advisors.v1.RunAdvisorScheduleResponse
+	57, // 102: advisors.v1.AdvisorService.ListAdvisorServices:output_type -> advisors.v1.ListAdvisorServicesResponse
+	59, // 103: advisors.v1.AdvisorService.GetAdvisorNotificationSettings:output_type -> advisors.v1.GetAdvisorNotificationSettingsResponse
+	30, // 104: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
+	84, // [84:105] is the sub-list for method output_type
+	63, // [63:84] is the sub-list for method input_type
+	63, // [63:63] is the sub-list for extension type_name
+	63, // [63:63] is the sub-list for extension extendee
+	0,  // [0:63] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }
@@ -4322,7 +4628,7 @@ func file_advisors_v1_advisors_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   53,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

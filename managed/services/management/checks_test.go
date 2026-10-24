@@ -306,6 +306,122 @@ func TestListAdvisorCheckTestTargets(t *testing.T) {
 	}, resp)
 }
 
+func TestListAdvisorServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("converts services", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("ListServices", mock.Anything).Return([]services.Target{
+			{ServiceID: "svc-1", ServiceName: "mongo-1", ServiceType: models.MongoDBServiceType, NodeName: "node-1", Environment: "prod", Cluster: "rs0"},
+			{ServiceID: "svc-2", ServiceName: "mysql-1", ServiceType: models.MySQLServiceType, NodeName: "node-2"},
+			{ServiceID: "svc-3", ServiceName: "pg-1", ServiceType: models.PostgreSQLServiceType, NodeName: "node-3", Environment: "staging"},
+		}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListAdvisorServices(t.Context(), &advisorsv1.ListAdvisorServicesRequest{})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.ListAdvisorServicesResponse{
+			Services: []*advisorsv1.AdvisorTargetService{
+				{
+					ServiceId:   "svc-1",
+					ServiceName: "mongo-1",
+					Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MONGODB,
+					NodeName:    "node-1",
+					Environment: "prod",
+					Cluster:     "rs0",
+				},
+				{
+					ServiceId:   "svc-2",
+					ServiceName: "mysql-1",
+					Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
+					NodeName:    "node-2",
+				},
+				{
+					ServiceId:   "svc-3",
+					ServiceName: "pg-1",
+					Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL,
+					NodeName:    "node-3",
+					Environment: "staging",
+				},
+			},
+		}, resp)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("ListServices", mock.Anything).Return(nil, errors.New("db down"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListAdvisorServices(t.Context(), &advisorsv1.ListAdvisorServicesRequest{})
+		require.Error(t, err)
+		assert.Nil(t, resp)
+	})
+}
+
+func TestGetAdvisorNotificationSettings(t *testing.T) {
+	t.Parallel()
+
+	t.Run("enabled", func(t *testing.T) {
+		t.Parallel()
+
+		settings := &models.Settings{}
+		settings.AdvisorNotifications.Enabled = new(true)
+		settings.AdvisorNotifications.EmailAddresses = []string{"dba@example.com", "oncall@example.com"}
+		settings.AdvisorNotifications.Severities = []common.Severity{common.Critical, common.Error, common.Warning}
+
+		var checksService mockChecksService
+		checksService.On("GetSettings", mock.Anything).Return(settings, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorNotificationSettings(t.Context(), &advisorsv1.GetAdvisorNotificationSettingsRequest{})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.GetAdvisorNotificationSettingsResponse{
+			Enabled:        true,
+			EmailAddresses: []string{"dba@example.com", "oncall@example.com"},
+			Severities: []managementv1.Severity{
+				managementv1.Severity_SEVERITY_CRITICAL,
+				managementv1.Severity_SEVERITY_ERROR,
+				managementv1.Severity_SEVERITY_WARNING,
+			},
+		}, resp)
+	})
+
+	t.Run("never configured", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetSettings", mock.Anything).Return(&models.Settings{}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorNotificationSettings(t.Context(), &advisorsv1.GetAdvisorNotificationSettingsRequest{})
+		require.NoError(t, err)
+		assert.Equal(t, models.AdvisorNotificationsEnabledDefault, resp.Enabled)
+		assert.Empty(t, resp.EmailAddresses)
+		assert.Empty(t, resp.Severities)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetSettings", mock.Anything).Return(nil, errors.New("db down"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorNotificationSettings(t.Context(), &advisorsv1.GetAdvisorNotificationSettingsRequest{})
+		require.Error(t, err)
+		assert.Nil(t, resp)
+	})
+}
+
 func TestListRuns(t *testing.T) {
 	t.Parallel()
 

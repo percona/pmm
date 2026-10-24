@@ -566,6 +566,68 @@ func (s *ChecksAPIService) ListAdvisorCheckTestTargets(
 	return &advisorsv1.ListAdvisorCheckTestTargetsResponse{Targets: res}, nil
 }
 
+// ListAdvisorServices returns the services Advisor checks can run against, ordered by name.
+func (s *ChecksAPIService) ListAdvisorServices(
+	ctx context.Context,
+	_ *advisorsv1.ListAdvisorServicesRequest,
+) (*advisorsv1.ListAdvisorServicesResponse, error) {
+	targets, err := s.checksService.ListServices(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list advisor services: %w", err)
+	}
+
+	res := make([]*advisorsv1.AdvisorTargetService, len(targets))
+	for i, target := range targets {
+		res[i] = &advisorsv1.AdvisorTargetService{
+			ServiceId:   target.ServiceID,
+			ServiceName: target.ServiceName,
+			Technology:  convertServiceTypeToTechnology(target.ServiceType),
+			NodeName:    target.NodeName,
+			Environment: target.Environment,
+			Cluster:     target.Cluster,
+		}
+	}
+
+	return &advisorsv1.ListAdvisorServicesResponse{Services: res}, nil
+}
+
+// GetAdvisorNotificationSettings returns whether Advisor notifications are enabled, and their
+// default recipients and severities.
+func (s *ChecksAPIService) GetAdvisorNotificationSettings(
+	ctx context.Context,
+	_ *advisorsv1.GetAdvisorNotificationSettingsRequest,
+) (*advisorsv1.GetAdvisorNotificationSettingsResponse, error) {
+	settings, err := s.checksService.GetSettings(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get settings: %w", err)
+	}
+
+	severities := make([]managementv1.Severity, 0, len(settings.AdvisorNotifications.Severities))
+	for _, severity := range settings.AdvisorNotifications.Severities {
+		severities = append(severities, managementv1.Severity(severity)) //nolint:gosec // severity is a bounded enum (0-8), no overflow
+	}
+
+	return &advisorsv1.GetAdvisorNotificationSettingsResponse{
+		Enabled:        settings.IsAdvisorNotificationsEnabled(),
+		EmailAddresses: settings.AdvisorNotifications.EmailAddresses,
+		Severities:     severities,
+	}, nil
+}
+
+// convertServiceTypeToTechnology converts the type of a service Advisor checks run against to their technology.
+func convertServiceTypeToTechnology(serviceType models.ServiceType) advisorsv1.AdvisorCheckTechnology {
+	switch serviceType {
+	case models.MySQLServiceType:
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL
+	case models.PostgreSQLServiceType:
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL
+	case models.MongoDBServiceType:
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MONGODB
+	default:
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED
+	}
+}
+
 // convertTestCheckResults converts test (dry-run) check execution results to their API representation.
 func convertTestCheckResults(results []services.CheckResult) []*advisorsv1.TestAdvisorCheckResult {
 	converted := make([]*advisorsv1.TestAdvisorCheckResult, 0, len(results))

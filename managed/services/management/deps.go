@@ -74,6 +74,8 @@ type checksService interface { //nolint:interfacebloat
 	DeleteAdvisorCheck(ctx context.Context, name string) error
 	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
 	ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error)
+	ListServices(ctx context.Context) ([]services.Target, error)
+	GetSettings(ctx context.Context) (*models.Settings, error)
 	SendTestNotification(recipients []string, severities []common.Severity) error
 	GetRunsWaitedFor(ctx context.Context, runs []*models.AdvisorRun) (map[string]*models.AdvisorRun, error)
 	GetSchedules(ctx context.Context) ([]*models.AdvisorSchedule, error)

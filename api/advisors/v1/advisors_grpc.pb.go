@@ -20,25 +20,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdvisorService_ListRuns_FullMethodName                    = "/advisors.v1.AdvisorService/ListRuns"
-	AdvisorService_ListInsights_FullMethodName                = "/advisors.v1.AdvisorService/ListInsights"
-	AdvisorService_ListInsightsFilterValues_FullMethodName    = "/advisors.v1.AdvisorService/ListInsightsFilterValues"
-	AdvisorService_MarkInsightsRead_FullMethodName            = "/advisors.v1.AdvisorService/MarkInsightsRead"
-	AdvisorService_StartAdvisorChecks_FullMethodName          = "/advisors.v1.AdvisorService/StartAdvisorChecks"
-	AdvisorService_ListAdvisorChecks_FullMethodName           = "/advisors.v1.AdvisorService/ListAdvisorChecks"
-	AdvisorService_ChangeAdvisorChecks_FullMethodName         = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
-	AdvisorService_GetAdvisorCheck_FullMethodName             = "/advisors.v1.AdvisorService/GetAdvisorCheck"
-	AdvisorService_CreateAdvisorCheck_FullMethodName          = "/advisors.v1.AdvisorService/CreateAdvisorCheck"
-	AdvisorService_UpdateAdvisorCheck_FullMethodName          = "/advisors.v1.AdvisorService/UpdateAdvisorCheck"
-	AdvisorService_TestAdvisorCheck_FullMethodName            = "/advisors.v1.AdvisorService/TestAdvisorCheck"
-	AdvisorService_ListAdvisorCheckTestTargets_FullMethodName = "/advisors.v1.AdvisorService/ListAdvisorCheckTestTargets"
-	AdvisorService_DeleteAdvisorCheck_FullMethodName          = "/advisors.v1.AdvisorService/DeleteAdvisorCheck"
-	AdvisorService_ListAdvisorSchedules_FullMethodName        = "/advisors.v1.AdvisorService/ListAdvisorSchedules"
-	AdvisorService_CreateAdvisorSchedule_FullMethodName       = "/advisors.v1.AdvisorService/CreateAdvisorSchedule"
-	AdvisorService_UpdateAdvisorSchedule_FullMethodName       = "/advisors.v1.AdvisorService/UpdateAdvisorSchedule"
-	AdvisorService_DeleteAdvisorSchedule_FullMethodName       = "/advisors.v1.AdvisorService/DeleteAdvisorSchedule"
-	AdvisorService_RunAdvisorSchedule_FullMethodName          = "/advisors.v1.AdvisorService/RunAdvisorSchedule"
-	AdvisorService_SendTestAdvisorNotification_FullMethodName = "/advisors.v1.AdvisorService/SendTestAdvisorNotification"
+	AdvisorService_ListRuns_FullMethodName                       = "/advisors.v1.AdvisorService/ListRuns"
+	AdvisorService_ListInsights_FullMethodName                   = "/advisors.v1.AdvisorService/ListInsights"
+	AdvisorService_ListInsightsFilterValues_FullMethodName       = "/advisors.v1.AdvisorService/ListInsightsFilterValues"
+	AdvisorService_MarkInsightsRead_FullMethodName               = "/advisors.v1.AdvisorService/MarkInsightsRead"
+	AdvisorService_StartAdvisorChecks_FullMethodName             = "/advisors.v1.AdvisorService/StartAdvisorChecks"
+	AdvisorService_ListAdvisorChecks_FullMethodName              = "/advisors.v1.AdvisorService/ListAdvisorChecks"
+	AdvisorService_ChangeAdvisorChecks_FullMethodName            = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
+	AdvisorService_GetAdvisorCheck_FullMethodName                = "/advisors.v1.AdvisorService/GetAdvisorCheck"
+	AdvisorService_CreateAdvisorCheck_FullMethodName             = "/advisors.v1.AdvisorService/CreateAdvisorCheck"
+	AdvisorService_UpdateAdvisorCheck_FullMethodName             = "/advisors.v1.AdvisorService/UpdateAdvisorCheck"
+	AdvisorService_TestAdvisorCheck_FullMethodName               = "/advisors.v1.AdvisorService/TestAdvisorCheck"
+	AdvisorService_ListAdvisorCheckTestTargets_FullMethodName    = "/advisors.v1.AdvisorService/ListAdvisorCheckTestTargets"
+	AdvisorService_DeleteAdvisorCheck_FullMethodName             = "/advisors.v1.AdvisorService/DeleteAdvisorCheck"
+	AdvisorService_ListAdvisorSchedules_FullMethodName           = "/advisors.v1.AdvisorService/ListAdvisorSchedules"
+	AdvisorService_CreateAdvisorSchedule_FullMethodName          = "/advisors.v1.AdvisorService/CreateAdvisorSchedule"
+	AdvisorService_UpdateAdvisorSchedule_FullMethodName          = "/advisors.v1.AdvisorService/UpdateAdvisorSchedule"
+	AdvisorService_DeleteAdvisorSchedule_FullMethodName          = "/advisors.v1.AdvisorService/DeleteAdvisorSchedule"
+	AdvisorService_RunAdvisorSchedule_FullMethodName             = "/advisors.v1.AdvisorService/RunAdvisorSchedule"
+	AdvisorService_ListAdvisorServices_FullMethodName            = "/advisors.v1.AdvisorService/ListAdvisorServices"
+	AdvisorService_GetAdvisorNotificationSettings_FullMethodName = "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings"
+	AdvisorService_SendTestAdvisorNotification_FullMethodName    = "/advisors.v1.AdvisorService/SendTestAdvisorNotification"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -83,6 +85,10 @@ type AdvisorServiceClient interface {
 	DeleteAdvisorSchedule(ctx context.Context, in *DeleteAdvisorScheduleRequest, opts ...grpc.CallOption) (*DeleteAdvisorScheduleResponse, error)
 	// RunAdvisorSchedule starts a run of an Advisor schedule now.
 	RunAdvisorSchedule(ctx context.Context, in *RunAdvisorScheduleRequest, opts ...grpc.CallOption) (*RunAdvisorScheduleResponse, error)
+	// ListAdvisorServices returns the services Advisor checks can run against.
+	ListAdvisorServices(ctx context.Context, in *ListAdvisorServicesRequest, opts ...grpc.CallOption) (*ListAdvisorServicesResponse, error)
+	// GetAdvisorNotificationSettings returns the Advisor notification settings.
+	GetAdvisorNotificationSettings(ctx context.Context, in *GetAdvisorNotificationSettingsRequest, opts ...grpc.CallOption) (*GetAdvisorNotificationSettingsResponse, error)
 	// SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
 	SendTestAdvisorNotification(ctx context.Context, in *SendTestAdvisorNotificationRequest, opts ...grpc.CallOption) (*SendTestAdvisorNotificationResponse, error)
 }
@@ -275,6 +281,26 @@ func (c *advisorServiceClient) RunAdvisorSchedule(ctx context.Context, in *RunAd
 	return out, nil
 }
 
+func (c *advisorServiceClient) ListAdvisorServices(ctx context.Context, in *ListAdvisorServicesRequest, opts ...grpc.CallOption) (*ListAdvisorServicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAdvisorServicesResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_ListAdvisorServices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advisorServiceClient) GetAdvisorNotificationSettings(ctx context.Context, in *GetAdvisorNotificationSettingsRequest, opts ...grpc.CallOption) (*GetAdvisorNotificationSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdvisorNotificationSettingsResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_GetAdvisorNotificationSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *advisorServiceClient) SendTestAdvisorNotification(ctx context.Context, in *SendTestAdvisorNotificationRequest, opts ...grpc.CallOption) (*SendTestAdvisorNotificationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SendTestAdvisorNotificationResponse)
@@ -327,6 +353,10 @@ type AdvisorServiceServer interface {
 	DeleteAdvisorSchedule(context.Context, *DeleteAdvisorScheduleRequest) (*DeleteAdvisorScheduleResponse, error)
 	// RunAdvisorSchedule starts a run of an Advisor schedule now.
 	RunAdvisorSchedule(context.Context, *RunAdvisorScheduleRequest) (*RunAdvisorScheduleResponse, error)
+	// ListAdvisorServices returns the services Advisor checks can run against.
+	ListAdvisorServices(context.Context, *ListAdvisorServicesRequest) (*ListAdvisorServicesResponse, error)
+	// GetAdvisorNotificationSettings returns the Advisor notification settings.
+	GetAdvisorNotificationSettings(context.Context, *GetAdvisorNotificationSettingsRequest) (*GetAdvisorNotificationSettingsResponse, error)
 	// SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
 	SendTestAdvisorNotification(context.Context, *SendTestAdvisorNotificationRequest) (*SendTestAdvisorNotificationResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
@@ -409,6 +439,14 @@ func (UnimplementedAdvisorServiceServer) DeleteAdvisorSchedule(context.Context, 
 
 func (UnimplementedAdvisorServiceServer) RunAdvisorSchedule(context.Context, *RunAdvisorScheduleRequest) (*RunAdvisorScheduleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RunAdvisorSchedule not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) ListAdvisorServices(context.Context, *ListAdvisorServicesRequest) (*ListAdvisorServicesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAdvisorServices not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) GetAdvisorNotificationSettings(context.Context, *GetAdvisorNotificationSettingsRequest) (*GetAdvisorNotificationSettingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAdvisorNotificationSettings not implemented")
 }
 
 func (UnimplementedAdvisorServiceServer) SendTestAdvisorNotification(context.Context, *SendTestAdvisorNotificationRequest) (*SendTestAdvisorNotificationResponse, error) {
@@ -759,6 +797,42 @@ func _AdvisorService_RunAdvisorSchedule_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvisorService_ListAdvisorServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdvisorServicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).ListAdvisorServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_ListAdvisorServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).ListAdvisorServices(ctx, req.(*ListAdvisorServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdvisorService_GetAdvisorNotificationSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdvisorNotificationSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).GetAdvisorNotificationSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_GetAdvisorNotificationSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).GetAdvisorNotificationSettings(ctx, req.(*GetAdvisorNotificationSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdvisorService_SendTestAdvisorNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendTestAdvisorNotificationRequest)
 	if err := dec(in); err != nil {
@@ -855,6 +929,14 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RunAdvisorSchedule",
 			Handler:    _AdvisorService_RunAdvisorSchedule_Handler,
+		},
+		{
+			MethodName: "ListAdvisorServices",
+			Handler:    _AdvisorService_ListAdvisorServices_Handler,
+		},
+		{
+			MethodName: "GetAdvisorNotificationSettings",
+			Handler:    _AdvisorService_GetAdvisorNotificationSettings_Handler,
 		},
 		{
 			MethodName: "SendTestAdvisorNotification",

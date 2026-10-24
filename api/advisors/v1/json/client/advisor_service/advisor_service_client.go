@@ -63,11 +63,15 @@ type ClientService interface {
 
 	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
 
+	GetAdvisorNotificationSettings(params *GetAdvisorNotificationSettingsParams, opts ...ClientOption) (*GetAdvisorNotificationSettingsOK, error)
+
 	ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error)
 
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
 
 	ListAdvisorSchedules(params *ListAdvisorSchedulesParams, opts ...ClientOption) (*ListAdvisorSchedulesOK, error)
+
+	ListAdvisorServices(params *ListAdvisorServicesParams, opts ...ClientOption) (*ListAdvisorServicesOK, error)
 
 	ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error)
 
@@ -357,6 +361,50 @@ func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOp
 }
 
 /*
+GetAdvisorNotificationSettings gets advisor notification settings
+
+Returns whether Advisor email notifications are enabled, and their default recipients and severities, which Advisor schedules can override. Read-only: ChangeSettings changes them.
+*/
+func (a *Client) GetAdvisorNotificationSettings(params *GetAdvisorNotificationSettingsParams, opts ...ClientOption) (*GetAdvisorNotificationSettingsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetAdvisorNotificationSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetAdvisorNotificationSettings",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/notificationSettings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetAdvisorNotificationSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetAdvisorNotificationSettingsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetAdvisorNotificationSettingsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListAdvisorCheckTestTargets lists advisor check test targets
 
 Lists the services an advisor check of the given technology can be tested against.
@@ -484,6 +532,50 @@ func (a *Client) ListAdvisorSchedules(params *ListAdvisorSchedulesParams, opts .
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAdvisorSchedulesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListAdvisorServices lists advisor services
+
+Returns the MySQL, PostgreSQL and MongoDB services Advisor checks can run against, ordered by name.
+*/
+func (a *Client) ListAdvisorServices(params *ListAdvisorServicesParams, opts ...ClientOption) (*ListAdvisorServicesOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListAdvisorServicesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAdvisorServices",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/services",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAdvisorServicesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListAdvisorServicesOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListAdvisorServicesDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

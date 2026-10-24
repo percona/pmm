@@ -455,6 +455,66 @@ func (_m *mockChecksService) GetSchedules(ctx context.Context) ([]*models.Adviso
 	return r0, r1
 }
 
+// GetSettings provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetSettings(ctx context.Context) (*models.Settings, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSettings")
+	}
+
+	var r0 *models.Settings
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*models.Settings, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *models.Settings); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Settings)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListServices provides a mock function with given fields: ctx
+func (_m *mockChecksService) ListServices(ctx context.Context) ([]services.Target, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListServices")
+	}
+
+	var r0 []services.Target
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]services.Target, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []services.Target); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.Target)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListTestTargets provides a mock function with given fields: ctx, technology
 func (_m *mockChecksService) ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error) {
 	ret := _m.Called(ctx, technology)

@@ -887,6 +887,72 @@ func TestListTestTargets(t *testing.T) {
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
+func TestListServices(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	setup(t, db, "mysql-b", models.PMMServerNodeID, "")
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "mongo-node"})
+	require.NoError(t, err)
+	// no pmm-agent: the listing covers services checks cannot reach yet
+	_, err = models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mongo-a",
+		NodeID:      node.NodeID,
+		Environment: "prod",
+		Cluster:     "rs0",
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
+	})
+	require.NoError(t, err)
+	_, err = models.AddNewService(db.Querier, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "proxysql-a",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(6032)),
+	})
+	require.NoError(t, err)
+
+	targets, err := s.ListServices(t.Context())
+	require.NoError(t, err)
+	// sorted by name; no ProxySQL, no internal PMM Server PostgreSQL
+	require.Len(t, targets, 2)
+	assert.Equal(t, "mongo-a", targets[0].ServiceName)
+	assert.Equal(t, models.MongoDBServiceType, targets[0].ServiceType)
+	assert.Equal(t, "mongo-node", targets[0].NodeName)
+	assert.Equal(t, "prod", targets[0].Environment)
+	assert.Equal(t, "rs0", targets[0].Cluster)
+	assert.Equal(t, "mysql-b", targets[1].ServiceName)
+	assert.Equal(t, models.MySQLServiceType, targets[1].ServiceType)
+	assert.Equal(t, "pmm-server", targets[1].NodeName)
+}
+
+func TestGetSettings(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	// severities never configured resolve to the ones a run emails
+	settings, err := s.GetSettings(t.Context())
+	require.NoError(t, err)
+	assert.Equal(t, models.DefaultAdvisorNotificationSeverities(), settings.AdvisorNotifications.Severities)
+}
+
 func TestFilterChecksByName(t *testing.T) {
 	t.Parallel()
 	s := New(nil, nil, vmClient, clickhouseDB)

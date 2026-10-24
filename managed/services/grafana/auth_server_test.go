@@ -218,9 +218,13 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodDelete, "/v1/advisors/schedules/schedule-1", editor},
 		{http.MethodPost, "/v1/advisors/schedules/schedule-1:run", editor},
 		{http.MethodPost, "/v1/advisors/notifications:test", editor},
+		{http.MethodGet, "/v1/advisors/services", editor},
+		{http.MethodGet, "/v1/advisors/notificationSettings", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/StartAdvisorChecks", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/RunAdvisorSchedule", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", editor},
+		{http.MethodPost, "/advisors.v1.AdvisorService/ListAdvisorServices", editor},
+		{http.MethodPost, "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings", editor},
 
 		// OM: reads are viewer; writes need editor or admin.
 		{http.MethodGet, "/v1/om/topology", viewer},

@@ -1068,6 +1068,59 @@ func (s *Service) ListTestTargets(ctx context.Context, technology check.Technolo
 	return targets, nil
 }
 
+// ListServices returns the MySQL, PostgreSQL and MongoDB services Advisor checks run against,
+// ordered by name. Unlike a run, it does not resolve how a pmm-agent reaches them.
+func (s *Service) ListServices(ctx context.Context) ([]services.Target, error) {
+	q := s.db.WithContext(ctx)
+	var found []*models.Service
+	for _, serviceType := range []models.ServiceType{models.MySQLServiceType, models.PostgreSQLServiceType, models.MongoDBServiceType} {
+		typed, err := models.FindServices(q, models.ServiceFilters{ServiceType: &serviceType})
+		if err != nil {
+			return nil, err
+		}
+		found = append(found, typed...)
+	}
+
+	nodeIDs := make([]string, 0, len(found))
+	for _, service := range found {
+		nodeIDs = append(nodeIDs, service.NodeID)
+	}
+	slices.Sort(nodeIDs)
+	nodes, err := models.FindNodesByIDs(q, slices.Compact(nodeIDs))
+	if err != nil {
+		return nil, err
+	}
+	nodeNames := make(map[string]string, len(nodes))
+	for _, node := range nodes {
+		nodeNames[node.NodeID] = node.NodeName
+	}
+
+	res := make([]services.Target, 0, len(found))
+	for _, service := range found {
+		if service.ServiceName == models.PMMServerPostgreSQLServiceName {
+			continue
+		}
+		res = append(res, services.Target{
+			ServiceID:   service.ServiceID,
+			ServiceName: service.ServiceName,
+			ServiceType: service.ServiceType,
+			NodeID:      service.NodeID,
+			NodeName:    nodeNames[service.NodeID],
+			Environment: service.Environment,
+			Cluster:     service.Cluster,
+		})
+	}
+	slices.SortFunc(res, func(a, b services.Target) int {
+		return cmp.Compare(a.ServiceName, b.ServiceName)
+	})
+	return res, nil
+}
+
+// GetSettings returns the PMM Server settings, defaults included.
+func (s *Service) GetSettings(ctx context.Context) (*models.Settings, error) {
+	return models.GetSettings(s.db.WithContext(ctx))
+}
+
 // ensureUserCheck verifies that the named check exists and is user-authored.
 // It returns a NotFound error for unknown checks and a FailedPrecondition error
 // for Percona-shipped checks, whose content is immutable.

@@ -617,6 +617,48 @@ func local_request_AdvisorService_RunAdvisorSchedule_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
+func request_AdvisorService_ListAdvisorServices_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAdvisorServicesRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListAdvisorServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_AdvisorService_ListAdvisorServices_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAdvisorServicesRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.ListAdvisorServices(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_AdvisorService_GetAdvisorNotificationSettings_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAdvisorNotificationSettingsRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.GetAdvisorNotificationSettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_AdvisorService_GetAdvisorNotificationSettings_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAdvisorNotificationSettingsRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetAdvisorNotificationSettings(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_AdvisorService_SendTestAdvisorNotification_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq SendTestAdvisorNotificationRequest
@@ -1010,6 +1052,46 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 		forward_AdvisorService_RunAdvisorSchedule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListAdvisorServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListAdvisorServices", runtime.WithHTTPPathPattern("/v1/advisors/services"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_AdvisorService_ListAdvisorServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AdvisorService_ListAdvisorServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_AdvisorService_GetAdvisorNotificationSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings", runtime.WithHTTPPathPattern("/v1/advisors/notificationSettings"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_AdvisorService_GetAdvisorNotificationSettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AdvisorService_GetAdvisorNotificationSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_AdvisorService_SendTestAdvisorNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1376,6 +1458,40 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 		forward_AdvisorService_RunAdvisorSchedule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListAdvisorServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListAdvisorServices", runtime.WithHTTPPathPattern("/v1/advisors/services"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_AdvisorService_ListAdvisorServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AdvisorService_ListAdvisorServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_AdvisorService_GetAdvisorNotificationSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings", runtime.WithHTTPPathPattern("/v1/advisors/notificationSettings"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_AdvisorService_GetAdvisorNotificationSettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AdvisorService_GetAdvisorNotificationSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_AdvisorService_SendTestAdvisorNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1397,45 +1513,49 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_AdvisorService_ListRuns_0                    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "runs"}, ""))
-	pattern_AdvisorService_ListInsights_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, ""))
-	pattern_AdvisorService_ListInsightsFilterValues_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "filterValues"))
-	pattern_AdvisorService_MarkInsightsRead_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "markRead"))
-	pattern_AdvisorService_StartAdvisorChecks_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "start"))
-	pattern_AdvisorService_ListAdvisorChecks_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
-	pattern_AdvisorService_ChangeAdvisorChecks_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "batchChange"))
-	pattern_AdvisorService_GetAdvisorCheck_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
-	pattern_AdvisorService_CreateAdvisorCheck_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
-	pattern_AdvisorService_UpdateAdvisorCheck_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
-	pattern_AdvisorService_TestAdvisorCheck_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "test"))
-	pattern_AdvisorService_ListAdvisorCheckTestTargets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "testTargets"))
-	pattern_AdvisorService_DeleteAdvisorCheck_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
-	pattern_AdvisorService_ListAdvisorSchedules_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "schedules"}, ""))
-	pattern_AdvisorService_CreateAdvisorSchedule_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "schedules"}, ""))
-	pattern_AdvisorService_UpdateAdvisorSchedule_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, ""))
-	pattern_AdvisorService_DeleteAdvisorSchedule_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, ""))
-	pattern_AdvisorService_RunAdvisorSchedule_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, "run"))
-	pattern_AdvisorService_SendTestAdvisorNotification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "notifications"}, "test"))
+	pattern_AdvisorService_ListRuns_0                       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "runs"}, ""))
+	pattern_AdvisorService_ListInsights_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, ""))
+	pattern_AdvisorService_ListInsightsFilterValues_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "filterValues"))
+	pattern_AdvisorService_MarkInsightsRead_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "markRead"))
+	pattern_AdvisorService_StartAdvisorChecks_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "start"))
+	pattern_AdvisorService_ListAdvisorChecks_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
+	pattern_AdvisorService_ChangeAdvisorChecks_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "batchChange"))
+	pattern_AdvisorService_GetAdvisorCheck_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_CreateAdvisorCheck_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
+	pattern_AdvisorService_UpdateAdvisorCheck_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_TestAdvisorCheck_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "test"))
+	pattern_AdvisorService_ListAdvisorCheckTestTargets_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "testTargets"))
+	pattern_AdvisorService_DeleteAdvisorCheck_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_ListAdvisorSchedules_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "schedules"}, ""))
+	pattern_AdvisorService_CreateAdvisorSchedule_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "schedules"}, ""))
+	pattern_AdvisorService_UpdateAdvisorSchedule_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, ""))
+	pattern_AdvisorService_DeleteAdvisorSchedule_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, ""))
+	pattern_AdvisorService_RunAdvisorSchedule_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "schedules", "schedule_id"}, "run"))
+	pattern_AdvisorService_ListAdvisorServices_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "services"}, ""))
+	pattern_AdvisorService_GetAdvisorNotificationSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "notificationSettings"}, ""))
+	pattern_AdvisorService_SendTestAdvisorNotification_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "notifications"}, "test"))
 )
 
 var (
-	forward_AdvisorService_ListRuns_0                    = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListInsights_0                = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListInsightsFilterValues_0    = runtime.ForwardResponseMessage
-	forward_AdvisorService_MarkInsightsRead_0            = runtime.ForwardResponseMessage
-	forward_AdvisorService_StartAdvisorChecks_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListAdvisorChecks_0           = runtime.ForwardResponseMessage
-	forward_AdvisorService_ChangeAdvisorChecks_0         = runtime.ForwardResponseMessage
-	forward_AdvisorService_GetAdvisorCheck_0             = runtime.ForwardResponseMessage
-	forward_AdvisorService_CreateAdvisorCheck_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_UpdateAdvisorCheck_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_TestAdvisorCheck_0            = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListAdvisorCheckTestTargets_0 = runtime.ForwardResponseMessage
-	forward_AdvisorService_DeleteAdvisorCheck_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListAdvisorSchedules_0        = runtime.ForwardResponseMessage
-	forward_AdvisorService_CreateAdvisorSchedule_0       = runtime.ForwardResponseMessage
-	forward_AdvisorService_UpdateAdvisorSchedule_0       = runtime.ForwardResponseMessage
-	forward_AdvisorService_DeleteAdvisorSchedule_0       = runtime.ForwardResponseMessage
-	forward_AdvisorService_RunAdvisorSchedule_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_SendTestAdvisorNotification_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListRuns_0                       = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListInsights_0                   = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListInsightsFilterValues_0       = runtime.ForwardResponseMessage
+	forward_AdvisorService_MarkInsightsRead_0               = runtime.ForwardResponseMessage
+	forward_AdvisorService_StartAdvisorChecks_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorChecks_0              = runtime.ForwardResponseMessage
+	forward_AdvisorService_ChangeAdvisorChecks_0            = runtime.ForwardResponseMessage
+	forward_AdvisorService_GetAdvisorCheck_0                = runtime.ForwardResponseMessage
+	forward_AdvisorService_CreateAdvisorCheck_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_UpdateAdvisorCheck_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_TestAdvisorCheck_0               = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorCheckTestTargets_0    = runtime.ForwardResponseMessage
+	forward_AdvisorService_DeleteAdvisorCheck_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorSchedules_0           = runtime.ForwardResponseMessage
+	forward_AdvisorService_CreateAdvisorSchedule_0          = runtime.ForwardResponseMessage
+	forward_AdvisorService_UpdateAdvisorSchedule_0          = runtime.ForwardResponseMessage
+	forward_AdvisorService_DeleteAdvisorSchedule_0          = runtime.ForwardResponseMessage
+	forward_AdvisorService_RunAdvisorSchedule_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorServices_0            = runtime.ForwardResponseMessage
+	forward_AdvisorService_GetAdvisorNotificationSettings_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_SendTestAdvisorNotification_0    = runtime.ForwardResponseMessage
 )

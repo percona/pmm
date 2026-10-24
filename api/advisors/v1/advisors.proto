@@ -620,6 +620,41 @@ message RunAdvisorScheduleResponse {
   string run_id = 1;
 }
 
+message ListAdvisorServicesRequest {}
+
+// AdvisorTargetService is a service Advisor checks can run against.
+message AdvisorTargetService {
+  // Unique identifier of the service.
+  string service_id = 1;
+  // Name of the service.
+  string service_name = 2;
+  // Technology of the checks that apply to the service.
+  AdvisorCheckTechnology technology = 3;
+  // Name of the node the service runs on.
+  string node_name = 4;
+  // Environment of the service.
+  string environment = 5;
+  // Cluster of the service.
+  string cluster = 6;
+}
+
+message ListAdvisorServicesResponse {
+  // MySQL, PostgreSQL and MongoDB services, ordered by name.
+  repeated AdvisorTargetService services = 1;
+}
+
+message GetAdvisorNotificationSettingsRequest {}
+
+// GetAdvisorNotificationSettingsResponse holds the Advisor notification settings, which are read-only here and changed with ChangeSettings.
+message GetAdvisorNotificationSettingsResponse {
+  // True if Advisor email notifications are enabled.
+  bool enabled = 1;
+  // Default recipients of the Advisor email reports.
+  repeated string email_addresses = 2;
+  // Default severities of the emailed findings, most severe first.
+  repeated management.v1.Severity severities = 3;
+}
+
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListRuns returns the history of Advisor check executions, most recent first.
@@ -791,6 +826,22 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Run Advisor Schedule"
       description: "Starts the schedule's checks against its services now, emailed as the schedule chooses, and returns the run ID. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION."
+    };
+  }
+  // ListAdvisorServices returns the services Advisor checks can run against.
+  rpc ListAdvisorServices(ListAdvisorServicesRequest) returns (ListAdvisorServicesResponse) {
+    option (google.api.http) = {get: "/v1/advisors/services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Services"
+      description: "Returns the MySQL, PostgreSQL and MongoDB services Advisor checks can run against, ordered by name."
+    };
+  }
+  // GetAdvisorNotificationSettings returns the Advisor notification settings.
+  rpc GetAdvisorNotificationSettings(GetAdvisorNotificationSettingsRequest) returns (GetAdvisorNotificationSettingsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/notificationSettings"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Advisor Notification Settings"
+      description: "Returns whether Advisor email notifications are enabled, and their default recipients and severities, which Advisor schedules can override. Read-only: ChangeSettings changes them."
     };
   }
   // SendTestAdvisorNotification emails a sample Advisor report to the given addresses.

@@ -2667,6 +2667,92 @@
         }
       }
     },
+    "/v1/advisors/notificationSettings": {
+      "get": {
+        "description": "Returns whether Advisor email notifications are enabled, and their default recipients and severities, which Advisor schedules can override. Read-only: ChangeSettings changes them.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Get Advisor Notification Settings",
+        "operationId": "GetAdvisorNotificationSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetAdvisorNotificationSettingsResponse holds the Advisor notification settings, which are read-only here and changed with ChangeSettings.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "True if Advisor email notifications are enabled.",
+                  "type": "boolean",
+                  "x-order": 0
+                },
+                "email_addresses": {
+                  "description": "Default recipients of the Advisor email reports.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                },
+                "severities": {
+                  "description": "Default severities of the emailed findings, most severe first.",
+                  "type": "array",
+                  "items": {
+                    "description": "Severity represents severity level of the check result or alert.",
+                    "type": "string",
+                    "default": "SEVERITY_UNSPECIFIED",
+                    "enum": [
+                      "SEVERITY_UNSPECIFIED",
+                      "SEVERITY_EMERGENCY",
+                      "SEVERITY_ALERT",
+                      "SEVERITY_CRITICAL",
+                      "SEVERITY_ERROR",
+                      "SEVERITY_WARNING",
+                      "SEVERITY_NOTICE",
+                      "SEVERITY_INFO",
+                      "SEVERITY_DEBUG"
+                    ]
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/notifications:test": {
       "post": {
         "description": "Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing.",
@@ -4387,6 +4473,104 @@
                 "run_id": {
                   "description": "ID assigned to this run.",
                   "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/services": {
+      "get": {
+        "description": "Returns the MySQL, PostgreSQL and MongoDB services Advisor checks can run against, ordered by name.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Advisor Services",
+        "operationId": "ListAdvisorServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "services": {
+                  "description": "MySQL, PostgreSQL and MongoDB services, ordered by name.",
+                  "type": "array",
+                  "items": {
+                    "description": "AdvisorTargetService is a service Advisor checks can run against.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique identifier of the service.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Name of the service.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "technology": {
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                          "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                          "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                          "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+                        ],
+                        "x-order": 2
+                      },
+                      "node_name": {
+                        "description": "Name of the node the service runs on.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "environment": {
+                        "description": "Environment of the service.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "cluster": {
+                        "description": "Cluster of the service.",
+                        "type": "string",
+                        "x-order": 5
+                      }
+                    }
+                  },
                   "x-order": 0
                 }
               }
