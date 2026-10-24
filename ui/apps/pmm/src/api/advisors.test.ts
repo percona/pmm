@@ -2,7 +2,6 @@ import { afterEach, describe, it, expect } from 'vitest';
 import type { InternalAxiosRequestConfig } from 'axios';
 import {
   type AdvisorCheckInput,
-  AdvisorInterval,
   AdvisorTechnology,
 } from 'types/advisors.types';
 import { api } from './api';
@@ -103,7 +102,6 @@ describe('advisors API wire format', () => {
     description: 'Description',
     category: 'Configuration',
     technology: AdvisorTechnology.postgresql,
-    interval: AdvisorInterval.standard,
     queries: [
       {
         type: 'POSTGRESQL_SELECT',

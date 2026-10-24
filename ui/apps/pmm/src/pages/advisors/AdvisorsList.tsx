@@ -29,7 +29,7 @@ import {
   useDeleteAdvisorCheck,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
-import { ADVISOR_INTERVAL, ADVISOR_TECHNOLOGY } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY } from 'lib/constants';
 import {
   type MRT_PaginationState,
   type MRT_Updater,
@@ -37,10 +37,10 @@ import {
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
+import type { AdvisorCheckRow } from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
 import { toAdvisorCheckRows } from 'utils/advisors.utils';
-import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
+import { getAdvisorsColumns } from './AdvisorsList.constants';
 import { Messages } from './AdvisorsList.messages';
 import { AdvisorCheckForm, AdvisorCheckFormMode } from './check-form';
 import { AdvisorCheckDetailsPane } from './details-pane';
@@ -49,7 +49,6 @@ import { DisableServicesDrawer } from './disable-services';
 interface CheckFilters {
   category: string;
   technology: string;
-  interval: string;
   status: string;
 }
 
@@ -126,7 +125,6 @@ const AdvisorsList: FC = () => {
     () => ({
       category: searchParams.get('category') || '',
       technology: searchParams.get('technology') || '',
-      interval: searchParams.get('interval') || '',
       status: searchParams.get('status') || '',
     }),
     [searchParams]
@@ -229,15 +227,6 @@ const AdvisorsList: FC = () => {
     [rows]
   );
 
-  const intervalOptions = useMemo<FilterOption[]>(
-    () =>
-      INTERVAL_OPTIONS.map((interval) => ({
-        label: ADVISOR_INTERVAL[interval],
-        value: ADVISOR_INTERVAL[interval],
-      })),
-    []
-  );
-
   const statusOptions: FilterOption[] = [
     { label: Messages.status.enabled, value: Messages.status.enabled },
     { label: Messages.status.disabled, value: Messages.status.disabled },
@@ -252,12 +241,6 @@ const AdvisorsList: FC = () => {
       if (
         filters.technology &&
         ADVISOR_TECHNOLOGY[row.technology] !== filters.technology
-      ) {
-        return false;
-      }
-      if (
-        filters.interval &&
-        ADVISOR_INTERVAL[row.interval] !== filters.interval
       ) {
         return false;
       }
@@ -333,21 +316,6 @@ const AdvisorsList: FC = () => {
     [changeChecks]
   );
 
-  const handleChangeInterval = useCallback(
-    (check: AdvisorCheckRow, interval: AdvisorInterval) =>
-      changeChecks([{ name: check.checkName, interval }], {
-        onSuccess: () =>
-          enqueueSnackbar(
-            Messages.success.intervalChanged(
-              check.summary,
-              ADVISOR_INTERVAL[interval]
-            ),
-            { variant: 'success' }
-          ),
-      }),
-    [changeChecks]
-  );
-
   const handleDeleteConfirm = useCallback(() => {
     if (!deleteTarget) {
       return;
@@ -364,12 +332,8 @@ const AdvisorsList: FC = () => {
   }, [deleteCheck, deleteTarget]);
 
   const columns = useMemo(
-    () =>
-      getAdvisorsColumns({
-        onToggleCheck: handleToggleCheck,
-        onChangeInterval: handleChangeInterval,
-      }),
-    [handleToggleCheck, handleChangeInterval]
+    () => getAdvisorsColumns({ onToggleCheck: handleToggleCheck }),
+    [handleToggleCheck]
   );
 
   return (
@@ -419,13 +383,6 @@ const AdvisorsList: FC = () => {
             options={technologyOptions}
             value={filters.technology}
             onChange={(value) => updateFilter('technology', value)}
-          />
-          <FilterSelect
-            id="interval"
-            label={Messages.filters.interval}
-            options={intervalOptions}
-            value={filters.interval}
-            onChange={(value) => updateFilter('interval', value)}
           />
           <FilterSelect
             id="status"
@@ -646,7 +603,7 @@ const AdvisorsList: FC = () => {
             'data-check-disabled': row.original.enabled ? undefined : 'true',
             onDoubleClick: () => openDetails(row.original),
             // dim checks that are off globally, as the insights table does
-            sx: row.original.enabled ? undefined : { opacity: 0.5 },
+            sx: { cursor: 'pointer', opacity: row.original.enabled ? 1 : 0.5 },
           })}
           muiTableContainerProps={{
             sx: {

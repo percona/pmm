@@ -20,9 +20,10 @@ import {
 import {
   AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
-  AdvisorInterval,
   type AdvisorRun,
   AdvisorRunStatus,
+  type AdvisorSchedule,
+  AdvisorScheduleEmailMode,
   type Insight,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -55,7 +56,6 @@ const FINISHED_RUN: AdvisorRun = {
   ],
   checkNames: ['mysql_version'],
   serviceIds: ['service-1'],
-  intervals: [],
 };
 
 const RUNNING_RUN: AdvisorRun = {
@@ -73,14 +73,23 @@ const RUNNING_RUN: AdvisorRun = {
   severityCounts: [],
   checkNames: [],
   serviceIds: [],
-  intervals: [],
+};
+
+const SCHEDULE: AdvisorSchedule = {
+  scheduleId: 'sched-daily',
+  name: 'All checks daily',
+  enabled: true,
+  daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+  timeOfDay: '06:00',
+  emailMode: AdvisorScheduleEmailMode.settings,
+  createdAt: '2026-08-01T00:00:00Z',
+  updatedAt: '2026-08-01T00:00:00Z',
 };
 
 const INSIGHT: Insight = {
   id: 'result-1',
   checkName: 'mysql_version',
   category: 'Configuration',
-  interval: AdvisorInterval.standard,
   serviceId: 'service-1',
   serviceName: 'mysql-prod',
   serviceType: 'mysql',
@@ -126,6 +135,7 @@ describe('AdvisorRuns', () => {
       totalPages: 1,
       results: [RUNNING_RUN, FINISHED_RUN],
     });
+    vi.mocked(advisorsApi.listAdvisorSchedules).mockResolvedValue([SCHEDULE]);
   });
 
   it('requests the first page by default', async () => {
@@ -415,23 +425,97 @@ describe('AdvisorRuns', () => {
     expect(empty).toHaveTextContent('0/0');
   });
 
-  it('labels a run narrowed to interval groups with them', async () => {
+  it('names the schedule a run ran for or was started from', async () => {
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 3,
+      totalPages: 1,
+      results: [
+        {
+          ...RUNNING_RUN,
+          scheduleId: 'sched-daily',
+          scheduleName: 'All checks daily',
+        },
+        {
+          ...FINISHED_RUN,
+          scheduleId: 'sched-daily',
+          scheduleName: 'All checks daily',
+        },
+        { ...FINISHED_RUN, id: 'run-plain' },
+      ],
+    });
+    renderComponent();
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^run-.*-actions$/)).toHaveLength(3)
+    );
+    expect(screen.getByText('All checks daily')).toBeInTheDocument();
+    expect(screen.getByText('User · All checks daily')).toBeInTheDocument();
+    expect(screen.getByText('User')).toBeInTheDocument();
+  });
+
+  it('marks a scheduled run that started late', async () => {
     vi.mocked(advisorsApi.listRuns).mockResolvedValue({
       totalItems: 2,
       totalPages: 1,
       results: [
         {
-          ...RUNNING_RUN,
-          intervals: [AdvisorInterval.frequent, AdvisorInterval.standard],
+          ...FINISHED_RUN,
+          id: 'run-late',
+          triggeredBy: AdvisorCheckTriggeredBy.scheduler,
+          scheduleName: 'All checks daily',
+          scheduledFor: '2026-08-04T06:00:00Z',
+          startedAt: '2026-08-04T06:07:10Z',
+          waitedForRun: {
+            runId: 'run-finished',
+            triggeredBy: AdvisorCheckTriggeredBy.user,
+            startedAt: '2026-08-04T05:55:00Z',
+          },
         },
         FINISHED_RUN,
       ],
     });
     renderComponent();
 
-    expect(
-      await screen.findByText('Scheduler · Frequent, Standard')
-    ).toBeInTheDocument();
+    expect(await screen.findAllByTestId('run-started-late')).toHaveLength(1);
+  });
+
+  it('filters by schedule', async () => {
+    renderComponent('/advisors/runs?page=3');
+
+    await waitForRows();
+
+    fireEvent.mouseDown(
+      within(screen.getByTestId('schedule-filter')).getByRole('combobox')
+    );
+    const listbox = await screen.findByRole('listbox', { hidden: true });
+    fireEvent.click(within(listbox).getByText('All checks daily'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenLastCalledWith(
+        expect.objectContaining({ scheduleId: 'sched-daily', pageIndex: 0 })
+      )
+    );
+  });
+
+  it('keeps a linked filter for a deleted schedule, labeled as such', async () => {
+    renderComponent('/advisors/runs?scheduleId=sched-gone');
+
+    await waitForRows();
+
+    expect(advisorsApi.listRuns).toHaveBeenCalledWith(
+      expect.objectContaining({ scheduleId: 'sched-gone' })
+    );
+    await waitFor(() =>
+      expect(
+        within(screen.getByTestId('schedule-filter')).getByRole('combobox')
+      ).toHaveTextContent('Deleted schedule')
+    );
+    fireEvent.click(screen.getByTestId('clear-run-filters'));
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenLastCalledWith(
+        expect.objectContaining({ scheduleId: undefined })
+      )
+    );
   });
 
   it('runs a run again with the same scope', async () => {
@@ -448,7 +532,6 @@ describe('AdvisorRuns', () => {
         {
           names: ['mysql_version'],
           serviceIds: ['service-1'],
-          intervals: [],
         },
         expect.anything()
       )

@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
-  AdvisorInterval,
   type AdvisorRun,
   AdvisorRunStatus,
   type Insight,
@@ -41,14 +40,12 @@ const RUN: AdvisorRun = {
   severityCounts: [{ severity: Severity.warning, count: 1 }],
   checkNames: [],
   serviceIds: [],
-  intervals: [],
 };
 
 const INSIGHT: Insight = {
   id: 'result-1',
   checkName: 'mysql_version_check',
   category: 'Configuration',
-  interval: AdvisorInterval.standard,
   serviceId: 'service-1',
   serviceName: 'mysql-prod',
   serviceType: 'mysql',
@@ -85,7 +82,6 @@ describe('exportRunInsightsToCsv', () => {
       severity: 'Warning',
       status: 'Failed',
       category: 'Configuration',
-      interval: 'Standard',
       service_name: 'mysql-prod',
       service_type: 'mysql',
       service_id: 'service-1',

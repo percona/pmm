@@ -2,7 +2,7 @@ import { AdvisorCheckTriggeredBy } from 'types/advisors.types';
 import { TRIGGERED_BY_LABEL } from '../insights/AdvisorInsights.utils';
 
 // query-string params remembered across visits
-export const RUN_FILTER_PARAMS = ['triggeredBy', 'pageSize'];
+export const RUN_FILTER_PARAMS = ['triggeredBy', 'scheduleId', 'pageSize'];
 
 export const TRIGGERED_BY_FILTER_OPTIONS = [
   AdvisorCheckTriggeredBy.user,

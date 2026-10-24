@@ -606,6 +606,12 @@ export const NAV_ADVISORS_RUNS = {
   url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
 };
 
+export const NAV_ADVISORS_SCHEDULER = {
+  id: 'advisors-scheduler',
+  text: 'Scheduler',
+  url: `${PMM_NEW_NAV_PATH}/advisors/scheduler`,
+};
+
 //
 // Inventory
 //

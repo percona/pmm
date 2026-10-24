@@ -2,7 +2,6 @@ import { GRAFANA_SUB_PATH } from '@pmm/shared';
 import {
   AdvisorCheckResultStatus,
   AdvisorTechnology,
-  AdvisorInterval,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { ManagedServiceType, ServiceType } from 'types/services.types';
@@ -72,13 +71,6 @@ export const MANAGED_SERVICE_TYPE: Record<ManagedServiceType, string> = {
   [ManagedServiceType.haproxy]: 'HAProxy',
   [ManagedServiceType.valkey]: 'Valkey',
   [ManagedServiceType.external]: 'External',
-};
-
-export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
-  [AdvisorInterval.standard]: 'Standard',
-  [AdvisorInterval.rare]: 'Rare',
-  [AdvisorInterval.frequent]: 'Frequent',
-  [AdvisorInterval.unspecified]: 'Unspecified',
 };
 
 export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> = {

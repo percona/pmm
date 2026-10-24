@@ -1,4 +1,4 @@
-import { AdvisorTechnology, AdvisorInterval } from 'types/advisors.types';
+import { AdvisorTechnology } from 'types/advisors.types';
 
 // the height the Script field never shrinks below, however many queries are
 // listed above it; the form scrolls instead of squeezing the editor
@@ -8,12 +8,6 @@ export const TECHNOLOGY_OPTIONS: AdvisorTechnology[] = [
   AdvisorTechnology.mysql,
   AdvisorTechnology.postgresql,
   AdvisorTechnology.mongodb,
-];
-
-export const INTERVAL_OPTIONS: AdvisorInterval[] = [
-  AdvisorInterval.standard,
-  AdvisorInterval.rare,
-  AdvisorInterval.frequent,
 ];
 
 // query types available regardless of technology

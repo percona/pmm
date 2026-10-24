@@ -1,10 +1,6 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
-import {
-  ADVISOR_INTERVAL,
-  ADVISOR_RESULT_STATUS,
-  SEVERITY,
-} from 'lib/constants';
+import { ADVISOR_RESULT_STATUS, SEVERITY } from 'lib/constants';
 import type { AdvisorRun, Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { type CsvRow, toCsvValue } from 'utils/csv.utils';
@@ -19,7 +15,6 @@ const CSV_FIELDS: (keyof Insight)[] = [
   'severity',
   'status',
   'category',
-  'interval',
   'serviceName',
   'serviceType',
   'serviceId',
@@ -53,7 +48,6 @@ export const mapInsightToCsvRow = (insight: Insight): CsvRow => {
         ? ''
         : SEVERITY[insight.severity],
     status: ADVISOR_RESULT_STATUS[insight.status],
-    interval: ADVISOR_INTERVAL[insight.interval],
     triggeredBy: TRIGGERED_BY_LABEL[insight.triggeredBy],
   };
 

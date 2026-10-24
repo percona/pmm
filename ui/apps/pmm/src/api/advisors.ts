@@ -3,7 +3,12 @@ import {
   AdvisorCheck,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
+  AdvisorNotificationSettings,
   AdvisorRun,
+  AdvisorSchedule,
+  AdvisorScheduleInput,
+  AdvisorScheduleResponse,
+  AdvisorTargetService,
   AdvisorTechnology,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
@@ -13,10 +18,13 @@ import {
   GetAdvisorCheckResponse,
   ListAdvisorChecksResponse,
   ListAdvisorCheckTestTargetsResponse,
+  ListAdvisorSchedulesResponse,
+  ListAdvisorServicesResponse,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
   ListRunsParams,
   MarkInsightsReadRequest,
+  RunAdvisorScheduleResponse,
   SendTestAdvisorNotificationRequest,
   StartAdvisorChecksRequest,
   StartAdvisorChecksResponse,
@@ -217,6 +225,66 @@ export const listInsightsFilterValues =
   async (): Promise<ListInsightsFilterValuesResponse> => {
     const res = await api.get<ListInsightsFilterValuesResponse>(
       '/advisors/insights:filterValues'
+    );
+    return res.data;
+  };
+
+export const listAdvisorSchedules = async (): Promise<AdvisorSchedule[]> => {
+  const res = await api.get<ListAdvisorSchedulesResponse>(
+    '/advisors/schedules'
+  );
+  return res.data.schedules ?? [];
+};
+
+export const createAdvisorSchedule = async (
+  input: AdvisorScheduleInput
+): Promise<AdvisorSchedule> => {
+  const res = await api.post<AdvisorScheduleResponse>(
+    '/advisors/schedules',
+    input
+  );
+  return res.data.schedule;
+};
+
+export const updateAdvisorSchedule = async (
+  scheduleId: string,
+  input: AdvisorScheduleInput
+): Promise<AdvisorSchedule> => {
+  const res = await api.put<AdvisorScheduleResponse>(
+    `/advisors/schedules/${encodeURIComponent(scheduleId)}`,
+    input
+  );
+  return res.data.schedule;
+};
+
+export const deleteAdvisorSchedule = async (
+  scheduleId: string
+): Promise<void> => {
+  await api.delete<EmptyResponse>(
+    `/advisors/schedules/${encodeURIComponent(scheduleId)}`
+  );
+};
+
+export const runAdvisorSchedule = async (
+  scheduleId: string
+): Promise<string> => {
+  const res = await api.post<RunAdvisorScheduleResponse>(
+    `/advisors/schedules/${encodeURIComponent(scheduleId)}:run`
+  );
+  return res.data.runId;
+};
+
+export const listAdvisorServices = async (): Promise<
+  AdvisorTargetService[]
+> => {
+  const res = await api.get<ListAdvisorServicesResponse>('/advisors/services');
+  return res.data.services ?? [];
+};
+
+export const getAdvisorNotificationSettings =
+  async (): Promise<AdvisorNotificationSettings> => {
+    const res = await api.get<AdvisorNotificationSettings>(
+      '/advisors/notificationSettings'
     );
     return res.data;
   };

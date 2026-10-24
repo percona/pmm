@@ -21,7 +21,6 @@ import {
   AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
   AdvisorTechnology,
-  AdvisorInterval,
   AdvisorRunStatus,
   Insight,
 } from 'types/advisors.types';
@@ -37,7 +36,6 @@ const TEST_CHECKS: AdvisorCheck[] = [
     enabled: true,
     summary: 'MySQL version check',
     description: '',
-    interval: AdvisorInterval.standard,
     technology: AdvisorTechnology.mysql,
     category: 'Configuration',
     userDefined: false,
@@ -47,7 +45,6 @@ const TEST_CHECKS: AdvisorCheck[] = [
     enabled: false,
     summary: 'PostgreSQL super role',
     description: '',
-    interval: AdvisorInterval.rare,
     technology: AdvisorTechnology.postgresql,
     category: 'Configuration',
     userDefined: false,
@@ -60,7 +57,6 @@ const TEST_ITEM: Insight = {
   id: 'result-1',
   checkName: 'mysql_version_check',
   category: 'Configuration',
-  interval: AdvisorInterval.standard,
   serviceId: 'service-1',
   serviceName: 'mysql-prod',
   serviceType: 'mysql',
@@ -609,7 +605,6 @@ describe('AdvisorInsights', () => {
       '  Environment: prod\n' +
       '  Cluster: mysql-cluster\n' +
       '  Replication Set: rs1\n' +
-      '  Interval: Standard\n' +
       '  Triggered By: User\n' +
       '  Read: Read\n' +
       '  Summary: MySQL is outdated\n' +
@@ -1025,7 +1020,6 @@ describe('AdvisorInsights', () => {
       severityCounts: [],
       checkNames: [],
       serviceIds: [],
-      intervals: [],
     };
     vi.mocked(advisorsApi.listRuns).mockResolvedValue({
       totalItems: 1,

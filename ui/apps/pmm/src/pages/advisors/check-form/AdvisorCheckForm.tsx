@@ -27,14 +27,13 @@ import {
   useCreateAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
-import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY } from 'lib/constants';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
 import { useCheckTest } from '../check-test/useCheckTest';
 import { Messages } from './AdvisorCheckForm.messages';
 import {
   TECHNOLOGY_OPTIONS,
-  INTERVAL_OPTIONS,
   QUERY_TYPES_BY_TECHNOLOGY,
   SCRIPT_FIELD_MIN_HEIGHT,
 } from './AdvisorCheckForm.constants';
@@ -281,21 +280,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                   {TECHNOLOGY_OPTIONS.map((option) => (
                     <MenuItem key={option} value={option}>
                       {ADVISOR_TECHNOLOGY[option]}
-                    </MenuItem>
-                  ))}
-                </SelectInput>
-                <SelectInput
-                  name="interval"
-                  label={Messages.fields.interval}
-                  formControlProps={{ sx: { flex: 1, minWidth: 160 } }}
-                  selectFieldProps={{
-                    // @ts-expect-error data-testid is passed through to the DOM
-                    'data-testid': 'check-interval-select',
-                  }}
-                >
-                  {INTERVAL_OPTIONS.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {ADVISOR_INTERVAL[option]}
                     </MenuItem>
                   ))}
                 </SelectInput>

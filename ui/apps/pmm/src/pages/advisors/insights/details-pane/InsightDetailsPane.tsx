@@ -21,7 +21,6 @@ import { AdvisorCheckResultStatus, Insight } from 'types/advisors.types';
 import { ManagedServiceType } from 'types/services.types';
 import { Severity } from 'types/severity.types';
 import {
-  ADVISOR_INTERVAL,
   ADVISOR_RESULT_STATUS,
   MANAGED_SERVICE_TYPE,
   SEVERITY,
@@ -170,7 +169,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               rowGap: 3,
             }}
           >
-            <Field label={m.checkName}>
+            <Field label={m.checkName} span={2}>
               <Typography variant="body1">{insight.checkName}</Typography>
             </Field>
             <Field label={m.checkId}>
@@ -180,11 +179,6 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                 </Typography>
                 <CopyToClipboardButton textToCopy={insight.id} />
               </Stack>
-            </Field>
-            <Field label={m.checkInterval}>
-              <Typography variant="body1">
-                {ADVISOR_INTERVAL[insight.interval]}
-              </Typography>
             </Field>
             <Field label={m.checkedAt}>
               <Typography variant="body1">

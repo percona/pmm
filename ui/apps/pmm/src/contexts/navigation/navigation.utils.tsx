@@ -12,6 +12,7 @@ import {
   NAV_ADVISORS_CHECKS,
   NAV_ADVISORS_INSIGHTS,
   NAV_ADVISORS_RUNS,
+  NAV_ADVISORS_SCHEDULER,
   NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
@@ -202,7 +203,12 @@ export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
 
 export const addAdvisors = (): NavItem => ({
   ...NAV_ADVISORS,
-  children: [NAV_ADVISORS_INSIGHTS, NAV_ADVISORS_CHECKS, NAV_ADVISORS_RUNS],
+  children: [
+    NAV_ADVISORS_INSIGHTS,
+    NAV_ADVISORS_CHECKS,
+    NAV_ADVISORS_RUNS,
+    NAV_ADVISORS_SCHEDULER,
+  ],
 });
 
 export const addAccount = (

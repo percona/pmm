@@ -16,11 +16,7 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import {
-  AdvisorCheck,
-  AdvisorTechnology,
-  AdvisorInterval,
-} from 'types/advisors.types';
+import { type AdvisorCheck, AdvisorTechnology } from 'types/advisors.types';
 
 vi.mock('api/advisors');
 vi.mock('api/services');
@@ -31,7 +27,6 @@ const TEST_CHECKS: AdvisorCheck[] = [
     enabled: true,
     summary: 'MySQL version check',
     description: 'Warns if MySQL version is EOL',
-    interval: AdvisorInterval.standard,
     technology: AdvisorTechnology.mysql,
     category: 'Configuration',
     userDefined: false,
@@ -41,7 +36,6 @@ const TEST_CHECKS: AdvisorCheck[] = [
     enabled: true,
     summary: 'PostgreSQL super role',
     description: 'Detects users with the SUPER role',
-    interval: AdvisorInterval.rare,
     technology: AdvisorTechnology.postgresql,
     category: 'Security',
     userDefined: true,
@@ -52,7 +46,6 @@ const TEST_CHECKS: AdvisorCheck[] = [
     enabled: false,
     summary: 'PostgreSQL disabled check',
     description: 'A disabled check',
-    interval: AdvisorInterval.standard,
     technology: AdvisorTechnology.postgresql,
     category: 'Security',
     userDefined: false,
@@ -182,7 +175,6 @@ describe('AdvisorsList', () => {
             description: FULL_CHECK.description,
             category: FULL_CHECK.category,
             technology: FULL_CHECK.technology,
-            interval: FULL_CHECK.interval,
             queries: FULL_CHECK.queries,
             script: FULL_CHECK.script,
           },
@@ -481,29 +473,6 @@ describe('AdvisorsList', () => {
     await waitFor(() =>
       expect(advisorsApi.changeAdvisorChecks).toHaveBeenCalledWith(
         [{ name: 'mysql_version_check', enable: false }],
-        expect.anything()
-      )
-    );
-  });
-
-  it('changes the check interval', async () => {
-    renderComponent();
-
-    await waitForRows();
-
-    const select = within(
-      screen.getByTestId('check-mysql_version_check-interval-select')
-    ).getByRole('combobox');
-    fireEvent.mouseDown(select);
-
-    // 'hidden' skips the visibility computation, which crashes in jsdom:
-    // nwsapi expands ':scope' with the listbox's unescaped React useId
-    const listbox = await screen.findByRole('listbox', { hidden: true });
-    fireEvent.click(within(listbox).getByText('Rare'));
-
-    await waitFor(() =>
-      expect(advisorsApi.changeAdvisorChecks).toHaveBeenCalledWith(
-        [{ name: 'mysql_version_check', interval: AdvisorInterval.rare }],
         expect.anything()
       )
     );

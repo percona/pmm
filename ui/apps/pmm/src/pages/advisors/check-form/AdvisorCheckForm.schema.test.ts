@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  AdvisorCheck,
-  AdvisorTechnology,
-  AdvisorInterval,
-} from 'types/advisors.types';
+import { type AdvisorCheck, AdvisorTechnology } from 'types/advisors.types';
 import {
   AdvisorCheckFormValues,
   advisorCheckFormSchema,
@@ -19,7 +15,6 @@ const valid: AdvisorCheckFormValues = {
   description: 'Checks something',
   category: 'Custom',
   technology: AdvisorTechnology.mysql,
-  interval: AdvisorInterval.standard,
   queries: [{ type: 'MYSQL_SHOW', query: '', parameters: [] }],
   script: 'def check_context(docs, context):\n    return []',
 };
@@ -152,7 +147,6 @@ describe('toInput', () => {
       description: 'Checks something',
       category: 'Custom',
       technology: AdvisorTechnology.mysql,
-      interval: AdvisorInterval.standard,
       queries: [{ type: 'MYSQL_SHOW', query: '' }],
       script: valid.script,
     });
@@ -182,7 +176,6 @@ describe('toFormValues', () => {
     enabled: true,
     summary: 'Existing',
     description: 'desc',
-    interval: AdvisorInterval.rare,
     technology: AdvisorTechnology.postgresql,
     category: 'Cat',
     userDefined: true,
@@ -197,7 +190,6 @@ describe('toFormValues', () => {
       description: 'desc',
       category: 'Cat',
       technology: AdvisorTechnology.postgresql,
-      interval: AdvisorInterval.rare,
       queries: [
         { type: 'POSTGRESQL_SELECT', query: 'SELECT 1', parameters: [] },
       ],

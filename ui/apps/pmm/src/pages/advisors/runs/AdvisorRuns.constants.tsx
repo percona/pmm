@@ -1,3 +1,4 @@
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -5,14 +6,18 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { format } from 'date-fns';
-import { ADVISOR_INTERVAL, SEVERITY, TIME_FORMAT } from 'lib/constants';
+import { SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { type MRT_ColumnDef } from 'material-react-table';
 import { type FC } from 'react';
 import { type AdvisorRun, AdvisorRunStatus } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from './AdvisorRuns.messages';
-import { TRIGGERED_BY_LABEL } from '../insights/AdvisorInsights.utils';
-import { formatDuration, isRunning } from './AdvisorRuns.utils';
+import {
+  formatDuration,
+  isRunning,
+  triggeredByLabel,
+  waitedForText,
+} from './AdvisorRuns.utils';
 
 const EM_DASH = '—';
 
@@ -66,13 +71,28 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     id: 'startedAt',
     header: Messages.columns.startedAt,
     accessorKey: 'startedAt',
-    size: 165,
+    size: 185,
     grow: false,
-    Cell: ({ row }) => (
-      <Box component="span" sx={{ fontSize: '0.85rem' }}>
-        {format(new Date(row.original.startedAt), TIME_FORMAT)}
-      </Box>
-    ),
+    Cell: ({ row }) => {
+      const waited = waitedForText(row.original);
+      return (
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Box component="span" sx={{ fontSize: '0.85rem' }}>
+            {format(new Date(row.original.startedAt), TIME_FORMAT)}
+          </Box>
+          {waited && (
+            <Tooltip title={waited} arrow>
+              <AccessTimeOutlinedIcon
+                fontSize="small"
+                color="action"
+                aria-label={Messages.tooltips.startedLate}
+                data-testid="run-started-late"
+              />
+            </Tooltip>
+          )}
+        </Stack>
+      );
+    },
   },
   {
     id: 'duration',
@@ -126,15 +146,8 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
   {
     id: 'triggeredBy',
     header: Messages.columns.triggeredBy,
-    // the interval groups a run was narrowed to, e.g. "Scheduler · Frequent"
-    accessorFn: (row) =>
-      [
-        TRIGGERED_BY_LABEL[row.triggeredBy] || EM_DASH,
-        (row.intervals ?? []).map((i) => ADVISOR_INTERVAL[i]).join(', '),
-      ]
-        .filter(Boolean)
-        .join(' · '),
-    size: 150,
+    accessorFn: triggeredByLabel,
+    size: 180,
     grow: false,
   },
   {

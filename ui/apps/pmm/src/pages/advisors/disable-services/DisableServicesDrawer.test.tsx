@@ -12,11 +12,7 @@ import {
   wrapWithQueryProvider,
   wrapWithSnackbarProvider,
 } from 'utils/testUtils';
-import {
-  AdvisorCheckRow,
-  AdvisorTechnology,
-  AdvisorInterval,
-} from 'types/advisors.types';
+import { type AdvisorCheckRow, AdvisorTechnology } from 'types/advisors.types';
 import { MySqlService } from 'types/services.types';
 import { DisableServicesDrawer } from './DisableServicesDrawer';
 import { Messages } from './DisableServicesDrawer.messages';
@@ -45,7 +41,6 @@ const TEST_CHECK: AdvisorCheckRow = {
   description: 'Warns if MySQL version is EOL',
   category: 'Configuration',
   technology: AdvisorTechnology.mysql,
-  interval: AdvisorInterval.standard,
   enabled: true,
   userDefined: false,
   disabledServiceIds: [],

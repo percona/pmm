@@ -44,7 +44,6 @@ export const Messages = {
     replicationSet: 'Replication set',
     region: 'Region',
     checkedAt: 'Checked at',
-    checkInterval: 'Check interval',
     checkId: 'Check ID',
     checkName: 'Check name',
     runId: 'Run ID',

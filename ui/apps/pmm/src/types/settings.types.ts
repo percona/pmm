@@ -19,12 +19,6 @@ export interface MetricsResolutions {
   lr: string;
 }
 
-export interface AdvisorRunIntervals {
-  rareInterval: string;
-  standardInterval: string;
-  frequentInterval: string;
-}
-
 /** common.StringArray — lets the API tell an unset list from one cleared to empty. */
 export interface StringArray {
   values: string[];
@@ -39,7 +33,6 @@ export interface Settings extends ReadonlySettings {
   dataRetention?: string;
   sshKey?: string;
   awsPartitions?: string[];
-  advisorRunIntervals?: AdvisorRunIntervals;
   advisorHistoryRetention?: string;
   advisorNotificationsEnabled?: boolean;
   advisorNotificationSeverities?: Severity[];
@@ -58,7 +51,6 @@ export interface UpdateSettingsPayload {
   enableTelemetry?: boolean;
   enableAlerting?: boolean;
   enableAdvisor?: boolean;
-  advisorRunIntervals?: AdvisorRunIntervals;
   advisorHistoryRetention?: string;
   enableAdvisorNotifications?: boolean;
   advisorNotificationSeverities?: Severity[];

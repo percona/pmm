@@ -1,4 +1,5 @@
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import Checkbox from '@mui/material/Checkbox';
 import FormControl, { formControlClasses } from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -12,16 +13,13 @@ import { SEVERITY } from 'lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { useSendTestAdvisorNotification } from 'hooks/api/useAdvisors';
 import { Messages } from '../../Settings.messages';
 import { MAX_DAYS, MIN_DAYS } from '../advanced/Advanced.constants';
-import {
-  ADVISOR_SEVERITY_OPTIONS,
-  MIN_ADVISOR_CHECK_INTERVAL,
-  STT_CHECK_INTERVALS,
-} from './Advisors.constants';
+import { ADVISOR_SEVERITY_OPTIONS } from './Advisors.constants';
 import { splitEmailAddresses } from './Advisors.utils';
 import { AdvisorsFormProps } from './AdvisorsForm.types';
 import { AdvisorsFormValues, advisorsSchema } from './AdvisorsForm.schema';
@@ -118,33 +116,6 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
           </Stack>
           {sttEnabled && (
             <Stack gap={2}>
-              <SettingsFieldLabel
-                label={m.checkIntervalLabel}
-                description={m.checkIntervalTooltip}
-                data-testid="check-intervals-label"
-              />
-              <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
-                {STT_CHECK_INTERVALS.map(({ name, label }) => (
-                  <TextInput
-                    key={name}
-                    name={name}
-                    label={label}
-                    textFieldProps={{
-                      type: 'number',
-                      slotProps: {
-                        htmlInput: {
-                          min: MIN_ADVISOR_CHECK_INTERVAL,
-                          step: 1,
-                          'data-testid': `${name}-number-input`,
-                        },
-                      },
-                      size: 'small',
-                      sx: { minWidth: 80, maxWidth: 120 },
-                    }}
-                  />
-                ))}
-              </Stack>
-
               <Stack gap={1} data-testid="advisor-retention">
                 <SettingsFieldLabel
                   label={m.advisorRetentionLabel}
@@ -256,6 +227,17 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                         },
                       }}
                     />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      data-testid="advisor-schedules-override"
+                    >
+                      {m.schedulesOverride}{' '}
+                      <Link component={RouterLink} to="/advisors/scheduler">
+                        {m.schedulerLink}
+                      </Link>
+                      .
+                    </Typography>
                   </Stack>
                 )}
               </Stack>

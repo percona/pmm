@@ -35,6 +35,11 @@ export const Messages = {
       'PMM restarted, or the HA leader changed, before the run finished. The insights it saved are kept; the checks it did not reach show as Not run.',
     aborted:
       'The run stopped before running any check. See the PMM Server logs for the cause.',
+    waited: (scheduled: string, waited: string, started: string, who: string) =>
+      `Scheduled for ${scheduled} UTC. Waited ${waited} for the run started at ${started} UTC (${who}) to finish.`,
+    userRun: 'a user run',
+    scheduledRun: 'a scheduled run',
+    startedLate: 'Started late',
   },
   actions: {
     more: 'More actions',
@@ -46,6 +51,8 @@ export const Messages = {
   },
   filters: {
     triggeredBy: 'Triggered by',
+    schedule: 'Schedule',
+    deletedSchedule: 'Deleted schedule',
     runId: 'Run ID',
     all: 'All',
     clear: 'Clear filters',

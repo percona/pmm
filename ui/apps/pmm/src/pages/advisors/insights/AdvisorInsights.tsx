@@ -692,7 +692,7 @@ const AdvisorInsights: FC = () => {
               'data-testid': `insight-row-${row.original.id}`,
               'data-check-disabled': checkDisabled ? 'true' : undefined,
               onDoubleClick: () => openDetails(row.original),
-              sx: checkDisabled ? { opacity: 0.5 } : undefined,
+              sx: { cursor: 'pointer', opacity: checkDisabled ? 0.5 : 1 },
             };
           }}
           muiTableContainerProps={{

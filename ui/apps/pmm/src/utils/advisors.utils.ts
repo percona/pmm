@@ -12,7 +12,6 @@ export const toAdvisorCheckRows = (checks: AdvisorCheck[]): AdvisorCheckRow[] =>
     description: check.description,
     category: check.category,
     technology: check.technology,
-    interval: check.interval,
     enabled: check.enabled,
     userDefined: check.userDefined,
     disabledServiceIds: check.disabledServiceIds ?? [],

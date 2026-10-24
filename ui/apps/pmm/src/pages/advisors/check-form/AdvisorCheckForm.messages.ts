@@ -11,7 +11,6 @@ export const Messages = {
     description: 'Description',
     category: 'Category',
     technology: 'Technology',
-    interval: 'Interval',
     queries: 'Queries',
     queryType: 'Type',
     query: 'Query',

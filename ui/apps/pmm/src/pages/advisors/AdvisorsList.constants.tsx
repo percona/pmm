@@ -1,9 +1,7 @@
 import { type MRT_ColumnDef } from 'material-react-table';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
-import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
-import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
+import type { AdvisorCheckRow } from 'types/advisors.types';
+import { ADVISOR_TECHNOLOGY } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 
 // query-string params remembered across visits
@@ -11,25 +9,16 @@ export const CHECK_FILTER_PARAMS = [
   'search',
   'category',
   'technology',
-  'interval',
   'status',
   'pageSize',
 ];
 
-export const INTERVAL_OPTIONS = [
-  AdvisorInterval.standard,
-  AdvisorInterval.rare,
-  AdvisorInterval.frequent,
-];
-
 interface AdvisorsColumnsProps {
   onToggleCheck: (check: AdvisorCheckRow) => void;
-  onChangeInterval: (check: AdvisorCheckRow, interval: AdvisorInterval) => void;
 }
 
 export const getAdvisorsColumns = ({
   onToggleCheck,
-  onChangeInterval,
 }: AdvisorsColumnsProps): MRT_ColumnDef<AdvisorCheckRow>[] => [
   {
     header: Messages.columns.check,
@@ -59,34 +48,6 @@ export const getAdvisorsColumns = ({
       row.userDefined ? Messages.source.custom : Messages.source.builtin,
     size: 110,
     grow: false,
-  },
-  {
-    id: 'interval',
-    header: Messages.columns.interval,
-    accessorFn: (row) => ADVISOR_INTERVAL[row.interval],
-    size: 130,
-    grow: false,
-    Cell: ({ row }) => (
-      <Select
-        size="small"
-        variant="standard"
-        value={
-          row.original.interval === AdvisorInterval.unspecified
-            ? AdvisorInterval.standard
-            : row.original.interval
-        }
-        onChange={(e) =>
-          onChangeInterval(row.original, e.target.value as AdvisorInterval)
-        }
-        data-testid={`check-${row.original.checkName}-interval-select`}
-      >
-        {INTERVAL_OPTIONS.map((interval) => (
-          <MenuItem key={interval} value={interval}>
-            {ADVISOR_INTERVAL[interval]}
-          </MenuItem>
-        ))}
-      </Select>
-    ),
   },
   {
     id: 'status',

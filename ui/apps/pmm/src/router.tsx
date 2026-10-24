@@ -30,6 +30,7 @@ import { AdvisorInsights } from 'pages/advisors/insights';
 import { INSIGHT_FILTER_PARAMS } from 'pages/advisors/insights/AdvisorInsights.filters';
 import { AdvisorRuns } from 'pages/advisors/runs';
 import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
+import { AdvisorScheduler } from 'pages/advisors/scheduler';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { OmApp } from '@pmm/plugins-om';
@@ -141,6 +142,10 @@ const router = createBrowserRouter(
                       <AdvisorRuns />
                     </PersistedFilters>
                   ),
+                },
+                {
+                  path: 'scheduler',
+                  element: <AdvisorScheduler />,
                 },
               ],
             },

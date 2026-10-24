@@ -1,12 +1,5 @@
 import type { Severity } from './severity.types';
 
-export enum AdvisorInterval {
-  standard = 'ADVISOR_CHECK_INTERVAL_STANDARD',
-  rare = 'ADVISOR_CHECK_INTERVAL_RARE',
-  frequent = 'ADVISOR_CHECK_INTERVAL_FREQUENT',
-  unspecified = 'ADVISOR_CHECK_INTERVAL_UNSPECIFIED',
-}
-
 export enum AdvisorTechnology {
   unspecified = 'ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED',
   mysql = 'ADVISOR_CHECK_TECHNOLOGY_MYSQL',
@@ -25,7 +18,6 @@ export interface AdvisorCheck {
   enabled: boolean;
   description: string;
   summary: string;
-  interval: AdvisorInterval;
   technology: AdvisorTechnology;
   category: string;
   userDefined: boolean;
@@ -43,7 +35,6 @@ export interface AdvisorCheckInput {
   description: string;
   category: string;
   technology: AdvisorTechnology;
-  interval: AdvisorInterval;
   queries: AdvisorCheckQuery[];
   script: string;
 }
@@ -78,8 +69,6 @@ export interface StartAdvisorChecksRequest {
   names?: string[];
   // when set, the checks run only against these services
   serviceIds?: string[];
-  // when set, only checks of these intervals run
-  intervals?: AdvisorInterval[];
 }
 
 export interface TestAdvisorCheckRequest {
@@ -118,7 +107,6 @@ export interface ListAdvisorCheckTestTargetsResponse {
 export interface ChangeAdvisorCheckParams {
   name: string;
   enable?: boolean;
-  interval?: AdvisorInterval;
   // when set, enable/disable applies only to these services
   serviceIds?: string[];
 }
@@ -155,7 +143,6 @@ export interface Insight {
   id: string;
   checkName: string;
   category: string;
-  interval: AdvisorInterval;
   serviceId: string;
   serviceName: string;
   serviceType: string;
@@ -215,7 +202,22 @@ export interface AdvisorRun {
   // the scope the run was narrowed to; empty means all
   checkNames: string[];
   serviceIds: string[];
-  intervals: AdvisorInterval[];
+  // the schedule the run ran for or was started from; empty for other runs
+  // and once the schedule is deleted
+  scheduleId?: string;
+  // the schedule's name when the run started, kept after a rename or delete
+  scheduleName?: string;
+  // when the schedule fell due; unset for runs a user started
+  scheduledFor?: string | null;
+  // set only when a scheduled run started over a minute late behind this run
+  waitedForRun?: AdvisorRunReference | null;
+}
+
+export interface AdvisorRunReference {
+  runId: string;
+  triggeredBy: AdvisorCheckTriggeredBy;
+  scheduleName?: string;
+  startedAt: string;
 }
 
 export interface ListRunsParams {
@@ -223,6 +225,7 @@ export interface ListRunsParams {
   pageIndex?: number;
   runId?: string;
   triggeredBy?: AdvisorCheckTriggeredBy;
+  scheduleId?: string;
   from?: string;
   to?: string;
 }
@@ -274,8 +277,85 @@ export interface AdvisorCheckRow {
   description: string;
   category: string;
   technology: AdvisorTechnology;
-  interval: AdvisorInterval;
   enabled: boolean;
   userDefined: boolean;
   disabledServiceIds: string[];
+}
+
+export enum AdvisorScheduleEmailMode {
+  unspecified = 'ADVISOR_SCHEDULE_EMAIL_MODE_UNSPECIFIED',
+  settings = 'ADVISOR_SCHEDULE_EMAIL_MODE_SETTINGS',
+  custom = 'ADVISOR_SCHEDULE_EMAIL_MODE_CUSTOM',
+  off = 'ADVISOR_SCHEDULE_EMAIL_MODE_OFF',
+}
+
+// Runs Advisor checks on the given days at a time of day, both in UTC.
+// false booleans and empty lists are omitted from the JSON
+export interface AdvisorSchedule {
+  scheduleId: string;
+  name: string;
+  enabled?: boolean;
+  // 0 is Sunday, as Date.getUTCDay()
+  daysOfWeek: number[];
+  // HH:MM, UTC
+  timeOfDay: string;
+  // empty means all, including checks and services added later
+  checkNames?: string[];
+  serviceIds?: string[];
+  emailMode: AdvisorScheduleEmailMode;
+  // used only by the custom email mode
+  emailAddresses?: string[];
+  // empty means the default severities from Settings
+  emailSeverities?: Severity[];
+  // unset while the schedule is disabled
+  nextRunAt?: string | null;
+  lastRun?: AdvisorRun | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListAdvisorSchedulesResponse {
+  schedules?: AdvisorSchedule[];
+}
+
+// the full schedule: an update replaces it, so toggling sends every field
+export interface AdvisorScheduleInput {
+  name: string;
+  enabled: boolean;
+  daysOfWeek: number[];
+  timeOfDay: string;
+  checkNames: string[];
+  serviceIds: string[];
+  emailMode: AdvisorScheduleEmailMode;
+  emailAddresses: string[];
+  emailSeverities: Severity[];
+}
+
+export interface AdvisorScheduleResponse {
+  schedule: AdvisorSchedule;
+}
+
+export interface RunAdvisorScheduleResponse {
+  runId: string;
+}
+
+// a MySQL, PostgreSQL or MongoDB service Advisor checks can run against
+export interface AdvisorTargetService {
+  serviceId: string;
+  serviceName: string;
+  technology: AdvisorTechnology;
+  nodeName?: string;
+  environment?: string;
+  cluster?: string;
+}
+
+export interface ListAdvisorServicesResponse {
+  services?: AdvisorTargetService[];
+}
+
+// the email defaults from Settings that schedules fall back to
+export interface AdvisorNotificationSettings {
+  enabled?: boolean;
+  emailAddresses?: string[];
+  severities?: Severity[];
 }

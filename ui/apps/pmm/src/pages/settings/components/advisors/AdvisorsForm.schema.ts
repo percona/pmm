@@ -2,14 +2,11 @@ import { z } from 'zod';
 import { Severity } from 'types/severity.types';
 import { Messages } from '../../Settings.messages';
 import { MAX_DAYS, MIN_DAYS } from '../advanced/Advanced.constants';
-import { MIN_ADVISOR_CHECK_INTERVAL } from './Advisors.constants';
 import { splitEmailAddresses } from './Advisors.utils';
 
 const {
   required,
   retentionRange,
-  intervalMin,
-  intervalWholeHours,
   emailsRequired,
   severitiesRequired,
   emailInvalid,
@@ -19,51 +16,18 @@ const {
 // mirrors maxAdvisorNotificationEmailAddresses in managed/models/settings_helpers.go
 const MAX_NOTIFICATION_EMAILS = 20;
 
-const intervalFields = [
-  'rareInterval',
-  'standardInterval',
-  'frequentInterval',
-] as const;
-
 export const advisorsSchema = z
   .object({
     stt: z.boolean(),
-    rareInterval: z.string(),
-    standardInterval: z.string(),
-    frequentInterval: z.string(),
     advisorRetention: z.string(),
     advisorNotifications: z.boolean(),
     advisorSeverities: z.array(z.nativeEnum(Severity)),
     advisorNotificationEmails: z.string(),
   })
   .superRefine((data, ctx) => {
-    if (!data.stt) return;
-    for (const field of intervalFields) {
-      const v = data[field];
-      const n = parseFloat(v);
-      if (v === '' || isNaN(n)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: required,
-          path: [field],
-        });
-      } else if (n < MIN_ADVISOR_CHECK_INTERVAL) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: intervalMin(MIN_ADVISOR_CHECK_INTERVAL),
-          path: [field],
-        });
-      } else if (!Number.isInteger(n)) {
-        // the spinner can only produce whole hours, so typing must not slip a
-        // fraction past it
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: intervalWholeHours,
-          path: [field],
-        });
-      }
+    if (!data.stt) {
+      return;
     }
-
     // the API requires a multiple of 24h, so whole days only
     const retention = data.advisorRetention;
     const days = parseFloat(retention);
@@ -81,7 +45,9 @@ export const advisorsSchema = z
       });
     }
 
-    if (!data.advisorNotifications) return;
+    if (!data.advisorNotifications) {
+      return;
+    }
 
     if (data.advisorSeverities.length === 0) {
       ctx.addIssue({

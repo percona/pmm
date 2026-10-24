@@ -8,7 +8,6 @@ export const Messages = {
     category: 'Category',
     technology: 'Technology',
     source: 'Source',
-    interval: 'Interval',
     status: 'Status',
     actions: 'Actions',
   },
@@ -21,7 +20,6 @@ export const Messages = {
     all: 'All',
     category: 'Category',
     technology: 'Technology',
-    interval: 'Interval',
     status: 'Status',
     clear: 'Clear filters',
     refresh: 'Refresh',
@@ -51,7 +49,6 @@ export const Messages = {
     category: 'Category',
     technology: 'Technology',
     source: 'Source',
-    interval: 'Interval',
     status: 'Status',
     summary: 'Summary',
     description: 'Description',
@@ -75,7 +72,5 @@ export const Messages = {
     checkEnabled: (summary: string) => `Check "${summary}" enabled`,
     checkDisabled: (summary: string) => `Check "${summary}" disabled`,
     checkDeleted: (summary: string) => `Check "${summary}" deleted`,
-    intervalChanged: (summary: string, interval: string) =>
-      `Check "${summary}" interval changed to "${interval}"`,
   },
 };

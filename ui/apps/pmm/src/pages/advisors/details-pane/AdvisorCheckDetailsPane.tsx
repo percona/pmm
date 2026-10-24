@@ -23,7 +23,7 @@ import {
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { useAdvisorCheck } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
-import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY } from 'lib/constants';
 import { ScriptEditorInput } from '../check-form/ScriptEditorInput';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
@@ -113,7 +113,6 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
       description: fullCheck.description,
       category: fullCheck.category,
       technology: fullCheck.technology,
-      interval: fullCheck.interval,
       queries: fullCheck.queries ?? [],
       script: fullCheck.script ?? '',
     });
@@ -221,19 +220,14 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                   {ADVISOR_TECHNOLOGY[check.technology]}
                 </Typography>
               </Field>
-              <Field label={m.interval}>
-                <Typography variant="body1">
-                  {ADVISOR_INTERVAL[check.interval]}
-                </Typography>
-              </Field>
-              <Field label={m.status}>
+              <Field label={m.status} span={2}>
                 <Typography variant="body1">
                   {check.enabled
                     ? Messages.status.enabled
                     : Messages.status.disabled}
                 </Typography>
               </Field>
-              <Field label={m.source}>
+              <Field label={m.source} span={2}>
                 <Typography variant="body1">
                   {check.userDefined
                     ? Messages.source.custom

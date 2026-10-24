@@ -1,12 +1,7 @@
 import { format } from 'date-fns';
 import { AdvisorCheckTriggeredBy, Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
-import {
-  ADVISOR_INTERVAL,
-  ADVISOR_RESULT_STATUS,
-  SEVERITY,
-  TIME_FORMAT,
-} from 'lib/constants';
+import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
 
 export const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
   [AdvisorCheckTriggeredBy.user]: 'User',
@@ -31,7 +26,6 @@ export const insightToText = (item: Insight): string => {
     ['Environment', item.environment],
     ['Cluster', item.cluster],
     ['Replication Set', item.replicationSet],
-    ['Interval', ADVISOR_INTERVAL[item.interval]],
     ['Triggered By', TRIGGERED_BY_LABEL[item.triggeredBy]],
     ['Read', item.isRead ? 'Read' : 'Unread'],
     ['Summary', item.summary],

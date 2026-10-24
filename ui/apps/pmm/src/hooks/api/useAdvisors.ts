@@ -9,23 +9,34 @@ import {
 import {
   changeAdvisorChecks,
   createAdvisorCheck,
+  createAdvisorSchedule,
   deleteAdvisorCheck,
+  deleteAdvisorSchedule,
   getAdvisorCheck,
+  getAdvisorNotificationSettings,
   listAdvisorChecks,
   listAdvisorCheckTestTargets,
+  listAdvisorSchedules,
+  listAdvisorServices,
   listInsightsFilterValues,
   listInsights,
   listRuns,
   markInsightsRead,
+  runAdvisorSchedule,
   sendTestAdvisorNotification,
   startAdvisorChecks,
   testAdvisorCheck,
   updateAdvisorCheck,
+  updateAdvisorSchedule,
 } from 'api/advisors';
 import {
   AdvisorCheck,
   AdvisorCheckResultStatus,
+  AdvisorNotificationSettings,
   AdvisorRun,
+  AdvisorSchedule,
+  AdvisorScheduleInput,
+  AdvisorTargetService,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
   AdvisorTechnology,
@@ -57,6 +68,12 @@ const KEYS = {
   INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
   MARK_READ: 'advisors:mark-read',
   TEST_NOTIFICATION: 'advisors:test-notification',
+  SCHEDULES: 'advisors:schedules',
+  SERVICES: 'advisors:services',
+  NOTIFICATION_SETTINGS: 'advisors:notification-settings',
+  SAVE_SCHEDULE: 'advisors:save-schedule',
+  DELETE_SCHEDULE: 'advisors:delete-schedule',
+  RUN_SCHEDULE: 'advisors:run-schedule',
 };
 
 export const useAdvisorChecks = (
@@ -258,6 +275,92 @@ export const useDeleteAdvisorCheck = (
     onSuccess: async (data, variables, onMutate, context) => {
       await options?.onSuccess?.(data, variables, onMutate, context);
       await queryClient.invalidateQueries({ queryKey: [KEYS.LIST] });
+    },
+  });
+};
+
+export const useAdvisorSchedules = (
+  options?: Partial<UseQueryOptions<AdvisorSchedule[]>>
+) =>
+  useQuery({
+    queryKey: [KEYS.SCHEDULES],
+    queryFn: () => listAdvisorSchedules(),
+    ...options,
+  });
+
+export const useAdvisorServices = (
+  options?: Partial<UseQueryOptions<AdvisorTargetService[]>>
+) =>
+  useQuery({
+    queryKey: [KEYS.SERVICES],
+    queryFn: () => listAdvisorServices(),
+    ...options,
+  });
+
+export const useAdvisorNotificationSettings = (
+  options?: Partial<UseQueryOptions<AdvisorNotificationSettings>>
+) =>
+  useQuery({
+    queryKey: [KEYS.NOTIFICATION_SETTINGS],
+    queryFn: () => getAdvisorNotificationSettings(),
+    ...options,
+  });
+
+// creates a schedule, or replaces one when scheduleId is set
+export const useSaveAdvisorSchedule = (
+  options?: Partial<
+    UseMutationOptions<
+      AdvisorSchedule,
+      Error,
+      { scheduleId?: string; input: AdvisorScheduleInput }
+    >
+  >
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.SAVE_SCHEDULE],
+    mutationFn: ({ scheduleId, input }) =>
+      scheduleId
+        ? updateAdvisorSchedule(scheduleId, input)
+        : createAdvisorSchedule(input),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.SCHEDULES] });
+    },
+  });
+};
+
+export const useDeleteAdvisorSchedule = (
+  options?: Partial<UseMutationOptions<void, Error, string>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.DELETE_SCHEDULE],
+    mutationFn: deleteAdvisorSchedule,
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.SCHEDULES] });
+    },
+  });
+};
+
+export const useRunAdvisorSchedule = (
+  options?: Partial<UseMutationOptions<string, Error, string>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.RUN_SCHEDULE],
+    mutationFn: runAdvisorSchedule,
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.SCHEDULES] });
+      await queryClient.invalidateQueries({ queryKey: [KEYS.RUNS] });
     },
   });
 };

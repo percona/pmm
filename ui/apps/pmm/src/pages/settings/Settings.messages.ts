@@ -89,8 +89,6 @@ export const Messages = {
       required: 'Required field',
       retentionRange: (min: number, max: number) =>
         `Value should be in the range from ${min} to ${max}`,
-      intervalMin: (min: number) => `Min ${min}`,
-      intervalWholeHours: 'Use whole hours',
       emailsRequired:
         'Add at least one recipient, or turn Advisor notifications off',
       severitiesRequired:
@@ -103,25 +101,22 @@ export const Messages = {
     advisorsLink: 'https://per.co.na/advisors',
     advisorsTooltip:
       'Run automated checks to identify potential database performance and configuration issues.',
-    rareIntervalLabel: 'Rare',
-    standardIntervalLabel: 'Standard',
-    frequentIntervalLabel: 'Frequent',
-    checkIntervalLabel: 'Check run interval',
-    checkIntervalTooltip:
-      'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
     advisorRetentionLabel: 'Advisor history retention',
     advisorRetentionTooltip:
       'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
     retentionUnits: 'days',
     advisorNotificationsLabel: 'Advisor notifications',
     advisorNotificationsTooltip:
-      'Email a summary of completed Advisor checks to the recipients below.',
-    advisorSeveritiesLabel: 'Notification severities',
+      'Email a summary of completed Advisor runs to the recipients below.',
+    advisorSeveritiesLabel: 'Default severities',
     advisorSeveritiesTooltip:
       'Only insights with the selected severities are emailed.',
-    advisorEmailsLabel: 'Notification recipients',
+    advisorEmailsLabel: 'Default recipients',
     advisorEmailsTooltip:
       'Email addresses the summaries are sent to, separated by commas.',
+    schedulesOverride:
+      'Each Advisor schedule emails these recipients and severities unless it sets its own. Manage schedules in the',
+    schedulerLink: 'Scheduler',
     sendTestEmail: 'Send test email',
     sendTestEmailPending: 'Sending…',
     sendTestEmailTooltip:

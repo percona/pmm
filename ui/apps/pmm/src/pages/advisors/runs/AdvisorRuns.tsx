@@ -19,6 +19,7 @@ import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import {
+  useAdvisorSchedules,
   useFetchRunInsights,
   useRuns,
   useStartAdvisorChecks,
@@ -56,6 +57,7 @@ const AdvisorRuns: FC = () => {
 
   // the query string is the single source of truth, so links reproduce the view
   const triggeredBy = searchParams.get('triggeredBy') || '';
+  const scheduleId = searchParams.get('scheduleId') || '';
   const runId = searchParams.get('runId') || '';
   const pagination: MRT_PaginationState = {
     pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
@@ -123,6 +125,7 @@ const AdvisorRuns: FC = () => {
       pageSize: pagination.pageSize,
       runId: runId || undefined,
       triggeredBy: (triggeredBy as AdvisorCheckTriggeredBy) || undefined,
+      scheduleId: scheduleId || undefined,
     },
     {
       // follow the progress of a run in flight until it finishes
@@ -135,6 +138,12 @@ const AdvisorRuns: FC = () => {
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const fetchRunInsights = useFetchRunInsights();
+  const { data: schedules } = useAdvisorSchedules();
+  // a remembered or linked filter can name a schedule deleted since
+  const scheduleMissing =
+    !!scheduleId &&
+    !!schedules &&
+    !schedules.some((s) => s.scheduleId === scheduleId);
 
   const columns = useMemo(() => getRunsColumns(), []);
 
@@ -145,11 +154,7 @@ const AdvisorRuns: FC = () => {
   // error shown like any other
   const runAgain = (run: AdvisorRun) =>
     startChecks(
-      {
-        names: run.checkNames,
-        serviceIds: run.serviceIds,
-        intervals: run.intervals,
-      },
+      { names: run.checkNames, serviceIds: run.serviceIds },
       {
         onSuccess: () => {
           enqueueSnackbar(Messages.success.checksStarted, {
@@ -235,6 +240,40 @@ const AdvisorRuns: FC = () => {
             ))}
           </TextField>
           <TextField
+            select
+            size="small"
+            // deterministic id: React's useId default breaks jsdom selector matching
+            id="schedule-filter-select"
+            label={Messages.filters.schedule}
+            // the option list loads separately; until then the select shows All
+            value={scheduleId && schedules ? scheduleId : Messages.filters.all}
+            onChange={(e) =>
+              patchParams((p) => {
+                if (e.target.value === Messages.filters.all) {
+                  p.delete('scheduleId');
+                } else {
+                  p.set('scheduleId', e.target.value);
+                }
+              })
+            }
+            sx={{ minWidth: 200 }}
+            data-testid="schedule-filter"
+          >
+            <MenuItem value={Messages.filters.all}>
+              {Messages.filters.all}
+            </MenuItem>
+            {(schedules ?? []).map((schedule) => (
+              <MenuItem key={schedule.scheduleId} value={schedule.scheduleId}>
+                {schedule.name}
+              </MenuItem>
+            ))}
+            {scheduleMissing && (
+              <MenuItem value={scheduleId}>
+                {Messages.filters.deletedSchedule}
+              </MenuItem>
+            )}
+          </TextField>
+          <TextField
             size="small"
             label={Messages.filters.runId}
             value={runIdInput}
@@ -254,7 +293,7 @@ const AdvisorRuns: FC = () => {
               <Box component="span">
                 <IconButton
                   onClick={handleClearFilters}
-                  disabled={!triggeredBy && !runId}
+                  disabled={!triggeredBy && !scheduleId && !runId}
                   aria-label={Messages.filters.clear}
                   data-testid="clear-run-filters"
                 >

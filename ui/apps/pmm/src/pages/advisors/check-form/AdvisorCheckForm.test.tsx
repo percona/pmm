@@ -15,7 +15,6 @@ import {
 import {
   AdvisorCheck,
   AdvisorTechnology,
-  AdvisorInterval,
   TestAdvisorCheckResult,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -32,7 +31,6 @@ const SOURCE_CHECK: AdvisorCheck = {
   description: 'Warns if MySQL version is EOL',
   category: 'Configuration',
   technology: AdvisorTechnology.mysql,
-  interval: AdvisorInterval.standard,
   userDefined: false,
   queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
   script: 'def check_context(docs, context):\n    return []',
@@ -121,7 +119,6 @@ describe('AdvisorCheckForm test run', () => {
             description: SOURCE_CHECK.description,
             category: SOURCE_CHECK.category,
             technology: SOURCE_CHECK.technology,
-            interval: SOURCE_CHECK.interval,
             queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
             script: SOURCE_CHECK.script,
           },
@@ -214,7 +211,6 @@ describe('AdvisorCheckForm query parameters', () => {
     description: 'Runs against every database',
     category: 'Configuration',
     technology: AdvisorTechnology.postgresql,
-    interval: AdvisorInterval.standard,
     userDefined: false,
     queries: [
       {

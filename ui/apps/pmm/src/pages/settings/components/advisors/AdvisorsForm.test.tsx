@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import {
   wrapWithQueryProvider,
@@ -17,11 +23,6 @@ const sendTestMock = vi.mocked(advisorsApi.sendTestAdvisorNotification);
 
 const settings = {
   advisorEnabled: true,
-  advisorRunIntervals: {
-    rareInterval: '259200s',
-    standardInterval: '86400s',
-    frequentInterval: '14400s',
-  },
   advisorHistoryRetention: '2592000s',
   advisorNotificationsEnabled: true,
   advisorNotificationSeverities: [Severity.critical, Severity.warning],
@@ -134,5 +135,17 @@ describe('AdvisorsForm', () => {
       )
     ).toBeInTheDocument();
     expect(screen.getByTestId('advisors-button')).toBeDisabled();
+  });
+
+  it('says schedules can override the defaults and links to the Scheduler', () => {
+    renderForm();
+
+    const note = screen.getByTestId('advisor-schedules-override');
+    expect(note).toHaveTextContent(
+      'Each Advisor schedule emails these recipients and severities unless it sets its own.'
+    );
+    expect(
+      within(note).getByRole('link', { name: 'Scheduler' })
+    ).toHaveAttribute('href', '/advisors/scheduler');
   });
 });

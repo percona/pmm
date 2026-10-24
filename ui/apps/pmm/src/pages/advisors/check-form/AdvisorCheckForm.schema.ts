@@ -4,7 +4,6 @@ import {
   AdvisorCheckInput,
   AdvisorCheckQuery,
   AdvisorTechnology,
-  AdvisorInterval,
 } from 'types/advisors.types';
 import { Messages } from './AdvisorCheckForm.messages';
 
@@ -54,7 +53,6 @@ export const advisorCheckFormSchema = z.object({
     .min(1, Messages.validation.required),
   // the technology select never offers "unspecified"; an empty technology is rejected server-side
   technology: z.nativeEnum(AdvisorTechnology),
-  interval: z.nativeEnum(AdvisorInterval),
   queries: z.array(querySchema).min(1, Messages.validation.queriesRequired),
   script: z.string().min(1, Messages.validation.required),
 });
@@ -68,7 +66,6 @@ export const emptyFormValues: AdvisorCheckFormValues = {
   description: '',
   category: '',
   technology: AdvisorTechnology.mysql,
-  interval: AdvisorInterval.standard,
   queries: [{ type: 'MYSQL_SHOW', query: '', parameters: [] }],
   script: '',
 };
@@ -116,10 +113,6 @@ export const toFormValues = (
     check.technology === AdvisorTechnology.unspecified
       ? AdvisorTechnology.mysql
       : check.technology,
-  interval:
-    check.interval === AdvisorInterval.unspecified
-      ? AdvisorInterval.standard
-      : check.interval,
   queries: (check.queries ?? []).map(toQueryFormValues),
   script: check.script ?? '',
 });
@@ -130,7 +123,6 @@ export const toInput = (values: AdvisorCheckFormValues): AdvisorCheckInput => ({
   description: values.description,
   category: values.category,
   technology: values.technology,
-  interval: values.interval,
   queries: values.queries.map(toQueryInput),
   script: values.script,
 });
