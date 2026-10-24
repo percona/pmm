@@ -675,7 +675,10 @@ func TestAdvisorRunsAndInsights(t *testing.T) {
 func TestSendTestAdvisorNotification(t *testing.T) {
 	// api-tests run against a PMM Server without SMTP, so no email is sent
 	resp, err := advisorClient.Default.AdvisorService.SendTestAdvisorNotification(&advisor.SendTestAdvisorNotificationParams{
-		Body:    advisor.SendTestAdvisorNotificationBody{EmailAddresses: []string{"dba@example.com"}},
+		Body: advisor.SendTestAdvisorNotificationBody{
+			EmailAddresses: []string{"dba@example.com"},
+			Severities:     severities("SEVERITY_CRITICAL"),
+		},
 		Context: pmmapitests.Context,
 	})
 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "SMTP is not configured in PMM Server: GF_SMTP_ENABLED is not set.")
@@ -793,8 +796,7 @@ func startAdvisorRun(t *testing.T, checkName, serviceID string) string {
 	return resp.Payload.RunID
 }
 
-// waitForNoActiveRun waits until no Advisor run is queued or running, so a new
-// one can start; enabling Advisors starts a run of its own.
+// waitForNoActiveRun waits until no Advisor run is queued or running, so a new one can start.
 func waitForNoActiveRun(t *testing.T) {
 	t.Helper()
 

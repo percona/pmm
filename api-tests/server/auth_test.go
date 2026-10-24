@@ -251,7 +251,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 		{name: "advisor test notification", url: "/v1/advisors/notifications:test", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 403},
 			{userType: "viewer", login: viewer, statusCode: 403},
-			{userType: "editor", login: editor, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 400},
 			{userType: "admin", login: admin, statusCode: 400},
 		}},
 	}
@@ -409,7 +409,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 		{name: "advisor test notification", url: "/v1/advisors/notifications:test", method: "POST", userCase: []userCase{
 			{userType: "default", statusCode: 401},
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
-			{userType: "editor", serviceToken: editorToken, statusCode: 403},
+			{userType: "editor", serviceToken: editorToken, statusCode: 400},
 			{userType: "admin", serviceToken: adminToken, statusCode: 400},
 		}},
 	}
