@@ -205,7 +205,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.EnableAdvisors != nil {
-		settings.SaaS.Enabled = params.EnableAdvisors
+		settings.Advisors.Enabled = params.EnableAdvisors
 	}
 
 	if params.EnableNomad != nil {

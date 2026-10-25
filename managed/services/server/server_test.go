@@ -843,7 +843,7 @@ func TestCreateDefaultAdvisorSchedule(t *testing.T) {
 
 	settings := func(enabled bool) *models.Settings {
 		s := &models.Settings{}
-		s.SaaS.Enabled = &enabled
+		s.Advisors.Enabled = &enabled
 		return s
 	}
 

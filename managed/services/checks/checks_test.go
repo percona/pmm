@@ -442,7 +442,7 @@ func TestStartChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = new(false)
+		settings.Advisors.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -648,7 +648,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = new(false)
+		settings.Advisors.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 

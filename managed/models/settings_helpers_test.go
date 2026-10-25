@@ -227,7 +227,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable telemetry, enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -236,7 +236,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.False(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable Advisors, enable Telemetry
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -245,7 +245,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.False(t, *ns.SaaS.Enabled)
+			assert.False(t, *ns.Advisors.Enabled)
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -254,7 +254,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -262,7 +262,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.False(t, *ns.SaaS.Enabled)
+			assert.False(t, *ns.Advisors.Enabled)
 
 			// enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -270,7 +270,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// restore initial default state
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -279,7 +279,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 		})
 
 		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {

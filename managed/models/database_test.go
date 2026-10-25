@@ -559,7 +559,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 
-	t.Run("advisor schedules and runs migrations: interval settings are dropped and the default schedule created", func(t *testing.T) {
+	t.Run("advisor schedules and runs migrations: interval settings are dropped, the switch kept and the default schedule created", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, new(127))
 		t.Cleanup(func() {
 			assert.NoError(t, sqlDB.Close())
@@ -567,18 +567,20 @@ func TestDatabaseMigrations(t *testing.T) {
 
 		_, err := sqlDB.ExecContext(
 			t.Context(),
-			`UPDATE settings SET settings = jsonb_set(
-				jsonb_set(settings, '{sass}', COALESCE(settings->'sass', '{}'::jsonb)),
-				'{sass,advisor_run_intervals}', jsonb_build_object('rare_interval', 280800000000000))`,
+			`UPDATE settings SET settings = settings || jsonb_build_object('sass', jsonb_build_object(
+				'enabled', false,
+				'advisor_run_intervals', jsonb_build_object('rare_interval', 280800000000000)))`,
 		)
 		require.NoError(t, err)
 
 		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(129))
 
-		var intervals *string
-		err = sqlDB.QueryRowContext(t.Context(), `SELECT settings #>> '{sass,advisor_run_intervals}' FROM settings`).Scan(&intervals)
+		var hasSaaS bool
+		var advisors string
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT settings ? 'sass', settings ->> 'advisors' FROM settings`).Scan(&hasSaaS, &advisors)
 		require.NoError(t, err)
-		assert.Nil(t, intervals)
+		assert.False(t, hasSaaS)
+		assert.JSONEq(t, `{"enabled": false}`, advisors)
 
 		var names []string
 		err = sqlDB.QueryRowContext(t.Context(), `SELECT array_agg(name) FROM advisor_schedules`).Scan(pq.Array(&names))

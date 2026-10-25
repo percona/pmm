@@ -285,7 +285,7 @@ func TestNextRun(t *testing.T) {
 	t.Run("schedules are dropped while advisors are disabled", func(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
-		settings.SaaS.Enabled = new(false)
+		settings.Advisors.Enabled = new(false)
 		require.NoError(t, models.SaveSettings(db, settings))
 
 		run, waiting := s.nextRun(t.Context(), waitingFor(alpha))

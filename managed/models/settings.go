@@ -58,9 +58,9 @@ func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 
-// Advisors contains settings related to the Portal Advisors.
+// Advisors contains Advisor settings.
 type Advisors struct {
-	// Advisor checks disabled, false by default.
+	// Enabled turns Advisor checks on or off; nil means AdvisorsEnabledDefault.
 	Enabled *bool `json:"enabled"`
 }
 
@@ -93,7 +93,7 @@ type Settings struct {
 		CacheEnabled *bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
 
-	SaaS Advisors `json:"sass"` // sic :(
+	Advisors Advisors `json:"advisors"`
 
 	Nomad struct {
 		Enabled *bool `json:"enabled"`
@@ -189,8 +189,8 @@ func (s *Settings) IsBackupManagementEnabled() bool {
 
 // IsAdvisorsEnabled returns true if advisors are enabled.
 func (s *Settings) IsAdvisorsEnabled() bool {
-	if s.SaaS.Enabled != nil {
-		return *s.SaaS.Enabled
+	if s.Advisors.Enabled != nil {
+		return *s.Advisors.Enabled
 	}
 
 	return AdvisorsEnabledDefault

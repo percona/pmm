@@ -1412,8 +1412,8 @@ var databaseSchema = [][]string{
 		// atomic insert on every HA node.
 		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
 
-		// Advisor schedules replace the interval settings.
-		`UPDATE settings SET settings = settings #- '{sass,advisor_run_intervals}'`,
+		// Advisor schedules replace the interval settings; only the on/off switch carries over.
+		`UPDATE settings SET settings = (settings - 'sass') || jsonb_build_object('advisors', jsonb_build_object('enabled', settings #> '{sass,enabled}'))`,
 	},
 }
 
