@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_no_leader
     version: 1
     summary: PMM HA cluster has no active leader
+    category: pmm
     # last_over_time bounds how long a departed leader's final sample can mask a leaderless
     # cluster, narrowing the lookback to 2m. max by(node_id) collapses any duplicate series
     # for one node, so a node is counted once no matter what labels the scrape adds.

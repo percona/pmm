@@ -584,6 +584,13 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 
 	// Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
 	Condition string `json:"condition,omitempty"`
+
+	// TemplateCategory defines the technology an alert template applies to.
+	//
+	//  - TEMPLATE_CATEGORY_UNSPECIFIED: Invalid, unknown or absent.
+	//  - TEMPLATE_CATEGORY_PMM: PMM's own components, such as agents and backups.
+	// Enum: ["TEMPLATE_CATEGORY_UNSPECIFIED","TEMPLATE_CATEGORY_PMM","TEMPLATE_CATEGORY_MONGODB","TEMPLATE_CATEGORY_MYSQL","TEMPLATE_CATEGORY_NODE","TEMPLATE_CATEGORY_POSTGRESQL","TEMPLATE_CATEGORY_PROXYSQL","TEMPLATE_CATEGORY_VALKEY","TEMPLATE_CATEGORY_HAPROXY"]
+	Category *string `json:"category,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0
@@ -611,6 +618,10 @@ func (o *ListTemplatesOKBodyTemplatesItems0) Validate(formats strfmt.Registry) e
 	}
 
 	if err := o.validateExpressions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCategory(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -831,6 +842,69 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateExpressions(formats strfmt.
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0TypeCategoryPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["TEMPLATE_CATEGORY_UNSPECIFIED","TEMPLATE_CATEGORY_PMM","TEMPLATE_CATEGORY_MONGODB","TEMPLATE_CATEGORY_MYSQL","TEMPLATE_CATEGORY_NODE","TEMPLATE_CATEGORY_POSTGRESQL","TEMPLATE_CATEGORY_PROXYSQL","TEMPLATE_CATEGORY_VALKEY","TEMPLATE_CATEGORY_HAPROXY"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0TypeCategoryPropEnum = append(listTemplatesOkBodyTemplatesItems0TypeCategoryPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYUNSPECIFIED captures enum value "TEMPLATE_CATEGORY_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYUNSPECIFIED string = "TEMPLATE_CATEGORY_UNSPECIFIED"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPMM captures enum value "TEMPLATE_CATEGORY_PMM"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPMM string = "TEMPLATE_CATEGORY_PMM"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYMONGODB captures enum value "TEMPLATE_CATEGORY_MONGODB"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYMONGODB string = "TEMPLATE_CATEGORY_MONGODB"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYMYSQL captures enum value "TEMPLATE_CATEGORY_MYSQL"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYMYSQL string = "TEMPLATE_CATEGORY_MYSQL"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYNODE captures enum value "TEMPLATE_CATEGORY_NODE"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYNODE string = "TEMPLATE_CATEGORY_NODE"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPOSTGRESQL captures enum value "TEMPLATE_CATEGORY_POSTGRESQL"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPOSTGRESQL string = "TEMPLATE_CATEGORY_POSTGRESQL"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPROXYSQL captures enum value "TEMPLATE_CATEGORY_PROXYSQL"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYPROXYSQL string = "TEMPLATE_CATEGORY_PROXYSQL"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYVALKEY captures enum value "TEMPLATE_CATEGORY_VALKEY"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYVALKEY string = "TEMPLATE_CATEGORY_VALKEY"
+
+	// ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYHAPROXY captures enum value "TEMPLATE_CATEGORY_HAPROXY"
+	ListTemplatesOKBodyTemplatesItems0CategoryTEMPLATECATEGORYHAPROXY string = "TEMPLATE_CATEGORY_HAPROXY"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0) validateCategoryEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0TypeCategoryPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateCategory(formats strfmt.Registry) error {
+	if swag.IsZero(o.Category) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCategoryEnum("category", "body", *o.Category); err != nil {
+		return err
 	}
 
 	return nil

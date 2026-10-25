@@ -15,6 +15,15 @@ export const formatTimestamp = (timestamp: string) =>
     year: 'numeric',
   });
 
+export const formatTimestampWithTime = (timestamp: string) =>
+  new Date(timestamp).toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
 export const formatDuration = (duration: number) => {
   const hours = Math.floor(duration / 3600000);
   const minutes = Math.floor((duration % 3600000) / 60000);

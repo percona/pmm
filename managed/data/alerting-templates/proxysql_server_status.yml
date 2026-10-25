@@ -3,6 +3,7 @@ templates:
   - name: pmm_proxysql_server_status
     version: 1
     summary: ProxySQL server status
+    category: proxysql
     expr: |-
       proxysql_runtime_servers_status
       >= bool [[ .status ]]

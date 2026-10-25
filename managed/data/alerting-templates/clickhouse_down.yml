@@ -3,6 +3,7 @@ templates:
   - name: pmm_clickhouse_down
     version: 1
     summary: PMM ClickHouse is down
+    category: pmm
     # up is 0 while the target is scraped but not answering, so == bool 0 yields a firing
     # sample rather than the empty result that NoDataState treats as normal. last_over_time
     # bounds the metrics database's staleness window so a target that stops being scraped

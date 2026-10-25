@@ -3,6 +3,7 @@ templates:
   - name: pmm_qan_api2_down
     version: 1
     summary: PMM Query Analytics API is down
+    category: pmm
     # qan-api2 is scraped by PMM in every topology, and the metrics database stays up to
     # record the failure, so this alert observes a total outage of the component correctly.
     # instance carries the PMM Server node name; copying it to node_name fills the Node column.

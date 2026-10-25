@@ -3,6 +3,7 @@ templates:
   - name: pmm_ha_split_brain
     version: 1
     summary: PMM HA split-brain detected
+    category: pmm
     # last_over_time stops a departing leader's final sample being counted alongside the
     # new leader. Keep this window shorter than 'for', or an ordinary failover will fire.
     # max by(node_id) collapses any duplicate series for one node, so a single node cannot
