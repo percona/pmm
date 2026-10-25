@@ -217,7 +217,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX`; lowercase, dashes, always a short description |
 | Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
 | Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
