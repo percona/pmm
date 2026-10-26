@@ -40,7 +40,7 @@ install -D -p -m 0755 ./bin/victoria-metrics-pure %{buildroot}%{_sbindir}/victor
 
 
 %changelog
-* Mon Oct 19 2026 Mattia Simonato <mattia.simonato@percona.com> - 1.154.0-2
+* Mon Oct 26 2026 Mattia Simonato <mattia.simonato@percona.com> - 1.154.0-2
 - stop building and shipping vmalert
 
 * Mon Oct 19 2026 Jiří Čtvrtka <jiri.ctvrtka@ext.percona.com> - 1.154.0-1
