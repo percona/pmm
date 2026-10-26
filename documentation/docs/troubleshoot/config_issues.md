@@ -36,6 +36,51 @@ To obtain the logs:
 
 2. Save the downloaded file to share with our support team if needed.
 
+### Monitoring stops while pmm-agent is running
+
+A PMM Client node may stop sending metrics and Query Analytics data even though `pmm-agent` and its exporters are still running. Inventory operations for services on the affected node fail with the following error:
+
+```
+pmm-agent with ID <AGENT_ID> is not currently connected
+```
+
+=== "PMM Client 3.10.0 and later"
+
+    `pmm-agent` can automatically recover from this state without requiring a restart:
+
+    - `pmm-agent` continues responding to connection checks from PMM Server while applying configuration changes, preventing slow operations from disconnecting the node.
+    - If an agent fails to stop within 60 seconds during a restart or removal, `pmm-agent` stops waiting for it and continues applying the remaining configuration.
+    - If `pmm-agent` cannot process requests from PMM Server for 2 minutes, it drops the connection and reconnects.
+
+=== "PMM Client 3.9 and earlier"
+
+    Restart `pmm-agent` manually to restore monitoring:
+
+    - On a host installation, run `sudo systemctl restart pmm-agent`.
+    - In a containerized installation, restart the PMM Client container.
+
+The following messages in the `pmm-agent` log show that a recovery took place:
+
+| Message | Meaning |
+|---------|---------|
+| `Agent <AGENT_ID> did not report itself stopped, proceeding without it.` | The agent didn't stop within 60 seconds. `pmm-agent` continued without it. |
+| `Request queue full for 2m0s, giving up on the connection.` | `pmm-agent` couldn't keep up with PMM Server for 2 minutes and reconnects. |
+
+If the first message keeps appearing for the same agent ID, the agent isn't stopping cleanly. Before restarting `pmm-agent`, collect diagnostic data for Percona Support:
+{.power-number}
+
+1. Collect a goroutine dump on the PMM Client host:
+
+    ```bash
+    curl -s "http://127.0.0.1:7777/debug/pprof/goroutine?debug=2" > pmm-agent-goroutines.txt
+    ```
+
+    If you changed the `pmm-agent` listen port, replace `7777` with that port.
+
+2. Run `pmm-admin summary`.
+
+3. Share both files with Percona Support, then restart `pmm-agent`.
+
 ## Connection difficulties
 
 ### Passwords

@@ -1,19 +1,24 @@
-# SSH Key
+# SSH key
 
-When you run PMM Server as an AWS AMI instance, you can upload your public SSH key to enable SSH access for direct management and troubleshooting.
+Upload your public SSH key to enable direct SSH access to your PMM Server AMI instance. On other deployment types, the **SSH key** tab doesn't appear in **Configuration > Settings**.
 
 ![PMM Settings SSH Key](../../../../images/PMM_Settings_SSH_Key.jpg)
 
 ## Configure SSH access
 
+PMM Server stores a single SSH key. Applying changes on this tab overwrites the whole `authorized_keys` file, so the key you submit replaces the previously configured one, which can no longer be used to log in. On EC2 instances, this also replaces the key pair the instance was launched with, so the original `.pem` file stops working for SSH access after you apply a new key.
+
 To configure SSH access:
 {.power-number}
 
 1. Go to **Configuration > Settings > SSH key**.
-2. Enter your public key in the **SSH Key** field.
+2. Enter your public key in the **SSH key** field.
 3. Click **Apply changes**.
 
 For more information on AMI deployments, see [Deploy PMM Server on AWS](../aws/deploy_aws.md).
+!!! caution alert alert-warning "Keep a session open while you test"
+    PMM won't warn you if you apply a key whose private key you don't have. Applying a new key doesn't disconnect active connections, so you can verify access before closing the old session.
+
 
 ## Connect via SSH
 

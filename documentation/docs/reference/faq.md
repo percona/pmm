@@ -20,6 +20,7 @@ Quick reference for typical deployment (up to 30 nodes):
     - CPU: 4 cores (must support SSE4.2)
     - Memory: 8 GB
     - Storage: 100 GB (approximately 1 GB per node per week)
+    - Supports x86_64 and ARM64 architectures
 - **Client**:
 
     - Storage: 100 MB
