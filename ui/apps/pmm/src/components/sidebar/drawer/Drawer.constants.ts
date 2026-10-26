@@ -11,4 +11,4 @@ export const DRAWER_BORDER_WIDTH = 1;
 // controls that fade in) move with these two values.
 export const DRAWER_OPEN_DURATION = 250;
 
-export const DRAWER_CLOSE_DURATION = 125;
+export const DRAWER_CLOSE_DURATION = 200;
