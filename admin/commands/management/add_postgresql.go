@@ -71,15 +71,15 @@ type AddPostgreSQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLS                    bool              `negatable:"" help:"Use TLS to connect to the database"`
 	TLSCAFile              string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile            string            `help:"TLS certificate file"`
 	TLSKeyFile             string            `help:"TLS certificate key file"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
+	TLSSkipVerify          bool              `negatable:"" help:"Skip TLS certificate verification"`
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	DisableQueryExamples   bool              `negatable:"" name:"disable-queryexamples" help:"Disable collection of query examples"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ExposeExporter         bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AutoDiscoveryLimit     int32             `placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 	MaxExporterConnections int32             `placeholder:"NUMBER" help:"Maximum number of connections to PostgreSQL instance that exporter can use (default: server-defined)"`
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`

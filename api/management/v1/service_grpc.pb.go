@@ -33,6 +33,7 @@ const (
 	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
 	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
 	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
+	ManagementService_UpdateService_FullMethodName         = "/management.v1.ManagementService/UpdateService"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -67,6 +68,8 @@ type ManagementServiceClient interface {
 	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	// UpdateService changes the settings of a Service and its Agents in place.
+	UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error)
 }
 
 type managementServiceClient struct {
@@ -207,6 +210,16 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 	return out, nil
 }
 
+func (c *managementServiceClient) UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateServiceResponse)
+	err := c.cc.Invoke(ctx, ManagementService_UpdateService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ManagementServiceServer is the server API for ManagementService service.
 // All implementations must embed UnimplementedManagementServiceServer
 // for forward compatibility.
@@ -239,6 +252,8 @@ type ManagementServiceServer interface {
 	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	// UpdateService changes the settings of a Service and its Agents in place.
+	UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
 
@@ -299,6 +314,10 @@ func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *A
 
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveService not implemented")
+}
+
+func (UnimplementedManagementServiceServer) UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateService not implemented")
 }
 func (UnimplementedManagementServiceServer) mustEmbedUnimplementedManagementServiceServer() {}
 func (UnimplementedManagementServiceServer) testEmbeddedByValue()                           {}
@@ -555,6 +574,24 @@ func _ManagementService_RemoveService_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_UpdateService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).UpdateService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_UpdateService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).UpdateService(ctx, req.(*UpdateServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ManagementService_ServiceDesc is the grpc.ServiceDesc for ManagementService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -613,6 +650,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveService",
 			Handler:    _ManagementService_RemoveService_Handler,
+		},
+		{
+			MethodName: "UpdateService",
+			Handler:    _ManagementService_UpdateService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

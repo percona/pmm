@@ -97,7 +97,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 	return ctx, s, teardown
 }
@@ -469,4 +469,22 @@ func TestListAgentVersions(t *testing.T) {
 
 		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UNSUPPORTED, res.AgentVersions[0].Severity)
 	})
+}
+
+// TestAgentToAPIEnvironmentVariableNames checks that UniversalAgent reports the names of the environment variables
+// an Agent gets, which pmm-agent resolves to values.
+func TestAgentToAPIEnvironmentVariableNames(t *testing.T) {
+	t.Parallel()
+
+	r := &mockAgentsRegistry{}
+	r.Test(t)
+	r.On("IsConnected", "agent-id").Return(false)
+	t.Cleanup(func() { r.AssertExpectations(t) })
+
+	agent := &models.Agent{AgentID: "agent-id", AgentType: models.MongoDBExporterType}
+	require.NoError(t, agent.SetEnvironmentVariableNames([]string{"PMM_TEST_VAR"}))
+
+	ua, err := (&ManagementService{r: r}).agentToAPI(agent)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"PMM_TEST_VAR"}, ua.EnvironmentVariableNames)
 }

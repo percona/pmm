@@ -177,9 +177,11 @@ type UniversalAgent struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,43,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
-	AwsRoleArn    string `protobuf:"bytes,44,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AwsRoleArn string `protobuf:"bytes,44,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
+	// Names of the environment variables passed to the exporter from pmm-agent's environment.
+	EnvironmentVariableNames []string `protobuf:"bytes,45,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *UniversalAgent) Reset() {
@@ -518,6 +520,13 @@ func (x *UniversalAgent) GetAwsRoleArn() string {
 		return x.AwsRoleArn
 	}
 	return ""
+}
+
+func (x *UniversalAgent) GetEnvironmentVariableNames() []string {
+	if x != nil {
+		return x.EnvironmentVariableNames
+	}
+	return nil
 }
 
 type ListAgentsRequest struct {
@@ -1118,7 +1127,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\x8d\x1a\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xcb\x1a\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1173,7 +1182,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"rtaOptions\x12H\n" +
 	"\x12connection_timeout\x18+ \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12 \n" +
 	"\faws_role_arn\x18, \x01(\tR\n" +
-	"awsRoleArn\x1a\xe0\x01\n" +
+	"awsRoleArn\x12<\n" +
+	"\x1aenvironment_variable_names\x18- \x03(\tR\x18environmentVariableNames\x1a\xe0\x01\n" +
 	"\fMySQLOptions\x12#\n" +
 	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x12h\n" +
 	"\x10extra_dsn_params\x18\x02 \x03(\v2>.management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntryR\x0eextraDsnParams\x1aA\n" +
