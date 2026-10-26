@@ -464,8 +464,8 @@ type GetHistogramDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get histogram default body details items0
-	GetHistogramDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get histogram default body details items0 additional properties
+	GetHistogramDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -500,7 +500,7 @@ func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 			}
 			result[k] = toadd
 		}
-		o.GetHistogramDefaultBodyDetailsItems0 = result
+		o.GetHistogramDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -521,12 +521,12 @@ func (o GetHistogramDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetHistogramDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetHistogramDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetHistogramDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetHistogramDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
