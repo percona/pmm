@@ -126,6 +126,34 @@ func (_m *mockChecksService) DisableChecksForServices(ctx context.Context, check
 	return r0
 }
 
+// EmailInsights provides a mock function with given fields: ctx, filters, recipients
+func (_m *mockChecksService) EmailInsights(ctx context.Context, filters models.InsightFilters, recipients []string) (int, error) {
+	ret := _m.Called(ctx, filters, recipients)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EmailInsights")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, []string) (int, error)); ok {
+		return rf(ctx, filters, recipients)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, []string) int); ok {
+		r0 = rf(ctx, filters, recipients)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.InsightFilters, []string) error); ok {
+		r1 = rf(ctx, filters, recipients)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // EnableChecks provides a mock function with given fields: ctx, checkNames
 func (_m *mockChecksService) EnableChecks(ctx context.Context, checkNames []string) error {
 	ret := _m.Called(ctx, checkNames)

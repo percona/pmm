@@ -105,14 +105,8 @@ export const parseEmails = (text: string): string[] => {
   });
 };
 
-const emailError = (form: ScheduleForm): string | undefined => {
-  if (form.emailMode !== AdvisorScheduleEmailMode.custom) {
-    return undefined;
-  }
-  const list = parseEmails(form.emailText);
-  if (!list.length) {
-    return Messages.validation.emailRequired;
-  }
+// checks every address and the list length; an empty list is the caller's to word
+export const emailListError = (list: string[]): string | undefined => {
   const invalid = list.filter(
     (address) => !z.string().email().safeParse(address).success
   );
@@ -123,6 +117,17 @@ const emailError = (form: ScheduleForm): string | undefined => {
     return Messages.validation.emailMax(MAX_SCHEDULE_EMAILS, list.length);
   }
   return undefined;
+};
+
+const emailError = (form: ScheduleForm): string | undefined => {
+  if (form.emailMode !== AdvisorScheduleEmailMode.custom) {
+    return undefined;
+  }
+  const list = parseEmails(form.emailText);
+  if (!list.length) {
+    return Messages.validation.emailRequired;
+  }
+  return emailListError(list);
 };
 
 const severitiesError = (form: ScheduleForm): string | undefined =>

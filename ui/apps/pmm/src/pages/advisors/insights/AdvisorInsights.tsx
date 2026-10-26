@@ -2,6 +2,7 @@ import Button from '@mui/material/Button';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
@@ -40,6 +41,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
   Insight,
+  InsightsFilterParams,
   ListInsightsParams,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -47,6 +49,7 @@ import { OrgRole } from 'types/user.types';
 import { getInsightsColumns } from './AdvisorInsights.constants';
 import { insightToText } from './AdvisorInsights.utils';
 import { InsightDetailsPane } from './details-pane';
+import { EmailInsightsDialog } from './email-dialog';
 import {
   FILTER_PARAM,
   SEVERITY_FILTER_OPTIONS,
@@ -176,9 +179,7 @@ const AdvisorInsights: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
-  const params: ListInsightsParams = {
-    pageIndex: pagination.pageIndex,
-    pageSize: pagination.pageSize,
+  const filterParams: InsightsFilterParams = {
     runId,
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
@@ -187,6 +188,12 @@ const AdvisorInsights: FC = () => {
     severity: (filters.severity as Severity) || undefined,
     status: (filters.status as AdvisorCheckResultStatus) || undefined,
   };
+  const params: ListInsightsParams = {
+    pageIndex: pagination.pageIndex,
+    pageSize: pagination.pageSize,
+    ...filterParams,
+  };
+  const [emailOpen, setEmailOpen] = useState(false);
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
   const openDetails = (insight: Insight) =>
@@ -489,6 +496,18 @@ const AdvisorInsights: FC = () => {
                 <RefreshOutlinedIcon />
               </IconButton>
             </Tooltip>
+            <Tooltip title={Messages.filters.emailTooltip} arrow>
+              <Box component="span">
+                <IconButton
+                  disabled={!data?.totalItems}
+                  onClick={() => setEmailOpen(true)}
+                  aria-label={Messages.filters.email}
+                  data-testid="email-insights"
+                >
+                  <EmailOutlinedIcon />
+                </IconButton>
+              </Box>
+            </Tooltip>
           </Stack>
         </Stack>
         <Table
@@ -740,6 +759,13 @@ const AdvisorInsights: FC = () => {
           onClose={() =>
             patchParams((p) => p.delete('insight'), { resetPage: false })
           }
+        />
+        <EmailInsightsDialog
+          open={emailOpen}
+          filters={filterParams}
+          filtered={hasActiveFilters}
+          count={data?.totalItems ?? 0}
+          onClose={() => setEmailOpen(false)}
         />
       </Stack>
     </Page>

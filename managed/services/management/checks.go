@@ -52,6 +52,36 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 	}
 }
 
+// insightFilterRequest is the filter part ListInsightsRequest and EmailInsightsRequest share.
+type insightFilterRequest interface {
+	GetRunId() string
+	GetServiceName() string
+	GetNodeName() string
+	GetCategory() string
+	GetCheckName() string
+	GetSeverity() managementv1.Severity
+	GetStatus() advisorsv1.AdvisorCheckResultStatus
+}
+
+// insightFilters converts the request's shared filters; an unspecified enum filters nothing.
+func insightFilters(req insightFilterRequest) models.InsightFilters {
+	filters := models.InsightFilters{
+		RunID:       req.GetRunId(),
+		ServiceName: req.GetServiceName(),
+		NodeName:    req.GetNodeName(),
+		Category:    req.GetCategory(),
+		CheckName:   req.GetCheckName(),
+	}
+	if sev := req.GetSeverity(); sev != managementv1.Severity_SEVERITY_UNSPECIFIED {
+		severity := models.Severity(sev)
+		filters.Severity = &severity
+	}
+	if st := convertAPIResultStatus(req.GetStatus()); st != "" {
+		filters.Status = &st
+	}
+	return filters
+}
+
 // ListInsights returns the paginated history of Advisor check results (insights) matching the filters.
 func (s *ChecksAPIService) ListInsights(
 	ctx context.Context,
@@ -65,27 +95,12 @@ func (s *ChecksAPIService) ListInsights(
 		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
-	filters := models.InsightFilters{
-		ServiceID:   req.ServiceId,
-		ServiceName: req.ServiceName,
-		NodeName:    req.NodeName,
-		Category:    req.Category,
-		CheckName:   req.CheckName,
-		RunID:       req.RunId,
-	}
-	if req.Status != nil {
-		if st := convertAPIResultStatus(*req.Status); st != "" {
-			filters.Status = &st
-		}
-	}
+	filters := insightFilters(req)
+	filters.ServiceID = req.ServiceId
 	if req.TriggeredBy != nil {
 		if tb := convertAPITriggeredBy(*req.TriggeredBy); tb != "" {
 			filters.TriggeredBy = &tb
 		}
-	}
-	if req.Severity != nil && *req.Severity != managementv1.Severity_SEVERITY_UNSPECIFIED {
-		severity := models.Severity(*req.Severity)
-		filters.Severity = &severity
 	}
 	if req.From != nil {
 		from := req.From.AsTime()
@@ -501,6 +516,29 @@ func (s *ChecksAPIService) SendTestAdvisorNotification(
 	}
 
 	return &advisorsv1.SendTestAdvisorNotificationResponse{}, nil
+}
+
+// EmailInsights emails the Advisor insights matching the filters to the given addresses.
+func (s *ChecksAPIService) EmailInsights(
+	ctx context.Context,
+	req *advisorsv1.EmailInsightsRequest,
+) (*advisorsv1.EmailInsightsResponse, error) {
+	err := models.ValidateAdvisorNotificationEmailAddresses(req.EmailAddresses)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v.", err)
+	}
+
+	count, err := s.checksService.EmailInsights(ctx, insightFilters(req), req.EmailAddresses)
+	switch {
+	case errors.Is(err, services.ErrNoInsightsToEmail), errors.Is(err, services.ErrTooManyInsightsToEmail):
+		return nil, status.Errorf(codes.InvalidArgument, "%v.", err)
+	case errors.Is(err, services.ErrSMTPNotConfigured):
+		return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+	case err != nil:
+		return nil, status.Errorf(codes.Internal, "Failed to email the insights: %v.", err)
+	}
+
+	return &advisorsv1.EmailInsightsResponse{InsightsCount: int32(count)}, nil //nolint:gosec // at most maxEmailedInsights
 }
 
 // ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.

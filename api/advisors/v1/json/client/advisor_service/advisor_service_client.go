@@ -61,6 +61,8 @@ type ClientService interface {
 
 	DeleteAdvisorSchedule(params *DeleteAdvisorScheduleParams, opts ...ClientOption) (*DeleteAdvisorScheduleOK, error)
 
+	EmailInsights(params *EmailInsightsParams, opts ...ClientOption) (*EmailInsightsOK, error)
+
 	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
 
 	GetAdvisorNotificationSettings(params *GetAdvisorNotificationSettingsParams, opts ...ClientOption) (*GetAdvisorNotificationSettingsOK, error)
@@ -310,6 +312,50 @@ func (a *Client) DeleteAdvisorSchedule(params *DeleteAdvisorScheduleParams, opts
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteAdvisorScheduleDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+EmailInsights emails advisor insights
+
+Emails the Advisor insights matching the filters, formatted like a report, to the given addresses. At most 200 insights can be emailed at once; if more match, the request fails with INVALID_ARGUMENT.
+*/
+func (a *Client) EmailInsights(params *EmailInsightsParams, opts ...ClientOption) (*EmailInsightsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewEmailInsightsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "EmailInsights",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/insights:email",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &EmailInsightsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*EmailInsightsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*EmailInsightsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

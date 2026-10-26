@@ -134,6 +134,13 @@ The email contains the following:
 - Suggested next steps
 - The details of each finding, in the same format as **Copy as text** on the **Advisors > Insights** page
 
+### Email insights to anyone
+To share a selection of insights, filter the **Advisors > Insights** page, then click the :material-email-outline: **Email insights** icon in the toolbar. Enter up to 20 email addresses, separated by commas, then click **Send** or press Enter. To close the dialog without sending, click **Cancel** or press Esc.
+
+The email covers every insight that matches the filters, on all pages and with any status, up to 200 insights. If more insights match, the dialog asks you to narrow the filters first. The email lists the filters, a count of the insights with each status, and the details of each insight, in the same format as **Copy as text**.
+
+Sending insights needs SMTP, as described in [Prerequisites](#prerequisites), but doesn't need **Advisor notifications** to be turned on. Sending insights doesn't change the default recipients.
+
 ## Create your own advisors
 Advisors detect common security threats, performance degradation, data loss and data corruption. If you are a developer, you can create custom checks to cover additional use cases, relevant to specific database infrastructure. 
 

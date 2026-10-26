@@ -75,6 +75,7 @@ type checksService interface { //nolint:interfacebloat
 	ListServices(ctx context.Context) ([]services.Target, error)
 	GetSettings(ctx context.Context) (*models.Settings, error)
 	SendTestNotification(recipients []string, severities []common.Severity) error
+	EmailInsights(ctx context.Context, filters models.InsightFilters, recipients []string) (int, error)
 	GetRunsWaitedFor(ctx context.Context, runs []*models.AdvisorRun) (map[string]*models.AdvisorRun, error)
 	GetSchedules(ctx context.Context) ([]*models.AdvisorSchedule, error)
 	GetLastScheduleRuns(ctx context.Context) (map[string]*models.AdvisorRun, error)

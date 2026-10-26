@@ -2961,6 +2961,141 @@
         }
       }
     },
+    "/v1/advisors/insights:email": {
+      "post": {
+        "description": "Emails the Advisor insights matching the filters, formatted like a report, to the given addresses. At most 200 insights can be emailed at once; if more match, the request fails with INVALID_ARGUMENT.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Email Advisor Insights",
+        "operationId": "EmailInsights",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email_addresses": {
+                  "description": "Addresses the insights are emailed to.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "run_id": {
+                  "description": "Filter by run ID.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "service_name": {
+                  "description": "Filter by service name (partial, case-insensitive match).",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_name": {
+                  "description": "Filter by node name (partial, case-insensitive match).",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "category": {
+                  "description": "Filter by advisor category.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "check_name": {
+                  "description": "Filter by check name.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "severity": {
+                  "description": "Severity represents severity level of the check result or alert.",
+                  "type": "string",
+                  "default": "SEVERITY_UNSPECIFIED",
+                  "enum": [
+                    "SEVERITY_UNSPECIFIED",
+                    "SEVERITY_EMERGENCY",
+                    "SEVERITY_ALERT",
+                    "SEVERITY_CRITICAL",
+                    "SEVERITY_ERROR",
+                    "SEVERITY_WARNING",
+                    "SEVERITY_NOTICE",
+                    "SEVERITY_INFO",
+                    "SEVERITY_DEBUG"
+                  ],
+                  "x-nullable": true,
+                  "x-order": 6
+                },
+                "status": {
+                  "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
+                  "type": "string",
+                  "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                  "enum": [
+                    "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                    "ADVISOR_CHECK_RESULT_STATUS_OK",
+                    "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+                    "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+                    "ADVISOR_CHECK_RESULT_STATUS_PENDING",
+                    "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
+                  ],
+                  "x-nullable": true,
+                  "x-order": 7
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "insights_count": {
+                  "description": "Number of insights emailed.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/insights:filterValues": {
       "get": {
         "description": "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.",

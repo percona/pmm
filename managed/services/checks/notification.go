@@ -28,7 +28,22 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
+	"github.com/percona/pmm/managed/services"
 )
+
+// maxEmailedInsights caps EmailInsights, so the email stays readable and a broad filter can't make
+// the server format the whole insights history.
+const maxEmailedInsights = 200
+
+// sharedInsightStatuses orders the per-status summary of an emailed insights list, most actionable
+// first.
+var sharedInsightStatuses = []models.CheckResultStatus{
+	models.CheckResultFailed,
+	models.CheckResultError,
+	models.CheckResultOK,
+	models.CheckResultPending,
+	models.CheckResultNotRun,
+}
 
 // maybeSendAdvisorNotification emails the completed run's insights when notifications are
 // enabled: to the recipients and for the severities its schedule chose, or those in the settings.
@@ -291,4 +306,97 @@ func triggerPhrase(run *models.AdvisorRun) string {
 	default:
 		return "run"
 	}
+}
+
+// EmailInsights emails the insights matching the filters to the recipients and returns how many it
+// emailed. It fails with services.ErrNoInsightsToEmail or services.ErrTooManyInsightsToEmail when
+// none or more than maxEmailedInsights match.
+func (s *Service) EmailInsights(ctx context.Context, filters models.InsightFilters, recipients []string) (int, error) {
+	results, total, err := s.GetInsights(ctx, filters, 0, maxEmailedInsights)
+	if err != nil {
+		return 0, fmt.Errorf("failed to load insights: %w", err)
+	}
+	switch {
+	case total == 0:
+		return 0, services.ErrNoInsightsToEmail
+	case total > maxEmailedInsights:
+		return 0, fmt.Errorf("%w: %d match, narrow them to %d or fewer",
+			services.ErrTooManyInsightsToEmail, total, maxEmailedInsights)
+	}
+
+	counts := make(map[models.CheckResultStatus]int)
+	texts := make([]string, 0, len(results))
+	for _, r := range results {
+		text, err := insightToText(r)
+		if err != nil {
+			return 0, err
+		}
+		counts[r.Status]++
+		texts = append(texts, text)
+	}
+
+	subject := fmt.Sprintf("PMM Advisor Insights: %d insight(s) shared with you", len(texts))
+	err = s.sendAdvisorEmail(recipients, subject, buildSharedInsightsEmail(filters, counts, texts))
+	if err != nil {
+		return 0, err
+	}
+	return len(texts), nil
+}
+
+// buildSharedInsightsEmail composes the email of insights a user sent from the Insights page: a
+// brief introduction, the filters that selected them, a per-status summary, and then the insights
+// (formatted like the UI's "Copy to text") one after another.
+func buildSharedInsightsEmail(
+	filters models.InsightFilters,
+	counts map[models.CheckResultStatus]int,
+	insights []string,
+) string {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "Percona Monitoring and Management runs Advisor checks against your monitored "+
+		"databases to surface potential issues. A PMM user shared %d Advisor insight(s) with you.\n\n",
+		len(insights))
+
+	b.WriteString("Filters:\n")
+	lines := insightFilterLines(filters)
+	if len(lines) == 0 {
+		lines = []string{"None, all insights are included"}
+	}
+	for _, line := range lines {
+		fmt.Fprintf(&b, "  %s\n", line)
+	}
+
+	b.WriteString("\nInsights by status:\n")
+	for _, st := range sharedInsightStatuses {
+		fmt.Fprintf(&b, "  %s: %d\n", insightStatusLabel(st), counts[st])
+	}
+
+	b.WriteString("\nSee full details in PMM under Advisors -> Insights.\n\n")
+	fmt.Fprintf(&b, "Advisor Insights (%d):\n\n", len(insights))
+	b.WriteString(strings.Join(insights, "\n\n"))
+
+	return b.String()
+}
+
+// insightFilterLines describes the filters that are set, one "Name: value" line each, named like
+// the fields of an insight's text.
+func insightFilterLines(f models.InsightFilters) []string {
+	var lines []string
+	add := func(name, value string) {
+		if value != "" {
+			lines = append(lines, name+": "+value)
+		}
+	}
+
+	add("Run ID", f.RunID)
+	add("Check Name", f.CheckName)
+	add("Category", f.Category)
+	add("Service Name", f.ServiceName)
+	add("Node Name", f.NodeName)
+	if f.Status != nil {
+		add("Status", insightStatusLabel(*f.Status))
+	}
+	add("Severity", insightSeverityLabel(f.Severity))
+
+	return lines
 }

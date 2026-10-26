@@ -15,6 +15,8 @@ import {
   Insight,
   CreateAdvisorCheckRequest,
   CreateAdvisorCheckResponse,
+  EmailInsightsRequest,
+  EmailInsightsResponse,
   GetAdvisorCheckResponse,
   ListAdvisorChecksResponse,
   ListAdvisorCheckTestTargetsResponse,
@@ -202,6 +204,16 @@ export const listInsights = async (
     ...rawKeysConfig,
     params,
   });
+  return res.data;
+};
+
+export const emailInsights = async (
+  payload: EmailInsightsRequest
+): Promise<EmailInsightsResponse> => {
+  const res = await api.post<EmailInsightsResponse>(
+    '/advisors/insights:email',
+    payload
+  );
   return res.data;
 };
 

@@ -317,6 +317,30 @@ message ListInsightsFilterValuesResponse {
   repeated string node_names = 2;
 }
 
+message EmailInsightsRequest {
+  // Addresses the insights are emailed to.
+  repeated string email_addresses = 1 [(validate.rules).repeated.min_items = 1];
+  // Filter by run ID.
+  string run_id = 2;
+  // Filter by service name (partial, case-insensitive match).
+  string service_name = 3;
+  // Filter by node name (partial, case-insensitive match).
+  string node_name = 4;
+  // Filter by advisor category.
+  string category = 5;
+  // Filter by check name.
+  string check_name = 6;
+  // Filter by severity.
+  optional management.v1.Severity severity = 7;
+  // Filter by outcome.
+  optional AdvisorCheckResultStatus status = 8;
+}
+
+message EmailInsightsResponse {
+  // Number of insights emailed.
+  int32 insights_count = 1;
+}
+
 // AdvisorRunStatus is the state of an Advisor run.
 enum AdvisorRunStatus {
   ADVISOR_RUN_STATUS_UNSPECIFIED = 0;
@@ -625,6 +649,17 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Insights Filter Values"
       description: "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns."
+    };
+  }
+  // EmailInsights emails the Advisor insights matching the filters to the given addresses.
+  rpc EmailInsights(EmailInsightsRequest) returns (EmailInsightsResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/insights:email"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Email Advisor Insights"
+      description: "Emails the Advisor insights matching the filters, formatted like a report, to the given addresses. At most 200 insights can be emailed at once; if more match, the request fails with INVALID_ARGUMENT."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.

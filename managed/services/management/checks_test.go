@@ -122,6 +122,89 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 	})
 }
 
+func TestEmailInsights(t *testing.T) {
+	recipients := []string{"dba@example.com", "oncall@example.com"}
+
+	t.Run("invalid recipient", func(t *testing.T) {
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.EmailInsights(t.Context(), &advisorsv1.EmailInsightsRequest{
+			EmailAddresses: []string{"not-an-address"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+			"advisor_notification_email_addresses: invalid address 'not-an-address'."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("emails the filtered insights", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("EmailInsights", mock.Anything, models.InsightFilters{
+			ServiceName: "mysql",
+			RunID:       "run-1",
+			Status:      new(models.CheckResultFailed),
+			Severity:    new(models.Severity(common.Warning)),
+		}, recipients).Return(3, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.EmailInsights(t.Context(), &advisorsv1.EmailInsightsRequest{
+			EmailAddresses: recipients,
+			ServiceName:    "mysql",
+			RunId:          "run-1",
+			Status:         new(advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED),
+			Severity:       new(managementv1.Severity_SEVERITY_WARNING),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(3), resp.InsightsCount)
+		checksService.AssertExpectations(t)
+	})
+
+	for _, tc := range []struct {
+		name string
+		err  error
+		want *status.Status
+	}{
+		{
+			name: "no insights match",
+			err:  services.ErrNoInsightsToEmail,
+			want: status.New(codes.InvalidArgument, "no insights match the filters."),
+		},
+		{
+			name: "too many insights match",
+			err:  fmt.Errorf("%w: 201 match, narrow them to 200 or fewer", services.ErrTooManyInsightsToEmail),
+			want: status.New(codes.InvalidArgument,
+				"too many insights match the filters: 201 match, narrow them to 200 or fewer."),
+		},
+		{
+			name: "SMTP not configured",
+			err:  fmt.Errorf("%w: GF_SMTP_ENABLED is not set", services.ErrSMTPNotConfigured),
+			want: status.New(codes.FailedPrecondition, "SMTP is not configured in PMM Server: GF_SMTP_ENABLED is not set."),
+		},
+		{
+			name: "send failure",
+			err:  errors.New("connection refused"),
+			want: status.New(codes.Internal, "Failed to email the insights: connection refused."),
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var checksService mockChecksService
+			checksService.On("EmailInsights", mock.Anything, models.InsightFilters{}, recipients).Return(0, tc.err)
+
+			s := NewChecksAPIService(&checksService)
+
+			resp, err := s.EmailInsights(t.Context(), &advisorsv1.EmailInsightsRequest{EmailAddresses: recipients})
+			tests.AssertGRPCError(t, tc.want, err)
+			assert.Nil(t, resp)
+		})
+	}
+
+	t.Run("requires a recipient", func(t *testing.T) {
+		err := (&advisorsv1.EmailInsightsRequest{}).Validate()
+		require.ErrorContains(t, err, "EmailAddresses: value must contain at least 1 item(s)")
+	})
+}
+
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService

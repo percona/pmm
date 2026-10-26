@@ -1,3 +1,6 @@
+const plural = (count: number, one: string, many: string) =>
+  `${count} ${count === 1 ? one : many}`;
+
 export const Messages = {
   title: 'Advisor insights',
   description:
@@ -50,6 +53,8 @@ export const Messages = {
     refresh: 'Refresh',
     refreshTooltip:
       'Reload the check results and re-populate the filter options',
+    email: 'Email insights',
+    emailTooltip: 'Email the insights matching the filters',
     service: 'Service',
     node: 'Node',
     category: 'Category',
@@ -64,6 +69,20 @@ export const Messages = {
     status: 'Status',
     checkedAt: 'Checked at',
     actions: 'Actions',
+  },
+  email: {
+    title: 'Email insights',
+    filtered: (count: number) =>
+      `Email ${plural(count, 'insight', 'insights')} matching the current filters.`,
+    unfiltered: (count: number) =>
+      `No filters are set, so this emails all ${plural(count, 'insight', 'insights')}.`,
+    tooMany: (count: number, max: number) =>
+      `${count} insights match, more than the ${max} one email can carry. Narrow the filters to ${max} insights or fewer.`,
+    required: 'Enter at least one address.',
+    cancel: 'Cancel',
+    send: 'Send',
+    sent: (insights: number, recipients: number) =>
+      `Emailed ${plural(insights, 'insight', 'insights')} to ${plural(recipients, 'recipient', 'recipients')}.`,
   },
   success: {
     rerunStarted: (check: string, service: string) =>

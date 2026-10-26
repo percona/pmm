@@ -563,6 +563,32 @@ func TestAdvisorRunsAndInsights(t *testing.T) {
 		assert.Contains(t, resp.Payload.NodeNames, "pmm-server")
 	})
 
+	t.Run("email insights", func(t *testing.T) {
+		emailInsights := func(body advisor.EmailInsightsBody) error {
+			_, err := advisorClient.Default.AdvisorService.EmailInsights(&advisor.EmailInsightsParams{
+				Body:    body,
+				Context: pmmapitests.Context,
+			})
+			return err
+		}
+		recipients := []string{"dba@example.com"}
+
+		// api-tests run against a PMM Server without SMTP, so the matching insights stop at sending
+		err := emailInsights(advisor.EmailInsightsBody{EmailAddresses: recipients, RunID: runID})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "SMTP is not configured in PMM Server: GF_SMTP_ENABLED is not set.")
+
+		err = emailInsights(advisor.EmailInsightsBody{EmailAddresses: recipients, RunID: "no-such-run"})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "no insights match the filters.")
+
+		err = emailInsights(advisor.EmailInsightsBody{EmailAddresses: []string{"not-an-address"}, RunID: runID})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"advisor_notification_email_addresses: invalid address 'not-an-address'.")
+
+		err = emailInsights(advisor.EmailInsightsBody{RunID: runID})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"invalid EmailInsightsRequest.EmailAddresses: value must contain at least 1 item(s)")
+	})
+
 	t.Run("list runs", func(t *testing.T) {
 		startedAt := func(id string) time.Time {
 			resp, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{

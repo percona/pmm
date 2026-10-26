@@ -32,6 +32,13 @@ var (
 	// PMM UI, so callers surface it as a precondition failure naming the variable to set.
 	ErrSMTPNotConfigured = errors.New("SMTP is not configured in PMM Server")
 
+	// ErrNoInsightsToEmail means no Advisor insights match the filters of an email request.
+	ErrNoInsightsToEmail = errors.New("no insights match the filters")
+
+	// ErrTooManyInsightsToEmail means more Advisor insights match the filters of an email request
+	// than a single email may carry.
+	ErrTooManyInsightsToEmail = errors.New("too many insights match the filters")
+
 	// ErrLocationFolderPairAlreadyUsed returned when location-folder pair already in use and cannot be used for backup.
 	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
 

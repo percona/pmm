@@ -976,4 +976,122 @@ describe('AdvisorInsights', () => {
       vi.useRealTimers();
     }
   });
+
+  describe('email insights', () => {
+    beforeEach(() => {
+      // within the 200 insights one email can carry
+      vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+        totalItems: 2,
+        totalPages: 1,
+        results: [TEST_ITEM, POSTGRESQL_ITEM],
+      });
+      vi.mocked(advisorsApi.emailInsights).mockResolvedValue({
+        insightsCount: 2,
+      });
+    });
+
+    const openEmailDialog = async () => {
+      await waitForRows();
+      fireEvent.click(screen.getByTestId('email-insights'));
+      return screen.findByTestId('email-insights-dialog');
+    };
+
+    it('emails the filtered insights to the entered recipients on Enter', async () => {
+      renderComponent(
+        `/advisors/insights?service=mysql-prod&status=${AdvisorCheckResultStatus.failed}&runId=run-1`
+      );
+
+      const dialog = await openEmailDialog();
+      expect(dialog).toHaveTextContent(
+        'Email 2 insights matching the current filters.'
+      );
+
+      const input = screen.getByTestId('email-insights-addresses');
+      fireEvent.change(input, {
+        target: { value: 'dba@example.com, oncall@example.com' },
+      });
+      expect(dialog).toHaveTextContent('2 addresses.');
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      await waitFor(() =>
+        expect(advisorsApi.emailInsights).toHaveBeenCalledWith(
+          {
+            runId: 'run-1',
+            serviceName: 'mysql-prod',
+            status: AdvisorCheckResultStatus.failed,
+            emailAddresses: ['dba@example.com', 'oncall@example.com'],
+          },
+          expect.anything()
+        )
+      );
+      expect(
+        await screen.findByText('Emailed 2 insights to 2 recipients.')
+      ).toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('email-insights-dialog')
+        ).not.toBeInTheDocument()
+      );
+    });
+
+    it('keeps Send disabled until every address is valid', async () => {
+      renderComponent();
+
+      const dialog = await openEmailDialog();
+      expect(dialog).toHaveTextContent(
+        'No filters are set, so this emails all 2 insights.'
+      );
+      const send = screen.getByTestId('email-insights-send');
+      const input = screen.getByTestId('email-insights-addresses');
+      expect(send).toBeDisabled();
+
+      fireEvent.change(input, {
+        target: { value: 'dba@example.com, secops@example.' },
+      });
+      expect(dialog).toHaveTextContent('Not a valid address: secops@example.');
+      expect(send).toBeDisabled();
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      fireEvent.change(input, { target: { value: '' } });
+      expect(dialog).toHaveTextContent(Messages.email.required);
+      expect(send).toBeDisabled();
+
+      fireEvent.change(input, {
+        target: { value: 'dba@example.com, secops@example.com' },
+      });
+      expect(send).toBeEnabled();
+      expect(advisorsApi.emailInsights).not.toHaveBeenCalled();
+    });
+
+    it('cancels with Escape without sending', async () => {
+      renderComponent();
+
+      await openEmailDialog();
+      const input = screen.getByTestId('email-insights-addresses');
+      fireEvent.change(input, { target: { value: 'dba@example.com' } });
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('email-insights-dialog')
+        ).not.toBeInTheDocument()
+      );
+      expect(advisorsApi.emailInsights).not.toHaveBeenCalled();
+    });
+
+    it('asks to narrow the filters when more than 200 insights match', async () => {
+      vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+        totalItems: 250,
+        totalPages: 3,
+        results: [TEST_ITEM, POSTGRESQL_ITEM],
+      });
+      renderComponent();
+
+      await openEmailDialog();
+      expect(screen.getByTestId('email-insights-too-many')).toHaveTextContent(
+        'Narrow the filters to 200 insights or fewer.'
+      );
+      expect(screen.getByTestId('email-insights-send')).toBeDisabled();
+    });
+  });
 });

@@ -245,6 +245,26 @@ export interface ListInsightsParams {
   to?: string;
 }
 
+// the filters the Insights page sets, which EmailInsights takes too
+export type InsightsFilterParams = Pick<
+  ListInsightsParams,
+  | 'runId'
+  | 'serviceName'
+  | 'nodeName'
+  | 'category'
+  | 'checkName'
+  | 'severity'
+  | 'status'
+>;
+
+export interface EmailInsightsRequest extends InsightsFilterParams {
+  emailAddresses: string[];
+}
+
+export interface EmailInsightsResponse {
+  insightsCount: number;
+}
+
 export interface ListInsightsFilterValuesResponse {
   serviceNames: string[];
   nodeNames: string[];

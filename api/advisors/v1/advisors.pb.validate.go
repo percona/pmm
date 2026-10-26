@@ -3911,6 +3911,241 @@ var _ interface {
 	ErrorName() string
 } = ListInsightsFilterValuesResponseValidationError{}
 
+// Validate checks the field values on EmailInsightsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmailInsightsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmailInsightsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmailInsightsRequestMultiError, or nil if none found.
+func (m *EmailInsightsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmailInsightsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(m.GetEmailAddresses()) < 1 {
+		err := EmailInsightsRequestValidationError{
+			field:  "EmailAddresses",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for RunId
+
+	// no validation rules for ServiceName
+
+	// no validation rules for NodeName
+
+	// no validation rules for Category
+
+	// no validation rules for CheckName
+
+	if m.Severity != nil {
+		// no validation rules for Severity
+	}
+
+	if m.Status != nil {
+		// no validation rules for Status
+	}
+
+	if len(errors) > 0 {
+		return EmailInsightsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmailInsightsRequestMultiError is an error wrapping multiple validation
+// errors returned by EmailInsightsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmailInsightsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmailInsightsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmailInsightsRequestMultiError) AllErrors() []error { return m }
+
+// EmailInsightsRequestValidationError is the validation error returned by
+// EmailInsightsRequest.Validate if the designated constraints aren't met.
+type EmailInsightsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmailInsightsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmailInsightsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmailInsightsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmailInsightsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmailInsightsRequestValidationError) ErrorName() string {
+	return "EmailInsightsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmailInsightsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmailInsightsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmailInsightsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmailInsightsRequestValidationError{}
+
+// Validate checks the field values on EmailInsightsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmailInsightsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmailInsightsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmailInsightsResponseMultiError, or nil if none found.
+func (m *EmailInsightsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmailInsightsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for InsightsCount
+
+	if len(errors) > 0 {
+		return EmailInsightsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmailInsightsResponseMultiError is an error wrapping multiple validation
+// errors returned by EmailInsightsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type EmailInsightsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmailInsightsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmailInsightsResponseMultiError) AllErrors() []error { return m }
+
+// EmailInsightsResponseValidationError is the validation error returned by
+// EmailInsightsResponse.Validate if the designated constraints aren't met.
+type EmailInsightsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmailInsightsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmailInsightsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmailInsightsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmailInsightsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmailInsightsResponseValidationError) ErrorName() string {
+	return "EmailInsightsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmailInsightsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmailInsightsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmailInsightsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmailInsightsResponseValidationError{}
+
 // Validate checks the field values on AdvisorRun with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

@@ -12,6 +12,7 @@ import {
   createAdvisorSchedule,
   deleteAdvisorCheck,
   deleteAdvisorSchedule,
+  emailInsights,
   getAdvisorCheck,
   getAdvisorNotificationSettings,
   listAdvisorChecks,
@@ -40,6 +41,8 @@ import {
   AdvisorCheckTestTarget,
   AdvisorTechnology,
   ChangeAdvisorCheckParams,
+  EmailInsightsRequest,
+  EmailInsightsResponse,
   Insight,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
@@ -65,6 +68,7 @@ const KEYS = {
   RUNS: 'advisors:runs',
   INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
   TEST_NOTIFICATION: 'advisors:test-notification',
+  EMAIL_INSIGHTS: 'advisors:email-insights',
   SCHEDULES: 'advisors:schedules',
   SERVICES: 'advisors:services',
   NOTIFICATION_SETTINGS: 'advisors:notification-settings',
@@ -241,6 +245,17 @@ export const useSendTestAdvisorNotification = (
   useMutation({
     mutationKey: [KEYS.TEST_NOTIFICATION],
     mutationFn: sendTestAdvisorNotification,
+    ...options,
+  });
+
+export const useEmailInsights = (
+  options?: Partial<
+    UseMutationOptions<EmailInsightsResponse, Error, EmailInsightsRequest>
+  >
+) =>
+  useMutation({
+    mutationKey: [KEYS.EMAIL_INSIGHTS],
+    mutationFn: emailInsights,
     ...options,
   });
 
