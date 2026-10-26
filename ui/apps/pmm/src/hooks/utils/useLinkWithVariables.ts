@@ -1,4 +1,4 @@
-import {
+import type {
   DashboardVariablesMessage,
   DashboardVariablesResult,
 } from '@pmm/shared';
@@ -8,13 +8,15 @@ import {
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import messenger from 'lib/messenger';
-import { constructUrl } from 'utils/link.utils';
+import { constructUrl, keepTimeRange } from 'utils/link.utils';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useGrafana } from 'contexts/grafana';
 
 export const useLinkWithVariables = (url?: string) => {
   const [link, setLink] = useState(url);
   const location = useLocation();
+  const { grafanaReady } = useGrafana();
 
   const enhanceWithVariables = async (url: string) => {
     const msg: DashboardVariablesMessage = {
@@ -42,10 +44,11 @@ export const useLinkWithVariables = (url?: string) => {
     // if it's the current dashboards just update url
     if (url.includes(location.pathname)) {
       setLink(constructUrl(location));
-    } else {
+    } else if (grafanaReady) {
       enhanceWithVariables(url).then(setLink);
     }
-  }, [url, location]);
+  }, [url, location, grafanaReady]);
 
-  return link;
+  // Grafana expands the link only once the dashboard has loaded, so a click before that keeps the time range
+  return link && keepTimeRange(link, location);
 };

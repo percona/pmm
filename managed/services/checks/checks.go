@@ -1103,7 +1103,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 		lookback = time.Now().Add(-d)
 	}
 
-	r, warns, err := s.vmClient.Query(ctx, q, lookback)
+	r, warns, _, err := s.vmClient.Query(ctx, q, lookback)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute instant VM query: %w", err)
 	}
@@ -1166,7 +1166,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 		return "", fmt.Errorf("failed to parse 'step' query parameter: %w", err)
 	}
 
-	r, warns, err := s.vmClient.QueryRange(ctx, q, rng)
+	r, warns, _, err := s.vmClient.QueryRange(ctx, q, rng)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute range VM query: %w", err)
 	}
