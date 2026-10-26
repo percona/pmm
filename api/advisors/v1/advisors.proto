@@ -62,21 +62,18 @@ message AdvisorCheck {
   string description = 3;
   // Short human-readable summary.
   string summary = 4;
-  // Field 5 (interval) was removed when Advisor schedules replaced check intervals.
-  reserved 5;
-  reserved "interval";
   // DB technology.
-  AdvisorCheckTechnology technology = 6;
+  AdvisorCheckTechnology technology = 5;
   // Category the check belongs to.
-  string category = 7;
+  string category = 6;
   // True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
-  bool user_defined = 8;
+  bool user_defined = 7;
   // Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
-  repeated AdvisorCheckQuery queries = 9;
+  repeated AdvisorCheckQuery queries = 8;
   // Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
-  string script = 10;
+  string script = 9;
   // IDs of services for which this check is disabled.
-  repeated string disabled_service_ids = 11;
+  repeated string disabled_service_ids = 10;
 }
 
 // AdvisorCheckDefinition is the editable content of a user-authored check.
@@ -85,17 +82,14 @@ message AdvisorCheckDefinition {
   string description = 1;
   // Short human-readable summary.
   string summary = 2;
-  // Field 3 (interval) was removed when Advisor schedules replaced check intervals.
-  reserved 3;
-  reserved "interval";
   // DB technology.
-  AdvisorCheckTechnology technology = 4;
+  AdvisorCheckTechnology technology = 3;
   // Category the check belongs to.
-  string category = 5;
+  string category = 4;
   // Data-collection queries.
-  repeated AdvisorCheckQuery queries = 6;
+  repeated AdvisorCheckQuery queries = 5;
   // Starlark source script.
-  string script = 7;
+  string script = 6;
 }
 
 // ChangeAdvisorCheckParams specifies a single check parameters.
@@ -103,12 +97,9 @@ message ChangeAdvisorCheckParams {
   // The name of the check to change.
   string name = 1;
   optional bool enable = 2;
-  // Field 4 (interval) was removed when Advisor schedules replaced check intervals.
-  reserved 4;
-  reserved "interval";
   // IDs of services to apply the enable/disable to. When set, enable/disable
   // affects only the given services instead of the whole check.
-  repeated string service_ids = 5;
+  repeated string service_ids = 3;
 }
 
 message StartAdvisorChecksRequest {
@@ -117,9 +108,6 @@ message StartAdvisorChecksRequest {
   // IDs of the services to run the checks against. When empty, the checks run
   // against every monitored service of a matching technology.
   repeated string service_ids = 2;
-  // Field 3 (intervals) was removed when Advisor schedules replaced check intervals.
-  reserved 3;
-  reserved "intervals";
 }
 
 message StartAdvisorChecksResponse {
@@ -242,47 +230,44 @@ message Insight {
   string check_name = 3;
   // Category the check belongs to.
   string category = 4;
-  // Field 5 (interval) was removed when Advisor schedules replaced check intervals.
-  reserved 5;
-  reserved "interval";
   // ID of the monitored service on which the check ran.
-  string service_id = 6;
+  string service_id = 5;
   // Name of the monitored service on which the check ran.
-  string service_name = 7;
+  string service_name = 6;
   // Type of the monitored service on which the check ran.
-  string service_type = 8;
+  string service_type = 7;
   // ID of the node the service runs on.
-  string node_id = 9;
+  string node_id = 8;
   // Name of the node the service runs on.
-  string node_name = 10;
+  string node_name = 9;
   // Environment of the monitored service on which the check ran.
-  string environment = 11;
+  string environment = 10;
   // Cluster of the monitored service on which the check ran.
-  string cluster = 12;
+  string cluster = 11;
   // Replication set of the monitored service on which the check ran.
-  string replication_set = 13;
+  string replication_set = 12;
   // Outcome of the check run.
-  AdvisorCheckResultStatus status = 14;
+  AdvisorCheckResultStatus status = 13;
   // Short human-readable summary of the result.
-  string summary = 15;
+  string summary = 14;
   // Long human-readable description of the result.
-  string description = 16;
+  string description = 15;
   // URL containing information on how to resolve a detected issue.
-  string read_more_url = 17;
+  string read_more_url = 16;
   // Output returned by the check run (finding details or execution error).
-  string outcome = 18;
+  string outcome = 17;
   // Severity of the result; unspecified while the check is pending or when it did not run.
-  management.v1.Severity severity = 19;
+  management.v1.Severity severity = 18;
   // Result labels.
-  map<string, string> labels = 20;
+  map<string, string> labels = 19;
   // Time when the check ran; unset while it is pending or when it did not run.
-  google.protobuf.Timestamp checked_at = 21;
+  google.protobuf.Timestamp checked_at = 20;
   // The actor that initiated the run.
-  AdvisorCheckTriggeredBy triggered_by = 22;
+  AdvisorCheckTriggeredBy triggered_by = 21;
   // Cloud region of the node the service runs on, empty when not applicable.
-  string region = 23;
+  string region = 22;
   // Cloud availability zone of the node the service runs on, empty when not applicable.
-  string az = 24;
+  string az = 23;
 }
 
 message ListInsightsRequest {
@@ -379,18 +364,15 @@ message AdvisorRun {
   repeated string check_names = 13;
   // IDs of the services the run was narrowed to; empty means all.
   repeated string service_ids = 14;
-  // Field 15 (intervals) was removed when Advisor schedules replaced check intervals.
-  reserved 15;
-  reserved "intervals";
   // ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;
   // empty for other runs and once the schedule is deleted.
-  string schedule_id = 16;
+  string schedule_id = 15;
   // Name the schedule had when the run started; empty for runs not tied to a schedule.
-  string schedule_name = 17;
+  string schedule_name = 16;
   // When the schedule fell due; unset for runs a user started.
-  google.protobuf.Timestamp scheduled_for = 18;
+  google.protobuf.Timestamp scheduled_for = 17;
   // The run this scheduled run waited for; set only when it started more than a minute after falling due.
-  AdvisorRunReference waited_for_run = 19;
+  AdvisorRunReference waited_for_run = 18;
 }
 
 // AdvisorRunReference identifies another Advisor run.

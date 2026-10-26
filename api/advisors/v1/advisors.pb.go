@@ -392,17 +392,17 @@ type AdvisorCheck struct {
 	// Short human-readable summary.
 	Summary string `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 	// DB technology.
-	Technology AdvisorCheckTechnology `protobuf:"varint,6,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
+	Technology AdvisorCheckTechnology `protobuf:"varint,5,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
 	// Category the check belongs to.
-	Category string `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
+	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
 	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
-	UserDefined bool `protobuf:"varint,8,opt,name=user_defined,json=userDefined,proto3" json:"user_defined,omitempty"`
+	UserDefined bool `protobuf:"varint,7,opt,name=user_defined,json=userDefined,proto3" json:"user_defined,omitempty"`
 	// Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
-	Queries []*AdvisorCheckQuery `protobuf:"bytes,9,rep,name=queries,proto3" json:"queries,omitempty"`
+	Queries []*AdvisorCheckQuery `protobuf:"bytes,8,rep,name=queries,proto3" json:"queries,omitempty"`
 	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
-	Script string `protobuf:"bytes,10,opt,name=script,proto3" json:"script,omitempty"`
+	Script string `protobuf:"bytes,9,opt,name=script,proto3" json:"script,omitempty"`
 	// IDs of services for which this check is disabled.
-	DisabledServiceIds []string `protobuf:"bytes,11,rep,name=disabled_service_ids,json=disabledServiceIds,proto3" json:"disabled_service_ids,omitempty"`
+	DisabledServiceIds []string `protobuf:"bytes,10,rep,name=disabled_service_ids,json=disabledServiceIds,proto3" json:"disabled_service_ids,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -515,13 +515,13 @@ type AdvisorCheckDefinition struct {
 	// Short human-readable summary.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
 	// DB technology.
-	Technology AdvisorCheckTechnology `protobuf:"varint,4,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
+	Technology AdvisorCheckTechnology `protobuf:"varint,3,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
 	// Category the check belongs to.
-	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
 	// Data-collection queries.
-	Queries []*AdvisorCheckQuery `protobuf:"bytes,6,rep,name=queries,proto3" json:"queries,omitempty"`
+	Queries []*AdvisorCheckQuery `protobuf:"bytes,5,rep,name=queries,proto3" json:"queries,omitempty"`
 	// Starlark source script.
-	Script        string `protobuf:"bytes,7,opt,name=script,proto3" json:"script,omitempty"`
+	Script        string `protobuf:"bytes,6,opt,name=script,proto3" json:"script,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -606,7 +606,7 @@ type ChangeAdvisorCheckParams struct {
 	Enable *bool  `protobuf:"varint,2,opt,name=enable,proto3,oneof" json:"enable,omitempty"`
 	// IDs of services to apply the enable/disable to. When set, enable/disable
 	// affects only the given services instead of the whole check.
-	ServiceIds    []string `protobuf:"bytes,5,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
+	ServiceIds    []string `protobuf:"bytes,3,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1739,43 +1739,43 @@ type Insight struct {
 	// Category the check belongs to.
 	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
 	// ID of the monitored service on which the check ran.
-	ServiceId string `protobuf:"bytes,6,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	ServiceId string `protobuf:"bytes,5,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Name of the monitored service on which the check ran.
-	ServiceName string `protobuf:"bytes,7,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName string `protobuf:"bytes,6,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Type of the monitored service on which the check ran.
-	ServiceType string `protobuf:"bytes,8,opt,name=service_type,json=serviceType,proto3" json:"service_type,omitempty"`
+	ServiceType string `protobuf:"bytes,7,opt,name=service_type,json=serviceType,proto3" json:"service_type,omitempty"`
 	// ID of the node the service runs on.
-	NodeId string `protobuf:"bytes,9,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId string `protobuf:"bytes,8,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Name of the node the service runs on.
-	NodeName string `protobuf:"bytes,10,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	NodeName string `protobuf:"bytes,9,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Environment of the monitored service on which the check ran.
-	Environment string `protobuf:"bytes,11,opt,name=environment,proto3" json:"environment,omitempty"`
+	Environment string `protobuf:"bytes,10,opt,name=environment,proto3" json:"environment,omitempty"`
 	// Cluster of the monitored service on which the check ran.
-	Cluster string `protobuf:"bytes,12,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Cluster string `protobuf:"bytes,11,opt,name=cluster,proto3" json:"cluster,omitempty"`
 	// Replication set of the monitored service on which the check ran.
-	ReplicationSet string `protobuf:"bytes,13,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
+	ReplicationSet string `protobuf:"bytes,12,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
 	// Outcome of the check run.
-	Status AdvisorCheckResultStatus `protobuf:"varint,14,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus" json:"status,omitempty"`
+	Status AdvisorCheckResultStatus `protobuf:"varint,13,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus" json:"status,omitempty"`
 	// Short human-readable summary of the result.
-	Summary string `protobuf:"bytes,15,opt,name=summary,proto3" json:"summary,omitempty"`
+	Summary string `protobuf:"bytes,14,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Long human-readable description of the result.
-	Description string `protobuf:"bytes,16,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,15,opt,name=description,proto3" json:"description,omitempty"`
 	// URL containing information on how to resolve a detected issue.
-	ReadMoreUrl string `protobuf:"bytes,17,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
+	ReadMoreUrl string `protobuf:"bytes,16,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
 	// Output returned by the check run (finding details or execution error).
-	Outcome string `protobuf:"bytes,18,opt,name=outcome,proto3" json:"outcome,omitempty"`
+	Outcome string `protobuf:"bytes,17,opt,name=outcome,proto3" json:"outcome,omitempty"`
 	// Severity of the result; unspecified while the check is pending or when it did not run.
-	Severity v1.Severity `protobuf:"varint,19,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
+	Severity v1.Severity `protobuf:"varint,18,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
 	// Result labels.
-	Labels map[string]string `protobuf:"bytes,20,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Labels map[string]string `protobuf:"bytes,19,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Time when the check ran; unset while it is pending or when it did not run.
-	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
+	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
 	// The actor that initiated the run.
-	TriggeredBy AdvisorCheckTriggeredBy `protobuf:"varint,22,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
+	TriggeredBy AdvisorCheckTriggeredBy `protobuf:"varint,21,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
 	// Cloud region of the node the service runs on, empty when not applicable.
-	Region string `protobuf:"bytes,23,opt,name=region,proto3" json:"region,omitempty"`
+	Region string `protobuf:"bytes,22,opt,name=region,proto3" json:"region,omitempty"`
 	// Cloud availability zone of the node the service runs on, empty when not applicable.
-	Az            string `protobuf:"bytes,24,opt,name=az,proto3" json:"az,omitempty"`
+	Az            string `protobuf:"bytes,23,opt,name=az,proto3" json:"az,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2312,13 +2312,13 @@ type AdvisorRun struct {
 	ServiceIds []string `protobuf:"bytes,14,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
 	// ID of the schedule the run ran for, or was started from with RunAdvisorSchedule;
 	// empty for other runs and once the schedule is deleted.
-	ScheduleId string `protobuf:"bytes,16,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	ScheduleId string `protobuf:"bytes,15,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
 	// Name the schedule had when the run started; empty for runs not tied to a schedule.
-	ScheduleName string `protobuf:"bytes,17,opt,name=schedule_name,json=scheduleName,proto3" json:"schedule_name,omitempty"`
+	ScheduleName string `protobuf:"bytes,16,opt,name=schedule_name,json=scheduleName,proto3" json:"schedule_name,omitempty"`
 	// When the schedule fell due; unset for runs a user started.
-	ScheduledFor *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=scheduled_for,json=scheduledFor,proto3" json:"scheduled_for,omitempty"`
+	ScheduledFor *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=scheduled_for,json=scheduledFor,proto3" json:"scheduled_for,omitempty"`
 	// The run this scheduled run waited for; set only when it started more than a minute after falling due.
-	WaitedForRun  *AdvisorRunReference `protobuf:"bytes,19,opt,name=waited_for_run,json=waitedForRun,proto3" json:"waited_for_run,omitempty"`
+	WaitedForRun  *AdvisorRunReference `protobuf:"bytes,18,opt,name=waited_for_run,json=waitedForRun,proto3" json:"waited_for_run,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3798,40 +3798,40 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"parameters\x1a=\n" +
 	"\x0fParametersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa4\x03\n" +
 	"\fAdvisorCheck\x126\n" +
 	"\x04name\x18\x01 \x01(\tB\"\xfaB\x1fr\x1d\x18\x80\x012\x18^[a-zA-Z_][a-zA-Z0-9_]*$R\x04name\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x18\n" +
 	"\asummary\x18\x04 \x01(\tR\asummary\x12C\n" +
 	"\n" +
-	"technology\x18\x06 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
+	"technology\x18\x05 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
 	"technology\x12\x1a\n" +
-	"\bcategory\x18\a \x01(\tR\bcategory\x12!\n" +
-	"\fuser_defined\x18\b \x01(\bR\vuserDefined\x128\n" +
-	"\aqueries\x18\t \x03(\v2\x1e.advisors.v1.AdvisorCheckQueryR\aqueries\x12\x16\n" +
-	"\x06script\x18\n" +
-	" \x01(\tR\x06script\x120\n" +
-	"\x14disabled_service_ids\x18\v \x03(\tR\x12disabledServiceIdsJ\x04\b\x05\x10\x06R\binterval\"\x97\x02\n" +
+	"\bcategory\x18\x06 \x01(\tR\bcategory\x12!\n" +
+	"\fuser_defined\x18\a \x01(\bR\vuserDefined\x128\n" +
+	"\aqueries\x18\b \x03(\v2\x1e.advisors.v1.AdvisorCheckQueryR\aqueries\x12\x16\n" +
+	"\x06script\x18\t \x01(\tR\x06script\x120\n" +
+	"\x14disabled_service_ids\x18\n" +
+	" \x03(\tR\x12disabledServiceIds\"\x87\x02\n" +
 	"\x16AdvisorCheckDefinition\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12\x18\n" +
 	"\asummary\x18\x02 \x01(\tR\asummary\x12C\n" +
 	"\n" +
-	"technology\x18\x04 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
+	"technology\x18\x03 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
 	"technology\x12\x1a\n" +
-	"\bcategory\x18\x05 \x01(\tR\bcategory\x128\n" +
-	"\aqueries\x18\x06 \x03(\v2\x1e.advisors.v1.AdvisorCheckQueryR\aqueries\x12\x16\n" +
-	"\x06script\x18\a \x01(\tR\x06scriptJ\x04\b\x03\x10\x04R\binterval\"\x87\x01\n" +
+	"\bcategory\x18\x04 \x01(\tR\bcategory\x128\n" +
+	"\aqueries\x18\x05 \x03(\v2\x1e.advisors.v1.AdvisorCheckQueryR\aqueries\x12\x16\n" +
+	"\x06script\x18\x06 \x01(\tR\x06script\"w\n" +
 	"\x18ChangeAdvisorCheckParams\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\x06enable\x18\x02 \x01(\bH\x00R\x06enable\x88\x01\x01\x12\x1f\n" +
-	"\vservice_ids\x18\x05 \x03(\tR\n" +
+	"\vservice_ids\x18\x03 \x03(\tR\n" +
 	"serviceIdsB\t\n" +
-	"\a_enableJ\x04\b\x04\x10\x05R\binterval\"c\n" +
+	"\a_enable\"R\n" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
 	"\x05names\x18\x01 \x03(\tR\x05names\x12\x1f\n" +
 	"\vservice_ids\x18\x02 \x03(\tR\n" +
-	"serviceIdsJ\x04\b\x03\x10\x04R\tintervals\"3\n" +
+	"serviceIds\"3\n" +
 	"\x1aStartAdvisorChecksResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +
@@ -3892,7 +3892,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\n" +
 	"severities\x18\x02 \x03(\x0e2\x17.management.v1.SeverityR\n" +
 	"severities\"%\n" +
-	"#SendTestAdvisorNotificationResponse\"\x8a\a\n" +
+	"#SendTestAdvisorNotificationResponse\"\xfa\x06\n" +
 	"\aInsight\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x1d\n" +
@@ -3900,30 +3900,30 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"check_name\x18\x03 \x01(\tR\tcheckName\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x06 \x01(\tR\tserviceId\x12!\n" +
-	"\fservice_name\x18\a \x01(\tR\vserviceName\x12!\n" +
-	"\fservice_type\x18\b \x01(\tR\vserviceType\x12\x17\n" +
-	"\anode_id\x18\t \x01(\tR\x06nodeId\x12\x1b\n" +
-	"\tnode_name\x18\n" +
-	" \x01(\tR\bnodeName\x12 \n" +
-	"\venvironment\x18\v \x01(\tR\venvironment\x12\x18\n" +
-	"\acluster\x18\f \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\r \x01(\tR\x0ereplicationSet\x12=\n" +
-	"\x06status\x18\x0e \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusR\x06status\x12\x18\n" +
-	"\asummary\x18\x0f \x01(\tR\asummary\x12 \n" +
-	"\vdescription\x18\x10 \x01(\tR\vdescription\x12\"\n" +
-	"\rread_more_url\x18\x11 \x01(\tR\vreadMoreUrl\x12\x18\n" +
-	"\aoutcome\x18\x12 \x01(\tR\aoutcome\x123\n" +
-	"\bseverity\x18\x13 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x128\n" +
-	"\x06labels\x18\x14 \x03(\v2 .advisors.v1.Insight.LabelsEntryR\x06labels\x129\n" +
+	"service_id\x18\x05 \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\x06 \x01(\tR\vserviceName\x12!\n" +
+	"\fservice_type\x18\a \x01(\tR\vserviceType\x12\x17\n" +
+	"\anode_id\x18\b \x01(\tR\x06nodeId\x12\x1b\n" +
+	"\tnode_name\x18\t \x01(\tR\bnodeName\x12 \n" +
+	"\venvironment\x18\n" +
+	" \x01(\tR\venvironment\x12\x18\n" +
+	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12=\n" +
+	"\x06status\x18\r \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusR\x06status\x12\x18\n" +
+	"\asummary\x18\x0e \x01(\tR\asummary\x12 \n" +
+	"\vdescription\x18\x0f \x01(\tR\vdescription\x12\"\n" +
+	"\rread_more_url\x18\x10 \x01(\tR\vreadMoreUrl\x12\x18\n" +
+	"\aoutcome\x18\x11 \x01(\tR\aoutcome\x123\n" +
+	"\bseverity\x18\x12 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x128\n" +
+	"\x06labels\x18\x13 \x03(\v2 .advisors.v1.Insight.LabelsEntryR\x06labels\x129\n" +
 	"\n" +
-	"checked_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12G\n" +
-	"\ftriggered_by\x18\x16 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x12\x16\n" +
-	"\x06region\x18\x17 \x01(\tR\x06region\x12\x0e\n" +
-	"\x02az\x18\x18 \x01(\tR\x02az\x1a9\n" +
+	"checked_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12G\n" +
+	"\ftriggered_by\x18\x15 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x12\x16\n" +
+	"\x06region\x18\x16 \x01(\tR\x06region\x12\x0e\n" +
+	"\x02az\x18\x17 \x01(\tR\x02az\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x05\x10\x06R\binterval\"\x8c\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8c\x05\n" +
 	"\x13ListInsightsRequest\x12)\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
 	"\n" +
@@ -3958,7 +3958,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" ListInsightsFilterValuesResponse\x12#\n" +
 	"\rservice_names\x18\x01 \x03(\tR\fserviceNames\x12\x1d\n" +
 	"\n" +
-	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xf7\x06\n" +
+	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xe6\x06\n" +
 	"\n" +
 	"AdvisorRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12G\n" +
@@ -3980,11 +3980,11 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"checkNames\x12\x1f\n" +
 	"\vservice_ids\x18\x0e \x03(\tR\n" +
 	"serviceIds\x12\x1f\n" +
-	"\vschedule_id\x18\x10 \x01(\tR\n" +
+	"\vschedule_id\x18\x0f \x01(\tR\n" +
 	"scheduleId\x12#\n" +
-	"\rschedule_name\x18\x11 \x01(\tR\fscheduleName\x12?\n" +
-	"\rscheduled_for\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\fscheduledFor\x12F\n" +
-	"\x0ewaited_for_run\x18\x13 \x01(\v2 .advisors.v1.AdvisorRunReferenceR\fwaitedForRunJ\x04\b\x0f\x10\x10R\tintervals\"\xd5\x01\n" +
+	"\rschedule_name\x18\x10 \x01(\tR\fscheduleName\x12?\n" +
+	"\rscheduled_for\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\fscheduledFor\x12F\n" +
+	"\x0ewaited_for_run\x18\x12 \x01(\v2 .advisors.v1.AdvisorRunReferenceR\fwaitedForRun\"\xd5\x01\n" +
 	"\x13AdvisorRunReference\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12G\n" +
 	"\ftriggered_by\x18\x02 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x12#\n" +
