@@ -215,18 +215,14 @@ export const Messages = {
   },
   demo: {
     trigger: 'Demo controls',
-    groups: {
-      scenario: 'Scenario',
-      freshness: 'Freshness',
-      operations: (name: string) => `Operations for ${name}`,
-    },
+    scenarioLabel: 'Scenario',
     scenario: {
       healthy: 'Healthy',
       incomplete: 'Incomplete',
       unhealthy: 'Unhealthy',
     },
-    freshness: { live: 'Live', stale: 'Stale' },
-    operations: { on: 'On', off: 'Off' },
+    stale: 'Make the freshness indicator stale',
+    operations: (name: string) => `Operations for ${name}`,
     adminOnly: 'Admins only',
   },
 };

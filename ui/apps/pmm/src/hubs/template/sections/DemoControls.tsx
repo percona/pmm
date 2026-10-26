@@ -1,15 +1,20 @@
 import TuneOutlined from '@mui/icons-material/TuneOutlined';
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import IconButton from '@mui/material/IconButton';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
+import { styled } from '@mui/material/styles';
+import Switch from '@mui/material/Switch';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import { Kbd, Tooltip } from '@percona/peak-ui';
 import {
   type FC,
+  forwardRef,
   type KeyboardEvent as ReactKeyboardEvent,
   useCallback,
   useEffect,
@@ -23,14 +28,35 @@ import { DEFAULT_HUB_PARAMS } from '../hub.params';
 import type { HubParams } from '../hub.types';
 
 const SCENARIOS = ['healthy', 'incomplete', 'unhealthy'] as const;
-const FRESHNESS = ['live', 'stale'] as const;
-const OPERATIONS = ['on', 'off'] as const;
+
+// The panel takes Peak's popover paper override, so it shares the dropdowns' Figma Menu surface: border, radius and shadow.
+const PanelSurface = styled(Paper, { name: 'MuiPopover', slot: 'Paper' })({});
 
 /** Where a typed D belongs to the field, not to the shortcut. */
 const isTyping = (target: EventTarget | null) =>
   target instanceof HTMLElement &&
   (target.isContentEditable ||
     ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+
+/** The button alone in the page's opposite mode, so the demo control stands out; its tooltip and panel, outside it, keep the page's. */
+const InverseButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  (props, ref) => (
+    <ThemeScope theme="pmm" mode="inverse">
+      <Box
+        // Its own surface keeps the page from showing through the button's translucent hover.
+        sx={{
+          display: 'flex',
+          p: 0,
+          borderRadius: '50%',
+          bgcolor: 'background.paper',
+          boxShadow: 4,
+        }}
+      >
+        <IconButton ref={ref} {...props} />
+      </Box>
+    </ThemeScope>
+  )
+);
 
 export interface DemoControlsProps {
   /** The technology's name, as in "Operations for MongoDB". */
@@ -54,7 +80,7 @@ export const DemoControls: FC<DemoControlsProps> = ({
   const messages = Messages.demo;
   const panelId = useId();
   const titleId = useId();
-  const groupId = useId();
+  const scenarioLabelId = useId();
   const [button, setButton] = useState<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -106,44 +132,16 @@ export const DemoControls: FC<DemoControlsProps> = ({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [button]);
 
-  const group = <T extends string>(
-    key: string,
-    title: string,
-    values: readonly T[],
-    labels: Record<T, string>,
-    selected: T | null,
-    onChange: (value: T) => void,
-    disabled: (value: T) => boolean = () => false
-  ) => {
-    const labelId = `${groupId}-${key}`;
-
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-        <Typography id={labelId} variant="caption" color="text.secondary">
-          {title}
-        </Typography>
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={selected}
-          onChange={(_, value: T | null) => value !== null && onChange(value)}
-          aria-labelledby={labelId}
-          sx={{ '& .MuiToggleButton-root': { whiteSpace: 'nowrap' } }}
-        >
-          {values.map((value) => (
-            <ToggleButton
-              key={value}
-              value={value}
-              disabled={disabled(value)}
-              title={disabled(value) ? messages.adminOnly : undefined}
-            >
-              {labels[value]}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
-    );
+  // Label left, switch right; the switch's own padding reaches into the panel's, as its track lines up with the edge.
+  // The row keeps only the label's height, so the 38px switch doesn't add its padding to the space around the rules.
+  const switchRow = {
+    ml: 0,
+    mr: -1.5,
+    my: -1,
+    gap: 2,
+    justifyContent: 'space-between',
   };
+  // The rule under the title runs edge to edge, setting the header apart; the rules between settings keep the panel's 16px inset.
 
   return (
     <Box
@@ -157,34 +155,20 @@ export const DemoControls: FC<DemoControlsProps> = ({
         zIndex: 'speedDial',
       }}
     >
-      {/* The button alone in the page's opposite mode, so the demo control stands out; the panel keeps the page's. */}
-      <ThemeScope theme="pmm" mode="inverse">
-        <Box
-          // Its own surface keeps the page from showing through the button's translucent hover.
-          sx={{
-            display: 'flex',
-            p: 0,
-            borderRadius: '50%',
-            bgcolor: 'background.paper',
-            boxShadow: 4,
-          }}
+      <Tooltip title={messages.trigger}>
+        <InverseButton
+          ref={setButton}
+          aria-label={messages.trigger}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={open ? panelId : undefined}
+          aria-keyshortcuts="Shift+D"
+          onClick={() => setOpen((was) => !was)}
+          size="large"
         >
-          <Tooltip title={messages.trigger}>
-            <IconButton
-              ref={setButton}
-              aria-label={messages.trigger}
-              aria-haspopup="dialog"
-              aria-expanded={open}
-              aria-controls={open ? panelId : undefined}
-              aria-keyshortcuts="Shift+D"
-              onClick={() => setOpen((was) => !was)}
-              size="large"
-            >
-              <TuneOutlined />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </ThemeScope>
+          <TuneOutlined />
+        </InverseButton>
+      </Tooltip>
       <Popper
         open={open}
         anchorEl={button}
@@ -199,7 +183,7 @@ export const DemoControls: FC<DemoControlsProps> = ({
             }
           }}
         >
-          <Paper
+          <PanelSurface
             ref={attachPanel}
             id={panelId}
             role="dialog"
@@ -215,6 +199,7 @@ export const DemoControls: FC<DemoControlsProps> = ({
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              // The same space above and below every rule.
               gap: 2,
               p: 2,
               maxWidth: 'calc(100vw - 32px)',
@@ -229,45 +214,75 @@ export const DemoControls: FC<DemoControlsProps> = ({
                 gap: 2,
               }}
             >
-              <Typography id={titleId} variant="subtitle2" component="h2">
+              <Typography id={titleId} variant="sectionHeading" component="h2">
                 {messages.trigger}
               </Typography>
               <Kbd keys={['⇧', 'D']} label="Shift D" />
             </Box>
-            {group(
-              'scenario',
-              messages.groups.scenario,
-              SCENARIOS,
-              messages.scenario,
-              (SCENARIOS as readonly string[]).includes(params.scenario)
-                ? (params.scenario as (typeof SCENARIOS)[number])
-                : null,
-              (scenario) => setParams({ scenario })
-            )}
-            {group(
-              'freshness',
-              messages.groups.freshness,
-              FRESHNESS,
-              messages.freshness,
-              params.freshness,
-              // Live drops the simulation and returns to the real 30s refresh.
-              (freshness) =>
-                setParams(
-                  freshness === 'live'
-                    ? { freshness, refresh: DEFAULT_HUB_PARAMS.refresh }
-                    : { freshness }
-                )
-            )}
-            {group(
-              'operations',
-              messages.groups.operations(name),
-              OPERATIONS,
-              messages.operations,
-              operations ? 'on' : 'off',
-              (ops) => setParams({ ops }),
-              (value) => value === 'on' && !admin
-            )}
-          </Paper>
+            <Divider sx={{ mx: -2 }} />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {/* As strong as the switches' labels, which name settings the same way. */}
+              <Typography id={scenarioLabelId}>
+                {messages.scenarioLabel}
+              </Typography>
+              <ToggleButtonGroup
+                exclusive
+                size="small"
+                value={
+                  (SCENARIOS as readonly string[]).includes(params.scenario)
+                    ? params.scenario
+                    : null
+                }
+                onChange={(_, scenario: (typeof SCENARIOS)[number] | null) =>
+                  scenario !== null && setParams({ scenario })
+                }
+                aria-labelledby={scenarioLabelId}
+                sx={{ '& .MuiToggleButton-root': { whiteSpace: 'nowrap' } }}
+              >
+                {SCENARIOS.map((scenario) => (
+                  <ToggleButton key={scenario} value={scenario}>
+                    {messages.scenario[scenario]}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+            <Divider />
+            <FormControlLabel
+              labelPlacement="start"
+              label={messages.stale}
+              sx={switchRow}
+              control={
+                <Switch
+                  checked={params.freshness === 'stale'}
+                  // Off drops the simulation and returns to the real 30s refresh.
+                  onChange={(_, stale) =>
+                    setParams(
+                      stale
+                        ? { freshness: 'stale' }
+                        : {
+                            freshness: 'live',
+                            refresh: DEFAULT_HUB_PARAMS.refresh,
+                          }
+                    )
+                  }
+                />
+              }
+            />
+            <Divider />
+            <FormControlLabel
+              labelPlacement="start"
+              label={messages.operations(name)}
+              disabled={!admin}
+              title={admin ? undefined : messages.adminOnly}
+              sx={switchRow}
+              control={
+                <Switch
+                  checked={operations}
+                  onChange={(_, on) => setParams({ ops: on ? 'on' : 'off' })}
+                />
+              }
+            />
+          </PanelSurface>
         </ClickAwayListener>
       </Popper>
     </Box>

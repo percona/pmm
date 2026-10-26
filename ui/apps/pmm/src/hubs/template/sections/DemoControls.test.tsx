@@ -34,6 +34,9 @@ const pressed = (name: string) =>
     .getAllByRole('button')
     .filter((button) => button.getAttribute('aria-pressed') === 'true')
     .map((button) => button.textContent);
+const STALE = 'Make the freshness indicator stale';
+const OPERATIONS = 'Operations for MongoDB';
+const toggle = (name: string) => within(panel()).getByRole('switch', { name });
 
 describe.skipIf(!hasPeakHub)('DemoControls', () => {
   it('opens a non-modal panel above its button, focused, with the URL’s state', () => {
@@ -50,8 +53,8 @@ describe.skipIf(!hasPeakHub)('DemoControls', () => {
     expect(trigger()).toHaveAttribute('aria-expanded', 'true');
     expect(panel()).toHaveFocus();
     expect(pressed('Scenario')).toEqual(['Unhealthy']);
-    expect(pressed('Freshness')).toEqual(['Stale']);
-    expect(pressed('Operations for MongoDB')).toEqual(['Off']);
+    expect(toggle(STALE)).toBeChecked();
+    expect(toggle(OPERATIONS)).not.toBeChecked();
   });
 
   it('writes each choice to the URL params', () => {
@@ -61,14 +64,8 @@ describe.skipIf(!hasPeakHub)('DemoControls', () => {
     fireEvent.click(
       within(group('Scenario')).getByRole('button', { name: 'Incomplete' })
     );
-    fireEvent.click(
-      within(group('Operations for MongoDB')).getByRole('button', {
-        name: 'Off',
-      })
-    );
-    fireEvent.click(
-      within(group('Freshness')).getByRole('button', { name: 'Stale' })
-    );
+    fireEvent.click(toggle(OPERATIONS));
+    fireEvent.click(toggle(STALE));
 
     expect(setParams.mock.calls).toEqual([
       [{ scenario: 'incomplete' }],
@@ -77,28 +74,11 @@ describe.skipIf(!hasPeakHub)('DemoControls', () => {
     ]);
   });
 
-  it('offers only Live and Stale, since the selector already turns auto-refresh off', () => {
-    renderControls();
-
-    fireEvent.click(trigger());
-
-    expect(
-      within(group('Freshness'))
-        .getAllByRole('button')
-        .map((button) => button.textContent)
-    ).toEqual(['Live', 'Stale']);
-  });
-
-  it('restores the real 30-second refresh with Live', () => {
+  it('restores the real 30-second refresh when stale is turned off', () => {
     const setParams = renderControls({ freshness: 'stale', refresh: '1m' });
 
     fireEvent.click(trigger());
-
-    expect(pressed('Freshness')).toEqual(['Stale']);
-
-    fireEvent.click(
-      within(group('Freshness')).getByRole('button', { name: 'Live' })
-    );
+    fireEvent.click(toggle(STALE));
 
     expect(setParams).toHaveBeenCalledWith({
       freshness: 'live',
@@ -111,11 +91,8 @@ describe.skipIf(!hasPeakHub)('DemoControls', () => {
 
     fireEvent.click(trigger());
 
-    expect(
-      within(group('Operations for MongoDB')).getByRole('button', {
-        name: 'On',
-      })
-    ).toBeDisabled();
+    expect(toggle(OPERATIONS)).toBeDisabled();
+    expect(toggle(OPERATIONS)).not.toBeChecked();
   });
 
   it('closes with Escape, returning focus, and with a click outside', async () => {

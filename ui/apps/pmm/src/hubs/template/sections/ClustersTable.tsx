@@ -74,7 +74,7 @@ export const ClustersTable: FC<ClustersTableProps> = ({
   const theme = useTheme();
   const narrowViewport = useMediaQuery(theme.breakpoints.down('md'));
   const columns = useMemo(() => clusterColumns(treeColumns), [treeColumns]);
-  // The hub's own width decides, not the viewport's: the sidebar takes 289 px from md up.
+  // The hub's own width decides, not the viewport's: the sidebar takes 257 px from md up.
   const fullWidth = useMemo(
     () =>
       columns.reduce((sum, column) => sum + (column.size ?? 0), 0) +

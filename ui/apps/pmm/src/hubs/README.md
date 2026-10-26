@@ -18,7 +18,7 @@ Operations is on by default; with it off (`hubOps=off`), the unhealthy scenario 
 
 ## Demo controls
 
-The low-contrast button at the hub's bottom-right (or Shift+D) opens a small panel that stays open beside the page: Scenario (Healthy, Incomplete, Unhealthy), Freshness (Live, Off, Stale) and Operations for MongoDB (On, Off). Every choice goes into the URL, so any combination can be bookmarked. Escape, a click outside or the button closes it. It renders on the dev server and in builds that set `VITE_PMM_PROTOTYPE=true` (the demo host's), never in a production build.
+The button at the hub's bottom-right, in the page's opposite color mode (or Shift+D), opens a small panel that stays open beside the page: Scenario (Healthy, Incomplete, Unhealthy), then switches to make the freshness indicator stale and to turn Operations for MongoDB on or off (admins only). Every choice goes into the URL, so any combination can be bookmarked. Escape, a click outside or the button closes it. It renders on the dev server and in builds that set `VITE_PMM_PROTOTYPE=true` (the demo host's), never in a production build.
 
 ## Freshness
 
