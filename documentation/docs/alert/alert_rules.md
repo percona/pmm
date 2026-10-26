@@ -60,14 +60,19 @@ When creating custom templates, make sure to use the required template format be
 - **name** (required): uniquely identifies template. Spaces and special characters are not allowed.
 - **version** (required): defines the template format version.
 - **summary** (required): a template description.
-- **expr** (required): a MetricsQL query string with parameter placeholders.
+- **expr** (required unless you use **queries** and **expressions**): a MetricsQL query string with parameter placeholders.
+- **queries** (optional): a list of MetricsQL queries, each with a `ref_id` and an `expr`. Use them with **expressions** and **condition** instead of **expr**.
+- **expressions** (optional): a list of math expressions over the queries, each with a `ref_id`, `type: math`, and an `expression` that references queries by `$ref_id`, for example `$A > [[ .threshold ]]`.
+- **condition** (required with **expressions**): the `ref_id` of the expression that fires the alert.
 - **params**: contains parameter definitions required for the query. Each parameter has a name, type, and summary. It also may have a unit, available range, and default value.
     - **name** (required): the name of the parameter. Spaces and special characters are not allowed.
     - **summary** (required): a short description of what this parameter represents.
     - **unit** (optional): PMM currently supports either s (seconds) or % (percentage).
     - **type** (required): PMM currently supports the `float` type. `string`, `bool`, and other types will be available in a future release.
     - **range** (optional): defines the boundaries for the value of a  float parameter
-   - **value** (optional): default parameter value. Value strings must not include any of these special characters: `< > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)`
+    - **value** (optional): default parameter value. Value strings must not include any of these special characters: `< > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)`
+    - **overridable** (optional): set to `true` to enable per-node overrides of this threshold without editing the alert rule. The template must use **queries** and **expressions**, and the parameter must be the whole right-hand side of a comparison, for example `$A > [[ .threshold ]]`. For details, see [per-node threshold overrides](alert-thresholds.md).
+    - **override_scopes** (optional): the scopes at which you can override this parameter. Defaults to `[node]`. Only `node` is currently supported. Requires `overridable: true`.
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
  - **labels** (optional): are additional labels to be added to generated alerts
@@ -83,10 +88,15 @@ When creating custom templates, make sure to use the required template format be
       - name: pmm_node_high_cpu_load
         version: 1
         summary: Node high CPU load
-        expr: |-
-          (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
-          * 100
-          > bool [[ .threshold ]]
+        queries:
+          - ref_id: A
+            expr: |-
+              (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
+        expressions:
+          - ref_id: C
+            type: math
+            expression: "$A > [[ .threshold ]]"
+        condition: C
         params:
           - name: threshold
             summary: A percentage from configured maximum
@@ -94,6 +104,7 @@ When creating custom templates, make sure to use the required template format be
             type: float
             range: [0, 100]
             value: 80
+            overridable: true
         for: 5m
         severity: warning
         annotations:
@@ -137,6 +148,8 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
     - **Label** must be an exact match. You can find a complete list of labels using the :material-compass-outline: **Explore** menu in PMM, or see [Labels reference](../reference/labels-reference.md).
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
+
+If the template has a **Dynamic** badge, you can later change the threshold of the new alert rule for individual nodes. For details, see [per-node threshold overrides](alert-thresholds.md).
 
 ## Recording rules
 
