@@ -1061,9 +1061,15 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 
 	l.Infof("Establishing two-way communication channel to Agents Service at %s ...", cfg.Server.FilteredURL())
 	start := time.Now()
+	// The key that secrets are sealed to for this pmm-agent alone, so that PMM Server passes them on unread.
+	sealingKey, err := secrets.SealingPublicKey()
+	if err != nil {
+		l.Warnf("No key to seal secrets to: %s.", err)
+	}
 	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
-		ID:      cfg.ID,
-		Version: version.Version,
+		ID:         cfg.ID,
+		Version:    version.Version,
+		SealingKey: sealingKey,
 	})
 	stream, err := agentv1.NewAgentServiceClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {

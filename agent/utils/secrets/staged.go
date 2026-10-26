@@ -16,7 +16,9 @@
 package secrets
 
 import (
+	"crypto/ecdh"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"maps"
@@ -107,13 +109,13 @@ func stagedValue(path, key string) (string, bool, error) {
 	return v, true, nil
 }
 
-// unstage returns a copy of data with the references to staged secrets replaced with the secrets, and the
-// handles of the staged secrets.
+// unstage returns a copy of data with the references to staged and sealed secrets replaced with the secrets, and
+// the handles of the staged secrets.
 func unstage(data map[string]string) (map[string]string, []string, error) {
 	res := make(map[string]string, len(data))
 	var handles []string
 	for key, value := range data {
-		if !vault.IsStagedRef(value) {
+		if !vault.IsStagedRef(value) && !vault.IsSealedRef(value) {
 			res[key] = value
 			continue
 		}
@@ -121,6 +123,13 @@ func unstage(data map[string]string) (map[string]string, []string, error) {
 		ref, err := vault.ParseRef(value)
 		if err != nil {
 			return nil, nil, err
+		}
+		if v, ok, err := sealedValue(ref.Path); ok {
+			if err != nil {
+				return nil, nil, err
+			}
+			res[key] = v
+			continue
 		}
 		v, _, err := stagedValue(ref.Path, ref.Key)
 		if err != nil {
@@ -140,4 +149,42 @@ func dropStaged(handles []string) {
 	for _, h := range handles {
 		delete(staged.secrets, h)
 	}
+}
+
+// sealing is the key that secrets are sealed to for this pmm-agent alone, see vault.Seal. It is generated when the
+// process starts, and is never stored: a secret sealed to the key of an earlier process is sealed again.
+var sealing = struct { //nolint:gochecknoglobals
+	once sync.Once
+	key  *ecdh.PrivateKey
+	err  error
+}{}
+
+func sealingKey() (*ecdh.PrivateKey, error) {
+	sealing.once.Do(func() {
+		sealing.key, sealing.err = ecdh.P256().GenerateKey(rand.Reader)
+	})
+	return sealing.key, sealing.err
+}
+
+// SealingPublicKey returns the public key that secrets are sealed to for this pmm-agent, an uncompressed P-256 point
+// in standard base64, which pmm-agent sends PMM Server.
+func SealingPublicKey() (string, error) {
+	key, err := sealingKey()
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(key.PublicKey().Bytes()), nil
+}
+
+// sealedValue returns the secret sealed to this pmm-agent that path carries, and reports whether path carries one.
+func sealedValue(path string) (string, bool, error) {
+	if !strings.HasPrefix(path, vault.SealedPathPrefix) {
+		return "", false, nil
+	}
+	key, err := sealingKey()
+	if err != nil {
+		return "", true, err
+	}
+	v, err := vault.Open(key, path)
+	return v, true, err
 }

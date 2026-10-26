@@ -125,9 +125,12 @@ func ResolveRef(ctx context.Context, s string) (string, error) {
 	return v, nil
 }
 
-// get returns the value of key in the secret at path, staged in pmm-agent or stored in Vault.
+// get returns the value of key in the secret at path, staged in or sealed to pmm-agent, or stored in Vault.
 func (h *holder) get(ctx context.Context, path, key string) (string, error) {
 	if v, ok, err := stagedValue(path, key); ok {
+		return v, err
+	}
+	if v, ok, err := sealedValue(path); ok {
 		return v, err
 	}
 	return h.store.Get(ctx, path, key)

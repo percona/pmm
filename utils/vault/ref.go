@@ -49,10 +49,10 @@ func IsStagedRef(s string) bool {
 	return strings.HasPrefix(s, RefPrefix+StagedPathPrefix)
 }
 
-// ToStore reports whether s is a secret to store in Vault: one given as is, or staged in pmm-agent, rather than a
-// reference to one that is in Vault already.
+// ToStore reports whether s is a secret to store in Vault: one given as is, or staged in or sealed to pmm-agent,
+// rather than a reference to one that is in Vault already.
 func ToStore(s string) bool {
-	return s != "" && (!IsRef(s) || IsStagedRef(s))
+	return s != "" && (!IsRef(s) || IsStagedRef(s) || IsSealedRef(s))
 }
 
 // ParseRef parses a vault:<path>#<key> reference.

@@ -400,6 +400,7 @@ type http1ServerDeps struct {
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
 	adminPassword      *grafana.AdminPassword
+	sealingKeyHandler  http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -484,6 +485,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// nginx passes the password changes of Grafana here, see grafana.AdminPassword.
 	mux.Handle("/graph/api/user/password", deps.adminPassword)
 	mux.Handle("/graph/api/admin/users/{id}/password", deps.adminPassword)
+	mux.Handle("GET /v1/inventory/agents/{agent_id}/sealing-key", deps.sealingKeyHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1407,6 +1409,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 			adminPassword:      adminPassword,
+			sealingKeyHandler:  agentsRegistry.SealingKeyHandler(),
 		})
 	})
 

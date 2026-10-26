@@ -54,6 +54,15 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
+// connectMetadata is the metadata the client connects with: the sealing key is the same for the whole process.
+func connectMetadata(t *testing.T) *agentv1.AgentConnectMetadata {
+	t.Helper()
+
+	sealingKey, err := secrets.SealingPublicKey()
+	require.NoError(t, err)
+	return &agentv1.AgentConnectMetadata{ID: "agent_id", SealingKey: sealingKey}
+}
+
 // awaitClosed waits for ch to be closed, and fails instead of hanging.
 //
 // The tests below park a mock on a channel the server handler closes, or the other way round, and
@@ -163,7 +172,7 @@ func TestClient(t *testing.T) {
 			connect := func(stream agentv1.AgentService_ConnectServer) error {
 				md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
-				assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+				assert.Equal(t, connectMetadata(t), md)
 				err = agentv1.SendServerConnectMetadata(stream, serverMD)
 				require.NoError(t, err)
 
@@ -243,7 +252,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -417,7 +426,7 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -507,7 +516,7 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -588,7 +597,7 @@ func TestDoneClosesWhileActualStatusesAreBlocked(t *testing.T) {
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -662,7 +671,7 @@ func TestDoneClosesAfterCancel(t *testing.T) {
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()

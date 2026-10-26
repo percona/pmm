@@ -112,7 +112,12 @@ pmm-admin inventory change agent mysqld-exporter <agent-id> --password='...'
 
 A password that the database refuses is not stored, so the secret keeps working credentials. Other PMM Clients that read the same secret pick up the change at their next check.
 
-When the exporter or agent runs on the PMM Client of the host where you run `pmm-admin`, the password and the TLS files never reach PMM Server: `pmm-admin` hands them to that PMM Client, which holds them until PMM Server asks it to store them in Vault, and PMM Server gets references to them instead. It checks the connection with those, which PMM Client resolves. For an exporter or agent of another PMM Client, or for credentials given in the PMM web interface or the API, the credentials pass through PMM Server on their way to PMM Client, although PMM Server does not store them.
+The password and the TLS files never reach PMM Server in plaintext:
+
+- When the exporter or agent runs on the PMM Client of the host where you run `pmm-admin`, `pmm-admin` hands them to that PMM Client, which holds them until PMM Server asks it to store them in Vault, and PMM Server gets references to them instead.
+- For another PMM Client, `pmm-admin` and the PMM web interface seal them to the key of that PMM Client, which it generates when it starts: PMM Server passes them on without being able to read them, and only that PMM Client opens them.
+
+PMM Server checks the connection with what it gets, which the PMM Client resolves. Through the API, seal the credentials yourself: `GET /v1/inventory/agents/{agent_id}/sealing-key` gives the key of the PMM Client that runs the agent with the given ID, an uncompressed P-256 point in base64. Seal each value with ECDH with an ephemeral P-256 key, HKDF with SHA-256, no salt and the info `pmm-agent-sealed v1` for an AES-256 key, and AES-GCM, and give `vault:pmm-agent-sealed/<sealed>#<key>` instead of the value, where `<sealed>` is the ephemeral public key, uncompressed, the 12-byte nonce, and the ciphertext, in URL-safe base64 without padding. The key changes when PMM Client restarts, and a value sealed to an earlier key is refused: get the key again and seal it again. A PMM Client of an earlier version does not seal, and the credentials pass through PMM Server on their way to it, although PMM Server does not store them.
 
 PMM Client stores the credentials with its own Vault identity, so its policy needs `create` and `update` on the path. Only secrets in a KV secrets engine can be written. For credentials issued by the database secrets engine, Vault manages the password, and PMM refuses to store one.
 
@@ -347,4 +352,4 @@ Vault support has the following limitations:
 - PMM Server keeps the certificates of Nomad in `/srv` unless they are [issued from Vault](#issue-the-certificates-of-nomad-from-vault). It publishes the secret key and the database password of PMM Extensions to `/srv/extensions`, where the side-car reads them, which can be kept in memory only, see above.
 - PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to the cache TTL to reach the exporters and agents that use it.
-- A password given with a Vault path in the PMM web interface, in the API, or with `pmm-admin` for another PMM Client passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, run `pmm-admin` on the host of the PMM Client, or store it in Vault yourself.
+- Credentials given in the API with a Vault path pass through PMM Server on their way to PMM Client, although PMM Server does not store them, unless you seal them, see above.

@@ -15,6 +15,7 @@
 package secrets
 
 import (
+	"encoding/base64"
 	"strings"
 	"testing"
 	"time"
@@ -82,6 +83,30 @@ func TestStaged(t *testing.T) {
 	t.Run("not another pmm-agent's", func(t *testing.T) {
 		_, err := ResolveRef(t.Context(), "vault:"+vault.StagedPathPrefix+"0123456789abcdef#password")
 		require.ErrorIs(t, err, ErrStagedNotFound)
+	})
+
+	t.Run("sealed to this pmm-agent", func(t *testing.T) {
+		pub, err := SealingPublicKey()
+		require.NoError(t, err)
+		publicKey, err := base64.StdEncoding.DecodeString(pub)
+		require.NoError(t, err)
+		ref, err := vault.Seal(publicKey, "password", "s3cr3t")
+		require.NoError(t, err)
+
+		// As PMM Server checks the connection with it, in a DSN.
+		r, err := vault.ParseRef(ref)
+		require.NoError(t, err)
+		res, _, err := Resolve(t.Context(), "root:"+vault.Token(r.Path, r.Key, vault.EncodingRaw)+"@tcp(127.0.0.1:3306)/")
+		require.NoError(t, err)
+		assert.Equal(t, "root:s3cr3t@tcp(127.0.0.1:3306)/", res)
+
+		// As PMM Server has it stored in Vault.
+		require.NoError(t, Write(t.Context(), "secret/data/pmm/sealed", map[string]string{"password": ref}))
+		assert.Equal(t, "s3cr3t", store["secret/data/pmm/sealed#password"])
+
+		again, err := SealingPublicKey()
+		require.NoError(t, err)
+		assert.Equal(t, pub, again, "one key for the process")
 	})
 
 	t.Run("bounded", func(t *testing.T) {
