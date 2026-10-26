@@ -49,7 +49,7 @@ To move your PMM data from the appliance to PMM Server on Docker:
 
 5. Log in to the new PMM Server and check that your dashboards, alert rules, and **Inventory** look as they did on the appliance.
 
-6. Optional: for production, [move the data from the host directory to a Docker volume](../install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md#migrate-from-host-directory-to-docker-volume).
+6. For production, [move the data from the host directory to a Docker volume](../install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md#migrate-from-host-directory-to-docker-volume).
 
 ## After you migrate
 
