@@ -1355,8 +1355,7 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS check_settings`,
 	},
 	128: {
-		// Days are time.Weekday values and the time of day is HH:MM, both in UTC;
-		// empty check names or service IDs mean all.
+		// Days are time.Weekday values and the time of day is HH:MM, both in UTC.
 		`CREATE TABLE advisor_schedules (
 			id VARCHAR NOT NULL,
 			name VARCHAR NOT NULL CHECK (name <> ''),
@@ -1374,14 +1373,7 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 		`CREATE UNIQUE INDEX advisor_schedules_name_idx ON advisor_schedules (lower(name))`,
-		// The default schedule, see models.DefaultAdvisorSchedule.
-		`INSERT INTO advisor_schedules (
-			id, name, enabled, days_of_week, time_of_day, check_names, service_ids,
-			email_mode, email_addresses, email_severities, created_at, updated_at
-		) VALUES (
-			gen_random_uuid()::text, 'All checks daily', true, '{0,1,2,3,4,5,6}', '06:00', '{}', '{}',
-			'settings', '{}', '{}', (NOW() AT TIME ZONE 'utc'), (NOW() AT TIME ZONE 'utc')
-		)`,
+		// migrateDB creates the default schedule.
 	},
 	129: {
 		`CREATE TABLE advisor_runs (
@@ -1523,7 +1515,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	err := migrateDB(ctx, db, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1703,8 +1695,11 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	return nil
 }
 
+// advisorSchedulesVersion is the schema version that adds the advisor_schedules table.
+const advisorSchedulesVersion = 128
+
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1726,27 +1721,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
-		for version := currentVersion + 1; version <= latestVersion; version++ {
-			if params.Logf != nil {
-				params.Logf("Migrating database to schema version %d ...", version)
-			}
-
-			queries := databaseSchema[version]
-			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-			for _, q := range queries {
-				q = strings.TrimSpace(q)
-				_, err := tx.Exec(q)
-				if err != nil {
-					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
-				}
-			}
+		err := applyMigrations(ctx, tx, params, currentVersion, latestVersion)
+		if err != nil {
+			return err
 		}
 
 		if params.SetupFixtures == SkipFixtures {
 			return nil
 		}
 
-		err := encryptOnMigration(tx, params)
+		err = encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1772,6 +1756,38 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// applyMigrations runs the schema migrations after currentVersion up to latestVersion.
+func applyMigrations(ctx context.Context, tx *reform.TX, params SetupDBParams, currentVersion, latestVersion int) error {
+	for version := currentVersion + 1; version <= latestVersion; version++ {
+		if params.Logf != nil {
+			params.Logf("Migrating database to schema version %d ...", version)
+		}
+
+		queries := databaseSchema[version]
+		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+		for _, q := range queries {
+			q = strings.TrimSpace(q)
+			_, err := tx.Exec(q)
+			if err != nil {
+				return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
+			}
+		}
+	}
+
+	return seedDefaultAdvisorSchedule(ctx, tx.Querier, currentVersion, latestVersion)
+}
+
+// seedDefaultAdvisorSchedule creates the default schedule in the migration run that adds its table,
+// from DefaultAdvisorSchedule, so changing the default needs no migration. The schedule is written
+// with the current model, so only a run to the latest schema version creates it.
+func seedDefaultAdvisorSchedule(ctx context.Context, q *reform.Querier, currentVersion, latestVersion int) error {
+	if currentVersion >= advisorSchedulesVersion || latestVersion != len(databaseSchema)-1 {
+		return nil
+	}
+	_, err := CreateDefaultAdvisorSchedule(ctx, q)
+	return err
 }
 
 // encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else

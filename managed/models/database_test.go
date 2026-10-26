@@ -573,7 +573,8 @@ func TestDatabaseMigrations(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(129))
+		// the default schedule is created on the full schema only
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
 
 		var hasSaaS bool
 		var advisors string
@@ -586,5 +587,15 @@ func TestDatabaseMigrations(t *testing.T) {
 		err = sqlDB.QueryRowContext(t.Context(), `SELECT array_agg(name) FROM advisor_schedules`).Scan(pq.Array(&names))
 		require.NoError(t, err)
 		assert.Equal(t, []string{"All checks daily"}, names)
+
+		// deleting every schedule is a choice the next start keeps
+		_, err = sqlDB.ExecContext(t.Context(), `DELETE FROM advisor_schedules`)
+		require.NoError(t, err)
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
+
+		var count int
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_schedules`).Scan(&count)
+		require.NoError(t, err)
+		assert.Zero(t, count)
 	})
 }
