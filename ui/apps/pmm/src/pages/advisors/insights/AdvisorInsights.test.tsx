@@ -178,6 +178,34 @@ describe('AdvisorInsights', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders each status as a color-coded chip', async () => {
+    const statuses = [
+      [AdvisorCheckResultStatus.ok, 'OK', 'MuiChip-colorSuccess'],
+      [AdvisorCheckResultStatus.failed, 'Failed', 'MuiChip-colorError'],
+      [AdvisorCheckResultStatus.error, 'Error', 'MuiChip-colorWarning'],
+      [AdvisorCheckResultStatus.pending, 'Pending', 'MuiChip-colorInfo'],
+      [AdvisorCheckResultStatus.notRun, 'Not run', 'MuiChip-colorDefault'],
+    ] as const;
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: statuses.length,
+      totalPages: 1,
+      results: statuses.map(([status], i) => ({
+        ...TEST_ITEM,
+        id: `status-${i}`,
+        status,
+      })),
+    });
+    renderComponent();
+
+    for (const [i, [, label, colorClass]] of statuses.entries()) {
+      const row = await screen.findByTestId(`insight-row-status-${i}`);
+      expect(within(row).getByText(label).closest('.MuiChip-root')).toHaveClass(
+        'MuiChip-sizeSmall',
+        colorClass
+      );
+    }
+  });
+
   it('requests the first page by default', async () => {
     renderComponent();
 

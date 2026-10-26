@@ -1,10 +1,12 @@
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import { format } from 'date-fns';
 import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { type MRT_ColumnDef } from 'material-react-table';
-import { Insight } from 'types/advisors.types';
+import { type FC } from 'react';
+import { AdvisorCheckResultStatus, Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from './AdvisorInsights.messages';
 
@@ -21,6 +23,30 @@ const SEVERITY_ORDER: Record<Severity, number> = {
   [Severity.debug]: 8,
   [Severity.unspecified]: 9,
 };
+
+const STATUS_CHIP_COLOR: Record<
+  AdvisorCheckResultStatus,
+  'success' | 'error' | 'warning' | 'info' | 'default'
+> = {
+  [AdvisorCheckResultStatus.ok]: 'success',
+  [AdvisorCheckResultStatus.failed]: 'error',
+  [AdvisorCheckResultStatus.error]: 'warning',
+  [AdvisorCheckResultStatus.pending]: 'info',
+  [AdvisorCheckResultStatus.notRun]: 'default',
+  [AdvisorCheckResultStatus.unspecified]: 'default',
+};
+
+// wider than the theme's 5px label padding, so short labels like "OK" don't render as a circle
+export const StatusChip: FC<{ status: AdvisorCheckResultStatus }> = ({
+  status,
+}) => (
+  <Chip
+    size="small"
+    color={STATUS_CHIP_COLOR[status]}
+    label={ADVISOR_RESULT_STATUS[status]}
+    sx={{ '& .MuiChip-label': { px: 1 } }}
+  />
+);
 
 export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
   {
@@ -82,6 +108,7 @@ export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
     accessorFn: (row) => ADVISOR_RESULT_STATUS[row.status],
     size: 120,
     grow: false,
+    Cell: ({ row }) => <StatusChip status={row.original.status} />,
   },
   {
     header: Messages.columns.checkedAt,

@@ -20,12 +20,8 @@ import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { AdvisorCheckResultStatus, Insight } from 'types/advisors.types';
 import { ManagedServiceType } from 'types/services.types';
 import { Severity } from 'types/severity.types';
-import {
-  ADVISOR_RESULT_STATUS,
-  MANAGED_SERVICE_TYPE,
-  SEVERITY,
-  TIME_FORMAT,
-} from 'lib/constants';
+import { MANAGED_SERVICE_TYPE, SEVERITY, TIME_FORMAT } from 'lib/constants';
+import { StatusChip } from '../AdvisorInsights.constants';
 import { Messages } from '../AdvisorInsights.messages';
 import { TRIGGERED_BY_LABEL } from '../AdvisorInsights.utils';
 
@@ -210,9 +206,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               )}
             </Field>
             <Field label={m.status}>
-              <Typography variant="body1">
-                {ADVISOR_RESULT_STATUS[insight.status]}
-              </Typography>
+              <StatusChip status={insight.status} />
             </Field>
             <Field label={m.triggeredBy}>
               <Typography variant="body1">
