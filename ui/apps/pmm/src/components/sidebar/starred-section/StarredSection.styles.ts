@@ -2,18 +2,6 @@ import { listItemButtonClasses } from '@mui/material/ListItemButton';
 import { Theme } from '@mui/material/styles';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 
-// The empty note's dashed border, drawn so its dashes can be tuned: a CSS
-// dashed border spaces them however the browser likes. Lengths are in px.
-const EMPTY_DASH = 4;
-const EMPTY_GAP = 6;
-const emptyBorderColor = (theme: Theme) => theme.palette.text.disabled;
-
-// A 2px stroke on the box's edge, half of it clipped, leaves a 1px line.
-const dashedBorder = (color: string, radius: number) =>
-  `url("data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" rx="${radius}" ry="${radius}" stroke="${color}" stroke-width="2" stroke-dasharray="${EMPTY_DASH} ${EMPTY_GAP}"/></svg>`
-  )}")`;
-
 export const getStyles = (theme: Theme) => {
   const quick = { duration: theme.transitions.duration.shorter };
 
@@ -66,7 +54,7 @@ export const getStyles = (theme: Theme) => {
         },
       },
     },
-    // A dashed box as tall as its note, lined up with the heading. It keeps
+    // A dashed Paper as tall as its note, lined up with the heading. It keeps
     // the open drawer's width, so the drawer opening or closing over it
     // reveals or covers the note instead of rewrapping it.
     empty: {
@@ -79,13 +67,8 @@ export const getStyles = (theme: Theme) => {
       display: 'flex',
       alignItems: 'flex-start',
       gap: 1,
-      // The 1px the drawn border takes, then 8px.
-      p: '9px',
-      backgroundImage: dashedBorder(
-        emptyBorderColor(theme),
-        theme.shape.borderRadiusMd
-      ),
-      borderRadius: `${theme.shape.borderRadiusMd}px`,
+      // The dashed line's 2px, then 8px.
+      p: '10px',
     },
     // The sidebar keeps its labels on one line while it animates; the note wraps.
     emptyText: {

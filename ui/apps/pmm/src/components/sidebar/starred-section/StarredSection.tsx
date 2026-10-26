@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { StarIcon, Tooltip } from '@percona/peak-ui';
@@ -170,7 +171,7 @@ const StarredSection: FC<Props> = ({
       />
       {empty && (
         <Box component="li" sx={styles.empty} data-testid="starred-empty">
-          <Box sx={styles.emptyNote}>
+          <Paper variant="dashed" sx={styles.emptyNote}>
             <StarIcon sx={styles.emptyStar} />
             <Typography
               variant="caption"
@@ -179,7 +180,7 @@ const StarredSection: FC<Props> = ({
             >
               Click the star on apps or dashboards to add them here.
             </Typography>
-          </Box>
+          </Paper>
         </Box>
       )}
       {ordered.map((item, index) => (
