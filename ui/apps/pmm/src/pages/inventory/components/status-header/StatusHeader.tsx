@@ -8,7 +8,19 @@ import { Messages } from '../../Inventory.messages';
 import { StatusChip } from '../status-chip';
 
 const StatusInfo: FC = () => (
-  <Stack gap={1} py={0.5}>
+  <Stack
+    gap={1}
+    py={0.5}
+    // Default chips use the page palette, which the inverted tooltip hides
+    sx={{
+      '& .MuiChip-colorDefault': {
+        color: 'inherit',
+        bgcolor: 'transparent',
+        border: 1,
+        borderColor: 'currentColor',
+      },
+    }}
+  >
     {SERVICE_STATUSES.map((status) => (
       <Stack key={status} direction="row" alignItems="center" gap={1}>
         <StatusChip status={status} />
@@ -25,6 +37,9 @@ export const StatusHeader: FC = () => (
       <InfoOutlinedIcon
         fontSize="small"
         color="action"
+        tabIndex={0}
+        // The header label sorts the column on click
+        onClick={(event) => event.stopPropagation()}
         data-testid="status-info-icon"
       />
     </Tooltip>
