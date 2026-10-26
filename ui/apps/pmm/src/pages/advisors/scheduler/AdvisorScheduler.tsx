@@ -1,5 +1,10 @@
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -13,6 +18,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
@@ -488,29 +495,33 @@ const AdvisorScheduler: FC = () => {
         {[
           {
             label: Messages.actions.runNow,
+            icon: <PlayArrowOutlinedIcon fontSize="small" />,
             disabled: runBlocked,
             act: runNow,
             testId: 'schedule-action-run',
           },
           {
             label: Messages.actions.edit,
+            icon: <EditOutlinedIcon fontSize="small" />,
             act: (s: AdvisorSchedule) => setEditor({ schedule: s }),
             testId: 'schedule-action-edit',
           },
           {
             label: Messages.actions.duplicate,
+            icon: <ContentCopyOutlinedIcon fontSize="small" />,
             act: duplicate,
             testId: 'schedule-action-duplicate',
           },
           {
             label: Messages.actions.viewRuns,
+            icon: <HistoryOutlinedIcon fontSize="small" />,
             act: (s: AdvisorSchedule) =>
               navigate(
                 `/advisors/runs?scheduleId=${encodeURIComponent(s.scheduleId)}`
               ),
             testId: 'schedule-action-runs',
           },
-        ].map(({ label, disabled, act, testId }) => (
+        ].map(({ label, icon, disabled, act, testId }) => (
           <MenuItem
             key={testId}
             disabled={disabled}
@@ -522,7 +533,8 @@ const AdvisorScheduler: FC = () => {
             }}
             data-testid={testId}
           >
-            {label}
+            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemText>{label}</ListItemText>
           </MenuItem>
         ))}
         <Divider />
@@ -536,7 +548,10 @@ const AdvisorScheduler: FC = () => {
           sx={{ color: 'error.main' }}
           data-testid="schedule-action-delete"
         >
-          {Messages.actions.delete}
+          <ListItemIcon sx={{ color: 'inherit' }}>
+            <DeleteOutlineOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.delete}</ListItemText>
         </MenuItem>
       </Menu>
 
