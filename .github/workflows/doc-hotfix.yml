@@ -78,6 +78,11 @@ jobs:
               echo "result=conflict" >> "$GITHUB_OUTPUT"
               exit 1
             fi
+            # A release branch that already has the change with different context merges to nothing.
+            if git diff --cached --quiet; then
+              echo "result=present" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
 
             git commit --author="$(git log -1 --format='%an <%ae>' "$SHA")" \
               -m "$(git log -1 --format=%s "$SHA")" \
