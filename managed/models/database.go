@@ -17,6 +17,7 @@ package models
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -1721,7 +1722,12 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
-		err := applyMigrations(ctx, tx, params, currentVersion, latestVersion)
+		err := applySchemaMigrations(tx, currentVersion, latestVersion, params.Logf)
+		if err != nil {
+			return err
+		}
+
+		err = seedDefaultAdvisorSchedule(ctx, tx.Querier, currentVersion, latestVersion)
 		if err != nil {
 			return err
 		}
@@ -1758,11 +1764,12 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-// applyMigrations runs the schema migrations after currentVersion up to latestVersion.
-func applyMigrations(ctx context.Context, tx *reform.TX, params SetupDBParams, currentVersion, latestVersion int) error {
+// applySchemaMigrations applies the schema versions after currentVersion up to
+// latestVersion.
+func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, logf reform.Printf) error {
 	for version := currentVersion + 1; version <= latestVersion; version++ {
-		if params.Logf != nil {
-			params.Logf("Migrating database to schema version %d ...", version)
+		if logf != nil {
+			logf("Migrating database to schema version %d ...", version)
 		}
 
 		queries := databaseSchema[version]
@@ -1776,7 +1783,7 @@ func applyMigrations(ctx context.Context, tx *reform.TX, params SetupDBParams, c
 		}
 	}
 
-	return seedDefaultAdvisorSchedule(ctx, tx.Querier, currentVersion, latestVersion)
+	return nil
 }
 
 // seedDefaultAdvisorSchedule creates the default schedule in the migration run that adds its table,
@@ -1786,8 +1793,19 @@ func seedDefaultAdvisorSchedule(ctx context.Context, q *reform.Querier, currentV
 	if currentVersion >= advisorSchedulesVersion || latestVersion != len(databaseSchema)-1 {
 		return nil
 	}
-	_, err := CreateDefaultAdvisorSchedule(ctx, q)
-	return err
+
+	s := DefaultAdvisorSchedule()
+	err := normalizeAdvisorSchedule(s)
+	if err != nil {
+		return err
+	}
+	// not uuid.NewString: tests make that source deterministic, and migrating must not shift their IDs
+	id, err := uuid.NewRandomFromReader(rand.Reader)
+	if err != nil {
+		return err
+	}
+	s.ID = id.String()
+	return q.WithContext(ctx).Insert(s)
 }
 
 // encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
