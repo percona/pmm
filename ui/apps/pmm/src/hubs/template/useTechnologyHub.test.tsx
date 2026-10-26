@@ -48,11 +48,6 @@ const MESSAGES: HubMessages = {
   unit: { cluster: ['cluster', 'clusters'] },
   empty: { title: 'Start', description: 'Add one.', viewer: 'Ask.' },
   clusters: { tableLabel: 'MongoDB clusters' },
-  backups: {
-    emptyTitle: 'None',
-    emptyDescription: 'Set up.',
-    noServices: 'None.',
-  },
   dashboards: { all: 'All MongoDB dashboards' },
 };
 
@@ -84,6 +79,7 @@ const makeConfig = (
     messages: MESSAGES,
     treeColumns: [],
     attentionOrder: [],
+    describeDestination: ({ label }) => ({ path: [label] }),
     useLiveSnapshot,
     fixtures: {
       empty: fixture,

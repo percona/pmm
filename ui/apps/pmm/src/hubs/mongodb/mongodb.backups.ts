@@ -34,6 +34,8 @@ export interface BackupsDerivation {
   schedules: number;
   /** Clusters whose newest backup failed in the last 24 hours. */
   failedRecently: number;
+  /** The oldest last good backup of those clusters, ISO. */
+  failedOldestGood?: string;
   /** Clusters PBM can protect (not standalones), and those with an enabled schedule. */
   coverage?: { protected: number; protectable: number };
 }
@@ -201,6 +203,7 @@ export const deriveBackups = ({
   const findings: BackupFinding[] = [];
   let newestGood: { at: string; cluster: string } | undefined;
   let failedRecently = 0;
+  let failedOldestGood: string | undefined;
 
   const rows = clusters.map((cluster): HubBackupRow => {
     const own = artifacts.filter((a) => clusterOf.get(a.serviceId) === cluster);
@@ -230,6 +233,13 @@ export const deriveBackups = ({
       now - time(latest.createdAt) <= T.backupFailedLookbackHours * HOUR_MS
     ) {
       failedRecently += 1;
+      if (
+        lastSuccess &&
+        (!failedOldestGood ||
+          time(lastSuccess.createdAt) < time(failedOldestGood))
+      ) {
+        failedOldestGood = lastSuccess.createdAt;
+      }
       findings.push({
         kind: 'backupFailed',
         clusterKey: cluster.key,
@@ -309,6 +319,7 @@ export const deriveBackups = ({
     lastGoodBackup: newestGood ?? 'none',
     schedules: scheduled.filter((s) => s.enabled).length,
     failedRecently,
+    ...(failedOldestGood ? { failedOldestGood } : {}),
     coverage,
   };
 };

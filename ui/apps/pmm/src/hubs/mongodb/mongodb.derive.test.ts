@@ -32,6 +32,7 @@ describe('deriveMongoHub status', () => {
       health: { healthy: 5, degraded: 0, down: 0, upgrading: 0, noData: 0 },
       patches: { behind: 2, unknown: 0 },
       alerts: 0,
+      alertsCritical: 0,
       alertRules: 'some',
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
       backupsFailed: 0,
@@ -78,11 +79,14 @@ describe('deriveMongoHub status', () => {
       // Without Operations, payments' upgrade reads as drift, like catalog's.
       health: { healthy: 0, degraded: 3, down: 1, upgrading: 0, noData: 1 },
       alerts: 3,
-      // orders' snapshot failed and billing's point-in-time recovery stopped.
-      backupsFailed: 2,
+      alertsCritical: 1,
+      // orders' snapshot failed; billing's stopped point-in-time recovery is not a failed backup.
+      backupsFailed: 1,
+      backupsFailedOldestGood: hours(32),
       lastGoodBackup: { at: hours(6), cluster: 'billing' },
     });
-    expect(attention).toHaveLength(14);
+    // Every finding but the slower query, which stays in Queries.
+    expect(attention).toHaveLength(13);
   });
 
   it('counts a cluster Operations is upgrading as upgrading, not as a problem', () => {
@@ -118,14 +122,13 @@ describe('deriveMongoHub status', () => {
     });
     // Backups, alerts and queries are not health rows; they still show, and the
     // critical down alert has no member row left to merge into.
-    expect(view.attention.map((item) => item.kind)).toEqual([
-      'alert',
-      'backupFailed',
-      'pitrStopped',
-      'alert',
-      'alert',
-      'querySlower',
-      'queryRunning',
+    expect(view.attention.map((item) => [item.severity, item.source])).toEqual([
+      ['error', 'Alert rules'],
+      ['warning', 'Backups'],
+      ['warning', 'Backups'],
+      ['warning', 'Alert rules'],
+      ['warning', 'Alert rules'],
+      ['warning', 'Real-time queries'],
     ]);
   });
 
@@ -200,12 +203,10 @@ describe('deriveMongoHub environment filter', () => {
       'catalog',
       'reports',
     ]);
-    // Query analytics is filtered by the server, so sample queries stay whatever the filter.
-    expect(
-      view.attention
-        .filter((item) => item.kind !== 'querySlower')
-        .map((item) => item.kind)
-    ).toEqual(['memberNoData', 'versionDrift']);
+    expect(view.attention.map((item) => item.title)).toEqual([
+      'PMM gets no data from reports',
+      'catalog runs mixed versions, an upgrade may have stopped partway',
+    ]);
   });
 
   it('shows services without an environment for No environment', () => {
@@ -402,10 +403,10 @@ describe('deriveMongoHub sections', () => {
       partial: true,
     });
     expect(view.attention[0]).toMatchObject({
-      kind: 'noPrimary',
+      severity: 'critical',
       title: "billing has no primary, it can't take writes",
     });
-    expect(view.attention.some((item) => item.kind === 'alert')).toBe(false);
+    expect(view.attention.some((item) => item.alertFiring)).toBe(false);
   });
 
   it('fails the attention section outright when metrics failed', () => {
@@ -459,11 +460,8 @@ describe('deriveMongoHub sections', () => {
 });
 
 describe('deriveMongoHub tree', () => {
-  it('expands the problem path', () => {
-    expect(derive(unhealthySnapshot(NOW, false)).expanded).toMatchObject({
-      'cluster:prod/billing': true,
-      'cluster:prod/orders': true,
-    });
+  it('starts every cluster as one row, the unhealthy ones too', () => {
+    expect(derive(unhealthySnapshot(NOW, false)).expanded).toEqual({});
   });
 
   it('drops alerts of another environment', () => {
@@ -482,9 +480,9 @@ describe('deriveMongoHub tree', () => {
     expect(derive(snapshot, { environment: 'prod' }).attention).toEqual([]);
     expect(
       derive(snapshot, { environment: 'staging' }).attention.map(
-        (item) => item.kind
+        (item) => item.source
       )
-    ).toEqual(['alert']);
+    ).toEqual(['Alert rules']);
   });
 });
 
@@ -536,9 +534,10 @@ describe('deriveMongoHub alerts', () => {
     expect(
       view.attention.find((item) => item.title.startsWith('Node high CPU'))
     ).toMatchObject({
-      kind: 'alert',
-      where: 'orders › orders-shard2 · prod',
-      door: { label: 'Open Alerts', context: 'for orders-shard2-m1' },
+      alertFiring: true,
+      location: 'orders › orders-shard2',
+      environment: 'prod',
+      destination: { label: 'Open Alerts', route: '/alerting/status' },
     });
   });
 

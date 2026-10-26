@@ -19,19 +19,6 @@ const SLOWER: HubQueries['slower'] = [
   },
 ];
 
-const RUNNING: HubQueries['runningLong'] = [
-  {
-    id: 'r1',
-    text: 'aggregate on shop.orders',
-    headline: 'running for 14m',
-    detail: 'orders-shard1-m1',
-    severity: 'warning',
-    door: testDoor('Open', '/rta/overview?serviceIds=svc-1', {
-      context: 'in Real-time queries',
-    }),
-  },
-];
-
 const renderSection = (
   queries: Partial<HubQueries> = {},
   state: HubSectionState = READY,
@@ -66,7 +53,7 @@ describe('QueriesSection', () => {
     renderSection();
 
     expect(
-      screen.getByText('No query is slower than usual or running long.')
+      screen.getByText('No query is slower than usual.')
     ).toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
@@ -75,18 +62,21 @@ describe('QueriesSection', () => {
     renderSection({}, READY, true);
 
     expect(
-      screen.queryByText('No query is slower than usual or running long.')
+      screen.queryByText('No query is slower than usual.')
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Query analytics' })
     ).toBeInTheDocument();
   });
 
-  it('groups the queries that are off under named lists', async () => {
-    renderSection({ slower: SLOWER, runningLong: RUNNING });
+  it('lists the queries slower than usual, leaving those running long to Needs attention', async () => {
+    renderSection({ slower: SLOWER });
 
     const slower = screen.getByRole('list', { name: 'Slower than usual' });
-    const running = screen.getByRole('list', { name: 'Running long now' });
+
+    expect(
+      screen.queryByRole('list', { name: 'Running long now' })
+    ).not.toBeInTheDocument();
 
     expect(
       within(slower).getByText('6× slower than usual')
@@ -94,9 +84,6 @@ describe('QueriesSection', () => {
     expect(
       within(slower).getByRole('link', { name: 'Open in Query analytics' })
     ).toHaveAttribute('href', '/graph/d/pmm-qan?filter_by=q1');
-    expect(
-      within(running).getByRole('link', { name: 'Open in Real-time queries' })
-    ).toBeInTheDocument();
 
     const text = within(slower).getByText(
       'db.orders.find({status: ?, createdAt: ?})'

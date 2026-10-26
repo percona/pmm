@@ -7,7 +7,8 @@ import type {
   MongoUpdateCheck,
 } from '../mongodb.types';
 
-// The recorded estate's names (recorded.ts), so doors land on dashboards with data; orders-mongos-2, orders-cfg-m2/m3, payments and catalog exist only here.
+// The rule tests' estate, 5 clusters with the recorded estate's names (recorded.ts); the demo scenarios run on the 60-cluster fleet in fleet.ts.
+// orders-mongos-2, orders-cfg-m2/m3, payments and catalog exist only here.
 
 export const MINUTE_MS = 60 * 1000;
 export const HOUR_MS = 60 * MINUTE_MS;

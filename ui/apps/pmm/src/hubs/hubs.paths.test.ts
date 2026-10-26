@@ -26,13 +26,19 @@ describe('withHubPage', () => {
     expect(withHubPage(mongo)).toEqual({
       ...mongo,
       url: MONGODB_HUB_PATH,
-      matches: [MONGODB_HUB_PATH, OVERVIEW, SUMMARY],
+      matches: [
+        MONGODB_HUB_PATH,
+        `${MONGODB_HUB_PATH}/clusters`,
+        OVERVIEW,
+        SUMMARY,
+      ],
     });
   });
 
   it('works for an entry without matches', () => {
     expect(withHubPage({ id: NAV_MONGO.id, url: OVERVIEW }).matches).toEqual([
       MONGODB_HUB_PATH,
+      `${MONGODB_HUB_PATH}/clusters`,
     ]);
   });
 

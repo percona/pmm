@@ -10,12 +10,6 @@ export const MONGODB_HUB_MESSAGES: HubMessages = {
     viewer: 'Ask an administrator to add a MongoDB service.',
   },
   clusters: { tableLabel: 'MongoDB clusters' },
-  backups: {
-    emptyTitle: 'No MongoDB backups yet',
-    emptyDescription:
-      'Set up a scheduled backup to keep a copy of each cluster you can restore.',
-    noServices: 'Backups start once a MongoDB service is monitored.',
-  },
   dashboards: { all: 'All MongoDB dashboards' },
 };
 
@@ -301,5 +295,37 @@ export const Messages = {
       locations: 'Storage locations',
       diagnostics: 'Open Diagnostics',
     },
+  },
+  destinations: {
+    replsetSummary: 'ReplSet summary',
+    shardedSummary: 'Sharded cluster summary',
+    instancesOverview: 'Instances overview',
+    backups: 'MongoDB backups',
+    scheduledBackups: 'Scheduled backups',
+    inventory: 'Inventory',
+    realtime: 'Real-time queries',
+    fleet: 'Fleet',
+    affectedClusters: 'Affected clusters',
+    /** Where each one sits in the sidebar. */
+    places: {
+      apps: 'Apps',
+      operations: 'Operations for MongoDB',
+      dashboards: 'All dashboards',
+      folder: 'MongoDB',
+      replsetSummary: 'MongoDB ReplSet Summary',
+      shardedSummary: 'MongoDB Sharded Cluster Summary',
+      instancesOverview: 'MongoDB Instances Overview',
+      clustersFiltered: 'Clusters, filtered',
+    },
+  },
+  /** Where a Needs attention row comes from; kept with the row, never shown. */
+  sources: {
+    health: 'PMM health monitoring',
+    alerts: 'Alert rules',
+    agent: 'Agent connection',
+    backups: 'Backups',
+    realtime: 'Real-time queries',
+    qan: 'Query Analytics',
+    operations: 'Operations for MongoDB',
   },
 };

@@ -3,8 +3,8 @@ import ArrowOutwardOutlined from '@mui/icons-material/ArrowOutwardOutlined';
 import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
 import { Graph4Icon } from '@percona/peak-ui';
 import type {
-  HubAttentionItem,
   HubDoor,
+  HubNeedsAttentionItem,
   HubSectionState,
   HubTreeColumn,
   HubTreeNode,
@@ -171,18 +171,26 @@ export const TEST_EXPANDED: Record<string, true> = {
   'set:prod/orders/orders-shard1': true,
 };
 
+/** A Needs attention row: a warning on one cluster, with a dashboard to open. */
 export const attentionItem = (
-  id: string,
-  overrides: Partial<HubAttentionItem> = {}
-): HubAttentionItem => ({
-  id,
-  kind: 'memberDown',
+  title: string,
+  overrides: Partial<HubNeedsAttentionItem> = {}
+): HubNeedsAttentionItem => ({
   severity: 'warning',
-  title: `${id} needs a look`,
-  where: 'orders · prod',
-  door: testDoor('Open Instance summary', `/graph/d/instance?var-name=${id}`, {
-    context: `for ${id}`,
-  }),
+  title,
+  impact: 'Reads from it may return stale data.',
+  location: 'orders',
+  environment: 'prod',
+  since: '18m',
+  issueCount: 1,
+  alertFiring: false,
+  source: 'PMM health monitoring',
+  destination: {
+    label: 'ReplSet summary',
+    route: '/graph/d/mongodb-replicaset-summary/mongodb-replset-summary',
+    params: { 'var-cluster': 'orders' },
+    kind: 'page',
+  },
   ...overrides,
 });
 
@@ -248,7 +256,6 @@ export const testView = (
       realtime: testDoor('Real-time queries', '/rta'),
     },
     slower: [],
-    runningLong: [],
   },
   dashboards: {
     recommended: [],
@@ -287,7 +294,6 @@ export const testView = (
     ],
   },
   sectionDoors: {
-    attention: testDoor('Alerts', '/alerting/status'),
     clusters: testDoor('Fleet in Operations', '/operations?tab=clusters'),
   },
   sections: {

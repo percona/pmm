@@ -74,7 +74,9 @@ describe('statusFacets', () => {
             noData: 1,
           },
           alerts: 3,
+          alertsCritical: 1,
           backupsFailed: 2,
+          backupsFailedOldestGood: hoursAgo(32),
         },
         { issues: 15 }
       )
@@ -88,13 +90,13 @@ describe('statusFacets', () => {
       {
         id: 'alerts',
         state: 'errors',
-        label: '3 alerts firing',
+        label: '3 alerts firing, 1 critical',
         action: OPEN_ALERTS,
       },
       {
         id: 'backups',
         state: 'errors',
-        label: '2 backups failed, last good 6h ago',
+        label: '2 backups failed, oldest good backup 1d 8h ago',
         action: OPEN_BACKUPS,
       },
     ]);
@@ -192,16 +194,37 @@ describe('statusFacets', () => {
     ]);
   });
 
-  it('counts no data with down, and says All when every cluster needs attention', () => {
+  it('counts no data with degraded, as a warning, until a cluster is down', () => {
     expect(
       facets({
-        health: { healthy: 0, degraded: 4, down: 0, upgrading: 0, noData: 1 },
+        health: { healthy: 3, degraded: 1, down: 0, upgrading: 0, noData: 1 },
+      })[0]
+    ).toEqual({
+      id: 'health',
+      state: 'degraded',
+      label: '2 of 5 clusters degraded',
+    });
+    expect(
+      facets({
+        health: { healthy: 0, degraded: 3, down: 1, upgrading: 0, noData: 1 },
       })[0]
     ).toEqual({
       id: 'health',
       state: 'mixedProblems',
       label: 'All 5 clusters need attention',
     });
+  });
+
+  it('says how many firing alerts are critical, if any', () => {
+    expect(facets({ alerts: 17, alertsCritical: 4 })[1].label).toBe(
+      '17 alerts firing, 4 critical'
+    );
+    expect(facets({ alerts: 2, alertsCritical: 2 })[1].label).toBe(
+      '2 alerts firing, all critical'
+    );
+    expect(facets({ alerts: 2, alertsCritical: 0 })[1].label).toBe(
+      '2 alerts firing'
+    );
   });
 
   it('reads an upgrade in progress as information, not a problem', () => {
@@ -230,9 +253,10 @@ describe('statusFacets', () => {
       one({ healthy: 0, degraded: 1, down: 0, upgrading: 0, noData: 0 })
     ).toBe('1 cluster is degraded');
     expect(facets({ alerts: 1 })[1].label).toBe('1 alert firing');
-    expect(facets({ backupsFailed: 1 })[2].label).toBe(
-      '1 backup failed, last good 6h ago'
-    );
+    expect(
+      facets({ backupsFailed: 1, backupsFailedOldestGood: hoursAgo(6) })[2]
+        .label
+    ).toBe('1 backup failed, last good backup 6h ago');
   });
 
   it('says what it cannot tell instead of guessing', () => {

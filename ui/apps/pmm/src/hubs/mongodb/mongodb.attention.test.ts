@@ -3,10 +3,12 @@ import { ALERTS_SERVICE_FILTER_KEY } from 'hubs/template/hub.doors';
 import type { HubAttentionItem } from 'hubs/template/hub.types';
 import { unhealthySnapshot } from './fixtures/unhealthy';
 import {
+  type AttentionEntry,
   alertSeverity,
   type AttentionInput,
   deriveAttention,
   MONGODB_ATTENTION_ORDER,
+  toNeedsAttention,
 } from './mongodb.attention';
 import { deriveBackups } from './mongodb.backups';
 import { deriveQueries } from './mongodb.queries';
@@ -572,5 +574,96 @@ describe('the unhealthy estate', () => {
     };
 
     expect(ids(NOW + 30_000)).toEqual(ids(NOW));
+  });
+});
+
+describe('toNeedsAttention', () => {
+  const entry = (
+    item: Partial<HubAttentionItem> & Pick<HubAttentionItem, 'id' | 'kind'>,
+    subject: AttentionEntry['subject'] = { serviceNames: [] }
+  ): AttentionEntry => ({
+    item: {
+      severity: 'warning',
+      title: item.id,
+      where: 'billing · prod',
+      door: {
+        label: 'Open ReplSet summary',
+        to: '/graph/d/rs?var-cluster=billing',
+      },
+      ...item,
+    },
+    subject,
+  });
+
+  it('turns live findings into rows: critical for no primary, events as ago, slower queries left to Queries', () => {
+    const rows = toNeedsAttention(
+      [
+        entry({
+          id: 'lag',
+          kind: 'behind',
+          since: new Date(NOW - 25 * 60_000).toISOString(),
+        }),
+        entry({
+          id: 'billing has no primary',
+          kind: 'noPrimary',
+          severity: 'error',
+          since: new Date(NOW - 18 * 60_000).toISOString(),
+          source: 'alert',
+          secondaryDoor: {
+            label: 'Alert',
+            to: '/alerting/status?f.serviceName=billing-m1',
+          },
+        }),
+        entry({
+          id: 'nightly failed',
+          kind: 'backupFailed',
+          where: 'orders › orders-cfg · prod',
+          since: new Date(NOW - 8 * 3600_000).toISOString(),
+          door: {
+            label: 'Open MongoDB backups',
+            to: '/graph/backup/inventory',
+          },
+        }),
+        entry({ id: 'slower', kind: 'querySlower' }),
+      ],
+      NOW
+    );
+
+    expect(rows).toEqual([
+      {
+        severity: 'critical',
+        title: 'billing has no primary',
+        impact: '',
+        location: 'billing',
+        environment: 'prod',
+        since: '18m',
+        issueCount: 1,
+        alertFiring: true,
+        alertService: 'billing-m1',
+        source: 'PMM health monitoring',
+        destination: {
+          label: 'Open ReplSet summary',
+          route: '/graph/d/rs',
+          params: { 'var-cluster': 'billing' },
+          kind: 'page',
+        },
+      },
+      expect.objectContaining({
+        title: 'nightly failed',
+        location: 'orders › orders-cfg',
+        since: '8h ago',
+        source: 'Backups',
+        destination: {
+          label: 'Open MongoDB backups',
+          route: '/graph/backup/inventory',
+          kind: 'page',
+        },
+      }),
+      expect.objectContaining({
+        title: 'lag',
+        since: '25m',
+        alertFiring: false,
+      }),
+    ]);
   });
 });

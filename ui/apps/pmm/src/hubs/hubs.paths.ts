@@ -8,11 +8,18 @@ export const HUB_PATHS: Readonly<Record<string, string>> = {
   mongo: MONGODB_HUB_PATH,
 };
 
-/** Points a technology entry at its hub, keeping it highlighted on the dashboards it matched before. */
+/** A hub's Clusters page; a placeholder until it is designed. */
+export const hubClustersPath = (hub: string) => `${hub}/clusters`;
+
+/** Points a technology entry at its hub, keeping it highlighted on the hub's Clusters page and the dashboards it matched before. */
 export const withHubPage = (item: NavItem): NavItem => {
   const hub = HUB_PATHS[item.id];
 
   return hub
-    ? { ...item, url: hub, matches: [hub, ...(item.matches ?? [])] }
+    ? {
+        ...item,
+        url: hub,
+        matches: [hub, hubClustersPath(hub), ...(item.matches ?? [])],
+      }
     : item;
 };

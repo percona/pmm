@@ -104,12 +104,11 @@ describe('deriveQueries', () => {
         realtime: { label: 'Real-time queries', to: '/rta' },
       },
       slower: [],
-      runningLong: [],
     });
   });
 
   it('builds rows with their facts and doors', () => {
-    const { queries } = deriveQueries(
+    const { queries, running } = deriveQueries(
       {
         qan: { current: [row('Q1', 0.84)], baseline: [row('Q1', 0.14)] },
         realtime: {
@@ -134,19 +133,10 @@ describe('deriveQueries', () => {
         },
       },
     ]);
-    expect(queries.runningLong).toEqual([
-      {
-        id: 'running:svc-s1:db.orders.aggregate([])',
-        text: 'db.orders.aggregate([])',
-        headline: 'running for 14m',
-        detail: 'svc-s1',
-        severity: 'warning',
-        door: {
-          label: 'Open Real-time queries',
-          to: '/rta/overview?serviceIds=svc-s1',
-          context: 'for svc-s1',
-        },
-      },
+    // Queries running long go to Needs attention instead.
+    expect(queries).not.toHaveProperty('runningLong');
+    expect(running.map(({ query }) => query.durationMs)).toEqual([
+      14 * 60 * 1000,
     ]);
   });
 

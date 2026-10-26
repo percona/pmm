@@ -1,7 +1,16 @@
 // The module, not the package index, which would load the whole Operations UI.
 import { formatCompactDuration } from '@pmm/plugins-om/src/format';
-import { higherSeverity } from 'hubs/template/hub.attention';
-import type { HubAttentionItem, HubSeverity } from 'hubs/template/hub.types';
+import { higherSeverity, rankAttention } from 'hubs/template/hub.attention';
+import { ALERTS_SERVICE_FILTER_KEY } from 'hubs/template/hub.doors';
+import type {
+  HubAttentionItem,
+  HubAttentionSeverity,
+  HubDestination,
+  HubDoor,
+  HubNeedsAttentionItem,
+  HubSeverity,
+} from 'hubs/template/hub.types';
+import { formatSince } from 'hubs/template/sections/hub.time';
 import type { BackupFinding } from './mongodb.backups';
 import {
   alertDoor,
@@ -755,4 +764,104 @@ export const deriveAttention = ({
     ...queryEntries(slower, running, filter, places),
     ...operationsEntries(operations, now),
   ];
+};
+
+const SOURCES: Record<string, string> = {
+  alert: Messages.sources.alerts,
+  memberNoData: Messages.sources.agent,
+  backupFailed: Messages.sources.backups,
+  pitrStopped: Messages.sources.backups,
+  queryRunning: Messages.sources.realtime,
+  operationsFailed: Messages.sources.operations,
+};
+
+// Something that happened, rather than a condition that holds: "8h ago", not "for 8h".
+const EVENTS = new Set(['backupFailed', 'operationsFailed']);
+
+// Queries slower than usual stay in the Queries section.
+const ELSEWHERE = new Set(['querySlower']);
+
+const severityOf = (item: HubAttentionItem): HubAttentionSeverity =>
+  item.kind === 'noPrimary'
+    ? 'critical'
+    : item.severity === 'error'
+      ? 'error'
+      : 'warning';
+
+const destinationOf = ({ label, to }: HubDoor): HubDestination => {
+  if (to.startsWith('#')) {
+    return { label, route: to, kind: 'inpage' };
+  }
+  if (/^https?:/.test(to)) {
+    return { label, route: to, kind: 'external' };
+  }
+  const [route, query = ''] = to.split('?');
+  const params = Object.fromEntries(new URLSearchParams(query));
+
+  return {
+    label,
+    route,
+    ...(Object.keys(params).length ? { params } : {}),
+    kind: 'page',
+  };
+};
+
+const alertServiceOf = (door?: HubDoor) =>
+  door?.to.includes('?')
+    ? (new URLSearchParams(door.to.split('?')[1]).get(
+        ALERTS_SERVICE_FILTER_KEY
+      ) ?? undefined)
+    : undefined;
+
+const WHERE_SEPARATOR = ' · ';
+
+/** "orders › orders-shard1 · prod" as its place and its environment. */
+const rowPlace = (where: string, subject: Subject) => {
+  const parts = where.split(WHERE_SEPARATOR);
+  const environment = subject.clusterKey?.split('/')[0];
+
+  return parts.length > 1
+    ? {
+        location: parts.slice(0, -1).join(WHERE_SEPARATOR),
+        environment: parts[parts.length - 1],
+      }
+    : { location: where, environment: environment ?? '' };
+};
+
+/** Live findings as Needs attention rows, ranked; each stays its own row, as grouping across clusters needs wording per kind. */
+export const toNeedsAttention = (
+  entries: AttentionEntry[],
+  now: number
+): HubNeedsAttentionItem[] => {
+  const subjects = new Map(
+    entries.map(({ item, subject }) => [item.id, subject])
+  );
+  const items = rankAttention(
+    entries.map(({ item }) => item).filter((item) => !ELSEWHERE.has(item.kind)),
+    MONGODB_ATTENTION_ORDER
+  );
+
+  return items.map((item) => {
+    const subject = subjects.get(item.id) ?? { serviceNames: [] };
+    const { location, environment } = rowPlace(item.where, subject);
+    const age = formatSince(item.since, now);
+    const alertFiring = item.source === 'alert';
+    const alertService =
+      alertServiceOf(item.secondaryDoor) ??
+      (item.kind === 'alert' ? alertServiceOf(item.door) : undefined);
+
+    return {
+      severity: severityOf(item),
+      title: item.title,
+      impact: item.detail ?? '',
+      location,
+      environment,
+      since: age ? (EVENTS.has(item.kind) ? `${age} ago` : age) : '',
+      issueCount: 1,
+      alertFiring,
+      ...(alertFiring && alertService ? { alertService } : {}),
+      source: SOURCES[item.kind] ?? Messages.sources.health,
+      destination: destinationOf(item.door),
+    };
+  });
 };

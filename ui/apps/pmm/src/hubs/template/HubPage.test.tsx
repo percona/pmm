@@ -79,13 +79,13 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       expect(screen.queryByText('Preview')).toBeNull();
     });
 
-    it('shows Needs attention only when there is an estate, and its list only when unhealthy', async () => {
+    it('shows Needs attention only while something needs attention, five rows at first', async () => {
       renderPage({ scenario, ops, role });
 
       await screen.findByRole('heading', { level: 1 });
       const attention = region('Needs attention');
 
-      if (scenario === 'empty') {
+      if (scenario === 'empty' || scenario === 'healthy') {
         expect(attention).toBeNull();
         return;
       }
@@ -94,17 +94,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
         throw new Error('No Needs attention section');
       }
 
-      const section = within(attention);
-
-      if (scenario === 'healthy') {
-        expect(
-          section.getByText(/^Nothing needs attention/)
-        ).toBeInTheDocument();
-        expect(section.queryByRole('list')).toBeNull();
-      } else {
-        expect(section.getAllByRole('listitem')).toHaveLength(5);
-        expect(section.queryByText(/^Nothing needs attention/)).toBeNull();
-      }
+      expect(within(attention).getAllByRole('listitem')).toHaveLength(5);
     });
 
     it('offers Add to admins and Install to admins with Operations', async () => {
@@ -137,12 +127,13 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       expect(appTitle('MongoDB backups')).not.toBeNull();
     });
 
-    it('keeps Backups and both Queries links', async () => {
+    it('leaves clusters and backups to their own pages, and keeps both Queries links', async () => {
       renderPage({ scenario, ops, role });
 
       await screen.findByRole('heading', { level: 1 });
 
-      expect(region('Backups')).not.toBeNull();
+      expect(region('Clusters')).toBeNull();
+      expect(region('Backups')).toBeNull();
 
       const queries = screen.getByRole('region', { name: 'Queries' });
 
@@ -181,8 +172,8 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
   );
 
   it.each<[Ops, number]>([
-    ['off', 9],
-    ['on', 10],
+    ['off', 7],
+    ['on', 7],
   ])(
     'folds the rest of what is wrong behind Show more, Operations %s',
     async (ops, more) => {
@@ -194,35 +185,28 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     }
   );
 
-  it('opens the problem path of the tree and leaves healthy branches folded', async () => {
-    renderPage({ scenario: 'healthy', ops: 'off', role: 'admin' });
+  it('opens every row of Needs attention from the banner’s Review link', async () => {
+    renderPage({ scenario: 'unhealthy', ops: 'on', role: 'admin' });
 
-    const table = await screen.findByRole('table', {
-      name: 'MongoDB clusters',
-    });
+    fireEvent.click(
+      await screen.findByRole('link', { name: 'Review 39 issues' })
+    );
 
     expect(
-      within(table).queryAllByRole('button', { name: /^Collapse / })
-    ).toHaveLength(0);
+      await screen.findByRole('button', { name: 'Show fewer' })
+    ).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('shows how to start in the Clusters section of an empty estate', async () => {
-    renderPage({ scenario: 'empty', ops: 'on', role: 'viewer' });
+  it('lays the sections out in reading order: Needs attention, Queries, Apps, Dashboards', async () => {
+    renderPage({ scenario: 'unhealthy', ops: 'on', role: 'admin' });
 
-    const clusters = await screen.findByRole('region', { name: 'Clusters' });
+    await screen.findByRole('heading', { level: 1 });
 
     expect(
-      within(clusters).getByRole('heading', {
-        level: 3,
-        name: 'Start monitoring MongoDB',
-      })
-    ).toBeInTheDocument();
-    expect(
-      within(clusters).getByText(
-        'Ask an administrator to add a MongoDB service.'
-      )
-    ).toBeInTheDocument();
-    expect(within(clusters).queryByRole('link')).toBeNull();
+      screen
+        .getAllByRole('heading', { level: 2 })
+        .map((heading) => heading.textContent)
+    ).toEqual(['Needs attention', 'Queries', 'Apps', 'Dashboards']);
   });
 
   it('survives a malformed hash in a pasted link', async () => {
@@ -233,7 +217,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps a filter that matches nothing visible and undoable', async () => {
+  it('keeps a filter that matches nothing visible', async () => {
     renderHub(<HubRoute />, {
       path: '/mongodb?environment=qa&hubState=healthy',
       user: TEST_USER_ADMIN,
@@ -247,31 +231,5 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       screen.getByRole('combobox', { name: 'Environment' })
     ).toHaveTextContent('qa');
     expect(region('Needs attention')).toBeNull();
-    expect(
-      screen.queryByRole('heading', { name: 'Start monitoring MongoDB' })
-    ).toBeNull();
-    expect(
-      within(screen.getByRole('region', { name: 'Backups' })).getByText(
-        'No MongoDB service is in this environment.'
-      )
-    ).toBeInTheDocument();
-
-    const clusters = screen.getByRole('region', { name: 'Clusters' });
-
-    expect(
-      within(clusters).getByRole('heading', {
-        level: 3,
-        name: 'No matching clusters',
-      })
-    ).toBeInTheDocument();
-
-    fireEvent.click(
-      within(clusters).getByRole('button', { name: 'Show all environments' })
-    );
-
-    expect(screen.getByTestId('hub-location')).toHaveTextContent(
-      // Best case is the default, so it leaves the URL.
-      /^\/mongodb$/
-    );
   });
 });

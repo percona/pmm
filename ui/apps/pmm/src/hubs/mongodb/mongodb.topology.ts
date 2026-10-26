@@ -1077,29 +1077,3 @@ export const buildClusterTree = (
   clusters
     .map((cluster) => clusterNode(cluster, options))
     .sort((a, b) => compareHealth(a.health, b.health) || byName(a, b));
-
-/** A node that needs the reader; an upgrade is planned work, not a problem. */
-export const isProblem = (node: Pick<HubTreeNode, 'health'>) =>
-  node.health !== 'healthy' && node.health !== 'upgrading';
-
-/** MRT's expanded state: every node with a problem and children, and every ancestor of one. */
-export const expandedProblems = (
-  nodes: HubTreeNode[]
-): Record<string, true> => {
-  const expanded: Record<string, true> = {};
-
-  const visit = (node: HubTreeNode): boolean => {
-    const childProblem = (node.children ?? []).map(visit).some(Boolean);
-    const problem = isProblem(node) || childProblem;
-
-    if (problem && node.children?.length) {
-      expanded[node.id] = true;
-    }
-
-    return problem;
-  };
-
-  nodes.forEach(visit);
-
-  return expanded;
-};

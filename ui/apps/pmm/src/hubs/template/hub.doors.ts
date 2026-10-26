@@ -19,7 +19,9 @@ export const ATTENTION_SECTION_ID = 'needs-attention';
 /** Alerts' column filter for the service, as `useTableUrlState` reads it (`?f.serviceName=`). */
 export const ALERTS_SERVICE_FILTER_KEY = `${buildTableUrlParamKeys().filterPrefix}serviceName`;
 
-const encode = (value: string | number) => encodeURIComponent(String(value));
+// Commas stay as they are, so a list reads in the address: `?clusters=cart-eu,users-eu`.
+const encode = (value: string | number) =>
+  encodeURIComponent(String(value)).replace(/%2C/g, ',');
 
 /** Appends the query, skipping empty values; spaces encode as %20, which Grafana and React Router both read. */
 export const withQuery = (path: string, query: DoorQuery = {}): string => {

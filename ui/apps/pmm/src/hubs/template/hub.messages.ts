@@ -1,4 +1,4 @@
-import type { HubHealth, HubSeverity } from './hub.types';
+import type { HubAttentionSeverity, HubHealth, HubSeverity } from './hub.types';
 
 export const Messages = {
   freshness: {
@@ -68,8 +68,8 @@ export const Messages = {
     },
     alerts: {
       checking: 'Checking alerts...',
-      firing: (count: number) =>
-        count === 1 ? '1 alert firing' : `${count} alerts firing`,
+      firing: (count: number, critical = 0) =>
+        `${count === 1 ? '1 alert' : `${count} alerts`} firing${critical ? `, ${critical === count ? 'all' : critical} critical` : ''}`,
       none: 'No alerts firing',
       notSetUp: 'No alerts set up',
       unknown: 'Alerts unavailable',
@@ -78,7 +78,7 @@ export const Messages = {
       checking: 'Checking backups...',
       onSchedule: (age: string) => `Backups on schedule, last ${age}`,
       failed: (count: number, age?: string) =>
-        `${count === 1 ? '1 backup' : `${count} backups`} failed, ${age ? `last good ${age}` : 'no good backup yet'}`,
+        `${count === 1 ? '1 backup' : `${count} backups`} failed, ${age ? `${count === 1 ? 'last' : 'oldest'} good backup ${age}` : 'no good backup yet'}`,
       protected: (
         count: number,
         total: number,
@@ -103,7 +103,7 @@ export const Messages = {
     apps: 'Apps',
   },
   sectionCount: {
-    attention: (count: number) => (count === 1 ? 'item' : 'items'),
+    attention: (count: number) => (count === 1 ? 'issue' : 'issues'),
     clusters: (count: number, [one, many]: [string, string]) =>
       count === 1 ? one : many,
   },
@@ -114,14 +114,16 @@ export const Messages = {
       `Firing alerts could not be read${reason ? ` (${reason})` : ''}, so none is listed here.`,
   },
   attention: {
-    calm: (age: string) => `Nothing needs attention · checked ${age}`,
     showMore: (count: number) => `Show ${count} more`,
     showFewer: 'Show fewer',
     severity: {
+      critical: 'Critical',
       error: 'Error',
       warning: 'Warning',
-      info: 'Info',
-    } satisfies Record<HubSeverity, string>,
+    } satisfies Record<HubAttentionSeverity, string>,
+    /** "for 18m", "for up to 40m"; an event keeps its "8h ago". */
+    since: (since: string) => (/\bago$/.test(since) ? since : `for ${since}`),
+    alertFiring: 'Alert firing',
   },
   health: {
     healthy: 'Healthy',
@@ -182,36 +184,29 @@ export const Messages = {
     noData: 'No data',
     lastSeen: (time: string) => `Last seen ${time}`,
   },
-  backups: {
-    tableLabel: 'Backups by cluster',
-    columns: {
-      cluster: 'Cluster',
-      lastGood: 'Last good backup',
-      pitr: 'Point-in-time recovery',
-      nextRun: 'Next run',
-    },
-    noneYet: 'None yet',
-    failed: (age: string) => `failed ${age}`,
-    lastGoodSince: (age: string) => `last good ${age}`,
-    pitr: {
-      on: 'On',
-      off: 'Off',
-      stopped: 'Stopped',
-      notStarted: 'Not started',
-    },
-    notApplicable: 'Not applicable',
-    featureOff: 'Backup management is off.',
-  },
   queries: {
     slower: 'Slower than usual',
-    runningLong: 'Running long now',
-    none: 'No query is slower than usual or running long.',
+    none: 'No query is slower than usual.',
+    severity: {
+      error: 'Error',
+      warning: 'Warning',
+      info: 'Info',
+    } satisfies Record<HubSeverity, string>,
   },
   dashboards: {
     recommended: 'Recommended for what’s running',
     forDevelopers: 'For developers',
     recent: 'Recently visited',
     recentEmpty: 'Dashboards you open appear here.',
+  },
+  clustersPage: {
+    title: 'Clusters page (in design)',
+    received: (count: number) =>
+      count === 1
+        ? 'The link asked for 1 cluster:'
+        : `The link asked for ${count} clusters:`,
+    none: 'The link asked for no cluster in particular.',
+    fleet: 'It will be the Fleet page of Operations for MongoDB, improved.',
   },
   demo: {
     trigger: 'Demo controls',

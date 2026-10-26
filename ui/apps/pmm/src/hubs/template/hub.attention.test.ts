@@ -1,4 +1,11 @@
-import { capAttention, higherSeverity, rankAttention } from './hub.attention';
+import {
+  attentionInEnvironment,
+  attentionIssues,
+  higherSeverity,
+  rankAttention,
+  sortNeedsAttention,
+} from './hub.attention';
+import { attentionItem } from './hub.testFixtures';
 import type { HubAttentionItem, HubSeverity } from './hub.types';
 
 const item = (
@@ -81,57 +88,55 @@ describe('rankAttention', () => {
   });
 });
 
-describe('capAttention', () => {
-  it('shows up to the cap and hides the rest', () => {
-    const items = ['a', 'b', 'c', 'd'].map((id) =>
-      item(id, 'warning', 'alert')
-    );
-    const { visible, hidden } = capAttention(items, 3);
+describe('sortNeedsAttention', () => {
+  it('puts critical first, then errors, then warnings, keeping each severity in its order', () => {
+    const sorted = sortNeedsAttention([
+      attentionItem('lag'),
+      attentionItem('backups', { severity: 'error' }),
+      attentionItem('oplog'),
+      attentionItem('no primary', { severity: 'critical' }),
+      attentionItem('down', { severity: 'error' }),
+    ]);
 
-    expect(visible.map(({ id }) => id)).toEqual(['a', 'b', 'c']);
-    expect(hidden.map(({ id }) => id)).toEqual(['d']);
-  });
-
-  it('never folds an error away, even past the cap', () => {
-    const items = [
-      ...['e1', 'e2', 'e3'].map((id) => item(id, 'error', 'noPrimary')),
-      item('w1', 'warning', 'alert'),
-    ];
-    const { visible, hidden } = capAttention(items, 2);
-
-    expect(visible.map(({ id }) => id)).toEqual(['e1', 'e2', 'e3']);
-    expect(hidden.map(({ id }) => id)).toEqual(['w1']);
-  });
-
-  it('keeps errors visible wherever they sit', () => {
-    const items = [
-      item('w1', 'warning', 'alert'),
-      item('w2', 'warning', 'alert'),
-      item('e1', 'error', 'alert'),
-    ];
-
-    expect(capAttention(items, 2).visible.map(({ id }) => id)).toEqual([
-      'w1',
-      'e1',
+    expect(sorted.map(({ title }) => title)).toEqual([
+      'no primary',
+      'backups',
+      'down',
+      'lag',
+      'oplog',
     ]);
   });
+});
 
-  it('fills the remaining room after errors', () => {
-    const items = [
-      item('e1', 'error', 'noPrimary'),
-      item('e2', 'error', 'memberDown'),
-      ...['w1', 'w2', 'w3', 'w4'].map((id) => item(id, 'warning', 'alert')),
-    ];
-    const { visible, hidden } = capAttention(items, 5);
+describe('attentionIssues', () => {
+  it('adds up the issues the rows stand for, not the rows', () => {
+    expect(
+      attentionIssues([
+        attentionItem('lag', { issueCount: 7 }),
+        attentionItem('down'),
+      ])
+    ).toBe(8);
+  });
+});
 
-    expect(visible).toHaveLength(5);
-    expect(hidden.map(({ id }) => id)).toEqual(['w4']);
+describe('attentionInEnvironment', () => {
+  const rows = [
+    attentionItem('prod only'),
+    attentionItem('both', { environment: 'prod, staging' }),
+    attentionItem('dev only', { environment: 'dev' }),
+  ];
+
+  it('keeps every row without a filter', () => {
+    expect(attentionInEnvironment(rows, null)).toHaveLength(3);
   });
 
-  it('shows everything under the cap', () => {
-    const items = [item('a', 'info', 'alert')];
-
-    expect(capAttention(items, 5)).toEqual({ visible: items, hidden: [] });
+  it('keeps a row that spans environments in each of them', () => {
+    expect(
+      attentionInEnvironment(rows, 'staging').map(({ title }) => title)
+    ).toEqual(['both']);
+    expect(
+      attentionInEnvironment(rows, 'prod').map(({ title }) => title)
+    ).toEqual(['prod only', 'both']);
   });
 });
 
