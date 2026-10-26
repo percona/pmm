@@ -484,8 +484,8 @@ type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// add azure database default body details items0
-	AddAzureDatabaseDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// add azure database default body details items0 additional properties
+	AddAzureDatabaseDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -520,7 +520,7 @@ func (o *AddAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) er
 			}
 			result[k] = toadd
 		}
-		o.AddAzureDatabaseDefaultBodyDetailsItems0 = result
+		o.AddAzureDatabaseDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -541,12 +541,12 @@ func (o AddAzureDatabaseDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) 
 		return nil, err
 	}
 
-	if len(o.AddAzureDatabaseDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.AddAzureDatabaseDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.AddAzureDatabaseDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.AddAzureDatabaseDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

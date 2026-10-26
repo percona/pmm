@@ -21,13 +21,11 @@ To deploy PMM Server using Docker volumes:
     docker volume create pmm-data
     ```
 
-3. Run PMM Server with the volume configured, making sure to replace `your_watchtower_host` with watchtower container hostname (e.g. `--env PMM_WATCHTOWER_HOST=http://watchtower:8080`) and `your_watchtower_token` with the token created during [Watchtower setup](../docker/index.md#installation-options): 
+3. Run PMM Server with the volume configured:
 
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=http://your_watchtower_host:8080 \
-    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume pmm-data:/srv \
     --network=pmm-network \
     --name pmm-server \

@@ -24,7 +24,7 @@ To restore to a new cluster manually:
    For instructions, see the [PBM install documentation](https://docs.percona.com/percona-backup-mongodb/latest/installation.html).
 2. Configure your environment:
      - to restore to a new environment with the same replica set name, make sure that the replica set name in your new destination cluster use the same name as that in the cluster that was backed up.<br/>
-      For more information, see [Restoring a backup into a new-environment](https://docs.percona.com/percona-backup-mongodb/latest/features/restore-new-env.html) in the PBM documentation. <br> 
+      For more information, see [Restoring a backup into a new-environment](https://docs.percona.com/percona-backup-mongodb/latest/features/restore-new-env.html) in the PBM documentation. <br>
      - to restore **logical backups** to a new environment that has a different replica set name, configure the name mapping between the source and target environments. <br/>
       For the new environment, you can either set the **PBM_REPLSET_REMAPPING** environment variable for pbm CLI, or use the `--replset-remapping` flag for PBM commands.
 
@@ -74,7 +74,7 @@ To restore to a new cluster manually:
         pbm config --file pbm_config.yaml
         ```
 
-      For more information, see **Restoring a backup into a new-environment** in [the PBM documentation](https://docs.percona.com/percona-backup-mongodb/latest/features/restore-new-env.html).  
+      For more information, see **Restoring a backup into a new-environment** in [the PBM documentation](https://docs.percona.com/percona-backup-mongodb/latest/features/restore-new-env.html).
 
 4. Run `pbm list` to check if pbm is ready to perform the restore procedure.
 
@@ -110,7 +110,7 @@ To restore to a new cluster manually:
 
           `pbm restore --time="2022-11-23T19:40:26"`
         
-      For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/latest/features/point-in-time-recovery.html?h=point).
+      For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/latest/features/point-in-time-recovery.html).
 
 6. Check the progress of the restore operation, using one of the commands below:
 
