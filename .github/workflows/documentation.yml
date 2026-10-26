@@ -106,6 +106,21 @@ jobs:
       - name: Check for unused images
         run: make doc-check-images
 
+      # X.Y.Z.md must match main. An entry in next.md came with a cherry-picked fix and belongs in X.Y.Z.md.
+      - name: Check the release notes
+        working-directory: documentation
+        run: |
+          notes=docs/release-notes
+          if [ ! -f "$notes/$VERSION.md" ] || ! git diff --exit-code origin/main HEAD -- "$notes/$VERSION.md"; then
+            echo "::error::$VERSION.md must exist and be the same on main and pmm-$VERSION. Cherry-pick what is missing on either side."
+            exit 1
+          fi
+          # Release branches cut before next.md existed (pmm-3.10.0) have none.
+          if [ -f "$notes/next.md" ] && ! cmp -s "$notes/next.md" resources/release-notes-template.md; then
+            echo "::error::next.md on pmm-$VERSION has entries. Move them to $VERSION.md, on main and pmm-$VERSION."
+            exit 1
+          fi
+
       # Builds Material-themed static web site in 'publish' branch
       - name: Build a themed site (3.x)
         working-directory: documentation

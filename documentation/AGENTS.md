@@ -12,7 +12,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Scaffolded on `main` by the `pmm-rn-create` skill after the previous release; entries arrive with their PRs |
+| `documentation/docs/release-notes/` | One page per released version | Entries go to `next.md` on `main`; the RC job turns it into `X.Y.Z.md` |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -187,7 +187,11 @@ Rules for the entry:
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
 
-The version page itself — the release summary, highlights, security updates and the `nav`/`variables.yml` bump — is scaffolded by the `pmm-rn-create` skill on `main` right after the previous release, so entries can land with their PRs, and is written by the doc team. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+Put the entry in `documentation/docs/release-notes/next.md` on `main`: it holds the next release, whatever its number, and is never published. A fix for a version in RC goes in that version's `X.Y.Z.md` instead, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick.
+
+Right before the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it turns `next.md` into `X.Y.Z.md` on `main`, lists it in the index and nav, and starts `next.md` over from `documentation/resources/release-notes-template.md`. It does nothing when `X.Y.Z.md` already exists. The version comes from `VERSION` in [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION). The doc team writes the release summary, highlights, security updates and release date in `X.Y.Z.md`, on `main` and cherry-picked to `pmm-X.Y.Z`. An entry whose code is reverted on the release branch, as features are on a patch, comes out of `X.Y.Z.md` on both and goes back to `next.md`.
+
+At GA the site build fails unless `X.Y.Z.md` is the same on `pmm-X.Y.Z` and on `main`, and `next.md` on `pmm-X.Y.Z` is still empty: an entry there came with a cherry-picked fix and belongs in `X.Y.Z.md`.
 
 ## Content type templates
 
