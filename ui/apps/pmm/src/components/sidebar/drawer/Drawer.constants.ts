@@ -1,6 +1,6 @@
 // Content widths. The paper's right border sits outside them, so the drawer
 // takes up DRAWER_BORDER_WIDTH more.
-export const DRAWER_WIDTH = 288;
+export const DRAWER_WIDTH = 256;
 
 export const DRAWER_CLOSED_WIDTH = 48;
 
