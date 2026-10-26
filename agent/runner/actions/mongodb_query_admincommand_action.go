@@ -16,6 +16,8 @@ package actions
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -28,7 +30,15 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
-const mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
+const (
+	mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
+
+	mongoDBUnauthorizedCode = 13
+)
+
+// ErrMongoDBArbiter is returned for a command that an arbiter rejects as unauthenticated.
+// An arbiter stores no users, so no connection to it is authenticated.
+var ErrMongoDBArbiter = errors.New(agentv1.MongoDBArbiterUnauthorized)
 
 type mongodbQueryAdmincommandAction struct {
 	id      string
@@ -106,11 +116,29 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	var doc map[string]any
 	err = res.Decode(&doc)
 	if err != nil {
+		if isArbiterUnauthorized(ctx, client, err) {
+			return nil, fmt.Errorf("%w: %w", ErrMongoDBArbiter, err)
+		}
 		return nil, err
 	}
 
 	data := []map[string]any{doc}
 	return agentv1.MarshalActionQueryDocsResult(data)
+}
+
+// isArbiterUnauthorized reports whether err is an Unauthorized error from an arbiter.
+func isArbiterUnauthorized(ctx context.Context, client *mongo.Client, err error) bool {
+	cmdErr, ok := errors.AsType[mongo.CommandError](err)
+	if !ok || !cmdErr.HasErrorCode(mongoDBUnauthorizedCode) {
+		return false
+	}
+
+	// hello doesn't require authentication.
+	serverInfo := struct {
+		ArbiterOnly bool `bson:"arbiterOnly"`
+	}{}
+	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: "hello", Value: 1}}).Decode(&serverInfo)
+	return err == nil && serverInfo.ArbiterOnly
 }
 
 func (a *mongodbQueryAdmincommandAction) sealed() {}
