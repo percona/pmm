@@ -7,6 +7,8 @@ export const PAGE_LOCATORS = {
 export const LOCATORS = {
   toolbar: 'header > div:first-child > div:nth-child(2)',
   menuToggle: 'header #mega-menu-toggle',
+  // Grafana's home link would compete with PMM's own Overview.
+  homeBreadcrumb: 'header a[data-testid="data-testid Home breadcrumb"]',
   helpButton: 'header button[aria-label="Help"]',
   searchButton: 'header button[aria-label="Search..."]',
   profileButton: 'header button[aria-label="Profile"]',
