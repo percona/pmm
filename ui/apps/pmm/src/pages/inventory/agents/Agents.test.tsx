@@ -6,8 +6,8 @@ import {
   within,
 } from '@testing-library/react';
 import { listAgents, removeAgent } from 'api/agents';
-import { listNodes } from 'api/nodes';
-import { listManagedServices } from 'api/services';
+import { getNode } from 'api/nodes';
+import { getService } from 'api/services';
 import { Route, Routes } from 'react-router-dom';
 import { AgentStatus, AgentType, type ManagedAgent } from 'types/agent.types';
 import { NodeType } from 'types/nodes.types';
@@ -72,23 +72,22 @@ describe('Agents', () => {
     vi.clearAllMocks();
     vi.mocked(listAgents).mockResolvedValue(AGENTS);
     vi.mocked(removeAgent).mockResolvedValue();
-    vi.mocked(listManagedServices).mockResolvedValue({
-      services: [{ ...TEST_MANAGED_SERVICE, serviceName: 'mysql-1' }],
+    vi.mocked(getService).mockResolvedValue({
+      ...TEST_MANAGED_SERVICE,
+      serviceName: 'mysql-1',
     });
-    vi.mocked(listNodes).mockResolvedValue([
-      {
-        nodeId: 'node-1',
-        nodeName: 'node-1',
-        nodeType: NodeType.generic,
-        address: '',
-        status: ServiceStatus.up,
-        customLabels: {},
-        isPmmServerNode: false,
-        agents: [],
-        services: [],
-        properties: {},
-      },
-    ]);
+    vi.mocked(getNode).mockResolvedValue({
+      nodeId: 'node-1',
+      nodeName: 'node-1',
+      nodeType: NodeType.generic,
+      address: '',
+      status: ServiceStatus.up,
+      customLabels: {},
+      isPmmServerNode: false,
+      agents: [],
+      services: [],
+      properties: {},
+    });
   });
 
   it("lists a service's agents", async () => {
@@ -97,6 +96,8 @@ describe('Agents', () => {
     expect(await screen.findByTestId('agents-title')).toHaveTextContent(
       'Service mysql-1 / Agents'
     );
+    expect(getService).toHaveBeenCalledWith('service-1');
+    expect(getNode).not.toHaveBeenCalled();
     expect(listAgents).toHaveBeenCalledWith({ serviceId: 'service-1' });
     expect(screen.getByText('MySQL exporter')).toBeInTheDocument();
     expect(screen.getByText('Running')).toBeInTheDocument();
@@ -112,6 +113,8 @@ describe('Agents', () => {
     expect(await screen.findByTestId('agents-title')).toHaveTextContent(
       'Node node-1 / Agents'
     );
+    expect(getNode).toHaveBeenCalledWith('node-1');
+    expect(getService).not.toHaveBeenCalled();
     expect(listAgents).toHaveBeenCalledWith({ nodeId: 'node-1' });
     expect(screen.getByTestId('agents-go-back')).toHaveAttribute(
       'href',

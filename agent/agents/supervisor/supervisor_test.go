@@ -564,7 +564,7 @@ func TestStopKeepsPortOfRunningAgent(t *testing.T) {
 
 	// Draining lets the forwarder finish, and the port goes back once it has.
 	go func() {
-		for range s.Changes() { //nolint:revive
+		for range s.Changes() {
 		}
 	}()
 
@@ -605,7 +605,7 @@ func TestStopAll(t *testing.T) {
 		// Drained throughout, so every forwarder finishes and the channels can be closed.
 		drained := make(chan struct{})
 		go func() {
-			for range s.Changes() { //nolint:revive
+			for range s.Changes() {
 			}
 			close(drained)
 		}()

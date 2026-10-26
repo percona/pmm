@@ -1,4 +1,5 @@
 import type {
+  BaseService,
   ChangeServiceParams,
   ListServicesParams,
   ListServicesResponse,
@@ -8,9 +9,12 @@ import type {
 } from 'types/services.types';
 import { api } from './api';
 import {
+  type GetServicePayload,
   type ListServicesPayload,
+  getIfExists,
   RAW_REQUEST,
   RAW_RESPONSE,
+  toBaseService,
   toManagedService,
 } from './inventory.utils';
 
@@ -34,6 +38,15 @@ export const listManagedServices = async (
     ...RAW_RESPONSE,
   });
   return { services: (res.data.services ?? []).map(toManagedService) };
+};
+
+export const getService = async (
+  serviceId: string
+): Promise<BaseService | null> => {
+  const payload = await getIfExists<GetServicePayload>(
+    `/inventory/services/${serviceId}`
+  );
+  return payload && toBaseService(Object.values(payload)[0]);
 };
 
 export const removeService = async ({

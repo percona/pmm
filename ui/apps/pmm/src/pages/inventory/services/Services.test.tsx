@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -102,6 +103,23 @@ describe('Services', () => {
       'href',
       '/graph/add-instance'
     );
+  });
+
+  it('opens the status legend from the keyboard, without sorting on click', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const icon = screen.getByTestId('status-info-icon');
+    act(() => icon.focus());
+
+    expect(icon).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Up');
+
+    fireEvent.click(icon);
+
+    expect(
+      screen.getByRole('columnheader', { name: /Status/ })
+    ).toHaveAttribute('aria-sort', 'none');
   });
 
   it('deletes a service from its actions, in force mode', async () => {

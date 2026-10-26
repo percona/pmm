@@ -1,15 +1,29 @@
-import { describe, expect, it } from 'vitest';
+import {
+  AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AgentStatus, AgentType } from 'types/agent.types';
 import { NodeType } from 'types/nodes.types';
 import { ManagedServiceType, ServiceStatus } from 'types/services.types';
+import { api } from './api';
+// registers the error notifier on the api instance
+import './api.interceptors';
 import {
   findRdsExporter,
+  getIfExists,
+  toBaseService,
   toManagedAgent,
   toManagedNode,
   toManagedService,
   type NodePayload,
   type ServicePayload,
 } from './inventory.utils';
+
+const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
+
+vi.mock('notistack', () => ({ enqueueSnackbar }));
 
 const SERVICE_PAYLOAD: ServicePayload = {
   service_id: 'service-1',
@@ -234,5 +248,81 @@ describe('findRdsExporter', () => {
         { agent_id: 'rds-2', agent_type: AgentType.rdsExporter },
       ])
     ).toBeNull();
+  });
+});
+
+describe('toBaseService', () => {
+  it('maps the fields an inventory service carries', () => {
+    expect(
+      toBaseService({
+        service_id: 'service-1',
+        service_name: 'mysql-1',
+        node_id: 'node-1',
+        environment: 'prod',
+        cluster: 'cluster-1',
+        replication_set: 'rs-1',
+        custom_labels: { my_label: 'value' },
+      })
+    ).toEqual({
+      serviceId: 'service-1',
+      serviceName: 'mysql-1',
+      nodeId: 'node-1',
+      environment: 'prod',
+      cluster: 'cluster-1',
+      replicationSet: 'rs-1',
+      customLabels: { my_label: 'value' },
+    });
+  });
+});
+
+describe('getIfExists', () => {
+  const originalAdapter = api.defaults.adapter;
+
+  const stubApi = (status: number, data: object) => {
+    api.defaults.adapter = (config: InternalAxiosRequestConfig) => {
+      const response = {
+        data: JSON.stringify(data),
+        status,
+        statusText: '',
+        headers: {},
+        config,
+      } as AxiosResponse;
+
+      return status >= 400
+        ? Promise.reject(
+            new AxiosError('', String(status), config, {}, response)
+          )
+        : Promise.resolve(response);
+    };
+  };
+
+  afterEach(() => {
+    api.defaults.adapter = originalAdapter;
+    enqueueSnackbar.mockClear();
+  });
+
+  it('keeps custom label keys as the API returns them', async () => {
+    stubApi(200, { node: { custom_labels: { my_label: 'value' } } });
+
+    expect(await getIfExists('/management/nodes/node-1')).toEqual({
+      node: { custom_labels: { my_label: 'value' } },
+    });
+  });
+
+  it('resolves to null without a notification when the entity is gone', async () => {
+    stubApi(404, { message: 'Node not found.' });
+
+    expect(await getIfExists('/management/nodes/node-1')).toBeNull();
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
+  });
+
+  it('rejects and notifies on other errors', async () => {
+    stubApi(500, { message: 'Internal error.' });
+
+    await expect(getIfExists('/management/nodes/node-1')).rejects.toThrow();
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      'Internal error.',
+      expect.objectContaining({ variant: 'error' })
+    );
   });
 });

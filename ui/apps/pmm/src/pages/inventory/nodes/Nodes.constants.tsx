@@ -15,6 +15,10 @@ import { getFilteredTabUrl } from '../Inventory.utils';
 import { Messages } from './Nodes.messages';
 import type { NodeRow } from './Nodes.types';
 
+export const NODES_TABLE_NAME = 'inventory-nodes';
+
+export const PMM_SERVER_NODE_FILTER = { id: 'isPmmServerNode', value: 'true' };
+
 const NODE_TYPE_OPTIONS = [
   { label: 'Container', value: NodeType.container },
   { label: 'Generic', value: NodeType.generic },

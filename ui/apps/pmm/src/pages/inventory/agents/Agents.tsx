@@ -9,8 +9,8 @@ import { Table, type MRT_RowSelectionState } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import DataPoint from 'components/details-pane/DataPoint';
 import { useAgents, useRemoveAgents } from 'hooks/api/useAgents';
-import { useNodes } from 'hooks/api/useNodes';
-import { useManagedServices } from 'hooks/api/useServices';
+import { useNode } from 'hooks/api/useNodes';
+import { useService } from 'hooks/api/useServices';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 import {
   PMM_INVENTORY_NODES_PATH,
@@ -39,11 +39,8 @@ export const Agents: FC = () => {
     { serviceId, nodeId },
     { refetchInterval: INVENTORY_REFETCH_INTERVAL }
   );
-  const { data: servicesData } = useManagedServices(
-    {},
-    { enabled: !!serviceId }
-  );
-  const { data: nodes } = useNodes({ enabled: !!nodeId });
+  const { data: service } = useService(serviceId);
+  const { data: node } = useNode(nodeId);
   const { mutateAsync: removeAgents } = useRemoveAgents();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [agentsToDelete, setAgentsToDelete] = useState<ManagedAgent[]>([]);
@@ -52,10 +49,6 @@ export const Agents: FC = () => {
     ...getUrlStateOptions('agents'),
     additionalState: { rowSelection },
   });
-  const service = servicesData?.services.find(
-    (service) => service.serviceId === serviceId
-  );
-  const node = nodes?.find((node) => node.nodeId === nodeId);
   const title = service
     ? Messages.serviceTitle(service.serviceName)
     : node && Messages.nodeTitle(node.nodeName);

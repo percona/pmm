@@ -7,12 +7,14 @@ import {
 } from '@tanstack/react-query';
 import {
   changeService,
+  getService,
   getServiceTypes,
   listServices,
   listManagedServices,
   removeService,
 } from 'api/services';
 import type {
+  BaseService,
   ChangeServiceParams,
   ListServicesParams,
   ListServicesResponse,
@@ -50,6 +52,17 @@ export const useManagedServices = (
     queryKey: ['services:managed', params],
     queryFn: ({ queryKey: [, params] }) =>
       listManagedServices(params as ListServicesParams),
+    ...options,
+  });
+
+export const useService = (
+  serviceId?: string,
+  options?: Partial<UseQueryOptions<BaseService | null>>
+) =>
+  useQuery({
+    queryKey: ['services:get', serviceId],
+    queryFn: () => getService(serviceId as string),
+    enabled: !!serviceId,
     ...options,
   });
 

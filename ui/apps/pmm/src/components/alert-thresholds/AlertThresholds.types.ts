@@ -17,5 +17,10 @@ export interface AlertThresholdsNode {
   nodeName: string;
 }
 
+export interface AlertThresholdsProps {
+  node: AlertThresholdsNode | null;
+  onClose: () => void;
+}
+
 // Form values: composite row id -> override value (string while editing).
 export type AlertThresholdsFormValues = Record<string, number | undefined>;

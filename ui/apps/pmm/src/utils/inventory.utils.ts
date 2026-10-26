@@ -1,12 +1,14 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 // Removing an inventory entity can remove others (force mode) and changes the
-// statuses and counts shown for the rest, so all inventory lists are refetched.
+// statuses and counts shown for the rest, so all inventory queries are refetched.
 const INVENTORY_QUERY_KEYS = [
   ['services:managed'],
   ['services:list'],
+  ['services:get'],
   ['services:getTypes'],
   ['nodes:list'],
+  ['nodes:get'],
   ['agents:list'],
   ['agents:rdsExporter'],
 ];

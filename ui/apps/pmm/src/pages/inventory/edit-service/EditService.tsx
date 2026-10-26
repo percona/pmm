@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
 import { useRdsExporter } from 'hooks/api/useAgents';
-import { useManagedServices } from 'hooks/api/useServices';
+import { useService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { useParams } from 'react-router-dom';
 import { OrgRole } from 'types/user.types';
@@ -12,15 +12,13 @@ import { Messages } from './EditService.messages';
 
 export const EditService: FC = () => {
   const { serviceId } = useParams();
-  const servicesQuery = useManagedServices();
-  const service = servicesQuery.data?.services.find(
-    (service) => service.serviceId === serviceId
-  );
+  const serviceQuery = useService(serviceId);
+  const service = serviceQuery.data;
   const exporterQuery = useRdsExporter(service?.nodeId);
   // The form takes its initial values once, so it waits for fresh data rather
-  // than a cached list
+  // than a cached one
   const isLoaded =
-    servicesQuery.isFetchedAfterMount &&
+    serviceQuery.isFetchedAfterMount &&
     (!service || exporterQuery.isFetchedAfterMount);
 
   return (
@@ -35,7 +33,7 @@ export const EditService: FC = () => {
           <CircularProgress data-testid="edit-service-loading" />
         </Stack>
       )}
-      {isLoaded && servicesQuery.isSuccess && !service && (
+      {isLoaded && serviceQuery.isSuccess && !service && (
         <Alert severity="error">{Messages.notFound}</Alert>
       )}
       {isLoaded && service && (

@@ -6,7 +6,7 @@ import {
   within,
 } from '@testing-library/react';
 import { changeRdsCredentials, getRdsExporter } from 'api/agents';
-import { changeService, listManagedServices } from 'api/services';
+import { changeService, getService } from 'api/services';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import type { RdsExporter } from 'types/agent.types';
 import { TEST_MANAGED_SERVICE } from 'utils/testStubs';
@@ -88,7 +88,7 @@ const saveAndConfirm = async () => {
 describe('EditService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(listManagedServices).mockResolvedValue({ services: [SERVICE] });
+    vi.mocked(getService).mockResolvedValue(SERVICE);
     vi.mocked(getRdsExporter).mockResolvedValue(null);
     vi.mocked(changeService).mockResolvedValue();
     vi.mocked(changeRdsCredentials).mockResolvedValue();
@@ -105,6 +105,7 @@ describe('EditService', () => {
     expect(field('Cluster').value).toBe('cluster-1');
     expect(field('Replication set').value).toBe('rs-1');
     expect(field('Custom labels').value).toBe('team:db');
+    expect(getService).toHaveBeenCalledWith('service-1');
     expect(getRdsExporter).toHaveBeenCalledWith('node-1');
   });
 
@@ -205,8 +206,9 @@ describe('EditService', () => {
   });
 
   it('saves an unrelated change next to a label value with colons', async () => {
-    vi.mocked(listManagedServices).mockResolvedValue({
-      services: [{ ...SERVICE, customLabels: { endpoint: 'db:3306' } }],
+    vi.mocked(getService).mockResolvedValue({
+      ...SERVICE,
+      customLabels: { endpoint: 'db:3306' },
     });
     renderEditService();
 
@@ -224,8 +226,9 @@ describe('EditService', () => {
   });
 
   it('saves an unrelated change next to a label value with spaces', async () => {
-    vi.mocked(listManagedServices).mockResolvedValue({
-      services: [{ ...SERVICE, customLabels: { owner: 'DB Team:Lead' } }],
+    vi.mocked(getService).mockResolvedValue({
+      ...SERVICE,
+      customLabels: { owner: 'DB Team:Lead' },
     });
     renderEditService();
 
@@ -243,7 +246,7 @@ describe('EditService', () => {
   });
 
   it('does not report a failed request as a missing service', async () => {
-    vi.mocked(listManagedServices).mockRejectedValue(new Error('timeout'));
+    vi.mocked(getService).mockRejectedValue(new Error('timeout'));
     renderEditService();
 
     await waitFor(() =>
@@ -258,6 +261,7 @@ describe('EditService', () => {
   });
 
   it('says when the service no longer exists', async () => {
+    vi.mocked(getService).mockResolvedValue(null);
     renderEditService('missing');
 
     expect(

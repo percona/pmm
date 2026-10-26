@@ -39,7 +39,7 @@ import {
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
 import { exportServicesToCsv } from './export/exportServicesToCsv';
 import { ServiceDetails } from './service-details';
-import { SERVICES_COLUMNS } from './Services.constants';
+import { SERVICES_COLUMNS, SERVICES_TABLE_NAME } from './Services.constants';
 import { Messages } from './Services.messages';
 import type { ServiceRow } from './Services.types';
 import {
@@ -49,8 +49,6 @@ import {
   toClusterRows,
   toServiceRows,
 } from './Services.utils';
-
-const SERVICES_TABLE_NAME = 'inventory-services';
 
 export const Services: FC = () => {
   const { data, isLoading } = useManagedServices(
