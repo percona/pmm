@@ -10,7 +10,13 @@ const renderPage = (path: string, navTree: NavItem[] = []) =>
   render(
     <TestWrapper routerProps={{ initialEntries: [path] }}>
       <NavigationContext.Provider
-        value={{ navTree, navOpen: true, setNavOpen: () => {} }}
+        value={{
+          navTree,
+          navOpen: true,
+          setNavOpen: () => {},
+          starredApps: [],
+          toggleStarredApp: () => {},
+        }}
       >
         <Routes>
           <Route
@@ -24,13 +30,22 @@ const renderPage = (path: string, navTree: NavItem[] = []) =>
 
 describe('PrototypePlaceholderPage', () => {
   it('titles the page after the entry that links here', () => {
+    renderPage('/prototype/add-service', [
+      { id: 'action', text: 'Add a service', url: '/prototype/add-service' },
+    ]);
+
+    expect(
+      screen.getByRole('heading', { name: 'Add a service' })
+    ).toBeInTheDocument();
+  });
+
+  it('leaves a planned app’s name to the app header above it', () => {
     renderPage('/prototype/schema-changes', [
       { id: 'app', text: 'Schema changes', url: '/prototype/schema-changes' },
     ]);
 
-    expect(
-      screen.getByRole('heading', { name: 'Schema changes' })
-    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(document.title).toContain('Schema changes');
   });
 
   it('falls back to the slug for an action with no entry of its own', () => {

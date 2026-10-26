@@ -12,7 +12,13 @@ const renderSidebar = (navOpen: boolean, navTree: NavItem[] = []) =>
     <TestWrapper>
       {wrapWithQueryProvider(
         <NavigationContext.Provider
-          value={{ navTree, navOpen, setNavOpen: () => {} }}
+          value={{
+            navTree,
+            navOpen,
+            setNavOpen: () => {},
+            starredApps: [],
+            toggleStarredApp: () => {},
+          }}
         >
           <Sidebar />
         </NavigationContext.Provider>

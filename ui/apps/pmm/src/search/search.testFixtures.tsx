@@ -5,7 +5,10 @@ import type { CombinedSettings } from 'contexts/settings';
 import type { PropsWithChildren, ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { ManagedService } from 'types/services.types';
-import { buildProposedNavTree } from 'contexts/navigation/navigation.proposal';
+import {
+  buildProposedNavTree,
+  DEFAULT_STARRED_APPS,
+} from 'contexts/navigation/navigation.proposal';
 import type { HAInfo } from 'types/ha.types';
 import { UpdateStatus } from 'types/updates.types';
 import type { User } from 'types/user.types';
@@ -42,6 +45,7 @@ export const navTreeFor = (user: User) =>
     updateStatus: UpdateStatus.UpToDate,
     colorMode: 'light',
     toggleColorMode: () => {},
+    starredApps: DEFAULT_STARRED_APPS,
   });
 
 export const staticIndexFor = (

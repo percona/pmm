@@ -24,7 +24,13 @@ describe('useSearchIndex', () => {
             value={{ isLoading: false, user: TEST_USER_ADMIN }}
           >
             <NavigationContext.Provider
-              value={{ navTree, navOpen: true, setNavOpen: vi.fn() }}
+              value={{
+                navTree,
+                navOpen: true,
+                setNavOpen: vi.fn(),
+                starredApps: [],
+                toggleStarredApp: vi.fn(),
+              }}
             >
               <TourContext.Provider value={tour}>
                 {children}

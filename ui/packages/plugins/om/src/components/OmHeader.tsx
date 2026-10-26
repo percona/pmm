@@ -41,7 +41,7 @@ export const OmHeader = ({
       flexWrap="wrap"
     >
       <Stack gap={1}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h2">
           {title}
         </Typography>
         {subtitle}
