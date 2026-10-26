@@ -1,12 +1,11 @@
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
-import Stack from '@mui/material/Stack';
 import { alpha, type Theme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { type FC } from 'react';
 import { type AdvisorSchedule } from 'types/advisors.types';
-import { MONO_FONT, Swatch } from './AdvisorScheduler.components';
+import { MONO_FONT } from './AdvisorScheduler.components';
 import { Messages } from './AdvisorScheduler.messages';
 import {
   assignLanes,
@@ -272,44 +271,13 @@ export const ScheduleWeek: FC<ScheduleWeekProps> = ({
       }}
       data-testid="schedule-week"
     >
-      <Stack
-        direction="row"
-        flexWrap="wrap"
-        justifyContent="space-between"
-        alignItems="baseline"
-        gap={1}
+      <Typography
+        id="advisor-schedule-week-title"
+        variant="subtitle1"
+        fontWeight={600}
       >
-        <Typography
-          id="advisor-schedule-week-title"
-          variant="subtitle1"
-          fontWeight={600}
-        >
-          {Messages.week.title}
-        </Typography>
-        <Stack
-          direction="row"
-          flexWrap="wrap"
-          columnGap={1.75}
-          rowGap={0.75}
-          sx={{ fontSize: 12.5, color: 'text.secondary' }}
-        >
-          {schedules.map((s) => (
-            <Stack
-              key={s.scheduleId}
-              direction="row"
-              alignItems="center"
-              gap={0.75}
-              component="span"
-            >
-              <Swatch
-                color={colors.get(s.scheduleId) ?? ''}
-                paused={!s.enabled}
-              />
-              {s.enabled ? s.name : `${s.name} ${Messages.week.paused}`}
-            </Stack>
-          ))}
-        </Stack>
-      </Stack>
+        {Messages.week.title}
+      </Typography>
       {renderBody()}
     </Box>
   );

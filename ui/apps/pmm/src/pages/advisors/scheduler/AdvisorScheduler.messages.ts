@@ -25,7 +25,6 @@ export const Messages = {
   },
   week: {
     title: 'This week, UTC',
-    paused: '(paused)',
     noSchedules:
       'Nothing is scheduled. Advisor checks run only when someone starts them.',
     advisorsOff: 'Nothing runs while Advisors are turned off.',
