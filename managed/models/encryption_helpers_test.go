@@ -429,9 +429,9 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 		for i := range 2 {
 			require.NoError(t, setup(t, sqlDB, ""))
 			assert.ElementsMatch(t, all, settings(t).EncryptedItems, "start %d", i+1)
+			assert.Equal(t, localFingerprint, settings(t).EncryptionKeyFingerprint, "start %d", i+1)
 		}
 
-		assert.Equal(t, localFingerprint, settings(t).EncryptionKeyFingerprint)
 		assert.Equal(t, "postgres", postgresUsername(t, db), "username must be encrypted exactly once")
 	})
 }
