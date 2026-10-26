@@ -18,6 +18,7 @@ import {
 import { TestWrapper } from 'utils/testWrapper';
 import { CLUSTERS_SWITCH_KEY } from '../Inventory.constants';
 import { Services } from './Services';
+import { Messages } from './Services.messages';
 
 vi.mock('api/services');
 
@@ -93,11 +94,34 @@ describe('Services', () => {
     );
   });
 
+  it('explains the address column in its header', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const header = screen.getByRole('columnheader', { name: /Address/ });
+    fireEvent.mouseOver(within(header).getByTestId('address-info-icon'));
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      Messages.addressInfo
+    );
+  });
+
+  it('does not sort the address column when its info icon is clicked', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const header = screen.getByRole('columnheader', { name: /Address/ });
+    fireEvent.click(within(header).getByTestId('address-info-icon'));
+
+    expect(header).toHaveAttribute('aria-sort', 'none');
+  });
+
   it('opens the status legend from the keyboard, without sorting on click', async () => {
     renderServices();
 
     await screen.findByText('mysql-1');
     const icon = screen.getByTestId('status-info-icon');
+    fireEvent.keyDown(document.body, { key: 'Tab' });
     act(() => icon.focus());
 
     expect(icon).toHaveFocus();

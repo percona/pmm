@@ -22,6 +22,8 @@ export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
+export const PMM_DOCS_INVENTORY_SERVICES_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/3/use/dashboard-inventory.html#services-tab';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
 export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
