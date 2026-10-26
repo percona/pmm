@@ -8,7 +8,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Set up environment variables in the systemd environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:">
+        <meta name="description" content="Set up environment variables in the systemd environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on an AWS AMI instance deployed from AWS Marketplace.">
       
       
         <meta name="author" content="Percona LLC">
@@ -20,7 +20,7 @@
         <link rel="prev" href="../aws/configure_aws.html">
       
       
-        <link rel="next" href="login_UI.html">
+        <link rel="next" href="ssh.html">
       
       
         
@@ -133,7 +133,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configure-environment-variables-for-pmm-server-virtual-machines-amiovf" class="md-skip">
+        <a href="#configure-environment-variables-for-pmm-server-aws-ami" class="md-skip">
           Skip to content
         </a>
       
@@ -1754,7 +1754,7 @@
   <span class="md-ellipsis">
     
   
-    Install on Virtual Appliance
+    Install on AWS Marketplace
   
 
     
@@ -1767,145 +1767,6 @@
         
         <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Install on Virtual Appliance
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="download_ova.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Download OVA
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="virtualbox.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VirtualBox
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Install on AWS Marketplace
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2024,10 +1885,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
             
   
   
@@ -2045,8 +1906,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2176,62 +2037,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="login_UI.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Access PMM UI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="remove_virtual_machine.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Remove VM
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -11723,6 +11528,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../pmm-upgrade/migrate_from_ovf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate from the virtual appliance (OVF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -16918,17 +16751,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="configure-environment-variables-for-pmm-server-virtual-machines-amiovf">Configure environment variables for PMM Server (Virtual machines: AMI/OVF)<a class="headerlink" href="#configure-environment-variables-for-pmm-server-virtual-machines-amiovf" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">OVF support ending in PMM 3.9.0</p>
-<p>OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, <a href="index.html">migrate to a supported deployment method</a>.</p>
-</div>
-<p>Set up environment variables in the <code>systemd</code> environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:</p>
-<ul>
-<li><strong>AWS AMI instances</strong>: EC2 instances deployed from AWS Marketplace</li>
-<li><strong>Virtual appliances (OVF)</strong>: Deployed on VirtualBox and some other virtualization platforms</li>
-</ul>
-<p>Both deployment types use the same <code>systemd</code> user service that launches a Podman container, with environment variables configured through a dedicated environment file.</p>
+<h1 id="configure-environment-variables-for-pmm-server-aws-ami">Configure environment variables for PMM Server (AWS AMI)<a class="headerlink" href="#configure-environment-variables-for-pmm-server-aws-ami" title="Permanent link">&para;</a></h1>
+<p>Set up environment variables in the <code>systemd</code> environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on an AWS AMI instance deployed from AWS Marketplace.</p>
+<p>AMI instances use a <code>systemd</code> user service that launches a Podman container, with environment variables configured through a dedicated environment file.</p>
 <h2 id="configure-environment-variables">Configure environment variables<a class="headerlink" href="#configure-environment-variables" title="Permanent link">&para;</a></h2>
 <p>Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the <code>pmm-server.env</code> file on your virtual machine.</p>
 <p class="power-number">To set environment variables for PMM Server on virtual machine deployments:</p>
@@ -16963,7 +16788,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h2 id="available-variables">Available variables<a class="headerlink" href="#available-variables" title="Permanent link">&para;</a></h2>
 <p>Unlike Docker deployments that use <code>-e</code> flags, virtual machines configure PMM Server using the systemd environment file instructions above. However, PMM uses the same <a href="../docker/env_var.html">list of environment variables</a> across all deployment methods.</p>
 <h3 id="common-examples-for-virtual-machines">Common examples for virtual machines<a class="headerlink" href="#common-examples-for-virtual-machines" title="Permanent link">&para;</a></h3>
-<p>These variables are particularly useful for both AWS AMI and virtual appliance deployments:</p>
+<p>These variables are particularly useful for AWS AMI deployments:</p>
 <table>
 <thead>
 <tr>
@@ -16981,7 +16806,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <tr>
 <td><code>PMM_ENABLE_UPDATES</code></td>
 <td><code>true</code></td>
-<td>Allow version checks and updates</td>
+<td>Allow version checks</td>
 </tr>
 <tr>
 <td><code>PMM_ENABLE_ACCESS_CONTROL</code></td>
@@ -17056,7 +16881,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 26, 2026 13:07:04 UTC">October 26, 2026</span>
   </span>
 
     

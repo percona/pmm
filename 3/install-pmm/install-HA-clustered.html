@@ -1748,7 +1748,7 @@
   <span class="md-ellipsis">
     
   
-    Install on Virtual Appliance
+    Install on AWS Marketplace
   
 
     
@@ -1761,145 +1761,6 @@
         
         <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Install on Virtual Appliance
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Download OVA
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VirtualBox
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Install on AWS Marketplace
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2016,10 +1877,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
             
   
   
@@ -2037,8 +1898,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2063,62 +1924,6 @@
     
   
     Configure environment variables
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Access PMM UI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Remove VM
   
 
     
@@ -12492,6 +12297,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../pmm-upgrade/migrate_from_ovf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate from the virtual appliance (OVF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -19453,7 +19286,7 @@ kubectl<span class="w"> </span>delete<span class="w"> </span>pod<span class="w">
 <p>The Helm chart sets these variables automatically. They control how the replicas find each other, elect a leader, and connect to the shared databases. </p>
 <p>Leave these values unchanged, as modifying them can break the cluster:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">pmmEnv</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">PMM_ENABLE_UPDATES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="w">                   </span><span class="c1"># Disables version checks. Upgrade with Helm to keep all replicas in sync</span>
+<span class="w">  </span><span class="nt">PMM_ENABLE_UPDATES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="w">                   </span><span class="c1"># Disables checks for newer versions. Upgrade with Helm to keep all replicas in sync</span>
 <span class="w">  </span><span class="nt">PMM_HA_ENABLE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">                        </span><span class="c1"># Enable HA clustering</span>
 <span class="w">  </span><span class="nt">PMM_HA_GOSSIP_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9096&quot;</span><span class="w">                </span><span class="c1"># Gossip protocol port</span>
 <span class="w">  </span><span class="nt">PMM_HA_RAFT_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9097&quot;</span><span class="w">                  </span><span class="c1"># Raft consensus port</span>
@@ -19941,7 +19774,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2026 13:41:16 UTC">October 22, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 26, 2026 13:07:04 UTC">October 26, 2026</span>
   </span>
 
     
