@@ -46,7 +46,7 @@ Each run executes checks only on services of their technology. It skips the chec
 After each run, PMM can email a report of the run's findings. Under **Email report**, choose the recipients:
 
 - **Settings recipients**: The **Default recipients** set under **Configuration > Settings > Advisors**. Changes there apply to the schedule too.
-- **These recipients**: Up to 20 email addresses, separated by commas. Only these addresses get the schedule's reports.
+- **These recipients**: Up to 20 email addresses, separated by commas or spaces. Only these addresses get the schedule's reports.
 - **Don't email**: PMM sends no report. The results stay in **Insights** and **Run history**.
 
 Unless you choose **Don't email**, also choose the severities under **Severities**:

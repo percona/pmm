@@ -109,9 +109,9 @@ export const Messages = {
     customHint: "Only these addresses get this schedule's reports.",
     addresses: 'Email addresses',
     addressesPlaceholder: 'secops@example.com, dba@example.com',
-    addressesHelp: 'Separate addresses with commas. Up to 20.',
+    addressesHelp: 'Separate addresses with commas or spaces. Up to 20.',
     addressesCount: (n: number) =>
-      `${plural(n, 'address', 'addresses')}. Separate addresses with commas. Up to 20.`,
+      `${plural(n, 'address', 'addresses')}. Separate addresses with commas or spaces. Up to 20.`,
     off: "Don't email",
     offHint: 'Results stay in Insights and Run history.',
     severities: 'Severities',

@@ -114,7 +114,7 @@ To turn on Advisor notifications:
 1. Go to **Configuration > Settings > Advisors**. The notification settings appear only when the **Advisors** option is enabled.
 2. Turn on **Advisor notifications**.
 3. In **Default severities**, select the severities of the findings that PMM emails: **Critical**, **Error**, **Warning** or **Info**. You must select at least one. By default, **Critical** and **Error** are selected.
-4. In **Default recipients**, enter up to 20 email addresses, separated by commas. Enter plain addresses, such as `dba@example.com`, without display names.
+4. In **Default recipients**, enter up to 20 email addresses, separated by commas or spaces. Enter plain addresses, such as `dba@example.com`, without display names.
 5. Optional: To check that the emails arrive, click **Send test email**.
 6. Click **Apply changes**.
 
@@ -135,7 +135,7 @@ The email contains the following:
 - The details of each finding, in the same format as **Copy as text** on the **Advisors > Insights** page
 
 ### Email insights to anyone
-To share a selection of insights, filter the **Advisors > Insights** page, then click the :material-email-outline: **Email insights** icon in the toolbar. Enter up to 20 email addresses, separated by commas, then click **Send** or press Enter. To close the dialog without sending, click **Cancel** or press Esc.
+To share a selection of insights, filter the **Advisors > Insights** page, then click the :material-email-outline: **Email insights** icon in the toolbar. Enter up to 20 email addresses, separated by commas or spaces, then click **Send** or press Enter. To close the dialog without sending, click **Cancel** or press Esc.
 
 The email covers every insight that matches the filters, on all pages and with any status, up to 200 insights. If more insights match, the dialog asks you to narrow the filters first. The email lists the filters, a count of the insights with each status, and the details of each insight, in the same format as **Copy as text**.
 

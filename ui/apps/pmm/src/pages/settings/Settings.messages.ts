@@ -113,7 +113,7 @@ export const Messages = {
       'Only insights with the selected severities are emailed.',
     advisorEmailsLabel: 'Default recipients',
     advisorEmailsTooltip:
-      'Email addresses the summaries are sent to, separated by commas.',
+      'Email addresses the summaries are sent to, separated by commas or spaces.',
     schedulesOverride:
       'Each Advisor schedule emails these recipients and severities unless it sets its own. Manage schedules in the',
     schedulerLink: 'Scheduler',
