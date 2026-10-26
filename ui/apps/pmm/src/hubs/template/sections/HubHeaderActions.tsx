@@ -120,7 +120,7 @@ export const HubHeaderActions: FC<HubHeaderActionsProps> = ({
   const addContext = Messages.addContext(name);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
       {/* Only Add is neutral, Peak's Base theme; its menu and More stay in the PMM theme. */}
       {add.length === 1 && (
         <ThemeScope theme="base">

@@ -53,14 +53,14 @@ const liveRegion = () =>
     .filter((element) => element.tagName !== 'OUTPUT')[0];
 
 describe.skipIf(!hasPeakHub)('HubHeader', () => {
-  it('is the page’s one h1, in the h3 size, and leaves the status line to the page', () => {
+  it('is the page’s one h1, in the h4 size, and leaves the status line to the page', () => {
     renderHeader();
 
     const [heading] = screen.getAllByRole('heading', { level: 1 });
 
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(heading).toHaveAccessibleName('MongoDB');
-    expect(heading).toHaveClass('MuiTypography-h3');
+    expect(heading).toHaveClass('MuiTypography-h4');
     expect(screen.queryByTestId('hub-status-banner')).not.toBeInTheDocument();
   });
 

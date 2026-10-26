@@ -44,8 +44,8 @@ export const HubHeader: FC<HubHeaderProps> = ({
   return (
     <PageHeader
       title={messages.name}
-      // The h3 title drops from 33px to 26px below sm; the mark keeps its 36:33 ratio to it.
-      icon={<Icon sx={{ fontSize: { xs: 28, sm: 36 } }} />}
+      // The mark is one line of the h4 title tall: 24px below sm, where the title is 23px, and 30px beside 28px.
+      icon={<Icon sx={{ fontSize: { xs: 24, sm: 30 } }} />}
       divider
       toolbarPlacement="inline"
       toolbar={
