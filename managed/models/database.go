@@ -91,6 +91,8 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongodb_username"},
 			{Name: "mongodb_password"},
 			{Name: "key_file"},
+			{Name: "admin_username"},
+			{Name: "admin_password"},
 		},
 	},
 }
@@ -1301,6 +1303,9 @@ var databaseSchema = [][]string{
 	},
 	125: {
 		`ALTER TABLE agents ADD COLUMN connection_id VARCHAR`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
 	},
 }
 

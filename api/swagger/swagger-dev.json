@@ -83,7 +83,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -161,7 +161,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -238,7 +238,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -319,7 +319,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -382,7 +382,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -456,7 +456,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -522,7 +522,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -607,7 +607,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -673,7 +673,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -756,7 +756,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1318,7 +1318,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1457,7 +1457,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1561,7 +1561,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1714,7 +1714,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1807,7 +1807,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1876,7 +1876,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1993,7 +1993,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2189,7 +2189,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2515,7 +2515,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2578,7 +2578,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2650,7 +2650,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2704,7 +2704,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2851,7 +2851,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3008,7 +3008,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3183,7 +3183,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3267,7 +3267,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3467,7 +3467,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3531,7 +3531,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3612,7 +3612,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3722,7 +3722,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3831,7 +3831,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -3942,7 +3942,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4004,7 +4004,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4099,7 +4099,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4241,7 +4241,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4335,7 +4335,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4419,7 +4419,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4593,7 +4593,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4799,7 +4799,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4893,7 +4893,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -4950,7 +4950,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5063,7 +5063,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5210,7 +5210,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5325,7 +5325,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5427,7 +5427,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5521,7 +5521,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5589,7 +5589,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5691,7 +5691,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5781,7 +5781,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5870,7 +5870,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -5931,7 +5931,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -8166,7 +8166,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -11768,7 +11768,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -13906,7 +13906,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -18073,7 +18073,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -18134,7 +18134,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -18213,7 +18213,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -18561,7 +18561,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -19112,7 +19112,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -19437,7 +19437,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -19506,7 +19506,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -20064,7 +20064,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -20952,7 +20952,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -21467,7 +21467,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22024,7 +22024,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22086,7 +22086,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22166,7 +22166,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22593,7 +22593,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22682,7 +22682,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -22771,7 +22771,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -23011,7 +23011,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -23348,7 +23348,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -23577,7 +23577,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -23646,7 +23646,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -24203,7 +24203,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -29166,7 +29166,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -29373,7 +29373,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -29448,7 +29448,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -29600,7 +29600,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -29735,7 +29735,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30010,7 +30010,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30274,7 +30274,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30545,7 +30545,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30654,7 +30654,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30772,7 +30772,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -30831,7 +30831,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -31261,7 +31261,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -31670,7 +31670,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -31727,7 +31727,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -31846,6 +31846,16 @@
                     }
                   },
                   "x-order": 9
+                },
+                "admin_username": {
+                  "description": "MongoDB administrator to create with the root role; empty creates none.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "admin_password": {
+                  "description": "Administrator's password, valid under SASLprep; requires admin_username.\nEmpty means PMM generates one and returns it in generated_admin_password.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -31855,13 +31865,18 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's\ngenerated MongoDB user is created only once every host is up, minutes after\nthis response, and lives encrypted in PMM's own Postgres\n(PMM-15347/questions.md Q7) -- there is nothing to hand back yet.",
+              "description": "TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.",
               "type": "object",
               "properties": {
                 "run_id": {
                   "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
                   "type": "string",
                   "x-order": 0
+                },
+                "generated_admin_password": {
+                  "description": "Password PMM generated when admin_username came without admin_password.\nOnly returned here: PMM deletes its copy once the install no longer needs it.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -31890,7 +31905,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32097,7 +32112,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32385,7 +32400,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32492,7 +32507,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32706,7 +32721,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32911,7 +32926,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -32968,7 +32983,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -33327,7 +33342,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -33542,7 +33557,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -33753,7 +33768,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -33842,7 +33857,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -33892,7 +33907,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -34027,7 +34042,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -34098,7 +34113,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -34825,7 +34840,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -34893,7 +34908,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -34971,7 +34986,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -35151,7 +35166,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -35229,7 +35244,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -35312,7 +35327,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -35432,7 +35447,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -35535,7 +35550,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36303,7 +36318,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36483,7 +36498,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36622,7 +36637,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36731,7 +36746,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36847,7 +36862,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36916,7 +36931,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -36968,7 +36983,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37068,7 +37083,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37265,7 +37280,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37599,7 +37614,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37709,7 +37724,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37847,7 +37862,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -37942,7 +37957,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -38037,7 +38052,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -38163,7 +38178,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -38237,7 +38252,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -38321,7 +38336,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -38433,7 +38448,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
