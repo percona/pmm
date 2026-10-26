@@ -46,7 +46,9 @@ jobs:
           # The agent reads PR-controlled content; nothing here pushes.
           persist-credentials: false
 
+      # Fails without PMM_AI_READ_TOKEN; the agent step then has no skill and fails quietly too.
       - name: Check out the pmm-ai marketplace
+        continue-on-error: true
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: percona/pmm-ai
