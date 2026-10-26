@@ -23,6 +23,12 @@ describe('withQuery', () => {
     expect(withQuery('/x', {})).toBe('/x');
   });
 
+  it('keeps a list readable, commas as they are', () => {
+    expect(withQuery('/x', { clusters: 'cart-eu,users-eu' })).toBe(
+      '/x?clusters=cart-eu,users-eu'
+    );
+  });
+
   it('extends an existing query', () => {
     expect(withQuery('/x?tab=clusters', { cluster: 'om-1' })).toBe(
       '/x?tab=clusters&cluster=om-1'

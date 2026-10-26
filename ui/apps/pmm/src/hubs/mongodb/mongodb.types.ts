@@ -1,4 +1,5 @@
 import type { DashboardSearchResult } from 'hubs/api/grafanaDashboards';
+import type { HubNeedsAttentionItem } from 'hubs/template/hub.types';
 
 export type MongoBackupMode = 'snapshot' | 'incremental' | 'pitr';
 export type MongoBackupStatus =
@@ -29,6 +30,8 @@ export interface MongoSnapshot {
     catalog: DashboardHit[];
     recent: Array<{ uid: string; visitedAt?: string }>;
   } | null;
+  /** Sample data only: the Needs attention rows as written for the scenario, which live data derives instead. */
+  attention?: HubNeedsAttentionItem[];
 }
 
 export interface MongoServiceInput {

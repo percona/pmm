@@ -44,6 +44,7 @@ export const MONGO_PATHS = {
   diagnostics: '/extensions/atw',
   realtime: '/rta',
   allApps: '/prototype/all-apps',
+  clusters: '/mongodb/clusters',
   inventoryServices: '/graph/inventory/services',
   advisors: '/graph/advisors/insights',
   documentation:

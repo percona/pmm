@@ -1,288 +1,278 @@
 import { fireEvent, screen, within } from '@testing-library/react';
-import { closestTo, renderHub } from '../../testUtils';
-import {
-  attentionItem,
-  minutesAgo,
-  READY,
-  testDoor,
-} from '../hub.testFixtures';
+import { hasPeakHub, renderHub } from '../../testUtils';
+import { attentionItem, READY } from '../hub.testFixtures';
 import type {
-  HubAlertCoverage,
-  HubAttentionItem,
+  HubDestination,
+  HubNeedsAttentionItem,
   HubSectionState,
 } from '../hub.types';
-import { NeedsAttentionSection } from './NeedsAttentionSection';
+import { attentionSteps, NeedsAttentionSection } from './NeedsAttentionSection';
 
-const ITEMS: HubAttentionItem[] = [
-  attentionItem('billing', {
-    kind: 'noPrimary',
-    severity: 'error',
-    title: "billing has no primary, it can't take writes",
-    detail: '2 of 3 members down',
-    where: 'billing · prod',
-    since: minutesAgo(18),
-    door: testDoor('Open ReplSet summary', '/graph/d/replset', {
-      context: 'for billing',
-    }),
+const ITEMS: HubNeedsAttentionItem[] = [
+  attentionItem('billing-eu has no primary and can’t accept writes', {
+    severity: 'critical',
+    impact: 'Applications writing to billing-eu are failing.',
+    location: 'billing-eu',
+    alertFiring: true,
+    alertService: 'billing-eu-m1',
   }),
-  attentionItem('orders-shard2-m2', {
-    severity: 'error',
-    title: 'orders-shard2-m2 is down',
-    since: minutesAgo(12),
-    source: 'alert',
-    secondaryDoor: testDoor(
-      'Alert',
-      '/alerting/status?f.serviceName=orders-shard2-m2',
-      {
-        context: 'for orders-shard2-m2',
-      }
-    ),
+  attentionItem('orders-eu shard 2 has no primary', {
+    severity: 'critical',
+    location: 'orders-eu › orders-eu-shard2',
+    since: '15m',
   }),
-  attentionItem('reports', { title: 'PMM gets no data from reports' }),
-  attentionItem('backup', { title: 'orders nightly backup failed' }),
-  attentionItem('pitr', { title: 'billing point-in-time recovery stopped' }),
-  attentionItem('oplog', { title: 'orders-shard2 oplog window is 3h' }),
-  attentionItem('restarted', { severity: 'info', title: 'Restarted' }),
+  attentionItem('9 members are down in 6 other EU clusters', {
+    severity: 'error',
+    location: 'cart-eu, users-eu and 4 more',
+    since: 'up to 18m',
+    issueCount: 9,
+    alertFiring: true,
+    destination: {
+      label: 'Show affected clusters',
+      route: '#clusters',
+      kind: 'inpage',
+    },
+  }),
+  attentionItem('3 nightly backups failed', {
+    severity: 'error',
+    since: '8h ago',
+    issueCount: 3,
+    destination: {
+      label: 'MongoDB backups',
+      route: '/graph/backup/inventory',
+      kind: 'page',
+    },
+  }),
+  attentionItem('PMM gets no data from 4 clusters', {
+    environment: 'prod, staging',
+    issueCount: 4,
+  }),
+  attentionItem('4 queries are running long', { issueCount: 4 }),
+  attentionItem('Upgrade notes', {
+    destination: {
+      label: 'Release notes',
+      route: 'https://docs.percona.com',
+      kind: 'external',
+    },
+  }),
 ];
 
-const renderSection = (
-  items: HubAttentionItem[] = ITEMS,
-  state: HubSectionState = READY,
-  onRetry = vi.fn(),
-  coverage?: HubAlertCoverage
-) =>
+const LOOK = (destination: HubDestination) => ({
+  path: ['Apps', destination.label],
+});
+
+const renderSection = ({
+  items = ITEMS,
+  state = READY,
+  revealed = 0,
+  environmentFiltered = false,
+  onRevealedChange = vi.fn(),
+}: {
+  items?: HubNeedsAttentionItem[];
+  state?: HubSectionState;
+  revealed?: number;
+  environmentFiltered?: boolean;
+  onRevealedChange?: (revealed: number) => void;
+} = {}) =>
   renderHub(
     <NeedsAttentionSection
       items={items}
       state={state}
-      door={testDoor('Alerts', '/alerting/status')}
-      checkedAt={minutesAgo(0)}
-      coverage={coverage}
-      onRetry={onRetry}
-    />
+      environmentFiltered={environmentFiltered}
+      describeDestination={LOOK}
+      revealed={revealed}
+      onRevealedChange={onRevealedChange}
+      onRetry={vi.fn()}
+    />,
+    { path: '/mongodb?hubState=unhealthy' }
   );
 
-const rowTitles = (list: HTMLElement) =>
-  within(list)
-    .getAllByRole('listitem')
-    .map((row) => row.querySelector('.MuiListItemText-primary')?.textContent);
+const rows = () => screen.getAllByTestId('attention-row');
+const row = (title: string) =>
+  rows().find((item) => item.textContent?.includes(title)) as HTMLElement;
 
-describe('NeedsAttentionSection', () => {
-  it('says what no alert rule covers beneath the rows, with the door to the templates', () => {
-    renderSection(ITEMS, READY, vi.fn(), {
-      text: 'No alert rules cover MongoDB yet.',
-      door: testDoor(
-        'Create from templates',
-        '/graph/alerting/alert-rule-templates'
-      ),
-      detail: '(member down, replication lag, oplog window)',
-    });
+describe.skipIf(!hasPeakHub)('NeedsAttentionSection', () => {
+  it('is not there at all when nothing needs attention', () => {
+    renderSection({ items: [] });
 
-    expect(screen.getByTestId('hub-alert-coverage')).toHaveTextContent(
-      'No alert rules cover MongoDB yet. Create from templates (member down, replication lag, oplog window)'
-    );
+    expect(screen.queryByRole('region')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Create from templates' })
-    ).toHaveAttribute('href', '/graph/alerting/alert-rule-templates');
+      screen.queryByRole('heading', { name: /Needs attention/ })
+    ).not.toBeInTheDocument();
   });
 
-  it('keeps the coverage line beneath the calm line too, and leaves it out when covered', () => {
-    const { unmount } = renderSection([], READY, vi.fn(), {
-      text: 'No rule from the oplog window template yet.',
-    });
-
-    expect(screen.getByTestId('hub-alert-coverage')).toHaveTextContent(
-      'No rule from the oplog window template yet.'
-    );
-    unmount();
-
-    renderSection([]);
-    expect(screen.queryByTestId('hub-alert-coverage')).toBeNull();
-  });
-
-  it('is a section named by its h2, with the count and the Alerts door', () => {
+  it('counts the issues behind the rows in its heading, and has no Alerts link', () => {
     renderSection();
 
     const section = screen.getByRole('region', { name: 'Needs attention' });
 
+    expect(section).toHaveTextContent('Needs attention23 issues');
+    expect(within(section).getByText('issues')).toBeVisible();
     expect(
-      within(section).getByRole('heading', {
-        level: 2,
-        name: 'Needs attention',
-      })
-    ).toBeInTheDocument();
-    expect(within(section).getByText('7')).toHaveTextContent('7 items');
-    expect(
-      within(section).getByRole('link', { name: 'Alerts' })
-    ).toHaveAttribute('href', '/alerting/status');
-  });
-
-  it('shows five rows and folds the rest behind Show more', () => {
-    renderSection();
-
-    const [visible] = screen.getAllByRole('list');
-
-    expect(rowTitles(visible)).toEqual([
-      "billing has no primary, it can't take writes",
-      'orders-shard2-m2 is down',
-      'PMM gets no data from reports',
-      'orders nightly backup failed',
-      'billing point-in-time recovery stopped',
-    ]);
-
-    const more = screen.getByRole('button', { name: 'Show 2 more' });
-
-    expect(more).toHaveAttribute('aria-expanded', 'false');
-
-    const rest = document.getElementById(
-      more.getAttribute('aria-controls') ?? ''
-    );
-
-    if (!rest) {
-      throw new Error('Show more controls nothing');
-    }
-
-    expect(within(rest).getByText('Restarted')).toBeInTheDocument();
-
-    fireEvent.click(more);
-
-    expect(screen.getByRole('button', { name: 'Show fewer' })).toHaveAttribute(
-      'aria-expanded',
-      'true'
-    );
-  });
-
-  it('never folds an error away', () => {
-    const errors = Array.from({ length: 6 }, (_, index) =>
-      attentionItem(`down-${index}`, { severity: 'error' })
-    );
-
-    renderSection([...errors, attentionItem('lag')]);
-
-    const [visible] = screen.getAllByRole('list');
-
-    expect(within(visible).getAllByRole('listitem')).toHaveLength(6);
-    expect(
-      screen.getByRole('button', { name: 'Show 1 more' })
-    ).toBeInTheDocument();
-  });
-
-  it('gives a merged alert row its own Alert door', () => {
-    renderSection();
-
-    const row = closestTo(screen.getByText('orders-shard2-m2 is down'), 'li');
-
-    expect(
-      within(row).getByRole('link', {
-        name: 'Open Instance summary for orders-shard2-m2',
-      })
-    ).toBeInTheDocument();
-    expect(
-      within(row).getByRole('link', { name: 'Alert for orders-shard2-m2' })
-    ).toHaveAttribute(
-      'href',
-      '/alerting/status?f.serviceName=orders-shard2-m2'
-    );
-  });
-
-  it('names each severity in words and puts the doors after the text', () => {
-    renderSection();
-
-    const row = closestTo(
-      screen.getByText("billing has no primary, it can't take writes"),
-      'li'
-    );
-
-    expect(within(row).getByRole('img', { name: 'Error' })).toBeInTheDocument();
-    expect(row).toHaveTextContent('2 of 3 members down · billing · prod · 18m');
-
-    const text = within(row).getByText(
-      '2 of 3 members down · billing · prod · 18m'
-    );
-    const door = within(row).getByRole('link');
-
-    expect(
-      text.compareDocumentPosition(door) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
-  });
-
-  it('shows one calm line and no list when nothing needs attention', () => {
-    renderSection([]);
-
-    expect(
-      screen.getByText(/^Nothing needs attention · checked/)
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
-  });
-
-  it('moves focus to the first row Show more reveals, which sits above it', () => {
-    renderSection();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show 2 more' }));
-
-    expect(
-      closestTo(screen.getByText('orders-shard2 oplog window is 3h'), 'li')
-    ).toHaveFocus();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show fewer' }));
-
-    expect(
-      screen.getByRole('button', { name: /^Show 2 more/ })
-    ).toBeInTheDocument();
-  });
-
-  it('never shows the calm line while loading', () => {
-    renderSection([], { status: 'loading' });
-
-    expect(
-      screen.queryByText(/Nothing needs attention/)
+      within(section).queryByRole('link', { name: 'Alerts' })
     ).not.toBeInTheDocument();
   });
 
-  it('fails on its own with a warning and Retry', () => {
-    const onRetry = vi.fn();
+  it('shows five rows and folds the rest behind Show N more', () => {
+    const onRevealedChange = vi.fn();
 
-    renderSection(
-      [],
-      { status: 'error', message: 'Could not read metrics.' },
-      onRetry
+    renderSection({ onRevealedChange });
+
+    const more = screen.getByRole('button', { name: 'Show 2 more' });
+
+    expect(rows()).toHaveLength(5);
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(more);
+    expect(onRevealedChange).toHaveBeenCalledWith(1);
+  });
+
+  it('reads Show fewer once every row shows, and folds back to five', () => {
+    const onRevealedChange = vi.fn();
+
+    renderSection({ revealed: Number.POSITIVE_INFINITY, onRevealedChange });
+
+    const fewer = screen.getByRole('button', { name: 'Show fewer' });
+
+    expect(rows()).toHaveLength(7);
+    expect(fewer).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(fewer);
+    expect(onRevealedChange).toHaveBeenCalledWith(0);
+  });
+
+  it('reveals five rows a step, the last step up to seven', () => {
+    const many = Array.from({ length: 22 }, (_, index) =>
+      attentionItem(`issue ${index + 1}`)
     );
 
-    const alert = screen.getByRole('alert');
+    expect(attentionSteps(22)).toEqual([5, 5, 7]);
+    expect(attentionSteps(12)).toEqual([7]);
+    expect(attentionSteps(13)).toEqual([5, 3]);
+    expect(attentionSteps(5)).toEqual([]);
 
-    expect(alert).toHaveTextContent('Could not read metrics.');
-    expect(alert).toHaveClass('MuiAlert-standardWarning');
+    renderSection({ items: many, revealed: 1 });
 
-    fireEvent.click(within(alert).getByRole('button', { name: 'Retry' }));
+    expect(rows()).toHaveLength(10);
+    expect(screen.getByRole('button', { name: 'Show 5 more' })).toBeVisible();
+  });
 
-    expect(onRetry).toHaveBeenCalledTimes(1);
+  it('names the severity in hidden text, with the State indicator’s icon', () => {
+    renderSection();
+
+    const critical = row('billing-eu has no primary');
+
+    expect(within(critical).getByText('Critical:')).toBeInTheDocument();
+    expect(
+      critical.querySelector('svg[data-severity="critical"]')
+    ).toBeTruthy();
+    expect(
+      row('nightly backups').querySelector('svg[data-severity="error"]')
+    ).toBeTruthy();
+  });
+
+  it('shows the location only when the title does not already name it', () => {
+    renderSection();
+
+    expect(row('billing-eu has no primary')).not.toHaveTextContent(
+      'billing-eu ·'
+    );
+    expect(row('orders-eu shard 2')).toHaveTextContent(
+      'orders-eu › orders-eu-shard2 · prod · for 15m'
+    );
+  });
+
+  it('says how long a condition holds, and when an event happened', () => {
+    renderSection();
+
+    expect(row('9 members are down')).toHaveTextContent('for up to 18m');
+    expect(row('nightly backups')).toHaveTextContent('· 8h ago');
+    expect(row('nightly backups')).not.toHaveTextContent('for 8h ago');
+  });
+
+  it('leaves the environment out while one environment is selected', () => {
+    renderSection({ environmentFiltered: true });
+
+    expect(row('orders-eu shard 2')).toHaveTextContent(
+      'orders-eu › orders-eu-shard2 · for 15m'
+    );
+  });
+
+  it('links a firing alert to Alerts, filtered to its service when it has one', () => {
+    renderSection();
+
+    expect(
+      within(row('billing-eu has no primary')).getByRole('link', {
+        name: 'Alert firing',
+      })
+    ).toHaveAttribute('href', '/alerting/status?f.serviceName=billing-eu-m1');
+    expect(
+      within(row('9 members are down')).getByRole('link', {
+        name: 'Alert firing',
+      })
+    ).toHaveAttribute('href', '/alerting/status');
+  });
+
+  it('gives each row one action, its destination with its params, a section of this page keeping the hub’s', () => {
+    renderSection({ revealed: Number.POSITIVE_INFINITY });
+
+    expect(
+      within(row('billing-eu has no primary')).getByRole('link', {
+        name: /ReplSet summary/,
+      })
+    ).toHaveAttribute(
+      'href',
+      '/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=orders'
+    );
+    expect(
+      within(row('9 members are down')).getByRole('link', {
+        name: /Show affected clusters/,
+      })
+    ).toHaveAttribute('href', '/mongodb?hubState=unhealthy#clusters');
+    expect(
+      within(row('Upgrade notes')).getByRole('link', { name: /Release notes/ })
+    ).toHaveAttribute('target', '_blank');
+  });
+
+  it('shows where the action goes in the sidebar on hover', async () => {
+    renderSection();
+
+    fireEvent.mouseEnter(
+      within(row('nightly backups')).getByText('MongoDB backups')
+    );
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Apps › MongoDB backups'
+    );
+  });
+
+  it('passes a click on the severity icon to the row’s action', () => {
+    renderSection();
+
+    const action = within(row('nightly backups')).getByRole('link', {
+      name: /MongoDB backups/,
+    });
+    const click = vi.fn((event: MouseEvent) => event.preventDefault());
+
+    action.addEventListener('click', click);
+    fireEvent.click(
+      row('nightly backups').querySelector('svg[data-severity]') as Element
+    );
+
+    expect(click).toHaveBeenCalled();
   });
 
   it('keeps its rows under the warning when only a supplementary source failed', () => {
-    renderSection(ITEMS.slice(0, 2), {
-      status: 'error',
-      source: 'alerts',
-      message: 'Firing alerts could not be read, so none is listed here.',
-      partial: true,
+    renderSection({
+      state: {
+        status: 'error',
+        source: 'alerts',
+        message: 'Firing alerts could not be read, so none is listed here.',
+        partial: true,
+      },
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Firing alerts could not be read'
     );
-    expect(
-      screen.getByText("billing has no primary, it can't take writes")
-    ).toBeInTheDocument();
-  });
-
-  it('shows no calm line under a warning, with nothing else to list', () => {
-    renderSection([], {
-      status: 'error',
-      source: 'alerts',
-      message: 'Firing alerts could not be read, so none is listed here.',
-      partial: true,
-    });
-
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.queryByText(/Nothing needs attention/)).toBeNull();
+    expect(rows().length).toBeGreaterThan(0);
   });
 });

@@ -148,6 +148,7 @@ export interface HubTreeNode {
   children?: HubTreeNode[];
 }
 
+/** A problem a technology's rules find in live data, before the hub turns it into a Needs attention row. */
 export interface HubAttentionItem {
   /** `${kind}:${subjectId}`, stable across refetches. */
   id: string;
@@ -165,6 +166,51 @@ export interface HubAttentionItem {
   source?: 'alert' | 'operations';
 }
 
+/** How bad a Needs attention row is, worst first. */
+export type HubAttentionSeverity = 'critical' | 'error' | 'warning';
+
+/** Where a Needs attention row's action goes. */
+export interface HubDestination {
+  /** "ReplSet summary" */
+  label: string;
+  /** A router path below /pmm-ui ("/graph/d/…"), a section of this page ("#clusters"), or an absolute URL. */
+  route: string;
+  /** Query parameters, such as Grafana's `var-cluster`. */
+  params?: Record<string, string>;
+  /** page: another PMM page (→); inpage: further down this hub (↓); external: outside PMM (↗). */
+  kind: 'page' | 'inpage' | 'external';
+}
+
+/** How the hub draws a destination: the sidebar's icon for it, and where it sits in the sidebar. */
+export interface HubDestinationLook {
+  icon?: HubIcon;
+  /** ["Apps", "Operations for MongoDB", "Fleet"] */
+  path: string[];
+}
+
+/** One Needs attention row: a problem that is true right now. The sample data is written in this format, so it doubles as the requirements. */
+export interface HubNeedsAttentionItem {
+  severity: HubAttentionSeverity;
+  /** What's wrong and where: "billing-eu has no primary and can’t accept writes". */
+  title: string;
+  /** Why it matters, in plain words. */
+  impact: string;
+  /** A cluster, a path ("orders-eu › orders-eu-shard2") or a list ("a, b and 3 more"). */
+  location: string;
+  /** "prod", or "prod, staging" for a row that spans environments. */
+  environment: string;
+  /** A duration for a condition ("18m", "up to 40m"), or an event ("8h ago"). */
+  since: string;
+  /** The underlying issues the row stands for; the section's count adds these up. */
+  issueCount: number;
+  alertFiring: boolean;
+  /** The service the firing alert is about, which the Alerts link filters on. */
+  alertService?: string;
+  /** Where the problem comes from; not shown, kept for the requirements. */
+  source: string;
+  destination: HubDestination;
+}
+
 export interface HubStatus {
   /** Worst health of the shown clusters. */
   state: HubHealth | 'empty';
@@ -176,6 +222,8 @@ export interface HubStatus {
   patches?: { behind: number; unknown: number };
   /** Firing alerts about the technology or its hosts; null when they could not be read, absent while alerting is off. */
   alerts?: number | null;
+  /** How many of the firing alerts are critical. */
+  alertsCritical?: number;
   /** none: no alert rule covers the technology yet; absent when the rules could not be read. */
   alertRules?: 'none' | 'some';
   lastGoodBackup:
@@ -184,8 +232,10 @@ export interface HubStatus {
     | 'notSetUp'
     | 'featureOff'
     | 'unknown';
-  /** Clusters whose newest backup failed lately, or whose point-in-time recovery stopped. */
+  /** Clusters whose newest backup failed lately. */
   backupsFailed: number;
+  /** The oldest of those clusters' last good backups, ISO; absent when none of them has one. */
+  backupsFailedOldestGood?: string;
   /** Clusters a backup tool can protect (not standalones), and those with an enabled schedule; absent until backups are read. */
   backupCoverage?: { protected: number; protectable: number };
   checkedAt: string;
@@ -252,7 +302,6 @@ export interface HubQueryRow {
 export interface HubQueries {
   links: { analytics: HubDoor; realtime: HubDoor };
   slower: HubQueryRow[];
-  runningLong: HubQueryRow[];
 }
 
 export interface HubDashboardLink extends HubDoor {
@@ -321,15 +370,15 @@ export interface HubViewModel {
     matchesNothing: boolean;
   };
   status: HubStatus;
-  /** Ranked, uncapped; the view applies the cap. */
-  attention: HubAttentionItem[];
-  /** Absent when the rules cover what matters, or could not be read. */
+  /** Worst first, then by impact, then longest first; uncapped, as the view shows a few and folds the rest. */
+  attention: HubNeedsAttentionItem[];
+  /** Absent when the rules cover what matters, or could not be read; not shown until it returns as a recommendation. */
   alertCoverage?: HubAlertCoverage;
   /** Worst first; only those behind on patches while that filter is on. */
   clusters: HubTreeNode[];
   /** `?patches=behind` is on. */
   patchesFilter: boolean;
-  /** MRT expanded state: every non-healthy node and its ancestors. */
+  /** MRT expanded state; every cluster starts as one row. */
   expanded: Record<string, true>;
   backups: HubBackups;
   queries: HubQueries;
@@ -341,7 +390,7 @@ export interface HubViewModel {
     /** Estate-wide pages for admins, then the docs for everyone. */
     more: HubMenuAction[];
   };
-  sectionDoors: { attention?: HubDoor; clusters: HubDoor; apps?: HubDoor };
+  sectionDoors: { clusters: HubDoor; apps?: HubDoor };
   sections: Record<HubSectionId, HubSectionState>;
 }
 
@@ -405,7 +454,6 @@ export interface HubMessages {
   empty: { title: string; description: string; viewer: string };
   /** tableLabel: "MongoDB clusters" */
   clusters: { tableLabel: string };
-  backups: { emptyTitle: string; emptyDescription: string; noServices: string };
   /** all: "All MongoDB dashboards" */
   dashboards: { all: string };
 }
@@ -422,6 +470,8 @@ export interface TechnologyHubConfig<TSnapshot> {
   treeColumns: HubTreeColumn[];
   /** Kinds, highest priority first. */
   attentionOrder: string[];
+  /** The sidebar's icon for a Needs attention destination, and its place there. */
+  describeDestination: (destination: HubDestination) => HubDestinationLook;
   useLiveSnapshot: (ctx: HubLiveContext) => HubLiveResult<TSnapshot>;
   /** Sample data per state, built as live sources answer for that environment filter. */
   fixtures: Record<

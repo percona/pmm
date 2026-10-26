@@ -20,7 +20,7 @@ export interface HubStatusContext {
   loading: boolean;
   /** The environment filter matches no service, so there is nothing to count. */
   matchesNothing: boolean;
-  /** Items in Needs attention, where a cluster problem is reviewed. */
+  /** Issues in Needs attention, where a cluster problem is reviewed. */
   issues: number;
 }
 
@@ -60,17 +60,17 @@ const healthFacet = (
   if (!health || total == null) {
     return facet('default', B.health.unknown(unit));
   }
-  // No data counts with down: nothing says the cluster works.
-  const failing = health.down + health.noData;
+  // No data is a warning, as Needs attention ranks it: it adds to the count, but only a down cluster makes it a problem.
+  const notHealthy = health.down + health.noData + health.degraded;
 
-  if (failing) {
+  if (health.down) {
     return problem(
       'mixedProblems',
-      B.health.attention(failing + health.degraded, total, unit)
+      B.health.attention(notHealthy, total, unit)
     );
   }
-  if (health.degraded) {
-    return problem('degraded', B.health.degraded(health.degraded, total, unit));
+  if (notHealthy) {
+    return problem('degraded', B.health.degraded(notHealthy, total, unit));
   }
   if (health.upgrading) {
     return facet(
@@ -84,7 +84,7 @@ const healthFacet = (
 
 /** Firing alerts, else whether any rule watches the technology; nothing while alerting is off. */
 const alertsFacet = (
-  { alerts, alertRules, doors }: HubStatus,
+  { alerts, alertsCritical, alertRules, doors }: HubStatus,
   loading: boolean
 ): HubStatusFacet | undefined => {
   if (loading) {
@@ -100,7 +100,7 @@ const alertsFacet = (
     return {
       id: 'alerts',
       state: 'errors',
-      label: B.alerts.firing(alerts),
+      label: B.alerts.firing(alerts, alertsCritical),
       action: doors.alerts,
     };
   }
@@ -118,7 +118,13 @@ const alertsFacet = (
 
 /** Failed backups first, then clusters nothing protects, then the last good one. */
 const backupsFacet = (
-  { lastGoodBackup, backupsFailed, backupCoverage, doors }: HubStatus,
+  {
+    lastGoodBackup,
+    backupsFailed,
+    backupsFailedOldestGood,
+    backupCoverage,
+    doors,
+  }: HubStatus,
   { unit, loading }: HubStatusContext
 ): HubStatusFacet => {
   const setUp = doors.setUpBackups ? { action: doors.setUpBackups } : {};
@@ -138,9 +144,7 @@ const backupsFacet = (
       state: 'errors',
       label: B.backups.failed(
         backupsFailed,
-        typeof lastGoodBackup === 'object'
-          ? formatAge(lastGoodBackup.at)
-          : undefined
+        backupsFailedOldestGood ? formatAge(backupsFailedOldestGood) : undefined
       ),
       action: doors.backups,
     };

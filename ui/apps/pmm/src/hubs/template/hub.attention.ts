@@ -1,4 +1,10 @@
-import type { HubAttentionItem, HubSeverity } from './hub.types';
+import { matchesEnvironment } from './hub.params';
+import type {
+  HubAttentionItem,
+  HubAttentionSeverity,
+  HubNeedsAttentionItem,
+  HubSeverity,
+} from './hub.types';
 
 export const HUB_SEVERITY_RANK: Record<HubSeverity, number> = {
   error: 0,
@@ -36,26 +42,36 @@ export const rankAttention = (
       (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
   );
 
-/** Every error stays visible, then further rows in order until `max` in total; the rest are hidden. */
-export const capAttention = (
-  items: HubAttentionItem[],
-  max: number
-): { visible: HubAttentionItem[]; hidden: HubAttentionItem[] } => {
-  const errors = items.filter((item) => item.severity === 'error').length;
-  let room = Math.max(0, max - errors);
-  const visible: HubAttentionItem[] = [];
-  const hidden: HubAttentionItem[] = [];
-
-  for (const item of items) {
-    if (item.severity === 'error') {
-      visible.push(item);
-    } else if (room > 0) {
-      visible.push(item);
-      room -= 1;
-    } else {
-      hidden.push(item);
-    }
-  }
-
-  return { visible, hidden };
+const NEEDS_ATTENTION_RANK: Record<HubAttentionSeverity, number> = {
+  critical: 0,
+  error: 1,
+  warning: 2,
 };
+
+/** Worst first; rows of one severity keep their order, which is by impact, then longest first. */
+export const sortNeedsAttention = (
+  items: HubNeedsAttentionItem[]
+): HubNeedsAttentionItem[] =>
+  [...items].sort(
+    (a, b) =>
+      NEEDS_ATTENTION_RANK[a.severity] - NEEDS_ATTENTION_RANK[b.severity]
+  );
+
+/** The issues behind the rows: the section's count, and the banner's "Review N issues". */
+export const attentionIssues = (items: HubNeedsAttentionItem[]): number =>
+  items.reduce((sum, item) => sum + item.issueCount, 0);
+
+/** The rows in an environment filter: a row that spans several, "prod, staging", is in each of them. */
+export const attentionInEnvironment = (
+  items: HubNeedsAttentionItem[],
+  filter: string | null
+): HubNeedsAttentionItem[] =>
+  filter === null
+    ? items
+    : items.filter((item) =>
+        item.environment
+          .split(',')
+          .some((environment) =>
+            matchesEnvironment(environment.trim() || undefined, filter)
+          )
+      );

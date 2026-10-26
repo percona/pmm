@@ -63,8 +63,9 @@ describe('HubSection', () => {
     const door = screen.getByRole('link', {
       name: 'Fleet in Operations Developer preview',
     });
+    // The header row: the title with its count, then the door.
     const header = screen.getByRole('heading', { name: 'Clusters' })
-      .parentElement as HTMLElement;
+      .parentElement?.parentElement as HTMLElement;
 
     expect(door).toHaveTextContent('');
     expect(within(header).getByTestId('preview-chip')).toBeInTheDocument();

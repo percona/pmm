@@ -11,10 +11,15 @@ import { DoorButton } from './DoorLink';
 
 export interface HubStatusBannerProps extends HubStatusContext {
   status: HubStatus;
+  /** Before an action takes the reader down to Needs attention. */
+  onReview?: () => void;
 }
 
 /** A facet's action: down to a section of this page, keeping the hub's params, or on to another page. */
-const FacetAction: FC<{ door: HubDoor }> = ({ door }) => {
+const FacetAction: FC<{ door: HubDoor; onInPage?: () => void }> = ({
+  door,
+  onInPage,
+}) => {
   const { search } = useLocation();
   const inPage = door.to.startsWith('#');
 
@@ -22,6 +27,7 @@ const FacetAction: FC<{ door: HubDoor }> = ({ door }) => {
     <DoorButton
       door={inPage ? { ...door, to: `${search}${door.to}` } : door}
       endIcon={inPage ? <ArrowDownward /> : <ArrowForward />}
+      {...(inPage && onInPage ? { onClick: onInPage } : {})}
     />
   );
 };
@@ -29,6 +35,7 @@ const FacetAction: FC<{ door: HubDoor }> = ({ door }) => {
 /** What to look at first: cluster health, alerts and backups, on cards when there is something to do. */
 export const HubStatusBanner: FC<HubStatusBannerProps> = ({
   status,
+  onReview,
   ...context
 }) => (
   // Neutral, Peak's Base theme, as the Figma hub draws the cards' actions and the header's Add.
@@ -42,7 +49,7 @@ export const HubStatusBanner: FC<HubStatusBannerProps> = ({
           <StatusCard
             key={id}
             state={state}
-            action={<FacetAction door={action} />}
+            action={<FacetAction door={action} onInPage={onReview} />}
           >
             {label}
           </StatusCard>

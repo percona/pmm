@@ -23,7 +23,7 @@ const QueryRow: FC<{ row: HubQueryRow; divider: boolean }> = ({
       <StatusIcon
         size="small"
         severity={row.severity}
-        titleAccess={Messages.attention.severity[row.severity]}
+        titleAccess={Messages.queries.severity[row.severity]}
       />
     </ListItemIcon>
     <Box
@@ -98,14 +98,14 @@ export interface QueriesSectionProps {
   onRetry: () => void;
 }
 
-/** Queries: the two ways into query data, then only the queries that are off. */
+/** Queries: the two ways into query data, then the queries slower than usual; those running long now are in Needs attention. */
 export const QueriesSection: FC<QueriesSectionProps> = ({
   queries,
   state,
   empty = false,
   onRetry,
 }) => {
-  const { links, slower, runningLong } = queries;
+  const { links, slower } = queries;
 
   return (
     <HubSection id="queries" title={Messages.sections.queries}>
@@ -122,22 +122,9 @@ export const QueriesSection: FC<QueriesSectionProps> = ({
         />
       </Box>
       <SectionState state={state} onRetry={onRetry} skeletonRows={2}>
-        {slower.length || runningLong.length ? (
+        {slower.length ? (
           <Paper variant="outlined">
-            {slower.length > 0 && (
-              <QueryGroup
-                title={Messages.queries.slower}
-                rows={slower}
-                last={runningLong.length === 0}
-              />
-            )}
-            {runningLong.length > 0 && (
-              <QueryGroup
-                title={Messages.queries.runningLong}
-                rows={runningLong}
-                last
-              />
-            )}
+            <QueryGroup title={Messages.queries.slower} rows={slower} last />
           </Paper>
         ) : empty ? null : (
           <Typography variant="body2" color="text.secondary">

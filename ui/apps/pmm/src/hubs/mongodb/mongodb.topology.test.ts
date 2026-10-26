@@ -8,7 +8,6 @@ import { toServiceInputs } from './mongodb.sources';
 import {
   buildClusterTree,
   type ClusterModel,
-  expandedProblems,
   groupClusters,
   updateOf,
 } from './mongodb.topology';
@@ -240,7 +239,6 @@ describe('buildClusterTree', () => {
       'reports',
     ]);
     expect(nodes.every((node) => node.health === 'healthy')).toBe(true);
-    expect(expandedProblems(nodes)).toEqual({});
   });
 
   it('ranks No data next to Down, then Degraded, Upgrading and Healthy', () => {
@@ -344,9 +342,6 @@ describe('buildClusterTree', () => {
     expect(find(nodes, 'billing')).toMatchObject({
       health: 'degraded',
       members: { up: 3, total: 3, noData: 0 },
-    });
-    expect(expandedProblems(nodes)).toMatchObject({
-      'cluster:prod/billing': true,
     });
   });
 
@@ -482,20 +477,6 @@ describe('buildClusterTree', () => {
     );
   });
 
-  it('expands only along non-healthy paths', () => {
-    const expanded = expandedProblems(tree(unhealthySnapshot(NOW, false)));
-
-    expect(expanded).toEqual({
-      'cluster:prod/billing': true,
-      'cluster:prod/orders': true,
-      'cluster:prod/payments': true,
-      'cluster:staging/catalog': true,
-      'set:prod/orders/orders-cfg': true,
-      'set:prod/orders/orders-shard1': true,
-      'set:prod/orders/orders-shard2': true,
-    });
-  });
-
   it('marks every set of an upgrading cluster Upgrading since the upgrade began, and keeps it folded', () => {
     const startedAt = new Date(NOW - 9 * 60_000).toISOString();
     const nodes = tree(healthySnapshot(NOW, false), false, (clusters) =>
@@ -522,7 +503,6 @@ describe('buildClusterTree', () => {
       'upgrading',
       'upgrading',
     ]);
-    expect(expandedProblems(nodes)).toEqual({});
   });
 
   it('opens each level on its dashboard with its own environment and cluster', () => {

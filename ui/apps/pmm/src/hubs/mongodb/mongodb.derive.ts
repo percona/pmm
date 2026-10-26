@@ -1,4 +1,7 @@
-import { rankAttention } from 'hubs/template/hub.attention';
+import {
+  attentionInEnvironment,
+  sortNeedsAttention,
+} from 'hubs/template/hub.attention';
 import { ALERT_TEMPLATES_PATH, ALERTS_PATH } from 'hubs/template/hub.doors';
 import { Messages as HubText } from 'hubs/template/hub.messages';
 import {
@@ -20,18 +23,14 @@ import type {
 } from 'hubs/template/hub.types';
 import { deriveActions } from './mongodb.actions';
 import { deriveApps } from './mongodb.apps';
-import { deriveAttention, MONGODB_ATTENTION_ORDER } from './mongodb.attention';
+import { deriveAttention, toNeedsAttention } from './mongodb.attention';
 import { deriveBackups } from './mongodb.backups';
 import { deriveDashboards } from './mongodb.dashboards';
 import { listDashboard, MONGO_PATHS } from './mongodb.doors';
 import { worstHealth } from './mongodb.health';
 import { Messages, MONGODB_HUB_MESSAGES } from './mongodb.messages';
 import { deriveQueries } from './mongodb.queries';
-import {
-  buildClusterTree,
-  expandedProblems,
-  groupClusters,
-} from './mongodb.topology';
+import { buildClusterTree, groupClusters } from './mongodb.topology';
 import type {
   MongoAlertInput,
   MongoAlertRulesInput,
@@ -252,7 +251,10 @@ export const deriveMongoHub = (
     clusters: inventoryOk ? models.length : null,
     ...(metricsOk && inventoryOk ? { health: countHealth(clusters) } : {}),
     lastGoodBackup: inventoryOk ? backups.lastGoodBackup : 'unknown',
-    backupsFailed: backups.findings.length,
+    backupsFailed: backups.failedRecently,
+    ...(backups.failedOldestGood
+      ? { backupsFailedOldestGood: backups.failedOldestGood }
+      : {}),
     ...(inventoryOk && backups.coverage
       ? { backupCoverage: backups.coverage }
       : {}),
@@ -269,7 +271,12 @@ export const deriveMongoHub = (
     ...(sources.alerts?.status === 'error'
       ? { alerts: null }
       : sources.alerts?.status === 'ready' && snapshot.alerts
-        ? { alerts: alerts.length }
+        ? {
+            alerts: alerts.length,
+            alertsCritical: alerts.filter(
+              (alert) => alert.severity === 'critical'
+            ).length,
+          }
         : {}),
     ...(snapshot.alertRules
       ? { alertRules: noRules(snapshot.alertRules) ? 'none' : 'some' }
@@ -344,14 +351,16 @@ export const deriveMongoHub = (
         filter !== null && allServices.length > 0 && services.length === 0,
     },
     status,
-    attention: rankAttention(
-      entries.map((entry) => entry.item),
-      MONGODB_ATTENTION_ORDER
+    attention: sortNeedsAttention(
+      snapshot.attention
+        ? attentionInEnvironment(snapshot.attention, filter)
+        : toNeedsAttention(entries, ctx.now)
     ),
     ...(coverage ? { alertCoverage: coverage } : {}),
     clusters: shownClusters,
     patchesFilter,
-    expanded: expandedProblems(shownClusters),
+    // Every cluster starts as one row.
+    expanded: {},
     backups: backups.backups,
     queries: queries.queries,
     dashboards: deriveDashboards({
@@ -375,7 +384,6 @@ export const deriveMongoHub = (
     }),
     actions: deriveActions(capabilities, ctx.role),
     sectionDoors: {
-      attention: { label: Messages.doors.alerts, to: ALERTS_PATH },
       clusters: capabilities.operations
         ? {
             label: Messages.doors.fleet,

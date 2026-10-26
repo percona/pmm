@@ -1,6 +1,5 @@
 // The module, not the package index, which would load the whole Operations UI.
 import { formatCompactDuration } from '@pmm/plugins-om/src/format';
-import { realtimeLink } from 'hubs/template/hub.doors';
 import type { HubQueries, HubQueryRow } from 'hubs/template/hub.types';
 import { MONGO_PATHS, queriesQan, queryQan } from './mongodb.doors';
 import { Messages } from './mongodb.messages';
@@ -112,19 +111,6 @@ export const slowerRow = (
   },
 });
 
-export const runningRow = ({ query }: RunningQuery): HubQueryRow => ({
-  id: `running:${query.serviceId}:${query.queryText}`,
-  text: query.queryText,
-  headline: Messages.queries.running(runningAge(query)),
-  detail: query.serviceName,
-  severity: 'warning',
-  door: {
-    label: Messages.doors.openRealtime,
-    to: realtimeLink([query.serviceId]),
-    context: Messages.doors.forSubject(query.serviceName),
-  },
-});
-
 export const deriveQueries = (
   snapshot: Pick<MongoSnapshot, 'qan' | 'realtime'>,
   services: MongoServiceInput[],
@@ -149,7 +135,6 @@ export const deriveQueries = (
       slower: slower
         .slice(0, T.queryRowsMax)
         .map((item) => slowerRow(item, filter)),
-      runningLong: running.slice(0, T.queryRowsMax).map(runningRow),
     },
     slower,
     running,

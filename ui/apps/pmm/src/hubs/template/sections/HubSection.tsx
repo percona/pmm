@@ -22,8 +22,10 @@ export interface HubSectionProps {
   id: string;
   title: string;
   count?: number;
-  /** Visually hidden noun after the count, such as "clusters". */
+  /** The noun after the count, such as "clusters"; visually hidden unless shown. */
   countLabel?: string;
+  /** Shows the noun after the count: "39 issues". */
+  showCountLabel?: boolean;
   /** The section's way out, right of the title. */
   door?: HubDoor;
   children: ReactNode;
@@ -72,6 +74,7 @@ export const HubSection: FC<HubSectionProps> = ({
   title,
   count,
   countLabel,
+  showCountLabel = false,
   door,
   children,
 }) => (
@@ -82,24 +85,29 @@ export const HubSection: FC<HubSectionProps> = ({
     sx={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}
   >
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: 40 }}>
-      <Typography
-        variant="sectionHeading"
-        component="h2"
-        id={`${id}-title`}
-        tabIndex={-1}
-      >
-        {title}
-      </Typography>
-      {count != null && (
-        <Typography variant="body2" color="text.secondary">
-          {count}
-          {countLabel && (
-            <Box component="span" sx={visuallyHidden}>
-              {` ${countLabel}`}
-            </Box>
-          )}
+      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+        <Typography
+          variant="h5"
+          component="h2"
+          id={`${id}-title`}
+          tabIndex={-1}
+        >
+          {title}
         </Typography>
-      )}
+        {count != null && (
+          <Typography variant="body2" color="text.secondary">
+            {count}
+            {countLabel && (
+              <Box
+                component="span"
+                sx={showCountLabel ? undefined : visuallyHidden}
+              >
+                {` ${countLabel}`}
+              </Box>
+            )}
+          </Typography>
+        )}
+      </Box>
       {door && (
         <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
           <SectionDoor door={door} />
