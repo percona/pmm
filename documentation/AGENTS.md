@@ -29,7 +29,7 @@ CI on a documentation PR:
 | Check | What it does | Blocking |
 |-------|--------------|----------|
 | `linkspector` (`.github/workflows/linkspector.yml`) | Resolves every link under `documentation/docs/`, config in `documentation/.linkspector.yml` | Yes — `fail_level: error` |
-| `make doc-check-images` (inside `documentation.yml`) | Lists images under `docs/images/` that no page references | No — reports only; still clean up after yourself with `make doc-remove-images` |
+| `make doc-check-images` (inside `documentation.yml`) | Lists images under `docs/images/` that neither a page nor the root `README.md` references | No — reports only; still clean up after yourself with `make doc-remove-images` |
 
 ## Layout
 
@@ -43,6 +43,7 @@ documentation/
 │   ├── troubleshoot/ pmm-upgrade/ uninstall-pmm/ discover-pmm/
 │   └── images/ assets/ css/ js/ fonts/
 ├── api/                     # public API reference (separate publishing pipeline)
+│   └── images/              # images used only by the root README.md
 ├── mkdocs-base.yml          # site config + nav; mkdocs.yml and mkdocs-pdf.yml INHERIT it
 ├── variables.yml            # release variables
 ├── WRITERS-NOTES.md         # admonition colours, icons, symbols
@@ -135,7 +136,7 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
 
 **Code, commands, flags, paths, filenames, environment variables** go in backticks. **UI element names** go in bold and match the interface capitalization exactly: `**Query Analytics > Real-Time**`.
 
-**Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference.
+**Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference. Images used only by the root `README.md` live in `api/images/` instead: the API reference sync uploads only Markdown, so they never reach the API docs.
 
 **Do not hard-wrap** — not at 80 columns, not at any width. One paragraph is one line. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
 
@@ -283,7 +284,7 @@ make doc-build-preview
 # One-off build, as CI runs it
 make doc-build
 
-# List images no page references (ACTION=remove to delete them)
+# List images no page or README.md references (ACTION=remove to delete them)
 make doc-check-images
 
 # PDF — Percona staff only; bump the version in mkdocs-base.yml first
