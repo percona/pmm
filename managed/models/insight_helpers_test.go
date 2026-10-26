@@ -251,6 +251,24 @@ func TestInsights(t *testing.T) {
 		assert.Contains(t, ids, pending[0].ID)
 	})
 
+	t.Run("delete removes only the given insight", func(t *testing.T) {
+		runID := "run-delete"
+		pending := []*models.Insight{
+			{RunID: runID, CheckName: "c1", ServiceID: "svc-delete", Status: models.CheckResultPending},
+			{RunID: runID, CheckName: "c2", ServiceID: "svc-delete", Status: models.CheckResultPending},
+		}
+		require.NoError(t, models.CreateInsights(t.Context(), q, pending))
+
+		require.NoError(t, models.DeleteInsight(t.Context(), q, pending[0].ID))
+
+		got, err := models.FindInsights(t.Context(), q, models.InsightFilters{RunID: runID}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 1)
+		assert.Equal(t, pending[1].ID, got[0].ID)
+
+		require.ErrorIs(t, models.DeleteInsight(t.Context(), q, pending[0].ID), reform.ErrNoRows)
+	})
+
 	t.Run("cleanup removes the insights of old runs", func(t *testing.T) {
 		old := models.Now().Add(-72 * time.Hour)
 		oldRun := &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, Status: models.AdvisorRunStatusCompleted, StartedAt: old}

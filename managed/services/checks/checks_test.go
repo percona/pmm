@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
@@ -687,6 +688,28 @@ func TestFilterChecks(t *testing.T) {
 	s := New(nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(slices.Concat(valid, invalid))
 	assert.Equal(t, valid, actual)
+}
+
+func TestActionError(t *testing.T) {
+	t.Parallel()
+
+	t.Run("arbiter", func(t *testing.T) {
+		t.Parallel()
+
+		msg := agentv1.MongoDBArbiterUnauthorized + ": (Unauthorized) Command buildInfo requires authentication"
+		err := actionError("id", msg)
+		require.ErrorIs(t, err, errMongoDBArbiter)
+		assert.EqualError(t, err, "action id failed: "+msg)
+	})
+
+	t.Run("other", func(t *testing.T) {
+		t.Parallel()
+
+		msg := "(Unauthorized) Command buildInfo requires authentication"
+		err := actionError("id", msg)
+		require.NotErrorIs(t, err, errMongoDBArbiter)
+		assert.EqualError(t, err, "action id failed: "+msg)
+	})
 }
 
 func TestMinPMMAgents(t *testing.T) {

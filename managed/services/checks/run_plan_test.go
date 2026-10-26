@@ -26,6 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -184,6 +185,32 @@ func TestRunPlan(t *testing.T) {
 		run := reload(t, ri.runID)
 		// the failed execution plus the two unreachable services
 		assert.Equal(t, 3, run.ErrorsCount)
+		assert.Zero(t, run.ChecksCount)
+	})
+
+	t.Run("a check an arbiter rejects leaves no insight", func(t *testing.T) {
+		ri := start(t)
+		plan, err := s.planRun(t.Context(), []string{"check_a"}, nil, ri)
+		require.NoError(t, err)
+		require.Len(t, plan, 1)
+
+		registry.On(
+			"StartMySQLQueryShowAction",
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+		).Run(func(args mock.Arguments) {
+			msg := agentv1.MongoDBArbiterUnauthorized + ": (Unauthorized) Command buildInfo requires authentication"
+			assert.NoError(t, models.ChangeActionResult(db.Querier, args.String(1), args.String(2), msg, "", true))
+		}).Return(nil).Once()
+
+		res := s.executePlan(t.Context(), plan, ri)
+		assert.Empty(t, res)
+		registry.AssertExpectations(t)
+		assert.NotContains(t, insights(t, ri.runID), "check_a/mysql-ok")
+
+		s.finishRun(t.Context(), ri.runID, models.AdvisorRunStatusCompleted)
+		run := reload(t, ri.runID)
+		// only the two unreachable services
+		assert.Equal(t, 2, run.ErrorsCount)
 		assert.Zero(t, run.ChecksCount)
 	})
 

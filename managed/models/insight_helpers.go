@@ -72,6 +72,15 @@ func CompleteInsight(ctx context.Context, q *reform.Querier, id string, outcomes
 	return CreateInsights(ctx, q, outcomes[1:])
 }
 
+// DeleteInsight removes the insight with the given ID.
+func DeleteInsight(ctx context.Context, q *reform.Querier, id string) error {
+	err := q.WithContext(ctx).Delete(&Insight{ID: id})
+	if err != nil {
+		return fmt.Errorf("failed to delete insight %s: %w", id, err)
+	}
+	return nil
+}
+
 // MarkPendingInsightsNotRun records that the run ended before executing its
 // pending checks, with the given outcome explaining it.
 func MarkPendingInsightsNotRun(ctx context.Context, q *reform.Querier, runID, outcome string) error {

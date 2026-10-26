@@ -41,7 +41,7 @@ Enable or disable specific PMM features:
 
 | Variable | Default | Effect when enabled |
 |----------|---------|-------------------|
-| `PMM_ENABLE_UPDATES` | `true` | Allows version checks and UI updates |
+| `PMM_ENABLE_UPDATES` | `true` | Allows version checks |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enables usage data collection |
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
