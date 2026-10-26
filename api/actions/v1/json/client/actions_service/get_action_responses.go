@@ -309,8 +309,8 @@ type GetActionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get action default body details items0
-	GetActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get action default body details items0 additional properties
+	GetActionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -345,7 +345,7 @@ func (o *GetActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.GetActionDefaultBodyDetailsItems0 = result
+		o.GetActionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -366,12 +366,12 @@ func (o GetActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetActionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetActionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetActionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetActionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
