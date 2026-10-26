@@ -97,7 +97,6 @@ type InsightFilters struct {
 	TriggeredBy *CheckTriggeredBy
 	Severity    *Severity
 	Status      *CheckResultStatus
-	IsRead      *bool
 	From        *time.Time
 	To          *time.Time
 }
@@ -142,10 +141,6 @@ func insightConditions(q *reform.Querier, filters InsightFilters) (string, []any
 	if filters.Status != nil {
 		conditions = append(conditions, "status = "+q.Placeholder(len(args)+1))
 		args = append(args, *filters.Status)
-	}
-	if filters.IsRead != nil {
-		conditions = append(conditions, "is_read = "+q.Placeholder(len(args)+1))
-		args = append(args, *filters.IsRead)
 	}
 	if filters.From != nil {
 		conditions = append(conditions, "checked_at >= "+q.Placeholder(len(args)+1))
@@ -231,41 +226,6 @@ func FindInsightFilterValues(ctx context.Context, q *reform.Querier) ([]string, 
 		return nil, nil, err
 	}
 	return serviceNames, nodeNames, nil
-}
-
-// MarkInsightsRead sets the read state on the insights with the given IDs.
-func MarkInsightsRead(ctx context.Context, q *reform.Querier, ids []string, isRead bool) error {
-	if len(ids) == 0 {
-		return nil
-	}
-
-	args := []any{isRead}
-	placeholders := make([]string, 0, len(ids))
-	for _, id := range ids {
-		placeholders = append(placeholders, q.Placeholder(len(args)+1))
-		args = append(args, id)
-	}
-
-	query := "UPDATE " + InsightTable.Name() + " SET is_read = " + q.Placeholder(1) +
-		" WHERE id IN (" + strings.Join(placeholders, ", ") + ")"
-	_, err := q.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("failed to mark insights as read: %w", err)
-	}
-	return nil
-}
-
-// MarkInsightsReadByFilters sets the read state on all insights matching the filters.
-func MarkInsightsReadByFilters(ctx context.Context, q *reform.Querier, filters InsightFilters, isRead bool) error {
-	where, args := insightConditions(q, filters)
-	args = append(args, isRead)
-
-	query := "UPDATE " + InsightTable.Name() + " SET is_read = " + q.Placeholder(len(args)) + " " + where
-	_, err := q.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("failed to mark insights as read by filters: %w", err)
-	}
-	return nil
 }
 
 // CleanupOldInsights deletes the Advisor insights of runs started at or before

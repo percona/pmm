@@ -49,7 +49,6 @@ func (v *insightTableType) Columns() []string {
 		"severity",
 		"labels",
 		"checked_at",
-		"is_read",
 		"run_id",
 		"triggered_by",
 	}
@@ -97,7 +96,6 @@ var InsightTable = &insightTableType{
 			{Name: "Severity", Type: "*Severity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
 			{Name: "CheckedAt", Type: "*time.Time", Column: "checked_at"},
-			{Name: "IsRead", Type: "bool", Column: "is_read"},
 			{Name: "RunID", Type: "string", Column: "run_id"},
 			{Name: "TriggeredBy", Type: "CheckTriggeredBy", Column: "triggered_by"},
 		},
@@ -108,7 +106,7 @@ var InsightTable = &insightTableType{
 
 // String returns a string representation of this struct or record.
 func (s Insight) String() string {
-	res := make([]string, 24)
+	res := make([]string, 23)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
 	res[2] = "Category: " + reform.Inspect(s.Category, true)
@@ -130,9 +128,8 @@ func (s Insight) String() string {
 	res[18] = "Severity: " + reform.Inspect(s.Severity, true)
 	res[19] = "Labels: " + reform.Inspect(s.Labels, true)
 	res[20] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
-	res[21] = "IsRead: " + reform.Inspect(s.IsRead, true)
-	res[22] = "RunID: " + reform.Inspect(s.RunID, true)
-	res[23] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
+	res[21] = "RunID: " + reform.Inspect(s.RunID, true)
+	res[22] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
 
@@ -161,7 +158,6 @@ func (s *Insight) Values() []interface{} {
 		s.Severity,
 		s.Labels,
 		s.CheckedAt,
-		s.IsRead,
 		s.RunID,
 		s.TriggeredBy,
 	}
@@ -192,7 +188,6 @@ func (s *Insight) Pointers() []interface{} {
 		&s.Severity,
 		&s.Labels,
 		&s.CheckedAt,
-		&s.IsRead,
 		&s.RunID,
 		&s.TriggeredBy,
 	}

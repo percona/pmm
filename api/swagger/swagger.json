@@ -2158,12 +2158,6 @@
             "in": "query"
           },
           {
-            "type": "boolean",
-            "description": "Filter by read state.",
-            "name": "is_read",
-            "in": "query"
-          },
-          {
             "type": "string",
             "format": "date-time",
             "description": "Return only results recorded at or after this time.",
@@ -2388,11 +2382,6 @@
                         "format": "date-time",
                         "x-order": 19
                       },
-                      "is_read": {
-                        "description": "Whether the result has been marked as read.",
-                        "type": "boolean",
-                        "x-order": 20
-                      },
                       "triggered_by": {
                         "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
                         "type": "string",
@@ -2402,17 +2391,17 @@
                           "ADVISOR_CHECK_TRIGGERED_BY_USER",
                           "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
                         ],
-                        "x-order": 21
+                        "x-order": 20
                       },
                       "region": {
                         "description": "Cloud region of the node the service runs on, empty when not applicable.",
                         "type": "string",
-                        "x-order": 22
+                        "x-order": 21
                       },
                       "az": {
                         "description": "Cloud availability zone of the node the service runs on, empty when not applicable.",
                         "type": "string",
-                        "x-order": 23
+                        "x-order": 22
                       }
                     }
                   },
@@ -2486,151 +2475,6 @@
                   "x-order": 1
                 }
               }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": true
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/advisors/insights:markRead": {
-      "post": {
-        "description": "Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.",
-        "tags": [
-          "AdvisorService"
-        ],
-        "summary": "Mark Advisor Insights Read",
-        "operationId": "MarkInsightsRead",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "ids": {
-                  "description": "IDs of the insights to update. Takes precedence over filters.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                },
-                "is_read": {
-                  "description": "Read state to set on the records.",
-                  "type": "boolean",
-                  "x-order": 1
-                },
-                "filters": {
-                  "description": "InsightsFilters select Advisor insights by attribute; all present fields must match.",
-                  "type": "object",
-                  "properties": {
-                    "check_name": {
-                      "description": "Filter by check name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_name": {
-                      "description": "Filter by service name (partial, case-insensitive match).",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_name": {
-                      "description": "Filter by node name (partial, case-insensitive match).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "category": {
-                      "description": "Filter by advisor category.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "severity": {
-                      "description": "Severity represents severity level of the check result or alert.",
-                      "type": "string",
-                      "default": "SEVERITY_UNSPECIFIED",
-                      "enum": [
-                        "SEVERITY_UNSPECIFIED",
-                        "SEVERITY_EMERGENCY",
-                        "SEVERITY_ALERT",
-                        "SEVERITY_CRITICAL",
-                        "SEVERITY_ERROR",
-                        "SEVERITY_WARNING",
-                        "SEVERITY_NOTICE",
-                        "SEVERITY_INFO",
-                        "SEVERITY_DEBUG"
-                      ],
-                      "x-nullable": true,
-                      "x-order": 4
-                    },
-                    "status": {
-                      "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
-                      "type": "string",
-                      "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
-                        "ADVISOR_CHECK_RESULT_STATUS_OK",
-                        "ADVISOR_CHECK_RESULT_STATUS_FAILED",
-                        "ADVISOR_CHECK_RESULT_STATUS_ERROR",
-                        "ADVISOR_CHECK_RESULT_STATUS_PENDING",
-                        "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
-                      ],
-                      "x-nullable": true,
-                      "x-order": 5
-                    },
-                    "is_read": {
-                      "description": "Filter by read state.",
-                      "type": "boolean",
-                      "x-nullable": true,
-                      "x-order": 6
-                    },
-                    "run_id": {
-                      "description": "Filter by run ID.",
-                      "type": "string",
-                      "x-order": 7
-                    }
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
             }
           },
           "default": {

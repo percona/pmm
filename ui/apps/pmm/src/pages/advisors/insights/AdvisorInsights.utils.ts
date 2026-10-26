@@ -27,7 +27,6 @@ export const insightToText = (item: Insight): string => {
     ['Cluster', item.cluster],
     ['Replication Set', item.replicationSet],
     ['Triggered By', TRIGGERED_BY_LABEL[item.triggeredBy]],
-    ['Read', item.isRead ? 'Read' : 'Unread'],
     ['Summary', item.summary],
     ['Description', item.description],
     ['Outcome', item.outcome],

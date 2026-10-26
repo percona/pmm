@@ -79,7 +79,6 @@ type Insight struct {
 	Labels   []byte    `reform:"labels"`
 	// CheckedAt is nil while the check is pending and when it did not run.
 	CheckedAt   *time.Time       `reform:"checked_at"`
-	IsRead      bool             `reform:"is_read"`
 	RunID       string           `reform:"run_id"`
 	TriggeredBy CheckTriggeredBy `reform:"triggered_by"`
 }

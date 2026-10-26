@@ -79,8 +79,6 @@ type ClientService interface {
 
 	ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRunsOK, error)
 
-	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
-
 	RunAdvisorSchedule(params *RunAdvisorScheduleParams, opts ...ClientOption) (*RunAdvisorScheduleOK, error)
 
 	SendTestAdvisorNotification(params *SendTestAdvisorNotificationParams, opts ...ClientOption) (*SendTestAdvisorNotificationOK, error)
@@ -708,50 +706,6 @@ func (a *Client) ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRu
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListRunsDefault)
-
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-MarkInsightsRead marks advisor insights read
-
-Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.
-*/
-func (a *Client) MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error) {
-	// NOTE: parameters are not validated before sending
-	if params == nil {
-		params = NewMarkInsightsReadParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "MarkInsightsRead",
-		Method:             "POST",
-		PathPattern:        "/v1/advisors/insights:markRead",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &MarkInsightsReadReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-
-	// only one success response has to be checked
-	success, ok := result.(*MarkInsightsReadOK)
-	if ok {
-		return success, nil
-	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*MarkInsightsReadDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

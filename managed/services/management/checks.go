@@ -72,7 +72,6 @@ func (s *ChecksAPIService) ListInsights(
 		Category:    req.Category,
 		CheckName:   req.CheckName,
 		RunID:       req.RunId,
-		IsRead:      req.IsRead,
 	}
 	if req.Status != nil {
 		if st := convertAPIResultStatus(*req.Status); st != "" {
@@ -131,7 +130,6 @@ func (s *ChecksAPIService) ListInsights(
 			Outcome:        r.Outcome,
 			ReadMoreUrl:    r.ReadMoreURL,
 			Labels:         labels,
-			IsRead:         r.IsRead,
 			TriggeredBy:    convertModelTriggeredBy(r.TriggeredBy),
 		}
 		// left unset while the check is pending and when it did not run
@@ -274,46 +272,6 @@ func (s *ChecksAPIService) ListInsightsFilterValues(
 		ServiceNames: serviceNames,
 		NodeNames:    nodeNames,
 	}, nil
-}
-
-// MarkInsightsRead sets the read state on the specified Advisor insights.
-func (s *ChecksAPIService) MarkInsightsRead(
-	ctx context.Context,
-	req *advisorsv1.MarkInsightsReadRequest,
-) (*advisorsv1.MarkInsightsReadResponse, error) {
-	switch {
-	case len(req.Ids) > 0:
-		err := s.checksService.MarkInsightsRead(ctx, req.Ids, req.IsRead)
-		if err != nil {
-			return nil, fmt.Errorf("failed to mark insights read: %w", err)
-		}
-	case req.Filters != nil:
-		filters := models.InsightFilters{
-			ServiceName: req.Filters.ServiceName,
-			NodeName:    req.Filters.NodeName,
-			Category:    req.Filters.Category,
-			CheckName:   req.Filters.CheckName,
-			RunID:       req.Filters.RunId,
-			IsRead:      req.Filters.IsRead,
-		}
-		if req.Filters.Status != nil {
-			if st := convertAPIResultStatus(*req.Filters.Status); st != "" {
-				filters.Status = &st
-			}
-		}
-		if req.Filters.Severity != nil && *req.Filters.Severity != managementv1.Severity_SEVERITY_UNSPECIFIED {
-			severity := models.Severity(*req.Filters.Severity)
-			filters.Severity = &severity
-		}
-		err := s.checksService.MarkInsightsReadByFilters(ctx, filters, req.IsRead)
-		if err != nil {
-			return nil, fmt.Errorf("failed to mark insights read by filters: %w", err)
-		}
-	default:
-		return nil, status.Error(codes.InvalidArgument, "Either ids or filters must be provided.")
-	}
-
-	return &advisorsv1.MarkInsightsReadResponse{}, nil
 }
 
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.

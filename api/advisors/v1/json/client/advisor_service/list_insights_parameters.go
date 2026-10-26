@@ -78,12 +78,6 @@ type ListInsightsParams struct {
 	*/
 	From *strfmt.DateTime
 
-	/* IsRead.
-
-	   Filter by read state.
-	*/
-	IsRead *bool
-
 	/* NodeName.
 
 	   Filter by node name (partial, case-insensitive match).
@@ -268,17 +262,6 @@ func (o *ListInsightsParams) SetFrom(from *strfmt.DateTime) {
 	o.From = from
 }
 
-// WithIsRead adds the isRead to the list insights params
-func (o *ListInsightsParams) WithIsRead(isRead *bool) *ListInsightsParams {
-	o.SetIsRead(isRead)
-	return o
-}
-
-// SetIsRead adds the isRead to the list insights params
-func (o *ListInsightsParams) SetIsRead(isRead *bool) {
-	o.IsRead = isRead
-}
-
 // WithNodeName adds the nodeName to the list insights params
 func (o *ListInsightsParams) WithNodeName(nodeName *string) *ListInsightsParams {
 	o.SetNodeName(nodeName)
@@ -439,22 +422,6 @@ func (o *ListInsightsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		qFrom := qrFrom.String()
 		if qFrom != "" {
 			if err := r.SetQueryParam("from", qFrom); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.IsRead != nil {
-
-		// query param is_read
-		var qrIsRead bool
-
-		if o.IsRead != nil {
-			qrIsRead = *o.IsRead
-		}
-		qIsRead := swag.FormatBool(qrIsRead)
-		if qIsRead != "" {
-			if err := r.SetQueryParam("is_read", qIsRead); err != nil {
 				return err
 			}
 		}

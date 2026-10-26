@@ -23,7 +23,6 @@ const (
 	AdvisorService_ListRuns_FullMethodName                       = "/advisors.v1.AdvisorService/ListRuns"
 	AdvisorService_ListInsights_FullMethodName                   = "/advisors.v1.AdvisorService/ListInsights"
 	AdvisorService_ListInsightsFilterValues_FullMethodName       = "/advisors.v1.AdvisorService/ListInsightsFilterValues"
-	AdvisorService_MarkInsightsRead_FullMethodName               = "/advisors.v1.AdvisorService/MarkInsightsRead"
 	AdvisorService_StartAdvisorChecks_FullMethodName             = "/advisors.v1.AdvisorService/StartAdvisorChecks"
 	AdvisorService_ListAdvisorChecks_FullMethodName              = "/advisors.v1.AdvisorService/ListAdvisorChecks"
 	AdvisorService_ChangeAdvisorChecks_FullMethodName            = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
@@ -55,8 +54,6 @@ type AdvisorServiceClient interface {
 	ListInsights(ctx context.Context, in *ListInsightsRequest, opts ...grpc.CallOption) (*ListInsightsResponse, error)
 	// ListInsightsFilterValues returns the distinct values usable as insights filters.
 	ListInsightsFilterValues(ctx context.Context, in *ListInsightsFilterValuesRequest, opts ...grpc.CallOption) (*ListInsightsFilterValuesResponse, error)
-	// MarkInsightsRead sets the read state on Advisor insights.
-	MarkInsightsRead(ctx context.Context, in *MarkInsightsReadRequest, opts ...grpc.CallOption) (*MarkInsightsReadResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
 	StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
@@ -125,16 +122,6 @@ func (c *advisorServiceClient) ListInsightsFilterValues(ctx context.Context, in 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListInsightsFilterValuesResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ListInsightsFilterValues_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *advisorServiceClient) MarkInsightsRead(ctx context.Context, in *MarkInsightsReadRequest, opts ...grpc.CallOption) (*MarkInsightsReadResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarkInsightsReadResponse)
-	err := c.cc.Invoke(ctx, AdvisorService_MarkInsightsRead_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -323,8 +310,6 @@ type AdvisorServiceServer interface {
 	ListInsights(context.Context, *ListInsightsRequest) (*ListInsightsResponse, error)
 	// ListInsightsFilterValues returns the distinct values usable as insights filters.
 	ListInsightsFilterValues(context.Context, *ListInsightsFilterValuesRequest) (*ListInsightsFilterValuesResponse, error)
-	// MarkInsightsRead sets the read state on Advisor insights.
-	MarkInsightsRead(context.Context, *MarkInsightsReadRequest) (*MarkInsightsReadResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
 	StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
@@ -379,10 +364,6 @@ func (UnimplementedAdvisorServiceServer) ListInsights(context.Context, *ListInsi
 
 func (UnimplementedAdvisorServiceServer) ListInsightsFilterValues(context.Context, *ListInsightsFilterValuesRequest) (*ListInsightsFilterValuesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInsightsFilterValues not implemented")
-}
-
-func (UnimplementedAdvisorServiceServer) MarkInsightsRead(context.Context, *MarkInsightsReadRequest) (*MarkInsightsReadResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method MarkInsightsRead not implemented")
 }
 
 func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error) {
@@ -523,24 +504,6 @@ func _AdvisorService_ListInsightsFilterValues_Handler(srv interface{}, ctx conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdvisorServiceServer).ListInsightsFilterValues(ctx, req.(*ListInsightsFilterValuesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AdvisorService_MarkInsightsRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MarkInsightsReadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AdvisorServiceServer).MarkInsightsRead(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AdvisorService_MarkInsightsRead_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).MarkInsightsRead(ctx, req.(*MarkInsightsReadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -869,10 +832,6 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListInsightsFilterValues",
 			Handler:    _AdvisorService_ListInsightsFilterValues_Handler,
-		},
-		{
-			MethodName: "MarkInsightsRead",
-			Handler:    _AdvisorService_MarkInsightsRead_Handler,
 		},
 		{
 			MethodName: "StartAdvisorChecks",

@@ -456,16 +456,6 @@ func (s *Service) GetInsightsFilterValues(ctx context.Context) ([]string, []stri
 	return models.FindInsightFilterValues(ctx, s.db.Querier)
 }
 
-// MarkInsightsRead sets the read state on the insights with the given IDs.
-func (s *Service) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
-	return models.MarkInsightsRead(ctx, s.db.Querier, ids, isRead)
-}
-
-// MarkInsightsReadByFilters sets the read state on all insights matching the filters.
-func (s *Service) MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error {
-	return models.MarkInsightsReadByFilters(ctx, s.db.Querier, filters, isRead)
-}
-
 // StartChecks queues an Advisor run and returns its ID. The leader starts it
 // right away when this node leads, or at its next poll otherwise. If checkNames
 // are given, only those checks run; if serviceIDs are given, only against those

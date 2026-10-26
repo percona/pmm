@@ -4,14 +4,6 @@ export const Messages = {
     'Results of the advisor checks that ran against your monitored services.',
   noData: 'No advisor insights found',
   readMoreAvailable: 'Documentation available in the details pane',
-  read: 'Read',
-  unread: 'Unread',
-  markAsRead: 'Mark as read',
-  markAsUnread: 'Mark as unread',
-  markFilteredRead: 'Mark filtered as read',
-  markFilteredReadTooltip:
-    'Mark every insight matching the current filters as read',
-  markFilteredReadNoFilters: 'Select at least one filter first',
   actions: {
     more: 'More actions',
     viewDetails: 'View details',
@@ -63,7 +55,6 @@ export const Messages = {
     category: 'Category',
     severity: 'Severity',
     status: 'Status',
-    read: 'Read',
   },
   columns: {
     summary: 'Summary',
@@ -83,8 +74,5 @@ export const Messages = {
       `Check "${check}" disabled for ${service}`,
     copied: 'Insight copied to clipboard',
     urlCopied: 'Insight URL copied to clipboard',
-    markedRead: 'Insight marked as read',
-    markedUnread: 'Insight marked as unread',
-    markedFilteredRead: 'Matching insights marked as read',
   },
 };

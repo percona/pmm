@@ -102,7 +102,6 @@ const INSIGHT: Insight = {
   severity: Severity.warning,
   labels: {},
   checkedAt: '2026-08-04T19:58:00Z',
-  isRead: false,
   runId: 'run-finished',
   triggeredBy: AdvisorCheckTriggeredBy.user,
   outcome: '',

@@ -1321,7 +1321,6 @@ var databaseSchema = [][]string{
 			severity VARCHAR,
 			labels TEXT,
 			checked_at TIMESTAMP,
-			is_read BOOLEAN NOT NULL,
 			triggered_by VARCHAR NOT NULL,
 
 			PRIMARY KEY (id)

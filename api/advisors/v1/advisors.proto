@@ -277,14 +277,12 @@ message Insight {
   map<string, string> labels = 20;
   // Time when the check ran; unset while it is pending or when it did not run.
   google.protobuf.Timestamp checked_at = 21;
-  // Whether the result has been marked as read.
-  bool is_read = 22;
   // The actor that initiated the run.
-  AdvisorCheckTriggeredBy triggered_by = 23;
+  AdvisorCheckTriggeredBy triggered_by = 22;
   // Cloud region of the node the service runs on, empty when not applicable.
-  string region = 24;
+  string region = 23;
   // Cloud availability zone of the node the service runs on, empty when not applicable.
-  string az = 25;
+  string az = 24;
 }
 
 message ListInsightsRequest {
@@ -296,26 +294,24 @@ message ListInsightsRequest {
   string service_id = 3;
   // Filter by outcome.
   optional AdvisorCheckResultStatus status = 4;
-  // Filter by read state.
-  optional bool is_read = 5;
   // Return only results recorded at or after this time.
-  google.protobuf.Timestamp from = 6;
+  google.protobuf.Timestamp from = 5;
   // Return only results recorded at or before this time.
-  google.protobuf.Timestamp to = 7;
+  google.protobuf.Timestamp to = 6;
   // Filter by service name (partial, case-insensitive match).
-  string service_name = 8;
+  string service_name = 7;
   // Filter by node name (partial, case-insensitive match).
-  string node_name = 9;
+  string node_name = 8;
   // Filter by advisor category.
-  string category = 10;
+  string category = 9;
   // Filter by check name.
-  string check_name = 11;
+  string check_name = 10;
   // Filter by severity.
-  optional management.v1.Severity severity = 12;
+  optional management.v1.Severity severity = 11;
   // Filter by run ID.
-  string run_id = 13;
+  string run_id = 12;
   // Filter by the actor that initiated the run.
-  optional AdvisorCheckTriggeredBy triggered_by = 14;
+  optional AdvisorCheckTriggeredBy triggered_by = 13;
 }
 
 message ListInsightsResponse {
@@ -335,38 +331,6 @@ message ListInsightsFilterValuesResponse {
   // Distinct node names present in the check results history, sorted alphabetically.
   repeated string node_names = 2;
 }
-
-// InsightsFilters select Advisor insights by attribute; all present fields must match.
-message InsightsFilters {
-  // Filter by check name.
-  string check_name = 1;
-  // Filter by service name (partial, case-insensitive match).
-  string service_name = 2;
-  // Filter by node name (partial, case-insensitive match).
-  string node_name = 3;
-  // Filter by advisor category.
-  string category = 4;
-  // Filter by severity.
-  optional management.v1.Severity severity = 5;
-  // Filter by outcome.
-  optional AdvisorCheckResultStatus status = 6;
-  // Filter by read state.
-  optional bool is_read = 7;
-  // Filter by run ID.
-  string run_id = 8;
-}
-
-message MarkInsightsReadRequest {
-  // IDs of the insights to update. Takes precedence over filters.
-  repeated string ids = 1;
-  // Read state to set on the records.
-  bool is_read = 2;
-  // When set and ids is empty, all insights matching these filters are updated
-  // (an empty filter set matches every record). Either ids or filters must be provided.
-  InsightsFilters filters = 3;
-}
-
-message MarkInsightsReadResponse {}
 
 // AdvisorRunStatus is the state of an Advisor run.
 enum AdvisorRunStatus {
@@ -679,17 +643,6 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Insights Filter Values"
       description: "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns."
-    };
-  }
-  // MarkInsightsRead sets the read state on Advisor insights.
-  rpc MarkInsightsRead(MarkInsightsReadRequest) returns (MarkInsightsReadResponse) {
-    option (google.api.http) = {
-      post: "/v1/advisors/insights:markRead"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Mark Advisor Insights Read"
-      description: "Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.

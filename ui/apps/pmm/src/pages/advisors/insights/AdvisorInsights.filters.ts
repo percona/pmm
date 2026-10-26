@@ -1,7 +1,6 @@
 import { AdvisorCheckResultStatus } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { ADVISOR_RESULT_STATUS, SEVERITY } from 'lib/constants';
-import { Messages } from './AdvisorInsights.messages';
 
 // URL query-string key for each filter field (deep-linkable filters)
 export const FILTER_PARAM = {
@@ -11,7 +10,6 @@ export const FILTER_PARAM = {
   checkName: 'check',
   severity: 'severity',
   status: 'status',
-  isRead: 'read',
 } as const;
 
 // query-string params remembered across visits
@@ -35,8 +33,3 @@ export const STATUS_FILTER_OPTIONS = [
   AdvisorCheckResultStatus.pending,
   AdvisorCheckResultStatus.notRun,
 ].map((status) => ({ label: ADVISOR_RESULT_STATUS[status], value: status }));
-
-export const READ_FILTER_OPTIONS = [
-  { label: Messages.read, value: 'true' },
-  { label: Messages.unread, value: 'false' },
-];

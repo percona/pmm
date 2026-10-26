@@ -82,7 +82,6 @@ func insightToText(r *models.Insight) (string, error) {
 		{"Cluster", r.Cluster},
 		{"Replication Set", r.ReplicationSet},
 		{"Triggered By", insightTriggeredByText[r.TriggeredBy]},
-		{"Read", insightReadLabel(r.IsRead)},
 		{"Summary", r.Summary},
 		{"Description", r.Description},
 		{"Outcome", r.Outcome},
@@ -130,13 +129,6 @@ func insightSeverityLabel(severity *models.Severity) string {
 		return label
 	}
 	return "Unspecified"
-}
-
-func insightReadLabel(isRead bool) string {
-	if isRead {
-		return "Read"
-	}
-	return "Unread"
 }
 
 func capitalize(s string) string {

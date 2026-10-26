@@ -551,7 +551,6 @@ func TestAdvisorRunsAndInsights(t *testing.T) {
 			assert.Equal(t, advisor.ListInsightsOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYUSER, *insight.TriggeredBy)
 			assert.Equal(t, "Found by an API test.", insight.Outcome)
 			assert.False(t, time.Time(insight.CheckedAt).IsZero())
-			assert.False(t, insight.IsRead)
 		}
 		assert.Len(t, ids, 3, "pages overlap")
 		assert.ElementsMatch(t, []string{"Finding 0", "Finding 1", "Finding 2"}, summaries)
@@ -562,52 +561,6 @@ func TestAdvisorRunsAndInsights(t *testing.T) {
 		require.NoError(t, err)
 		assert.Contains(t, resp.Payload.ServiceNames, serviceName)
 		assert.Contains(t, resp.Payload.NodeNames, "pmm-server")
-	})
-
-	t.Run("mark read", func(t *testing.T) {
-		listIDs := func(isRead bool) []string {
-			resp, err := advisorClient.Default.AdvisorService.ListInsights(&advisor.ListInsightsParams{
-				RunID:   &runID,
-				IsRead:  &isRead,
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			ids := make([]string, 0, len(resp.Payload.Results))
-			for _, insight := range resp.Payload.Results {
-				assert.Equal(t, isRead, insight.IsRead)
-				ids = append(ids, insight.ID)
-			}
-			return ids
-		}
-		markRead := func(body advisor.MarkInsightsReadBody) {
-			_, err := advisorClient.Default.AdvisorService.MarkInsightsRead(&advisor.MarkInsightsReadParams{
-				Body:    body,
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-		}
-
-		unread := listIDs(false)
-		require.Len(t, unread, 3)
-		require.Empty(t, listIDs(true))
-
-		markRead(advisor.MarkInsightsReadBody{Ids: unread[:1], IsRead: true})
-		assert.Equal(t, unread[:1], listIDs(true))
-		assert.ElementsMatch(t, unread[1:], listIDs(false))
-
-		markRead(advisor.MarkInsightsReadBody{Filters: &advisor.MarkInsightsReadParamsBodyFilters{RunID: runID}, IsRead: true})
-		assert.ElementsMatch(t, unread, listIDs(true))
-		assert.Empty(t, listIDs(false))
-
-		markRead(advisor.MarkInsightsReadBody{Ids: unread, IsRead: false})
-		assert.ElementsMatch(t, unread, listIDs(false))
-
-		resp, err := advisorClient.Default.AdvisorService.MarkInsightsRead(&advisor.MarkInsightsReadParams{
-			Body:    advisor.MarkInsightsReadBody{IsRead: true},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Either ids or filters must be provided.")
-		assert.Nil(t, resp)
 	})
 
 	t.Run("list runs", func(t *testing.T) {

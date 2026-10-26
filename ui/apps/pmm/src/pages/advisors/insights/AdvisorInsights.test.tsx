@@ -69,7 +69,6 @@ const TEST_ITEM: Insight = {
   severity: Severity.warning,
   labels: {},
   checkedAt: CHECKED_AT,
-  isRead: true,
   runId: 'run-1',
   triggeredBy: AdvisorCheckTriggeredBy.user,
   outcome: 'Installed version: 5.7.30',
@@ -80,7 +79,7 @@ const TEST_ITEM: Insight = {
   az: '',
 };
 
-const TEST_ITEM_UNREAD: Insight = {
+const POSTGRESQL_ITEM: Insight = {
   ...TEST_ITEM,
   id: 'result-2',
   checkName: 'postgresql_super_role',
@@ -90,7 +89,6 @@ const TEST_ITEM_UNREAD: Insight = {
   summary: 'PostgreSQL super role detected',
   description: 'A user has the SUPER role',
   severity: Severity.error,
-  isRead: false,
   // recorded before run grouping existed
   runId: '',
 };
@@ -143,9 +141,8 @@ describe('AdvisorInsights', () => {
     vi.mocked(advisorsApi.listInsights).mockResolvedValue({
       totalItems: 250,
       totalPages: 3,
-      results: [TEST_ITEM, TEST_ITEM_UNREAD],
+      results: [TEST_ITEM, POSTGRESQL_ITEM],
     });
-    vi.mocked(advisorsApi.markInsightsRead).mockResolvedValue();
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.listInsightsFilterValues).mockResolvedValue({
@@ -171,7 +168,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(within(listbox).getByText(option));
   };
 
-  it('renders history items with read state', async () => {
+  it('renders history items', async () => {
     renderComponent();
 
     await waitForRows();
@@ -179,17 +176,6 @@ describe('AdvisorInsights', () => {
     expect(
       screen.getByText('PostgreSQL super role detected')
     ).toBeInTheDocument();
-
-    // read rows get an opened envelope, unread ones a sealed envelope
-    const readToggle = screen.getByTestId('insight-result-1-read-state');
-    expect(readToggle).toHaveAttribute('aria-label', Messages.markAsUnread);
-    expect(within(readToggle).getByTestId('DraftsOutlinedIcon')).toBeVisible();
-
-    const unreadToggle = screen.getByTestId('insight-result-2-read-state');
-    expect(unreadToggle).toHaveAttribute('aria-label', Messages.markAsRead);
-    expect(
-      within(unreadToggle).getByTestId('MarkunreadOutlinedIcon')
-    ).toBeVisible();
   });
 
   it('requests the first page by default', async () => {
@@ -365,74 +351,6 @@ describe('AdvisorInsights', () => {
     }
   });
 
-  it('marks an unread insight as read from the envelope icon', async () => {
-    renderComponent();
-
-    await waitForRows();
-
-    fireEvent.click(screen.getByTestId('insight-result-2-read-state'));
-
-    await waitFor(() =>
-      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
-        { ids: ['result-2'], isRead: true },
-        expect.anything()
-      )
-    );
-    expect(
-      await screen.findByText(Messages.success.markedRead)
-    ).toBeInTheDocument();
-  });
-
-  it('marks a read insight as unread from the envelope icon', async () => {
-    renderComponent();
-
-    await waitForRows();
-
-    fireEvent.click(screen.getByTestId('insight-result-1-read-state'));
-
-    await waitFor(() =>
-      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
-        { ids: ['result-1'], isRead: false },
-        expect.anything()
-      )
-    );
-  });
-
-  it('disables the bulk mark-as-read button when no filters are active', async () => {
-    renderComponent();
-
-    await waitForRows();
-
-    // guards against accidentally marking every record as read
-    expect(screen.getByTestId('mark-filtered-read')).toBeDisabled();
-  });
-
-  it('marks all insights matching the filters as read', async () => {
-    renderComponent('/advisors/insights?service=mysql-prod&read=false');
-
-    await waitForRows();
-
-    const button = screen.getByTestId('mark-filtered-read');
-    expect(button).toBeEnabled();
-    fireEvent.click(button);
-
-    await waitFor(() =>
-      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
-        {
-          filters: {
-            serviceName: 'mysql-prod',
-            isRead: false,
-          },
-          isRead: true,
-        },
-        expect.anything()
-      )
-    );
-    expect(
-      await screen.findByText(Messages.success.markedFilteredRead)
-    ).toBeInTheDocument();
-  });
-
   it('opens and closes the details pane from the row menu', async () => {
     renderComponent();
 
@@ -606,7 +524,6 @@ describe('AdvisorInsights', () => {
       '  Cluster: mysql-cluster\n' +
       '  Replication Set: rs1\n' +
       '  Triggered By: User\n' +
-      '  Read: Read\n' +
       '  Summary: MySQL is outdated\n' +
       '  Description: Newer version of MySQL is available\n' +
       '  Outcome: Installed version: 5.7.30\n' +
@@ -867,29 +784,6 @@ describe('AdvisorInsights', () => {
     await waitFor(() =>
       expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
         expect.objectContaining({ checkName: undefined })
-      )
-    );
-  });
-
-  it('scopes bulk mark-as-read to the check-name filter', async () => {
-    renderComponent();
-
-    await waitForRows();
-
-    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
-    fireEvent.click(await screen.findByTestId('action-filter-by-check-name'));
-
-    await waitFor(() =>
-      expect(screen.getByTestId('mark-filtered-read')).toBeEnabled()
-    );
-    fireEvent.click(screen.getByTestId('mark-filtered-read'));
-
-    // the filter must reach the API, or the bulk action would mark far more
-    // insights read than the filtered list shows
-    await waitFor(() =>
-      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
-        { filters: { checkName: 'mysql_version_check' }, isRead: true },
-        expect.anything()
       )
     );
   });

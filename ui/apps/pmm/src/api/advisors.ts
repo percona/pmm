@@ -23,7 +23,6 @@ import {
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
   ListRunsParams,
-  MarkInsightsReadRequest,
   RunAdvisorScheduleResponse,
   SendTestAdvisorNotificationRequest,
   StartAdvisorChecksRequest,
@@ -213,12 +212,6 @@ export const listRuns = async (
     params,
   });
   return res.data;
-};
-
-export const markInsightsRead = async (
-  payload: MarkInsightsReadRequest
-): Promise<void> => {
-  await api.post<EmptyResponse>('/advisors/insights:markRead', payload);
 };
 
 export const listInsightsFilterValues =

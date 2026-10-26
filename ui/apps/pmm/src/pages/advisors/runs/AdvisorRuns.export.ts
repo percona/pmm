@@ -29,7 +29,6 @@ const CSV_FIELDS: (keyof Insight)[] = [
   'outcome',
   'readMoreUrl',
   'labels',
-  'isRead',
   'triggeredBy',
   'runId',
   'id',

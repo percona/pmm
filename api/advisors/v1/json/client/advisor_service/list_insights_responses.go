@@ -604,9 +604,6 @@ type ListInsightsOKBodyResultsItems0 struct {
 	// Format: date-time
 	CheckedAt strfmt.DateTime `json:"checked_at,omitempty"`
 
-	// Whether the result has been marked as read.
-	IsRead bool `json:"is_read,omitempty"`
-
 	// AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
 	//
 	//  - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.

@@ -2,12 +2,9 @@ import Button from '@mui/material/Button';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
-import DraftsOutlinedIcon from '@mui/icons-material/DraftsOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
-import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
-import MarkunreadOutlinedIcon from '@mui/icons-material/MarkunreadOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
@@ -30,7 +27,6 @@ import {
   useChangeAdvisorChecks,
   useInsightsFilterValues,
   useInsights,
-  useMarkInsightsRead,
   useRuns,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
@@ -44,7 +40,6 @@ import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
   Insight,
-  InsightsFilters,
   ListInsightsParams,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -54,7 +49,6 @@ import { insightToText } from './AdvisorInsights.utils';
 import { InsightDetailsPane } from './details-pane';
 import {
   FILTER_PARAM,
-  READ_FILTER_OPTIONS,
   SEVERITY_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
 } from './AdvisorInsights.filters';
@@ -71,7 +65,6 @@ interface InsightFilters {
   checkName: string;
   severity: string;
   status: string;
-  isRead: string;
 }
 
 const DEFAULT_PAGE_SIZE = 100;
@@ -136,7 +129,6 @@ const AdvisorInsights: FC = () => {
     checkName: searchParams.get(FILTER_PARAM.checkName) || '',
     severity: searchParams.get(FILTER_PARAM.severity) || '',
     status: searchParams.get(FILTER_PARAM.status) || '',
-    isRead: searchParams.get(FILTER_PARAM.isRead) || '',
   };
   const pagination: MRT_PaginationState = {
     pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
@@ -184,8 +176,9 @@ const AdvisorInsights: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
-  // filter portion of the query, shared with the bulk mark-as-read action
-  const filterParams: InsightsFilters = {
+  const params: ListInsightsParams = {
+    pageIndex: pagination.pageIndex,
+    pageSize: pagination.pageSize,
     runId,
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
@@ -193,13 +186,6 @@ const AdvisorInsights: FC = () => {
     checkName: filters.checkName || undefined,
     severity: (filters.severity as Severity) || undefined,
     status: (filters.status as AdvisorCheckResultStatus) || undefined,
-    isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
-  };
-
-  const params: ListInsightsParams = {
-    pageIndex: pagination.pageIndex,
-    pageSize: pagination.pageSize,
-    ...filterParams,
   };
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
@@ -244,7 +230,6 @@ const AdvisorInsights: FC = () => {
   const { data: checks = [], refetch: refetchChecks } = useAdvisorChecks();
   const { data: filterValues, refetch: refetchFilterValues } =
     useInsightsFilterValues();
-  const { mutate: markRead, isPending: isMarking } = useMarkInsightsRead();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks, isPending: isChangingCheck } =
@@ -402,32 +387,7 @@ const AdvisorInsights: FC = () => {
     [filterValues]
   );
 
-  const handleToggleRead = (item: Insight) =>
-    markRead(
-      { ids: [item.id], isRead: !item.isRead },
-      {
-        onSuccess: () =>
-          enqueueSnackbar(
-            item.isRead
-              ? Messages.success.markedUnread
-              : Messages.success.markedRead,
-            { variant: 'success' }
-          ),
-      }
-    );
-
   const columns = useMemo(() => getInsightsColumns(), []);
-
-  const handleMarkFilteredRead = () =>
-    markRead(
-      { filters: filterParams, isRead: true },
-      {
-        onSuccess: () =>
-          enqueueSnackbar(Messages.success.markedFilteredRead, {
-            variant: 'success',
-          }),
-      }
-    );
 
   return (
     <Page
@@ -490,13 +450,6 @@ const AdvisorInsights: FC = () => {
             value={filters.status}
             onChange={(value) => updateFilter('status', value)}
           />
-          <FilterSelect
-            id="isRead"
-            label={Messages.filters.read}
-            options={READ_FILTER_OPTIONS}
-            value={filters.isRead}
-            onChange={(value) => updateFilter('isRead', value)}
-          />
           <TextField
             size="small"
             // deterministic id: React's useId default breaks jsdom selector matching
@@ -535,26 +488,6 @@ const AdvisorInsights: FC = () => {
               >
                 <RefreshOutlinedIcon />
               </IconButton>
-            </Tooltip>
-            <Tooltip
-              title={
-                hasActiveFilters
-                  ? Messages.markFilteredReadTooltip
-                  : Messages.markFilteredReadNoFilters
-              }
-              arrow
-            >
-              <Box component="span">
-                <IconButton
-                  // require a filter so a stray click cannot mark everything read
-                  disabled={!hasActiveFilters || isMarking || !data?.totalItems}
-                  onClick={handleMarkFilteredRead}
-                  aria-label={Messages.markFilteredRead}
-                  data-testid="mark-filtered-read"
-                >
-                  <MarkEmailReadOutlinedIcon />
-                </IconButton>
-              </Box>
             </Tooltip>
           </Stack>
         </Stack>
@@ -630,39 +563,6 @@ const AdvisorInsights: FC = () => {
                 },
               }}
             >
-              <Tooltip
-                title={
-                  row.original.isRead
-                    ? Messages.markAsUnread
-                    : Messages.markAsRead
-                }
-                arrow
-              >
-                <IconButton
-                  // grey once read, blue while unread — same signal the
-                  // Read/Unread chip used to carry
-                  sx={{
-                    color: row.original.isRead ? 'text.secondary' : 'info.main',
-                  }}
-                  aria-label={
-                    row.original.isRead
-                      ? Messages.markAsUnread
-                      : Messages.markAsRead
-                  }
-                  onClick={(e) => {
-                    // don't let the click bubble to the row (double-click opens details)
-                    e.stopPropagation();
-                    handleToggleRead(row.original);
-                  }}
-                  data-testid={`insight-${row.original.id}-read-state`}
-                >
-                  {row.original.isRead ? (
-                    <DraftsOutlinedIcon />
-                  ) : (
-                    <MarkunreadOutlinedIcon />
-                  )}
-                </IconButton>
-              </Tooltip>
               <Tooltip title={Messages.actions.more} arrow>
                 <IconButton
                   aria-label={Messages.actions.more}

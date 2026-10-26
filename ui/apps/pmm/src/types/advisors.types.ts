@@ -156,7 +156,6 @@ export interface Insight {
   labels: Record<string, string>;
   // unset while the check is pending and when it did not run
   checkedAt?: string | null;
-  isRead: boolean;
   runId: string;
   triggeredBy: AdvisorCheckTriggeredBy;
   outcome: string;
@@ -240,30 +239,10 @@ export interface ListInsightsParams {
   checkName?: string;
   status?: AdvisorCheckResultStatus;
   severity?: Severity;
-  isRead?: boolean;
   runId?: string;
   triggeredBy?: AdvisorCheckTriggeredBy;
   from?: string;
   to?: string;
-}
-
-export interface InsightsFilters {
-  serviceName?: string;
-  nodeName?: string;
-  category?: string;
-  checkName?: string;
-  severity?: Severity;
-  status?: AdvisorCheckResultStatus;
-  isRead?: boolean;
-  runId?: string;
-}
-
-export interface MarkInsightsReadRequest {
-  // record IDs to update; takes precedence over filters
-  ids?: string[];
-  isRead: boolean;
-  // when set and ids is empty, updates all records matching the filters
-  filters?: InsightsFilters;
 }
 
 export interface ListInsightsFilterValuesResponse {

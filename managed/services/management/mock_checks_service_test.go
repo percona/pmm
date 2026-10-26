@@ -545,42 +545,6 @@ func (_m *mockChecksService) ListTestTargets(ctx context.Context, technology che
 	return r0, r1
 }
 
-// MarkInsightsRead provides a mock function with given fields: ctx, ids, isRead
-func (_m *mockChecksService) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
-	ret := _m.Called(ctx, ids, isRead)
-
-	if len(ret) == 0 {
-		panic("no return value specified for MarkInsightsRead")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) error); ok {
-		r0 = rf(ctx, ids, isRead)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MarkInsightsReadByFilters provides a mock function with given fields: ctx, filters, isRead
-func (_m *mockChecksService) MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error {
-	ret := _m.Called(ctx, filters, isRead)
-
-	if len(ret) == 0 {
-		panic("no return value specified for MarkInsightsReadByFilters")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, bool) error); ok {
-		r0 = rf(ctx, filters, isRead)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // RunSchedule provides a mock function with given fields: ctx, scheduleID
 func (_m *mockChecksService) RunSchedule(ctx context.Context, scheduleID string) (string, error) {
 	ret := _m.Called(ctx, scheduleID)

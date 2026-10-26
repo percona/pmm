@@ -45,7 +45,6 @@ func TestInsightToText(t *testing.T) {
 			Cluster:        "cluster-1",
 			ReplicationSet: "rs0",
 			TriggeredBy:    models.CheckTriggeredByScheduler,
-			IsRead:         false,
 			Summary:        "Outdated MySQL version",
 			Description:    "The MySQL version is old",
 			Outcome:        "Upgrade recommended",
@@ -70,7 +69,6 @@ Check Details:
   Cluster: cluster-1
   Replication Set: rs0
   Triggered By: Scheduler
-  Read: Unread
   Summary: Outdated MySQL version
   Description: The MySQL version is old
   Outcome: Upgrade recommended
@@ -94,7 +92,6 @@ Check Details:
 			Severity:    new(models.Severity(common.Error)),
 			Status:      models.CheckResultFailed,
 			TriggeredBy: models.CheckTriggeredByUser,
-			IsRead:      true,
 			CheckedAt:   new(time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)),
 		}
 
@@ -105,7 +102,6 @@ Check Details:
   Run ID: run-2
   Check Name: pg_check
   Triggered By: User
-  Read: Read
   Summary: Issue found
   Severity: Error`
 
@@ -133,7 +129,6 @@ Check Details:
   Run ID: run-3
   Check Name: pg_check
   Triggered By: User
-  Read: Unread
   Summary: Check title`
 
 		got, err := insightToText(r)

@@ -21,7 +21,6 @@ import {
   listInsightsFilterValues,
   listInsights,
   listRuns,
-  markInsightsRead,
   runAdvisorSchedule,
   sendTestAdvisorNotification,
   startAdvisorChecks,
@@ -45,7 +44,6 @@ import {
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
   ListRunsParams,
-  MarkInsightsReadRequest,
   SendTestAdvisorNotificationRequest,
   StartAdvisorChecksRequest,
   TestAdvisorCheckRequest,
@@ -66,7 +64,6 @@ const KEYS = {
   INSIGHTS: 'advisors:insights',
   RUNS: 'advisors:runs',
   INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
-  MARK_READ: 'advisors:mark-read',
   TEST_NOTIFICATION: 'advisors:test-notification',
   SCHEDULES: 'advisors:schedules',
   SERVICES: 'advisors:services',
@@ -165,22 +162,6 @@ export const useInsightsFilterValues = (
     queryFn: () => listInsightsFilterValues(),
     ...options,
   });
-
-export const useMarkInsightsRead = (
-  options?: Partial<UseMutationOptions<void, Error, MarkInsightsReadRequest>>
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: [KEYS.MARK_READ],
-    mutationFn: markInsightsRead,
-    ...options,
-    onSuccess: async (data, variables, onMutate, context) => {
-      await options?.onSuccess?.(data, variables, onMutate, context);
-      await queryClient.invalidateQueries({ queryKey: [KEYS.INSIGHTS] });
-    },
-  });
-};
 
 export const useChangeAdvisorChecks = (
   options?: Partial<UseMutationOptions<void, Error, ChangeAdvisorCheckParams[]>>
