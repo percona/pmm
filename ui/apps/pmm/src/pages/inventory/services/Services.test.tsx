@@ -18,8 +18,20 @@ import {
 import { TestWrapper } from 'utils/testWrapper';
 import { CLUSTERS_SWITCH_KEY } from '../Inventory.constants';
 import { Services } from './Services';
+import type { ServiceRow } from './Services.types';
 
 vi.mock('api/services');
+
+const { exportServicesToCsv } = vi.hoisted(() => ({
+  exportServicesToCsv: vi.fn<(services: ServiceRow[]) => void>(),
+}));
+
+vi.mock('./export/exportServicesToCsv', () => ({ exportServicesToCsv }));
+
+const exportedServiceIds = () =>
+  vi
+    .mocked(exportServicesToCsv)
+    .mock.calls[0][0].map(({ serviceId }) => serviceId);
 
 const service = (
   serviceId: string,
@@ -240,6 +252,68 @@ describe('Services', () => {
         JSON.parse(localStorage.getItem('inventory-services.columns') ?? '{}')
       ).toMatchObject({ port: false, serviceId: false })
     );
+  });
+
+  it('exports the services matching the filters', async () => {
+    renderServices('/inventory/services?services.f.serviceName=mysql');
+
+    await screen.findByText('mysql-1');
+    fireEvent.click(screen.getByTestId('export-services-button'));
+
+    expect(exportedServiceIds()).toEqual(['service-1', 'service-2']);
+  });
+
+  it('exports the services of collapsed clusters too', async () => {
+    localStorage.setItem(CLUSTERS_SWITCH_KEY, 'true');
+    renderServices();
+
+    await screen.findByText('cluster-1');
+    expect(screen.queryByText('mysql-1')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('export-services-button'));
+
+    expect(exportedServiceIds()).toEqual([
+      'service-3',
+      'service-1',
+      'service-2',
+    ]);
+  });
+
+  it('exports only the selected services', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const [firstRow, , thirdRow] = screen.getAllByRole('checkbox', {
+      name: 'Toggle select row',
+    });
+    fireEvent.click(firstRow);
+    fireEvent.click(thirdRow);
+    fireEvent.click(screen.getByTestId('export-services-button'));
+
+    expect(exportedServiceIds()).toEqual(['service-1', 'service-3']);
+  });
+
+  it('exports the services of every page', async () => {
+    const services = Array.from({ length: 30 }, (_, index) =>
+      service(`service-${index + 10}`, `mysql-${index + 10}`, '')
+    );
+    vi.mocked(listManagedServices).mockResolvedValue({ services });
+    renderServices();
+
+    await screen.findByText('mysql-10');
+    expect(screen.queryByText('mysql-39')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('export-services-button'));
+
+    expect(exportedServiceIds()).toHaveLength(30);
+  });
+
+  it('disables the export without services', async () => {
+    vi.mocked(listManagedServices).mockResolvedValue({ services: [] });
+    renderServices();
+
+    expect(
+      await screen.findByText('No services available')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('export-services-button')).toBeDisabled();
   });
 
   it('expands the clusters holding the filtered services', async () => {
