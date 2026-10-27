@@ -91,8 +91,8 @@ const (
 // GF_DATABASE_* variables, and that is what the pmm-ha Helm chart sets - with a user that is not
 // necessarily "grafana". GF_DATABASE_URL is the older single-URL form. Only when neither is present
 // is the database the bundled one, which is exactly the condition under which the ansible role
-// creates it, so the branches cannot overlap.
-func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
+// creates it, so the branches cannot overlap. The password is Grafana's database password for either database.
+func grafanaDatasourceDSN(password string, fallback grafanaDBFallback) (string, error) {
 	if host := os.Getenv("GF_DATABASE_HOST"); host != "" {
 		// Grafana overrides one setting per variable and takes the rest from grafana.ini, so every
 		// field left unset here has to fall back to what that file ships, not to an empty value.
@@ -100,7 +100,7 @@ func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
 			Scheme: "postgres",
 			User: url.UserPassword(
 				envvars.GetEnv("GF_DATABASE_USER", bundledGrafanaUser),
-				envvars.GetEnv("GF_DATABASE_PASSWORD", bundledGrafanaPassword),
+				password,
 			),
 			Host: host,
 			Path: envvars.GetEnv("GF_DATABASE_NAME", bundledGrafanaDB),
@@ -137,7 +137,7 @@ func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
 
 	dsn := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword(bundledGrafanaUser, bundledGrafanaPassword),
+		User:     url.UserPassword(bundledGrafanaUser, password),
 		Host:     fallback.Addr,
 		Path:     bundledGrafanaDB,
 		RawQuery: fallback.SSLParams,
