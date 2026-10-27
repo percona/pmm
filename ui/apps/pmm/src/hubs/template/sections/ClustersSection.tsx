@@ -59,7 +59,7 @@ export const ClustersSection: FC<ClustersSectionProps> = ({
         clusters.length,
         messages.unit.cluster
       )}
-      door={empty || matchesNothing ? undefined : view.sectionDoors.clusters}
+      doors={empty || matchesNothing ? [] : [view.sectionDoors.clusters]}
     >
       <SectionState state={view.sections.clusters} onRetry={onRetry}>
         {empty ? (

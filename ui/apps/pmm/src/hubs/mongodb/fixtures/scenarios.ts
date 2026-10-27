@@ -17,12 +17,22 @@ import {
   unprotect,
 } from './fleet';
 import { USUAL_QUERIES } from './healthy';
+import {
+  healthyRecommendations,
+  incompleteRecommendations,
+  unhealthyRecommendations,
+} from './recommendations';
 
 // The three status banner scenarios on the 60-cluster fleet. Each sets the raw data the banner and the Clusters table derive from, and its Needs attention rows as written in attention.ts.
 
 /** All 60 clusters healthy, no alert firing, the newest backup 25 minutes old. */
-export const fleetHealthySnapshot = (now: number, ops: boolean) =>
-  fleetSnapshot(now, ops);
+export const fleetHealthySnapshot = (
+  now: number,
+  ops: boolean
+): MongoSnapshot => ({
+  ...fleetSnapshot(now, ops),
+  recommendations: healthyRecommendations(ops),
+});
 
 const runningQuery = (
   member: string,
@@ -75,8 +85,8 @@ export const fleetIncompleteSnapshot = (
     ...FLEET.filter((cluster) => cluster.environment !== 'prod').map(
       (cluster) => cluster.name
     ),
-    'checkout-apac',
-    'accounts-apac',
+    'reports-eu',
+    'users-apac',
   ].forEach((cluster) => unprotect(snapshot, cluster));
 
   snapshot.realtime = {
@@ -87,6 +97,7 @@ export const fleetIncompleteSnapshot = (
     ],
   };
   snapshot.attention = incompleteAttention(ops);
+  snapshot.recommendations = incompleteRecommendations(ops);
 
   return snapshot;
 };
@@ -172,6 +183,9 @@ export const fleetUnhealthySnapshot = (
   PITR_CLUSTERS.forEach((cluster) =>
     stopPitr(snapshot, cluster, now, 17 * MINUTE_MS)
   );
+  ['reports-eu', 'sandbox-dev', 'analytics-dev', 'audit-us'].forEach(
+    (cluster) => unprotect(snapshot, cluster)
+  );
 
   snapshot.alerts = [
     alert(now, 'pmm_mongodb_down', 'critical', 'billing-eu-m1', 18),
@@ -219,6 +233,7 @@ export const fleetUnhealthySnapshot = (
     ],
   };
   snapshot.attention = unhealthyAttention(ops);
+  snapshot.recommendations = unhealthyRecommendations(ops);
 
   return snapshot;
 };

@@ -4,7 +4,7 @@ import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { hasPeakHub, renderHub } from '../testUtils';
 import { HubRoute } from './HubRoute';
 
-type Scenario = 'empty' | 'healthy' | 'unhealthy';
+type Scenario = 'empty' | 'healthy' | 'incomplete' | 'unhealthy';
 type Ops = 'on' | 'off';
 type Role = 'admin' | 'viewer';
 
@@ -32,11 +32,10 @@ const renderPage = ({
 
 const region = (name: string) => screen.queryByRole('region', { name });
 
-const appTitle = (name: string) =>
-  within(screen.getByRole('region', { name: 'Apps' })).queryByRole('heading', {
-    level: 3,
-    name,
-  });
+const tiles = () =>
+  within(screen.getByRole('navigation', { name: 'Shortcuts' }))
+    .getAllByRole('link')
+    .map((link) => link.textContent);
 
 const MATRIX: Array<[Scenario, Ops, Role]> = (
   ['empty', 'healthy', 'unhealthy'] as Scenario[]
@@ -118,31 +117,41 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       }
     });
 
-    it('shows the Operations card only to admins with Operations', async () => {
+    it('shows the same tiles in every state, Fleet only to admins with Operations', async () => {
       renderPage({ scenario, ops, role });
 
       await screen.findByRole('heading', { level: 1 });
 
-      expect(appTitle('Operations for MongoDB') != null).toBe(operations);
-      expect(appTitle('MongoDB backups')).not.toBeNull();
+      expect(tiles()).toEqual([
+        'Clusters',
+        'Instances overview',
+        'Query analytics',
+        'Real-time queries',
+        'MongoDB backups',
+        ...(operations ? ['Fleet'] : []),
+      ]);
     });
 
-    it('leaves clusters and backups to their own pages, and keeps both Queries links', async () => {
+    it('leaves clusters, backups and apps to their own pages, and the ways into queries to the tiles', async () => {
       renderPage({ scenario, ops, role });
 
       await screen.findByRole('heading', { level: 1 });
 
       expect(region('Clusters')).toBeNull();
       expect(region('Backups')).toBeNull();
-
-      const queries = screen.getByRole('region', { name: 'Queries' });
-
+      expect(region('Apps')).toBeNull();
       expect(
-        within(queries).getByRole('link', { name: /^Query analytics/ })
-      ).toBeInTheDocument();
+        within(screen.getByRole('region', { name: 'Queries' })).queryByRole(
+          'link',
+          { name: /^(Query analytics|Real-time queries)/ }
+        )
+      ).toBeNull();
       expect(
-        within(queries).getByRole('link', { name: /^Real-time queries/ })
-      ).toBeInTheDocument();
+        within(screen.getByRole('region', { name: 'Dashboards' })).getByRole(
+          'link',
+          { name: 'All apps' }
+        )
+      ).toHaveAttribute('href', '/prototype/all-apps');
     });
 
     it('never shows No data in the healthy color', async () => {
@@ -159,17 +168,6 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
         });
     });
   });
-
-  it.each<[boolean]>([[true], [false]])(
-    'shows the Diagnostics card only with PMM Extensions on (%s)',
-    async (extensions) => {
-      renderPage({ scenario: 'healthy', ops: 'on', role: 'admin', extensions });
-
-      await screen.findByRole('heading', { level: 1 });
-
-      expect(appTitle('Diagnostics') != null).toBe(extensions);
-    }
-  );
 
   it.each<[Ops, number]>([
     ['off', 7],
@@ -197,7 +195,7 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     ).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('lays the sections out in reading order: Needs attention, Queries, Apps, Dashboards', async () => {
+  it('lays the page out in reading order: tiles, then Needs attention, Recommendations, Queries, Dashboards', async () => {
     renderPage({ scenario: 'unhealthy', ops: 'on', role: 'admin' });
 
     await screen.findByRole('heading', { level: 1 });
@@ -206,7 +204,52 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
       screen
         .getAllByRole('heading', { level: 2 })
         .map((heading) => heading.textContent)
-    ).toEqual(['Needs attention', 'Queries', 'Apps', 'Dashboards']);
+    ).toEqual(['Needs attention', 'Recommendations', 'Queries', 'Dashboards']);
+    expect(
+      screen
+        .getByRole('navigation', { name: 'Shortcuts' })
+        .compareDocumentPosition(
+          screen.getByRole('heading', { level: 2, name: 'Needs attention' })
+        )
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it.each<[Scenario, number, string]>([
+    ['unhealthy', 5, 'Show 1 more'],
+    ['incomplete', 5, 'Show 1 more'],
+    ['healthy', 6, ''],
+  ])(
+    'shows five recommendations beside Needs attention, six alone: %s shows %i',
+    async (scenario, rows, more) => {
+      renderPage({ scenario, ops: 'on', role: 'admin' });
+
+      const section = await screen.findByRole('region', {
+        name: 'Recommendations',
+      });
+
+      expect(within(section).getAllByRole('listitem')).toHaveLength(rows);
+      expect(
+        within(section).queryByRole('button', { name: /^Show / })
+          ?.textContent ?? ''
+      ).toBe(more);
+      expect(region('Needs attention') === null).toBe(scenario === 'healthy');
+    }
+  );
+
+  it('matches the folded lists’ heights, and lets an open one grow alone', async () => {
+    renderPage({ scenario: 'unhealthy', ops: 'on', role: 'admin' });
+
+    const attention = await screen.findByRole('region', {
+      name: 'Needs attention',
+    });
+    // The row both sections sit in: section, cell, row.
+    const row = attention.parentElement?.parentElement as HTMLElement;
+
+    expect(row).toHaveStyle({ alignItems: 'stretch' });
+    fireEvent.click(
+      within(attention).getByRole('button', { name: 'Show 7 more' })
+    );
+    expect(row).toHaveStyle({ alignItems: 'start' });
   });
 
   it('survives a malformed hash in a pasted link', async () => {

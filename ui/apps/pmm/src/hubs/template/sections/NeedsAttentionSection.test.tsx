@@ -244,6 +244,23 @@ describe.skipIf(!hasPeakHub)('NeedsAttentionSection', () => {
     );
   });
 
+  it('keeps each line to one line, showing the full impact in a tooltip while it is cut', async () => {
+    renderSection();
+
+    const impact = within(row('3 nightly backups failed')).getByText(
+      'Reads from it may return stale data.'
+    );
+
+    expect(impact).toHaveStyle({ whiteSpace: 'nowrap' });
+    Object.defineProperty(impact, 'scrollWidth', { value: 400 });
+    Object.defineProperty(impact, 'clientWidth', { value: 200 });
+    fireEvent.mouseEnter(impact);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Reads from it may return stale data.'
+    );
+  });
+
   it('passes a click on the severity icon to the row’s action', () => {
     renderSection();
 

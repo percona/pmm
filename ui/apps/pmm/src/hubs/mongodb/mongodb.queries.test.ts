@@ -88,23 +88,14 @@ describe('findRunningQueries', () => {
 });
 
 describe('deriveQueries', () => {
-  it('keeps the two links, filtered to the environment, in every state', () => {
+  it('has no rows without query data', () => {
     const { queries } = deriveQueries(
       { qan: null, realtime: null },
       [],
       'prod'
     );
 
-    expect(queries).toEqual({
-      links: {
-        analytics: {
-          label: 'Query analytics',
-          to: '/graph/d/pmm-qan/pmm-query-analytics?var-service_type=mongodb&var-environment=prod',
-        },
-        realtime: { label: 'Real-time queries', to: '/rta' },
-      },
-      slower: [],
-    });
+    expect(queries).toEqual({ slower: [] });
   });
 
   it('builds rows with their facts and doors', () => {

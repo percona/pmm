@@ -26,18 +26,27 @@ export interface HubSectionProps {
   countLabel?: string;
   /** Shows the noun after the count: "39 issues". */
   showCountLabel?: boolean;
-  /** The section's way out, right of the title. */
-  door?: HubDoor;
+  /** The section's ways out, right of the title. */
+  doors?: HubDoor[];
   children: ReactNode;
 }
 
-const SectionDoor: FC<{ door: HubDoor }> = ({ door }) => {
+const SectionDoors: FC<{ doors: HubDoor[] }> = ({ doors }) => {
   const theme = useTheme();
   const narrow = useMediaQuery(theme.breakpoints.down('sm'));
 
-  if (!narrow) {
-    return <DoorButton door={door} />;
+  // A phone folds a lone door to an arrow; arrows alone could not tell two doors apart.
+  if (!narrow || doors.length > 1) {
+    return (
+      <>
+        {doors.map((door) => (
+          <DoorButton key={`${door.label}:${door.to}`} door={door} />
+        ))}
+      </>
+    );
   }
+
+  const [door] = doors;
 
   const name = [
     door.label,
@@ -68,23 +77,38 @@ const SectionDoor: FC<{ door: HubDoor }> = ({ door }) => {
   );
 };
 
-/** A page section: an h2 header row with a count and a door, then its body. */
+/** A page section: an h2 header row with a count and its doors, then its body. */
 export const HubSection: FC<HubSectionProps> = ({
   id,
   title,
   count,
   countLabel,
   showCountLabel = false,
-  door,
+  doors = [],
   children,
 }) => (
   <Box
     component="section"
     id={id}
     aria-labelledby={`${id}-title`}
-    sx={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}
+    // Grows to fill a stretched row's cell; otherwise its own height.
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 1,
+      minWidth: 0,
+      flex: 1,
+    }}
   >
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: 40 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 1,
+        minHeight: 40,
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
         <Typography
           variant="h5"
@@ -108,9 +132,18 @@ export const HubSection: FC<HubSectionProps> = ({
           </Typography>
         )}
       </Box>
-      {door && (
-        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
-          <SectionDoor door={door} />
+      {doors.length > 0 && (
+        <Box
+          sx={{
+            ml: 'auto',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
+          <SectionDoors doors={doors} />
         </Box>
       )}
     </Box>

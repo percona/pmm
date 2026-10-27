@@ -174,7 +174,6 @@ export const Messages = {
     firingAlerts: 'Firing alerts',
     needsAttention: 'Needs attention',
     lastGoodBackup: 'Last good backup',
-    realtime: 'Real-time queries',
     queryAnalyticsLink: 'Query analytics',
     forSubject: (name: string) => `for ${name}`,
     forInstall: (target: string) => `for the install on ${target}`,
@@ -268,33 +267,6 @@ export const Messages = {
   },
   apps: {
     operations: 'Operations for MongoDB',
-    operationsUp: (up: number, total: number) =>
-      `${up} of ${total} services up`,
-    lastScan: (age: string) => `last scan ${age}`,
-    noScanYet: 'no scan yet',
-    operationsEmpty: 'No MongoDB yet. Install one from Nodes.',
-    backups: 'MongoDB backups',
-    schedules: (count: number) =>
-      count === 1 ? '1 schedule' : `${count} schedules`,
-    lastGood: (age: string) => `last good backup ${age}`,
-    noGoodBackup: 'no good backup yet',
-    failedRecently: (count: number) => `${count} failed in the last 24h`,
-    backupsOff: 'Backup management is off',
-    backupsNotSetUp: 'No backups set up yet',
-    backupsUnknown: 'Backup status unknown',
-    diagnostics: 'Diagnostics',
-    diagnosticsSummary:
-      'Diagnostic checks for MongoDB replication and performance',
-    pages: {
-      fleet: 'Fleet',
-      nodes: 'Nodes',
-      automations: 'Automations',
-      inventory: 'Inventory',
-      scheduled: 'Scheduled',
-      restores: 'Restores',
-      locations: 'Storage locations',
-      diagnostics: 'Open Diagnostics',
-    },
   },
   destinations: {
     replsetSummary: 'ReplSet summary',
@@ -306,6 +278,16 @@ export const Messages = {
     realtime: 'Real-time queries',
     fleet: 'Fleet',
     affectedClusters: 'Affected clusters',
+    clusters: 'Clusters',
+    queryAnalytics: 'Query analytics',
+    planInFleet: 'Plan in Fleet',
+    turnOnPitr: 'Turn on in Scheduled backups',
+    setUpBackups: 'Set up backups',
+    advisors: 'Advisors',
+    alertTemplates: 'Alert templates',
+    howToEnable: 'How to enable',
+    upgradeGuide: 'Upgrade guide',
+    turnOnOperations: 'Turn on Operations',
     /** Where each one sits in the sidebar. */
     places: {
       apps: 'Apps',
@@ -315,7 +297,16 @@ export const Messages = {
       replsetSummary: 'MongoDB ReplSet Summary',
       shardedSummary: 'MongoDB Sharded Cluster Summary',
       instancesOverview: 'MongoDB Instances Overview',
+      clusters: 'Clusters',
       clustersFiltered: 'Clusters, filtered',
+      newBackup: 'New backup',
+      alerts: 'Alerts',
+      templates: 'Templates',
+      settings: 'Settings',
+      advancedSettings: 'Advanced settings',
+      docs: 'Percona documentation',
+      queryCollection: 'MongoDB query source',
+      upgrade60: 'Upgrade from 6.0 to 7.0',
     },
   },
   /** Where a Needs attention row comes from; kept with the row, never shown. */
@@ -327,5 +318,29 @@ export const Messages = {
     realtime: 'Real-time queries',
     qan: 'Query Analytics',
     operations: 'Operations for MongoDB',
+    advisors: 'Advisors',
+    versions: 'Version check',
+  },
+  /** Live recommendations; the sample scenarios write theirs out. */
+  recommendations: {
+    allClusters: 'All clusters',
+    noRules: 'No alert rules cover MongoDB',
+    noRulesImpact: 'PMM won’t notify anyone if a cluster goes down.',
+    ruleGaps: (words: string[]) => {
+      const text = `${words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0]} ${words.length > 1 ? 'have' : 'has'} no alert rules`;
+
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    },
+    ruleGapsImpact:
+      'You’ll only see these problems on this page, not as a notification.',
+    noBackups: (count: number) =>
+      count === 1
+        ? '1 cluster has no backups'
+        : `${count} clusters have no backups`,
+    noBackupsImpact: 'If data is lost, there’s nothing to restore from.',
+    clusters: (names: string[], shown = 3) =>
+      names.length <= shown + 1
+        ? names.join(', ')
+        : `${names.slice(0, shown).join(', ')} and ${names.length - shown} more`,
   },
 };

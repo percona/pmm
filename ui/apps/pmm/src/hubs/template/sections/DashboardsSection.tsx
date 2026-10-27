@@ -13,6 +13,7 @@ import { Messages } from '../hub.messages';
 import type {
   HubDashboardLink,
   HubDashboards,
+  HubDoor,
   HubSectionState,
 } from '../hub.types';
 import { HubSection, SectionState } from './HubSection';
@@ -73,13 +74,16 @@ const DashboardGroup: FC<{
 
 export interface DashboardsSectionProps {
   dashboards: HubDashboards;
+  /** Every app, so the ones without a tile stay a click away. */
+  allApps?: HubDoor;
   state: HubSectionState;
   onRetry: () => void;
 }
 
-/** Dashboards: recommended for what runs, for developers, recently visited, all. */
+/** Dashboards: recommended for what runs, for developers, recently visited, all; then the way to every app. */
 export const DashboardsSection: FC<DashboardsSectionProps> = ({
   dashboards,
+  allApps,
   state,
   onRetry,
 }) => {
@@ -89,9 +93,12 @@ export const DashboardsSection: FC<DashboardsSectionProps> = ({
     <HubSection
       id="dashboards"
       title={Messages.sections.dashboards}
-      door={
-        all.count == null ? all : { ...all, label: `${all.label} ${all.count}` }
-      }
+      doors={[
+        all.count == null
+          ? all
+          : { ...all, label: `${all.label} ${all.count}` },
+        ...(allApps ? [allApps] : []),
+      ]}
     >
       <SectionState state={state} onRetry={onRetry}>
         <Paper variant="outlined">

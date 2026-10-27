@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import { renderHub } from '../../testUtils';
-import { minutesAgo, READY, testView } from '../hub.testFixtures';
-import type { HubDashboardLink, HubDashboards } from '../hub.types';
+import { minutesAgo, READY, testDoor, testView } from '../hub.testFixtures';
+import type { HubDashboardLink, HubDashboards, HubDoor } from '../hub.types';
 import { DashboardsSection } from './DashboardsSection';
 
 const link = (
@@ -10,10 +10,14 @@ const link = (
   extra: Partial<HubDashboardLink> = {}
 ): HubDashboardLink => ({ uid, label, to: `/graph/d/${uid}`, ...extra });
 
-const renderSection = (dashboards: Partial<HubDashboards> = {}) =>
+const renderSection = (
+  dashboards: Partial<HubDashboards> = {},
+  allApps?: HubDoor
+) =>
   renderHub(
     <DashboardsSection
       dashboards={{ ...testView().dashboards, ...dashboards }}
+      allApps={allApps}
       state={READY}
       onRetry={vi.fn()}
     />
@@ -83,5 +87,30 @@ describe('DashboardsSection', () => {
     expect(
       screen.getByRole('link', { name: 'All MongoDB dashboards 13' })
     ).toHaveAttribute('href', '/graph/dashboards/f/mongodb-folder/');
+  });
+
+  it('opens every app after its own door, so the apps without a tile stay a click away', () => {
+    renderSection({}, testDoor('All apps', '/prototype/all-apps'));
+
+    const heading = screen.getByRole('heading', { name: 'Dashboards' })
+      .parentElement?.parentElement as HTMLElement;
+
+    expect(
+      within(heading)
+        .getAllByRole('link')
+        .map((door) => door.textContent)
+    ).toEqual(['All MongoDB dashboards', 'All apps']);
+    expect(screen.getByRole('link', { name: 'All apps' })).toHaveAttribute(
+      'href',
+      '/prototype/all-apps'
+    );
+  });
+
+  it('opens no apps door when it has none', () => {
+    renderSection({}, undefined);
+
+    expect(
+      screen.queryByRole('link', { name: 'All apps' })
+    ).not.toBeInTheDocument();
   });
 });

@@ -44,11 +44,11 @@ export type HubSourceId =
   | 'dashboards';
 export type HubSectionId =
   | 'attention'
+  | 'recommendations'
   | 'clusters'
   | 'backups'
   | 'queries'
-  | 'dashboards'
-  | 'apps';
+  | 'dashboards';
 export type HubPreview = 'developer' | 'tech';
 
 // Peak's custom icons are plain components without MUI's muiName, so SvgIconComponent would reject them.
@@ -181,6 +181,24 @@ export interface HubDestination {
   kind: 'page' | 'inpage' | 'external';
 }
 
+/** A recommendation's kind: something not set up yet, or something worth knowing. Not set up comes first. */
+export type HubRecommendationKind = 'notset' | 'info';
+
+/** One Recommendations row: fine today, worth improving. The Needs attention format, for a steady state, so with no duration and no alert. */
+export interface HubRecommendation {
+  kind: HubRecommendationKind;
+  title: string;
+  impact: string;
+  /** The clusters: "orders-us, cart-us and 7 more", or "All clusters". */
+  location: string;
+  /** Only when every affected cluster is in this one. */
+  environment?: string;
+  clusterCount: number;
+  /** Where the recommendation comes from; not shown, kept for the requirements. */
+  source: string;
+  destination: HubDestination;
+}
+
 /** How the hub draws a destination: the sidebar's icon for it, and where it sits in the sidebar. */
 export interface HubDestinationLook {
   icon?: HubIcon;
@@ -300,7 +318,6 @@ export interface HubQueryRow {
 }
 
 export interface HubQueries {
-  links: { analytics: HubDoor; realtime: HubDoor };
   slower: HubQueryRow[];
 }
 
@@ -315,16 +332,6 @@ export interface HubDashboards {
   /** Newest first, at most 5. */
   recent: HubDashboardLink[];
   all: HubDoor & { count?: number };
-}
-
-export interface HubApp {
-  id: string;
-  name: string;
-  icon: HubIcon;
-  preview?: HubPreview;
-  /** Figures in the text are doors. */
-  summary?: { text: string; doors?: HubDoor[] };
-  pages: HubDoor[];
 }
 
 /** An entry of a header menu: Add MongoDB, or More actions. */
@@ -369,11 +376,15 @@ export interface HubViewModel {
     /** A filter is set and no service is in it, which is not an empty estate. */
     matchesNothing: boolean;
   };
+  /** The places the hub leads to most, as tiles under the header, in order; the same in every state. */
+  shortcuts: HubDestination[];
   status: HubStatus;
   /** Worst first, then by impact, then longest first; uncapped, as the view shows a few and folds the rest. */
   attention: HubNeedsAttentionItem[];
-  /** Absent when the rules cover what matters, or could not be read; not shown until it returns as a recommendation. */
+  /** Absent when the rules cover what matters, or could not be read; Recommendations says it. */
   alertCoverage?: HubAlertCoverage;
+  /** Not set up first, then info, each in its order: backups and recovery, security, versions and patches, monitoring coverage. */
+  recommendations: HubRecommendation[];
   /** Worst first; only those behind on patches while that filter is on. */
   clusters: HubTreeNode[];
   /** `?patches=behind` is on. */
@@ -383,13 +394,13 @@ export interface HubViewModel {
   backups: HubBackups;
   queries: HubQueries;
   dashboards: HubDashboards;
-  apps: HubApp[];
   actions: {
     /** Ways to bring the technology in, for admins: monitor one that runs, install a new one. */
     add: HubMenuAction[];
     /** Estate-wide pages for admins, then the docs for everyone. */
     more: HubMenuAction[];
   };
+  /** The index of every app, beside Dashboards' own door. */
   sectionDoors: { clusters: HubDoor; apps?: HubDoor };
   sections: Record<HubSectionId, HubSectionState>;
 }
@@ -470,7 +481,7 @@ export interface TechnologyHubConfig<TSnapshot> {
   treeColumns: HubTreeColumn[];
   /** Kinds, highest priority first. */
   attentionOrder: string[];
-  /** The sidebar's icon for a Needs attention destination, and its place there. */
+  /** The sidebar's icon for a destination of a row or a shortcut tile, and its place there. */
   describeDestination: (destination: HubDestination) => HubDestinationLook;
   useLiveSnapshot: (ctx: HubLiveContext) => HubLiveResult<TSnapshot>;
   /** Sample data per state, built as live sources answer for that environment filter. */

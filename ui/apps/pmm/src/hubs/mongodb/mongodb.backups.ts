@@ -38,6 +38,8 @@ export interface BackupsDerivation {
   failedOldestGood?: string;
   /** Clusters PBM can protect (not standalones), and those with an enabled schedule. */
   coverage?: { protected: number; protectable: number };
+  /** The clusters PBM can protect that no enabled schedule does, by name. */
+  unprotected?: string[];
 }
 
 export interface BackupsInput {
@@ -180,15 +182,18 @@ export const deriveBackups = ({
   const protectable = clusters.filter(
     (cluster) => cluster.kind !== 'standalone'
   );
+  const isProtected = (cluster: ClusterModel) =>
+    scheduled.some(
+      (schedule) =>
+        schedule.enabled && clusterOf.get(schedule.serviceId) === cluster
+    );
   const coverage = {
     protectable: protectable.length,
-    protected: protectable.filter((cluster) =>
-      scheduled.some(
-        (schedule) =>
-          schedule.enabled && clusterOf.get(schedule.serviceId) === cluster
-      )
-    ).length,
+    protected: protectable.filter(isProtected).length,
   };
+  const unprotected = protectable
+    .filter((cluster) => !isProtected(cluster))
+    .map((cluster) => cluster.name);
 
   if (!artifacts.length && !scheduled.length) {
     const notSetUp = empty('notSetUp', 'notSetUp');
@@ -197,6 +202,7 @@ export const deriveBackups = ({
       ...notSetUp,
       backups: { ...notSetUp.backups, ...pbmHint(clusters, metrics) },
       coverage,
+      unprotected,
     };
   }
 
@@ -321,6 +327,7 @@ export const deriveBackups = ({
     failedRecently,
     ...(failedOldestGood ? { failedOldestGood } : {}),
     coverage,
+    unprotected,
   };
 };
 

@@ -1,4 +1,9 @@
-import type { HubAttentionSeverity, HubHealth, HubSeverity } from './hub.types';
+import type {
+  HubAttentionSeverity,
+  HubHealth,
+  HubRecommendationKind,
+  HubSeverity,
+} from './hub.types';
 
 export const Messages = {
   freshness: {
@@ -94,13 +99,15 @@ export const Messages = {
     setUpAlerts: 'Set up alerts',
     setUpBackups: 'Set up backups',
   },
+  /** The row of tiles under the header. */
+  shortcuts: 'Shortcuts',
   sections: {
     attention: 'Needs attention',
+    recommendations: 'Recommendations',
     clusters: 'Clusters',
     backups: 'Backups',
     queries: 'Queries',
     dashboards: 'Dashboards',
-    apps: 'Apps',
   },
   sectionCount: {
     attention: (count: number) => (count === 1 ? 'issue' : 'issues'),
@@ -124,6 +131,12 @@ export const Messages = {
     /** "for 18m", "for up to 40m"; an event keeps its "8h ago". */
     since: (since: string) => (/\bago$/.test(since) ? since : `for ${since}`),
     alertFiring: 'Alert firing',
+  },
+  recommendations: {
+    kind: {
+      notset: 'Not set up',
+      info: 'Info',
+    } satisfies Record<HubRecommendationKind, string>,
   },
   health: {
     healthy: 'Healthy',

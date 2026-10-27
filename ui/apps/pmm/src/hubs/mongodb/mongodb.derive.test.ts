@@ -307,14 +307,20 @@ describe('deriveMongoHub capabilities', () => {
       label: 'Fleet in Operations',
       to: '/operations?tab=clusters',
     });
-    expect(view.apps.map((app) => app.id)).toEqual([
-      'operations',
-      'backups',
-      'diagnostics',
+    expect(view.shortcuts.map((tile) => [tile.label, tile.route])).toEqual([
+      ['Clusters', '/mongodb/clusters'],
+      [
+        'Instances overview',
+        '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
+      ],
+      ['Query analytics', '/graph/d/pmm-qan/pmm-query-analytics'],
+      ['Real-time queries', '/rta'],
+      ['MongoDB backups', '/graph/backup/inventory'],
+      ['Fleet', '/operations'],
     ]);
   });
 
-  it('opens Instances overview without Operations and drops its card', () => {
+  it('opens Instances overview without Operations and drops the Fleet tile', () => {
     const view = derive(healthySnapshot(NOW, false));
 
     expect(view.actions.add.map((action) => action.label)).toEqual([
@@ -324,7 +330,13 @@ describe('deriveMongoHub capabilities', () => {
       label: 'Instances overview',
       to: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
     });
-    expect(view.apps.map((app) => app.id)).toEqual(['backups', 'diagnostics']);
+    expect(view.shortcuts.map((tile) => tile.label)).toEqual([
+      'Clusters',
+      'Instances overview',
+      'Query analytics',
+      'Real-time queries',
+      'MongoDB backups',
+    ]);
   });
 
   it('gives a viewer no actions and no Operations, whatever the switch', () => {
@@ -339,15 +351,33 @@ describe('deriveMongoHub capabilities', () => {
       'Documentation',
     ]);
     expect(view.capabilities.operations).toBe(false);
-    expect(view.apps.map((app) => app.id)).toEqual(['backups', 'diagnostics']);
+    expect(view.shortcuts.map((tile) => tile.label)).not.toContain('Fleet');
   });
 
-  it('shows Diagnostics only with PMM Extensions', () => {
-    expect(
-      derive(healthySnapshot(NOW, false), { extensions: false }).apps.map(
-        (app) => app.id
-      )
-    ).toEqual(['backups']);
+  it('passes the environment filter to the dashboard and Query analytics tiles only', () => {
+    const params = (environment: string | null) =>
+      Object.fromEntries(
+        derive(healthySnapshot(NOW, true), {
+          environment,
+          operations: true,
+        }).shortcuts.map((tile) => [tile.label, tile.params ?? {}])
+      );
+
+    expect(params('prod')).toEqual({
+      Clusters: {},
+      'Instances overview': { 'var-environment': 'prod' },
+      'Query analytics': {
+        'var-service_type': 'mongodb',
+        'var-environment': 'prod',
+      },
+      'Real-time queries': {},
+      'MongoDB backups': {},
+      Fleet: {},
+    });
+    expect(params(null)['Query analytics']).toEqual({
+      'var-service_type': 'mongodb',
+    });
+    expect(params(HUB_NO_ENVIRONMENT)['Instances overview']).toEqual({});
   });
 });
 
@@ -442,9 +472,6 @@ describe('deriveMongoHub sections', () => {
 
     expect(view.status.lastGoodBackup).toBe('unknown');
     expect(view.backups.state).toBe('unknown');
-    expect(view.apps.find((app) => app.id === 'backups')?.summary).toEqual({
-      text: 'Backup status unknown',
-    });
     expect(view.dashboards.recommended.map((link) => link.label)).not.toContain(
       'Backup status'
     );
@@ -521,6 +548,44 @@ describe('deriveMongoHub patches', () => {
       clusters: 5,
       patches: { behind: 2, unknown: 0 },
     });
+  });
+});
+
+describe('deriveMongoHub recommendations', () => {
+  it('recommends nothing for an estate covered by backups and the key alert rules', () => {
+    expect(derive(healthySnapshot(NOW, false)).recommendations).toEqual([]);
+  });
+
+  it('recommends backups for the clusters without, then alert rules when there are none', () => {
+    expect(
+      derive(incompleteSnapshot(NOW, false)).recommendations
+    ).toMatchObject([
+      {
+        kind: 'notset',
+        title: '1 cluster has no backups',
+        location: 'catalog',
+        clusterCount: 1,
+        destination: { route: '/graph/backup/new' },
+      },
+      {
+        kind: 'notset',
+        title: 'No alert rules cover MongoDB',
+        location: 'All clusters',
+        clusterCount: 5,
+        destination: { route: '/graph/alerting/alert-rule-templates' },
+      },
+    ]);
+  });
+
+  it('names the key templates no rule covers yet', () => {
+    expect(derive(unhealthySnapshot(NOW, false)).recommendations).toMatchObject(
+      [
+        {
+          kind: 'info',
+          title: 'Replication lag and oplog window have no alert rules',
+        },
+      ]
+    );
   });
 });
 

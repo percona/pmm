@@ -3,6 +3,8 @@ import type {
   HubAttentionItem,
   HubAttentionSeverity,
   HubNeedsAttentionItem,
+  HubRecommendation,
+  HubRecommendationKind,
   HubSeverity,
 } from './hub.types';
 
@@ -74,4 +76,29 @@ export const attentionInEnvironment = (
           .some((environment) =>
             matchesEnvironment(environment.trim() || undefined, filter)
           )
+      );
+
+const RECOMMENDATION_RANK: Record<HubRecommendationKind, number> = {
+  notset: 0,
+  info: 1,
+};
+
+/** Not set up first, then info; each keeps its order, which is by topic: backups and recovery, security, versions and patches, monitoring coverage. */
+export const sortRecommendations = (
+  items: HubRecommendation[]
+): HubRecommendation[] =>
+  [...items].sort(
+    (a, b) => RECOMMENDATION_RANK[a.kind] - RECOMMENDATION_RANK[b.kind]
+  );
+
+/** The recommendations in an environment filter; one across environments names none, so it stays in each. */
+export const recommendationsInEnvironment = (
+  items: HubRecommendation[],
+  filter: string | null
+): HubRecommendation[] =>
+  filter === null
+    ? items
+    : items.filter(
+        (item) =>
+          !item.environment || matchesEnvironment(item.environment, filter)
       );

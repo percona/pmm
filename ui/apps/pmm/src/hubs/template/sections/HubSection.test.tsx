@@ -25,9 +25,11 @@ const renderSection = () =>
       id="clusters"
       title="Clusters"
       count={3}
-      door={testDoor('Fleet in Operations', '/operations?tab=clusters', {
-        preview: 'developer',
-      })}
+      doors={[
+        testDoor('Fleet in Operations', '/operations?tab=clusters', {
+          preview: 'developer',
+        }),
+      ]}
     >
       body
     </HubSection>
@@ -72,5 +74,29 @@ describe('HubSection', () => {
     expect(
       within(header).getAllByRole('link', { name: /Fleet in Operations/ })
     ).toHaveLength(1);
+  });
+
+  it('keeps several doors as named buttons on a phone, where arrows could not tell them apart', () => {
+    matchAllMedia(true);
+    renderHub(
+      <HubSection
+        id="dashboards"
+        title="Dashboards"
+        doors={[
+          testDoor('All MongoDB dashboards 41', '/graph/dashboards'),
+          testDoor('All apps', '/prototype/all-apps'),
+        ]}
+      >
+        body
+      </HubSection>
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'All MongoDB dashboards 41' })
+    ).toHaveTextContent('All MongoDB dashboards 41');
+    expect(screen.getByRole('link', { name: 'All apps' })).toHaveAttribute(
+      'href',
+      '/prototype/all-apps'
+    );
   });
 });

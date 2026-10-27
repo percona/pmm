@@ -215,6 +215,26 @@ export const testView = (
     ],
     matchesNothing: false,
   },
+  shortcuts: [
+    { label: 'Clusters', route: '/mongodb/clusters', kind: 'page' },
+    {
+      label: 'Instances overview',
+      route: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
+      kind: 'page',
+    },
+    {
+      label: 'Query analytics',
+      route: '/graph/d/pmm-qan/pmm-query-analytics',
+      params: { 'var-service_type': 'mongodb' },
+      kind: 'page',
+    },
+    { label: 'Real-time queries', route: '/rta', kind: 'page' },
+    {
+      label: 'MongoDB backups',
+      route: '/graph/backup/inventory',
+      kind: 'page',
+    },
+  ],
   status: {
     state: 'down',
     clusters: 3,
@@ -236,6 +256,7 @@ export const testView = (
     },
   },
   attention: [],
+  recommendations: [],
   clusters: TEST_CLUSTERS,
   patchesFilter: false,
   expanded: TEST_EXPANDED,
@@ -251,10 +272,6 @@ export const testView = (
     },
   },
   queries: {
-    links: {
-      analytics: testDoor('Query analytics', '/graph/d/pmm-qan'),
-      realtime: testDoor('Real-time queries', '/rta'),
-    },
     slower: [],
   },
   dashboards: {
@@ -263,7 +280,6 @@ export const testView = (
     recent: [],
     all: testDoor('All MongoDB dashboards', '/graph/dashboards?query=MongoDB'),
   },
-  apps: [],
   actions: {
     add: [
       {
@@ -295,14 +311,15 @@ export const testView = (
   },
   sectionDoors: {
     clusters: testDoor('Fleet in Operations', '/operations?tab=clusters'),
+    apps: testDoor('All apps', '/prototype/all-apps'),
   },
   sections: {
     attention: READY,
+    recommendations: READY,
     clusters: READY,
     backups: READY,
     queries: READY,
     dashboards: READY,
-    apps: READY,
   },
   ...overrides,
 });

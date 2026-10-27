@@ -2,17 +2,19 @@ import Box from '@mui/material/Box';
 import { DEFAULT_PAGE_MAX_WIDTH } from '@percona/peak-ui';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Footer } from 'components/footer';
 import { Page } from 'components/page';
 import { attentionIssues } from './hub.attention';
 import type { HubScenario, TechnologyHubConfig } from './hub.types';
-import { AppsSection } from './sections/AppsSection';
 import { DashboardsSection } from './sections/DashboardsSection';
 import { DemoControls } from './sections/DemoControls';
 import { HubHeader } from './sections/HubHeader';
 import { HubRow } from './sections/HubRow';
+import { HubShortcuts } from './sections/HubShortcuts';
 import { HubStatusBanner } from './sections/HubStatusBanner';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
 import { QueriesSection } from './sections/QueriesSection';
+import { RecommendationsSection } from './sections/RecommendationsSection';
 import { HUB_CONTAINER } from './sections/hub.sx';
 import { useTechnologyHub } from './useTechnologyHub';
 
@@ -21,6 +23,9 @@ const HUB_MAX_WIDTH = 1440;
 
 // The status banner sits centred at Peak's page width.
 const STATUS_WIDTH = DEFAULT_PAGE_MAX_WIDTH;
+
+// Recommendations shows as many rows as Needs attention beside it, and three lines of two alone.
+const RECOMMENDATIONS_VISIBLE = { beside: 5, alone: 6 };
 
 // Prototype only: the dev server, or a build that asks for it (the demo host's), never a production one.
 const SHOW_DEMO_CONTROLS =
@@ -60,7 +65,7 @@ export interface HubPageProps<TSnapshot> {
   config: TechnologyHubConfig<TSnapshot>;
 }
 
-/** A technology hub: status, what needs attention, and the ways into the technology's data and apps. */
+/** A technology hub: shortcuts, status, what needs attention, and the ways into the technology's data. */
 export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
   const { view, params, setParams, refetch, freshness, isInitialLoading } =
     useTechnologyHub(config);
@@ -74,15 +79,29 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
     attentionOpen?.scenario === view.scenario ? attentionOpen.revealed : 0;
   const revealAttention = (revealed: number) =>
     setAttentionOpen({ scenario: view.scenario, revealed });
-  // With nothing wrong, the section is not there, nor its row; an empty estate has nothing to check.
+  // With nothing wrong, the section is not there; an empty estate has nothing to check.
   const showsAttention =
     view.status.state !== 'empty' &&
     (view.attention.length > 0 || view.sections.attention.status !== 'ready');
+  const showsRecommendations =
+    view.status.state !== 'empty' &&
+    (view.recommendations.length > 0 ||
+      view.sections.recommendations.status !== 'ready');
+  const recommendationsVisible = showsAttention
+    ? RECOMMENDATIONS_VISIBLE.beside
+    : RECOMMENDATIONS_VISIBLE.alone;
+  // Recommendations folds back to its first rows when the scenario changes.
+  const [recommendationsOpenFor, setRecommendationsOpenFor] =
+    useState<HubScenario | null>(null);
+  const recommendationsExpanded = recommendationsOpenFor === view.scenario;
+  // Folded, the two lists' boxes match in height so their footers line up; an open one grows alone.
+  const matchLists = attentionRevealed === 0 && !recommendationsExpanded;
 
   useSectionFocus();
 
   return (
-    <Page title={messages.name} hideTitle maxWidth="full">
+    // The footer goes inside the hub's container, aligned with everything else.
+    <Page title={messages.name} hideTitle maxWidth="full" footer={null}>
       <Box
         sx={{
           display: 'flex',
@@ -103,7 +122,20 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           freshness={freshness}
           refetch={refetch}
         />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, py: 2 }}>
+        <HubShortcuts
+          shortcuts={view.shortcuts}
+          describeDestination={config.describeDestination}
+        />
+        {/* A little more room above the banner than below it sets it off from the tiles. */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            pt: 3,
+            pb: 2,
+          }}
+        >
           <Box sx={{ width: '100%', maxWidth: STATUS_WIDTH, mx: 'auto' }}>
             <HubStatusBanner
               status={view.status}
@@ -116,19 +148,38 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
               onReview={() => revealAttention(Number.POSITIVE_INFINITY)}
             />
           </Box>
-          {/* Recommendations will take the right side; until then the row is only there for Needs attention. */}
-          {showsAttention && (
+          {(showsAttention || showsRecommendations) && (
             <HubRow
+              stretch={matchLists}
               left={
-                <NeedsAttentionSection
-                  items={view.attention}
-                  state={view.sections.attention}
-                  environmentFiltered={view.environment.selected !== null}
-                  describeDestination={config.describeDestination}
-                  revealed={attentionRevealed}
-                  onRevealedChange={revealAttention}
-                  onRetry={refetch}
-                />
+                showsAttention && (
+                  <NeedsAttentionSection
+                    items={view.attention}
+                    state={view.sections.attention}
+                    environmentFiltered={view.environment.selected !== null}
+                    describeDestination={config.describeDestination}
+                    revealed={attentionRevealed}
+                    onRevealedChange={revealAttention}
+                    onRetry={refetch}
+                  />
+                )
+              }
+              right={
+                showsRecommendations && (
+                  <RecommendationsSection
+                    items={view.recommendations}
+                    state={view.sections.recommendations}
+                    environmentFiltered={view.environment.selected !== null}
+                    describeDestination={config.describeDestination}
+                    visibleCount={recommendationsVisible}
+                    wide={!showsAttention}
+                    expanded={recommendationsExpanded}
+                    onExpandedChange={(expanded) =>
+                      setRecommendationsOpenFor(expanded ? view.scenario : null)
+                    }
+                    onRetry={refetch}
+                  />
+                )
               }
             />
           )}
@@ -145,22 +196,16 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
               />
             }
             right={
-              <>
-                <AppsSection
-                  apps={view.apps}
-                  door={view.sectionDoors.apps}
-                  state={view.sections.apps}
-                  onRetry={refetch}
-                />
-                <DashboardsSection
-                  dashboards={view.dashboards}
-                  state={view.sections.dashboards}
-                  onRetry={refetch}
-                />
-              </>
+              <DashboardsSection
+                dashboards={view.dashboards}
+                allApps={view.sectionDoors.apps}
+                state={view.sections.dashboards}
+                onRetry={refetch}
+              />
             }
           />
         </Box>
+        <Footer />
         {SHOW_DEMO_CONTROLS && (
           <DemoControls
             name={messages.name}

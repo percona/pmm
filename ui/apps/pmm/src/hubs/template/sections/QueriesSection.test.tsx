@@ -38,16 +38,17 @@ describe('QueriesSection', () => {
     ['ready', READY],
     ['loading', { status: 'loading' }],
     ['failed', { status: 'error' }],
-  ])('keeps its two links while %s', (_, state) => {
-    renderSection({}, state);
+  ])(
+    'leaves the ways into query data to the hub’s tiles while %s',
+    (_, state) => {
+      renderSection({}, state);
 
-    expect(
-      screen.getByRole('link', { name: 'Query analytics' })
-    ).toHaveAttribute('href', '/graph/d/pmm-qan');
-    expect(
-      screen.getByRole('link', { name: 'Real-time queries' })
-    ).toHaveAttribute('href', '/rta');
-  });
+      expect(
+        screen.getByRole('heading', { name: 'Queries' })
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    }
+  );
 
   it('says so in one sentence when no query is off', () => {
     renderSection();
@@ -58,15 +59,12 @@ describe('QueriesSection', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
-  it('vouches for no query when nothing is monitored, keeping the links', () => {
+  it('vouches for no query when nothing is monitored', () => {
     renderSection({}, READY, true);
 
     expect(
       screen.queryByText('No query is slower than usual.')
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Query analytics' })
-    ).toBeInTheDocument();
   });
 
   it('lists the queries slower than usual, leaving those running long to Needs attention', async () => {
