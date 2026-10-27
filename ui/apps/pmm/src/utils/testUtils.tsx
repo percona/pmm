@@ -9,6 +9,9 @@ import { SettingsContext } from 'contexts/settings';
 import { FrontendSettings, Settings } from 'types/settings.types';
 import { GrafanaContext, GrafanaContextProps } from 'contexts/grafana';
 import { SnackbarProvider, SnackbarProviderProps } from 'notistack';
+import { render } from '@testing-library/react';
+import { Page } from 'components/page';
+import { TestWrapper } from './testWrapper';
 import { VersionContext, VersionContextProps } from 'contexts/version';
 
 export const wrapWithUpdatesProvider = (
@@ -111,6 +114,8 @@ export const wrapWithSettings = (
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
         enableAccessControl: false,
+        extensionsEnabled: false,
+        omEnabled: false,
         ...props?.settings,
         frontend: {
           anonymousEnabled: false,
@@ -139,7 +144,7 @@ export const wrapWithSettings = (
 );
 
 export const wrapWithGrafana = (
-  children: ReactElement,
+  children: ReactNode,
   props: Partial<GrafanaContextProps> = {}
 ) => (
   <GrafanaContext.Provider
@@ -147,6 +152,7 @@ export const wrapWithGrafana = (
       isFrameLoaded: true,
       isFullScreen: false,
       isOnGrafanaPage: true,
+      grafanaReady: true,
       ...props,
     }}
   >
@@ -158,6 +164,35 @@ export const wrapWithSnackbarProvider = (
   children: ReactElement,
   props?: Partial<SnackbarProviderProps>
 ) => <SnackbarProvider {...props}>{children}</SnackbarProvider>;
+
+// `Page` paints its surface with a <GlobalStyles> rule on html/body, so the
+// resulting background is read back off the document rather than off a node.
+export const bodyBackground = () =>
+  getComputedStyle(document.body).backgroundColor;
+
+// Renders one state, reads the surface it painted, then unmounts so the next
+// measurement starts from a document the previous <GlobalStyles> has left.
+export const measureSurface = (renderState: () => { unmount: () => void }) => {
+  const { unmount } = renderState();
+  const background = bodyBackground();
+  unmount();
+
+  return background;
+};
+
+// The colour a bare `Page` paints for each surface, so a test can name the two
+// without hardcoding theme values.
+export const measurePageSurface = (surface: 'canvas' | 'paper') =>
+  measureSurface(() =>
+    render(
+      <Page maxWidth="full" surface={surface}>
+        <div />
+      </Page>,
+      {
+        wrapper: ({ children }) => <TestWrapper>{children}</TestWrapper>,
+      }
+    )
+  );
 
 export const wrapWithVersion = (
   children: ReactElement,

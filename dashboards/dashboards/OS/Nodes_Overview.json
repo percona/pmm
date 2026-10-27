@@ -5467,7 +5467,7 @@
                             "calculatedInterval": "2s",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + node_memory_Cached_bytes{node_name=~\"$node_name\"})))",
+                            "expr": "topk(5,avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + (node_memory_Cached_bytes{node_name=~\"$node_name\"} + \n(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"} - node_memory_Shmem_bytes{node_name=~\"$node_name\"} or node_memory_Cached_bytes{node_name=~\"$node_name\"} * 0)))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -5479,7 +5479,7 @@
                             "target": ""
                         },
                         {
-                            "expr": "avg by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + \nnode_memory_Buffers_bytes{node_name=~\"$node_name\"} + \nnode_memory_Cached_bytes{node_name=~\"$node_name\"}))",
+                            "expr": "avg by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + \nnode_memory_Buffers_bytes{node_name=~\"$node_name\"} + \n(node_memory_Cached_bytes{node_name=~\"$node_name\"} + \n(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"} - node_memory_Shmem_bytes{node_name=~\"$node_name\"} or node_memory_Cached_bytes{node_name=~\"$node_name\"} * 0))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,

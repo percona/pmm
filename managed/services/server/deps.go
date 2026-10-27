@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"time"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 )
@@ -40,7 +41,7 @@ type grafanaClient interface { //nolint:iface
 // We use it instead of real type to avoid dependency cycle.
 //
 // FIXME Rename to victoriaMetrics.Service, update tests.
-type prometheusService interface { //nolint:iface
+type prometheusService interface {
 	RequestConfigurationUpdate()
 	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
 	// bypassing the batch delay. Use this for critical updates like port changes.
@@ -59,7 +60,7 @@ type checksService interface {
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type to avoid dependency cycle.
-type vmAlertService interface { //nolint:iface
+type vmAlertService interface {
 	RequestConfigurationUpdate()
 	healthChecker
 }
@@ -117,4 +118,13 @@ type victoriaMetricsParams interface {
 // nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
 type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
+}
+
+// omService is a subset of methods of om.Service used by this package.
+// We use it instead of the real type to avoid a dependency cycle.
+type omService interface {
+	// IsAvailable reports whether the PMM Extensions inventory app is configured and reachable.
+	IsAvailable(ctx context.Context) bool
+	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
+	SyncInventoryEnabled(ctx context.Context, enabled bool)
 }

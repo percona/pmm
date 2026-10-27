@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
+	hav1 "github.com/percona/pmm/api/ha/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -59,7 +59,7 @@ func TestHAServer_Status(t *testing.T) {
 
 			server := NewHAServer(service)
 
-			resp, err := server.Status(t.Context(), &hav1beta1.StatusRequest{})
+			resp, err := server.Status(t.Context(), &hav1.StatusRequest{})
 
 			require.NoError(t, err)
 			require.NotNil(t, resp)
@@ -79,7 +79,7 @@ func TestHAServer_ListNodes_HADisabled(t *testing.T) {
 
 	server := NewHAServer(service)
 
-	resp, err := server.ListNodes(t.Context(), &hav1beta1.ListNodesRequest{})
+	resp, err := server.ListNodes(t.Context(), &hav1.ListNodesRequest{})
 
 	require.NoError(t, err)
 	require.NotNil(t, resp)
@@ -100,7 +100,7 @@ func TestHAServer_ListNodes_NilMemberlist(t *testing.T) {
 
 	server := NewHAServer(service)
 
-	resp, err := server.ListNodes(t.Context(), &hav1beta1.ListNodesRequest{})
+	resp, err := server.ListNodes(t.Context(), &hav1.ListNodesRequest{})
 
 	require.NoError(t, err)
 	require.NotNil(t, resp)
@@ -148,7 +148,7 @@ func TestHAServer_ListNodes_ExpectedNodes(t *testing.T) {
 
 			server := NewHAServer(service)
 
-			resp, err := server.ListNodes(t.Context(), &hav1beta1.ListNodesRequest{})
+			resp, err := server.ListNodes(t.Context(), &hav1.ListNodesRequest{})
 
 			require.NoError(t, err)
 			require.NotNil(t, resp)

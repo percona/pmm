@@ -1,11 +1,12 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import Tune from '@mui/icons-material/Tune';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_NEW_NAV_GRAFANA_PATH, OM_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
@@ -45,9 +46,12 @@ import {
   NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
-  NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HIGH_AVAILABILITY_OVERVIEW,
   NAV_HOME_PAGE,
+  NAV_MANAGEMENT,
+  NAV_EXTENSIONS_ATW,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -55,6 +59,7 @@ import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
+import { PreviewChip } from 'components/preview-chip';
 import { HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
@@ -100,10 +105,16 @@ export const addAllDashboardItem = (
   return { ...NAV_DASHBOARDS, children };
 };
 
+/**
+ * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
+ * MongoDB service is monitored yet: OM's Hosts and Bootstrap pages exist for exactly
+ * that estate, so hiding the menu with the dashboards would hide them too.
+ */
 export const addDashboardItems = (
   types: ServiceType[],
   folders: DashboardFolder[],
-  user?: User
+  user?: User,
+  mongoExtras: NavItem[] = []
 ): NavItem[] => {
   const children: NavItem[] = [];
 
@@ -114,7 +125,17 @@ export const addDashboardItems = (
 
   if (types.includes(ServiceType.mongodb)) {
     addOtherDashboardsItem(NAV_MONGO, folders);
-    children.push(NAV_MONGO);
+    // A copy, so the extras never accumulate on the shared constant.
+    children.push({
+      ...NAV_MONGO,
+      children: [...(NAV_MONGO.children ?? []), ...mongoExtras],
+    });
+  } else if (mongoExtras.length) {
+    children.push({
+      ...NAV_MONGO,
+      url: mongoExtras[0].url,
+      children: mongoExtras,
+    });
   }
 
   if (types.includes(ServiceType.posgresql)) {
@@ -261,20 +282,21 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   const item = { ...NAV_HIGH_AVAILABILITY };
+  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+
+  if (namespace) {
+    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?${namespaceParam}`;
+    overview.url = `${overview.url}?${namespaceParam}`;
+  }
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [
-    {
-      ...NAV_HIGH_AVAILABILITY_LEADER,
-      secondaryText: leader?.nodeName || 'Unknown',
-    },
-    NAV_HIGH_AVAILABILITY_NODES,
-  ];
+  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
@@ -303,3 +325,78 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+// PMM Extensions apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from the side-car's appNavConfig as data only — no PMM Extensions nav component is used.
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
+// A collapsible with no children renders as an expandable shell that opens on
+// nothing, so a section drops out with its last child rather than outliving it.
+// Callers spread the result, which is what lets it contribute no entry at all.
+export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
+  children.length ? [{ ...section, children }] : [];
+
+export const addExtensionsApps = (): NavItem[] =>
+  addSection(
+    {
+      ...NAV_MANAGEMENT,
+      badge: <PreviewChip level="tech" />,
+      badgeAlwaysVisible: true,
+    },
+    [NAV_EXTENSIONS_MYSQL_BACKUPS, NAV_EXTENSIONS_ATW]
+  );
+
+/**
+ * OM's navigation, deliberately not part of `addExtensionsApps`. Shown inside the
+ * MongoDB menu, through `addDashboardItems`' `mongoExtras`.
+ *
+ * Those entries are gated as a group on PMM Extensions, and the group is expected to gain a
+ * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
+ * so hiding it when PMM Extensions is off or unreachable would hide a working page.
+ */
+export const addOm = (): NavItem => ({
+  id: 'om',
+  text: 'Operations',
+  icon: Tune,
+  url: OM_PATH,
+  matches: [OM_PATH],
+  // "Preview" rather than "Dev Preview": the longer label overlaps "Operations" at
+  // this nesting level. The banner and Settings say which preview it is.
+  badge: {
+    label: 'Preview',
+    sx: {
+      ml: 1,
+      height: 18,
+      flexShrink: 0,
+      '& .MuiChip-label': { px: 0.75, fontSize: 10, lineHeight: 1 },
+    },
+  },
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'om-fleet',
+      text: 'Fleet',
+      url: OM_PATH,
+    },
+    {
+      // The machines, including the ones with no database on them -- which no fleet
+      // reading can show, and which is where an install goes.
+      id: 'om-nodes',
+      text: 'Nodes',
+      url: `${OM_PATH}/nodes`,
+      matches: [`${OM_PATH}/nodes`],
+    },
+    {
+      id: 'om-automations',
+      text: 'Automations',
+      url: `${OM_PATH}/automations`,
+      matches: [`${OM_PATH}/automations`],
+    },
+    {
+      id: 'om-settings',
+      text: 'Settings',
+      url: `${OM_PATH}/settings`,
+      matches: [`${OM_PATH}/settings`],
+    },
+  ],
+});
