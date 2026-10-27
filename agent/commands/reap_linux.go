@@ -31,7 +31,13 @@ type leftoverTimeouts struct {
 	kill time.Duration // after SIGKILL, before giving up
 }
 
-const leftoverPollInterval = 100 * time.Millisecond
+const (
+	// The directory, under pmm-agent's temporary directory, that vmagent keeps its persistent
+	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
+	vmagentQueueDirName = "vmagent-temp-dir"
+
+	leftoverPollInterval = 100 * time.Millisecond
+)
 
 // stopLeftoverVMAgents stops vmagent processes still holding this pmm-agent's persistent queue (see
 // isLeftoverVMAgent) before pmm-agent starts a vmagent of its own. See PMM-15773.

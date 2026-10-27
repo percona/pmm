@@ -20,10 +20,6 @@ import (
 )
 
 const (
-	// The directory, under pmm-agent's temporary directory, that vmagent keeps its persistent
-	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
-	vmagentQueueDirName = "vmagent-temp-dir"
-
 	tmpDataPathFlag = "remoteWrite.tmpDataPath"
 
 	// What the kernel appends to /proc/<pid>/exe once the executable has been unlinked, which is
@@ -33,10 +29,10 @@ const (
 
 // isLeftoverVMAgent reports whether a process is a vmagent holding this pmm-agent's persistent
 // queue: it runs this pmm-agent's vmagent binary, and its -remoteWrite.tmpDataPath is this
-// pmm-agent's queue directory. vmagent takes an exclusive lock on that directory, so while such a
-// process runs, the vmagent this pmm-agent starts exits on the lock within a second, every time.
+// pmm-agent's queue directory. The lock vmagent takes on that directory is exclusive, so while such
+// a process runs, the vmagent this pmm-agent starts exits on the lock within a second, every time.
 //
-// The parent is deliberately not consulted. pmm-agent gives its exporters SIGKILL as their
+// The parent is deliberately not consulted. Every exporter gets SIGKILL from pmm-agent as its
 // parent-death signal, so a pmm-agent that is killed outright takes them with it; a vmagent that is
 // still holding the queue when pmm-agent starts was left by something else, and nothing about its
 // parent tells whether it is safe to keep. What it holds does: only one vmagent can use the queue.
