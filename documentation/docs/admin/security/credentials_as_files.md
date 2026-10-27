@@ -15,7 +15,7 @@ Each credential has a file name. PMM Server links every credential it resolves a
 | `clickhouse-password` | ClickHouse user of PMM Server | `PMM_CLICKHOUSE_PASSWORD_FILE` | `PMM_CLICKHOUSE_PASSWORD` |
 | `clickhouse-datasource-password` | Read-only ClickHouse user of the Query Analytics data source | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` |
 
-Supply the four database passwords only when PMM Server uses an external database, for example in high availability (HA) mode. Don't supply them with the built-in databases: PMM Server doesn't apply them to its built-in ClickHouse, so Query Analytics stops working.
+Supply the four database passwords only when PMM Server uses an external database, for example in high availability (HA) mode. Don't supply them with the built-in databases: PMM Server doesn't apply them to its built-in ClickHouse, so a password other than the default breaks Query Analytics.
 
 The encryption key that protects the credentials of monitored services is already a file. To keep it off the data volume, set `PMM_ENCRYPTION_KEY_PATH` to a key file you mount, as described in [PMM data encryption](data_encryption.md).
 
@@ -29,7 +29,13 @@ PMM Server takes the first source that exists:
 3. The earlier environment variable.
 4. Nothing: the four database passwords keep their default values, and the admin password and Grafana's secret key stay unset, as in earlier versions.
 
-PMM Server doesn't start if a configured file is missing, empty or unreadable, or if a credential is supplied both as a file and as an environment variable. The error names every affected credential, never its value.
+PMM Server doesn't start when:
+
+- a file that a file variable names is missing, empty or unreadable
+- a file in `PMM_SECRETS_DIR` is empty or unreadable
+- a credential is supplied both as a file and as an environment variable
+
+The error names every affected credential, never its value. A credential without a file in `PMM_SECRETS_DIR` moves on to the next source.
 
 ## Docker
 
