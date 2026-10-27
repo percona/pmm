@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -65,7 +66,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry;
 //   - PMM_ENABLE_ALERTING disables Percona Alerting;
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
-//   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
+//   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse; it also accepts d, w and y units (for example, 30d);
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - PMM_ENABLE_OM enables OpenManager;
@@ -189,7 +190,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 		case "PMM_DATA_RETENTION":
-			envSettings.DataRetention, err = parseStringDuration(v)
+			envSettings.DataRetention, err = parseDataRetention(v)
 			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
@@ -569,6 +570,21 @@ func parseStringDuration(value string) (time.Duration, error) {
 	}
 
 	return d, nil
+}
+
+// parseDataRetention parses a Go duration, falling back to Prometheus-style d, w and y units (for example, 30d).
+func parseDataRetention(value string) (time.Duration, error) {
+	d, err := time.ParseDuration(value)
+	if err == nil {
+		return d, nil
+	}
+
+	md, err := model.ParseDuration(value)
+	if err != nil {
+		return 0, InvalidDurationError("invalid duration error")
+	}
+
+	return time.Duration(md), nil
 }
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
