@@ -184,27 +184,55 @@ The **Status** column of the agent list takes one of the following values:
 <a id="editing-labels-for-a-service"></a>
 ## Edit a service
 
-You can change the labels of a service. For an Amazon RDS service, you can also change how PMM authenticates to AWS.
+You can change how PMM monitors a service without removing the service and adding it again. The service keeps its ID, and its metrics and Query Analytics (QAN) history. For an Amazon RDS service, you can also change how PMM authenticates to AWS.
+
+The form opens with the current settings of the service and shows only the settings that apply to its type. They match the settings that `pmm-admin update` changes, except the address of the service and the environment variables of a MongoDB exporter:
+
+| Section | What you can change |
+|---------|---------------------|
+| **Labels** | **Environment**, **Cluster**, **Replication set** and **Custom labels**. An external service also has **Group**. |
+| **Connection** | The username and password that the agents connect with, the **Agent password** of the exporter's `/metrics` endpoint, and connection options such as the **Database** of a PostgreSQL service or the **Authentication mechanism** of a MongoDB service. |
+| **Metrics endpoint** | For an external or HAProxy service, which has it instead of **Connection**: the **Scheme**, **Listen port** and **Metrics path** that PMM scrapes, and the HTTP basic auth credentials. |
+| **TLS** | Whether the agents connect over TLS, whether they verify the certificate, and the certificates themselves. |
+| **Query Analytics** | For MySQL, MongoDB and PostgreSQL services: the **Query source**, and QAN options such as **Max query length** and **Disable query examples**. |
+| **Metrics** | **Metrics mode**, **Log level**, **Connection timeout (seconds)**, **Disabled collectors**, and the exporter options of the database, such as **Tablestats limit** for MySQL or **Max collections limit** for MongoDB. |
+| **Amazon RDS credentials** | For an Amazon RDS service: how the RDS exporter authenticates to AWS. |
+
+The **Service** section at the top shows the type, node and address of the service. You can't change them here. To change them, remove the service and add it again.
 
 To edit a service:
 {.power-number}
 
 1. Go to **Inventory > Services**.
 2. Click :material-dots-vertical: next to the service, then select **Edit**.
-3. In the **Labels** section, change the **Environment**, **Cluster**, **Replication set** or **Custom labels** fields. Enter custom labels as `key:value`, one label per line. To remove a label, clear its field or delete its line.
+3. Change the settings that you need. Enter custom labels as `key:value`, one label per line. To remove a label, clear its field or delete its line.
 
     ![Editing a service in PMM Inventory](../images/PMM_Inventory_Edit_Service.png)
 
 4. If the service is an Amazon RDS instance, select an option under **Authenticate with** in the **Amazon RDS credentials** section: **Access key**, **IAM role** or **Host credentials**. For details, see [Connect Amazon RDS instance](../install-pmm/install-pmm-client/connect-database/aws.md).
 5. Click **Save changes**.
-6. Review the summary of the changes, then click **Confirm and save changes**. PMM saves the changes and opens the **Services** tab.
+6. Review the summary of the changes, then click **Confirm and save changes**. PMM saves only the settings that you changed, and opens the **Services** tab.
+
+PMM never shows passwords, keys or certificates. Their fields start empty: leave a field empty to keep the stored value, or enter a new one to replace it.
+
+When a change affects how PMM connects to the service, or turns on a query source, PMM checks that it can connect with the new settings before it saves them. If the check fails, PMM shows the error and saves nothing. To save the settings anyway, for example because the database isn't ready for them yet, select **Skip the connection check** before you click **Confirm and save changes**. The option applies to that save only.
 
 A custom label name must start with a letter or an underscore, and contain only letters, digits and underscores. It can't start with two underscores. The label value can't be empty.
+
+### Query source limits
+
+Some services can't use every query source:
+
+- On an Amazon RDS or Azure node, only the query source that adding the service sets up is available: **Performance Schema** for MySQL and **pg_stat_statements** for PostgreSQL.
+- The query source of PMM Server's internal PostgreSQL can't be changed here. To turn its QAN on or off, see [Monitor PMM Server's internal PostgreSQL](qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql).
+- If you select **pg_stat_monitor** and the database doesn't have the `pg_stat_monitor` extension, PMM uses **pg_stat_statements** instead and shows a warning.
 
 ### Effect of editing a service
 
 Editing a service can affect the following PMM functions:
 
+- **Monitoring**: the agents of the service restart with the new settings, so expect a short gap in its metrics and QAN data.
+- **Query Analytics**: changing the **Query source** removes the QAN agent of the service and adds a new one. The QAN data that PMM already collected stays.
 - **Alerting**: if an alert rule relies on a label that you change, the alert may not trigger when it should. Update your alert rules after you edit labels.
 - **Scheduled backups**: changing the cluster label removes all scheduled backups for the service or cluster. PMM warns you before saving. Recreate your backups after you finish the cluster configuration.
 - **Dashboard data**: edited labels apply only to new time series. Existing time series keep the previous labels.
