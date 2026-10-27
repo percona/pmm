@@ -215,7 +215,9 @@ To edit a service:
 
 PMM never shows passwords, keys or certificates. Their fields start empty: leave a field empty to keep the stored value, or enter a new one to replace it.
 
-When a change affects how PMM connects to the service, or turns on a query source, PMM checks that it can connect with the new settings before it saves them. If the check fails, PMM shows the error and saves nothing. To save the settings anyway, for example because the database isn't ready for them yet, select **Skip the connection check** before you click **Confirm and save changes**. The option applies to that save only.
+When a change affects how PMM connects to the service, or turns on a query source, PMM checks that it can connect with the new settings before it saves them. If the check fails, PMM shows the error and doesn't save the settings. To save the settings anyway, for example because the database isn't ready for them yet, select **Skip the connection check** before you click **Confirm and save changes**. The option applies to that save only.
+
+PMM saves changed Amazon RDS credentials before the other settings. If the credentials are saved but the other settings aren't, for example because the connection check fails, the credentials stay changed and PMM shows a warning. Fix the error, then save the other settings again.
 
 A custom label name must start with a letter or an underscore, and contain only letters, digits and underscores. It can't start with two underscores. The label value can't be empty.
 
