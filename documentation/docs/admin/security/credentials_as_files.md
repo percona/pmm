@@ -22,11 +22,12 @@ The encryption key that protects the credentials of monitored services is alread
 ## How PMM Server finds a credential
 
 PMM Server takes the first source that exists:
+{.power-number}
 
 1. The file that the credential's file variable names. Grafana's `GF_SECURITY_ADMIN_PASSWORD__FILE`, `GF_DATABASE_PASSWORD__FILE` and `GF_SECURITY_SECRET_KEY__FILE` work the same way.
 2. The file with the credential's name in the directory that `PMM_SECRETS_DIR` names.
 3. The earlier environment variable.
-4. Nothing: PMM Server keeps its earlier behavior.
+4. Nothing: the four database passwords keep their default values, and the admin password and Grafana's secret key stay unset, as in earlier versions.
 
 PMM Server doesn't start if a configured file is missing, empty or unreadable, or if a credential is supplied both as a file and as an environment variable. The error names every affected credential, never its value.
 

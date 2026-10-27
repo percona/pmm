@@ -127,10 +127,14 @@ func Path(name Name) string {
 	return filepath.Join(Dir, string(name))
 }
 
-// Exists reports whether a credential was resolved.
+// Exists reports whether a credential was resolved; one that cannot be read counts, so its reader fails loudly.
 func Exists(name Name) bool {
-	_, err := os.Stat(Path(name))
-	return err == nil
+	return exists(Path(name))
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return !errors.Is(err, fs.ErrNotExist)
 }
 
 // Value returns value when set, otherwise the credential from its file, otherwise defaultValue with the reason why.
@@ -213,7 +217,13 @@ func Prepare(opts Options) ([]Resolved, error) {
 			continue
 		}
 		if r.Path != "" {
-			err = os.Symlink(r.Path, link)
+			// A relative target would resolve against the link's directory, not where the file was found.
+			target, err := filepath.Abs(r.Path)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("%s: %w", s.name, err))
+				continue
+			}
+			err = os.Symlink(target, link)
 			if err != nil {
 				errs = append(errs, err)
 				continue

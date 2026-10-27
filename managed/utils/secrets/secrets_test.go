@@ -112,6 +112,20 @@ func TestPrepare(t *testing.T) {
 		assert.Equal(t, "from-file", linked(t, opts, ClickHousePassword))
 	})
 
+	t.Run("links a relative path by its absolute path", func(t *testing.T) {
+		dir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "ch"), []byte("from-relative"), 0o440))
+		t.Chdir(dir)
+		opts := testOptions(t, map[string]string{"PMM_CLICKHOUSE_PASSWORD_FILE": "ch"})
+
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+		target, err := os.Readlink(filepath.Join(opts.RunDir, string(ClickHousePassword)))
+		require.NoError(t, err)
+		assert.Equal(t, filepath.Join(dir, "ch"), target)
+		assert.Equal(t, "from-relative", linked(t, opts, ClickHousePassword))
+	})
+
 	t.Run("drops values from an earlier start", func(t *testing.T) {
 		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "earlier"})
 		_, err := Prepare(opts)
@@ -156,6 +170,17 @@ func TestPrepare(t *testing.T) {
 		}
 		assert.NotContains(t, err.Error(), "q7v")
 	})
+}
+
+func TestExists(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "credential")
+	assert.False(t, exists(file))
+
+	require.NoError(t, os.WriteFile(file, []byte("x"), 0o600))
+	assert.True(t, exists(file))
+
+	// An error other than absence, here "not a directory", leaves the credential to its reader rather than to a default.
+	assert.True(t, exists(filepath.Join(file, "child")))
 }
 
 func TestValue(t *testing.T) {
