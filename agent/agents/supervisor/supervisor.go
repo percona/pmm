@@ -358,6 +358,9 @@ func (s *Supervisor) RestartAgents() {
 			port = 0
 		}
 
+		// This starts the entry's own parameters, so a retry of other ones that failed before would
+		// start them over it once its timer fires; the next SetState asks for those again.
+		s.forgetFailedStart(id)
 		err := s.tryStartProcess(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
@@ -605,7 +608,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		newParams[id] = p
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
-	s.forgetSupersededFailedStarts(agentProcesses)
+	s.updateFailedStarts(agentProcesses)
 	toStart = s.dropBackingOff(toStart)
 	toRestart = s.dropBackingOff(toRestart)
 	if len(toStart)+len(toRestart)+len(toStop) == 0 {
@@ -677,8 +680,8 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 }
 
 // dropBackingOff removes from agentIDs the Agents whose last start failed and whose next attempt is
-// not due yet; their own timer starts them then (see recordFailedStart). A failed start is only
-// kept for the parameters it failed with, see forgetSupersededFailedStarts.
+// not due yet; their own timer starts them then, with the latest parameters (see
+// updateFailedStarts).
 // Must be called with s.rw held for writing.
 func (s *Supervisor) dropBackingOff(agentIDs []string) []string {
 	now := time.Now()
@@ -694,30 +697,35 @@ func (s *Supervisor) dropBackingOff(agentIDs []string) []string {
 	return res
 }
 
-// forgetSupersededFailedStarts forgets the failed starts of Agents that are no longer requested, or
-// are requested with other parameters: those are stopped, or started at once with the new ones.
+// updateFailedStarts forgets the failed starts of Agents that are no longer requested, and gives the
+// rest the parameters they are requested with now, for their next attempt.
+//
+// New parameters do not bring that attempt forward. They are what pmm-managed answers a failed start
+// with as a matter of course: a vmagent's own scrape configuration names its listen port, and every
+// failed attempt reports a new one, so treating new parameters as a reason to start at once would
+// retry a stuck vmagent as fast as before.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) forgetSupersededFailedStarts(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
+func (s *Supervisor) updateFailedStarts(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
 	for agentID, f := range s.failedStarts {
-		if requested, ok := agentProcesses[agentID]; !ok || !proto.Equal(requested, f.requestedState) {
+		requested, ok := agentProcesses[agentID]
+		if !ok {
 			s.forgetFailedStart(agentID)
+			continue
 		}
+		f.requestedState = proto.Clone(requested).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
 	}
 }
 
 // recordFailedStart schedules the next attempt to start an Agent process whose start failed, with
-// a delay that grows with each consecutive failure of the same parameters.
+// a delay that grows with each consecutive failure.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess) {
 	f := s.failedStarts[agentID]
-	if f == nil || !proto.Equal(f.requestedState, agentProcess) {
-		s.forgetFailedStart(agentID)
-		f = &failedStart{ //nolint:forcetypeassert
-			requestedState: proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
-			backoff:        backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay),
-		}
+	if f == nil {
+		f = &failedStart{backoff: backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay)}
 		s.failedStarts[agentID] = f
 	}
+	f.requestedState = proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
 	if f.timer != nil {
 		f.timer.Stop()
 	}
@@ -749,11 +757,19 @@ func (s *Supervisor) retryFailedStart(agentID string, f *failedStart, attempt ui
 		return
 	}
 
-	// A failed restart keeps its Agent entry, and with it the port the replacement was to reuse;
-	// tryStartProcess leaves a port it is given reserved, as the entry still refers to it.
+	// A restart whose old Agent stopped in time keeps that Agent's entry when the replacement fails to
+	// start, and with it the port the replacement was to reuse; tryStartProcess leaves a port it is
+	// given reserved, as the entry still refers to it. A running entry means something else started
+	// the Agent since, so there is nothing left to retry.
 	var port uint16
 	if agent := s.agentProcesses[agentID]; agent != nil {
-		port = agent.listenPort
+		select {
+		case <-agent.done:
+			port = agent.listenPort
+		default:
+			s.forgetFailedStart(agentID)
+			return
+		}
 	}
 
 	err := s.tryStartProcess(agentID, f.requestedState, port)
@@ -763,6 +779,11 @@ func (s *Supervisor) retryFailedStart(agentID string, f *failedStart, attempt ui
 		return
 	}
 	s.forgetFailedStart(agentID)
+
+	// Started on a port of its own: the old entry it replaced no longer refers to that one.
+	if agent := s.agentProcesses[agentID]; agent != nil && agent.listenPort != port {
+		s.releasePort(agentID, port)
+	}
 }
 
 // setBuiltinAgents starts/restarts/stops built-in Agents.

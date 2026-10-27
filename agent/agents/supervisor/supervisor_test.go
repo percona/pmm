@@ -1439,9 +1439,15 @@ func TestFailedStartBackoff(t *testing.T) {
 		assertNoChanges(t, s, 500*time.Millisecond)
 		require.Empty(t, s.AgentsList())
 
-		// Other parameters may well start, so they are tried at once.
+		// What it sends for a vmagent: the scrape configuration names the vmagent's own port,
+		// which moved with every failed attempt. Those parameters wait for the backoff too, and
+		// are the ones it is tried with.
 		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing("other")})
-		waitFailedStart(t, s)
+		assertNoChanges(t, s, 500*time.Millisecond)
+		s.rw.RLock()
+		args := s.failedStarts["sleep1"].requestedState.Args
+		s.rw.RUnlock()
+		assert.Equal(t, []string{"wrong format", "other"}, args)
 
 		// Not requested any more: nothing left to try again.
 		s.SetState(t.Context(), &agentv1.SetStateRequest{})
@@ -1461,7 +1467,43 @@ func TestFailedStartBackoff(t *testing.T) {
 
 		s.SetState(t.Context(), &agentv1.SetStateRequest{})
 		assert.Zero(t, failedStarts(s))
+		// An attempt that took the lock before the SetState above may still be reporting.
+		for drained := false; !drained; {
+			select {
+			case <-s.Changes():
+			case <-time.After(500 * time.Millisecond):
+				drained = true
+			}
+		}
 		assertNoChanges(t, s, time.Second)
+	})
+
+	t.Run("TriedWithTheLatestParameters", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64700, time.Second)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		waitFailedStart(t, s)
+
+		// Fixed on the server: started by the next attempt, not at once.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
+			},
+		})
+		assertNoChanges(t, s, 200*time.Millisecond)
+
+		for running := false; !running; {
+			select {
+			case change := <-s.Changes():
+				running = change.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
+			case <-time.After(10 * time.Second):
+				t.Fatal("not started with the parameters requested last")
+			}
+		}
+		assert.Zero(t, failedStarts(s))
+		require.Len(t, s.AgentsList(), 1)
 	})
 
 	t.Run("FailedRestartBacksOffToo", func(t *testing.T) {
@@ -1485,5 +1527,10 @@ func TestFailedStartBackoff(t *testing.T) {
 
 		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
 		assertNoChanges(t, s, 500*time.Millisecond)
+
+		// RestartAgents starts the entry's own parameters, so the pending retry of the failed
+		// ones must not start them over it later.
+		s.RestartAgents()
+		assert.Zero(t, failedStarts(s))
 	})
 }
