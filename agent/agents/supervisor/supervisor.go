@@ -45,6 +45,7 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -72,6 +73,11 @@ const (
 	// they spend it concurrently rather than one after another. It is sized well above
 	// process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
 	agentsStopTimeout = 60 * time.Second
+
+	// How long an Agent process whose start failed waits before it is tried again: the same range
+	// a process that exits after RUNNING is restarted with (see process.Process).
+	failedStartMinDelay = 1 * time.Second
+	failedStartMaxDelay = 30 * time.Second
 )
 
 // configGetter allows for getting a config.
@@ -94,6 +100,11 @@ type Supervisor struct {
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
 	builtinAgents  map[string]*builtinAgentInfo
+	// failedStarts holds the Agent processes whose last start failed, until they are tried again.
+	// A SetState repeating their parameters does not start them before then: pmm-managed answers
+	// the statuses of every failed attempt with another SetState, so without this a process that
+	// cannot start is retried about once a second, for as long as the cause lasts. See PMM-15773.
+	failedStarts map[string]*failedStart
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
@@ -110,7 +121,17 @@ type Supervisor struct {
 	forwarders atomic.Int64
 
 	// for unit tests only
-	agentsStopTimeout time.Duration
+	agentsStopTimeout                        time.Duration
+	failedStartMinDelay, failedStartMaxDelay time.Duration
+}
+
+// failedStart is an Agent process whose start failed, waiting to be tried again.
+type failedStart struct {
+	requestedState *agentv1.SetStateRequest_AgentProcess
+	backoff        *backoff.Backoff
+	retryAt        time.Time
+	timer          *time.Timer
+	attempt        uint64 // tells a retry it has been superseded by a later attempt
 }
 
 // agentProcessInfo describes Agent process.
@@ -154,10 +175,13 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
+		failedStarts:   make(map[string]*failedStart),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
 		instances:      make(map[string]uint64),
 
-		agentsStopTimeout: agentsStopTimeout,
+		agentsStopTimeout:   agentsStopTimeout,
+		failedStartMinDelay: failedStartMinDelay,
+		failedStartMaxDelay: failedStartMaxDelay,
 	}
 }
 
@@ -581,6 +605,9 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		newParams[id] = p
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
+	s.forgetSupersededFailedStarts(agentProcesses)
+	toStart = s.dropBackingOff(toStart)
+	toRestart = s.dropBackingOff(toRestart)
 	if len(toStart)+len(toRestart)+len(toStop) == 0 {
 		return
 	}
@@ -630,7 +657,10 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.recordFailedStart(agentID, agentProcesses[agentID])
+			continue
 		}
+		s.forgetFailedStart(agentID)
 	}
 
 	// start new agents
@@ -639,8 +669,100 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.recordFailedStart(agentID, agentProcesses[agentID])
+			continue
+		}
+		s.forgetFailedStart(agentID)
+	}
+}
+
+// dropBackingOff removes from agentIDs the Agents whose last start failed and whose next attempt is
+// not due yet; their own timer starts them then (see recordFailedStart). A failed start is only
+// kept for the parameters it failed with, see forgetSupersededFailedStarts.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) dropBackingOff(agentIDs []string) []string {
+	now := time.Now()
+	res := make([]string, 0, len(agentIDs))
+	for _, agentID := range agentIDs {
+		if f := s.failedStarts[agentID]; f != nil && now.Before(f.retryAt) {
+			s.l.Debugf("Not starting Agent %s again before %s, its last start failed.", agentID, f.retryAt.Format(time.RFC3339))
+			continue
+		}
+		res = append(res, agentID)
+	}
+
+	return res
+}
+
+// forgetSupersededFailedStarts forgets the failed starts of Agents that are no longer requested, or
+// are requested with other parameters: those are stopped, or started at once with the new ones.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) forgetSupersededFailedStarts(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
+	for agentID, f := range s.failedStarts {
+		if requested, ok := agentProcesses[agentID]; !ok || !proto.Equal(requested, f.requestedState) {
+			s.forgetFailedStart(agentID)
 		}
 	}
+}
+
+// recordFailedStart schedules the next attempt to start an Agent process whose start failed, with
+// a delay that grows with each consecutive failure of the same parameters.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess) {
+	f := s.failedStarts[agentID]
+	if f == nil || !proto.Equal(f.requestedState, agentProcess) {
+		s.forgetFailedStart(agentID)
+		f = &failedStart{ //nolint:forcetypeassert
+			requestedState: proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
+			backoff:        backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay),
+		}
+		s.failedStarts[agentID] = f
+	}
+	if f.timer != nil {
+		f.timer.Stop()
+	}
+
+	delay := f.backoff.Delay()
+	f.retryAt = time.Now().Add(delay)
+	f.attempt++
+	attempt := f.attempt
+	f.timer = time.AfterFunc(delay, func() { s.retryFailedStart(agentID, f, attempt) })
+	s.l.Warnf("Agent %s failed to start, trying again in %s.", agentID, delay.Round(time.Millisecond))
+}
+
+// forgetFailedStart cancels the next attempt to start an Agent, if one is scheduled.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) forgetFailedStart(agentID string) {
+	if f := s.failedStarts[agentID]; f != nil {
+		f.timer.Stop()
+		delete(s.failedStarts, agentID)
+	}
+}
+
+// retryFailedStart is the scheduled next attempt to start an Agent process whose start failed.
+func (s *Supervisor) retryFailedStart(agentID string, f *failedStart, attempt uint64) {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	// Superseded while waiting for the lock: stopped, started by a SetState, or rescheduled.
+	if s.ctx.Err() != nil || s.failedStarts[agentID] != f || f.attempt != attempt {
+		return
+	}
+
+	// A failed restart keeps its Agent entry, and with it the port the replacement was to reuse;
+	// tryStartProcess leaves a port it is given reserved, as the entry still refers to it.
+	var port uint16
+	if agent := s.agentProcesses[agentID]; agent != nil {
+		port = agent.listenPort
+	}
+
+	err := s.tryStartProcess(agentID, f.requestedState, port)
+	if err != nil {
+		s.l.Errorf("Failed to start Agent: %s.", err)
+		s.recordFailedStart(agentID, f.requestedState)
+		return
+	}
+	s.forgetFailedStart(agentID)
 }
 
 // setBuiltinAgents starts/restarts/stops built-in Agents.

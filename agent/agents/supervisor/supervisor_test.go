@@ -1361,3 +1361,129 @@ func TestSupervisorProcessParamsEnvVariableNamesRejectsReserved(t *testing.T) {
 	assert.Empty(t, actual.Env)
 	assert.Empty(t, actual.ResolvedEnvNames)
 }
+
+func TestFailedStartBackoff(t *testing.T) {
+	t.Parallel()
+
+	newSupervisor := func(t *testing.T, minPort uint16, delay time.Duration) *Supervisor {
+		t.Helper()
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: minPort, Max: minPort + 99},
+			Server:        config.Server{Address: "localhost:443"},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(t.Context(), nil, cfgStorage)
+		s.failedStartMinDelay, s.failedStartMaxDelay = delay, delay
+		go s.Run(t.Context())
+
+		return s
+	}
+
+	failing := func(args ...string) map[string]*agentv1.SetStateRequest_AgentProcess {
+		return map[string]*agentv1.SetStateRequest_AgentProcess{
+			"sleep1": {Type: typeTestSleep, Args: append([]string{"wrong format"}, args...)},
+		}
+	}
+
+	// waitFailedStart reads statuses until a start has failed processRetryCount times, which is
+	// one call of tryStartProcess, up to the DONE that ends its last attempt.
+	waitFailedStart := func(t *testing.T, s *Supervisor) {
+		t.Helper()
+
+		var failures int
+		var lastPort uint32
+		for {
+			select {
+			case change := <-s.Changes():
+				switch {
+				case change.Status == inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR:
+					failures++
+					lastPort = change.ListenPort
+				case change.Status == inventoryv1.AgentStatus_AGENT_STATUS_DONE && failures == processRetryCount && change.ListenPort == lastPort:
+					return
+				}
+			case <-time.After(10 * time.Second):
+				t.Fatalf("start failed %d times, expected %d", failures, processRetryCount)
+			}
+		}
+	}
+
+	assertNoChanges := func(t *testing.T, s *Supervisor, d time.Duration) {
+		t.Helper()
+
+		select {
+		case change := <-s.Changes():
+			t.Fatalf("unexpected status %s of %s", change.Status, change.AgentId)
+		case <-time.After(d):
+		}
+	}
+
+	failedStarts := func(s *Supervisor) int {
+		s.rw.RLock()
+		defer s.rw.RUnlock()
+		return len(s.failedStarts)
+	}
+
+	t.Run("NotStartedAgainBeforeTheBackoff", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64400, time.Hour)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		waitFailedStart(t, s)
+
+		// What pmm-managed sends in answer to the statuses above.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		assertNoChanges(t, s, 500*time.Millisecond)
+		require.Empty(t, s.AgentsList())
+
+		// Other parameters may well start, so they are tried at once.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing("other")})
+		waitFailedStart(t, s)
+
+		// Not requested any more: nothing left to try again.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{})
+		assert.Zero(t, failedStarts(s))
+	})
+
+	t.Run("TriedAgainByItself", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64500, 200*time.Millisecond)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		waitFailedStart(t, s)
+
+		// No SetState in between: the next attempt is the Supervisor's own.
+		waitFailedStart(t, s)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{})
+		assert.Zero(t, failedStarts(s))
+		assertNoChanges(t, s, time.Second)
+	})
+
+	t.Run("FailedRestartBacksOffToo", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64600, time.Hour)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
+			},
+		})
+		assertChanges(t, s,
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 64600, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 64600, ProcessExecPath: "sleep"},
+		)
+
+		// Restarted with parameters it cannot start with.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		waitFailedStart(t, s)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		assertNoChanges(t, s, 500*time.Millisecond)
+	})
+}
