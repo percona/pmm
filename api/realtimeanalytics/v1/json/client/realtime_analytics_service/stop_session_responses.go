@@ -344,8 +344,8 @@ type StopSessionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// stop session default body details items0
-	StopSessionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// stop session default body details items0 additional properties
+	StopSessionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -380,7 +380,7 @@ func (o *StopSessionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.StopSessionDefaultBodyDetailsItems0 = result
+		o.StopSessionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -401,12 +401,12 @@ func (o StopSessionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.StopSessionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.StopSessionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.StopSessionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.StopSessionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
