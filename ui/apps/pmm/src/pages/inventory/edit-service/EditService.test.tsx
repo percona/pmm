@@ -314,6 +314,17 @@ describe('EditService', () => {
     ).toBeInTheDocument();
   });
 
+  // jsdom skips step validation, so this checks what the browser goes by
+  it('lets the browser accept a fractional connection timeout', async () => {
+    renderEditService();
+
+    await screen.findByTestId('edit-service-form');
+
+    expect(
+      screen.getByLabelText('Connection timeout (seconds)')
+    ).toHaveAttribute('step', 'any');
+  });
+
   it('hides the QAN settings without a query source', async () => {
     renderEditService();
 

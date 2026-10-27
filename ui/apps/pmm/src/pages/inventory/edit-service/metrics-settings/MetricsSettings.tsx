@@ -104,6 +104,8 @@ export const MetricsSettings: FC<Props> = ({ serviceType }) => {
               type: 'number',
               fullWidth: true,
               helperText: metrics.connectionTimeoutDescription,
+              // Fractional seconds are valid, which the default step of 1 rejects
+              slotProps: { htmlInput: { step: 'any' } },
             }}
           />
         </Stack>
