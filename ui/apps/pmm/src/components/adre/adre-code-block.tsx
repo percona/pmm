@@ -33,7 +33,7 @@ const languageOf = (node: ReactNode) => {
 /** A fenced code block with its language and a copy button. */
 export const AdreCodeBlock: FC<{ children?: ReactNode }> = ({ children }) => {
   const [copied, setCopied] = useState(false);
-  const timer = useRef<number>();
+  const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   const language = languageOf(children);
   // The clipboard is missing outside secure contexts.

@@ -227,7 +227,7 @@ const InvestigationDetailPage: FC = () => {
   );
   const [fetchedAlertMeta, setFetchedAlertMeta] =
     useState<AlertMetadataFromLabels>({});
-  const prevStatusRef = useRef<string | undefined>();
+  const prevStatusRef = useRef<string | undefined>(undefined);
 
   const showError = (msg: string) => {
     setSnackMessage(msg);

@@ -32,7 +32,8 @@ func turns(n int) []any {
 	hist := make([]any, 0, 1+4*n)
 	hist = append(hist, msg("system", "sys"))
 	for range n {
-		hist = append(hist,
+		hist = append(
+			hist,
 			msg("user", "q"),
 			map[string]any{"role": "assistant", "tool_calls": []any{map[string]any{"id": "t"}}},
 			map[string]any{"role": "tool", "tool_call_id": "t", "content": "r"},

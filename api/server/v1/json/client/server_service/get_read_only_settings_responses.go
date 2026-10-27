@@ -708,6 +708,12 @@ type GetReadOnlySettingsOKBodySettings struct {
 	// True if Access Control is enabled.
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
 
+	// True if PMM Extensions is enabled.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
+
 	// True if native Query Analytics UI is enabled.
 	NativeQANEnabled bool `json:"native_qan_enabled,omitempty"`
 }

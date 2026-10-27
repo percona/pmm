@@ -236,9 +236,9 @@ func TestBuildOtelCollectorConfigYAML_ValidYAMLStructure(t *testing.T) {
 	require.Contains(t, yaml, "service:")
 }
 
-// fakeSupervisorctl returns a supervisorctl stand-in that records its arguments and exits with the code in the
+// fakeRecordingSupervisorctl returns a supervisorctl stand-in that records its arguments and exits with the code in the
 // returned file ("0" by default).
-func fakeSupervisorctl(t *testing.T) (string, string, string) {
+func fakeRecordingSupervisorctl(t *testing.T) (string, string, string) {
 	t.Helper()
 	dir := t.TempDir()
 	calls := filepath.Join(dir, "calls")
@@ -252,7 +252,7 @@ func fakeSupervisorctl(t *testing.T) (string, string, string) {
 func TestRestartOtelCollectorIfPending(t *testing.T) {
 	t.Parallel()
 
-	script, calls, code := fakeSupervisorctl(t)
+	script, calls, code := fakeRecordingSupervisorctl(t)
 	s := &Service{supervisorctlPath: script, l: logrus.WithField("test", t.Name())}
 
 	s.restartOtelCollectorIfPending(true)

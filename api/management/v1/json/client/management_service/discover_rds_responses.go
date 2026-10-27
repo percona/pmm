@@ -195,6 +195,10 @@ type DiscoverRDSBody struct {
 
 	// AWS Secret key. Optional.
 	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// AWS IAM role ARN to assume using the server's ambient credentials. Optional.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this discover RDS body

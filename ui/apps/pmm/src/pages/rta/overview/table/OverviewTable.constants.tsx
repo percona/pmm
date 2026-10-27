@@ -5,6 +5,7 @@ import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import { formatDuration } from 'date-fns';
 import UnavailableText from 'components/unavailable-text';
+import { ElapsedTimeFilter } from './elapsed-time-filter';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
@@ -21,6 +22,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
     header: Messages.columns.host,
     accessorKey: 'serviceName',
+    // without this the column falls back to MRT's 'fuzzy' default, which
+    // matches any host containing the typed characters in order
+    filterFn: 'contains',
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-host-cell`,
@@ -41,9 +45,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'timeRangeFilterFn',
-    muiTableHeadCellFilterTextFieldProps: {
-      inputProps: { step: 0.25, type: 'number' },
-    },
+    Filter: ({ column, rangeFilterIndex }) => (
+      <ElapsedTimeFilter column={column} rangeFilterIndex={rangeFilterIndex} />
+    ),
     Cell: ({ cell }) =>
       cell.getValue() ? (
         `${formatDuration(

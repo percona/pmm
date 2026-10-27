@@ -1,6 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import applyCaseMiddleware from 'axios-case-converter';
-import { enqueueSnackbar } from 'notistack';
 
 export const api = applyCaseMiddleware(
   axios.create({
@@ -11,52 +10,3 @@ export const api = applyCaseMiddleware(
 export const grafanaApi = axios.create({
   baseURL: '/graph/api/',
 });
-
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong';
-const MAX_ERROR_MESSAGE_LENGTH = 120;
-let errorInterceptor: number | null = null;
-
-export const addApiErrorInterceptor = () => {
-  if (errorInterceptor === null) {
-    errorInterceptor = api.interceptors.response.use(
-      (response) => response,
-      (error: AxiosError<{ error?: string; message?: string }>) => {
-        if (error.response && error.response.status >= 400) {
-          // pmm-managed's hand-written JSON handlers return {"error": "..."}, while gRPC-gateway
-          // errors use {"message": "..."}. Prefer the real message over the generic fallback.
-          let message =
-            error.response.data?.error ??
-            error.response.data?.message ??
-            DEFAULT_ERROR_MESSAGE;
-          let notificationsDisabled =
-            error.config?.disableNotifications ?? error.response.status === 429;
-
-          if (typeof notificationsDisabled === 'function') {
-            notificationsDisabled = notificationsDisabled(error);
-          }
-
-          if (!notificationsDisabled) {
-            message = message.trim();
-            if (message.length > MAX_ERROR_MESSAGE_LENGTH) {
-              message = `${message.substring(0, MAX_ERROR_MESSAGE_LENGTH)}...`;
-            }
-
-            enqueueSnackbar(message, {
-              variant: 'error',
-              preventDuplicate: true,
-            });
-          }
-        }
-
-        return Promise.reject(error);
-      }
-    );
-  }
-};
-
-export const removeApiErrorInterceptor = () => {
-  if (errorInterceptor !== null) {
-    api.interceptors.response.eject(errorInterceptor);
-    errorInterceptor = null;
-  }
-};

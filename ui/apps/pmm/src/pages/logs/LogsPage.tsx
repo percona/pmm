@@ -117,7 +117,7 @@ export const LogsPage: FC = () => {
 
   return (
     <ThemeProvider theme={logsTheme}>
-      <Page title="Logs" hideTitle fullWidth footer={null} surface="default">
+      <Page title="Logs" hideTitle fullWidth footer={null} surface="canvas">
         {/* Filters and chart stay put; only the lines or patterns below them scroll. */}
         <Stack sx={{ flex: 1, minHeight: 0, gap: 1.5, p: { xs: 1, sm: 1.5 } }}>
           <LogsFilterBar

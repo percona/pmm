@@ -372,6 +372,8 @@ After configuring your database server, add a MongoDB service using either the u
         ```
 
     === "SSL/TLS secured MongoDB"
+        Use this when MongoDB requires TLS connections and PMM logs in with a username and password. If the client certificate file has a password, also pass `--tls-certificate-key-file-password`:
+
         ```sh
         pmm-admin add mongodb \
         --username=pmm \
@@ -380,10 +382,22 @@ After configuring your database server, add a MongoDB service using either the u
         --port=27017 \
         --tls \
         --tls-certificate-key-file=/path/to/client.pem \
-        --tls-certificate-key-file-password=cert_password \  # If needed
+        --tls-ca-file=/path/to/ca.pem \
+        --cluster=my_cluster_or_rs_name
+        ```
+
+    === "X.509 certificate authentication"
+        Use this when PMM logs in with its client certificate instead of a password. MongoDB identifies the user by the certificate subject, so don't pass `--username` or `--password`. Before you add the service, [create a user in the `$external` database](https://docs.percona.com/percona-server-for-mongodb/latest/x509-ldap.html#authenticate-with-the-x509-certificate) whose name matches the certificate subject, and give it the [roles PMM needs](#step-1-set-up-mongodb-monitoring-permissions).
+
+        ```sh
+        pmm-admin add mongodb \
+        --host=fqdn_of_your_mongo_host \
+        --port=27017 \
+        --tls \
+        --tls-certificate-key-file=/path/to/client.pem \
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
-        --authentication-database='$external'\
+        --authentication-database='$external' \
         --cluster=my_cluster_or_rs_name
         ```
     
@@ -392,6 +406,7 @@ After configuring your database server, add a MongoDB service using either the u
     !!! hint alert alert-success "Tips"
         - When adding members of a replica set or sharded cluster, add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
         - Some dashboard panels, such as **Total data size** on the [MongoDB ReplSet Summary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) and [MongoDB Sharded Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboards, require the `dbstats` collector. Pass [`--enable-all-collectors`](../../../use/commands/pmm-admin/add.md#collector-options) when adding the service to enable it.
+        - To collect histogram metrics from MongoDB's diagnostic data, pass [`--enable-diagnostic-data-histograms`](../../../use/commands/pmm-admin/add.md#collector-options). `--enable-all-collectors` doesn't include this option, so pass it explicitly, even when you use `--enable-all-collectors`. It can significantly increase `mongodb_exporter` memory usage.
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
@@ -418,10 +433,10 @@ After configuring your database server, add a MongoDB service using either the u
     --password=your_secure_password \
     --host=127.0.0.1 \
     --port=27017 \
-    --agent-env-vars="LOG_LEVEL,OTHER_VAR"
+    --agent-env-vars="KRB5_KTNAME,KRB5_CONFIG"
     ```
     
-    Only variables already set in the `pmm-agent` environment will be passed to the exporter.
+    PMM passes only variables that are already set in the `pmm-agent` environment to the exporter. To change the list later without re-adding the service, see [Pass environment variables to the exporter](../../../use/commands/pmm-admin/inventory.md#pass-environment-variables-to-the-exporter).
 
 ## Step 4: Verify MongoDB service configuration
 

@@ -8,7 +8,13 @@ import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
 import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
-import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_PATH,
+  PMM_SERVICENOW_SETTINGS_PATH,
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
+} from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
@@ -23,6 +29,20 @@ import QanPage from 'pages/qan/QanPage';
 import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
 import { AlertsPage } from 'pages/alerting/status';
 import { LogsPage } from 'pages/logs/LogsPage';
+import { AtwApp } from '@pmm-extensions/plugins-atw';
+import { OmApp } from '@pmm/plugins-om';
+import { OmPage } from 'om/OmPage';
+import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
+import {
+  getMysqlBackupsTaskExecuteActions,
+  isMysqlRestorePluginName,
+} from './extensions/mysql-backups/restoreExecuteConfirm';
+import { ExtensionsPage } from './extensions/ExtensionsPage';
+
+// Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
+// shared PMM Extensions constants are absolute (the nav and each plugin's `routeBase` need
+// them that way), so drop the parent prefix and its separator.
+const relativeToNav = (path: string) => path.slice(PMM_NEW_NAV_PATH.length + 1);
 
 const router = createBrowserRouter(
   [
@@ -141,6 +161,62 @@ const router = createBrowserRouter(
                 },
               ],
             },
+            // PMM Extensions apps mounted as native routes. Both plugins compose their own
+            // <Routes>, so the paths are splats.
+            {
+              // ATW ("Support diagnostics") is now incident-first: AtwApp
+              // composes its own <Routes> (incident list at index, workspace at
+              // :incidentId), so this must be a splat. Backend API calls hit
+              // /apps/atw and the incident / batch-execution endpoints.
+              //
+              // Everything the app records stays readable without a ServiceNow
+              // connection; only the send action needs one. `deliverySettings`
+              // hands the app the PMM route that fixes it, so the disabled send
+              // control can point an administrator at the settings tab.
+              path: `${relativeToNav(EXTENSIONS_ATW_PATH)}/*`,
+              element: (
+                <ExtensionsPage>
+                  <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
+                </ExtensionsPage>
+              ),
+            },
+            {
+              // OM (OpenManager) is bespoke like ATW: OmApp composes its
+              // own <Routes>, so this must be a splat.
+              //
+              // All four pages are under it now. Inventory used to be mounted
+              // separately inside ExtensionsPage, because it read the Extensions
+              // app directly and needed a bearer minted from the PMM session;
+              // pmm-managed proxies the estate at /v1/om/inventory, so no OM path
+              // in the browser talks to the side-car any more. That is why OmPage
+              // rather than ExtensionsPage, and why a sick side-car now shows an
+              // error inside a page that still renders instead of blanking it --
+              // ExtensionsAuthGate fails closed.
+              path: `${relativeToNav(OM_PATH)}/*`,
+              element: (
+                <OmPage>
+                  <OmApp />
+                </OmPage>
+              ),
+            },
+            {
+              path: `${relativeToNav(EXTENSIONS_MYSQL_BACKUPS_PATH)}/*`,
+              // routeBase must match the mount path (basename-stripped) so the
+              // plugin's absolute nav — detail back/edit/schedule links and the
+              // related-app (Restore) tab bar — resolves under /extensions, not
+              // the side-car's default /apps/{name}. PMM_NEW_NAV_PATH is '' so this is the
+              // full path below the /pmm-ui basename.
+              element: (
+                <ExtensionsPage>
+                  <SchemaDrivenPlugin
+                    pluginName="mysql_backups"
+                    routeBase={EXTENSIONS_MYSQL_BACKUPS_PATH}
+                    getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
+                    disableScheduling={isMysqlRestorePluginName}
+                  />
+                </ExtensionsPage>
+              ),
+            },
             // Fallback
             {
               path: 'graph/settings/:tab?',
@@ -165,10 +241,6 @@ const router = createBrowserRouter(
         {
           path: '/next/*',
           element: <Redirect />,
-        },
-        {
-          path: '*',
-          element: <div>Not found!</div>,
         },
       ],
     },

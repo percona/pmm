@@ -11,7 +11,7 @@ const COPIED_MS = 1500;
 /** The query behind a chart, with a copy button, under the panel. */
 const QueryBar: FC<{ query: string }> = ({ query }) => {
   const [copied, setCopied] = useState(false);
-  const timer = useRef<number>();
+  const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   // The clipboard is missing outside secure contexts.
   const copy = () =>

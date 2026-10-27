@@ -1,8 +1,0 @@
-{
-  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^@mui/[^/]+$"],
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
-}

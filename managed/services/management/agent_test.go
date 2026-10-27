@@ -97,7 +97,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
 
 	return ctx, s, teardown
 }
@@ -201,9 +201,10 @@ func TestAgentService(t *testing.T) {
 			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-				NodeName: "test",
-				Address:  "test-address",
-				Region:   new("test-region"),
+				NodeName:   "test",
+				Address:    "test-address",
+				InstanceID: "test-instance-id",
+				Region:     new("test-region"),
 			})
 			require.NoError(t, err)
 

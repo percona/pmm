@@ -8,6 +8,8 @@ export interface ReadonlySettings {
   backupManagementEnabled: boolean;
   azurediscoverEnabled: boolean;
   enableAccessControl: boolean;
+  extensionsEnabled: boolean;
+  omEnabled: boolean;
 }
 
 export interface MetricsResolutions {
@@ -67,13 +69,13 @@ export interface UpdateSettingsPayload {
   enableInternalPgQan?: boolean;
   enableNativeQan?: boolean;
   awsPartitions?: string[];
-  updateSnoozeDuration?: string;
   otel?: {
     collectorEnabled?: boolean;
     logsRetentionDays?: number;
     tracesRetentionDays?: number;
     metricsRetentionDays?: number;
   };
+  enableOm?: boolean;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
