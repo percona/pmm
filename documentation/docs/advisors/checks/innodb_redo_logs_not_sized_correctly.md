@@ -2,19 +2,18 @@
 
 ## Description
 
-The configuration variable **innodb_log_file_size** is one of the most important settings with respect to innodb configuration.
-The rule of the thumb is to keep at least one hour of traffic in those logs and let the checkpointing perform its work as smoothly as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time.
+The InnoDB redo log needs to be large enough to hold at least one hour of write traffic. When it fills up, InnoDB switches to synchronous flushing, which causes latency spikes and degrades performance.
 
-This check does the following:
-
-* Raises a warning if the data written is more than the configured redo log size
-
-* Raises an error when the capacity is 80% and checkpoint switches to synchronous page flushing, which degrades performance
+This check raises a **warning** when write traffic exceeds the configured redo log capacity, and an **error** when the checkpoint age is close enough to the flush threshold that synchronous flushing is imminent.
 
 ## Resolution
 
-Upon Warning, review the **innodb_log_file_size** and reason that caused the spike. 
-Upon Error, revise the **innodb_log_file_size**.
+**If you see a warning**, investigate what caused the spike and consider increasing the redo log capacity if it recurs.
+
+**If you see an error**, increase the redo log capacity immediately:
+
+- **MySQL 8.0.30 and newer**: adjust `innodb_redo_log_capacity`.
+- **Older versions**: adjust `innodb_log_file_size` (and `innodb_log_files_in_group` if applicable).
 
 ## Need more support from Percona?
 
