@@ -158,6 +158,15 @@
     group: root
     mode: 0664
 
+# The credential files every program reads: the entrypoint resolves them at each container start, this is the build's
+# own start. post-build.yml removes them, so none are left in the image.
+- name: Resolve credentials to files
+  command: pmm-managed-init secrets
+  become: true
+  become_user: pmm
+  become_method: su
+  changed_when: True
+
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config
   command: pmm-managed-init
