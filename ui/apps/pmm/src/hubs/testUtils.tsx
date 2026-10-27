@@ -17,6 +17,8 @@ export const hasPeakHub = [
   'StatusCard',
   'StateIndicator',
   'SeverityIcon',
+  'ShortcutTiles',
+  'ShortcutTile',
 ].every((name) => (Peak as unknown as Record<string, unknown>)[name] != null);
 
 // Shows the router location, `/mongodb?hubState=unhealthy#clusters`, for assertions on URL writes.

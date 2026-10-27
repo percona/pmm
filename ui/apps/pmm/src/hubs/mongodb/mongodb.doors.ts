@@ -31,17 +31,11 @@ export const MONGO_PATHS = {
   install: '/operations/nodes?filter=unmonitored',
   backupInventory: '/graph/backup/inventory',
   backupScheduled: '/graph/backup/scheduled',
-  backupRestores: '/graph/backup/restore',
-  backupLocations: '/graph/backup/locations',
   backupNew: '/graph/backup/new',
   advancedSettings: '/settings/advanced-settings',
   operations: '/operations',
   operationsClusters: '/operations?tab=clusters',
-  operationsServices: '/operations?tab=services',
-  operationsNodes: '/operations/nodes',
   operationsAutomations: '/operations/automations',
-  operationsScans: '/operations/automations?tab=scans',
-  diagnostics: '/extensions/atw',
   realtime: '/rta',
   allApps: '/prototype/all-apps',
   clusters: '/mongodb/clusters',
@@ -113,9 +107,6 @@ export const queryQan = (filter: string | null, queryId: string) =>
     environment: listEnvironment(filter),
     queryId,
   });
-
-export const queriesQan = (filter: string | null) =>
-  qanLink({ serviceType: 'mongodb', environment: listEnvironment(filter) });
 
 export const lagDoor = (
   place: MongoPlace,

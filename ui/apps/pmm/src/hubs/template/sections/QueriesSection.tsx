@@ -1,4 +1,3 @@
-import TrackChanges from '@mui/icons-material/TrackChanges';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -6,7 +5,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListSubheader from '@mui/material/ListSubheader';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import { QueryStatsIcon, StatusIcon, Tooltip } from '@percona/peak-ui';
+import { StatusIcon, Tooltip } from '@percona/peak-ui';
 import { type FC, useId } from 'react';
 import { Messages } from '../hub.messages';
 import type { HubQueries, HubQueryRow, HubSectionState } from '../hub.types';
@@ -98,29 +97,17 @@ export interface QueriesSectionProps {
   onRetry: () => void;
 }
 
-/** Queries: the two ways into query data, then the queries slower than usual; those running long now are in Needs attention. */
+/** Queries: those slower than usual; the ways into query data are shortcut tiles, and queries running long now are in Needs attention. */
 export const QueriesSection: FC<QueriesSectionProps> = ({
   queries,
   state,
   empty = false,
   onRetry,
 }) => {
-  const { links, slower } = queries;
+  const { slower } = queries;
 
   return (
     <HubSection id="queries" title={Messages.sections.queries}>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-        <DoorButton
-          door={links.analytics}
-          variant="outlined"
-          startIcon={<QueryStatsIcon />}
-        />
-        <DoorButton
-          door={links.realtime}
-          variant="outlined"
-          startIcon={<TrackChanges />}
-        />
-      </Box>
       <SectionState state={state} onRetry={onRetry} skeletonRows={2}>
         {slower.length ? (
           <Paper variant="outlined">

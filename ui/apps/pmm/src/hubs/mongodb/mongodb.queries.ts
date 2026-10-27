@@ -1,7 +1,7 @@
 // The module, not the package index, which would load the whole Operations UI.
 import { formatCompactDuration } from '@pmm/plugins-om/src/format';
 import type { HubQueries, HubQueryRow } from 'hubs/template/hub.types';
-import { MONGO_PATHS, queriesQan, queryQan } from './mongodb.doors';
+import { queryQan } from './mongodb.doors';
 import { Messages } from './mongodb.messages';
 import { MONGODB_HUB_THRESHOLDS as T } from './mongodb.thresholds';
 import type {
@@ -125,13 +125,6 @@ export const deriveQueries = (
 
   return {
     queries: {
-      links: {
-        analytics: {
-          label: Messages.doors.queryAnalyticsLink,
-          to: queriesQan(filter),
-        },
-        realtime: { label: Messages.doors.realtime, to: MONGO_PATHS.realtime },
-      },
       slower: slower
         .slice(0, T.queryRowsMax)
         .map((item) => slowerRow(item, filter)),

@@ -3,7 +3,9 @@ import {
   attentionIssues,
   higherSeverity,
   rankAttention,
+  recommendationsInEnvironment,
   sortNeedsAttention,
+  sortRecommendations,
 } from './hub.attention';
 import { attentionItem } from './hub.testFixtures';
 import type { HubAttentionItem, HubSeverity } from './hub.types';
@@ -137,6 +139,42 @@ describe('attentionInEnvironment', () => {
     expect(
       attentionInEnvironment(rows, 'prod').map(({ title }) => title)
     ).toEqual(['prod only', 'both']);
+  });
+});
+
+describe('sortRecommendations', () => {
+  const rec = (title: string, kind: 'notset' | 'info') =>
+    ({
+      kind,
+      title,
+      impact: '',
+      location: '',
+      clusterCount: 1,
+      source: '',
+      destination: { label: 'Open', route: '/x', kind: 'page' },
+    }) as const;
+
+  it('puts Not set up first, keeping each kind in its order', () => {
+    expect(
+      sortRecommendations([
+        rec('pitr', 'info'),
+        rec('backups', 'notset'),
+        rec('patches', 'info'),
+        rec('patch tracking', 'notset'),
+      ]).map(({ title }) => title)
+    ).toEqual(['backups', 'patch tracking', 'pitr', 'patches']);
+  });
+
+  it('keeps a recommendation without an environment in every filter', () => {
+    const rows = [
+      { ...rec('fleet', 'info') },
+      { ...rec('prod only', 'info'), environment: 'prod' },
+    ];
+
+    expect(
+      recommendationsInEnvironment(rows, 'staging').map(({ title }) => title)
+    ).toEqual(['fleet']);
+    expect(recommendationsInEnvironment(rows, 'prod')).toHaveLength(2);
   });
 });
 

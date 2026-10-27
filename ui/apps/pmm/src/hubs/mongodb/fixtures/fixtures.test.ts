@@ -128,6 +128,92 @@ describe('fixtures', () => {
     });
   });
 
+  it.each<[(typeof SCENARIOS)[number], string[]]>([
+    [
+      'healthy',
+      [
+        'info Point-in-time recovery is off on 9 production clusters',
+        'info Advisors flagged 7 clusters for security settings',
+        'info 14 clusters are behind on patches',
+        'info 6 clusters run MongoDB 6.0',
+        'info Query analytics can’t see queries on 12 clusters',
+        'info Replication lag and oplog window have no alert rules',
+      ],
+    ],
+    [
+      'incomplete',
+      [
+        'notset No alert rules cover MongoDB',
+        'notset 19 clusters have no backups',
+        'info Point-in-time recovery is off on 9 production clusters',
+        'info 14 clusters are behind on patches',
+        'info 6 clusters run MongoDB 6.0',
+        'info Query analytics can’t see queries on 12 clusters',
+      ],
+    ],
+    [
+      'unhealthy',
+      [
+        'notset 4 clusters have no backups',
+        'info Point-in-time recovery is off on 9 production clusters',
+        'info Advisors flagged 7 clusters for security settings',
+        'info 14 clusters are behind on patches',
+        'info 6 clusters run MongoDB 6.0',
+        'info Query analytics can’t see queries on 12 clusters',
+      ],
+    ],
+  ])('recommends the %s scenario’s six', (scenario, expected) => {
+    expect(
+      view(scenario, true).recommendations.map(
+        (item) => `${item.kind} ${item.title}`
+      )
+    ).toEqual(expected);
+  });
+
+  it('asks to turn on Operations, first among what is not set up, while it is off; version advice from PMM’s own data stays', () => {
+    const titles = (ops: boolean) =>
+      view('unhealthy', ops).recommendations.map((item) => item.title);
+
+    expect(titles(false)).toEqual([
+      '4 clusters have no backups',
+      'Patch levels aren’t tracked',
+      'Point-in-time recovery is off on 9 production clusters',
+      'Advisors flagged 7 clusters for security settings',
+      '6 clusters run MongoDB 6.0',
+      'Query analytics can’t see queries on 12 clusters',
+    ]);
+    expect(view('unhealthy', false).recommendations[1].destination).toEqual({
+      label: 'Turn on Operations',
+      route: '/settings/advanced-settings',
+      kind: 'page',
+    });
+  });
+
+  it('matches the backup gaps it recommends filling to the data', () => {
+    expect(view('incomplete', true).status.backupCoverage).toEqual({
+      protected: 41,
+      protectable: 60,
+    });
+    expect(view('unhealthy', true).status.backupCoverage).toEqual({
+      protected: 56,
+      protectable: 60,
+    });
+    expect(view('healthy', true).status.backupCoverage).toEqual({
+      protected: 60,
+      protectable: 60,
+    });
+  });
+
+  it('gives every recommendation a destination the sidebar has an icon for', () => {
+    (['healthy', 'incomplete', 'unhealthy'] as const).forEach((scenario) =>
+      OPS.forEach((ops) =>
+        view(scenario, ops).recommendations.forEach(({ destination }) =>
+          expect(describeMongoDestination(destination).icon).toBeTruthy()
+        )
+      )
+    );
+  });
+
   describe('healthy', () => {
     it('reads as the Healthy banner, with nothing that needs attention', () => {
       OPS.forEach((ops) => {
@@ -278,10 +364,15 @@ describe('fixtures', () => {
       expect(labels(true, 'viewer')).toEqual([]);
     });
 
-    it('points the Operations card at Nodes', () => {
-      expect(view('empty', true).apps[0].summary?.text).toBe(
-        'No MongoDB yet. Install one from Nodes.'
-      );
+    it('keeps every shortcut tile, Fleet included, with nothing monitored', () => {
+      expect(view('empty', true).shortcuts.map((tile) => tile.label)).toEqual([
+        'Clusters',
+        'Instances overview',
+        'Query analytics',
+        'Real-time queries',
+        'MongoDB backups',
+        'Fleet',
+      ]);
     });
   });
 });

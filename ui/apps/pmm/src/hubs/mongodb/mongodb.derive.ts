@@ -1,6 +1,8 @@
 import {
   attentionInEnvironment,
+  recommendationsInEnvironment,
   sortNeedsAttention,
+  sortRecommendations,
 } from 'hubs/template/hub.attention';
 import { ALERT_TEMPLATES_PATH, ALERTS_PATH } from 'hubs/template/hub.doors';
 import { Messages as HubText } from 'hubs/template/hub.messages';
@@ -13,6 +15,7 @@ import type {
   HubDeriveContext,
   HubHealth,
   HubParams,
+  HubRecommendation,
   HubSectionId,
   HubSectionState,
   HubSourceId,
@@ -22,10 +25,10 @@ import type {
   HubViewModel,
 } from 'hubs/template/hub.types';
 import { deriveActions } from './mongodb.actions';
-import { deriveApps } from './mongodb.apps';
 import { deriveAttention, toNeedsAttention } from './mongodb.attention';
 import { deriveBackups } from './mongodb.backups';
 import { deriveDashboards } from './mongodb.dashboards';
+import { MongoDestinations, mongoShortcuts } from './mongodb.destinations';
 import { listDashboard, MONGO_PATHS } from './mongodb.doors';
 import { worstHealth } from './mongodb.health';
 import { Messages, MONGODB_HUB_MESSAGES } from './mongodb.messages';
@@ -97,6 +100,58 @@ const alertCoverage = (
     ...door,
     ...(admin ? {} : { detail: Messages.coverage.askAdminOne }),
   };
+};
+
+const R = Messages.recommendations;
+
+/** Live recommendations: the clusters no backup protects, and what the alert rules leave uncovered. */
+const liveRecommendations = (
+  rules: MongoAlertRulesInput | null,
+  unprotected: string[],
+  clusters: number
+): HubRecommendation[] => {
+  const items: HubRecommendation[] = [];
+
+  if (unprotected.length) {
+    items.push({
+      kind: 'notset',
+      title: R.noBackups(unprotected.length),
+      impact: R.noBackupsImpact,
+      location: R.clusters(unprotected),
+      clusterCount: unprotected.length,
+      source: Messages.sources.backups,
+      destination: MongoDestinations.setUpBackups(),
+    });
+  }
+  if (rules && clusters) {
+    const missing = KEY_TEMPLATES.filter(
+      ([template]) => !rules.templates.includes(template)
+    ).map(([, word]) => word);
+    const base = {
+      location: R.allClusters,
+      clusterCount: clusters,
+      source: Messages.sources.alerts,
+      destination: MongoDestinations.alertTemplates(),
+    };
+
+    if (noRules(rules)) {
+      items.push({
+        kind: 'notset',
+        title: R.noRules,
+        impact: R.noRulesImpact,
+        ...base,
+      });
+    } else if (missing.length) {
+      items.push({
+        kind: 'info',
+        title: R.ruleGaps(missing),
+        impact: R.ruleGapsImpact,
+        ...base,
+      });
+    }
+  }
+
+  return items;
 };
 
 const READY: HubSectionState = { status: 'ready' };
@@ -328,11 +383,11 @@ export const deriveMongoHub = (
             partial: true,
           }
         : attentionState,
+    recommendations: sectionState(sources, ['inventory']),
     clusters: sectionState(sources, ['inventory', 'metrics']),
     backups: sectionState(sources, ['inventory', 'backups']),
     queries: sectionState(sources, ['qan', 'realtime']),
     dashboards: sectionState(sources, ['dashboards']),
-    apps: sectionState(sources, ctx.operations ? ['operations'] : []),
   };
 
   return {
@@ -350,7 +405,17 @@ export const deriveMongoHub = (
       matchesNothing:
         filter !== null && allServices.length > 0 && services.length === 0,
     },
+    shortcuts: mongoShortcuts(filter, capabilities.operations),
     status,
+    recommendations: sortRecommendations(
+      snapshot.recommendations
+        ? recommendationsInEnvironment(snapshot.recommendations, filter)
+        : liveRecommendations(
+            snapshot.alertRules,
+            backups.unprotected ?? [],
+            models.length
+          )
+    ),
     attention: sortNeedsAttention(
       snapshot.attention
         ? attentionInEnvironment(snapshot.attention, filter)
@@ -368,19 +433,6 @@ export const deriveMongoHub = (
       dashboards: snapshot.dashboards,
       hasBackups,
       filter,
-    }),
-    apps: deriveApps({
-      capabilities,
-      emptyEstate: empty,
-      operations,
-      backups: {
-        featureOff: backups.backups.state === 'featureOff',
-        notSetUp: backups.backups.state === 'notSetUp',
-        schedules: backups.schedules,
-        failedRecently: backups.failedRecently,
-        lastGoodBackup: backups.lastGoodBackup,
-      },
-      now: ctx.now,
     }),
     actions: deriveActions(capabilities, ctx.role),
     sectionDoors: {
