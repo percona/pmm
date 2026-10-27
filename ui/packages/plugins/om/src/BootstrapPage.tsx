@@ -43,6 +43,8 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  ADMIN_PASSWORD_MIN_LENGTH,
+  DEFAULT_ADMIN_USERNAME,
   DEFAULT_MONGODB_VERSION,
   OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_NODES,
@@ -56,7 +58,14 @@ import {
   validateElectionPlan,
 } from './electionPlan';
 import { OmHeader } from './components/OmHeader';
-import { configureBlockers, replicaSetNameError } from './installForm';
+import { GeneratedPasswordDialog } from './components/GeneratedPasswordDialog';
+import {
+  adminPasswordError,
+  adminPasswordMismatchError,
+  adminUsernameError,
+  configureBlockers,
+  replicaSetNameError,
+} from './installForm';
 import { dataDirFreeBytes, toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
@@ -350,6 +359,13 @@ export const BootstrapPage = () => {
   // network the machine is on, with nothing beside the field saying so.
   const [bindMode, setBindMode] = useState<BindMode>('own');
   const [customBindIp, setCustomBindIp] = useState(DEFAULT_BIND_IP);
+  const [adminUsername, setAdminUsername] = useState(DEFAULT_ADMIN_USERNAME);
+  const [passwordMode, setPasswordMode] = useState<'generate' | 'enter'>(
+    'generate'
+  );
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminPasswordConfirmation, setAdminPasswordConfirmation] =
+    useState('');
 
   // What the run as a whole asks for. In `own` mode every member names its own
   // address, so this is never consulted -- it is set to the first node's address
@@ -434,8 +450,24 @@ export const BootstrapPage = () => {
       config: memberConfigs[host.node_id] ?? defaultMemberConfig(),
     })),
     electionErrorCount: electionPlan.errors.length,
+    adminUsername,
+    adminPassword:
+      passwordMode === 'enter'
+        ? { value: adminPassword, confirmation: adminPasswordConfirmation }
+        : null,
   });
   const nameError = replicaSetNameError(replicaSetName);
+  const usernameError = adminUsernameError(adminUsername);
+  // Judged once typed, so an untouched field does not start out red.
+  const passwordError =
+    passwordMode === 'enter' && adminPassword !== ''
+      ? adminPasswordError(adminPassword)
+      : null;
+  const confirmationError =
+    passwordMode === 'enter' && adminPasswordConfirmation !== ''
+      ? adminPasswordMismatchError(adminPassword, adminPasswordConfirmation)
+      : null;
+  const generatedPassword = bootstrap.data?.generated_admin_password;
   // Sent as the cluster label, so the Fleet page shows a value the user saw here
   // rather than its own fallback to the replica set name.
   const effectiveCluster = cluster.trim() || replicaSetName;
@@ -465,6 +497,10 @@ export const BootstrapPage = () => {
     setPort(DEFAULT_PORT);
     setBindMode('own');
     setCustomBindIp(DEFAULT_BIND_IP);
+    setAdminUsername(DEFAULT_ADMIN_USERNAME);
+    setPasswordMode('generate');
+    setAdminPassword('');
+    setAdminPasswordConfirmation('');
     bootstrap.reset();
     // bootstrap is a fresh object every render (useMutation), so it is deliberately
     // left out of the dependency list - including it would reset the wizard on every
@@ -483,6 +519,19 @@ export const BootstrapPage = () => {
     setMemberConfigs(defaultMemberConfigs(hosts));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostIdsKey]);
+
+  // Rendered by every return below, so a failed background refetch cannot take the password with it.
+  const passwordDialog = generatedPassword && (
+    <GeneratedPasswordDialog
+      username={adminUsername}
+      password={generatedPassword}
+      onSaved={() =>
+        navigate(
+          `${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${bootstrap.data?.run_id}`
+        )
+      }
+    />
+  );
 
   if (hostsQuery.isLoading) {
     return (
@@ -506,6 +555,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -522,6 +572,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -551,11 +602,16 @@ export const BootstrapPage = () => {
           ];
         })
       ),
+      adminUsername,
+      adminPassword: passwordMode === 'enter' ? adminPassword : undefined,
     });
     enqueueSnackbar(
       `Install started on ${hosts.length === 1 ? hosts[0].name : `${hosts.length} nodes`}`,
       { variant: 'success' }
     );
+    if (accepted.generated_admin_password) {
+      return;
+    }
     navigate(`${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${accepted.run_id}`);
   };
 
@@ -748,6 +804,67 @@ export const BootstrapPage = () => {
                 preview, those connections are unencrypted.
               </Alert>
             )}
+            <Typography variant="subtitle2" sx={{ pt: 1 }}>
+              Database administrator
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Created with the root role, for you to manage the replica set. PMM
+              keeps its password only until the user is created.
+            </Typography>
+            <TextField
+              label="Administrator username"
+              value={adminUsername}
+              onChange={(event) => setAdminUsername(event.target.value)}
+              required
+              fullWidth
+              error={usernameError !== null}
+              helperText={usernameError ?? 'Letters, digits, ., _, @ and -.'}
+            />
+            <TextField
+              select
+              label="Administrator password"
+              value={passwordMode}
+              onChange={(event) =>
+                setPasswordMode(event.target.value as 'generate' | 'enter')
+              }
+              fullWidth
+            >
+              <MenuItem value="generate">
+                Generate one, shown once after the install starts
+              </MenuItem>
+              <MenuItem value="enter">Enter one</MenuItem>
+            </TextField>
+            {passwordMode === 'enter' && (
+              <>
+                <TextField
+                  label="Password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={adminPassword}
+                  onChange={(event) => setAdminPassword(event.target.value)}
+                  required
+                  fullWidth
+                  error={passwordError !== null}
+                  helperText={
+                    passwordError ??
+                    `At least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`
+                  }
+                />
+                <TextField
+                  label="Confirm password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={adminPasswordConfirmation}
+                  onChange={(event) =>
+                    setAdminPasswordConfirmation(event.target.value)
+                  }
+                  required
+                  fullWidth
+                  error={confirmationError !== null}
+                  helperText={confirmationError ?? ' '}
+                />
+              </>
+            )}
           </Stack>
           {hosts.length > 1 && (
             <Accordion
@@ -871,6 +988,13 @@ export const BootstrapPage = () => {
                           )
                           .join(', ')
                       : effectiveBindIp,
+                  ],
+                  ['Administrator', adminUsername],
+                  [
+                    'Administrator password',
+                    passwordMode === 'generate'
+                      ? 'Generated, shown once after the install starts'
+                      : 'Entered',
                   ],
                 ] as const
               ).map(([setting, value]) => (
@@ -1003,6 +1127,7 @@ export const BootstrapPage = () => {
           </Box>
         </Box>
       )}
+      {passwordDialog}
     </Stack>
   );
 };

@@ -43,7 +43,7 @@ For detailed sizing calculations, see [Hardware and system requirements](../plan
 
 - **CPU**: Must support SSE4.2 instruction set (required for Query Analytics)
 - **x86_64**: Native support for optimal performance
-- **ARM64**: Supported via Docker emulation using `--platform linux/amd64`
+- **ARM64**: Native support starting with PMM 3.10.0. The PMM Server container image includes an ARM64 build, and Docker automatically pulls the one that matches your host.
 
 ## Storage planning
 
@@ -82,15 +82,7 @@ Choose your deployment method and ensure it meets these specific requirements:
     
     **Optional but recommended:**
 
-    - Watchtower for UI-based updates
     - Docker Compose for multi-container setups
-    
-    **Security considerations for Watchtower:**
-
-    - Limit Watchtower's access to Docker network or localhost
-    - Configure network to ensure only PMM Server is exposed externally
-    - Secure Docker socket access for Watchtower
-    - Place both Watchtower and PMM Server on the same Docker network
 
 === ":simple-podman: Podman"
     **Version requirements:**
@@ -101,7 +93,6 @@ Choose your deployment method and ensure it meets these specific requirements:
     **System configuration:**
 
     - Allow non-root users to bind to privileged ports (port 443)
-    - Podman socket enabled for Watchtower integration
     - systemd user services enabled
     
     **Required setup commands:**
@@ -110,9 +101,7 @@ Choose your deployment method and ensure it meets these specific requirements:
     # Configure privileged port access
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
     sudo sysctl -p /etc/sysctl.d/99-pmm.conf
-    
-    # Enable Podman socket
-    systemctl --user enable --now podman.socket
+
     ```
     
     **Security advantages:**
@@ -144,30 +133,6 @@ Choose your deployment method and ensure it meets these specific requirements:
     - High availability configuration for continuous monitoring
     - Workload separation through node configurations and affinity rules
 
-=== ":material-harddisk: Virtual Appliance (OVA)"
-    **Hypervisor compatibility:**
-
-    - VirtualBox 7.0+
-    
-    **VM specifications (default):**
-
-    - OS: Oracle Linux 9.6 (64-bit)
-    - CPU: 2 (adjustable after deployment)
-    - Memory: 8 GB (adjustable after deployment)
-    - Disk 1: 40 GB (system)
-    - Disk 2: 400 GB (data)
-    
-    **Network access:**
-
-    - Outbound internet access for updates (optional)
-    - Access to monitored database instances
-    - Access from client browsers to PMM web interface
-    
-    **Security note:**
-
-    - Default users: `admin/admin` and `root/percona`
-    - **Must change default passwords immediately after installation**
-
 ## Security considerations
 
 ### SSL/TLS certificates
@@ -179,7 +144,7 @@ Choose your deployment method and ensure it meets these specific requirements:
 ### Access control
 
 - **Admin credentials**: Plan initial admin username/password strategy
-- **Default passwords**: Change immediately (especially for OVA deployment)
+- **Default passwords**: Change immediately
 - **User management**: Consider integration with existing authentication systems
 - **Network security**: Plan firewall rules and network segmentation
 
@@ -213,6 +178,5 @@ After confirming your environment meets these prerequisites:
     - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
     - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
     - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
-    - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
 3. [Configure security settings](../../admin/security/index.md) for production use
 4. [Install PMM Clients](../install-pmm-client/index.md) on systems you want to monitor
