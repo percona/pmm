@@ -806,15 +806,17 @@ toolsets:
           fi
           NUSER="${PMM_NOMAD_BASIC_USER:-admin}"
           NPASS="${PMM_NOMAD_BASIC_PASSWORD:-admin}"
-          NODE="{{ nomad_client_name }}"
-          DC_RAW="{{ nomad_datacenter | default('') }}"
+          # Holmes shell-quotes parameter values, so quoting them again would keep the quotes in the value.
+          NODE={{ nomad_client_name }}
+          DC_RAW={{ nomad_datacenter | default('') }}
           if [ -z "$DC_RAW" ]; then
             DC="${PMM_NOMAD_DATACENTER:-PMM Deployment}"
           else
             DC="$DC_RAW"
           fi
           [ -z "$NODE" ] && { echo '{"error":"nomad_client_name is required"}'; exit 1; }
-          JOBHCL=$(jq -rn --arg dc "$DC" --arg node "$NODE" '["job \"fix_mysql_owner\" {",("  datacenters = [\""+$dc+"\"]"),"  type        = \"batch\"","","  constraint {","    attribute = \"${node.unique.name}\"","    operator  = \"=\"",("    value     = \""+$node+"\""),"  }","","  group \"g\" {","    task \"fix\" {","      driver = \"raw_exec\"","      config {","        command = \"/bin/bash\"","        args    = [\"-c\", \"chown -R mysql:mysql /var/lib/mysql/* && systemctl restart mysql\"]","      }","    }","  }","}"] | join("\n")')
+          # A new PMM_REQUESTED_AT makes every registration a new job version, so Nomad runs the job again.
+          JOBHCL=$(jq -rn --arg dc "$DC" --arg node "$NODE" --arg at "$(date -u +%FT%TZ)" '["job \"fix_mysql_owner\" {",("  datacenters = [\""+$dc+"\"]"),"  type        = \"batch\"","","  constraint {","    attribute = \"${node.unique.name}\"","    operator  = \"=\"",("    value     = \""+$node+"\""),"  }","","  group \"g\" {","    task \"fix\" {","      driver = \"raw_exec\"","      config {","        command = \"/bin/bash\"","        args    = [\"-c\", \"chown -R mysql:mysql /var/lib/mysql/* && systemctl restart mysql\"]","      }","      env {",("        PMM_REQUESTED_AT = \""+$at+"\""),"      }","    }","  }","}"] | join("\n")')
           PARSED_JSON=$(printf '%s' "$JOBHCL" | jq -Rs '{JobHCL: ., Canonicalize: true}' \
             | curl -sk -u "$NUSER:$NPASS" -X POST "$NOMAD_API/v1/jobs/parse" \
                 -H 'Content-Type: application/json' -d @-)
