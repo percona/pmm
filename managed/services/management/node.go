@@ -454,7 +454,7 @@ func (s *ManagementService) queryNodeUpMetrics(ctx context.Context, query string
 		query = fmt.Sprintf("last_over_time(%s[%s])", query, staleStatusWindow)
 	}
 
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	result, _, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}

@@ -177,7 +177,7 @@ func TestListNodesMarksInternalNodes(t *testing.T) {
 
 	vmClient := &mockVictoriaMetricsClient{}
 	vmClient.Test(t)
-	vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
+	vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil)
 
 	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, []string{internalNodePrefix}, false)
 
@@ -220,7 +220,7 @@ func TestListNodesMarksPMMServerNodesInternalInHA(t *testing.T) {
 
 		vmClient := &mockVictoriaMetricsClient{}
 		vmClient.Test(t)
-		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
+		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil)
 
 		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, nil, haEnabled)
 	}
