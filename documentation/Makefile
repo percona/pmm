@@ -14,30 +14,16 @@ doc-build:          ## Build documentation (used in CI)
 
 	mkdocs build -f $(DIR)/mkdocs.yml
 
-doc-build-pdf:      ## Build documentation in PDF format
-	docker run --rm --platform=linux/amd64 -v $(DIR):/docs -w /build perconalab/pmm-doc-md:latest \
-		bash -c " \
-			cp -r /docs/* /build/ && \
-			git init && \
-			git config user.email 'doc-team@percona.com' && \
-			git add --all && \
-			git commit -am 'Initial commit' > /dev/null && \
-			mkdocs build -f mkdocs-pdf.yml && \
-			cp /build/site/pdf/*.pdf /docs/ \
-		"
+doc-build-pdf: doc-build-image  ## Build documentation in PDF format
+	docker run --rm -v $(DIR):/docs -e ENABLED_GIT_REVISION_DATE=false pmm-doc-build \
+		bash -c "mkdocs build -f mkdocs-pdf.yml -d /tmp/site && cp /tmp/site/pdf/*.pdf /docs/"
 
-doc-build-image:    ## Build perconalab/pmm-doc-md:latest image
-	# @docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-doc-md:latest -f documentation/resources/Dockerfile.build .
+doc-build-image:    ## Build the pmm-doc-build image used by doc-build-pdf and doc-build-preview
+	docker build -t pmm-doc-build -f $(DIR)/resources/Dockerfile.build $(DIR)
 
-doc-build-preview:  ## Build documentation and preview at http://localhost:8000
-	docker run --rm --platform=linux/amd64 -p 8000:8000 -v $(DIR):/docs -w /build perconalab/pmm-doc-md:latest \
-	  bash -c " \
-			cp -r /docs/* /build/ && \
-			git init && \
-			git config user.email 'doc-team@percona.com' && \
-			git add --all && \
-			git commit -am 'Initial commit' > /dev/null && \
-			mkdocs serve -f mkdocs.yml --dev-addr=0.0.0.0:8000 \
-		"
+doc-build-preview: doc-build-image  ## Build documentation and preview at http://localhost:8000
+	docker run --rm -p 8000:8000 -v $(DIR):/docs:ro -e ENABLED_GIT_REVISION_DATE=false pmm-doc-build \
+		mkdocs serve -f mkdocs.yml --dev-addr=0.0.0.0:8000
+
 doc-search-icons:     ## Search for icons that can be used in documentation
 	@open https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/#search
