@@ -103,6 +103,26 @@ Bad queries, load, and problems visible only in logs. Durations are per incident
 | `mongo_auth_failures` | logs | Wrong password / unknown user on mongos and rs101 | mongos/mongod log `Failed to authenticate` |
 | `mongo_stepdown` | topology | `rs.stepDown` on the primary of the shard holding `shop` | alert *MongoDB primary changed*, election logs |
 | `host_cpu_saturation` | load | MySQL, PostgreSQL and MongoDB scans at once | alert *Host CPU high* |
+| `mysql_datadir_owner` | outage, on demand | MySQL on the VM stopped, files under `/var/lib/mysql` chowned to root, start fails | alert *MySQL down*, error log `binlog.index ... OS errno 13 - Permission denied` |
+
+`mysql_datadir_owner` is not in the rotation, because MySQL stays down until it is fixed: run it with
+`./issues.sh run mysql_datadir_owner 30`. Its fix is the Nomad job `fix_mysql_owner`, which the Assistant runs when
+asked to (for example "run fix_mysql_owner on mysql-systemd-host"). If nobody fixes it, the end of the window
+restores the owner and starts MySQL. It needs the MySQL host below.
+
+## MySQL host for the Nomad scenario
+
+The MySQL containers run `mysqld` as their main process, so stopping MySQL there also stops pmm-agent. The
+`mysql_datadir_owner` scenario uses a MySQL installed on the VM itself instead:
+
+- Percona Server 8.4 from `percona-release setup ps-84-lts`, systemd unit `mysql`, datadir `/var/lib/mysql`,
+  port 3310 (the containers publish 3306 and 3307), root credentials in `/root/.my.cnf`.
+- PMM Client from the Feature Build tarball, `pmm-agent` as a systemd unit, node `mysql-systemd-host`, service
+  `mysql_systemd_8_4` (perfschema QAN), and `pmm-admin add otel logs --log-sources=/var/log/mysql/error.log:mysql_error`.
+- PMM Server started with `PMM_ENABLE_NOMAD=1`, `PMM_PUBLIC_ADDRESS=<VM hostname>` and port 4647 published, so the
+  node's Nomad client joins. The containers' Nomad clients show as down in Nomad; the scenario does not use them.
+- The Holmes container exports `PMM_NOMAD_BASIC_USER=api_key` and `PMM_NOMAD_BASIC_PASSWORD=$PMM_API_TOKEN`, so the
+  `pmm-nomad` toolset authenticates to PMM's `/nomad` with Holmes's own token.
 
 ## Alert rules
 

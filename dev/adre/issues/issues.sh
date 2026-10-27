@@ -10,6 +10,9 @@ PG=${PG:-pdpgsql_pmm_17_1}
 PG_UNIT=${PG_UNIT:-postgresql@17-main}
 MONGOS=${MONGOS:-mongos}
 MONGO_ROOT=${MONGO_ROOT:-root:root}
+# MySQL installed on the VM itself and run by systemd, for incidents that stop the server.
+MYSQL_HOST_UNIT=${MYSQL_HOST_UNIT:-mysql}
+MYSQL_HOST_DATADIR=${MYSQL_HOST_DATADIR:-/var/lib/mysql}
 # Test-only password of the generated users: shop_web carries the steady traffic, shop_app the incidents.
 APP_PASSWORD=${APP_PASSWORD:-shop_app_pw}
 STATE_DIR=${STATE_DIR:-/root/adre-issues}
@@ -24,6 +27,8 @@ ROTATION=(
   pg_rollbacks mysql_auth_failures mongo_timeouts pg_vacuum_blocked mysql_lock_waits mongo_write_storm
   pg_deadlocks pg_auth_failures host_cpu_saturation pg_seq_scans pg_checkpoint_storm pg_shm_exhausted
 )
+# Not in the rotation: they take a server down, so they run only when named with "run".
+ON_DEMAND=(mysql_datadir_owner)
 
 mkdir -p "$STATE_DIR"
 
@@ -467,6 +472,25 @@ SQL
   my "$MYSQL_PRIMARY" -e "DELETE FROM shop.customers WHERE id = 900001" </dev/null
 }
 
+TARGET[mysql_datadir_owner]="MySQL $MYSQL_HOST_UNIT on the VM host ($MYSQL_HOST_DATADIR)"
+EXPECT[mysql_datadir_owner]="Alert 'MySQL down' for mysql_systemd_8_4 (node mysql-systemd-host) 2-3 minutes in; mysql_up 0; systemd unit mysql failed. Error log: 'mysqld: File './binlog.index' not found (OS errno 13 - Permission denied)' (no timestamp of its own, so PMM Logs shows it in the 'starting as process' entry), then [ERROR] MY-010119 'Aborting'. Cause: the files under /var/lib/mysql are owned by root (a job ran as root), so mysqld, running as user mysql, cannot open them. Fix: chown -R mysql:mysql /var/lib/mysql/* and restart mysql: the Nomad job fix_mysql_owner on Nomad client mysql-systemd-host (ask the Assistant to run it)."
+# Breaks only what the Nomad job fix_mysql_owner (Assistant tool pmm_nomad_run_fix_mysql_owner) restores:
+# chown -R mysql:mysql <datadir>/* and a restart.
+start_mysql_datadir_owner() {
+  systemctl stop "$MYSQL_HOST_UNIT"
+  chown -R root:root "$MYSQL_HOST_DATADIR"/*
+  systemctl start "$MYSQL_HOST_UNIT" 2>/dev/null || log "$MYSQL_HOST_UNIT did not start, as intended"
+}
+stop_mysql_datadir_owner() {
+  if systemctl is-active --quiet "$MYSQL_HOST_UNIT"; then
+    log "$MYSQL_HOST_UNIT is already running again"
+    return
+  fi
+  chown -R mysql:mysql "$MYSQL_HOST_DATADIR"/*
+  systemctl reset-failed "$MYSQL_HOST_UNIT"
+  systemctl start "$MYSQL_HOST_UNIT"
+}
+
 TARGET[pg_seq_scans]="PostgreSQL $PG, shop.orders"
 EXPECT[pg_seq_scans]="QAN (pg_stat_monitor): SELECTs on orders by customer_id, note LIKE and a join to customers read ~2M rows per call (Seq Scan, parallel workers); log 'duration: N ms' lines (log_min_duration_statement=1000); seq_scan count on orders rises; CPU up. Cause: missing index on orders(customer_id). Fix: CREATE INDEX CONCURRENTLY on orders(customer_id)."
 start_pg_seq_scans() {
@@ -907,7 +931,7 @@ for l in sys.stdin:
 
 cmd_list() {
   local s
-  for s in "${ROTATION[@]}"; do
+  for s in "${ROTATION[@]}" "${ON_DEMAND[@]}"; do
     printf '%s\n  target: %s\n  expect: %s\n\n' "$s" "${TARGET[$s]}" "${EXPECT[$s]}"
   done
 }
