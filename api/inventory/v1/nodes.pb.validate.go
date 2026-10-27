@@ -3104,8 +3104,7 @@ func (e ChangeNodeRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNodeRequestValidationError{}
@@ -3417,8 +3416,7 @@ func (e ChangeNodeResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNodeResponseValidationError{}
