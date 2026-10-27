@@ -89,8 +89,9 @@
 
 # The binaries are pre-built by the build-server-binaries script and laid out
 # as a tree rooted at /, see the /tmp/binaries mount in Dockerfile.el9.
+# --no-overwrite-dir keeps the modes of directories already in the image (/usr/sbin is 0555).
 - name: Install PMM Server components
-  shell: cp -a --no-preserve=ownership /tmp/binaries/. /
+  shell: tar -C /tmp/binaries -cf - . | tar -C / --no-same-owner --no-overwrite-dir -xf -
 
 - name: Set ownership on PMM Server component directories
   file:
@@ -107,9 +108,16 @@
     - /var/lib/grafana
     - /usr/share/licenses/percona-grafana
     - /usr/share/doc/percona-grafana
-    - /usr/local/percona/advisors
-    - /usr/local/percona/checks
-    - /usr/local/percona/alerting-templates
+
+- name: Set ownership on built-in advisors, checks and alerting templates
+  file:
+    path: "{{ item }}"
+    owner: pmm
+    group: root
+  with_fileglob:
+    - /usr/local/percona/advisors/*.yml
+    - /usr/local/percona/checks/*.yml
+    - /usr/local/percona/alerting-templates/*.yml
 
 - name: Set ownership on Grafana binaries
   file:

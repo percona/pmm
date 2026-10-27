@@ -105,7 +105,6 @@ run_in_container() {
         -v ${downloads_dir}:/home/builder/downloads \
         -v pmm-dnf:/var/cache/dnf \
         -v pmm-yarn:/home/builder/.cache/yarn \
-        -v pmm-pnpm:/home/builder/.local/share/pnpm \
         -v pmm-gomod:/home/builder/go/pkg/mod \
         -v pmm-gobuild:/home/builder/.cache/go-build \
         ${rpmbuild_docker_image} sh -c "
@@ -132,7 +131,7 @@ cached_build() {
     if [ -n "${FORCE_REBUILD}" ]; then
         rm -f ${tarball}
     elif [ ! -f "${tarball}" ]; then
-        aws s3 cp --region us-east-2 --no-sign-request ${s3_url} ${tarball} || :
+        aws s3 cp --region us-east-2 --no-progress --no-sign-request ${s3_url} ${tarball} || :
     fi
 
     if [ ! -f "${tarball}" ]; then
@@ -158,6 +157,10 @@ main() {
     fi
     mkdir -p ${binaries_dir}
 
+    # The build image provides the Go and Node toolchains, so its ID is part of the key.
+    docker pull -q ${rpmbuild_docker_image}
+    local image_id=$(docker image inspect --format '{{.Id}}' ${rpmbuild_docker_image} | cut -d: -f2 | cut -c1-7)
+
     for component in ${components}; do
         if [ ! -f "${bin_dir}/server/${component}" ]; then
             echo "Unknown component: ${component}" >&2
@@ -168,10 +171,10 @@ main() {
         unset -f key build
         . ${bin_dir}/server/${component}
 
-        # The recipe, this driver and vars decide how a component is built,
-        # so the last commit touching any of them is part of the key.
+        # The recipe and this driver decide how a component is built,
+        # so the last commit touching either of them is part of the key.
         local recipe=build/scripts/server/${component}
-        cached_build ${component} $(key)-$(get_shortcommit pmm ${recipe} build/scripts/build-server-binaries build/scripts/vars)
+        cached_build ${component} $(key)-$(get_shortcommit pmm ${recipe} build/scripts/build-server-binaries)-${image_id}
     done
 }
 
