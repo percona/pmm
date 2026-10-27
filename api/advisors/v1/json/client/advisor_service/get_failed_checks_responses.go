@@ -310,8 +310,8 @@ type GetFailedChecksDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get failed checks default body details items0
-	GetFailedChecksDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get failed checks default body details items0 additional properties
+	GetFailedChecksDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 			}
 			result[k] = toadd
 		}
-		o.GetFailedChecksDefaultBodyDetailsItems0 = result
+		o.GetFailedChecksDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o GetFailedChecksDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetFailedChecksDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetFailedChecksDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetFailedChecksDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetFailedChecksDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

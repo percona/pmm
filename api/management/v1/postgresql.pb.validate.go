@@ -276,8 +276,7 @@ func (e AddPostgreSQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPostgreSQLServiceParamsValidationError{}
@@ -847,8 +846,7 @@ func (e PostgreSQLServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PostgreSQLServiceResultValidationError{}

@@ -207,8 +207,7 @@ func (e AddExternalServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddExternalServiceParamsValidationError{}
@@ -556,8 +555,7 @@ func (e ExternalServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExternalServiceResultValidationError{}

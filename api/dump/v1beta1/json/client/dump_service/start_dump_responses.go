@@ -404,8 +404,8 @@ type StartDumpDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// start dump default body details items0
-	StartDumpDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// start dump default body details items0 additional properties
+	StartDumpDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -440,7 +440,7 @@ func (o *StartDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.StartDumpDefaultBodyDetailsItems0 = result
+		o.StartDumpDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -461,12 +461,12 @@ func (o StartDumpDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.StartDumpDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.StartDumpDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.StartDumpDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.StartDumpDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

@@ -99,7 +99,7 @@ type versionCache interface {
 // victoriaMetricsClient is a subset of methods of prometheus' API used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type victoriaMetricsClient interface {
-	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
+	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error)
 }
 
 // scheduledTasksRemover is a subset of methods of common.MgmtServices used by this package.
