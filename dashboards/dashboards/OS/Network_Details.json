@@ -1350,7 +1350,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "node_netstat_Tcp_CurrEstab{node_name=~\"$node_name\"}",
+                    "expr": "max_over_time(node_netstat_Tcp_CurrEstab{node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_CurrEstab{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1361,7 +1361,7 @@
                     "target": ""
                 },
                 {
-                    "expr": "irate(node_netstat_Tcp_ActiveOpens{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_ActiveOpens{node_name=~\"$node_name\"}[5m])",
+                    "expr": "rate(node_netstat_Tcp_ActiveOpens{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_ActiveOpens{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1371,7 +1371,7 @@
                     "step": 40
                 },
                 {
-                    "expr": "irate(node_netstat_Tcp_PassiveOpens{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_PassiveOpens{node_name=~\"$node_name\"}[5m])",
+                    "expr": "rate(node_netstat_Tcp_PassiveOpens{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_PassiveOpens{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1381,7 +1381,7 @@
                     "step": 40
                 },
                 {
-                    "expr": "irate(node_netstat_Tcp_EstabResets{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_EstabResets{node_name=~\"$node_name\"}[5m])",
+                    "expr": "rate(node_netstat_Tcp_EstabResets{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_EstabResets{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1391,7 +1391,7 @@
                     "step": 40
                 },
                 {
-                    "expr": "irate(node_netstat_Tcp_AttemptFails{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_AttemptFails{node_name=~\"$node_name\"}[5m])",
+                    "expr": "rate(node_netstat_Tcp_AttemptFails{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_AttemptFails{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1401,7 +1401,7 @@
                     "step": 40
                 },
                 {
-                    "expr": "irate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[5m])",
+                    "expr": "rate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[$interval]) or\nirate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1429,12 +1429,13 @@
             "yaxes": [
                 {
                     "decimals": 2,
-                    "format": "short",
+                    "format": "ops",
                     "logBase": 1,
                     "show": true
                 },
                 {
                     "format": "short",
+                    "label": "Connections",
                     "logBase": 1,
                     "show": true
                 }
