@@ -553,11 +553,6 @@ describe('toOperationsInput', () => {
     expect(
       toOperationsInput(RECORDED_TOPOLOGY, RECORDED_RUNS, [], null)
     ).toEqual({
-      clusterIds: {
-        'prod/billing': '34f43ecdb19802d9',
-        'prod/orders': '39dc72734db365ae',
-        'staging/reports': '40cbf687d4830aa8',
-      },
       // This topology lists every service down.
       summary: { services: 12, up: 0, lastScanAt: '2026-10-19T15:42:14Z' },
       upgrades: [],
@@ -853,9 +848,7 @@ describe('useMongoLiveSnapshot', () => {
       '/inventory/runs?limit=20',
       '/topology',
     ]);
-    expect(result.current.snapshot.operations?.clusterIds).toHaveProperty(
-      'prod/orders'
-    );
+    expect(result.current.snapshot.operations?.summary.services).toBe(12);
   });
 
   it('fails only the metrics source when its queries fail', async () => {

@@ -4,7 +4,6 @@ import type {
   MongoMetrics,
   MongoOperationsInput,
   MongoServiceInput,
-  MongoUpdateCheck,
 } from '../mongodb.types';
 
 // The rule tests' estate, 5 clusters with the recorded estate's names (recorded.ts); the demo scenarios run on the 60-cluster fleet in fleet.ts.
@@ -310,26 +309,6 @@ export const healthyBackups = (now: number): MongoBackupsInput => ({
   ],
 });
 
-/** Each cluster checked 2 hours ago against the newest patch of its series. */
-export const healthyUpdates = (
-  now: number
-): Record<string, MongoUpdateCheck> => ({
-  'prod/orders': { checkedAt: ago(now, 2 * HOUR_MS), latest: LATEST['8.0'] },
-  'prod/billing': { checkedAt: ago(now, 2 * HOUR_MS), latest: LATEST['7.0'] },
-  'prod/payments': {
-    checkedAt: ago(now, 2 * HOUR_MS),
-    latest: LATEST['7.0'],
-  },
-  'staging/catalog': {
-    checkedAt: ago(now, 2 * HOUR_MS),
-    latest: LATEST['7.0'],
-  },
-  'staging/reports': {
-    checkedAt: ago(now, 2 * HOUR_MS),
-    latest: LATEST['6.0'],
-  },
-});
-
 /** The rules a team that set up MongoDB alerting has: the key templates and a few more. */
 export const HEALTHY_ALERT_TEMPLATES = [
   'pmm_mongodb_down',
@@ -339,16 +318,7 @@ export const HEALTHY_ALERT_TEMPLATES = [
   'pmm_node_high_cpu_load',
 ];
 
-export const OM_CLUSTER_IDS: Record<string, string> = {
-  'prod/orders': 'om-orders',
-  'prod/billing': 'om-billing',
-  'prod/payments': 'om-payments',
-  'staging/catalog': 'om-catalog',
-  'staging/reports': 'om-reports',
-};
-
 export const healthyOperations = (now: number): MongoOperationsInput => ({
-  clusterIds: OM_CLUSTER_IDS,
   summary: {
     services: ESTATE.length,
     up: ESTATE.length,

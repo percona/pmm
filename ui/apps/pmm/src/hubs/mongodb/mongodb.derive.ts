@@ -14,14 +14,12 @@ import type {
   HubAlertCoverage,
   HubDeriveContext,
   HubHealth,
-  HubParams,
   HubRecommendation,
   HubSectionId,
   HubSectionState,
   HubSourceId,
   HubSourceState,
   HubStatus,
-  HubTreeNode,
   HubViewModel,
 } from 'hubs/template/hub.types';
 import { deriveActions } from './mongodb.actions';
@@ -29,11 +27,11 @@ import { deriveAttention, toNeedsAttention } from './mongodb.attention';
 import { deriveBackups } from './mongodb.backups';
 import { deriveDashboards } from './mongodb.dashboards';
 import { MongoDestinations, mongoShortcuts } from './mongodb.destinations';
-import { listDashboard, MONGO_PATHS } from './mongodb.doors';
+import { MONGO_PATHS } from './mongodb.doors';
 import { worstHealth } from './mongodb.health';
 import { Messages, MONGODB_HUB_MESSAGES } from './mongodb.messages';
 import { deriveQueries } from './mongodb.queries';
-import { buildClusterTree, groupClusters } from './mongodb.topology';
+import { clusterHealthOf, groupClusters } from './mongodb.topology';
 import type {
   MongoAlertInput,
   MongoAlertRulesInput,
@@ -53,7 +51,7 @@ const noRules = (rules: MongoAlertRulesInput) =>
   !rules.templates.some((template) => template.startsWith('pmm_mongodb_')) &&
   rules.custom === 0;
 
-const countHealth = (nodes: HubTreeNode[]): Record<HubHealth, number> => {
+const countHealth = (health: HubHealth[]): Record<HubHealth, number> => {
   const counts: Record<HubHealth, number> = {
     healthy: 0,
     degraded: 0,
@@ -62,8 +60,8 @@ const countHealth = (nodes: HubTreeNode[]): Record<HubHealth, number> => {
     noData: 0,
   };
 
-  nodes.forEach((node) => {
-    counts[node.health] += 1;
+  health.forEach((value) => {
+    counts[value] += 1;
   });
 
   return counts;
@@ -203,12 +201,12 @@ const statusState = ({
   empty,
   metricsOk,
   shown,
-  clusters,
+  health,
 }: {
   empty: boolean;
   metricsOk: boolean;
   shown: number;
-  clusters: HubViewModel['clusters'];
+  health: HubHealth[];
 }): HubStatus['state'] => {
   if (empty) {
     return 'empty';
@@ -217,7 +215,7 @@ const statusState = ({
     return 'noData';
   }
 
-  return worstHealth(clusters.map((node) => node.health));
+  return worstHealth(health);
 };
 
 /** The MongoDB snapshot as the hub's view: pure, so every rule is testable without React. */
@@ -227,15 +225,6 @@ export const deriveMongoHub = (
 ): HubViewModel => {
   const filter = ctx.environment;
   const { capabilities, sources } = ctx;
-  const params: HubParams = ctx.params ?? {
-    environment: filter,
-    patches: null,
-    scenario: ctx.scenario,
-    ops: 'live',
-    role: 'live',
-    refresh: '30s',
-    freshness: 'live',
-  };
   const allServices = snapshot.services ?? [];
   const services = allServices.filter((service) =>
     matchesEnvironment(service.environment, filter)
@@ -252,19 +241,7 @@ export const deriveMongoHub = (
       return upgrade ? { ...cluster, upgrade } : cluster;
     }
   );
-  const clusters = metricsOk
-    ? buildClusterTree(models, {
-        capabilities,
-        omClusterIds: operations?.clusterIds,
-        updates: snapshot.updates,
-        now: ctx.now,
-      })
-    : [];
-  const updateStates = clusters.map((node) => node.version?.update?.state);
-  const patchesFilter = params.patches === 'behind';
-  const shownClusters = patchesFilter
-    ? clusters.filter((node) => node.version?.update?.state === 'available')
-    : clusters;
+  const health = metricsOk ? models.map(clusterHealthOf) : [];
 
   const backups = deriveBackups({
     clusters: models,
@@ -302,9 +279,9 @@ export const deriveMongoHub = (
   // Without the inventory there are no clusters to count or map backups to, which is not zero.
   const inventoryOk = snapshot.services !== null;
   const status: HubStatus = {
-    state: statusState({ empty, metricsOk, shown: services.length, clusters }),
+    state: statusState({ empty, metricsOk, shown: services.length, health }),
     clusters: inventoryOk ? models.length : null,
-    ...(metricsOk && inventoryOk ? { health: countHealth(clusters) } : {}),
+    ...(metricsOk && inventoryOk ? { health: countHealth(health) } : {}),
     lastGoodBackup: inventoryOk ? backups.lastGoodBackup : 'unknown',
     backupsFailed: backups.failedRecently,
     ...(backups.failedOldestGood
@@ -312,15 +289,6 @@ export const deriveMongoHub = (
       : {}),
     ...(inventoryOk && backups.coverage
       ? { backupCoverage: backups.coverage }
-      : {}),
-    ...(snapshot.updates && metricsOk
-      ? {
-          patches: {
-            behind: updateStates.filter((state) => state === 'available')
-              .length,
-            unknown: updateStates.filter((state) => state === 'unknown').length,
-          },
-        }
       : {}),
     // Alerting off says nothing, and a source still loading would read as none firing.
     ...(sources.alerts?.status === 'error'
@@ -384,7 +352,6 @@ export const deriveMongoHub = (
           }
         : attentionState,
     recommendations: sectionState(sources, ['inventory']),
-    clusters: sectionState(sources, ['inventory', 'metrics']),
     backups: sectionState(sources, ['inventory', 'backups']),
     queries: sectionState(sources, ['qan', 'realtime']),
     dashboards: sectionState(sources, ['dashboards']),
@@ -422,10 +389,6 @@ export const deriveMongoHub = (
         : toNeedsAttention(entries, ctx.now)
     ),
     ...(coverage ? { alertCoverage: coverage } : {}),
-    clusters: shownClusters,
-    patchesFilter,
-    // Every cluster starts as one row.
-    expanded: {},
     backups: backups.backups,
     queries: queries.queries,
     dashboards: deriveDashboards({
@@ -436,15 +399,6 @@ export const deriveMongoHub = (
     }),
     actions: deriveActions(capabilities, ctx.role),
     sectionDoors: {
-      clusters: capabilities.operations
-        ? {
-            label: Messages.doors.fleet,
-            to: MONGO_PATHS.operationsClusters,
-          }
-        : {
-            label: Messages.doors.instancesOverview,
-            to: listDashboard('instancesOverview', filter),
-          },
       apps: { label: Messages.doors.allApps, to: MONGO_PATHS.allApps },
     },
     sections,

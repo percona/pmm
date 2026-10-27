@@ -452,7 +452,6 @@ describe('operations', () => {
     const result = items(
       input([], mergeMetrics(), {
         operations: {
-          clusterIds: {},
           summary: { services: 0, up: 0 },
           upgrades: [],
           failedRuns,

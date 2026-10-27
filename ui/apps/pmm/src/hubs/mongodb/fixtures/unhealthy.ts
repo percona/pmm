@@ -124,13 +124,6 @@ export const unhealthySnapshot = (now: number, ops: boolean): MongoSnapshot => {
     ];
   }
 
-  if (snapshot.updates) {
-    snapshot.updates['prod/billing'] = {
-      checkedAt: ago(now, 3 * 24 * HOUR_MS),
-      latest: LATEST['7.0'],
-    };
-  }
-
   snapshot.alerts = [
     {
       name: 'MongoDB down',

@@ -1,6 +1,5 @@
 import type {
   HubAttentionSeverity,
-  HubHealth,
   HubRecommendationKind,
   HubSeverity,
 } from './hub.types';
@@ -106,15 +105,12 @@ export const Messages = {
   sections: {
     attention: 'Needs attention',
     recommendations: 'Recommendations',
-    clusters: 'Clusters',
     backups: 'Backups',
     queries: 'Queries',
     dashboards: 'Dashboards',
   },
   sectionCount: {
     attention: (count: number) => (count === 1 ? 'issue' : 'issues'),
-    clusters: (count: number, [one, many]: [string, string]) =>
-      count === 1 ? one : many,
   },
   sectionError: {
     fallback: 'Could not load this section.',
@@ -139,65 +135,6 @@ export const Messages = {
       notset: 'Not set up',
       info: 'Info',
     } satisfies Record<HubRecommendationKind, string>,
-  },
-  health: {
-    healthy: 'Healthy',
-    degraded: 'Degraded',
-    down: 'Down',
-    upgrading: 'Upgrading',
-    noData: 'No data',
-  } satisfies Record<HubHealth, string>,
-  healthFor: (duration: string) => `for ${duration}`,
-  healthSince: (health: string, time: string) => `${health} since ${time}`,
-  conditionsMore: (count: number) => ` · ${count} more`,
-  clusters: {
-    columns: {
-      name: 'Name',
-      type: 'Type',
-      environment: 'Environment',
-      health: 'Health',
-      members: 'Members up',
-      version: 'Version',
-    },
-    patchesFilter: {
-      label: (count: number) =>
-        count > 0 ? `${count} behind on patches` : 'Behind on patches',
-      none: 'No cluster is behind on patches',
-      noneDescription:
-        'Each one runs the newest patch release of its series, or its version check could not tell.',
-      showAll: 'Show all clusters',
-    },
-    membersNoData: (count: number) => ` · ${count} no data`,
-    expandColumn: 'Expand',
-    inParent: (path: string) => `in ${path}`,
-    path: (names: string[]) => names.join(' › '),
-    expand: (name: string) => `Expand ${name}`,
-    collapse: (name: string) => `Collapse ${name}`,
-  },
-  version: {
-    mixed: 'mixed versions',
-    drift: (parts: string[]) => `Mixed versions: ${parts.join('; ')}`,
-    on: (version: string, members: string[]) =>
-      `${version} on ${members.join(', ')}`,
-    updateAvailable: 'Update available',
-    checkFailed: 'Check failed',
-    available: (latest: string, age: string) =>
-      `${latest} is available, checked ${age}`,
-    upToDate: (age: string) => `Up to date, checked ${age}`,
-    failed: (age?: string) =>
-      `The version check failed${age ? ` ${age}` : ''}, so PMM can't say whether an update exists`,
-    stale: (age?: string) =>
-      age
-        ? `The version check last ran ${age}, too long ago to trust`
-        : 'No version check has run yet',
-  },
-  measure: {
-    over: {
-      warning: 'over the warning threshold',
-      error: 'over the error threshold',
-    },
-    noData: 'No data',
-    lastSeen: (time: string) => `Last seen ${time}`,
   },
   queries: {
     slower: 'Slower than usual',

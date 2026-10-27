@@ -11,7 +11,3 @@ export const formatSince = (iso?: string, now: number = Date.now()) => {
     ? null
     : formatCompactDuration(Math.max(0, (now - at) / 1000)) || '0s';
 };
-
-/** A duration in seconds as "40s" or "3h 2m". */
-export const formatDuration = (seconds: number) =>
-  formatCompactDuration(seconds) || '0s';

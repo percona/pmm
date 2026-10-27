@@ -25,12 +25,10 @@ export const emptySnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   realtime: { sessionServiceIds: [], queries: [] },
   operations: ops
     ? {
-        clusterIds: {},
         summary: { services: 0, up: 0 },
         upgrades: [],
         failedRuns: [],
       }
     : null,
-  updates: {},
   dashboards: { catalog: DASHBOARD_CATALOG, recent: [] },
 });

@@ -6,8 +6,6 @@ import type {
   HubDoor,
   HubNeedsAttentionItem,
   HubSectionState,
-  HubTreeColumn,
-  HubTreeNode,
   HubViewModel,
 } from './hub.types';
 
@@ -23,153 +21,6 @@ export const testDoor = (
   to: string,
   extra: Partial<HubDoor> = {}
 ): HubDoor => ({ label, to, ...extra });
-
-export const TEST_TREE_COLUMNS: HubTreeColumn[] = [
-  {
-    id: 'lag',
-    header: 'Replication lag',
-    description: 'How far each secondary is behind its primary.',
-  },
-  {
-    id: 'oplogWindow',
-    header: 'Oplog window',
-    description: 'How much history the primary keeps for its secondaries.',
-  },
-];
-
-const summary = (name: string) =>
-  testDoor(name, `/graph/d/summary?var-name=${name}`);
-
-const member = (
-  name: string,
-  overrides: Partial<HubTreeNode> = {}
-): HubTreeNode => ({
-  id: `member:svc-${name}`,
-  kind: 'member',
-  name,
-  type: 'Secondary',
-  health: 'healthy',
-  showHealth: false,
-  measures: {},
-  doors: { name: summary(name), menu: [] },
-  ...overrides,
-});
-
-export const TEST_CLUSTERS: HubTreeNode[] = [
-  {
-    id: 'cluster:prod/billing',
-    kind: 'cluster',
-    name: 'billing',
-    type: 'Replica set',
-    environment: 'prod',
-    health: 'down',
-    showHealth: true,
-    since: minutesAgo(18),
-    members: { up: 1, total: 3, noData: 0 },
-    measures: {
-      lag: { kind: 'notApplicable', reason: 'No secondary is up' },
-    },
-    doors: {
-      name: summary('billing'),
-      members: testDoor('1/3', '/graph/d/replset?var-rs=billing', {
-        context: 'members of billing',
-      }),
-      menu: [
-        testDoor('Open summary', '/graph/d/replset?var-rs=billing'),
-        testDoor('Manage in Operations', '/operations?cluster=om-billing', {
-          preview: 'developer',
-        }),
-      ],
-    },
-    children: [
-      member('billing-m1', {
-        type: 'Member',
-        health: 'down',
-        showHealth: true,
-        since: minutesAgo(18),
-      }),
-      member('billing-m3'),
-    ],
-  },
-  {
-    id: 'cluster:prod/orders',
-    kind: 'cluster',
-    name: 'orders',
-    type: 'Sharded cluster',
-    environment: 'prod',
-    health: 'degraded',
-    showHealth: true,
-    members: { up: 5, total: 5, noData: 0 },
-    measures: {
-      lag: {
-        kind: 'value',
-        seconds: 40,
-        level: 'warning',
-        rule: 'Warning above 30s sustained for 2m',
-        door: testDoor('40s', '/graph/d/replset?var-rs=orders-shard1', {
-          context: 'for orders-shard1',
-        }),
-      },
-    },
-    doors: { name: summary('orders'), menu: [] },
-    children: [
-      {
-        id: 'group:prod/orders/routers',
-        kind: 'group',
-        name: 'Routers (mongos)',
-        type: 'Routers',
-        health: 'healthy',
-        showHealth: true,
-        members: { up: 2, total: 2, noData: 0 },
-        measures: {},
-        doors: { name: summary('routers'), menu: [] },
-        children: [member('orders-mongos', { type: 'Router' })],
-      },
-      {
-        id: 'set:prod/orders/orders-shard1',
-        kind: 'set',
-        name: 'orders-shard1',
-        type: 'Shard',
-        health: 'degraded',
-        showHealth: true,
-        members: { up: 3, total: 3, noData: 0 },
-        measures: {},
-        doors: { name: summary('orders-shard1'), menu: [] },
-        children: [
-          member('orders-shard1-m1', { type: 'Primary' }),
-          member('orders-shard1-m3', {
-            measures: {
-              lag: { kind: 'value', seconds: 40, level: 'warning' },
-            },
-          }),
-        ],
-      },
-    ],
-  },
-  {
-    id: 'cluster:staging/reports',
-    kind: 'cluster',
-    name: 'reports',
-    type: 'Standalone',
-    environment: 'staging',
-    health: 'noData',
-    showHealth: true,
-    since: minutesAgo(9),
-    members: { up: 0, total: 1, noData: 1 },
-    measures: {},
-    doors: {
-      name: summary('reports'),
-      members: testDoor('0/1', '/graph/d/summary?var-name=reports'),
-      menu: [],
-    },
-  },
-];
-
-export const TEST_EXPANDED: Record<string, true> = {
-  'cluster:prod/billing': true,
-  'cluster:prod/orders': true,
-  'set:prod/orders/orders-shard1': true,
-};
 
 /** A Needs attention row: a warning on one cluster, with a dashboard to open. */
 export const attentionItem = (
@@ -257,9 +108,6 @@ export const testView = (
   },
   attention: [],
   recommendations: [],
-  clusters: TEST_CLUSTERS,
-  patchesFilter: false,
-  expanded: TEST_EXPANDED,
   backups: {
     state: 'ok',
     rows: [],
@@ -310,13 +158,11 @@ export const testView = (
     ],
   },
   sectionDoors: {
-    clusters: testDoor('Fleet in Operations', '/operations?tab=clusters'),
     apps: testDoor('All apps', '/prototype/all-apps'),
   },
   sections: {
     attention: READY,
     recommendations: READY,
-    clusters: READY,
     backups: READY,
     queries: READY,
     dashboards: READY,

@@ -34,7 +34,6 @@ export const MONGO_PATHS = {
   backupNew: '/graph/backup/new',
   advancedSettings: '/settings/advanced-settings',
   operations: '/operations',
-  operationsClusters: '/operations?tab=clusters',
   operationsAutomations: '/operations/automations',
   realtime: '/rta',
   allApps: '/prototype/all-apps',
@@ -98,36 +97,12 @@ export const listDashboard = (id: MongoDashboardId, filter: string | null) =>
     environment: listEnvironment(filter),
   });
 
-export const clusterQan = (place: MongoPlace, serviceName?: string) =>
-  qanLink({ serviceType: 'mongodb', ...place, serviceName });
-
 export const queryQan = (filter: string | null, queryId: string) =>
   qanLink({
     serviceType: 'mongodb',
     environment: listEnvironment(filter),
     queryId,
   });
-
-export const lagDoor = (
-  place: MongoPlace,
-  rs: string,
-  name: string
-): HubDoor => ({
-  label: name,
-  to: withQuery(replsetSummary(place, rs), { from: 'now-3h', to: 'now' }),
-  context: Messages.doors.lagOf(name),
-});
-
-export const oplogDoor = (
-  place: MongoPlace,
-  rs: string,
-  name: string,
-  serviceName?: string
-): HubDoor => ({
-  label: name,
-  to: oplogDetails(place, rs, serviceName),
-  context: Messages.doors.oplogOf(name),
-});
 
 export const incident = (to: string, since?: string) =>
   withIncidentFrame(to, since);
@@ -162,12 +137,4 @@ export const automationsDoor = (
     kind === 'install'
       ? Messages.doors.forInstall(target)
       : Messages.doors.forScan,
-});
-
-export const manageDoor = (omClusterId?: string): HubDoor => ({
-  label: Messages.doors.manage,
-  to: withQuery(MONGO_PATHS.operations, {
-    tab: 'clusters',
-    cluster: omClusterId,
-  }),
 });

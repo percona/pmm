@@ -26,8 +26,6 @@ export interface MongoSnapshot {
   realtime: { sessionServiceIds: string[]; queries: RtaQueryInput[] } | null;
   /** Null when Operations is off or failed. */
   operations: MongoOperationsInput | null;
-  /** PMM Extensions' version check by cluster key; null while nothing checks, which is so until P0-1c ships (sample data only). */
-  updates: Record<string, MongoUpdateCheck> | null;
   /** Null also while the catalog has not answered yet. */
   dashboards: {
     catalog: DashboardHit[];
@@ -143,8 +141,6 @@ export interface RtaQueryInput {
 }
 
 export interface MongoOperationsInput {
-  /** `${env ?? ''}/${cluster}` to OmCluster.id */
-  clusterIds: Record<string, string>;
   summary: { services: number; up: number; lastScanAt?: string };
   /** Upgrades running now; sample data only until Operations reports them. */
   upgrades: MongoUpgradeInput[];
@@ -157,16 +153,8 @@ export interface MongoOperationsInput {
   }>;
 }
 
-/** One cluster's version check: the newest patch release in its major.minor series. */
-export interface MongoUpdateCheck {
-  /** When the check last ran. */
-  checkedAt: string;
-  /** Absent when the check failed. */
-  latest?: string;
-}
-
 export interface MongoUpgradeInput {
-  /** `${env ?? ''}/${cluster}`, as clusterIds keys it. */
+  /** The cluster's key, `${env ?? ''}/${cluster}`. */
   clusterKey: string;
   /** Members upgraded so far; the next one is in progress. */
   done: number;

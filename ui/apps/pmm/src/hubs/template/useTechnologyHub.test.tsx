@@ -46,8 +46,6 @@ const LIVE: FakeSnapshot = { from: 'live' };
 const MESSAGES: HubMessages = {
   name: 'MongoDB',
   unit: { cluster: ['cluster', 'clusters'] },
-  empty: { title: 'Start', description: 'Add one.', viewer: 'Ask.' },
-  clusters: { tableLabel: 'MongoDB clusters' },
   dashboards: { all: 'All MongoDB dashboards' },
 };
 
@@ -77,7 +75,6 @@ const makeConfig = (
     name: 'MongoDB',
     icon: () => null,
     messages: MESSAGES,
-    treeColumns: [],
     attentionOrder: [],
     describeDestination: ({ label }) => ({ path: [label] }),
     useLiveSnapshot,
@@ -143,12 +140,6 @@ describe('useTechnologyHub', () => {
       environment: 'prod',
       role: 'admin',
       operations: true,
-      params: {
-        environment: 'prod',
-        scenario: 'live',
-        ops: 'live',
-        role: 'live',
-      },
       capabilities: {
         addService: true,
         install: true,

@@ -35,7 +35,6 @@ export const sourcesWith = (
 
 export interface ContextOptions {
   scenario?: HubScenario;
-  patches?: 'behind' | null;
   role?: HubRole;
   operations?: boolean;
   environment?: string | null;
@@ -47,7 +46,6 @@ export interface ContextOptions {
 /** A derive context as useTechnologyHub builds it, for sample data unless told otherwise. */
 export const deriveContext = ({
   scenario = 'unhealthy',
-  patches = null,
   role = 'admin',
   operations = false,
   environment = null,
@@ -59,15 +57,6 @@ export const deriveContext = ({
 
   return {
     now: NOW,
-    params: {
-      environment,
-      patches,
-      refresh: '30s',
-      freshness: 'live',
-      scenario,
-      ops: operations ? 'on' : 'off',
-      role,
-    },
     scenario,
     environment,
     role,

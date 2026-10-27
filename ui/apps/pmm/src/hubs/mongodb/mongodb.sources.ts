@@ -360,28 +360,27 @@ const TERMINAL_RUN = new Set([
 const FAILED_RUN = new Set(['RUN_STATUS_PARTIAL', 'RUN_STATUS_FAILED']);
 const FAILED_INSTALL = new Set(['failed', 'rolled_back']);
 
-/** Cluster ids, service counts, and the failures worth a row: the newest scan if it failed, and failed installs. */
+/** Service counts, and the failures worth a row: the newest scan if it failed, and failed installs. */
 export const toOperationsInput = (
   topology: OmTopologyResponse,
   runs: OmInventoryRun[],
   bootstrapRuns: OmBootstrapRunSummary[],
   environment: string | null
 ): MongoOperationsInput => {
-  const clusterIds: Record<string, string> = {};
   let services = 0;
   let up = 0;
 
   topology.environments.forEach((env) => {
     const shown = matchesEnvironment(env.env_name, environment);
 
+    if (!shown) {
+      return;
+    }
     env.clusters.forEach((cluster) => {
-      clusterIds[`${env.env_name ?? ''}/${cluster.name ?? ''}`] = cluster.id;
-      if (shown) {
-        services += cluster.services.length;
-        up += cluster.services.filter(
-          (service) => service.status === 'SERVICE_STATUS_UP'
-        ).length;
-      }
+      services += cluster.services.length;
+      up += cluster.services.filter(
+        (service) => service.status === 'SERVICE_STATUS_UP'
+      ).length;
     });
   });
 
@@ -393,7 +392,6 @@ export const toOperationsInput = (
     : undefined;
 
   return {
-    clusterIds,
     summary: { services, up, ...(lastScanAt ? { lastScanAt } : {}) },
     // Operations does not report upgrades yet.
     upgrades: [],
@@ -677,8 +675,6 @@ export const useMongoLiveSnapshot = ({
                 sessionServiceIds.length ? (realtimeData ?? []) : []
               ),
             },
-      // PMM Extensions has no version check yet (PMM-15299 P0-1c).
-      updates: null,
       operations:
         opsEnabled &&
         topology.data &&

@@ -21,22 +21,11 @@ export const hasPeakHub = [
   'ShortcutTile',
 ].every((name) => (Peak as unknown as Record<string, unknown>)[name] != null);
 
-// Shows the router location, `/mongodb?hubState=unhealthy#clusters`, for assertions on URL writes.
+// Shows the router location, `/mongodb?hubState=unhealthy#attention`, for assertions on URL writes.
 const LocationProbe = () => {
   const { pathname, search, hash } = useLocation();
 
   return <output data-testid="hub-location">{pathname + search + hash}</output>;
-};
-
-/** The nearest ancestor matching the selector; fails the test when there is none. */
-export const closestTo = (element: Element | null, selector: string) => {
-  const match = element?.closest<HTMLElement>(selector);
-
-  if (!match) {
-    throw new Error(`No ${selector} around the element`);
-  }
-
-  return match;
 };
 
 export interface RenderHubOptions {

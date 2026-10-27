@@ -45,7 +45,6 @@ export type HubSourceId =
 export type HubSectionId =
   | 'attention'
   | 'recommendations'
-  | 'clusters'
   | 'backups'
   | 'queries'
   | 'dashboards';
@@ -60,8 +59,6 @@ export const HUB_NO_ENVIRONMENT = '__none__';
 export interface HubParams {
   /** `?environment=`; null means every environment. */
   environment: string | null;
-  /** `?patches=behind` shows only the clusters a newer patch release exists for. */
-  patches: 'behind' | null;
   /** `?hubState=` */
   scenario: HubScenario;
   /** `?hubOps=` */
@@ -81,71 +78,6 @@ export interface HubDoor {
   /** Visually hidden suffix, such as "for orders-shard1". */
   context?: string;
   preview?: HubPreview;
-}
-
-export type HubMeasure =
-  | {
-      kind: 'value';
-      seconds: number;
-      level: HubLevel;
-      rule?: string;
-      door?: HubDoor;
-    }
-  | { kind: 'notApplicable'; reason: string }
-  | { kind: 'noData'; lastSeen?: string };
-
-/** What a version check says about a cluster. */
-export type HubUpdate =
-  | { state: 'available'; latest: string; checkedAt: string }
-  | { state: 'upToDate'; checkedAt: string }
-  /** Failed, or too old to trust: never read as up to date. */
-  | { state: 'unknown'; reason: 'failed' | 'stale'; checkedAt?: string };
-
-export interface HubVersion {
-  /** A member's own version, else the lowest one its reachable members run: what it is still exposed on. */
-  effective: string;
-  /** Members of one set run different versions, lowest first. */
-  drift?: Array<{ version: string; members: string[] }>;
-  /** Clusters only; absent while nothing checks for updates. */
-  update?: HubUpdate;
-}
-
-/** Why a node is not healthy: what holds, and the rule it breaks. */
-export interface HubCondition {
-  /** "billing-m2 47s behind" */
-  text: string;
-  /** "Degraded when a secondary is 10s or more behind, sustained for 2m" */
-  rule: string;
-}
-
-export interface HubTreeColumn {
-  /** Key in HubTreeNode.measures. */
-  id: string;
-  header: string;
-  /** Header tooltip. */
-  description: string;
-}
-
-export interface HubTreeNode {
-  /** cluster:<env>/<name> | group:<env>/<cluster>/routers | set:<env>/<cluster>/<rs> | member:<serviceId> */
-  id: string;
-  kind: 'cluster' | 'group' | 'set' | 'member';
-  name: string;
-  /** "Sharded cluster", "Replica set", "Standalone", "Routers", "Config servers", "Shard", "Primary", "Secondary", "Arbiter", "Router", "Member" */
-  type: string;
-  environment?: string;
-  health: HubHealth;
-  /** False on members that are up. */
-  showHealth: boolean;
-  /** ISO time the node has been down, without data or upgrading since. */
-  since?: string;
-  /** What makes it other than healthy, the deciding one first; none that only repeat its health word. */
-  conditions?: HubCondition[];
-  members?: { up: number; total: number; noData: number };
-  version?: HubVersion;
-  measures: Record<string, HubMeasure>;
-  doors: { name: HubDoor; members?: HubDoor; menu: HubDoor[] };
-  children?: HubTreeNode[];
 }
 
 /** A problem a technology's rules find in live data, before the hub turns it into a Needs attention row. */
@@ -173,7 +105,7 @@ export type HubAttentionSeverity = 'critical' | 'error' | 'warning';
 export interface HubDestination {
   /** "ReplSet summary" */
   label: string;
-  /** A router path below /pmm-ui ("/graph/d/…"), a section of this page ("#clusters"), or an absolute URL. */
+  /** A router path below /pmm-ui ("/graph/d/…"), a section of this page ("#queries"), or an absolute URL. */
   route: string;
   /** Query parameters, such as Grafana's `var-cluster`. */
   params?: Record<string, string>;
@@ -236,8 +168,6 @@ export interface HubStatus {
   clusters: number | null;
   /** Shown clusters by health; absent when metrics or the inventory failed. */
   health?: Record<HubHealth, number>;
-  /** Clusters with an update available, and those the check could not answer for; absent while nothing checks. */
-  patches?: { behind: number; unknown: number };
   /** Firing alerts about the technology or its hosts; null when they could not be read, absent while alerting is off. */
   alerts?: number | null;
   /** How many of the firing alerts are critical. */
@@ -385,12 +315,6 @@ export interface HubViewModel {
   alertCoverage?: HubAlertCoverage;
   /** Not set up first, then info, each in its order: backups and recovery, security, versions and patches, monitoring coverage. */
   recommendations: HubRecommendation[];
-  /** Worst first; only those behind on patches while that filter is on. */
-  clusters: HubTreeNode[];
-  /** `?patches=behind` is on. */
-  patchesFilter: boolean;
-  /** MRT expanded state; every cluster starts as one row. */
-  expanded: Record<string, true>;
   backups: HubBackups;
   queries: HubQueries;
   dashboards: HubDashboards;
@@ -401,7 +325,7 @@ export interface HubViewModel {
     more: HubMenuAction[];
   };
   /** The index of every app, beside Dashboards' own door. */
-  sectionDoors: { clusters: HubDoor; apps?: HubDoor };
+  sectionDoors: { apps?: HubDoor };
   sections: Record<HubSectionId, HubSectionState>;
 }
 
@@ -447,8 +371,6 @@ export interface HubLiveResult<TSnapshot> {
 
 export interface HubDeriveContext {
   now: number;
-  /** The URL's hub params; without them, only the scenario and environment are known. */
-  params?: HubParams;
   scenario: HubScenario;
   environment: string | null;
   role: HubRole;
@@ -462,9 +384,6 @@ export interface HubMessages {
   name: string;
   /** ["cluster", "clusters"] */
   unit: { cluster: [string, string] };
-  empty: { title: string; description: string; viewer: string };
-  /** tableLabel: "MongoDB clusters" */
-  clusters: { tableLabel: string };
   /** all: "All MongoDB dashboards" */
   dashboards: { all: string };
 }
@@ -478,7 +397,6 @@ export interface TechnologyHubConfig<TSnapshot> {
   name: string;
   icon: HubIcon;
   messages: HubMessages;
-  treeColumns: HubTreeColumn[];
   /** Kinds, highest priority first. */
   attentionOrder: string[];
   /** The sidebar's icon for a destination of a row or a shortcut tile, and its place there. */

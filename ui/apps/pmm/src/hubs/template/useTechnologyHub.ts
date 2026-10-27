@@ -181,7 +181,6 @@ export const useTechnologyHub = <TSnapshot>(
     () =>
       config.derive(snapshot, {
         now,
-        params,
         scenario,
         environment: params.environment,
         role,
