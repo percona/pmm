@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15559](https://perconadev.atlassian.net/browse/PMM-15559): Fixed the **Netstat: TCP** panel on the [Network Details](../reference/dashboards/dashboard-network-details.md) dashboard showing ever-growing totals for TCP opens, resets, failed attempts and retransmitted segments. These counters now display as per-second rates, and established connections use their own right-hand axis.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
