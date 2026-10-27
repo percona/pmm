@@ -17,106 +17,48 @@ package commands
 import (
 	"path/filepath"
 	"strings"
-	"time"
-
-	"github.com/prometheus/procfs"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/unix"
 )
 
 const (
-	// How long an orphaned exporter is given to exit after SIGTERM before it is killed outright.
-	orphanStopTimeout  = 5 * time.Second
-	orphanPollInterval = 100 * time.Millisecond
+	// The directory, under pmm-agent's temporary directory, that vmagent keeps its persistent
+	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
+	vmagentQueueDirName = "vmagent-temp-dir"
 
-	// A process reparented after its own parent died. Exporters are started without a process
-	// group of their own, so this is what being left behind looks like.
-	initPID = 1
+	tmpDataPathFlag = "remoteWrite.tmpDataPath"
+
+	// What the kernel appends to /proc/<pid>/exe once the executable has been unlinked, which is
+	// what an upgrade does to a vmagent binary that is still running from before it.
+	deletedExeSuffix = " (deleted)"
 )
 
-// reapOrphanedExporters stops exporters left running by a previous pmm-agent.
+// isLeftoverVMAgent reports whether a process is a vmagent holding this pmm-agent's persistent
+// queue: it runs this pmm-agent's vmagent binary, and its -remoteWrite.tmpDataPath is this
+// pmm-agent's queue directory. vmagent takes an exclusive lock on that directory, so while such a
+// process runs, the vmagent this pmm-agent starts exits on the lock within a second, every time.
 //
-// Stopping an Agent means cancelling it, which signals its process (see agent/agents/process).
-// That only happens when pmm-agent is allowed to shut down, and the Client upgrade does not allow
-// it: pmm-agent is replaced with SIGKILL, which cannot be caught, so every exporter keeps running
-// and is reparented to init. The pmm-agent that takes over knows nothing
-// about them, and cleanupTmp is no help either - it runs on the way out, not on the way in.
-//
-// One leftover exporter holding an exclusive resource then blocks its own replacement for good.
-// A leftover vmagent keeps an exclusive lock on its persistent queue, and that queue is one directory per
-// host rather than one per Agent, so the vmagent this pmm-agent starts panics within a second of
-// starting - every time, until somebody kills the old process by hand. See PMM-15773.
-func reapOrphanedExporters(exportersBase string, l *logrus.Entry) {
-	procs, err := procfs.AllProcs()
-	if err != nil {
-		l.Warnf("Failed to look for exporters left behind by a previous pmm-agent: %s.", err)
-
-		return
-	}
-
-	signaled := make([]int, 0, len(procs))
-	for _, p := range procs {
-		// Either of these fails for a process that exited while we were listing, or that
-		// belongs to another user - neither is ours to reap.
-		exe, err := p.Executable()
-		if err != nil {
-			continue
-		}
-		stat, err := p.Stat()
-		if err != nil {
-			continue
-		}
-
-		if !isOrphanedExporter(exe, exportersBase, stat.PPID) {
-			continue
-		}
-
-		l.Warnf("Stopping %s (PID %d), left running by a previous pmm-agent.", exe, p.PID)
-		err = unix.Kill(p.PID, unix.SIGTERM)
-		if err != nil {
-			l.Warnf("Failed to signal PID %d: %s.", p.PID, err)
-
-			continue
-		}
-		signaled = append(signaled, p.PID)
-	}
-
-	// They are init's children rather than ours, so there is nothing to wait on: asking
-	// whether the PID still exists is all that is available.
-	deadline := time.Now().Add(orphanStopTimeout)
-	for _, pid := range signaled {
-		for unix.Kill(pid, 0) == nil && time.Now().Before(deadline) {
-			time.Sleep(orphanPollInterval)
-		}
-
-		if unix.Kill(pid, 0) == nil {
-			l.Warnf("PID %d did not exit within %s, killing it.", pid, orphanStopTimeout)
-			err = unix.Kill(pid, unix.SIGKILL)
-			if err != nil {
-				l.Warnf("Failed to kill PID %d: %s.", pid, err)
-			}
-		}
-	}
-}
-
-// isOrphanedExporter reports whether a process is an exporter left behind by a previous pmm-agent:
-// its executable lives in this pmm-agent's exporters directory, and it has been reparented, which
-// means the pmm-agent that started it is gone.
-//
-// A process whose parent is still alive is deliberately left alone. Those are somebody's running
-// Agents - on a host with a second pmm-agent, they are its - and killing them would be this same
-// bug pointed the other way.
-func isOrphanedExporter(exe, exportersBase string, ppid int) bool {
-	if exe == "" || exportersBase == "" || ppid != initPID {
+// The parent is deliberately not consulted. pmm-agent gives its exporters SIGKILL as their
+// parent-death signal, so a pmm-agent that is killed outright takes them with it; a vmagent that is
+// still holding the queue when pmm-agent starts was left by something else, and nothing about its
+// parent tells whether it is safe to keep. What it holds does: only one vmagent can use the queue.
+func isLeftoverVMAgent(exe string, cmdline []string, vmagentPath, queueDir string) bool {
+	if exe == "" || vmagentPath == "" || queueDir == "" || len(cmdline) < 2 {
 		return false
 	}
 
-	// Relative rather than a string prefix, so that the exporters directory cannot match a
-	// sibling whose name merely starts with it: /opt/exporters-old against /opt/exporters.
-	rel, err := filepath.Rel(filepath.Clean(exportersBase), filepath.Clean(exe))
-	if err != nil {
+	if filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) != filepath.Clean(vmagentPath) {
 		return false
 	}
 
-	return rel != "." && !strings.HasPrefix(rel, "..")
+	for _, arg := range cmdline[1:] {
+		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-") // -flag or --flag
+		if flag == arg {
+			continue
+		}
+		value, ok := strings.CutPrefix(flag, tmpDataPathFlag+"=")
+		if ok && filepath.Clean(value) == filepath.Clean(queueDir) {
+			return true
+		}
+	}
+
+	return false
 }

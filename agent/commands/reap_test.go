@@ -20,38 +20,54 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsOrphanedExporter(t *testing.T) {
+func TestIsLeftoverVMAgent(t *testing.T) {
 	t.Parallel()
 
-	const base = "/usr/local/percona/pmm/exporters"
+	const (
+		vmagent = "/usr/local/percona/pmm/exporters/vmagent"
+		queue   = "/usr/local/percona/pmm/tmp/vmagent-temp-dir"
+	)
+	args := func(exe string, rest ...string) []string { return append([]string{exe}, rest...) }
 
 	for _, tc := range []struct {
 		name     string
 		exe      string
-		base     string
-		ppid     int
+		cmdline  []string
 		expected bool
 	}{
-		{"exporter reparented to init", base + "/vmagent", base, 1, true},
-		{"exporter below the exporters directory", base + "/vm/vmagent", base, 1, true},
-		{"exporters directory with a trailing separator", base + "/vmagent", base + "/", 1, true},
+		{"vmagent holding this queue", vmagent, args(vmagent, "-envflag.enable=true", "-remoteWrite.tmpDataPath="+queue), true},
+		{"double-dash flag", vmagent, args(vmagent, "--remoteWrite.tmpDataPath="+queue), true},
+		{"queue path not clean", vmagent, args(vmagent, "-remoteWrite.tmpDataPath=/usr/local/percona/pmm/tmp//vmagent-temp-dir/"), true},
 
-		// Somebody is still running this one - on a host with a second pmm-agent, that
-		// somebody is the other pmm-agent.
-		{"exporter whose pmm-agent is still alive", base + "/vmagent", base, 4242, false},
+		// An upgrade replaces the binary under a vmagent that keeps running from before it, the
+		// case PMM-15773 was found in.
+		{"binary replaced since it started", vmagent + " (deleted)", args(vmagent, "-remoteWrite.tmpDataPath="+queue), true},
 
-		// The reason this compares paths rather than string prefixes.
-		{"sibling directory sharing the prefix", "/usr/local/percona/pmm/exporters-old/vmagent", base, 1, false},
+		// Only one vmagent can use a queue; another queue belongs to somebody else.
+		{"vmagent with another queue", vmagent, args(vmagent, "-remoteWrite.tmpDataPath=/opt/other/vmagent-temp-dir"), false},
+		{"queue sharing the prefix", vmagent, args(vmagent, "-remoteWrite.tmpDataPath="+queue+"-old"), false},
+		{"queue only as a value of another flag", vmagent, args(vmagent, "-promscrape.config="+queue), false},
+		{"queue as a positional argument", vmagent, args(vmagent, "remoteWrite.tmpDataPath="+queue), false},
+		{"vmagent without a queue flag", vmagent, args(vmagent, "-envflag.enable=true"), false},
 
-		{"process outside the exporters directory", "/usr/bin/vmagent", base, 1, false},
-		{"the exporters directory itself", base, base, 1, false},
-		{"no executable", "", base, 1, false},
-		{"no exporters directory configured", base + "/vmagent", "", 1, false},
+		{"another binary holding this queue", "/usr/bin/vmagent", args("/usr/bin/vmagent", "-remoteWrite.tmpDataPath="+queue), false},
+		{"another exporter", "/usr/local/percona/pmm/exporters/node_exporter", args("node_exporter", "-remoteWrite.tmpDataPath="+queue), false},
+		{"no executable", "", args(vmagent, "-remoteWrite.tmpDataPath="+queue), false},
+		{"no arguments", vmagent, []string{vmagent}, false},
+		{"no command line", vmagent, nil, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.expected, isOrphanedExporter(tc.exe, tc.base, tc.ppid))
+			assert.Equal(t, tc.expected, isLeftoverVMAgent(tc.exe, tc.cmdline, vmagent, queue))
 		})
 	}
+
+	t.Run("nothing configured", func(t *testing.T) {
+		t.Parallel()
+
+		cmdline := args(vmagent, "-remoteWrite.tmpDataPath="+queue)
+		assert.False(t, isLeftoverVMAgent(vmagent, cmdline, "", queue))
+		assert.False(t, isLeftoverVMAgent(vmagent, cmdline, vmagent, ""))
+	})
 }
