@@ -27,34 +27,33 @@ const (
 	deletedExeSuffix = " (deleted)"
 )
 
-// isLeftoverVMAgent reports whether a process is a vmagent holding this pmm-agent's persistent
-// queue: it runs this pmm-agent's vmagent binary, and its -remoteWrite.tmpDataPath is this
-// pmm-agent's queue directory. The lock vmagent takes on that directory is exclusive, so while such
-// a process runs, the vmagent this pmm-agent starts exits on the lock within a second, every time.
-//
-// The parent is deliberately not consulted. Every exporter gets SIGKILL from pmm-agent as its
-// parent-death signal, so a pmm-agent that is killed outright takes them with it; a vmagent that is
-// still holding the queue when pmm-agent starts was left by something else, and nothing about its
-// parent tells whether it is safe to keep. What it holds does: only one vmagent can use the queue.
-func isLeftoverVMAgent(exe string, cmdline []string, vmagentPath, queueDir string) bool {
-	if exe == "" || vmagentPath == "" || queueDir == "" || len(cmdline) < 2 {
+// isVMAgentExecutable reports whether exe, a process's /proc/<pid>/exe, is this pmm-agent's vmagent
+// binary, including one an upgrade has replaced since the process started.
+func isVMAgentExecutable(exe, vmagentPath string) bool {
+	if exe == "" || vmagentPath == "" {
 		return false
 	}
 
-	if filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) != filepath.Clean(vmagentPath) {
-		return false
+	return filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) == filepath.Clean(vmagentPath)
+}
+
+// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line: the directory of the
+// persistent queue it holds. The lock vmagent takes on that directory is exclusive, so while one
+// process holds it, a vmagent started on the same queue exits on the lock within a second, every time.
+func tmpDataPath(cmdline []string) (string, bool) {
+	if len(cmdline) == 0 {
+		return "", false
 	}
 
-	for _, arg := range cmdline[1:] {
+	for _, arg := range cmdline[1:] { // not argv[0]
 		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-") // -flag or --flag
 		if flag == arg {
 			continue
 		}
-		value, ok := strings.CutPrefix(flag, tmpDataPathFlag+"=")
-		if ok && filepath.Clean(value) == filepath.Clean(queueDir) {
-			return true
+		if value, ok := strings.CutPrefix(flag, tmpDataPathFlag+"="); ok && value != "" {
+			return value, true
 		}
 	}
 
-	return false
+	return "", false
 }
