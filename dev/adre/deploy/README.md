@@ -16,7 +16,7 @@ curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-
 bash install.sh
 ```
 
-It prints the PMM URL and the generated `admin` password (kept in `./.env`). Then open
+It prints the PMM URL; the generated `admin` password is in `./.env` (`PMM_ADMIN_PASSWORD`). Then open
 **Configuration → Assistant → Deployment → Models & Keys**, add your model (name, LiteLLM model, API key) and **Save** —
 HolmesGPT picks it up without a restart.
 
@@ -35,6 +35,38 @@ PMM can reach it. Re-running it is safe: the cert, password and tokens are kept 
 > Start Holmes through `install.sh` (or recreate it after provisioning with
 > `docker compose up -d --force-recreate holmesgpt`): a plain `docker compose up -d` before provisioning
 > starts Holmes without the tokens.
+
+## Use a PMM Server that is already running
+
+When a PMM Server with the Assistant (a `tibi-holmes` Feature Build) already runs on the host, `install.sh` can add
+only HolmesGPT and the image renderer next to it:
+
+```bash
+echo 'PMM_ADMIN_PASSWORD=<its admin password>' >> .env
+bash install.sh --existing-server                 # the container is named pmm-server
+bash install.sh --existing-server=my-pmm          # any other name
+```
+
+It first checks the container and changes nothing until the check passes. It never changes the admin password.
+
+- **Stops with an error** when the container is missing or stopped, the password is wrong, the image has no
+  Assistant, or a `holmesgpt` container installed from another directory exists.
+- **Asks for a recreate** (exit code 2) when the container lacks something Docker only sets when a container is
+  created: the shared config dir (a host directory mounted at `ADRE_CONFIG_DIR`, default `/holmes-config`),
+  `GF_RENDERING_SERVER_URL`, a `GF_RENDERING_CALLBACK_URL` that answers on the container's network address
+  (Grafana listens on `127.0.0.1:3000` only, so use nginx's `http://<container>:8080/graph/`), a published HTTPS
+  port, or a network other than `host`. A restart is not enough. It prints the `docker run` options to add and a
+  draft command built from the container's image, ports and volumes, so the data volume is kept. The container's
+  own `-e` options go to `./<container>.env` (mode 0600) for the draft's `--env-file`, so no value is printed.
+- **Fixes on the fly** what needs no recreate: it connects the container to the `pmm` network.
+- **Warns** when in-app updates are on (`PMM_ENABLE_UPDATES=false` is missing).
+
+When the check passes it starts the renderer (unless one is already running, or the server points to another
+renderer), then provisions the Assistant and starts HolmesGPT as a new install does. A plain `bash install.sh`
+refuses to start when a `pmm-server` container it did not create exists, and points to `--existing-server`. The container name is saved
+in `./.env` as `PMM_EXISTING_SERVER`, so a plain `bash install.sh` re-run stays in this mode. Run `docker compose`
+commands for `holmesgpt` and `grafana-image-renderer` only: `docker compose up -d` without a service name would try
+to create a second `pmm-server`.
 
 ## Settings (all optional)
 

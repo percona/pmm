@@ -21,10 +21,10 @@ services:
       # The in-app updater would replace this ADRE build with a stock PMM release, which has no ADRE.
       - PMM_ENABLE_UPDATES=false
       # Grafana Image Renderer (the grafana-image-renderer service below) — enables panel/dashboard PNG
-      # rendering (reports, alert images, shared panels). PMM's Grafana serves from /graph on :3000, so the
-      # renderer calls back over plain HTTP on the pmm network (no self-signed-cert workaround needed).
+      # rendering (reports, alert images, shared panels). Grafana itself listens on 127.0.0.1:3000 only, so the
+      # renderer calls back through nginx's plain-HTTP port 8080 on the pmm network (no self-signed-cert workaround).
       - GF_RENDERING_SERVER_URL=http://grafana-image-renderer:8081/render
-      - GF_RENDERING_CALLBACK_URL=http://pmm-server:3000/graph/
+      - GF_RENDERING_CALLBACK_URL=http://pmm-server:8080/graph/
     volumes:
       - pmm-data:/srv                            # PMM data (Postgres/ClickHouse/VM/Grafana) — private
       - ${HOLMES_CONFIG_DIR:-./holmes-config}:/holmes-config   # shared ONLY for the Holmes config + certs

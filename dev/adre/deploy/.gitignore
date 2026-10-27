@@ -3,3 +3,5 @@
 .env
 .env.bak.*
 holmes-config/
+# The -e options of an existing PMM Server, saved by install.sh --existing-server for its recreate.
+*.env
