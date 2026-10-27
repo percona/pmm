@@ -101,6 +101,8 @@ export const Messages = {
   },
   /** The row of tiles under the header. */
   shortcuts: 'Shortcuts',
+  /** The watermark over the hub on prototype builds. */
+  workInProgress: 'Work in progress',
   sections: {
     attention: 'Needs attention',
     recommendations: 'Recommendations',

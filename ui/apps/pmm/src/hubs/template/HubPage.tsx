@@ -12,6 +12,7 @@ import { HubHeader } from './sections/HubHeader';
 import { HubRow } from './sections/HubRow';
 import { HubShortcuts } from './sections/HubShortcuts';
 import { HubStatusBanner } from './sections/HubStatusBanner';
+import { HubWatermark } from './sections/HubWatermark';
 import { NeedsAttentionSection } from './sections/NeedsAttentionSection';
 import { QueriesSection } from './sections/QueriesSection';
 import { RecommendationsSection } from './sections/RecommendationsSection';
@@ -28,7 +29,7 @@ const STATUS_WIDTH = DEFAULT_PAGE_MAX_WIDTH;
 const RECOMMENDATIONS_VISIBLE = { beside: 5, alone: 6 };
 
 // Prototype only: the dev server, or a build that asks for it (the demo host's), never a production one.
-const SHOW_DEMO_CONTROLS =
+const PROTOTYPE_BUILD =
   import.meta.env.DEV || import.meta.env.VITE_PMM_PROTOTYPE === 'true';
 
 // A pasted or cut link can hold a lone "%", which decodeURIComponent throws on.
@@ -104,6 +105,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
     <Page title={messages.name} hideTitle maxWidth="full" footer={null}>
       <Box
         sx={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
@@ -114,6 +116,8 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           containerName: HUB_CONTAINER,
         }}
       >
+        {/* First, so a screen reader says it before the page's title. */}
+        {PROTOTYPE_BUILD && <HubWatermark />}
         <HubHeader
           view={view}
           icon={config.icon}
@@ -206,7 +210,7 @@ export const HubPage = <TSnapshot,>({ config }: HubPageProps<TSnapshot>) => {
           />
         </Box>
         <Footer />
-        {SHOW_DEMO_CONTROLS && (
+        {PROTOTYPE_BUILD && (
           <DemoControls
             name={messages.name}
             params={params}

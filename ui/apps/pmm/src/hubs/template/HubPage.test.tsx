@@ -214,6 +214,19 @@ describe.skipIf(!hasPeakHub)('HubPage', () => {
     ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
+  it('lays a Work in progress line over the page that clicks go through', async () => {
+    renderPage({ scenario: 'healthy', ops: 'on', role: 'admin' });
+
+    const line = await screen.findByText('Work in progress');
+    // The line, the part held in the window, the layer over the page.
+    const layer = line.parentElement?.parentElement as HTMLElement;
+
+    expect(layer).toHaveStyle({ position: 'absolute', pointerEvents: 'none' });
+    expect(
+      line.compareDocumentPosition(screen.getByRole('heading', { level: 1 }))
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it.each<[Scenario, number, string]>([
     ['unhealthy', 5, 'Show 1 more'],
     ['incomplete', 5, 'Show 1 more'],
