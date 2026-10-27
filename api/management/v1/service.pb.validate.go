@@ -1511,8 +1511,7 @@ func (e UpdateServiceRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateServiceRequestValidationError{}
@@ -1674,8 +1673,7 @@ func (e UpdateServiceResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateServiceResponseValidationError{}

@@ -385,8 +385,7 @@ func (e UpdateHAProxyServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateHAProxyServiceParamsValidationError{}
