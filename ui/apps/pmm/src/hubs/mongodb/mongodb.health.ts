@@ -15,14 +15,6 @@ export const HEALTH_RANK: Record<HubHealth, number> = {
   healthy: 4,
 };
 
-const LEVEL_RANK: Record<HubLevel, number> = { error: 0, warning: 1, ok: 2 };
-
-export const worstLevel = (levels: HubLevel[]): HubLevel =>
-  levels.reduce<HubLevel>(
-    (worst, level) => (LEVEL_RANK[level] < LEVEL_RANK[worst] ? level : worst),
-    'ok'
-  );
-
 export const isPastWarning = (level: HubLevel | undefined) =>
   level === 'warning' || level === 'error';
 
@@ -224,20 +216,6 @@ export const memberConditions = (
   }
 
   return conditions;
-};
-
-/** A member on its own: Down or No data by its verdict, else what it breaks. */
-export const memberHealth = (member: MemberHealthInput): HealthVerdict => {
-  const conditions = memberConditions(member);
-
-  if (member.verdict === 'down') {
-    return { health: 'down', conditions };
-  }
-  if (member.verdict === 'noData') {
-    return { health: 'noData', conditions };
-  }
-
-  return verdictOf(conditions);
 };
 
 const named = (set?: string) => (set ? { set } : {});

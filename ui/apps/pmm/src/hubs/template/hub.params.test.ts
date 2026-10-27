@@ -34,11 +34,10 @@ describe('parseHubParams', () => {
   it('reads every param', () => {
     expect(
       parseHubParams(
-        '?environment=prod&patches=behind&refresh=1h&hubState=unhealthy&hubOps=off&hubRole=viewer&hubFreshness=stale'
+        '?environment=prod&refresh=1h&hubState=unhealthy&hubOps=off&hubRole=viewer&hubFreshness=stale'
       )
     ).toEqual({
       environment: 'prod',
-      patches: 'behind',
       refresh: '1h',
       scenario: 'unhealthy',
       ops: 'off',
@@ -115,7 +114,6 @@ describe('writeHubSearch with every param', () => {
     expect(
       writeHubSearch('', {
         environment: 'prod',
-        patches: null,
         refresh: 'off',
         freshness: 'stale',
         scenario: 'unhealthy',

@@ -59,14 +59,13 @@ The header's freshness widget never ticks while the data keeps coming. Live show
 
 These combine with any variant; the demo controls set `hubOps`, `hubFreshness` and `refresh`.
 
-| Param          | Values                                                                          | What it changes                                                                                |
-| -------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `hubOps`       | `on` (default), `off`, `live`                                                   | Operations for MongoDB; `live` follows the server's setting                                    |
-| `hubRole`      | `admin`, `viewer`, `live` (default)                                             | The signed-in role; a viewer gets no Add menu and no set-up links                              |
-| `hubFreshness` | `stale`                                                                         | Stops refreshing and shows data 4 minutes old; live or sample data                             |
-| `refresh`      | `off`, `5s`, `10s`, `30s` (default), `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` | The auto-refresh interval, as Grafana names it; not a prototype param                          |
-| `environment`  | an environment name                                                             | Filters every section to that environment                                                      |
-| `patches`      | `behind`                                                                        | Shows only the clusters behind on patches; nothing on the hub sets it since Clusters moved out |
+| Param          | Values                                                                          | What it changes                                                       |
+| -------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `hubOps`       | `on` (default), `off`, `live`                                                   | Operations for MongoDB; `live` follows the server's setting           |
+| `hubRole`      | `admin`, `viewer`, `live` (default)                                             | The signed-in role; a viewer gets no Add menu and no set-up links     |
+| `hubFreshness` | `stale`                                                                         | Stops refreshing and shows data 4 minutes old; live or sample data    |
+| `refresh`      | `off`, `5s`, `10s`, `30s` (default), `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` | The auto-refresh interval, as Grafana names it; not a prototype param |
+| `environment`  | an environment name                                                             | Filters every section to that environment                             |
 
 On live data, the switches can only take away what the signed-in user has, never add to it. The `hub*` params are prototype-only and go before anything ships.
 

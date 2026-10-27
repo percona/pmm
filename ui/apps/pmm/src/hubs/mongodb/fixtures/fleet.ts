@@ -4,7 +4,6 @@ import type {
   MongoOperationsInput,
   MongoServiceInput,
   MongoSnapshot,
-  MongoUpdateCheck,
 } from '../mongodb.types';
 import {
   ago,
@@ -339,22 +338,7 @@ const pitr = (now: number, backupsInput: MongoBackupsInput) => {
   return backupsInput;
 };
 
-/** Each cluster checked 2 hours ago against the newest patch of its series. */
-const updates = (now: number): Record<string, MongoUpdateCheck> =>
-  Object.fromEntries(
-    FLEET.map((cluster) => [
-      `${cluster.environment}/${cluster.name}`,
-      { checkedAt: ago(now, 2 * HOUR_MS), latest: LATEST[cluster.series] },
-    ])
-  );
-
 const operations = (now: number): MongoOperationsInput => ({
-  clusterIds: Object.fromEntries(
-    FLEET.map((cluster) => [
-      `${cluster.environment}/${cluster.name}`,
-      `om-${cluster.name}`,
-    ])
-  ),
   summary: {
     services: FLEET_MEMBERS.length,
     up: FLEET_MEMBERS.length,
@@ -375,7 +359,6 @@ export const fleetSnapshot = (now: number, ops: boolean): MongoSnapshot => ({
   qan: { current: USUAL_QUERIES, baseline: USUAL_QUERIES },
   realtime: { sessionServiceIds: [], queries: [] },
   operations: ops ? operations(now) : null,
-  updates: updates(now),
   dashboards: { catalog: DASHBOARD_CATALOG, recent: recentDashboards(now) },
 });
 

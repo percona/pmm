@@ -3,18 +3,8 @@ import type { HubMessages } from 'hubs/template/hub.types';
 export const MONGODB_HUB_MESSAGES: HubMessages = {
   name: 'MongoDB',
   unit: { cluster: ['cluster', 'clusters'] },
-  empty: {
-    title: 'Start monitoring MongoDB',
-    description:
-      'Add a MongoDB service PMM can reach, or install a new replica set on a node that runs pmm-agent.',
-    viewer: 'Ask an administrator to add a MongoDB service.',
-  },
-  clusters: { tableLabel: 'MongoDB clusters' },
   dashboards: { all: 'All MongoDB dashboards' },
 };
-
-const capitalize = (text: string) =>
-  text.charAt(0).toUpperCase() + text.slice(1);
 
 /** "a", "a or b", "a, b or c" */
 const orList = (items: string[]) =>
@@ -24,28 +14,6 @@ const orList = (items: string[]) =>
 
 export const Messages = {
   noEnvironment: 'No environment',
-  types: {
-    sharded: 'Sharded cluster',
-    replicaSet: 'Replica set',
-    standalone: 'Standalone',
-    routers: 'Routers',
-    configServers: 'Config servers',
-    shard: 'Shard',
-    primary: 'Primary',
-    secondary: 'Secondary',
-    arbiter: 'Arbiter',
-    router: 'Router',
-    member: 'Member',
-  },
-  /** Type words for member states that serve nothing; any other state reads "Member". */
-  memberStates: {
-    STARTUP: 'Starting up',
-    STARTUP2: 'Initial sync',
-    RECOVERING: 'Recovering',
-    ROLLBACK: 'Rolling back',
-    REMOVED: 'Removed',
-    UNKNOWN: 'Unknown state',
-  } as Partial<Record<string, string>>,
   /** The same states inside a sentence: "orders-cfg-m3 has been recovering for 14m". */
   memberStatePhrases: {
     STARTUP: 'starting up',
@@ -57,99 +25,7 @@ export const Messages = {
   } as Partial<Record<string, string>>,
   memberStatePhrase: (state: string) => `in state ${state}`,
   routersName: 'Routers (mongos)',
-  columns: {
-    lag: {
-      header: 'Replication lag',
-      description: 'How far each secondary is behind its primary.',
-    },
-    oplogWindow: {
-      header: 'Oplog window',
-      description:
-        'How much recent history the primary keeps for secondaries to catch up with.',
-    },
-  },
-  /** What holds, beneath a health chip; the name of the row's own set or member is left out. */
-  conditions: {
-    upgrading: (member: number, total: number) =>
-      `Rolling upgrade · member ${member} of ${total}`,
-    allDown: (total: number, set?: string) =>
-      set ? `${set}: all ${total} down` : `All ${total} members down`,
-    noPrimary: (down: number, total: number, set?: string) =>
-      [
-        set ? `${set} has no primary` : 'No primary',
-        down ? `${down} of ${total} down` : undefined,
-      ]
-        .filter(Boolean)
-        .join(' · '),
-    quorumLost: (down: number, total: number, set?: string) =>
-      `${set ? `${set} lost its quorum` : 'Quorum lost'} · ${down} of ${total} down`,
-    noData: (total: number, set?: string) =>
-      set ? `No data from ${set}` : `No data from any of ${total} members`,
-    memberDown: (member: string) => `${member} down`,
-    memberNoData: (member: string) => `No data from ${member}`,
-    /** "orders-cfg-m3 recovering for 14m", or "Recovering for 14m" on its own row. */
-    memberState: (phrase: string, member?: string, duration?: string) =>
-      `${member ? `${member} ${phrase}` : capitalize(phrase)}${duration ? ` for ${duration}` : ''}`,
-    drift: (set?: string) =>
-      set ? `${set}: mixed versions` : 'Mixed versions',
-    oplogShort: (window: string, threshold: string, member?: string) =>
-      `${member ? `${member} oplog window` : 'Oplog window'} ${window}, under ${threshold}`,
-    behind: (lag: string, member?: string) =>
-      member ? `${member} ${lag} behind` : `${lag} behind`,
-  },
-  /** The rule each condition breaks, for the tooltip. */
-  rules: {
-    upgrading:
-      'Upgrading while Operations runs an upgrade on the cluster, whatever else holds',
-    allDown: 'Down when every member is down',
-    noPrimary:
-      "Down when members answer but none is primary, so the set can't take writes",
-    quorumLost:
-      'Down when half the members or more are down, so no majority can keep a primary',
-    memberLost: 'Down when a member rolls back or is removed from its set',
-    noData: (stale: string) =>
-      `No data when PMM gets nothing from any member for ${stale}`,
-    memberDown:
-      'Degraded when a member is down while the set keeps its primary and majority',
-    memberNoData: (stale: string) =>
-      `Degraded when PMM gets nothing from a member for ${stale}`,
-    memberState: (grace: string) =>
-      `Degraded when a member stays in STARTUP, STARTUP2, RECOVERING or UNKNOWN past ${grace}, or in any state but PRIMARY, SECONDARY or ARBITER`,
-    drift: 'Degraded when members of one set run different versions',
-    oplogShort: (threshold: string) =>
-      `Degraded when the primary's oplog window is under ${threshold} once the oplog is 90% full`,
-    behind: (threshold: string) =>
-      `Degraded when a secondary is ${threshold} or more behind, sustained for 2m`,
-  },
-  measures: {
-    primaryLag: 'A primary has no replication lag',
-    arbiterLag: 'An arbiter holds no data',
-    noPrimaryLag: 'No primary to measure lag against',
-    downMember: 'Not reported while the member is down',
-    noDataMember: 'Not reported while PMM gets no data from the member',
-    routerLag: 'Routers do not replicate',
-    routerOplog: 'Routers keep no oplog',
-    standaloneLag: 'A standalone does not replicate',
-    standaloneOplog: 'A standalone keeps no oplog',
-    noPrimaryOplog: 'No primary to read the oplog window from',
-    lagRule: (threshold: string, lag: string) =>
-      `Warning at ${threshold} sustained for 2m; this member is ${lag} behind`,
-    worstLagRule: (member: string, lag: string) =>
-      `The furthest behind is ${member}, ${lag} behind its primary`,
-    oplogRule: (window: string, fill: number) =>
-      `Warning below 24h once the oplog is 90% full; this window is ${window} at ${fill}% full`,
-    tightestOplogRule: (set: string, window: string) =>
-      `The tightest window is ${set}, ${window}`,
-  },
   doors: {
-    openSummary: 'Open summary',
-    queryAnalytics: 'Query analytics for this cluster',
-    queryAnalyticsService: 'Query analytics for this service',
-    backupStatus: 'Backup status',
-    manage: 'Manage in Operations',
-    membersOf: (name: string) => `members of ${name}`,
-    lagOf: (name: string) => `replication lag of ${name}`,
-    oplogOf: (name: string) => `oplog window of ${name}`,
     instanceSummary: 'Open Instance summary',
     routerSummary: 'Open Router summary',
     replsetSummary: 'Open ReplSet summary',
@@ -162,8 +38,6 @@ export const Messages = {
     openQuery: 'Open in Query analytics',
     openRealtime: 'Open Real-time queries',
     openAutomations: 'Open Automations',
-    fleet: 'Fleet in Operations',
-    instancesOverview: 'Instances overview',
     allApps: 'All apps',
     setUpBackup: 'Set up a backup',
     turnOnBackups: 'Turn it on in Settings',

@@ -1,9 +1,10 @@
 import { attentionIssues } from 'hubs/template/hub.attention';
 import { statusFacets } from 'hubs/template/hub.status';
-import type { HubTreeNode, HubViewModel } from 'hubs/template/hub.types';
+import type { HubViewModel } from 'hubs/template/hub.types';
 import { deriveMongoHub } from '../mongodb.derive';
 import { describeMongoDestination } from '../mongodb.destinations';
 import { deriveContext, NOW, sourcesWith } from '../mongodb.testUtils';
+import { clusterHealthOf, groupClusters } from '../mongodb.topology';
 import { MONGODB_FIXTURES } from './index';
 
 const SCENARIOS = ['empty', 'healthy', 'incomplete', 'unhealthy'] as const;
@@ -27,8 +28,32 @@ const view = (
     })
   );
 
-const flatten = (nodes: HubTreeNode[]): HubTreeNode[] =>
-  nodes.flatMap((node) => [node, ...flatten(node.children ?? [])]);
+/** Each cluster's health by name, as the banner counts it: an upgrade Operations runs decides first. */
+const healthByName = (
+  scenario: (typeof SCENARIOS)[number],
+  operations: boolean
+) => {
+  const snapshot = MONGODB_FIXTURES[scenario](NOW, operations, null);
+  const upgrades = new Map(
+    (snapshot.operations?.upgrades ?? []).map((upgrade) => [
+      upgrade.clusterKey,
+      upgrade,
+    ])
+  );
+
+  return new Map(
+    groupClusters(snapshot.services ?? [], snapshot.metrics, NOW).map(
+      (cluster) => {
+        const upgrade = upgrades.get(cluster.key);
+
+        return [
+          cluster.name,
+          clusterHealthOf(upgrade ? { ...cluster, upgrade } : cluster),
+        ];
+      }
+    )
+  );
+};
 
 /** The status banner as it reads: each facet's label, and its action's. */
 const banner = (result: HubViewModel) =>
@@ -62,13 +87,11 @@ describe('fixtures', () => {
     expect(
       Object.values(result.sections).every((s) => s.status === 'ready')
     ).toBe(true);
-    // Every cluster starts as one row.
-    expect(result.expanded).toEqual({});
   });
 
   it('runs every scenario on the 60-cluster fleet', () => {
     (['healthy', 'incomplete', 'unhealthy'] as const).forEach((scenario) => {
-      expect(view(scenario, true).clusters).toHaveLength(60);
+      expect(view(scenario, true).status.clusters).toBe(60);
     });
   });
 
@@ -100,9 +123,7 @@ describe('fixtures', () => {
   it('sends each grouped row to the Clusters page, filtered to clusters that are not healthy', () => {
     (['incomplete', 'unhealthy'] as const).forEach((scenario) => {
       const result = view(scenario, true);
-      const health = new Map(
-        result.clusters.map((node) => [node.name, node.health])
-      );
+      const health = healthByName(scenario, true);
       const affected = result.attention.filter(
         (item) => item.destination.label === 'Affected clusters'
       );
@@ -225,9 +246,13 @@ describe('fixtures', () => {
           ['Backups on schedule, last 25m ago'],
         ]);
         expect(result.attention).toEqual([]);
-        expect(
-          flatten(result.clusters).filter((node) => node.health !== 'healthy')
-        ).toEqual([]);
+        expect(result.status.health).toEqual({
+          healthy: 60,
+          degraded: 0,
+          down: 0,
+          upgrading: 0,
+          noData: 0,
+        });
       });
     });
   });
@@ -316,7 +341,7 @@ describe('fixtures', () => {
     it('keeps the rows of one environment, a row that spans two in both', () => {
       const staging = view('unhealthy', true, 'admin', 'staging');
 
-      expect(staging.clusters).toHaveLength(9);
+      expect(staging.status.clusters).toBe(9);
       expect(staging.attention.map((item) => item.title)).toEqual([
         'PMM gets no data from 4 clusters',
         'inventory-apac runs mixed versions',
@@ -343,7 +368,7 @@ describe('fixtures', () => {
       OPS.forEach((ops) => {
         const result = view('empty', ops);
 
-        expect(result.clusters).toEqual([]);
+        expect(result.status.clusters).toBe(0);
         expect(result.status.state).toBe('empty');
         expect(result.backups.state).toBe('noServices');
         expect(result.dashboards.recommended).toEqual([]);

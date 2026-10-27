@@ -1,8 +1,4 @@
-import {
-  compareVersions,
-  groupByVersion,
-  lowestVersion,
-} from './mongodb.versions';
+import { compareVersions, groupByVersion } from './mongodb.versions';
 
 describe('compareVersions', () => {
   it('orders by release, then by Percona build', () => {
@@ -32,15 +28,6 @@ describe('compareVersions', () => {
 
   it('falls back to text order for what is no version', () => {
     expect(compareVersions('unknown', 'zeta')).toBeLessThan(0);
-  });
-});
-
-describe('lowestVersion', () => {
-  it('is the version a group is still exposed on', () => {
-    expect(lowestVersion(['7.0.30-16', '7.0.24-13', '7.0.30-16'])).toBe(
-      '7.0.24-13'
-    );
-    expect(lowestVersion([])).toBeUndefined();
   });
 });
 

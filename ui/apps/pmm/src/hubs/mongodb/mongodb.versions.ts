@@ -23,10 +23,6 @@ export const compareVersions = (a: string, b: string): number => {
   return index === -1 ? 0 : left[index] - right[index];
 };
 
-/** The version a group of members is still exposed on. */
-export const lowestVersion = (versions: string[]): string | undefined =>
-  [...versions].sort(compareVersions)[0];
-
 export interface VersionGroup {
   version: string;
   /** Service names, alphabetically. */

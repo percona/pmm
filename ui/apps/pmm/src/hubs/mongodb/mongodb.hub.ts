@@ -5,7 +5,7 @@ import type { TechnologyHubConfig } from 'hubs/template/hub.types';
 import { MONGODB_ATTENTION_ORDER } from './mongodb.attention';
 import { deriveMongoHub } from './mongodb.derive';
 import { describeMongoDestination } from './mongodb.destinations';
-import { MONGODB_HUB_MESSAGES, Messages } from './mongodb.messages';
+import { MONGODB_HUB_MESSAGES } from './mongodb.messages';
 import { useMongoLiveSnapshot } from './mongodb.sources';
 import { MONGODB_FIXTURES } from './fixtures';
 import type { MongoSnapshot } from './mongodb.types';
@@ -17,10 +17,6 @@ export const MONGODB_HUB: TechnologyHubConfig<MongoSnapshot> = {
   name: MONGODB_HUB_MESSAGES.name,
   icon: PerconaMoIcon,
   messages: MONGODB_HUB_MESSAGES,
-  treeColumns: [
-    { id: 'lag', ...Messages.columns.lag },
-    { id: 'oplogWindow', ...Messages.columns.oplogWindow },
-  ],
   attentionOrder: MONGODB_ATTENTION_ORDER,
   describeDestination: describeMongoDestination,
   useLiveSnapshot: useMongoLiveSnapshot,

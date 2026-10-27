@@ -11,7 +11,6 @@ import {
   isStuck,
   lagLevel,
   type MemberHealthInput,
-  memberHealth,
   memberVerdict,
   oplogLevel,
   routersHealth,
@@ -21,7 +20,12 @@ import {
   upgradingHealth,
   worstHealth,
 } from './mongodb.health';
-import { buildClusterTree, groupClusters } from './mongodb.topology';
+import {
+  type ClusterModel,
+  clusterHealthOf,
+  clusterMembers,
+  groupClusters,
+} from './mongodb.topology';
 import type { MongoSnapshot } from './mongodb.types';
 import { emptyMetrics, NOW, service } from './mongodb.testUtils';
 
@@ -309,17 +313,6 @@ describe('hasLostQuorum', () => {
   });
 });
 
-describe('memberHealth', () => {
-  it('is Down or No data by its verdict, else what the member breaks', () => {
-    expect(healthOf(memberHealth(down()))).toBe('down');
-    expect(healthOf(memberHealth(noData()))).toBe('noData');
-    expect(healthOf(memberHealth(inState('ROLLBACK')))).toBe('down');
-    expect(healthOf(memberHealth(inState('RECOVERING', 700)))).toBe('degraded');
-    expect(healthOf(memberHealth(inState('RECOVERING', 60)))).toBe('healthy');
-    expect(healthOf(memberHealth(secondary()))).toBe('healthy');
-  });
-});
-
 describe('routersHealth', () => {
   it('covers every cell', () => {
     expect(healthOf(routersHealth([secondary(), secondary()]))).toBe('healthy');
@@ -557,18 +550,26 @@ const toOmTopology = (snapshot: MongoSnapshot): OmTopologyResponse => {
   };
 };
 
+/** A cluster's members up and in all, as Operations counts them, and those PMM gets no data from. */
+const memberCounts = (cluster: ClusterModel) => {
+  const members = clusterMembers(cluster);
+
+  return {
+    up: members.filter((member) => member.verdict === 'up').length,
+    total: members.length,
+    noData: members.filter((member) => member.verdict === 'noData').length,
+  };
+};
+
 const compare = (snapshot: MongoSnapshot) => {
   const om = toClusterRows(toOmTopology(snapshot));
-  const hub = buildClusterTree(
-    groupClusters(snapshot.services ?? [], snapshot.metrics, NOW),
-    {
-      capabilities: { operations: false },
-    }
-  );
+  const hub = groupClusters(snapshot.services ?? [], snapshot.metrics, NOW);
 
   return om.map((row) => {
-    const node = hub.find((item) => item.name === row.cluster_name);
-    const members = node?.members ?? { up: 0, total: 0, noData: 0 };
+    const cluster = hub.find((item) => item.name === row.cluster_name);
+    const members = cluster
+      ? memberCounts(cluster)
+      : { up: 0, total: 0, noData: 0 };
 
     return {
       cluster: row.cluster_name,
@@ -582,7 +583,7 @@ const compare = (snapshot: MongoSnapshot) => {
         up: members.up,
         notUp: members.total - members.up,
         total: members.total,
-        health: node?.health,
+        health: cluster && clusterHealthOf(cluster),
       },
     };
   });
@@ -644,15 +645,12 @@ describe('parity with Operations', () => {
     const metrics = snapshot.metrics ?? emptyMetrics();
 
     delete metrics.up[billing.services[2].service_id ?? ''];
-    const hub = buildClusterTree(
-      groupClusters(snapshot.services ?? [], metrics, NOW),
-      {
-        capabilities: { operations: false },
-      }
-    ).find((node) => node.name === 'billing');
+    const hub = groupClusters(snapshot.services ?? [], metrics, NOW).find(
+      (cluster) => cluster.name === 'billing'
+    );
 
     expect(om?.health).toBe('unknown');
-    expect(hub?.health).toBe('degraded');
-    expect(hub?.members).toEqual({ up: 2, total: 3, noData: 1 });
+    expect(hub && clusterHealthOf(hub)).toBe('degraded');
+    expect(hub && memberCounts(hub)).toEqual({ up: 2, total: 3, noData: 1 });
   });
 });

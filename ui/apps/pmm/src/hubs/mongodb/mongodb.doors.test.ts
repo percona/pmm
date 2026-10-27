@@ -2,12 +2,9 @@ import {
   alertDoor,
   automationsDoor,
   backupStatus,
-  clusterQan,
   clusterSummary,
   instanceSummary,
-  lagDoor,
   listDashboard,
-  manageDoor,
   MONGO_PATHS,
   oplogDetails,
   queryQan,
@@ -49,12 +46,9 @@ describe('entity doors carry the entity’s own environment and cluster', () => 
     );
   });
 
-  it('Backup status and Query analytics for the cluster', () => {
+  it('Backup status for the cluster', () => {
     expect(backupStatus(ORDERS)).toBe(
       '/graph/d/mongodb-backup-details/mongodb-backup-details?var-environment=prod&var-cluster=orders'
-    );
-    expect(clusterQan(ORDERS)).toBe(
-      '/graph/d/pmm-qan/pmm-query-analytics?var-service_type=mongodb&var-environment=prod&var-cluster=orders'
     );
   });
 
@@ -70,14 +64,6 @@ describe('entity doors carry the entity’s own environment and cluster', () => 
     ).toBe(
       '/graph/d/mongodb-instance-summary/mongodb-instance-summary?var-environment=prod%20eu&var-cluster=a%22b&var-service_name=x%20y'
     );
-  });
-
-  it('opens lag over the last 3 hours with hidden context', () => {
-    expect(lagDoor(ORDERS, 'orders-shard1', 'orders-shard1-m3')).toEqual({
-      label: 'orders-shard1-m3',
-      to: '/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-environment=prod&var-cluster=orders&var-rs_nm=orders-shard1&from=now-3h&to=now',
-      context: 'replication lag of orders-shard1-m3',
-    });
   });
 });
 
@@ -105,14 +91,6 @@ describe('list doors carry the filter only when one environment is selected', ()
 });
 
 describe('Operations doors', () => {
-  it('Manage in Operations focuses the cluster in Fleet', () => {
-    expect(manageDoor('om-orders')).toEqual({
-      label: 'Manage in Operations',
-      to: '/operations?tab=clusters&cluster=om-orders',
-    });
-    expect(manageDoor().to).toBe('/operations?tab=clusters');
-  });
-
   it('a failed run opens in Automations, expanded, named after its run', () => {
     expect(automationsDoor('scan', 'run 1')).toEqual({
       label: 'Open Automations',

@@ -30,7 +30,6 @@ describe('deriveMongoHub status', () => {
       state: 'healthy',
       clusters: 5,
       health: { healthy: 5, degraded: 0, down: 0, upgrading: 0, noData: 0 },
-      patches: { behind: 2, unknown: 0 },
       alerts: 0,
       alertsCritical: 0,
       alertRules: 'some',
@@ -114,8 +113,7 @@ describe('deriveMongoHub status', () => {
 
     expect(view.status.state).toBe('noData');
     expect(view.status.health).toBeUndefined();
-    expect(view.clusters).toEqual([]);
-    expect(view.sections.clusters).toEqual({
+    expect(view.sections.attention).toEqual({
       status: 'error',
       source: 'metrics',
       message: 'Request failed with 403',
@@ -149,7 +147,7 @@ describe('deriveMongoHub status', () => {
     });
     expect(view.status.health).toBeUndefined();
     expect(view.status.backupCoverage).toBeUndefined();
-    expect(view.sections.clusters).toMatchObject({
+    expect(view.sections.attention).toMatchObject({
       status: 'error',
       source: 'inventory',
     });
@@ -189,10 +187,6 @@ describe('deriveMongoHub environment filter', () => {
       environment: 'staging',
     });
 
-    expect(view.clusters.map((node) => node.name)).toEqual([
-      'reports',
-      'catalog',
-    ]);
     expect(view.status).toMatchObject({
       clusters: 2,
       health: { healthy: 0, degraded: 1, down: 0, upgrading: 0, noData: 1 },
@@ -219,22 +213,13 @@ describe('deriveMongoHub environment filter', () => {
     );
     const view = derive(snapshot, { environment: HUB_NO_ENVIRONMENT });
 
-    expect(view.clusters.map((node) => node.name)).toEqual(['reports']);
+    expect(view.status.clusters).toBe(1);
     expect(
       view.environment.options[view.environment.options.length - 1]
     ).toEqual({
       value: HUB_NO_ENVIRONMENT,
       label: 'No environment',
     });
-  });
-
-  it('keeps an entity door on its own environment and a list door on the filter', () => {
-    const all = derive(healthySnapshot(NOW, false));
-    const prod = derive(healthySnapshot(NOW, false), { environment: 'prod' });
-
-    expect(all.clusters[0].doors.name.to).toContain('var-environment=prod');
-    expect(all.sectionDoors.clusters.to).not.toContain('var-environment');
-    expect(prod.sectionDoors.clusters.to).toContain('var-environment=prod');
   });
 
   it('reads a filter that matches nothing as no data, not as empty', () => {
@@ -303,10 +288,6 @@ describe('deriveMongoHub capabilities', () => {
         true,
       ],
     ]);
-    expect(view.sectionDoors.clusters).toEqual({
-      label: 'Fleet in Operations',
-      to: '/operations?tab=clusters',
-    });
     expect(view.shortcuts.map((tile) => [tile.label, tile.route])).toEqual([
       ['Clusters', '/mongodb/clusters'],
       [
@@ -320,16 +301,12 @@ describe('deriveMongoHub capabilities', () => {
     ]);
   });
 
-  it('opens Instances overview without Operations and drops the Fleet tile', () => {
+  it('offers no install and no Fleet tile without Operations', () => {
     const view = derive(healthySnapshot(NOW, false));
 
     expect(view.actions.add.map((action) => action.label)).toEqual([
       'Monitor an existing MongoDB service',
     ]);
-    expect(view.sectionDoors.clusters).toEqual({
-      label: 'Instances overview',
-      to: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
-    });
     expect(view.shortcuts.map((tile) => tile.label)).toEqual([
       'Clusters',
       'Instances overview',
@@ -384,7 +361,7 @@ describe('deriveMongoHub capabilities', () => {
 describe('deriveMongoHub sections', () => {
   it('reads every section ready for sample data', () => {
     expect(Object.values(derive(healthySnapshot(NOW, false)).sections)).toEqual(
-      Array(6).fill({ status: 'ready' })
+      Array(5).fill({ status: 'ready' })
     );
   });
 
@@ -394,7 +371,7 @@ describe('deriveMongoHub sections', () => {
     });
 
     expect(sections.queries).toEqual({ status: 'loading' });
-    expect(sections.clusters).toEqual({ status: 'ready' });
+    expect(sections.attention).toEqual({ status: 'ready' });
   });
 
   it('fails only the section of the failed source', () => {
@@ -486,11 +463,7 @@ describe('deriveMongoHub sections', () => {
   });
 });
 
-describe('deriveMongoHub tree', () => {
-  it('starts every cluster as one row, the unhealthy ones too', () => {
-    expect(derive(unhealthySnapshot(NOW, false)).expanded).toEqual({});
-  });
-
+describe('deriveMongoHub alerts', () => {
   it('drops alerts of another environment', () => {
     const snapshot = healthySnapshot(NOW, false);
 
@@ -510,44 +483,6 @@ describe('deriveMongoHub tree', () => {
         (item) => item.source
       )
     ).toEqual(['Alert rules']);
-  });
-});
-
-describe('deriveMongoHub patches', () => {
-  it('counts the clusters behind on patches and those the check could not answer for', () => {
-    const { status } = derive(unhealthySnapshot(NOW, false));
-
-    // payments and catalog run 7.0.24-13; billing's check is three days old.
-    expect(status.patches).toEqual({ behind: 2, unknown: 1 });
-  });
-
-  it('says nothing about patches while nothing checks for updates', () => {
-    const view = derive(
-      { ...unhealthySnapshot(NOW, false), updates: null },
-      { scenario: 'live' }
-    );
-
-    expect(view.status.patches).toBeUndefined();
-    expect(
-      view.clusters.every((node) => node.version?.update === undefined)
-    ).toBe(true);
-  });
-
-  it('shows only the clusters behind on patches while the filter is on, and still counts them all', () => {
-    const view = derive(healthySnapshot(NOW, false), {
-      scenario: 'healthy',
-      patches: 'behind',
-    });
-
-    expect(view.patchesFilter).toBe(true);
-    expect(view.clusters.map((node) => node.name)).toEqual([
-      'catalog',
-      'payments',
-    ]);
-    expect(view.status).toMatchObject({
-      clusters: 5,
-      patches: { behind: 2, unknown: 0 },
-    });
   });
 });
 

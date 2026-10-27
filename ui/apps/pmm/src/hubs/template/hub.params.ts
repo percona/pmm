@@ -13,7 +13,6 @@ import {
 /** URL names of the hub's own params; the `hub*` ones are prototype only and removed before anything ships. */
 export const HUB_PARAM_KEYS = {
   environment: 'environment',
-  patches: 'patches',
   // Grafana's name for it, so a bookmark reopens with the same interval.
   refresh: 'refresh',
   scenario: 'hubState',
@@ -24,7 +23,6 @@ export const HUB_PARAM_KEYS = {
 
 export const DEFAULT_HUB_PARAMS: HubParams = {
   environment: null,
-  patches: null,
   // The prototype opens on the best case, with Operations, so the bare URL shows the whole page; Live data is a choice.
   scenario: 'healthy',
   ops: 'on',
@@ -77,14 +75,13 @@ const oneOf = <T extends string>(
   fallback: T
 ): T => (values.includes(value as T) ? (value as T) : fallback);
 
-/** Reads the hub params; unknown values fall back to the defaults, an empty environment to all, any patches value but behind to none. */
+/** Reads the hub params; unknown values fall back to the defaults, an empty environment to all. */
 export const parseHubParams = (search: URLSearchParams | string): HubParams => {
   const params =
     typeof search === 'string' ? new URLSearchParams(search) : search;
 
   return {
     environment: params.get(HUB_PARAM_KEYS.environment) || null,
-    patches: params.get(HUB_PARAM_KEYS.patches) === 'behind' ? 'behind' : null,
     scenario: oneOf(
       SCENARIOS,
       params.get(HUB_PARAM_KEYS.scenario),
@@ -139,9 +136,6 @@ export const writeHubSearch = (
 
   if (merged.environment) {
     own.set(HUB_PARAM_KEYS.environment, merged.environment);
-  }
-  if (merged.patches) {
-    own.set(HUB_PARAM_KEYS.patches, merged.patches);
   }
   (['refresh', 'scenario', 'ops', 'role', 'freshness'] as const).forEach(
     (key) => {
