@@ -377,7 +377,7 @@ func (t testJob) DSN() string {
 	return t.dsn
 }
 
-func (t testJob) Run(ctx context.Context, send jobs.Send) error { //nolint:revive
+func (t testJob) Run(ctx context.Context, _ jobs.Send) error {
 	<-ctx.Done()
 	return nil
 }

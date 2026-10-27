@@ -28,9 +28,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -63,6 +64,7 @@ func BenchmarkCollector(b *testing.B) {
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(b, err)
+	disconnectOnCleanup(b, client)
 
 	// Just in case there are old dbs with matching names
 	require.NoError(b, cleanUpDBs(b.Context(), b, client))
@@ -128,6 +130,7 @@ func TestCollector(t *testing.T) {
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
 
 	require.NoError(t, cleanUpDBs(t.Context(), t, client)) // Just in case there are old dbs with matching names
 	t.Cleanup(func() {
@@ -178,6 +181,76 @@ func TestCollector(t *testing.T) {
 	assert.Len(t, profiles, maxDocs*maxLoops)
 }
 
+func TestCollectorContextCancel(t *testing.T) {
+	url := "mongodb://root:root-password@127.0.0.1:27017"
+	client, err := createSession(url, "pmm-agent-test")
+	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
+
+	// Create a sub-context specifically for this test to trigger cancellation.
+	ctx, cancel := context.WithCancel(t.Context())
+
+	ctr := New(client, "test_context_cancel", logrus.WithField("component", "collector-test"))
+
+	docsChan, err := ctr.Start(ctx)
+	require.NoError(t, err)
+
+	// Verify the collector is running.
+	assert.Equal(t, "collector", ctr.Name())
+
+	// Cancel the context to signal the internal goroutine to exit.
+	// Don't call Stop() before the check: it closes doneChan, which would shut the collector
+	// down on its own and hide a missing ctx.Done() case.
+	cancel()
+
+	exited := make(chan struct{})
+	go func() {
+		ctr.wg.Wait()
+		close(exited)
+	}()
+
+	select {
+	case <-exited:
+		// Success: Internal goroutines shut down gracefully.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector goroutine did not exit on context cancellation")
+	}
+
+	ctr.Stop()
+
+	// Verify that the data channel was closed.
+	_, ok := <-docsChan
+	assert.False(t, ok, "docsChan should be closed after collector stops")
+}
+
+// TestCollectorStartCanceledContext checks that Start() does not block on ready.Wait()
+// when the context is already canceled and the very first iterator creation fails.
+func TestCollectorStartCanceledContext(t *testing.T) {
+	client, err := mongo.Connect(t.Context(), options.Client().ApplyURI("mongodb://127.0.0.1:1").SetDirect(true))
+	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	ctr := New(client, "test_start_canceled_context", logrus.WithField("component", "collector-test"))
+
+	startDone := make(chan struct{})
+	go func() {
+		_, err := ctr.Start(ctx)
+		assert.NoError(t, err)
+		ctr.Stop()
+		close(startDone)
+	}()
+
+	select {
+	case <-startDone:
+		// Success: Start() returned instead of waiting for a "ready" signal that never comes.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector.Start did not return with a canceled context")
+	}
+}
+
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	interval := time.Millisecond
 
@@ -205,11 +278,23 @@ func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	}
 }
 
+// disconnectOnCleanup closes the client when the test ends. It has to be registered
+// right after the client is created so that it runs after the cleanups that still use it.
+func disconnectOnCleanup(tb testing.TB, client *mongo.Client) {
+	tb.Helper()
+
+	tb.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+		defer cancel()
+		assert.NoError(tb, client.Disconnect(ctx))
+	})
+}
+
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}

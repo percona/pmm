@@ -326,14 +326,6 @@ func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last b
 	return nil
 }
 
-// StopDump stops the ongoing dump process in the dump service.
-func (s *Service) StopDump() {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
-	s.cancel()
-}
-
 func getDumpFilePath(id string, encrypted bool) string {
 	s := fmt.Sprintf("%s/%s.tar.gz", dumpsDir, id)
 	if encrypted {

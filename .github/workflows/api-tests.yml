@@ -1,3 +1,4 @@
+---
 name: 'API Tests'
 
 on:
@@ -36,7 +37,7 @@ permissions:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       PMM_URL: https://admin:admin@127.0.0.1
       BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
@@ -44,12 +45,12 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.BRANCH }}
 
       - name: Login to docker.io registry
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -64,7 +65,6 @@ jobs:
               container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
-                - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
               ports:
                 - 443:8443
               volumes:
@@ -83,13 +83,6 @@ jobs:
         run: |
           make docker-build-image
 
-      - name: Run compose up for test DBs
-        shell: bash
-        run: |
-          pushd api-tests
-          docker compose up test_db # no daemon mode
-          popd
-
       - name: Check connectivity to PMM Server
         shell: bash
         run: curl -kf ${{env.PMM_URL}}/ping
@@ -105,7 +98,7 @@ jobs:
 
       - name: Upload the logs on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "logs.zip"
           path: ${{ github.workspace }}/logs.zip

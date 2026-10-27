@@ -75,3 +75,9 @@ type inventoryMetrics interface {
 	GetNodeMetrics(ctx context.Context) (metrics []Metric, err error)
 	GetServiceMetrics(ctx context.Context) (metrics []Metric, err error)
 }
+
+// grafanaClient is a subset of methods of grafana.Client used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type grafanaClient interface {
+	DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error)
+}

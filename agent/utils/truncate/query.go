@@ -39,7 +39,7 @@ func Query(q string, maxQueryLength, defaultMaxQueryLength int32) (string, bool)
 	}
 
 	// for queries shorter than 4 chars
-	if maxQueryLength < 4 {
+	if maxQueryLength < 4 { //nolint:mnd
 		return " ...", true
 	}
 

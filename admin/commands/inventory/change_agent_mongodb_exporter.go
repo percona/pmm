@@ -39,6 +39,7 @@ Expose exporter       : {{ .Agent.ExposeExporter }}
 
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
+Environment variables : {{ formatEnvironmentVariableNames .Agent.EnvironmentVariableNames }}
 Process exec path     : {{ .Agent.ProcessExecPath }}
 Log level             : {{ formatLogLevel .Agent.LogLevel }}
 
@@ -84,10 +85,11 @@ type ChangeAgentMongodbExporterCommand struct {
 	TLSCaFile                     *string `help:"TLS CA certificate file"`
 
 	// MongoDB specific options
-	AuthenticationMechanism *string `help:"Authentication mechanism for MongoDB"`
-	AuthenticationDatabase  *string `help:"Authentication database for MongoDB"`
-	StatsCollections        *string `help:"List of comma-separated collection names to collect"`
-	CollectionsLimit        *int32  `help:"Collections limit"`
+	AuthenticationMechanism        *string `help:"Authentication mechanism for MongoDB"`
+	AuthenticationDatabase         *string `help:"Authentication database for MongoDB"`
+	StatsCollections               *string `help:"List of comma-separated collection names to collect"`
+	CollectionsLimit               *int32  `help:"Collections limit"`
+	EnableDiagnosticDataHistograms *bool   `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 
 	// Exporter options
 	DisableCollectors []string       `help:"List of collector names to disable"`
@@ -97,6 +99,15 @@ type ChangeAgentMongodbExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Environment variables. A present-but-empty flag (--agent-env-vars=) removes all
+	// previously set names; an absent flag leaves them unchanged, matching CustomLabels below.
+	//
+	//nolint:lll
+	AgentEnvVars *[]string `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from pmm-agent's environment), e.g. 'VAR1,VAR2'. Pass an empty value to remove all of them"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentMongodbExporterCommand and returns the result.
@@ -112,6 +123,17 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		statsCollections = strings.Split(*cmd.StatsCollections, ",")
 		for i, collection := range statsCollections {
 			statsCollections[i] = strings.TrimSpace(collection)
+		}
+	}
+
+	// Parse environment variable names if provided
+	var agentEnvVars []string
+	if cmd.AgentEnvVars != nil {
+		var err error
+
+		agentEnvVars, err = commands.ValidateEnvironmentVariableNames(*cmd.AgentEnvVars)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -137,29 +159,37 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	}
 
 	body := &agents.ChangeAgentParamsBodyMongodbExporter{
-		Enable:                        cmd.Enable,
-		Username:                      cmd.Username,
-		Password:                      cmd.Password,
-		AgentPassword:                 cmd.AgentPassword,
-		TLS:                           cmd.TLS,
-		TLSSkipVerify:                 cmd.TLSSkipVerify,
-		TLSCertificateKey:             tlsCertificateKey,
-		TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-		TLSCa:                         tlsCa,
-		AuthenticationMechanism:       cmd.AuthenticationMechanism,
-		AuthenticationDatabase:        cmd.AuthenticationDatabase,
-		StatsCollections:              statsCollections,
-		CollectionsLimit:              cmd.CollectionsLimit,
-		DisableCollectors:             cmd.DisableCollectors,
-		ExposeExporter:                cmd.ExposeExporter,
-		EnablePushMetrics:             cmd.PushMetrics,
-		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
+		Enable:                         cmd.Enable,
+		Username:                       cmd.Username,
+		Password:                       cmd.Password,
+		AgentPassword:                  cmd.AgentPassword,
+		TLS:                            cmd.TLS,
+		TLSSkipVerify:                  cmd.TLSSkipVerify,
+		TLSCertificateKey:              tlsCertificateKey,
+		TLSCertificateKeyFilePassword:  cmd.TLSCertificateKeyFilePassword,
+		TLSCa:                          tlsCa,
+		AuthenticationMechanism:        cmd.AuthenticationMechanism,
+		AuthenticationDatabase:         cmd.AuthenticationDatabase,
+		StatsCollections:               statsCollections,
+		CollectionsLimit:               cmd.CollectionsLimit,
+		EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+		DisableCollectors:              cmd.DisableCollectors,
+		ExposeExporter:                 cmd.ExposeExporter,
+		EnablePushMetrics:              cmd.PushMetrics,
+		LogLevel:                       convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck:            cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {
 		body.CustomLabels = &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{
 			Values: *customLabels,
+		}
+	}
+
+	if cmd.AgentEnvVars != nil {
+		body.EnvironmentVariableNames = &agents.ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames{
+			Values: agentEnvVars,
 		}
 	}
 
@@ -228,6 +258,13 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	if cmd.CollectionsLimit != nil {
 		changes = append(changes, fmt.Sprintf("changed collections limit to %d", *cmd.CollectionsLimit))
 	}
+	if cmd.EnableDiagnosticDataHistograms != nil {
+		if *cmd.EnableDiagnosticDataHistograms {
+			changes = append(changes, "enabled diagnostic data histograms")
+		} else {
+			changes = append(changes, "disabled diagnostic data histograms")
+		}
+	}
 	if cmd.DisableCollectors != nil {
 		changes = append(changes, fmt.Sprintf("updated disabled collectors: %v", cmd.DisableCollectors))
 	}
@@ -253,6 +290,13 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 			changes = append(changes, "updated custom labels")
 		} else {
 			changes = append(changes, "custom labels are removed")
+		}
+	}
+	if cmd.AgentEnvVars != nil {
+		if len(agentEnvVars) != 0 {
+			changes = append(changes, "updated environment variable names: "+strings.Join(agentEnvVars, ", "))
+		} else {
+			changes = append(changes, "environment variable names are removed")
 		}
 	}
 

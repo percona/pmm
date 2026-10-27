@@ -134,8 +134,7 @@ func (e PMMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PMMAgentValidationError{}
@@ -243,8 +242,7 @@ func (e VMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VMAgentValidationError{}
@@ -355,8 +353,7 @@ func (e NomadAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NomadAgentValidationError{}
@@ -504,8 +501,7 @@ func (e NodeExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NodeExporterValidationError{}
@@ -705,8 +701,7 @@ func (e MySQLdExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MySQLdExporterValidationError{}
@@ -831,6 +826,8 @@ func (m *MongoDBExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -896,8 +893,7 @@ func (e MongoDBExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MongoDBExporterValidationError{}
@@ -1087,8 +1083,7 @@ func (e PostgresExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PostgresExporterValidationError{}
@@ -1274,8 +1269,7 @@ func (e ProxySQLExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ProxySQLExporterValidationError{}
@@ -1459,8 +1453,7 @@ func (e ValkeyExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ValkeyExporterValidationError{}
@@ -1598,8 +1591,7 @@ func (e QANMySQLPerfSchemaAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLPerfSchemaAgentValidationError{}
@@ -1739,8 +1731,7 @@ func (e QANMySQLSlowlogAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLSlowlogAgentValidationError{}
@@ -1866,8 +1857,7 @@ func (e QANMongoDBProfilerAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBProfilerAgentValidationError{}
@@ -1993,8 +1983,7 @@ func (e QANMongoDBMongologAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBMongologAgentValidationError{}
@@ -2123,8 +2112,7 @@ func (e RTAOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAOptionsValidationError{}
@@ -2273,8 +2261,7 @@ func (e RTAMongoDBAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAMongoDBAgentValidationError{}
@@ -2403,8 +2390,7 @@ func (e QANPostgreSQLPgStatementsAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatementsAgentValidationError{}
@@ -2535,8 +2521,7 @@ func (e QANPostgreSQLPgStatMonitorAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatMonitorAgentValidationError{}
@@ -2582,6 +2567,8 @@ func (m *RDSExporter) validate(all bool) error {
 	// no validation rules for AwsAccessKey
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for AwsRoleArn
 
 	// no validation rules for Status
 
@@ -2692,8 +2679,7 @@ func (e RDSExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RDSExporterValidationError{}
@@ -2848,8 +2834,7 @@ func (e ExternalExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExternalExporterValidationError{}
@@ -3004,8 +2989,7 @@ func (e AzureDatabaseExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AzureDatabaseExporterValidationError{}
@@ -3175,8 +3159,7 @@ func (e ChangeCommonAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeCommonAgentParamsValidationError{}
@@ -3286,8 +3269,7 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -4035,8 +4017,7 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -4147,8 +4128,7 @@ func (e GetAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentRequestValidationError{}
@@ -5032,8 +5012,7 @@ func (e GetAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentResponseValidationError{}
@@ -5148,8 +5127,7 @@ func (e GetAgentLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsRequestValidationError{}
@@ -5253,8 +5231,7 @@ func (e GetAgentLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsResponseValidationError{}
@@ -6056,8 +6033,7 @@ func (e AddAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentRequestValidationError{}
@@ -6859,8 +6835,7 @@ func (e AddAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentResponseValidationError{}
@@ -7675,8 +7650,7 @@ func (e ChangeAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentRequestValidationError{}
@@ -8480,8 +8454,7 @@ func (e ChangeAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentResponseValidationError{}
@@ -8596,8 +8569,7 @@ func (e AddPMMAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPMMAgentParamsValidationError{}
@@ -8718,8 +8690,7 @@ func (e AddNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddNodeExporterParamsValidationError{}
@@ -8897,8 +8868,7 @@ func (e ChangeNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNodeExporterParamsValidationError{}
@@ -9091,8 +9061,7 @@ func (e AddMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMySQLdExporterParamsValidationError{}
@@ -9340,8 +9309,7 @@ func (e ChangeMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMySQLdExporterParamsValidationError{}
@@ -9462,6 +9430,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9529,8 +9499,7 @@ func (e AddMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMongoDBExporterParamsValidationError{}
@@ -9723,6 +9692,41 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 		// no validation rules for ExposeExporter
 	}
 
+	if m.EnableDiagnosticDataHistograms != nil {
+		// no validation rules for EnableDiagnosticDataHistograms
+	}
+
+	if m.EnvironmentVariableNames != nil {
+		if all {
+			switch v := interface{}(m.GetEnvironmentVariableNames()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetEnvironmentVariableNames()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeMongoDBExporterParamsValidationError{
+					field:  "EnvironmentVariableNames",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeMongoDBExporterParamsMultiError(errors)
 	}
@@ -9791,8 +9795,7 @@ func (e ChangeMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMongoDBExporterParamsValidationError{}
@@ -9985,8 +9988,7 @@ func (e AddPostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPostgresExporterParamsValidationError{}
@@ -10239,8 +10241,7 @@ func (e ChangePostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangePostgresExporterParamsValidationError{}
@@ -10423,8 +10424,7 @@ func (e AddProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddProxySQLExporterParamsValidationError{}
@@ -10585,6 +10585,10 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		// no validation rules for ExposeExporter
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeProxySQLExporterParamsMultiError(errors)
 	}
@@ -10653,8 +10657,7 @@ func (e ChangeProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeProxySQLExporterParamsValidationError{}
@@ -10818,8 +10821,7 @@ func (e AddQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -11040,8 +11042,7 @@ func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -11205,8 +11206,7 @@ func (e AddQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLSlowlogAgentParamsValidationError{}
@@ -11431,8 +11431,7 @@ func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLSlowlogAgentParamsValidationError{}
@@ -11585,8 +11584,7 @@ func (e AddQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBProfilerAgentParamsValidationError{}
@@ -11734,6 +11732,10 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11803,8 +11805,7 @@ func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBProfilerAgentParamsValidationError{}
@@ -11957,8 +11958,7 @@ func (e AddQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBMongologAgentParamsValidationError{}
@@ -12106,6 +12106,10 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBMongologAgentParamsMultiError(errors)
 	}
@@ -12175,8 +12179,7 @@ func (e ChangeQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBMongologAgentParamsValidationError{}
@@ -12337,8 +12340,7 @@ func (e AddQANPostgreSQLPgStatementsAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12483,6 +12485,10 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
 	}
@@ -12552,8 +12558,7 @@ func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Error() strin
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12716,8 +12721,7 @@ func (e AddQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() string 
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -12866,6 +12870,10 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError(errors)
 	}
@@ -12935,8 +12943,7 @@ func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() stri
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -13009,6 +13016,19 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if m.GetAwsRoleArn() != "" {
+		if !_AddRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := AddRDSExporterParamsValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
 	}
@@ -13076,8 +13096,7 @@ func (e AddRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRDSExporterParamsValidationError{}
@@ -13089,6 +13108,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSExporterParamsValidationError{}
+
+var _AddRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on ChangeRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13200,6 +13221,21 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.AwsRoleArn != nil {
+		if m.GetAwsRoleArn() != "" {
+			if !_ChangeRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "AwsRoleArn",
+					reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeRDSExporterParamsMultiError(errors)
 	}
@@ -13267,8 +13303,7 @@ func (e ChangeRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRDSExporterParamsValidationError{}
@@ -13280,6 +13315,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRDSExporterParamsValidationError{}
+
+var _ChangeRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on AddExternalExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13408,8 +13445,7 @@ func (e AddExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddExternalExporterParamsValidationError{}
@@ -13528,6 +13564,10 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 		// no validation rules for ListenPort
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeExternalExporterParamsMultiError(errors)
 	}
@@ -13596,8 +13636,7 @@ func (e ChangeExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeExternalExporterParamsValidationError{}
@@ -13751,8 +13790,7 @@ func (e AddAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAzureDatabaseExporterParamsValidationError{}
@@ -13949,8 +13987,7 @@ func (e ChangeAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAzureDatabaseExporterParamsValidationError{}
@@ -14056,8 +14093,7 @@ func (e ChangeNomadAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNomadAgentParamsValidationError{}
@@ -14255,8 +14291,7 @@ func (e AddValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddValkeyExporterParamsValidationError{}
@@ -14438,6 +14473,10 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeValkeyExporterParamsMultiError(errors)
 	}
@@ -14505,8 +14544,7 @@ func (e ChangeValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeValkeyExporterParamsValidationError{}
@@ -14681,8 +14719,7 @@ func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRTAMongoDBAgentParamsValidationError{}
@@ -14819,6 +14856,10 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 		}
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeRTAMongoDBAgentParamsMultiError(errors)
 	}
@@ -14887,8 +14928,7 @@ func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
@@ -15003,8 +15043,7 @@ func (e RemoveAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentRequestValidationError{}
@@ -15106,8 +15145,7 @@ func (e RemoveAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentResponseValidationError{}

@@ -45,7 +45,7 @@ checks:
 
            results = []
            ahi_parts = 0
-           read_more = "https://docs.percona.com/percona-platform/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
+           read_more = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
 
            # Check if AHI is enabled and partitioned
            for row in docs[0]:
@@ -120,7 +120,7 @@ checks:
                    else:  # loadAvg > thresholdB
                        summary = "AHI is likely experiencing contention"
                        description = "{}. You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadHitRatioMsg,ahi_parts)
-                       severity = "major"
+                       severity = "error"
 
                else:
                    summary = "AHI is operating with no contention detected"

@@ -69,3 +69,36 @@ func TestLabels(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "__1".`), err)
 	})
 }
+
+// The two outcomes are not symmetric: an entry that yields no name stops the whole sweep, while one
+// that yields a name is trusted as naming a live replica. Reading a name out of an entry that carries
+// none would turn "keep every Node" into "remove every Node this entry didn't name".
+func TestHAPeerNodeName(t *testing.T) {
+	for _, tc := range []struct {
+		peer string
+		name string
+		ok   bool
+	}{
+		{peer: "pmm-ha-0.monitoring-service.pmm.svc.cluster.local", name: "pmm-ha-0", ok: true}, // what the chart renders
+		{peer: "pmm-ha-0.pmm-ha:9761", name: "pmm-ha-0", ok: true},
+		{peer: " pmm-ha-1.pmm-ha.pmm.svc.cluster.local ", name: "pmm-ha-1", ok: true}, // trimmed
+		{peer: "pmm-ha-2:9761", name: "pmm-ha-2", ok: true},                           // a dotless host with a port
+		{peer: "pmm-ha-2", name: "pmm-ha-2", ok: true},
+		{peer: "10.244.1.7"}, // bare IPv4, with and without a port
+		{peer: "10.244.1.7:9761"},
+		{peer: "2001:db8::7"}, // IPv6, unbracketed and bracketed
+		{peer: "[2001:db8::7]:9761"},
+		{peer: "[2001:db8::7]"},
+		{peer: "pmm-ha-2/10.0.0.2"}, // memberlist's "name/address" form
+		{peer: "pmm-ha-2/[2001:db8::7]:9761"},
+		{peer: ":9761"},
+		{peer: ""},
+		{peer: "   "},
+	} {
+		t.Run(tc.peer, func(t *testing.T) {
+			name, ok := haPeerNodeName(tc.peer)
+			assert.Equal(t, tc.ok, ok)
+			assert.Equal(t, tc.name, name)
+		})
+	}
+}

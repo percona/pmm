@@ -50,13 +50,13 @@ const (
 
 // Service represents a structure for managing dump-related operations.
 type Service struct {
+	dumpv1beta1.UnimplementedDumpServiceServer
+
 	db *reform.DB
 	l  *logrus.Entry
 
 	dumpService   dumpService
 	grafanaClient *grafana.Client
-
-	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.
@@ -90,7 +90,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 			}
 
 			s := strings.Split(string(decodedBasic), ":")
-			if len(s) < 2 {
+			if len(s) < 2 { //nolint:mnd
 				return nil, errors.New("failed to parse basic authorization header")
 			}
 			user, password = s[0], s[1]

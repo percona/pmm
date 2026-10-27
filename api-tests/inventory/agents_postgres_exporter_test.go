@@ -413,12 +413,13 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					TLS:               new(true),
-					TLSSkipVerify:     new(false),
-					AgentPassword:     new("new-agent-password"),
-					LogLevel:          new(agents.ChangeAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN),
-					DisableCollectors: []string{"collector1", "collector2"},
-					ExposeExporter:    new(true),
+					SkipConnectionCheck: new(true),
+					TLS:                 new(true),
+					TLSSkipVerify:       new(false),
+					AgentPassword:       new("new-agent-password"),
+					LogLevel:            new(agents.ChangeAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN),
+					DisableCollectors:   []string{"collector1", "collector2"},
+					ExposeExporter:      new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -476,7 +477,8 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Password: new("rotated-postgres-password-456"),
+					SkipConnectionCheck: new(true),
+					Password:            new("rotated-postgres-password-456"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -504,10 +506,11 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Username:      new("new-postgres-user"),
-					Password:      new("final-postgres-password-789"),
-					TLS:           new(true),
-					TLSSkipVerify: new(false),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-postgres-user"),
+					Password:            new("final-postgres-password-789"),
+					TLS:                 new(true),
+					TLSSkipVerify:       new(false),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -526,6 +529,57 @@ func TestPostgresExporter(t *testing.T) {
 		assert.True(t, getAgentRes.Payload.PostgresExporter.TLS)
 		assert.False(t, getAgentRes.Payload.PostgresExporter.TLSSkipVerify)
 		assert.False(t, getAgentRes.Payload.PostgresExporter.Disabled)
+	})
+
+	t.Run("ChangeConnectionCheckFails", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter")).NodeID
+
+		service := pmmapitests.AddService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     pmmapitests.TestString(t, "localhost"),
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for connection check test"),
+			},
+		})
+		serviceID := service.Postgresql.ServiceID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
+
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+				ServiceID:           serviceID,
+				Username:            "username",
+				Password:            "password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := res.PostgresExporter.AgentID
+
+		// Changing a connection-affecting field without SkipConnectionCheck triggers
+		// a connection check, which fails because pmm-agent is not connected.
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
+					Password: new("wrong-password"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "is not currently connected")
+
+		// Verify that the change was not applied.
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, getAgentRes.Payload.PostgresExporter)
+		assert.Equal(t, "username", getAgentRes.Payload.PostgresExporter.Username)
 	})
 
 	t.Run("ChangeOnlySpecifiedFields_KeepOthersUnchanged", func(t *testing.T) {
@@ -591,7 +645,8 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Password: new("new-password-only"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-password-only"),
 					// All other fields are intentionally NOT set (nil)
 				},
 			},

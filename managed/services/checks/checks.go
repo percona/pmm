@@ -80,6 +80,10 @@ var (
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 
 	b64 = base64.StdEncoding
+
+	// An arbiter stores no users, so it rejects every query that needs authentication,
+	// and a check with such a query can't run on it. This marks that rejection.
+	errMongoDBArbiter = errors.New(agentv1.MongoDBArbiterUnauthorized)
 )
 
 // Service is responsible for interactions with Percona Check service.
@@ -93,6 +97,10 @@ type Service struct {
 	l               *logrus.Entry
 	startDelay      time.Duration
 	customCheckFile string // For testing
+
+	// startCheckCh delivers on-demand check runs from StartChecks to
+	// runChecksLoop, which owns the service lifecycle context.
+	startCheckCh chan []string
 
 	am       sync.Mutex
 	advisors []check.Advisor
@@ -134,6 +142,7 @@ func New(
 		l:               l,
 		startDelay:      defaultStartDelay,
 		customCheckFile: os.Getenv(envCheckFile),
+		startCheckCh:    make(chan []string, 1),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -154,7 +163,7 @@ func New(
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
 			Help:       "Time taken to execute checks per service type, advisor, and check name",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
@@ -178,13 +187,14 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
+	s.tm.Lock()
 	s.rareTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.RareInterval)
-	defer s.rareTicker.Stop()
-
 	s.standardTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.StandardInterval)
-	defer s.standardTicker.Stop()
-
 	s.frequentTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.FrequentInterval)
+	s.tm.Unlock()
+
+	defer s.rareTicker.Stop()
+	defer s.standardTicker.Stop()
 	defer s.frequentTicker.Stop()
 
 	// delay for the first run to allow all agents to connect
@@ -220,6 +230,10 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
+		case checkNames := <-s.startCheckCh:
+			// On-demand run requested via StartChecks.
+			s.UpdateAdvisorsList(ctx)
+			err = s.run(ctx, "", checkNames)
 		case <-s.rareTicker.C:
 			// Start all checks from rare group.
 			err = s.runChecksGroup(ctx, check.Rare)
@@ -275,14 +289,14 @@ func (s *Service) StartChecks(checkNames []string) error {
 		return services.ErrAdvisorsDisabled
 	}
 
-	go func() {
-		ctx := context.Background()
-		s.UpdateAdvisorsList(ctx)
-		err := s.run(ctx, "", checkNames)
-		if err != nil {
-			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
-		}
-	}()
+	// Hand the request off to runChecksLoop, which owns the service lifecycle
+	// context. The loop only runs on the leader node, so a non-blocking send
+	// drops the request where there is nothing to execute it.
+	select {
+	case s.startCheckCh <- checkNames:
+	default:
+		s.l.Warn("Advisor checks run is already pending, skipping the request.")
+	}
 
 	return nil
 }
@@ -500,18 +514,27 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 		}
 
 		if res.Error != "" {
-			return nil, fmt.Errorf("action %s failed: %s", resultID, res.Error)
+			return nil, actionError(resultID, res.Error)
 		}
 
 		return []byte(res.Output), nil
 	}
 }
 
+// actionError returns the error of a failed Action, recognizable with errors.Is as errMongoDBArbiter
+// if pmm-agent reported that an arbiter rejected the query.
+func actionError(resultID, msg string) error {
+	if rest, ok := strings.CutPrefix(msg, agentv1.MongoDBArbiterUnauthorized); ok {
+		return fmt.Errorf("action %s failed: %w%s", resultID, errMongoDBArbiter, rest)
+	}
+	return fmt.Errorf("action %s failed: %s", resultID, msg)
+}
+
 func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
 	switch c.Version {
 	case 1:
 		return s.minPMMAgentVersionForType(c.Type)
-	case 2:
+	case 2: //nolint:mnd
 		res := pmmAgent2_6_0 // minimum version that can be used with advisors
 		for _, query := range c.Queries {
 			v := s.minPMMAgentVersionForType(query.Type)
@@ -678,6 +701,11 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
+			if errors.Is(err, errMongoDBArbiter) {
+				s.l.Debugf("Skipped check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "skipped").Inc()
+				continue
+			}
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
@@ -1075,7 +1103,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 		lookback = time.Now().Add(-d)
 	}
 
-	r, warns, err := s.vmClient.Query(ctx, q, lookback)
+	r, warns, _, err := s.vmClient.Query(ctx, q, lookback)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute instant VM query: %w", err)
 	}
@@ -1138,7 +1166,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 		return "", fmt.Errorf("failed to parse 'step' query parameter: %w", err)
 	}
 
-	r, warns, err := s.vmClient.QueryRange(ctx, q, rng)
+	r, warns, _, err := s.vmClient.QueryRange(ctx, q, rng)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute range VM query: %w", err)
 	}
@@ -1444,7 +1472,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		}
 
 		advisors = append(advisors, check.Advisor{
-			Version:     2,
+			Version:     2, //nolint:mnd
 			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
@@ -1589,7 +1617,7 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
 					continue LOOP
 				}
-			case 2:
+			case 2: //nolint:mnd
 				for _, query := range c.Queries {
 					if ok := isQueryTypeSupported(query.Type); !ok {
 						s.l.Warnf("Unsupported query type: %s.", query.Type)
@@ -1650,10 +1678,16 @@ func (s *Service) updateAdvisors(advisors []check.Advisor) {
 // UpdateIntervals updates advisor checks restart timer intervals.
 func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 	s.tm.Lock()
+	defer s.tm.Unlock()
+	// Tickers are created by Run; if it has not started on this node (e.g. not
+	// the leader), there is nothing to reset - Run reads the new intervals from
+	// the persisted settings when it starts.
+	if s.rareTicker == nil || s.standardTicker == nil || s.frequentTicker == nil {
+		return
+	}
 	s.rareTicker.Reset(rare)
 	s.standardTicker.Reset(standard)
 	s.frequentTicker.Reset(frequent)
-	s.tm.Unlock()
 
 	s.l.Infof("Intervals are changed: rare %s, standard %s, frequent %s", rare, standard, frequent)
 }

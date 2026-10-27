@@ -971,7 +971,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum(increase(mongodb_oplog_stats_wt_cache_bytes_written_from_cache{service_name=~\"$service_name\"}[1h]))",
+                    "expr": "sum by (service_name) (increase(mongodb_oplog_stats_wt_cache_bytes_written_from_cache{service_name=~\"$service_name\"}[1h]))",
                     "interval": "$interval",
                     "legendFormat": "{{service_name}}",
                     "range": true,

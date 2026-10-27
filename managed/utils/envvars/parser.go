@@ -17,13 +17,16 @@
 package envvars
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -31,7 +34,7 @@ import (
 )
 
 const (
-	defaultPlatformAddress    = "https://check.percona.com"
+	defaultPlatformAddress    = "https://check-dev.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
 	EnvVMAgentPrefix = "VMAGENT_"
@@ -59,14 +62,17 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - PMM_ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
+//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry;
 //   - PMM_ENABLE_ALERTING disables Percona Alerting;
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
-//   - the environment variables prefixed with GF_ passed as related to Grafana.
-//   - the environment variables relating to proxies
+//   - PMM_ENABLE_OM enables OpenManager;
+//   - the environment variables prefixed with GF_ are related to Grafana.
+//   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
+//     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
+//   - the environment variables related to proxies
 //   - the environment variable set by podman
 func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
 	envSettings := &models.ChangeSettingsParams{}
@@ -82,7 +88,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
-		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
+		logrus.Tracef("ParseEnvVars: k=%#q v=%#q", k, redactSecretEnvVar(k, v))
 
 		var err error
 		switch k {
@@ -96,18 +102,27 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
 			// skip nss_wrapper environment variables
 			continue
-		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY", "AWS_REGION", "AWS_DEFAULT_REGION":
+			// skip AWS SDK environment variables consumed by RDS discovery
 			continue
 
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
+
+		case "PMM_ENABLE_HA_ALERTS", "PMM_ENABLE_COMPONENT_ALERTS":
+			// Handled by kingpin and read straight by the alert rule provisioner. They deliberately
+			// have no settings entry: the rules are rendered from the shipped templates at startup,
+			// so changing one means recreating the container, which is the only way to change an
+			// environment variable anyway.
+			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
+			"PMM_CLICKHOUSE_DATASOURCE_USER", "PMM_CLICKHOUSE_DATASOURCE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
 			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
-			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
-			// skip env variables for external clickhouse
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE",
+			pkgenv.ClickHouseConfig:
 			continue
 		case "PMM_POSTGRES_ADDR",
 			"PMM_POSTGRES_DBNAME",
@@ -120,11 +135,19 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
-			// skip watchtower environement variables
+		case pkgenv.EnableExtensions, "PMM_EXTENSIONS_POSTGRES_PASSWORD", "PMM_EXTENSIONS_ADDRESS":
+			// skip env variables consumed by the entrypoint to wire up the side-car.
+			// PMM_ENABLE_EXTENSIONS is not a stored setting: it describes how this
+			// process was started, so it is read from the environment by
+			// env.ExtensionsEnabled instead of being persisted here.
+			continue
+		case "PMM_EXTENSIONS_URL", "PMM_EXTENSIONS_TOKEN":
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
+			continue
+		case "PMM_INTERNAL_NODE_NAME_PREFIXES":
+			// skip the env variable that is already handled by kingpin
 			continue
 		case "PMM_ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
@@ -133,12 +156,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableUpdates = &b
-		case "PMM_UPDATE_SNOOZE_DURATION":
-			envSettings.UpdateSnoozeDuration, err = parseStringDuration(v)
-			if err != nil {
-				errs = append(errs, formatEnvVariableError(err, env, v))
-				continue
-			}
 		case "PMM_ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
@@ -208,6 +225,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableBackupManagement = &b
 
+		case "PMM_ENABLE_OM":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value '%s' for environment variable %s", v, k))
+				continue
+			}
+			envSettings.EnableOM = &b
+
 		case "PMM_ENABLE_NOMAD":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
@@ -220,9 +245,16 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
-			_, err = url.Parse(v)
+			// An empty value is ignored rather than rejected: kingpin falls back to its default
+			// for a variable that is set but empty, so this is the address PMM Server uses
+			// anyway, and a template that renders an unset value has always started.
+			if v == "" {
+				warns = append(warns, "PMM_VM_URL is set but empty and is ignored: the built-in VictoriaMetrics address is used")
+				continue
+			}
+			_, err := models.ParseVictoriaMetricsURL(v)
 			if err != nil {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
 			}
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
@@ -243,6 +275,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableAccessControl = &b
 
 		case pkgenv.PlatformAPITimeout:
+			// This variable is not part of the settings and is parsed separately.
+			continue
+
+		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
@@ -324,7 +360,205 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 	}
 
+	// Nomad needs the public address to build the URL agents connect back to. Only the
+	// environment is visible here, so this also warns when the address is set in Settings.
+	if pointer.Get(envSettings.EnableNomad) && pointer.Get(envSettings.PMMPublicAddress) == "" {
+		warns = append(warns, "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; "+
+			"Nomad will not start unless a public address is configured in PMM settings")
+	}
+
+	overrideErrs, overrideWarns := checkVMAgentRemoteWriteOverride(envs)
+	errs = append(errs, overrideErrs...)
+	warns = append(warns, overrideWarns...)
+
 	return envSettings, errs, warns
+}
+
+// secretEnvVarMarkers name the environment variables whose values must never reach the logs.
+var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
+
+// redactSecretEnvVar replaces the value of a credential-bearing environment variable.
+func redactSecretEnvVar(key, value string) string {
+	for _, marker := range secretEnvVarMarkers {
+		if strings.Contains(key, marker) {
+			return "<redacted>"
+		}
+	}
+
+	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the
+	// credentials.
+	return models.RedactURLCredentials(value)
+}
+
+// Names of the vmagent remote-write variables PMM Server sets by default. An operator may inject
+// them on PMM Server to override the defaults for every vmagent it manages. The password name is
+// a variable name, not a secret.
+const (
+	EnvVMAgentRemoteWriteURL      = "VMAGENT_remoteWrite_url"
+	EnvVMAgentRemoteWriteUsername = "VMAGENT_remoteWrite_basicAuth_username"
+	EnvVMAgentRemoteWritePassword = "VMAGENT_remoteWrite_basicAuth_password" //nolint:gosec
+)
+
+// VMAgentRemoteWriteAuth classifies the remote-write authentication an operator configured
+// through VMAGENT_* variables.
+type VMAgentRemoteWriteAuth int
+
+const (
+	// VMAgentRemoteWriteAuthNone means no authentication variable is set.
+	VMAgentRemoteWriteAuthNone VMAgentRemoteWriteAuth = iota
+	// VMAgentRemoteWriteAuthPartial means only one half of the basic-auth pair is set.
+	VMAgentRemoteWriteAuthPartial
+	// VMAgentRemoteWriteAuthComplete means both halves of the basic-auth pair, or another vmagent
+	// authentication method, are set.
+	VMAgentRemoteWriteAuthComplete
+)
+
+// The basic-auth pair by half: vmagent takes each half from a value or from a file, and needs
+// one of each.
+var (
+	remoteWriteUsernameEnvs = []string{EnvVMAgentRemoteWriteUsername, "VMAGENT_remoteWrite_basicAuth_usernameFile"}
+	remoteWritePasswordEnvs = []string{EnvVMAgentRemoteWritePassword, "VMAGENT_remoteWrite_basicAuth_passwordFile"}
+)
+
+// remoteWriteExclusiveAuthEnvs are the vmagent authentication methods that take the place of a
+// basic-auth pair: vmagent refuses to start when one of them is set together with one.
+var remoteWriteExclusiveAuthEnvs = []string{
+	"VMAGENT_remoteWrite_bearerToken",
+	"VMAGENT_remoteWrite_bearerTokenFile",
+	"VMAGENT_remoteWrite_oauth2_clientID",
+}
+
+// The vmagent authentication methods that compose with a basic-auth pair instead of replacing
+// one. Neither ever displaces PMM's own credential; whether either authenticates a request on its
+// own is the separate question VMAgentRemoteWriteAuthFromEnv answers.
+const (
+	// The HTTP headers vmagent sends with each remote-write request, as "Header:value", several
+	// of them delimited by "^^".
+	remoteWriteHeadersEnv = "VMAGENT_remoteWrite_headers"
+	// The client certificate vmagent presents, which authenticates the request by itself.
+	remoteWriteTLSCertFileEnv = "VMAGENT_remoteWrite_tlsCertFile"
+)
+
+// The headers, lower-cased, that authenticate a request by themselves. Anything else an operator
+// sends, a tenant identifier being the common one, does not.
+var remoteWriteAuthenticatingHeaders = []string{"authorization", "proxy-authorization"}
+
+// remoteWriteHeadersAuthenticate reports whether the value of VMAGENT_remoteWrite_headers carries
+// a header that authenticates the request. Treating any header as a credential silences the
+// warning for an operator who only set a tenant identifier, and treating none as one warns at
+// every deployment that authenticates with a bearer token, so the value decides.
+func remoteWriteHeadersAuthenticate(value string) bool {
+	for header := range strings.SplitSeq(value, "^^") {
+		name, headerValue, found := strings.Cut(header, ":")
+		if !found || strings.TrimSpace(headerValue) == "" {
+			continue
+		}
+		if slices.Contains(remoteWriteAuthenticatingHeaders, strings.ToLower(strings.TrimSpace(name))) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func envHasAny(env map[string]string, names []string) bool {
+	return slices.ContainsFunc(names, func(name string) bool {
+		_, ok := env[name]
+		return ok
+	})
+}
+
+// VMAgentRemoteWriteAuthFromEnv classifies the VMAGENT_* variables in env, keyed by name. Names are
+// matched case-sensitively, like vmagent matches them.
+func VMAgentRemoteWriteAuthFromEnv(env map[string]string) VMAgentRemoteWriteAuth {
+	hasUsername := envHasAny(env, remoteWriteUsernameEnvs)
+	hasPassword := envHasAny(env, remoteWritePasswordEnvs)
+	_, hasClientCert := env[remoteWriteTLSCertFileEnv]
+
+	// The order of the cases is the point. An exclusive method sits above the half-a-pair branch
+	// because it legitimately takes the place of a pair, but an additive method sits below it: it
+	// composes with a pair instead of replacing one, so it must not report a lone half as complete.
+	// VMAgentRemoteWriteReplacesBasicAuth calls that lone half a replacement and withholds PMM's
+	// own credential either way, and this is what reports it.
+	//
+	// Of the additive methods only a client certificate authenticates whatever it is set with. A
+	// header does so when it is the one carrying the credential, which is why its value is read
+	// rather than its presence: reporting a tenant header as a complete credential would silence
+	// the warning for the deployment that has none.
+	switch {
+	case hasUsername && hasPassword, envHasAny(env, remoteWriteExclusiveAuthEnvs):
+		return VMAgentRemoteWriteAuthComplete
+	case hasUsername || hasPassword:
+		return VMAgentRemoteWriteAuthPartial
+	case hasClientCert, remoteWriteHeadersAuthenticate(env[remoteWriteHeadersEnv]):
+		return VMAgentRemoteWriteAuthComplete
+	}
+
+	return VMAgentRemoteWriteAuthNone
+}
+
+// VMAgentRemoteWriteReplacesBasicAuth reports whether the VMAGENT_* variables in env carry a
+// credential that takes the place of a basic-auth pair: any half of a pair of their own, or a
+// method vmagent cannot combine with one. Additive methods do not; they leave the pair in place.
+func VMAgentRemoteWriteReplacesBasicAuth(env map[string]string) bool {
+	return envHasAny(env, remoteWriteUsernameEnvs) || envHasAny(env, remoteWritePasswordEnvs) || envHasAny(env, remoteWriteExclusiveAuthEnvs)
+}
+
+// checkVMAgentRemoteWriteOverride validates the operator's VMAGENT_* variables. An empty variable
+// is ignored with a warning, because vmagent cannot use an empty value: an empty URL or log level
+// stops it and an empty credential disables authentication; buildVMAgentProcess skips it the same
+// way. Half a basic-auth pair is always reported. An injected VMAGENT_remoteWrite_url must parse,
+// because vmagent refuses to start on a URL it cannot parse; it is reported when no credential
+// accompanies it, because PMM's own remote-write credential is not sent to an endpoint PMM did
+// not choose. Beyond that the URL is not interpreted: vmagent accepts a comma-separated
+// list, and the client renders placeholders such as {{.server_url}} before vmagent starts. The
+// vmagent flag names are camelCase and matched case-sensitively both by vmagent and when the
+// client config is built, so an upper-cased variant is inert and must not trigger these checks.
+func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
+	var warns []string
+	vmagentEnv := make(map[string]string)
+	for _, env := range envs {
+		name, value, ok := strings.Cut(env, "=")
+		if !ok || !strings.HasPrefix(name, EnvVMAgentPrefix) {
+			continue
+		}
+		if value == "" {
+			warns = append(warns, name+" is set but empty and is ignored: vmagent cannot use an empty value; unset it or give it a value")
+			continue
+		}
+		vmagentEnv[name] = value
+	}
+
+	auth := VMAgentRemoteWriteAuthFromEnv(vmagentEnv)
+	if auth == VMAgentRemoteWriteAuthPartial {
+		warns = append(warns, "only one half of the VMAGENT_remoteWrite_basicAuth_* pair is set "+
+			"(a username or usernameFile without a password or passwordFile, or the reverse); set both: "+
+			"PMM does not complete the pair with its own default credential, so the lone half is sent alone and fails authentication")
+	}
+
+	writeURL, hasURL := vmagentEnv[EnvVMAgentRemoteWriteURL]
+	if !hasURL {
+		return nil, warns
+	}
+	parsedURL, err := url.Parse(writeURL)
+	if err != nil {
+		// The URL may carry a password, so the error must not echo it.
+		urlErr, ok := errors.AsType[*url.Error](err)
+		if ok {
+			err = urlErr.Err
+		}
+		return []error{fmt.Errorf("VMAGENT_remoteWrite_url is not a valid URL, and every vmagent PMM Server manages would refuse to start: %w", err)}, warns
+	}
+	if auth != VMAgentRemoteWriteAuthNone || parsedURL.User != nil {
+		return nil, warns
+	}
+
+	return nil, append(warns,
+		"VMAGENT_remoteWrite_url redirects the metric writes of every vmagent PMM Server manages to a custom endpoint, "+
+			"and PMM's own remote-write credentials are not sent there. Set "+
+			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password "+
+			"if that endpoint requires authentication; if the endpoint is a PMM Server, the {{.server_username}} and "+
+			"{{.server_password}} placeholders keep each client's own PMM Server credentials")
 }
 
 // parseStringDuration validate duration as string value.

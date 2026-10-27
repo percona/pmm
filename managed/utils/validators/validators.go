@@ -25,16 +25,16 @@ import (
 )
 
 const (
-	// MetricsResolutionMin is the smallest value metric resolution can accept.
-	MetricsResolutionMin = time.Second //nolint:revive
+	// MinMetricsResolution is the smallest value metric resolution can accept.
+	MinMetricsResolution = time.Second
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
-	// AdvisorRunIntervalMin is the smallest value Advisors run intervals can accept.
-	AdvisorRunIntervalMin = time.Second //nolint:revive
+	// MinAdvisorRunInterval is the smallest value Advisors run intervals can accept.
+	MinAdvisorRunInterval = time.Second
 	// AdvisorRunIntervalMultipleOf is value Advisors run intervals should be multiple of.
 	AdvisorRunIntervalMultipleOf = time.Second
-	// DataRetentionMin is the smallest value data retention can accept.
-	DataRetentionMin = 24 * time.Hour //nolint:revive
+	// MinDataRetention is the smallest value data retention can accept.
+	MinDataRetention = 24 * time.Hour
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
 	DataRetentionMultipleOf = 24 * time.Hour
 )
@@ -55,9 +55,9 @@ type DurationNotAllowedError struct {
 func (e DurationNotAllowedError) Error() string { return e.Msg }
 
 // ValidateDuration validates duration.
-func validateDuration(d, min, multipleOf time.Duration) (time.Duration, error) {
-	if d < min {
-		return d, MinDurationError{"min duration error", min}
+func validateDuration(d, minDuration, multipleOf time.Duration) (time.Duration, error) {
+	if d < minDuration {
+		return d, MinDurationError{"min duration error", minDuration}
 	}
 
 	if d.Truncate(multipleOf) != d {
@@ -68,17 +68,17 @@ func validateDuration(d, min, multipleOf time.Duration) (time.Duration, error) {
 
 // ValidateAdvisorRunInterval validates an Advisor run interval.
 func ValidateAdvisorRunInterval(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, AdvisorRunIntervalMin, AdvisorRunIntervalMultipleOf)
+	return validateDuration(value, MinAdvisorRunInterval, AdvisorRunIntervalMultipleOf)
 }
 
 // ValidateMetricResolution validate metric resolution.
 func ValidateMetricResolution(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, MetricsResolutionMin, MetricsResolutionMultipleOf)
+	return validateDuration(value, MinMetricsResolution, MetricsResolutionMultipleOf)
 }
 
-// ValidateDataRetention validate metric resolution.
+// ValidateDataRetention validates data retention.
 func ValidateDataRetention(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, DataRetentionMin, DataRetentionMultipleOf)
+	return validateDuration(value, MinDataRetention, DataRetentionMultipleOf)
 }
 
 // ValidateAWSPartitions validates AWS partitions list.

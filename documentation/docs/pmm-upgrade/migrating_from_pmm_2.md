@@ -91,7 +91,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
             ```
         3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
 
-=== "Manual migration (Docker/Kubernetes/Podman/AMI/OVF)"
+=== "Manual migration (Docker/Kubernetes/Podman/AMI)"
     === "Docker with volume"
         Follow these manual steps to migrate your PMM 2 Server to PMM 3:
         { .power-number}
@@ -105,7 +105,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         2. Transfer `/srv` directory ownership:
 
             ```sh
-            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            docker exec -t <pmm-server> chown -R 1000:0 /srv
             ```
 
         3. List and note down your Docker volume:
@@ -147,7 +147,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         2. Transfer `/srv` directory ownership:
 
             ```sh
-            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            docker exec -t <pmm-server> chown -R 1000:0 /srv
             ```
 
         3. Identify the data container using either:
@@ -209,7 +209,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         5. Transfer `/srv` directory ownership:
 
             ```sh
-            kubectl exec pmm-0 -- chown -R pmm:pmm /srv
+            kubectl exec pmm-0 -- chown -R 1000:0 /srv
             ```
 
         6. Upgrade PMM using Helm:
@@ -241,7 +241,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
 
         3. Transfer `/srv` directory ownership:
             ```sh
-            podman exec pmm-server chown -R pmm:pmm /srv
+            podman exec pmm-server chown -R 1000:0 /srv
             ```
 
         4. Remove the existing systemd service file:
@@ -252,13 +252,13 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
 
         5. Follow the installation steps from the [PMM 3 Podman installation guide](../install-pmm/install-pmm-server/deployment-options/podman/index.md) to complete the upgrade.
 
-    === "AMI/OVF instance"
-        Follow these steps to migrate a PMM 2 Server deployed as an AMI/OVF instance to PMM 3:
+    === "AMI instance"
+        Follow these steps to migrate a PMM 2 Server deployed as an AMI instance to PMM 3:
         {.power-number}
 
         1. Back up your current instance and keep your PMM 2 instance running until confirm a successful migration.
 
-        2. Deploy a new PMM 3 AMI/OVF instance.
+        2. Deploy a new PMM 3 AMI instance.
 
         3. On the new instance, stop the Podman service:
 
@@ -300,7 +300,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
         
         10. Update PMM Client configurations by editing the `/usr/local/percona/pmm2/config/pmm-agent.yml` with the new server address, then restart the PMM Client.
 
-        !!! note alert alert-primary "Revert AMI/OVF instance to PMM 2"
+        !!! note alert alert-primary "Revert AMI instance to PMM 2"
             If you need to restore to the PMM 2 instance after the migration:
             {.power-number}
 
@@ -434,7 +434,7 @@ The following table lists all the environment variable changes between PMM v2 an
     
     #### ClickHouse configuration
     | PMM 2                               | PMM 3                              | Comments                 |
-    |-------------------------------------|------------------------------------|--------------------------|
+    |-------------------------------------|------------------------------------|---------------------------|
     | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`  | `PMM_CLICKHOUSE_ADDR`              |                          |
     | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE` | `PMM_CLICKHOUSE_DATABASE`         |                        |
     | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE` | `PMM_CLICKHOUSE_DATASOURCE`      |                       |
@@ -471,10 +471,10 @@ The following table lists all the environment variable changes between PMM v2 an
     
     #### Removed variables
     | PMM 2                               | PMM 3                              | Comments                     |
-    |-------------------------------------|------------------------------------|------------------------------|
-    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
-    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    |-------------------------------------|------------------------------------|--------------------------|
+    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
     | `PERCONA_TEST_CHECKS_INTERVAL`      |                                    | Removed, not used            |
     | `PERCONA_TEST_CHECKS_PUBLIC_KEY`    |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
     | `PERCONA_TEST_NICER_API`            |                                    | Removed in PMM v3            |
-    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |

@@ -86,8 +86,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 			serviceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if serviceID == "" {
-			//nolint:revive
-			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
+			return nil, errors.New(`could not find a service associated with the local node; please provide "Service ID" or "Service name"`)
 		}
 	case cmd.ServiceName != "" && cmd.ServiceID == "":
 		serviceID = cmd.ServiceName

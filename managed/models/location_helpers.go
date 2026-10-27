@@ -266,10 +266,10 @@ func (c BackupLocationConfig) FillLocationModel(locationModel *BackupLocation) {
 
 // CreateBackupLocationParams are params for creating new backup location.
 type CreateBackupLocationParams struct {
+	BackupLocationConfig
+
 	Name        string
 	Description string
-
-	BackupLocationConfig
 }
 
 // CreateBackupLocation creates backup location.
@@ -312,10 +312,10 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 
 // ChangeBackupLocationParams are params for updating existing backup location.
 type ChangeBackupLocationParams struct {
+	BackupLocationConfig
+
 	Name        string
 	Description string
-
-	BackupLocationConfig
 }
 
 // ChangeBackupLocation updates existing location by specified locationID and params.

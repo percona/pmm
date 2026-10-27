@@ -64,48 +64,40 @@ func (s *services) Add(service LeaderService) error {
 
 // StartAllServices starts all registered services that are not currently running.
 func (s *services) StartAllServices(ctx context.Context) {
-	type startItem struct {
-		svc LeaderService
-		id  string
-	}
-
 	s.rw.Lock()
-	toStart := make([]startItem, 0, len(s.all))
-	for id, service := range s.all {
-		if _, ok := s.running[id]; !ok {
-			s.running[id] = service
-			toStart = append(toStart, startItem{svc: service, id: id})
-		}
-	}
-	s.rw.Unlock()
+	defer s.rw.Unlock()
 
-	for _, service := range toStart {
-		s.wg.Add(1)
-		go func(svc LeaderService, svcID string) {
+	for id, service := range s.all {
+		if _, ok := s.running[id]; ok {
+			continue
+		}
+		s.running[id] = service
+
+		svc, svcID := service, id
+		s.wg.Go(func() {
 			s.l.Infoln("Starting", svcID)
 			err := svc.Start(ctx)
 			if err != nil {
 				s.l.Errorln(err)
-				s.removeService(svcID)
 			}
-		}(service.svc, service.id)
+			// Remove the service only once it has actually stopped, so the
+			// WaitGroup is balanced by the same goroutine that owns it.
+			s.rw.Lock()
+			delete(s.running, svcID)
+			s.rw.Unlock()
+		})
 	}
 }
 
-// StopAllServices stops all running services.
+// StopAllServices signals all running services to stop. Each service's goroutine
+// removes itself from the running set once Start returns.
 func (s *services) StopAllServices() {
 	s.rw.Lock()
-	toStop := make([]LeaderService, 0, len(s.running))
-	for id, service := range s.running {
-		toStop = append(toStop, service)
-		delete(s.running, id)
-	}
-	s.rw.Unlock()
+	defer s.rw.Unlock()
 
-	for _, service := range toStop {
+	for _, service := range s.running {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
-		s.wg.Done()
 	}
 }
 
@@ -117,12 +109,4 @@ func (s *services) Refresh() chan struct{} {
 // Wait waits for all services to stop.
 func (s *services) Wait() {
 	s.wg.Wait()
-}
-
-// removeService removes a service from the registry of running services.
-func (s *services) removeService(id string) {
-	s.rw.Lock()
-	delete(s.running, id)
-	s.rw.Unlock()
-	s.wg.Done()
 }

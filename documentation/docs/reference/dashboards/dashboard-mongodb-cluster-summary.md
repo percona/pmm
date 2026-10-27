@@ -73,7 +73,27 @@ Shows the number of user-created databases in the cluster. Watch this over time 
 
 Shows whether the cluster balancer is currently enabled. YES means the balancer is active and will redistribute chunks when shards become unbalanced. NO means balancing is paused, which may cause chunk distribution to drift over time. Investigate if the balancer is unexpectedly disabled.
 
-### Chunks
+### Total data size
+
+Shows how much storage your sharded cluster is currently using for data and indexes 
+across all shard primaries. System databases (`admin`, `local`, `config`) and config server metadata are excluded.
+
+Check this panel regularly to understand your cluster's total storage footprint. Compare it with the **Data distribution** panel to see whether data is growing evenly across shards or concentrating on specific ones. Use the trend in **Data size over time** to decide when to add shards or storage capacity.
+
+This panel requires the `dbstats` collector on the MongoDB exporter on each shard `mongod` node. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).
+
+### Data size over time
+
+Shows how your cluster's total data and index size changes over the selected time range. 
+Use this to spot growth trends, identify unexpected spikes, and plan when you will need to scale storage or add shards. A sudden increase may indicate a bulk data load, a missing TTL index, or uneven shard growth that needs investigation.
+
+Shows the total logical data size (uncompressed data plus indexes) summed across all shard primaries in the cluster. System databases (`admin`, `local`, and `config`) are excluded. Config server metadata is not included in this total.
+
+Use this metric to monitor overall data growth for the sharded cluster, similar to the cluster data size view in Ops Manager. The **Data Size Over Time** graph shows the same total over the selected time range.
+
+This panel requires the MongoDB exporter **dbstats** collector on shard `mongod` nodes. Enable it by turning on **Enable all collectors** for the MongoDB service in PMM (or ensure `dbstats` is not listed under disabled collectors).
+
+### Chunks distribution
 
 Shows the total number of chunks across all shards. A sudden increase may indicate rapid data growth or a change in sharding key selectivity.
 
@@ -93,7 +113,7 @@ Shows operation rates per second broken down by type: query, insert, update, del
 
 ### Top Hottest Collections by Read
 
-Shows the five collections with the highest read rates, in operations per second. Use this to identify collections that may need index tuning or caching improvements.
+Shows the five collections with the highest read rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may need index tuning or caching improvements.
 
 ### Operations Latencies
 
@@ -101,7 +121,7 @@ Shows average operation latency in microseconds over time, broken down by reads,
 
 ### Top Hottest Collections by Write
 
-Shows the five collections with the highest write rates, in operations per second. Use this to identify collections that may be driving lock contention or replication lag.
+Shows the five collections with the highest write rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may be driving lock contention or replication lag.
 
 ### Operations Per Shard
 

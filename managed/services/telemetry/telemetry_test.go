@@ -17,6 +17,7 @@ package telemetry
 
 import (
 	"context"
+	"errors"
 	"io/fs"
 	"os"
 	"testing"
@@ -40,9 +41,11 @@ import (
 )
 
 const (
-	envPGHostPort = "TEST_PG_HOST_PORT"
-	envQanDSN     = "TEST_QAN_DSN"
-	envVMDSN      = "TEST_VM_DSN"
+	envPGHostPort  = "TEST_PG_HOST_PORT"
+	envQanDSN      = "TEST_QAN_DSN"
+	envVMDSN       = "TEST_VM_DSN"
+	testSourceName = "VM"
+	pmmVersion     = "2.29.0"
 )
 
 func TestRunTelemetryService(t *testing.T) {
@@ -73,10 +76,6 @@ func TestRunTelemetryService(t *testing.T) {
 		tDistributionMethod pmmv1.DistributionMethod
 		dus                 distributionUtilService
 	}
-	const (
-		testSourceName = "VM"
-		pmmVersion     = "2.29.0"
-	)
 
 	now := time.Now()
 	logger := logrus.StandardLogger()
@@ -119,7 +118,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 2 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(true, testSourceName, 10*time.Second),
+				config:     getTestConfig(true, 10*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -130,7 +129,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 3 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
+				config:     getTestConfig(false, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -141,7 +140,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 3 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
+				config:     getTestConfig(true, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -229,13 +228,13 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
 			dbMock.ExpectCommit()
 
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 			defer cancel()
 
 			s := Service{
 				db:           db,
 				l:            logEntry,
-				config:       getTestConfig(true, "VM", 10*time.Second), // long interval: only SendOnStart fires
+				config:       getTestConfig(true, 10*time.Second), // long interval: only SendOnStart fires
 				pmmVersion:   tt.version,
 				dus:          getDistributionUtilService(t, logEntry),
 				portalClient: &mockSender,
@@ -246,6 +245,55 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 			require.NoError(t, dbMock.ExpectationsWereMet())
 		})
 	}
+}
+
+func TestRunHandlesMakeMetricError(t *testing.T) {
+	t.Parallel()
+
+	logger := logrus.StandardLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	logEntry := logrus.NewEntry(logger)
+
+	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
+
+	var mockSender mockSender
+	mockSender.Test(t)
+	t.Cleanup(func() {
+		mockSender.AssertNotCalled(t, "SendTelemetry")
+	})
+
+	sqlDB, dbMock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() { sqlDB.Close() })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	// doSend's initial GetSettings succeeds and telemetry is enabled...
+	dbMock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
+	// ...but makeMetric's transaction fails, so prepareReport must return nil
+	// and Run must skip sending rather than dereference the nil report.
+	dbMock.ExpectBegin()
+	dbMock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnError(errors.New("boom"))
+	dbMock.ExpectRollback()
+
+	ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
+	defer cancel()
+
+	s := Service{
+		db:     db,
+		l:      logEntry,
+		config: getTestConfig(true, 10*time.Second),
+		// Release version: the send path is reachable, so not sending proves
+		// we bailed on the makeMetric error rather than on a version check.
+		pmmVersion:   "3.7.1",
+		dus:          getDistributionUtilService(t, logEntry),
+		portalClient: &mockSender,
+		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
+	}
+	s.Run(ctx)
+
+	require.NoError(t, dbMock.ExpectationsWereMet())
 }
 
 func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceConfig {
@@ -375,7 +423,7 @@ func matchExpectedReport(report *telemetryv1.ReportRequest, expectedReport *tele
 	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
-func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {
+func getTestConfig(sendOnStart bool, reportingInterval time.Duration) ServiceConfig {
 	return ServiceConfig{
 		l:       nil,
 		Enabled: true,

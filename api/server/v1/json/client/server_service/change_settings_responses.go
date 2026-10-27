@@ -195,7 +195,7 @@ type ChangeSettingsBody struct {
 	// enable telemetry
 	EnableTelemetry *bool `json:"enable_telemetry,omitempty"`
 
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	// A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key
@@ -222,8 +222,8 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+	// Enable OpenManager.
+	EnableOM *bool `json:"enable_om,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
@@ -674,8 +674,8 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// change settings default body details items0
-	ChangeSettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// change settings default body details items0 additional properties
+	ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -737,7 +737,7 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 			}
 			result[k] = toadd
 		}
-		o.ChangeSettingsDefaultBodyDetailsItems0 = result
+		o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -785,12 +785,12 @@ func (o ChangeSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ChangeSettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ChangeSettingsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -986,8 +986,12 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

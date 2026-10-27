@@ -196,7 +196,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.SharedBlkWriteTime})
 	}
 
-	if vPG <= 12 {
+	if vPG <= 12 { //nolint:mnd
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalExecTime},
 			field{info: parse.FieldInfo{Name: "MinExecTime", Type: "float64", Column: "min_time"}, pointer: &s.MinExecTime},
@@ -204,7 +204,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "MeanExecTime", Type: "float64", Column: "mean_time"}, pointer: &s.MeanExecTime},
 			field{info: parse.FieldInfo{Name: "StddevExecTime", Type: "float64", Column: "stddev_time"}, pointer: &s.StddevExecTime})
 	}
-	if vPG >= 13 {
+	if vPG >= 13 { //nolint:mnd
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalExecTime},
 			field{info: parse.FieldInfo{Name: "MinExecTime", Type: "float64", Column: "min_exec_time"}, pointer: &s.MinExecTime},

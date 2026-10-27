@@ -81,6 +81,40 @@ func TestParserStartStop(t *testing.T) {
 	parser1.Stop()
 }
 
+func TestParserContextCancel(t *testing.T) {
+	docsChan := make(chan pm.SystemProfile)
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+
+	ctx, cancel := context.WithCancel(t.Context())
+	parser := New(docsChan, a, logrus.WithField("component", "test-parser"))
+
+	err := parser.Start(ctx)
+	require.NoError(t, err)
+
+	// Verify parser reported as running
+	assert.Equal(t, "parser", parser.Name())
+
+	// Cancel the context to trigger the new shutdown path in start().
+	// Don't call Stop() before the check: it closes doneChan, which would shut the parser
+	// down on its own and hide a missing ctx.Done() case.
+	cancel()
+
+	exited := make(chan struct{})
+	go func() {
+		parser.wg.Wait()
+		close(exited)
+	}()
+
+	select {
+	case <-exited:
+		// Success: the parser stopped correctly via context cancellation
+	case <-time.After(1 * time.Second):
+		t.Fatal("Parser goroutine did not exit on context cancellation")
+	}
+
+	parser.Stop()
+}
+
 func TestParserRunning(t *testing.T) {
 	oldInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = 10 * time.Second

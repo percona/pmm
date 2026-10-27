@@ -65,5 +65,5 @@ func (s *ExternalRules) RemoveRulesFile() error {
 
 // WriteRules writes rules to file.
 func (s *ExternalRules) WriteRules(rules string) error {
-	return os.WriteFile(externalRulesFile, []byte(rules), 0o644) //nolint:gosec
+	return os.WriteFile(externalRulesFile, []byte(rules), 0o644) //nolint:gosec,mnd
 }

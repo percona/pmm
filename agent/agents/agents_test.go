@@ -17,6 +17,6 @@ package agents
 import "testing"
 
 // TestAgents is a test function for the Agents module.
-func TestAgents(t *testing.T) { //nolint:revive
+func TestAgents(_ *testing.T) {
 	// we need at least one test per package to correctly calculate coverage
 }

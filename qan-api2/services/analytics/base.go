@@ -27,11 +27,11 @@ import (
 
 // Service implements gRPC service to communicate with QAN-APP.
 type Service struct {
+	qanpb.UnimplementedQANServiceServer
+
 	db *sqlx.DB
 	rm models.Reporter
 	mm models.Metrics
-
-	qanpb.UnimplementedQANServiceServer
 }
 
 // NewService create new insstance of Service.

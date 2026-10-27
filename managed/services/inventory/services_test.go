@@ -39,6 +39,7 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
@@ -68,6 +69,9 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	sib := &mockServiceInfoBroker{}
 	sib.Test(t)
 
+	gc := &mockGrafanaClient{}
+	gc.Test(t)
+
 	mgmtServices := &common.MgmtServices{
 		BackupService:  nil, // FIXME: &backup.mockBackupService{} is not public
 		RestoreService: nil, // FIXME: &backup.mockRestoreService{} does not exist
@@ -84,11 +88,12 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 		state.AssertExpectations(t)
 		cc.AssertExpectations(t)
 		sib.AssertExpectations(t)
+		gc.AssertExpectations(t)
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc, mgmtServices),
 		NewAgentsService(db, r, state, vmdb, cc, sib, as),
-		NewNodesService(db, r, state, vmdb),
+		NewNodesService(db, r, state, vmdb, gc),
 		teardown,
 		logger.Set(t.Context(), t.Name()),
 		vmdb
@@ -155,7 +160,7 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
 			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test", InstanceId: "test-instance-id"})
 		require.NoError(t, err)
 
 		rdsAgent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{

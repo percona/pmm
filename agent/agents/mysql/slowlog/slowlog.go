@@ -94,7 +94,7 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 	return &SlowLog{
 		params:  params,
 		l:       l,
-		changes: make(chan agents.Change, 10),
+		changes: make(chan agents.Change, 10), //nolint:mnd
 	}, nil
 }
 
@@ -338,7 +338,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 	// send events to the channel, close it when parser is done
 	parser := parser.NewSlowLogParser(reader, opts)
 	go parser.Run()
-	events := make(chan *log.Event, 1000)
+	events := make(chan *log.Event, 1000) //nolint:mnd
 	go func() {
 		for {
 			event := parser.Parse()
@@ -454,7 +454,7 @@ func makeBuckets(
 				ClientHost:           v.Host,
 				AgentId:              agentID,
 				AgentType:            inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
-				PeriodStartUnixSecs:  uint32(periodStart.Unix()),
+				PeriodStartUnixSecs:  uint32(periodStart.Unix()), //nolint:gosec
 				PeriodLengthSecs:     periodLengthSecs,
 				NumQueries:           float32(v.TotalQueries),
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
@@ -740,12 +740,12 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 }
 
 // Describe implements prometheus.Collector.
-func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (s *SlowLog) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (s *SlowLog) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (s *SlowLog) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

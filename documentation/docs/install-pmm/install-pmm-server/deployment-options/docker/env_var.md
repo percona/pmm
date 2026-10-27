@@ -25,23 +25,36 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
+### Built-in ClickHouse configuration
+Select the configuration profile for the built-in ClickHouse instance 
+
+| Variable | Default | Description | Example |
+|----------|---------|-------------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | `default` | Use `low-memory` for PMM Server environments with less than 16 GB RAM. | `low-memory` |
+
+!!! note "low-memory config" 
+    While this configuration attempts to optimize ClickHouse for low-memory environments, we highly recommend users to follow our configuration guide. 
+    For details, see [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
+
 ### Feature controls
 Enable or disable specific PMM features:
 
 | Variable | Default | Effect when enabled |
 |----------|---------|-------------------|
-| `PMM_ENABLE_UPDATES` | `true` | Allows version checks and UI updates |
+| `PMM_ENABLE_UPDATES` | `true` | Allows version checks |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enables usage data collection |
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
+| `PMM_ENABLE_COMPONENT_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_component_alerts) for PMM's own components (VictoriaMetrics, ClickHouse, Grafana, and the Query Analytics API). Set to `false` to remove them. |
+| `PMM_ENABLE_HA_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_ha_alerts) for a PMM HA Cluster. Set to `false` to remove them. Has no effect on a standalone PMM Server. |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
-| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **Configuration > Settings > Advanced settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
+| `PMM_ENABLE_INTERNAL_PG_QAN` | Not set (disabled) | Enables Query Analytics (QAN) for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` or `true` to enable, or `0` or `false` to explicitly disable. When set to either value, neither **Configuration > Settings > Advanced settings** nor `pmm-admin inventory change agent` can override it. Leave it unset to control [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql) from the UI. |
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
 
 | Variable | Default | Purpose |
-|----------|---------|---------|
+|----------|---------|-------|
 | `PMM_DEBUG` | `false` | Enables verbose logging |
 | `PMM_TRACE` | `false` | Enables detailed trace logging |
 
@@ -155,19 +168,39 @@ Control how PMM Server presents itself on the network:
 
 | Variable | Description |
 |----------|-------------|
-| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM server |
+| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM Server. Also required for Nomad to start. Setting `PMM_ENABLE_NOMAD=1` without this variable has no effect. |
 | `PMM_INTERFACE_TO_BIND` | Network interface binding |
 
 ### Database connections
 Configure connections to external database services:
 
 | Variable | Purpose |
-|----------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | Set to `low-memory` to activate the built-in ClickHouse profile optimized for hosts with less than 16 GB RAM. Omit or set to `default` for standard deployments. See [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments). |
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
 
+### HA variables
+
+These variables run PMM Server nodes as a [PMM HA Cluster](../../../HA-clustered.md). The [PMM HA Helm chart](../../../install-HA-clustered.md) sets them for you. Leave them unchanged in `pmmEnv`, because changing them can break the cluster.
+
+| Variable | Description |
+|----------|-------------|
+| `PMM_HA_ENABLE` | Runs PMM Server in HA mode |
+| `PMM_HA_NODE_ID` | ID of this node in the cluster |
+| `PMM_HA_ADVERTISE_ADDRESS` | Address this node advertises to the other nodes |
+| `PMM_HA_GOSSIP_PORT` | Port for the gossip protocol. The Helm chart uses `9096` |
+| `PMM_HA_RAFT_PORT` | Port for Raft consensus. The Helm chart uses `9097` |
+| `PMM_HA_GRAFANA_GOSSIP_PORT` | Port for Grafana gossip. The Helm chart uses `9094` |
+| `PMM_HA_PEERS` | The nodes in the cluster. The Helm chart generates this list from the replica count |
+
+!!! caution "All HA nodes must share one encryption key"
+    Every node must use the same encryption key, or PMM stops monitoring the services whose credentials it can't decrypt. The Helm chart manages the shared key for you. If you set up HA nodes yourself, see [HA clusters: use the same key on every node](../../../../admin/security/data_encryption.md#ha-clusters-use-the-same-key-on-every-node).
+
 ### Nomad Garbage Collection (GC) settings
+
+!!! note
+    To enable Nomad, you must set **both** `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`. Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient — without a public address, Nomad does not start. See [Configure Nomad](../../../../reference/nomad.md#set-a-public-address) for details.
 
 Control Nomad client-side garbage collection (GC) directly from PMM using environment variables. 
 
@@ -204,13 +237,13 @@ PMM Server passes these variables to integrated components:
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
 
-## Experimental variables
+## Preview variables
 
-PMM includes experimental environment variables prefixed with `PERCONA_TEST_*` that are under development and subject to change. To see the complete list and details of experimental variables, see [Preview environment variables](preview_env_var.md).
+PMM also includes preview variables, for example to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
 
 
 !!! caution "For testing only"
-    Experimental variables are not supported for production use. Use these variables for testing purposes only.
+    Preview variables aren't supported in production. Use them for testing only.
 
 
 ### Variables for migrating from PMM v2 to PMM v3

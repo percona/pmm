@@ -10,17 +10,39 @@ Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable futur
 
 Nomad is **disabled by default** in PMM and has no impact on system performance when not enabled. 
 
-## Prerequisites
+## Set a public address
 
-Before enabling Nomad, check that PMM Server has a public address configured under **Configuration > Settings > Advanced settings**. This is required for Nomad to function properly and enable communication between Nomad components.
+Nomad requires both `PMM_ENABLE_NOMAD=1` and a public address to start.
+
+Set the public address before enabling Nomad:
+
+=== "via Environment variable"
+
+    Pass `-e PMM_PUBLIC_ADDRESS=<your-address>` when starting the container.
+
+=== "via PMM UI"
+
+    Go to **Configuration > Settings > Advanced settings**, set the public address, then restart PMM Server.
+
+    **When PMM logs a startup warning**
+
+    If `PMM_ENABLE_NOMAD` is set but `PMM_PUBLIC_ADDRESS` is not, PMM Server logs this warning at startup in `docker logs pmm-server` and `/srv/logs/pmm-managed.log`:
+
+    ```txt
+    PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not. Nomad will not start unless a public address is configured in PMM settings.
+    ```
+
+    Since you configured the address in PMM settings, you can ignore this warning. The startup check only reads environment variables, so the warning appears even when the address is configured in the UI.
+
 
 ### Enable Nomad
 
 If you're an advanced user who needs Nomad for specific use cases, follow these steps to enable Nomad in PMM:
 { .power-number }
 
-1. Start PMM Server with the `PMM_ENABLE_NOMAD` environment variable:
+1. Start PMM Server with both `PMM_PUBLIC_ADDRESS` and `PMM_ENABLE_NOMAD` set:
    ```
+   -e PMM_PUBLIC_ADDRESS=<your-pmm-address> \
    -e PMM_ENABLE_NOMAD=1
    ```
 
@@ -29,13 +51,13 @@ If you're an advanced user who needs Nomad for specific use cases, follow these 
    -p 4647:4647
    ```
 
-3. Go to PMM's **Advanced Settings** and set the public address.
-
 ??? info "Docker run command" 
 
     ```
     docker run -d \
+    -e PMM_PUBLIC_ADDRESS=<your-pmm-address> \
     -e PMM_ENABLE_NOMAD=1 \
+    -e PMM_PUBLIC_ADDRESS=<your-pmm-server-address> \
     -p 4647:4647 \
     -p 443:8443 \
     --name pmm-server \
@@ -70,6 +92,8 @@ To verify that Nomad is running correctly:
    ```
 
 2. Confirm that Nomad agents appear in the node list.
+
+If the Nomad API isn't available, check the PMM Server log for the public address warning described in [Set a public address](#set-a-public-address).
 
 ## Internal architecture
 

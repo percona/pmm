@@ -13,7 +13,7 @@ checks:
         parameters:
           all_dbs: true
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
       def check_context(tuple, context):
           results = []
           for checkedDB, rows in tuple[0].items():

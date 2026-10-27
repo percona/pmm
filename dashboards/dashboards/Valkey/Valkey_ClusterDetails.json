@@ -8,6 +8,34 @@
                     "uid": "grafana"
                 },
                 "enable": true,
+                "hide": false,
+                "iconColor": "#e0752d",
+                "limit": 100,
+                "matchAny": true,
+                "name": "PMM Annotations",
+                "showIn": 0,
+                "tags": [
+                    "pmm_annotation",
+                    "$service_name"
+                ],
+                "target": {
+                    "limit": 100,
+                    "matchAny": true,
+                    "tags": [
+                        "pmm_annotation",
+                        "$service_name"
+                    ],
+                    "type": "tags"
+                },
+                "type": "tags"
+            },
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
@@ -790,7 +818,7 @@
                             "refId": "M"
                         }
                     ],
-                    "title": "$service_name - Replica vs Master offsets",
+                    "title": "$service_name - Replica vs Primary offsets",
                     "type": "timeseries"
                 },
                 {

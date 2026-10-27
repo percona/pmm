@@ -349,8 +349,8 @@ type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// start PT summary action default body details items0
-	StartPTSummaryActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// start PT summary action default body details items0 additional properties
+	StartPTSummaryActionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -385,7 +385,7 @@ func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 			}
 			result[k] = toadd
 		}
-		o.StartPTSummaryActionDefaultBodyDetailsItems0 = result
+		o.StartPTSummaryActionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -406,12 +406,12 @@ func (o StartPTSummaryActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, err
 		return nil, err
 	}
 
-	if len(o.StartPTSummaryActionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.StartPTSummaryActionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.StartPTSummaryActionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.StartPTSummaryActionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

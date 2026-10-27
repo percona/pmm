@@ -34,9 +34,9 @@ var ErrInvalidRoleData = errors.New("InvalidRoleData")
 
 // AccessControlService represents service for working with roles.
 type AccessControlService struct {
-	db *reform.DB
-
 	rolev1beta1.UnimplementedAccessControlServiceServer
+
+	db *reform.DB
 }
 
 // NewAccessControlService creates a AccessControlService instance.

@@ -63,7 +63,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		maxQueryLength: params.MaxQueryLength,
 
 		l:       l,
-		changes: make(chan agents.Change, 10),
+		changes: make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 
@@ -72,7 +72,10 @@ func (m *MongoDB) Run(ctx context.Context) {
 	var prof Profiler
 
 	defer func() {
-		prof.Stop() //nolint:errcheck
+		err := prof.Stop()
+		if err != nil {
+			m.l.Errorf("Can't stop profiler, reason: %v", err)
+		}
 		prof = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
@@ -81,7 +84,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
-	err := prof.Start()
+	err := prof.Start(ctx)
 	if err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
@@ -105,18 +108,22 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Profiler interface { //nolint:revive
-	Start() error
+// Profiler defines the lifecycle methods for the underlying MongoDB profiling mechanism
+// that handles the extraction of performance data.
+type Profiler interface {
+	// Start begins the profiling data collection process.
+	Start(ctx context.Context) error
+	// Stop gracefully ends the profiling data collection and cleans up resources.
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *MongoDB) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *MongoDB) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

@@ -438,10 +438,10 @@ func TestAddExternal(t *testing.T) {
 func TestRemoveExternal(t *testing.T) {
 	t.Parallel()
 
-	addExternal := func(t *testing.T, serviceName, nodeName string) (nodeID string, serviceID string) {
+	addExternal := func(t *testing.T, serviceName, nodeName string) (serviceID string) {
 		t.Helper()
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID = genericNode.NodeID
+		nodeID := genericNode.NodeID
 
 		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -467,7 +467,7 @@ func TestRemoveExternal(t *testing.T) {
 		t.Cleanup(func() {
 			pmmapitests.RemoveServices(t, serviceID)
 		})
-		return nodeID, serviceID
+		return serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
@@ -475,7 +475,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
@@ -499,7 +499,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
@@ -523,7 +523,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,

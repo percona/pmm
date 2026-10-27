@@ -18,6 +18,7 @@ package ha
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -47,7 +48,7 @@ func TestServices_Add(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{id: "test-service-1"}
+		svc := newMockLeaderService("test-service-1")
 
 		err := s.Add(svc)
 
@@ -60,8 +61,8 @@ func TestServices_Add(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc1 := &mockLeaderService{id: "duplicate-id"}
-		svc2 := &mockLeaderService{id: "duplicate-id"}
+		svc1 := newMockLeaderService("duplicate-id")
+		svc2 := newMockLeaderService("duplicate-id")
 
 		err := s.Add(svc1)
 		require.NoError(t, err)
@@ -76,7 +77,7 @@ func TestServices_Add(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{id: "test-service"}
+		svc := newMockLeaderService("test-service")
 
 		err := s.Add(svc)
 		require.NoError(t, err)
@@ -99,7 +100,7 @@ func TestServices_Add(t *testing.T) {
 			wg.Add(1)
 			go func(id int) {
 				defer wg.Done()
-				svc := &mockLeaderService{id: string(rune('a' + id))}
+				svc := newMockLeaderService(fmt.Sprintf("svc-%d", id))
 				_ = s.Add(svc)
 			}(i)
 		}
@@ -116,8 +117,8 @@ func TestServices_StartAllServices(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc1 := &mockLeaderService{id: "service-1"}
-		svc2 := &mockLeaderService{id: "service-2"}
+		svc1 := newMockLeaderService("service-1")
+		svc2 := newMockLeaderService("service-2")
 
 		require.NoError(t, s.Add(svc1))
 		require.NoError(t, s.Add(svc2))
@@ -140,7 +141,7 @@ func TestServices_StartAllServices(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{id: "test-service"}
+		svc := newMockLeaderService("test-service")
 
 		require.NoError(t, s.Add(svc))
 
@@ -162,11 +163,9 @@ func TestServices_StartAllServices(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{
-			id:        "failing-service",
-			startErr:  errors.New("start failed"),
-			startDone: make(chan struct{}),
-		}
+		svc := newMockLeaderService("failing-service")
+		svc.startErr = errors.New("start failed")
+		svc.startDone = make(chan struct{})
 
 		require.NoError(t, s.Add(svc))
 
@@ -179,23 +178,21 @@ func TestServices_StartAllServices(t *testing.T) {
 			t.Fatal("service start did not complete")
 		}
 
-		// Wait for service to be removed from running map after error
-		time.Sleep(100 * time.Millisecond)
-
 		assert.True(t, svc.isStarted())
 
-		// Check running map is empty
-		s.rw.Lock()
-		isEmpty := len(s.running) == 0
-		s.rw.Unlock()
-		assert.True(t, isEmpty)
+		// The failing service removes itself from the running map.
+		assert.Eventually(t, func() bool {
+			s.rw.Lock()
+			defer s.rw.Unlock()
+			return len(s.running) == 0
+		}, time.Second, 10*time.Millisecond)
 	})
 
 	t.Run("does not restart already running services", func(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{id: "test-service"}
+		svc := newMockLeaderService("test-service")
 
 		require.NoError(t, s.Add(svc))
 
@@ -218,8 +215,8 @@ func TestServices_StopAllServices(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc1 := &mockLeaderService{id: "service-1"}
-		svc2 := &mockLeaderService{id: "service-2"}
+		svc1 := newMockLeaderService("service-1")
+		svc2 := newMockLeaderService("service-2")
 
 		require.NoError(t, s.Add(svc1))
 		require.NoError(t, s.Add(svc2))
@@ -239,7 +236,7 @@ func TestServices_StopAllServices(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{id: "test-service"}
+		svc := newMockLeaderService("test-service")
 
 		require.NoError(t, s.Add(svc))
 
@@ -255,10 +252,12 @@ func TestServices_StopAllServices(t *testing.T) {
 
 		s.StopAllServices()
 
-		s.rw.Lock()
-		runningCount = len(s.running)
-		s.rw.Unlock()
-		assert.Equal(t, 0, runningCount)
+		// Each service's goroutine removes itself once Start returns.
+		assert.Eventually(t, func() bool {
+			s.rw.Lock()
+			defer s.rw.Unlock()
+			return len(s.running) == 0
+		}, time.Second, 10*time.Millisecond)
 	})
 
 	t.Run("handles stopping with no running services", func(t *testing.T) {
@@ -295,7 +294,7 @@ func TestServices_Refresh(t *testing.T) {
 		s := newServices()
 		ch := s.Refresh()
 
-		svc := &mockLeaderService{id: "test-service"}
+		svc := newMockLeaderService("test-service")
 		err := s.Add(svc)
 		require.NoError(t, err)
 
@@ -314,11 +313,7 @@ func TestServices_Wait(t *testing.T) {
 		t.Parallel()
 
 		s := newServices()
-		svc := &mockLeaderService{
-			id:          "blocking-service",
-			blockStart:  true,
-			startUnlock: make(chan struct{}),
-		}
+		svc := newMockLeaderService("blocking-service")
 
 		require.NoError(t, s.Add(svc))
 
@@ -340,7 +335,6 @@ func TestServices_Wait(t *testing.T) {
 		}
 
 		s.StopAllServices()
-		close(svc.startUnlock)
 
 		select {
 		case <-done:
@@ -350,44 +344,63 @@ func TestServices_Wait(t *testing.T) {
 	})
 }
 
+// mockLeaderService models a leader service whose Start blocks until the service
+// is stopped (or its context is cancelled), mirroring the real ContextService.
 type mockLeaderService struct {
-	id          string
-	started     bool
-	stopped     bool
-	startCount  int
-	startErr    error
-	blockStart  bool
-	startUnlock chan struct{}
-	startDone   chan struct{}
-	mu          sync.Mutex
+	id        string
+	startErr  error
+	startDone chan struct{}
+
+	mu         sync.Mutex
+	started    bool
+	stopped    bool
+	startCount int
+	stopCh     chan struct{}
+}
+
+func newMockLeaderService(id string) *mockLeaderService {
+	return &mockLeaderService{
+		id:     id,
+		stopCh: make(chan struct{}),
+	}
 }
 
 func (m *mockLeaderService) ID() string {
 	return m.id
 }
 
-func (m *mockLeaderService) Start(_ context.Context) error {
+func (m *mockLeaderService) Start(ctx context.Context) error {
 	m.mu.Lock()
 	m.started = true
 	m.startCount++
 	err := m.startErr
+	startDone := m.startDone
 	m.mu.Unlock()
 
-	if m.startDone != nil {
-		close(m.startDone)
+	if startDone != nil {
+		close(startDone)
 	}
 
-	if m.blockStart {
-		<-m.startUnlock
+	if err != nil {
+		return err
 	}
 
-	return err
+	select {
+	case <-m.stopCh:
+	case <-ctx.Done():
+	}
+
+	return nil
 }
 
 func (m *mockLeaderService) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.stopped {
+		return
+	}
 	m.stopped = true
+	close(m.stopCh)
 }
 
 func (m *mockLeaderService) isStarted() bool {

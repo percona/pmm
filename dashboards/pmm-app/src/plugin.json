@@ -180,6 +180,11 @@
     },
     {
       "type": "dashboard",
+      "name": "MongoDB Unused Indexes",
+      "path": "dashboards/MongoDB/MongoDB_Unused_Indexes.json"
+    },
+    {
+      "type": "dashboard",
       "name": "MySQL Table Details",
       "path": "dashboards/MySQL/MySQL_Table_Details.json"
     },

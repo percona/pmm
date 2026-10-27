@@ -12,7 +12,7 @@ checks:
       - type: MYSQL_SELECT
         query: "@@global.version as version, @@global.hostname as service /*!50700 , @@global.slave_exec_mode as slave_exec_mode */  /*!50700 , @@global.slave_skip_errors slave_skip_errors*/ /*!80026 , @@global.replica_exec_mode as replica_exec_mode */ /*!80026 , @@global.replica_skip_errors replica_skip_errors*/ "
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
       def check_context(docs,context):
           results = []
           skip_errors = ""

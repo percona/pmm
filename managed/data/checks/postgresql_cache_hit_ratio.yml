@@ -12,7 +12,7 @@ checks:
       - type: POSTGRESQL_SELECT
         query: round(100. * sd.blks_hit /(sd.blks_read + sd.blks_hit),0) AS dhitratio, d.datname, r.rolname AS rolname FROM pg_stat_database sd JOIN pg_database d ON (d.oid = sd.datid) AND d.datname != 'postgres' AND d.datname NOT LIKE 'template%' JOIN pg_roles r ON (r.oid = d.datdba) WHERE sd.blks_read + sd.blks_hit <> 0 ORDER BY 1 DESC
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       # pg_advisor
       # thresholds

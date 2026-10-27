@@ -39,13 +39,13 @@ func NewAgentService(r *Registry) *AgentService {
 }
 
 // Logs by Agent ID.
-func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
+func (a *AgentService) Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
 	agent, err := a.r.get(pmmAgentID)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(&agentv1.AgentLogsRequest{
+	resp, err := agent.channel.SendAndWaitResponse(ctx, &agentv1.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -78,7 +78,7 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		Enabled: enabled,
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(req)
+	_, err = agent.channel.SendAndWaitResponse(context.TODO(), req)
 	return err
 }
 
@@ -118,8 +118,18 @@ func redactWords(agent *models.Agent) []string {
 	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
 		words = append(words, s)
 	}
+	// The key only reaches the agent host as part of a complete pair over TLS, matching
+	// Agent.Files, so redacting it unconditionally would ship it in RedactWords instead.
+	if v := agent.ValkeyOptions; agent.TLS && v.SSLCert != "" && v.SSLKey != "" {
+		words = append(words, v.SSLKey)
+	}
 
 	return words
+}
+
+// textFileRef returns the template expression pmm-agent expands to the on-disk path of a shipped text file.
+func textFileRef(tdp *models.DelimiterPair, name string) string {
+	return tdp.Left + " .TextFiles." + name + " " + tdp.Right
 }
 
 // pathsBase returns paths base and in case of unsupported PMM client a hardcoded value.

@@ -7,6 +7,14 @@ import { User } from 'types/user.types';
 export const getAlertingTourSteps = (user?: User): StepType[] => {
   const steps: StepType[] = [
     {
+      selector: '[data-testid="navitem-alerts-status-list-item"]',
+      content: (
+        <TourStep title={Messages.status.title}>
+          <Typography>{Messages.status.description}</Typography>
+        </TourStep>
+      ),
+    },
+    {
       selector: '[data-testid="navitem-alerts-fired-list-item"]',
       content: (
         <TourStep title={Messages.firedAlerts.title}>

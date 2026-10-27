@@ -47,6 +47,8 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 
 // AddAgentQANMongoDBProfilerAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMongoDBProfilerAgentCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -61,8 +63,6 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
 	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentQANMongoDBProfilerAgentCommand and returns the result.
