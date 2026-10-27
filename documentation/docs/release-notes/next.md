@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues

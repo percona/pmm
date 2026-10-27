@@ -75,6 +75,9 @@ When creating custom templates, make sure to use the required template format be
     - **override_scopes** (optional): the scopes at which you can override this parameter. Defaults to `[node]`. Only `node` is currently supported. Requires `overridable: true`.
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
+
+    The **Alert Status** page groups severities into four bands: `emergency`, `alert` and `critical` show as **Critical**; `notice`, `info`, `informational` and `debug` show as **Info**. `error` and `warning` keep their names. The alert label keeps the level you set.
+
  - **labels** (optional): are additional labels to be added to generated alerts
 
 - **annotations** (optional): are additional annotations to be added to generated alerts.
