@@ -52,6 +52,9 @@ func TestLeftoverVMAgentHelper(t *testing.T) {
 func startLeftover(t *testing.T, queueDir, mode string) *exec.Cmd {
 	t.Helper()
 
+	if mode == "" {
+		mode = "run" // an empty one tells the helper it is not one
+	}
 	cmd := exec.CommandContext(t.Context(), os.Args[0], "-test.run=^TestLeftoverVMAgentHelper$", "--",
 		"-remoteWrite.tmpDataPath="+queueDir)
 	cmd.Env = append(os.Environ(), leftoverHelperEnv+"="+mode)
