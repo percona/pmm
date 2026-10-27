@@ -9,7 +9,7 @@
 
 services:
   pmm-server:
-    image: ${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-7cc719e}
+    image: ${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-19150b4}
     container_name: pmm-server
     restart: always
     networks: [pmm]
