@@ -92,8 +92,8 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc, mgmtServices),
-		NewAgentsService(db, r, state, vmdb, cc, sib, as),
-		NewNodesService(db, r, state, vmdb, gc),
+		NewAgentsService(db, r, state, vmdb, cc, sib, as, nil),
+		NewNodesService(db, r, state, vmdb, gc, nil),
 		teardown,
 		logger.Set(t.Context(), t.Name()),
 		vmdb
