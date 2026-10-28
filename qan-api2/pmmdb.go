@@ -72,7 +72,7 @@ func openNodes(dsn, list string) ([]chNode, error) {
 		u.Path = "/default"
 		db, err := sqlx.Open("clickhouse", u.String())
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("open ClickHouse node %s: %w", host, err)
 		}
 		nodes = append(nodes, chNode{host: host, db: db})
 	}
@@ -126,11 +126,11 @@ func fixPmm(ctx context.Context, nodes []chNode, db string, canDrop bool) error 
 		// No node has pmm: the first node's UUID wins, so qan-api2s starting together all use the same one.
 		_, err := nodes[0].db.ExecContext(ctx, fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s UUID '%s' %s", db, uuid.NewString(), replicatedEngine))
 		if err != nil {
-			return err
+			return fmt.Errorf("create %s on %s: %w", db, nodes[0].host, err)
 		}
 		copies[0], err = readCopy(ctx, nodes[0], db)
 		if err != nil {
-			return err
+			return fmt.Errorf("read %s on %s after create: %w", db, nodes[0].host, err)
 		}
 		kept = copies[0].uuid
 	}
