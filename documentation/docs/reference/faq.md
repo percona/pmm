@@ -20,6 +20,7 @@ Quick reference for typical deployment (up to 30 nodes):
     - CPU: 4 cores (must support SSE4.2)
     - Memory: 8 GB
     - Storage: 100 GB (approximately 1 GB per node per week)
+    - Supports x86_64 and ARM64 architectures
 - **Client**:
 
     - Storage: 100 MB
@@ -193,7 +194,7 @@ Example: To use the listen-port 8000
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
 ```
 
-If you are using OVF/AMI, you can change the default password through SSH by using the following command:
+If you are using AMI, you can change the default password through SSH by using the following command:
 
 ```sh
 change-admin-password <new_password>

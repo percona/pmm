@@ -18,6 +18,7 @@ package supervisord
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -44,6 +45,8 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
+	defaultClickhouseDatasourceUser     = "grafana"
+	defaultClickhouseDatasourcePassword = "grafana"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -145,12 +148,69 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	return s.supervisorctl("start", serviceName)
+	_, err := s.supervisorctl(context.Background(), "start", serviceName)
+	return err
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	return s.supervisorctl("stop", serviceName)
+	_, err := s.supervisorctl(context.Background(), "stop", serviceName)
+	return err
+}
+
+// ProgramRunning returns true if the given supervisord program is running or is going to be
+// restarted, false if it is not running, has exited, or has failed for good.
+func (s *Service) ProgramRunning(ctx context.Context, program string) bool {
+	running := s.ProgramState(ctx, program)
+	return running != nil && *running
+}
+
+// ProgramState reports whether the given supervisord program is running, distinguishing the two
+// answers ProgramRunning has to collapse into false.
+//
+// A nil result means the state could not be determined - the program has EXITED and may yet be
+// restarted, or it is not configured at all, which is a container whose first boot has not written
+// its supervisord file yet. Callers must treat nil as "leave it alone": supervisord is about to act
+// and stepping in would fight it. A non-nil false means FATAL or STOPPED, the states supervisord
+// documents as "will not be restarted", so a caller that needs the program up has to start it
+// itself.
+//
+// See http://supervisord.org/subprocess.html#process-states
+func (s *Service) ProgramState(ctx context.Context, program string) *bool {
+	// supervisorctl exits with a non-zero code when the program is not running, so the exit code
+	// cannot tell a stopped program from a failed command. The output is what matters.
+	b, err := s.supervisorctl(ctx, "status", program)
+	if err != nil {
+		s.l.Debugf("Status command for '%s' failed: %s", program, err)
+	}
+
+	f := strings.Fields(string(b))
+	if len(f) < 2 { //nolint:mnd
+		s.l.Debugf("Cannot parse status of '%s': %s", program, b)
+		return nil
+	}
+
+	switch status := f[1]; status {
+	case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
+		return new(true)
+	case "STOPPED", "FATAL":
+		return new(false)
+	case "EXITED", "UNKNOWN":
+		return nil
+	default:
+		s.l.Debugf("Unhandled status '%s' of '%s', leaving it alone.", status, program)
+		return nil
+	}
+}
+
+// RestartSupervisedService restarts given service.
+//
+// Note that reload() is not a substitute: it runs `supervisorctl update`, which only acts when the
+// program's own configuration file has changed. Restarting because some other file the program
+// reads has changed needs this.
+func (s *Service) RestartSupervisedService(ctx context.Context, serviceName string) error {
+	_, err := s.supervisorctl(ctx, "restart", serviceName)
+	return err
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -182,7 +242,7 @@ autostart = {{ not .ExternalVM }}
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 30
 stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -208,7 +268,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/vmalert.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -229,7 +289,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/vmproxy.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -268,9 +328,6 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        {{- if .PMMServerHost}}
-        cfg:default.server.domain="{{ .PMMServerHost }}"
-        {{- end}}
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
@@ -282,8 +339,11 @@ environment =
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
-    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+    PMM_CLICKHOUSE_DATASOURCE_USER="{{ .ClickhouseDatasourceUser }}",
+    PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
+    {{- if .PMMServerHost}}
+    GF_SERVER_DOMAIN="{{ .PMMServerHost }}",
+    {{- end}}
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
@@ -295,7 +355,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/grafana.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
@@ -311,7 +371,7 @@ autostart = {{ .NomadEnabled }}
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/nomad-server.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -319,25 +379,25 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) error {
+func (s *Service) supervisorctl(ctx context.Context, args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
-		return errors.New("supervisorctl not found")
+		return nil, errors.New("supervisorctl not found")
 	}
 
-	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
+	cmd := exec.CommandContext(ctx, s.supervisorctlPath, args...) //nolint:gosec
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	_, err := cmd.Output()
+	b, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s failed: %w", cmdLine, err)
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return nil
+	return b, nil
 }
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	err := s.supervisorctl("reread")
+	_, err := s.supervisorctl(context.Background(), "reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -349,7 +409,8 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	return s.supervisorctl("update", name)
+	_, err = s.supervisorctl(context.Background(), "update", name)
+	return err
 }
 
 // marshalConfig marshals supervisord program configuration.
@@ -359,6 +420,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	clickhouseDatasourceUser := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_USER", defaultClickhouseDatasourceUser)
+	clickhouseDatasourcePassword := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", defaultClickhouseDatasourcePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -371,8 +434,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
-		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
+		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
@@ -394,6 +456,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
+		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
+		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"PMMServerHost":                "",
 	}
 

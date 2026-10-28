@@ -129,18 +129,48 @@ func mysqlAndXtrabackupCoreVersions(mysqlVersionString, xtrabackupVersionString 
 type mysqlXtrabackupBand int
 
 const (
-	mysqlXtrabackupBand84 mysqlXtrabackupBand = iota
+	mysqlXtrabackupBandAligned mysqlXtrabackupBand = iota
+	mysqlXtrabackupBand84
 	mysqlXtrabackupBand83
 	mysqlXtrabackupBand82
 	mysqlXtrabackupBand81
 	mysqlXtrabackupBand80Universal
 	mysqlXtrabackupBand80Aligned
 	mysqlXtrabackupBandLegacy
+	// This band is not reachable from mysqlXtrabackupBandFor: the bands above
+	// partition every version, with mysqlXtrabackupBandAligned taking
+	// everything from 8.5.0 up and mysqlXtrabackupBandLegacy everything below
+	// 8.0.22. It is kept as the switch default so that a future band that does
+	// not cover its whole range fails closed rather than silently reporting
+	// compatible.
 	mysqlXtrabackupBandUnsupported
 )
 
+// xtrabackupAlignedWithMySQLMinor reports whether the Percona XtraBackup release
+// belongs to the same MySQL minor series, for example Percona XtraBackup 9.7.x
+// for MySQL 9.7.x. From MySQL 8.1 on, Percona ships XtraBackup in lockstep with
+// the MySQL innovation releases and each series refuses the others: Percona
+// XtraBackup 9.7 "does not support backups on MySQL 8.0 or 8.4 servers", and
+// 8.4 likewise does not support 9.x.
+// https://docs.percona.com/percona-xtrabackup/9.7/index.html
+//
+// The 8.1 to 8.4 bands below spell that rule out one release at a time. This
+// applies it generically from 8.5 on, so a new MySQL minor does not need a new
+// band and a new PMM release to support it.
+func xtrabackupAlignedWithMySQLMinor(mysqlVersion, xtrabackupVersion *version.Version) bool {
+	mysqlSegments := mysqlVersion.Segments()
+	xtrabackupSegments := xtrabackupVersion.Segments()
+	if len(mysqlSegments) < 2 || len(xtrabackupSegments) < 2 {
+		return false
+	}
+
+	return mysqlSegments[0] == xtrabackupSegments[0] && mysqlSegments[1] == xtrabackupSegments[1]
+}
+
 func mysqlXtrabackupBandFor(mysqlVersion *version.Version) mysqlXtrabackupBand {
 	switch {
+	case !mysqlVersion.LessThan(mysql85Version):
+		return mysqlXtrabackupBandAligned
 	case versionRange{min: mysql84Version, max: mysql85Version}.isSupported(mysqlVersion):
 		return mysqlXtrabackupBand84
 	case versionRange{min: mysql83Version, max: mysql84Version}.isSupported(mysqlVersion):
@@ -182,6 +212,8 @@ func mysqlAndXtrabackupCoreVersionsCompatibleForBand(
 	mysqlVersion, xtrabackupVersion *version.Version,
 ) bool {
 	switch band {
+	case mysqlXtrabackupBandAligned:
+		return xtrabackupAlignedWithMySQLMinor(mysqlVersion, xtrabackupVersion)
 	case mysqlXtrabackupBand84:
 		return versionRange{min: mysql84Version, max: mysql85Version}.isSupported(xtrabackupVersion)
 	case mysqlXtrabackupBand83:
@@ -218,6 +250,19 @@ func mysqlAndXtrabackupCompatibilityError(mysqlVersionString, xtrabackupVersionS
 	}
 
 	switch band {
+	case mysqlXtrabackupBandAligned:
+		// Name the series the server actually needs rather than the generic
+		// "not supported yet", which described the old behaviour of having no
+		// band for these releases at all.
+		segments := mysqlVersion.Segments()
+		series := fmt.Sprintf("%d.%d", segments[0], segments[1])
+
+		return incompatibleXtrabackupError(
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; "+
+				"use Percona XtraBackup "+series+".x for MySQL "+series+".x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
 	case mysqlXtrabackupBand84:
 		return incompatibleXtrabackupError(
 			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.4.x for MySQL 8.4.x",

@@ -19,6 +19,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const frontendSettings = useFrontendSettings({
     refetchOnMount: false,
   });
+
   const combinedSettings = useMemo<CombinedSettings | null>(() => {
     if (!(settings.data || readonlySettings.data) || !frontendSettings.data) {
       return null;
@@ -40,7 +41,12 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       // check if pmm-compat-app plugin is enabled
       newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
-  }, [user?.isPMMAdmin, settings, readonlySettings, frontendSettings]);
+  }, [
+    user?.isPMMAdmin,
+    frontendSettings.data,
+    settings.data,
+    readonlySettings.data,
+  ]);
 
   return (
     <SettingsContext.Provider

@@ -16,6 +16,7 @@
 package server
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -181,4 +182,34 @@ func TestListUpdates(t *testing.T) {
 		require.Error(t, err)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `PMM updates are disabled`)
 	})
+}
+
+// TestUpdateStatus covers the endpoint pre-3.9 clients poll after triggering an update: on a server
+// that has finished initializing it must report the update as done, without authentication.
+func TestUpdateStatus(t *testing.T) {
+	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	baseURL.User = nil
+	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
+
+	for _, tc := range []struct {
+		name string
+		body server.UpdateStatusBody
+	}{
+		{"with a token issued by the previous instance", server.UpdateStatusBody{AuthToken: "unverifiable", LogOffset: 1024}},
+		{"without a token", server.UpdateStatusBody{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
+				Body:    tc.body,
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			assert.True(t, res.Payload.Done)
+			// Pre-3.9 clients join log_lines unconditionally, so it must marshal as an empty array.
+			assert.NotNil(t, res.Payload.LogLines)
+			assert.Empty(t, res.Payload.LogLines)
+			assert.Zero(t, res.Payload.LogOffset)
+		})
+	}
 }

@@ -57,10 +57,8 @@ func TestService(t *testing.T) {
 
 		location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name: "test_location",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		})
 		require.NoError(t, err)

@@ -16,6 +16,7 @@ package commands
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -51,11 +52,16 @@ type ConfigCommand struct {
 	Region            string   `help:"Node region"`
 	Az                string   `help:"Node availability zone"`
 	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
-	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
+	Force             bool     `help:"Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
 	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
+
+	// Forwarded to `pmm-agent setup`, which has to read the configuration file to tell whether this Node
+	// is already registered. Without the key an encrypted file reads exactly like a damaged one.
+	ConfigFileKeyFile     string `help:"Path to the key file used to encrypt/decrypt the pmm-agent configuration file" env:"PMM_AGENT_CONFIG_FILE_KEY_FILE"`
+	ConfigFileKeyPassword string `help:"Password for the key file (if required)" env:"PMM_AGENT_CONFIG_FILE_KEY_PASSWORD"`
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
@@ -105,6 +111,12 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, fmt.Sprintf("--log-lines-count=%d", cmd.LogLinesCount))
 	}
 
+	// Before `setup`: this is pmm-agent's own flag, not the subcommand's. The key file password is not
+	// passed here - RunCmd hands it over in the environment, out of the argv every local user can read.
+	if cmd.ConfigFileKeyFile != "" {
+		res = append(res, "--config-file-key-file="+cmd.ConfigFileKeyFile)
+	}
+
 	res = append(res, "setup")
 	if cmd.NodeModel != "" {
 		res = append(res, "--node-model="+cmd.NodeModel)
@@ -148,6 +160,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
 	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
+	// The environment, rather than the argv `ps` shows to every local user and the line below logs.
+	if cmd.ConfigFileKeyPassword != "" {
+		c.Env = append(os.Environ(), "PMM_AGENT_CONFIG_FILE_KEY_PASSWORD="+cmd.ConfigFileKeyPassword)
+	}
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.Output() // hide pmm-agent's stderr logging
 	res := &configResult{

@@ -22,11 +22,15 @@ const applyGrafanaTheme = async (mode: ColorMode): Promise<GrafanaTheme2> => {
       newCssLink.href = cssHref;
       newCssLink.onload = () => {
         // Remove the opposite mode's stylesheet once the new one is safely loaded
-        const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+        const links = Array.from(
+          document.querySelectorAll('link[rel="stylesheet"]')
+        ) as HTMLLinkElement[];
         for (const link of links) {
           if (link !== newCssLink && typeof link.href === 'string') {
-            const isOldDark = oldTheme.colors.mode === 'dark' && link.href.includes('/dark.');
-            const isOldLight = oldTheme.colors.mode === 'light' && link.href.includes('/light.');
+            const isOldDark =
+              oldTheme.colors.mode === 'dark' && link.href.includes('/dark.');
+            const isOldLight =
+              oldTheme.colors.mode === 'light' && link.href.includes('/light.');
             if (isOldDark || isOldLight) {
               link.parentElement?.removeChild(link);
             }

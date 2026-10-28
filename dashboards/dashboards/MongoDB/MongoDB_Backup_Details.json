@@ -693,6 +693,7 @@
                     "showLegend": false
                 },
                 "mergeValues": true,
+                "perPage": 8,
                 "rowHeight": 0.9,
                 "showValue": "auto",
                 "tooltip": {

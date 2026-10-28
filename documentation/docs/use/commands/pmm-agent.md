@@ -24,6 +24,17 @@ You typically don't interact with pmm-agent directly, `pmm-admin` communicates w
 `pmm-agent setup [node-address] [node-type] [node-name]`
 : Configure local pmm-agent (requires root permissions)
 
+    Running `setup` again for a registered pmm-agent keeps its registration, along with the Node and every Service on it:
+
+    - The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`.
+    - If PMM Server has the pmm-agent on a Node with another name, `setup` stops. Re-run it with that name as the `node-name` argument to keep that Node together with its Services, or use `--force` to register the name you gave as a new Node instead, which leaves the other Node and its Services on PMM Server with nothing monitoring them.
+    - Settings which describe the Node, such as `--custom-labels`, `--disable-collectors` or the `node-type` argument, only take effect when the Node is registered. `setup` lists the ones it did not apply, and reports a registered Node address or type which differs from the one you gave.
+    - The credentials given to `setup` only serve to register the Node. A registered pmm-agent keeps its service token, and `setup` says so when the credentials you gave were not the ones used.
+    - Without `--config-file`, as when `pmm-admin config` runs `setup`, the configuration file is left unchanged, so settings it holds beyond the flags given are kept.
+    - If PMM Server cannot be reached, or answers something pmm-agent cannot interpret, the registration is kept, a warning is written to standard error and `setup` still succeeds, so that a Client can be set up while PMM Server is unavailable.
+    - If the configuration file is encrypted, pass `--config-file-key-file`. Without the key `setup` cannot tell whether the pmm-agent is registered, and stops instead of guessing.
+    - `--skip-registration` needs an Agent ID already in hand, from `--id`, `PMM_AGENT_ID`, or a configuration file given with `--config-file`. It stops when nothing supplied one, rather than adopting the ID of a configuration file it only located through the running pmm-agent.
+
 `pmm-agent help [command]`
 : Show help (for command) and exit.
 
@@ -45,7 +56,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
 | `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
-| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
+| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents.
 | `--id=...`                             | `PMM_AGENT_ID`                      | ID of this pmm-agent.
 | `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
 | `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.

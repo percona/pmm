@@ -1,24 +1,55 @@
+import { GRAFANA_SUB_PATH } from '@pmm/shared';
 import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
 import { ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
 // todo: remove completely in a follow up to reduce current scope
 export const PMM_NEW_NAV_PATH = '';
-export const GRAFANA_SUB_PATH = '/graph';
+export { GRAFANA_SUB_PATH };
 export const PMM_BASE_PATH = `/pmm-ui${PMM_NEW_NAV_PATH}`;
 export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}${GRAFANA_SUB_PATH}`;
 export const PMM_HOME_URL = `${GRAFANA_SUB_PATH}/d/pmm-home`;
 export const PMM_LOGIN_URL = `${GRAFANA_SUB_PATH}/login`;
+export const PMM_LOGOUT_URL = `${GRAFANA_SUB_PATH}/logout`;
+/** Shared so useFirstLoginRedirect's boot check and auth.returnTo's rejection list cannot drift. */
+export const GRAFANA_HOME_PATHS: string[] = [
+  GRAFANA_SUB_PATH,
+  `${GRAFANA_SUB_PATH}/`,
+];
 export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
+export const PMM_HELP_PATH = `${PMM_NEW_NAV_PATH}/help`;
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 
+// PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
+// each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so
+// the two cannot drift: a plugin's absolute nav links resolve against
+// `routeBase`, and a mismatch silently sends them outside the mount.
+export const EXTENSIONS_ATW_PATH = `${PMM_NEW_NAV_PATH}/extensions/atw`;
+export const EXTENSIONS_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/extensions/mysql-backups`;
+
+// In-app (router-relative, no basename) path of the settings tab that owns the
+// ServiceNow connection — handed to the Support diagnostics app so its disabled
+// send control can point an administrator at the thing that unblocks it.
+export const PMM_SERVICENOW_SETTINGS_PATH = `${PMM_NEW_NAV_PATH}/settings/servicenow-connection`;
+
+export const PERCONA_SUPPORT_URL = 'https://www.percona.com/services/support';
+// Short link Support hands out for subscription and credential requests.
+export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
+
+// OM (OpenManager) is a PMM page, not a PMM Extensions one. Its API is pmm-managed's own
+// `/v1/om`, authorised by the Grafana session, and no request it makes needs a PMM Extensions
+// bearer -- which is why it sits beside the PMM Extensions mounts above rather than under them.
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/operations`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
+  // 1 min
+  SERVER_VERSION: 60000,
 };
 
 export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
@@ -49,6 +80,13 @@ export const ALL_SERVICE_TYPES = [
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
+// 15 minutes — long enough for credential entry, an SSO round trip or a password reset, short
+// enough that a user who wandered off is not dropped onto a stale deep link
+export const AUTH_RETURN_TO_TTL_MS = 15 * 60 * 1000;
+// 10 seconds — a restore that bounces straight back to login turns over in milliseconds, so this
+// is wide enough to break that loop and far too narrow to catch a session that expires later on
+// the very page we restored
+export const AUTH_RETURN_TO_LOOP_WINDOW_MS = 10 * 1000;
 // 7 days — UI-owned snooze window (settings update_snooze_duration was removed)
 export const DEFAULT_UPDATE_SNOOZE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 // QA/dev only: localStorage.setItem(UPDATE_SNOOZE_DURATION_OVERRIDE_KEY, '10000')

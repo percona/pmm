@@ -23,11 +23,13 @@ import (
 	"fmt"
 	"maps"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -36,12 +38,143 @@ import (
 	"github.com/percona/pmm/managed/utils/stringset"
 )
 
+const (
+	// Largest CollectRequest qan-api2 accepts. It mirrors the MaxRecvMsgSize enforced there,
+	// which is deliberately never raised, so a bucket bigger than this can never be
+	// delivered no matter what pmm-managed does with it.
+	qanCollectRequestLimit = 20 * 1024 * 1024
+
+	// Budget for packing several buckets into one request, kept below the limit above so
+	// batching never has to be exact.
+	maxCollectRequestSize = 16 * 1024 * 1024
+
+	// Cap on one request even when every bucket is tiny.
+	maxCollectRequestBuckets = 25000
+
+	// Upper bound on what one bucket costs on top of its own encoded size: the repeated
+	// field's tag byte plus its length varint.
+	collectRequestBucketOverhead = 5
+)
+
+// QAN agents all report at the start of each minute. Looking each of them up separately
+// filled pmm-managed's connection pool in that burst, so Collect reads a cached copy.
+const inventoryCacheTTL = 30 * time.Second
+
 // Client represents qan-api client for data collection.
 type Client struct {
-	c   qanCollectorClient
-	qsc qanv1.QANServiceClient
-	db  *reform.DB
-	l   *logrus.Entry
+	c         qanCollectorClient
+	qsc       qanv1.QANServiceClient
+	db        *reform.DB
+	l         *logrus.Entry
+	inventory inventoryCache
+}
+
+// inventory holds the Agents, Services and Nodes used to label QAN data, by ID.
+type inventory struct {
+	agents   map[string]*models.Agent
+	services map[string]*models.Service
+	nodes    map[string]*models.Node
+}
+
+type inventoryCache struct {
+	mu       sync.Mutex
+	inv      *inventory
+	loadedAt time.Time
+}
+
+// get returns the cached inventory, reloading it once it is older than inventoryCacheTTL.
+func (ic *inventoryCache) get(q *reform.Querier) (*inventory, error) {
+	ic.mu.Lock()
+	defer ic.mu.Unlock()
+
+	if ic.inv != nil && time.Since(ic.loadedAt) < inventoryCacheTTL {
+		return ic.inv, nil
+	}
+
+	inv, err := loadInventory(q)
+	if err != nil {
+		return nil, err
+	}
+	ic.inv = inv
+	ic.loadedAt = time.Now()
+	return inv, nil
+}
+
+// loadInventory reads all QAN Agents, Services and Nodes.
+func loadInventory(q *reform.Querier) (*inventory, error) {
+	// Credentials stay encrypted: labels don't use them.
+	agents, err := q.SelectAllFrom(models.AgentTable, "WHERE agent_type LIKE 'qan-%'")
+	if err != nil {
+		return nil, err
+	}
+	services, err := models.FindServices(q, models.ServiceFilters{})
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := models.FindNodes(q, models.NodeFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	inv := &inventory{
+		agents:   make(map[string]*models.Agent, len(agents)),
+		services: make(map[string]*models.Service, len(services)),
+		nodes:    make(map[string]*models.Node, len(nodes)),
+	}
+	for _, str := range agents {
+		agent := str.(*models.Agent) //nolint:forcetypeassert
+		inv.agents[agent.AgentID] = agent
+	}
+	for _, service := range services {
+		inv.services[service.ServiceID] = service
+	}
+	for _, node := range nodes {
+		inv.nodes[node.NodeID] = node
+	}
+	return inv, nil
+}
+
+// covers reports whether inv holds the Agent, Service and Node of every bucket.
+func (inv *inventory) covers(metricsBuckets []*agentv1.MetricsBucket) bool {
+	for _, m := range metricsBuckets {
+		// TODO: remove once v2 hits end-of-support
+		agentID, _ := strings.CutPrefix(m.Common.AgentId, "/agent_id/")
+		agent := inv.agents[agentID]
+		if agent == nil {
+			return false
+		}
+		service := inv.services[pointer.GetString(agent.ServiceID)]
+		if service == nil || inv.nodes[service.NodeID] == nil {
+			return false
+		}
+	}
+	return true
+}
+
+// lookupInventory returns the Agents, Services and Nodes that metricsBuckets refer to.
+func (c *Client) lookupInventory(metricsBuckets []*agentv1.MetricsBucket) (*inventory, error) {
+	cached, err := c.inventory.get(c.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if cached.covers(metricsBuckets) {
+		return cached, nil
+	}
+
+	// Added since the last reload.
+	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	if err != nil {
+		return nil, err
+	}
+	services, err := collectServices(c.db.Querier, agents)
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := collectNodes(c.db.Querier, services)
+	if err != nil {
+		return nil, err
+	}
+	return &inventory{agents: agents, services: services, nodes: nodes}, nil
 }
 
 // NewClient returns new client for given gRPC connection.
@@ -179,18 +312,11 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		}
 	}()
 
-	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	inv, err := c.lookupInventory(metricsBuckets)
 	if err != nil {
 		return err
 	}
-	services, err := collectServices(c.db.Querier, agents)
-	if err != nil {
-		return err
-	}
-	nodes, err := collectNodes(c.db.Querier, services)
-	if err != nil {
-		return err
-	}
+	agents, services, nodes := inv.agents, inv.services, inv.nodes
 
 	convertedMetricsBuckets := make([]*qanv1.MetricsBucket, 0, len(metricsBuckets))
 	for _, m := range metricsBuckets {
@@ -306,16 +432,14 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}
 
+	convertedMetricsBuckets, sizes := c.dropOversizedBuckets(convertedMetricsBuckets)
+
 	// Slice metrics, so request to qan-api is not too big
-	const bucketSize = 25000
-	from, to := 0, bucketSize
 	// Send at least one time, even though it's empty
-	for from <= len(convertedMetricsBuckets) {
-		if to > len(convertedMetricsBuckets) {
-			to = len(convertedMetricsBuckets)
-		}
+	for from := 0; ; {
+		n := nextCollectBatch(sizes[from:])
 		qanReq := &qanv1.CollectRequest{
-			MetricsBucket: convertedMetricsBuckets[from:to],
+			MetricsBucket: convertedMetricsBuckets[from : from+n],
 		}
 		c.l.Debugf("%+v", qanReq)
 		res, err := c.c.Collect(ctx, qanReq)
@@ -324,11 +448,62 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		}
 		c.l.Debugf("%+v", res)
 
-		from += bucketSize
-		to += bucketSize
+		from += n
+		if from >= len(convertedMetricsBuckets) {
+			return nil
+		}
+	}
+}
+
+// Drops buckets that no CollectRequest could ever carry, which happens only with an
+// unlimited max_query_length. Keeping one would cost far more than itself: Collect stops at
+// the first request QAN rejects, so every bucket queued behind it would be lost too. Also
+// returns the encoded size of each kept bucket, so batching need not measure them again.
+func (c *Client) dropOversizedBuckets(buckets []*qanv1.MetricsBucket) ([]*qanv1.MetricsBucket, []int) {
+	// Filtering in place is safe: buckets is the slice Collect just built and nothing else
+	// refers to it.
+	kept := buckets[:0]
+	sizes := make([]int, 0, len(buckets))
+
+	for _, b := range buckets {
+		size := proto.Size(b) + collectRequestBucketOverhead
+		if size > qanCollectRequestLimit {
+			c.l.Warnf("Dropping metrics bucket for query '%s' of service '%s': %d bytes exceeds the "+
+				"%d byte limit QAN accepts. Set a max_query_length for that service.",
+				b.Queryid, b.ServiceName, size, qanCollectRequestLimit)
+
+			continue
+		}
+
+		kept = append(kept, b)
+		sizes = append(sizes, size)
 	}
 
-	return nil
+	return kept, sizes
+}
+
+// Returns how many buckets from the front of sizes fit into a single CollectRequest. Never
+// 0 for a non-empty slice, so Collect always makes progress: a bucket over the batching
+// budget is sent on its own, which QAN still accepts because dropOversizedBuckets has
+// already removed anything larger than it will take.
+func nextCollectBatch(sizes []int) int {
+	var total int
+	for i, size := range sizes {
+		if i == maxCollectRequestBuckets {
+			return i
+		}
+
+		total += size
+		if total > maxCollectRequestSize {
+			if i == 0 {
+				return 1
+			}
+
+			return i
+		}
+	}
+
+	return len(sizes)
 }
 
 func convertExampleType(exampleType agentv1.ExampleType) qanv1.ExampleType {
