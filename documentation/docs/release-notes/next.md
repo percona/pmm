@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15785](https://perconadev.atlassian.net/browse/PMM-15785): Fixed an issue in PMM HA where ClickHouse replicas could end up with different copies of the Query Analytics database, so QAN showed different data depending on the PMM node that served it. PMM now creates the database with one ID on every replica, and the HA leader checks every 10 minutes and recreates any replica that is missing the database or holds a different copy, keeping the copy with the most data. Rows that exist only in a recreated copy are lost. For how to check your install, see [Troubleshoot PMM HA](../troubleshoot/ha_issues.md#query-analytics-shows-different-data-on-different-pmm-nodes).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

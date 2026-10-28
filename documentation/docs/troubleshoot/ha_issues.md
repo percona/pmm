@@ -294,6 +294,37 @@ kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/qan-api2.log
 !!! note ""
     The **Query Analytics for PMM Server** option under **Configuration > Settings > Advanced Settings** cannot be enabled in HA mode. It returns `QAN for internal PostgreSQL is already configured via an environment variable`. This is expected.
 
+## Query Analytics shows different data on different PMM nodes
+
+QAN shows fewer queries than expected, or its totals change after a leader change or a PMM pod restart.
+
+**Cause:** The ClickHouse replicas hold more than one copy of the `pmm` QAN database. Each copy has its own UUID and does not replicate with the others. Earlier PMM versions could create a second copy at install, after a pod restart, or during a restore.
+
+**Check:** Every ClickHouse replica must report the same UUID:
+
+```sh
+CHU=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_USER}' | base64 -d)
+CHPW=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_PASSWORD}' | base64 -d)
+for r in 0 1 2; do
+  kubectl exec -n pmm pmm-ha-pmmdb-0-$r-0 -c clickhouse -- clickhouse-client -u "$CHU" --password "$CHPW" \
+    -q "SELECT uuid FROM system.databases WHERE name = 'pmm'"
+done
+```
+
+**Fix:** No action is needed. Every 10 minutes the HA leader checks every ClickHouse replica. It keeps the copy with the most rows and recreates every replica that has another copy or no `pmm` database. Rows that exist only in a recreated copy are lost. The leader's `qan-api2.log` records each change (to find the leader, see [Check cluster health](#check-cluster-health)):
+
+```sh
+kubectl exec -n pmm <leader-pod> -c pmm-ha -- grep pmm-db /srv/logs/qan-api2.log
+```
+
+The log lines mean:
+
+- `Recreated the pmm database ...`: the replica held another copy; `dropped_rows` is the number of rows that copy had.
+- `Created the missing pmm database ...`: the replica had no `pmm` database.
+- `Skipped the pmm database check.`: a ClickHouse replica did not answer, so nothing changed in that pass.
+
+A restore with `pmm-backup.sh` also recreates `pmm` with one UUID on every replica before it restores the data.
+
 ## A backup or restore fails
 
 `pmm-backup.sh` exits with an error, or a scheduled backup Job fails.
