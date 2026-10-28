@@ -76,7 +76,7 @@ When creating custom templates, make sure to use the required template format be
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
 
-    The **Alert Status** page groups severities into four bands: `emergency`, `alert` and `critical` show as **Critical**; `notice`, `info`, `informational` and `debug` show as **Info**. `error` and `warning` keep their names. The alert label keeps the level you set.
+    The **Alert Status** page groups severities into four bands: `emergency`, `alert` and `critical` show as **Critical**; `notice`, `info`, `informational` and `debug` show as **Info**. `error` and `warning` keep their names. The alert label keeps the level you set. An alert with no severity, or with a value outside these levels, shows that value without an icon and is listed under **Unknown** in the **Severity** filter.
 
  - **labels** (optional): are additional labels to be added to generated alerts
 
