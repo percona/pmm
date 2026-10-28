@@ -16,9 +16,9 @@ If you're running PMM HA Cluster instead, PMM's Helm chart deploys and manages P
 
 ## Built-in PostgreSQL version
 
-Starting with PMM 3.10.0, the built-in PostgreSQL database in the `pmm-server` container is upgraded from PostgreSQL 14 to PostgreSQL 18. When you upgrade PMM Server, your existing data is upgraded automatically the first time PMM Server starts. You don't need to do anything.
+Starting with PMM 3.10.0, the built-in PostgreSQL database in the `pmm-server` container is upgraded from PostgreSQL 14 to PostgreSQL 18. When you upgrade PMM Server, your existing data is upgraded automatically the first time PMM Server starts. PMM leaves the PostgreSQL 14 data untouched until the migration succeeds. You don't need to do anything.
 
-The automatic upgrade doesn't apply to an external PostgreSQL database or to PMM HA Cluster, because PMM doesn't manage PostgreSQL in those setups.
+The automatic upgrade doesn't apply to an external PostgreSQL database because PMM doesn't manage that database. It also doesn't apply to PMM HA Cluster, which uses a separate PostgreSQL deployment managed by the PostgreSQL operator.
 
 ## Prerequisites
 Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 14+ server accessible from your PMM Server.
