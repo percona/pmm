@@ -322,6 +322,7 @@ The log lines mean:
 - `Recreated the pmm database ...`: the replica held another copy; `dropped_rows` is the number of rows that copy had.
 - `Created the missing pmm database ...`: the replica had no `pmm` database.
 - `Skipped the pmm database check.`: a ClickHouse replica did not answer, so nothing changed in that pass.
+- `Failed to recreate the pmm database.`: the repair of that replica failed. The logged error says why, and the next pass tries again.
 
 A restore with `pmm-backup.sh` also recreates `pmm` with one UUID on every replica before it restores the data. On an earlier PMM version, upgrade PMM.
 
