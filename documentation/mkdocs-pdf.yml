@@ -12,4 +12,3 @@ plugins:
     cover_subtitle: 3.10.0 (October 22nd, 2026)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/images/Percona_Logo_Color.png
-    custom_template_path: resources/templates
