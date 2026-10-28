@@ -2410,8 +2410,7 @@ func (e RTAMySQLAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAMySQLAgentValidationError{}
@@ -15490,8 +15489,7 @@ func (e AddRTAMySQLAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRTAMySQLAgentParamsValidationError{}
@@ -15695,8 +15693,7 @@ func (e ChangeRTAMySQLAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRTAMySQLAgentParamsValidationError{}
