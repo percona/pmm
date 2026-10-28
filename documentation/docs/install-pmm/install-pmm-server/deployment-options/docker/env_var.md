@@ -16,11 +16,13 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data (must be in multiples of 24h) | `720h` (30 days) |
+| `PMM_DATA_RETENTION` | `720h` (30 days) | Duration to retain metrics data | `2160h` (90 days) |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | `5s` |
 | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval | `10s` |
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
+
+`PMM_DATA_RETENTION` must be a whole number of days, given in hours: at least `24h`, in multiples of `24h`, such as `720h` for 30 days. Values in days, such as `30d`, stop PMM Server from starting.
 
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
@@ -264,7 +266,7 @@ For environments with many monitored systems, increase collection intervals and 
 
 ``` sh
 docker run \
- -e PMM_DATA_RETENTION=45d \
+ -e PMM_DATA_RETENTION=1080h \
  -e PMM_METRICS_RESOLUTION=5s \
  -e PMM_METRICS_RESOLUTION_HR=30s \
  -e PMM_METRICS_RESOLUTION_MR=60s \
@@ -277,7 +279,7 @@ For testing and development, you might want debugging enabled:
 
 ```sh
 docker run \
- -e PMM_DATA_RETENTION=7d \
+ -e PMM_DATA_RETENTION=168h \
  -e PMM_DEBUG=true \
  -e PMM_ENABLE_ACCESS_CONTROL=true \
  percona/pmm-server:3

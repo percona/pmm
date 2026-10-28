@@ -64,10 +64,12 @@ You can install PMM Server using one of two methods:
 
     | Variable | Default | Description |
     |----------|---------|-------------|
-    | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
+    | `PMM_DATA_RETENTION` | `720h` (30 days) | Duration to retain metrics data |
     | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
     | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
     | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
+
+    `PMM_DATA_RETENTION` must be a whole number of days, given in hours: at least `24h`, in multiples of `24h`, such as `720h` for 30 days. Values in days, such as `30d`, stop PMM Server from starting.
 
     For a complete list, see the [environment variables](../docker/env_var.md).
 

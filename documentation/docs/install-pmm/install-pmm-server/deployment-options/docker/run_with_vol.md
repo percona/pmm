@@ -57,12 +57,14 @@ You can further customize your PMM Server deployment with:
     ```sh
     docker run --detach --restart always \
         --publish 443:8443 \
-        --env PMM_DATA_RETENTION=14d \
+        --env PMM_DATA_RETENTION=336h \
         --env PMM_METRICS_RESOLUTION=5s \
         --volume pmm-data:/srv \
         --name pmm-server \
         percona/pmm-server:3
     ```
+
+    `PMM_DATA_RETENTION` must be a whole number of days, given in hours: at least `24h`, in multiples of `24h`, such as `720h` for 30 days. Values in days, such as `30d`, stop PMM Server from starting.
 
 - **Port mapping** to expose PMM Server on a different port:
 
