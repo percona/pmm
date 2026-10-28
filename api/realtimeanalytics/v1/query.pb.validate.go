@@ -165,8 +165,7 @@ func (e QueryMongoDBDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryMongoDBDataValidationError{}
@@ -797,8 +796,7 @@ func (e QueryDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryDataValidationError{}

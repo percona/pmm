@@ -222,7 +222,7 @@ func (h *Handler) runPingHandler(ctx context.Context, agent *pmmAgentInfo) {
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
-	var portsChanged bool
+	var portsChanged, enteredRunning bool
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 
 	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -235,9 +235,12 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		}
 
 		for _, agentID := range agentIDs {
-			// Check if port changed before updating
+			// Both read what is stored before updateAgentStatus below replaces it.
 			if checkPortChanged(tx.Querier, agentID, req.ListenPort) {
 				portsChanged = true
+			}
+			if checkEnteredRunning(tx.Querier, agentID, req.Status) {
+				enteredRunning = true
 			}
 
 			err := updateAgentStatus(
@@ -262,11 +265,17 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	// For port changes, force immediate synchronous config update to prevent
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
-	if portsChanged {
-		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
+	if shouldForceConfigurationUpdate(portsChanged, enteredRunning, req.Status) {
+		l.Debug("Agent became scrapeable, forcing immediate VictoriaMetrics configuration update")
 		err := h.vmdb.ForceConfigurationUpdate(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to force configuration update: %w", err)
+			// Fall through rather than return: giving up here would leave
+			// VictoriaMetrics scraping the stale address until some unrelated change
+			// happens to rebuild, and would skip the state update below. The batched
+			// path still converges on it, just not immediately. Same fallback as
+			// widenDisabledCollectors.
+			l.Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+			h.vmdb.RequestConfigurationUpdate()
 		}
 	} else {
 		// Normal async update
@@ -283,6 +292,54 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
+}
+
+// shouldForceConfigurationUpdate reports whether this report is worth rebuilding the
+// VictoriaMetrics scrape configuration for synchronously, rather than leaving it to the batched
+// update.
+//
+// Only a running Agent's address is worth it, and then in two cases: it has just become scrapeable
+// (entering RUNNING, which is how a restart on a new port arrives), or its port moved while it was
+// already running (a reconnect). Those are what VictoriaMetrics would otherwise keep scraping at a
+// stale address, which is what PMM-14267 fixed.
+//
+// What this excludes is the Agent that cannot start at all. Every attempt reserves a new port and
+// reports it, and answering each one synchronously - then asking the Agent for another state
+// update - turns one broken exporter into a rebuild loop that ends only when the Agent is fixed.
+// Observed in production as three stuck vmagents holding a PMM Server at ~100 forks/s.
+//
+// Excluding it bounds the rate rather than removing the work. A stuck Agent's port is still in the
+// generated configuration - FindAgentsForScrapeConfig filters on NOT disabled and a non-null
+// listen_port, never on status - so each attempt still changes it, and the batched update still
+// validates, writes and reloads roughly every updateBatchDelay. That is one rebuild per 3s however
+// many Agents are stuck, instead of one per report per Agent.
+func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status inventoryv1.AgentStatus) bool {
+	if status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+		return false
+	}
+
+	return portsChanged || enteredRunning
+}
+
+// checkEnteredRunning reports whether the Agent is entering RUNNING, which is when its address
+// first becomes scrapeable.
+//
+// Comparing ports alone never sees a normal restart: the Agent reports the new port with STARTING
+// first (one port is used for every status of a process - see the Supervisor's forwarder), and
+// updateAgentStatus stores it for every status, so by the time RUNNING arrives the stored port
+// already matches the reported one.
+func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv1.AgentStatus) bool {
+	if newStatus != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+		return false
+	}
+
+	agent, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		// Can't determine, assume no change
+		return false
+	}
+
+	return agent.Status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
 }
 
 // checkPortChanged checks if the agent's listen port is changing.
