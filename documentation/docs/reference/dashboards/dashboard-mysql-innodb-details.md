@@ -509,6 +509,19 @@ Compare this value against the **InnoDB Log File Usage Hourly** panel to verify 
 
 The size of buffer InnoDB uses for buffering writes to log files.
 
+### InnoDB Log Buffer Usage
+
+Shows the log buffer size and **Max Log Space Used**, the most redo data waiting in the log buffer to be written to disk during each interval.
+
+If **Max Log Space Used** regularly gets close to **Log Buffer Size**, transactions wait for free space in the log buffer. Increase `innodb_log_buffer_size`.
+
+**Max Log Space Used** is the current log sequence number (LSN) minus the LSN flushed to disk. MySQL 8.0.30 and newer reports these as `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`. Percona Server and MariaDB report them as `Innodb_lsn_current` and `Innodb_lsn_flushed`. PMM Client 3.10.0 and later reads whichever pair the server exposes.
+
+**Max Log Space Used** is empty in these cases:
+
+- Oracle MySQL 8.0.30 and newer monitored by a PMM Client older than 3.10.0. Upgrade PMM Client to fix this.
+- Oracle MySQL 8.0.29 and older, which exposes neither pair.
+
 ### At Transaction Commit
 
 What to do with Log file At Transaction Commit. Do nothing and wait for timeout to  flush the data from Log Buffer,  Flush it to OS Cache but not FSYNC or Flush only.
