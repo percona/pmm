@@ -52,7 +52,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     'pmm-ui.sidebar.expanded',
     true
   );
-  const { data: haInfo } = useHaInfo();
+  const { data: haInfo } = useHaInfo({
+    enabled: !!user,
+  });
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];

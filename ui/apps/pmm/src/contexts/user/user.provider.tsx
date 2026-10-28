@@ -25,6 +25,7 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   });
   const user = useMemo(() => {
     if (
+      !auth.isLoggedIn ||
       !userQuery.data ||
       !orgsQuery.data ||
       !userInfoQuery.data ||
@@ -40,13 +41,16 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
       preferencesQuery.data,
       isAuthorized(userQuery.error)
     );
-  }, [userQuery, orgsQuery, userInfoQuery, preferencesQuery]);
+  }, [auth.isLoggedIn, userQuery, orgsQuery, userInfoQuery, preferencesQuery]);
 
   return (
     <UserContext.Provider
       value={{
         isLoading:
-          userQuery.isLoading || orgsQuery.isLoading || userInfoQuery.isLoading,
+          userQuery.isLoading ||
+          orgsQuery.isLoading ||
+          userInfoQuery.isLoading ||
+          preferencesQuery.isLoading,
         user,
       }}
     >
