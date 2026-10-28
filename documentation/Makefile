@@ -18,6 +18,18 @@ doc-build-pdf: doc-build-image  ## Build documentation in PDF format
 	docker run --rm -v $(DIR):/docs -e ENABLED_GIT_REVISION_DATE=false pmm-doc-build \
 		bash -c "mkdocs build -f mkdocs-pdf.yml -d /tmp/site && cp /tmp/site/pdf/*.pdf /docs/"
 
+doc-build-pdf-old:      ## Build documentation in PDF format, the old way for compatibility
+	docker run --rm --platform=linux/amd64 -v $(DIR):/docs -w /build perconalab/pmm-doc-md:latest \
+		bash -c " \
+			cp -r /docs/* /build/ && \
+			git init && \
+			git config user.email 'doc-team@percona.com' && \
+			git add --all && \
+			git commit -am 'Initial commit' > /dev/null && \
+			mkdocs build -f mkdocs-pdf.yml && \
+			cp /build/site/pdf/*.pdf /docs/ \
+		"
+
 doc-build-image:    ## Build the pmm-doc-build image used by doc-build-pdf and doc-build-preview
 	docker build -t pmm-doc-build -f $(DIR)/resources/Dockerfile.build $(DIR)
 
