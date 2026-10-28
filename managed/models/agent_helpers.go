@@ -1190,6 +1190,7 @@ type ChangeMetricsResolutionsParams struct {
 type ChangeExporterOptions struct {
 	PushMetrics        *bool
 	DisabledCollectors []string // nil = no change, empty = clear, populated = set
+	EnabledCollectors  []string // nil = no change, empty = clear, populated = set
 	ExposeExporter     *bool
 	MetricsScheme      *string
 	MetricsPath        *string
@@ -1355,7 +1356,7 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 	// fails and rolls it back.
 	//
 	// The *Options fields are value structs, so copying the Agent copies them too, and the
-	// reference-typed fields inside them (DisabledCollectors, StatsCollections,
+	// reference-typed fields inside them (DisabledCollectors, EnabledCollectors, StatsCollections,
 	// ConnectionTimeout) are replaced wholesale rather than written into. MetricsResolutions is
 	// the exception: it is a pointer, and the block below assigns to its HR/MR/LR fields, so it
 	// needs a copy of its own or those writes would reach the caller's row.
@@ -1429,6 +1430,9 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 		if params.ExporterOptions.DisabledCollectors != nil {
 			row.ExporterOptions.DisabledCollectors = params.ExporterOptions.DisabledCollectors
+		}
+		if params.ExporterOptions.EnabledCollectors != nil {
+			row.ExporterOptions.EnabledCollectors = params.ExporterOptions.EnabledCollectors
 		}
 		if params.ExporterOptions.ExposeExporter != nil {
 			row.ExporterOptions.ExposeExporter = *params.ExporterOptions.ExposeExporter

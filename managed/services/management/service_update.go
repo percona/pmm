@@ -256,6 +256,16 @@ func (u *serviceUpdate) changeAgents() error {
 	}
 	u.exporter = exporter
 
+	// The lists are checked as stored, so a change of one of them can't leave a collector both enabled and disabled.
+	if exporter.AgentType == models.PostgresExporterType &&
+		(u.c.exporter.EnabledCollectors != nil || u.c.exporter.DisabledCollectors != nil) {
+		err = validateEnabledCollectors(u.q, pointer.GetString(exporter.PMMAgentID),
+			exporter.ExporterOptions.EnabledCollectors, exporter.ExporterOptions.DisabledCollectors)
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, agent := range u.agents {
 		if agent.AgentID == u.exporter.AgentID {
 			continue

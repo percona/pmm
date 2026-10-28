@@ -4215,6 +4215,9 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.

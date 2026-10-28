@@ -369,6 +369,35 @@ func (m *UpdatePostgreSQLServiceParams) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetEnableCollectors()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgreSQLServiceParamsValidationError{
+					field:  "EnableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgreSQLServiceParamsValidationError{
+					field:  "EnableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEnableCollectors()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgreSQLServiceParamsValidationError{
+				field:  "EnableCollectors",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if d := m.GetConnectionTimeout(); d != nil {
 		dur, err := d.AsDuration(), d.CheckValid()
 		if err != nil {

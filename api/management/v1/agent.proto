@@ -80,6 +80,8 @@ message UniversalAgent {
   bool disabled = 9;
   // List of disabled collector names.
   repeated string disabled_collectors = 10;
+  // List of enabled collector names: collectors that the exporter doesn't run by default.
+  repeated string enabled_collectors = 46;
   // Listen port for scraping metrics.
   uint32 listen_port = 11;
   // Log level for exporter.

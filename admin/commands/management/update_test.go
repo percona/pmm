@@ -356,6 +356,35 @@ func TestUpdatePostgreSQL(t *testing.T) {
 
 	_, err = runUpdate(t, &UpdatePostgreSQLCommand{}, "postgresql_srv_1", "--query-source=pgstatement")
 	require.EqualError(t, err, "--query-source must be one of: pgstatements, pgstatmonitor, none")
+
+	t.Run("EnableCollectors", func(t *testing.T) {
+		const response = `{
+			"before": {
+				"service_id": "1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "service_name": "postgresql_srv_1",
+				"agents": [{"agent_type": "postgres_exporter", "username": "pmm", "enabled_collectors": ["wal"]}]
+			},
+			"after": {
+				"service_id": "1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "service_name": "postgresql_srv_1",
+				"agents": [{"agent_type": "postgres_exporter", "username": "pmm",
+				            "enabled_collectors": ["long_running_transactions", "stat_io"]}]
+			}
+		}`
+
+		run, err := runUpdateWithResponse(t, response, &UpdatePostgreSQLCommand{}, "postgresql_srv_1",
+			"--enable-collectors=long_running_transactions, stat_io")
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"postgresql": {"enable_collectors": {"values": ["long_running_transactions", "stat_io"]}}}`, run.body)
+
+		result := run.res.(*updateServiceResult)
+		assert.Equal(t, []settingChange{
+			{Flag: "--enable-collectors", Before: "wal", After: "long_running_transactions,stat_io"},
+		}, result.Changes)
+
+		// An empty value clears the list.
+		run, err = runUpdate(t, &UpdatePostgreSQLCommand{}, "postgresql_srv_1", "--enable-collectors=")
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"postgresql": {"enable_collectors": {"values": []}}}`, run.body)
+	})
 }
 
 func TestUpdateProxySQL(t *testing.T) {
