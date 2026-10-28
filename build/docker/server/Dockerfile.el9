@@ -17,7 +17,6 @@ RUN --mount=type=cache,target=/var/cache \
     microdnf -y install ansible-core \
                         ansible-collection-community-general \
                         ansible-collection-community-postgresql \
-                        ansible-collection-ansible-posix \
                         glibc-langpack-en \
                         dnf \
                         vi && \

@@ -31,7 +31,7 @@
       - python3-pip
       - rsync
       - iproute
-      - nss_wrapper
+      - nss_wrapper-libs
     state: latest
 
 - name: Create groups
