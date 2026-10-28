@@ -183,6 +183,8 @@ This is what RTA is for. A blocked statement carries a **Blocked by** badge nami
 
 **Root** marks a blocker that is not itself waiting on anything — the transaction at the head of the chain, and the one to resolve.
 
+If the blocker is itself waiting, the **Details** tab says so. Open that blocker's row to see what holds it up, and repeat until you reach the **Root**.
+
 ### The two kinds of lock
 
 RTA reports two separate mechanisms, and telling them apart decides what you do next:

@@ -37,11 +37,11 @@ describe('BlockedChip', () => {
     );
   });
 
-  it('uses the singular for one unnameable blocker', () => {
+  it('names a lone blocker even when it is itself waiting', () => {
     renderChip([blocker('409', false)]);
 
     expect(screen.getByTestId('blocked-chip')).toHaveTextContent(
-      'Blocked by 1 transaction'
+      'Blocked by 409'
     );
   });
 

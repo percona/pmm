@@ -449,6 +449,15 @@ func TestUpdateAgentStatusMessage(t *testing.T) {
 	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR.String(), agent.Status)
 	assert.Equal(t, "performance_schema is disabled", pointer.GetString(agent.StatusMessage))
 
+	// pmm-agent re-sends the same status without a message on reconnect, which must keep it.
+	err = updateAgentStatus(ctx, db.Querier, pmmAgent.AgentID,
+		inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 0, nil, nil, nil)
+	require.NoError(t, err)
+
+	agent, err = models.FindAgentByID(db.Querier, pmmAgent.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, "performance_schema is disabled", pointer.GetString(agent.StatusMessage))
+
 	// A later report without a message, e.g. from a recovered agent, must clear the previous one.
 	err = updateAgentStatus(ctx, db.Querier, pmmAgent.AgentID,
 		inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, 0, nil, nil, nil)

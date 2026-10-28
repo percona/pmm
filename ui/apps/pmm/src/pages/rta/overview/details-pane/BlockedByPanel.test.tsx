@@ -118,7 +118,7 @@ describe('BlockedByPanel', () => {
     expect(screen.getByText('412')).toBeInTheDocument();
   });
 
-  it('names nobody in a lock cycle with several blockers', () => {
+  it('names nobody when several blockers are all waiting themselves', () => {
     renderPanel([
       { ...MIDDLE_OF_CHAIN, root: false },
       { ...IDLE_ROOT, root: false },
@@ -129,34 +129,31 @@ describe('BlockedByPanel', () => {
     );
   });
 
-  it('does not call cycle participants queued transactions', () => {
-    // Nothing in a cycle clears on its own; InnoDB rolls one participant back.
+  it('treats blockers that are all waiting as a chain, not a cycle', () => {
+    // InnoDB and MDL roll a real deadlock back at once, so this is a lock chain.
     renderPanel([
       { ...MIDDLE_OF_CHAIN, root: false },
       { ...IDLE_ROOT, root: false },
     ]);
 
-    expect(screen.getByText(/in the cycle/)).toBeInTheDocument();
-    expect(screen.queryByText(/transaction ahead/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/transactions ahead/)).not.toBeInTheDocument();
+    expect(screen.getByText('1 more transaction ahead')).toBeInTheDocument();
+    expect(
+      screen.getByText(/All 2 transactions holding this statement up/)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/cycle/)).not.toBeInTheDocument();
   });
 
-  it('still calls a non-root blocker queued when a root exists', () => {
-    renderPanel([IDLE_ROOT, MIDDLE_OF_CHAIN]);
-
-    expect(screen.queryByText(/in the cycle/)).not.toBeInTheDocument();
-  });
-
-  it('declines to name a lone blocker that is itself waiting', () => {
-    // A waiting blocker may not free this statement; the chip and the CSV decline too.
+  it('names a lone blocker that is itself waiting and points along the chain', () => {
+    // A blocks B, B blocks this statement: B is named, and its own row shows A.
     renderPanel([{ ...IDLE_ROOT, root: false }]);
 
     expect(screen.getByTestId('blocked-by-heading')).toHaveTextContent(
-      'Blocked by 1 transaction'
+      /^Blocked by 409$/
     );
     expect(
-      screen.getByText(/Every transaction involved is itself waiting/)
+      screen.getByText(/Conn 409 is itself waiting for a lock/)
     ).toBeInTheDocument();
+    expect(screen.queryByText(/cycle/)).not.toBeInTheDocument();
   });
 
   it('refuses to name one culprit when several transactions are responsible', () => {

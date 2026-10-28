@@ -390,9 +390,12 @@ func updateAgentStatus(
 		statusMessage = nil
 	}
 
+	// A status change replaces the message, so an explanation never outlives the status it explained.
+	// The same status without one is a re-send (SendActualStatuses on reconnect), so keep the stored one.
+	if statusMessage != nil || agent.Status != status.String() {
+		agent.StatusMessage = statusMessage
+	}
 	agent.Status = status.String()
-	// Every status report replaces the message, so an explanation never outlives the status it explained.
-	agent.StatusMessage = statusMessage
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {

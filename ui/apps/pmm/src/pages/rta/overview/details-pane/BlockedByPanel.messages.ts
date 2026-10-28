@@ -36,11 +36,6 @@ export const Messages = {
     count === 1
       ? '1 more transaction holding it independently'
       : `${count} more transactions holding it independently`,
-  // Not "ahead": nothing in a cycle clears on its own.
-  cycleParticipants: (count: number) =>
-    count === 1
-      ? '1 more transaction in the cycle'
-      : `${count} more transactions in the cycle`,
   root: 'Root',
   // The lock graph and the statement list are read milliseconds apart.
   unknownBlocker:
@@ -55,6 +50,9 @@ export const Messages = {
         ? ' The rest are queued behind them and clear on their own.'
         : ''
     }`,
-  resolveHintCycle:
-    'Every transaction involved is itself waiting, so none of them can be singled out as the one to resolve.',
+  // A blocker's own row shows what it waits on, one step closer to the root.
+  resolveHintWaiting: (connId: number | string) =>
+    `Conn ${connId} is itself waiting for a lock, so it can't finish until that wait ends. Open its row to see what holds it up. PMM reports the wait; what to do about it is yours to decide.`,
+  resolveHintAllWaiting: (count: number) =>
+    `All ${count} transactions holding this statement up are themselves waiting for locks. Open their rows to see what holds them up. PMM reports the wait; what to do about it is yours to decide.`,
 };

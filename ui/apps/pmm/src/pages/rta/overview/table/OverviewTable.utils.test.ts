@@ -218,9 +218,9 @@ describe('soleBlocker', () => {
     expect(blockingRoots(twoRoots.mySqlPayload!.blockedBy!)).toHaveLength(2);
   });
 
-  it('names nobody when the only blocker is itself waiting', () => {
-    // root=false: resolving it is not guaranteed to free this statement.
-    const cycle: RawQueryData = {
+  it('names the only blocker even when it is itself waiting', () => {
+    // root=false with one blocker is a lock chain: it is still what this statement waits on.
+    const chain: RawQueryData = {
       ...blockedQuery,
       mySqlPayload: {
         ...blockedQuery.mySqlPayload!,
@@ -230,11 +230,13 @@ describe('soleBlocker', () => {
       },
     };
 
-    expect(soleBlocker(cycle)).toBeUndefined();
+    expect(soleBlocker(chain)?.blockingConnId).toBe(
+      blockedQuery.mySqlPayload!.blockedBy![0].blockingConnId
+    );
   });
 
-  it('names nobody in a lock cycle with several blockers', () => {
-    const cycle: RawQueryData = {
+  it('names nobody when several blockers are all waiting themselves', () => {
+    const allWaiting: RawQueryData = {
       ...blockedQuery,
       mySqlPayload: {
         ...blockedQuery.mySqlPayload!,
@@ -245,7 +247,7 @@ describe('soleBlocker', () => {
       },
     };
 
-    expect(soleBlocker(cycle)).toBeUndefined();
+    expect(soleBlocker(allWaiting)).toBeUndefined();
   });
 
   it('returns nothing for an unblocked statement', () => {
