@@ -65,7 +65,7 @@ You can install PMM Server using one of two methods:
     | Variable | Default | Description |
     |----------|---------|-------------|
     | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
-    | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+    | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
     | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
     | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
 

@@ -6,7 +6,7 @@ Configure PMM Server behavior by setting environment variables when running the 
 Configure PMM Server by setting Docker container environment variables using the `-e var=value` syntax:
 
 ```bash
-docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+docker run ... -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=1 ... percona/pmm-server:3
 ```
 
 ## Core configuration variables
@@ -17,8 +17,7 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
 | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data (must be in multiples of 24h) | `720h` (30 days) |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | `5s` |
-| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval | `10s` |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval. `PMM_METRICS_RESOLUTION` is an alias. Set only one of them. | `10s` |
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
 
@@ -120,9 +119,14 @@ Optimize for disk space constraints:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800 \
   -e VMAGENT_promscrape_maxScrapeSize=32MiB \
   -e VMAGENT_loggerLevel=WARN \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -131,9 +135,14 @@ Balance resource usage with monitoring detail:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=104857600 \
   -e VMAGENT_promscrape_maxScrapeSize=128MiB \
   -e VMAGENT_loggerLevel=ERROR \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -142,9 +151,14 @@ Enable detailed logging for troubleshooting:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_loggerLevel=DEBUG \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=26214400 \
   -e VMAGENT_promscrape_maxScrapeSize=64MiB \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -219,11 +233,16 @@ For example:
 
 ```sh
   docker run \
+    --detach \
+    --restart always \
+    --publish 443:8443 \
+    --volume pmm-data:/srv \
     -e PMM_NOMAD_GC_INTERVAL=5m \
     -e PMM_NOMAD_GC_DISK_USAGE_THRESHOLD=85 \
     -e PMM_NOMAD_GC_INODE_USAGE_THRESHOLD=80 \
     -e PMM_NOMAD_GC_MAX_ALLOCS=3000 \
     -e PMM_NOMAD_GC_PARALLEL_DESTROYS=4 \
+    --name pmm-server \
     percona/pmm-server:3
 ```
 
@@ -264,11 +283,15 @@ For environments with many monitored systems, increase collection intervals and 
 
 ``` sh
 docker run \
- -e PMM_DATA_RETENTION=45d \
- -e PMM_METRICS_RESOLUTION=5s \
- -e PMM_METRICS_RESOLUTION_HR=30s \
- -e PMM_METRICS_RESOLUTION_MR=60s \
- -e PMM_METRICS_RESOLUTION_LR=300s \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_DATA_RETENTION=45d \
+  -e PMM_METRICS_RESOLUTION_HR=30s \
+  -e PMM_METRICS_RESOLUTION_MR=60s \
+  -e PMM_METRICS_RESOLUTION_LR=300s \
+  --name pmm-server \
  percona/pmm-server:3
 ```
 
@@ -277,10 +300,15 @@ For testing and development, you might want debugging enabled:
 
 ```sh
 docker run \
- -e PMM_DATA_RETENTION=7d \
- -e PMM_DEBUG=true \
- -e PMM_ENABLE_ACCESS_CONTROL=true \
- percona/pmm-server:3
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_DATA_RETENTION=7d \
+  -e PMM_DEBUG=1 \
+  -e PMM_ENABLE_ACCESS_CONTROL=1 \
+  --name pmm-server \
+  percona/pmm-server:3
 ``` 
 
 ### Restricted features
@@ -288,10 +316,15 @@ To disable certain features for security or policy reasons:
 
 ```sh
 docker run \
- -e PMM_ENABLE_UPDATES=false \
- -e PMM_ENABLE_TELEMETRY=false \
- -e PMM_ENABLE_BACKUP_MANAGEMENT=false \
- percona/pmm-server:3
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_ENABLE_UPDATES=0 \
+  -e PMM_ENABLE_TELEMETRY=0 \
+  -e PMM_ENABLE_BACKUP_MANAGEMENT=0 \
+  --name pmm-server \
+  percona/pmm-server:3
 ```
 
 ## Related topic

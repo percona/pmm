@@ -55,7 +55,7 @@ These variables are particularly useful for AWS AMI deployments:
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 | `PMM_DEBUG` | `true` | Enable verbose logging |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
 
 ### VictoriaMetrics performance tuning
 
