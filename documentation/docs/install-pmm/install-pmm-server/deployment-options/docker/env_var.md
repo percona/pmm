@@ -22,7 +22,7 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
 
-Starting with PMM 3.11.0, `PMM_DATA_RETENTION` accepts days (`d`). On earlier versions, give the value in hours, such as `720h` for 30 days.
+`PMM_DATA_RETENTION` must be a whole number of days: at least `24h`, in multiples of `24h`. Starting with PMM 3.11.0, it also accepts days (`d`). On earlier versions, give the value in hours, such as `720h` for 30 days.
 
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
