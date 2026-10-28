@@ -69,7 +69,7 @@ You can install PMM Server using one of two methods:
     | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
     | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
 
-    Starting with PMM 3.10.1, `PMM_DATA_RETENTION` accepts days (`d`). On earlier versions, give the value in hours, such as `720h` for 30 days.
+    Starting with PMM 3.11.0, `PMM_DATA_RETENTION` accepts days (`d`). On earlier versions, give the value in hours, such as `720h` for 30 days.
 
     For a complete list, see the [environment variables](../docker/env_var.md).
 
