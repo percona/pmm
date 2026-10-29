@@ -31,6 +31,9 @@ func runSecrets() error {
 	}
 	for _, r := range resolved {
 		logrus.Infof("Credential %s: %s.", r.Name, r.Source)
+		if r.Padded {
+			logrus.Warnf("Credential %s: the value of %s has leading or trailing whitespace, which PMM Server ignores.", r.Name, r.Var)
+		}
 	}
 	return nil
 }

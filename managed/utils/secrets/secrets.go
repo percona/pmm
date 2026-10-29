@@ -22,6 +22,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -71,9 +73,24 @@ type spec struct {
 	fileEnvs []string
 	// valueEnvs name legacy variables holding the value itself.
 	valueEnvs []string
+	// providers are the Grafana providers that expanded a legacy value before PMM-15168, in Grafana's order. Grafana
+	// doesn't expand what it reads from a file, so they apply here.
+	providers []string
 	// defaultValue is the value PMM has always used when nothing is configured.
 	defaultValue string
 }
+
+// Grafana's variable providers (pkg/setting/expanders.go); ${NAME} is the short form of $__env{NAME}.
+const (
+	envProvider  = "__env"
+	fileProvider = "__file"
+)
+
+// grafanaConfig is the order in which Grafana expands its configuration values: variables first, then files.
+var grafanaConfig = []string{envProvider, fileProvider}
+
+// grafanaVar is Grafana's pattern for a provider expression such as ${NAME} or $__file{path}.
+var grafanaVar = regexp.MustCompile(`\$(|__\w+){([^}]+)}`)
 
 var catalog = []spec{
 	{
@@ -84,8 +101,9 @@ var catalog = []spec{
 	},
 	{
 		name:         GrafanaDBPassword,
-		fileEnvs:     []string{"PMM_GRAFANA_DB_PASSWORD_FILE", "GF_DATABASE_PASSWORD__FILE"},
+		fileEnvs:     []string{"PMM_GRAFANA_DB_PASSWORD_FILE"},
 		valueEnvs:    []string{"GF_DATABASE_PASSWORD"},
+		providers:    grafanaConfig,
 		defaultValue: "grafana",
 	},
 	{
@@ -95,20 +113,26 @@ var catalog = []spec{
 		defaultValue: "clickhouse",
 	},
 	{
-		name:         ClickHouseDatasourcePassword,
-		fileEnvs:     []string{"PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE"},
-		valueEnvs:    []string{"PMM_CLICKHOUSE_DATASOURCE_PASSWORD"},
+		name:      ClickHouseDatasourcePassword,
+		fileEnvs:  []string{"PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE"},
+		valueEnvs: []string{"PMM_CLICKHOUSE_DATASOURCE_PASSWORD"},
+		// Grafana's provisioning expanded ${PMM_CLICKHOUSE_DATASOURCE_PASSWORD} with its variables pass, so only
+		// the files pass applied to the value.
+		providers:    []string{fileProvider},
 		defaultValue: "grafana",
 	},
 	{
 		name:      AdminPassword,
-		fileEnvs:  []string{"PMM_ADMIN_PASSWORD_FILE", "GF_SECURITY_ADMIN_PASSWORD__FILE"},
+		fileEnvs:  []string{"PMM_ADMIN_PASSWORD_FILE"},
 		valueEnvs: []string{"PMM_ADMIN_PASSWORD", "GF_SECURITY_ADMIN_PASSWORD"},
+		providers: grafanaConfig,
 	},
 	{
 		name:      GrafanaSecretKey,
-		fileEnvs:  []string{"PMM_GRAFANA_SECRET_KEY_FILE", "GF_SECURITY_SECRET_KEY__FILE"},
+		fileEnvs:  []string{"PMM_GRAFANA_SECRET_KEY_FILE"},
 		valueEnvs: []string{"GF_SECURITY_SECRET_KEY"},
+		// Grafana's encryption read GF_SECURITY_SECRET_KEY again as written (SectionWithEnvOverrides), so expanding it
+		// would change the key that existing secrets are encrypted with.
 	},
 }
 
@@ -170,6 +194,10 @@ type Resolved struct {
 	Name   Name
 	Source Source
 	Path   string
+	// Var names the legacy variable of a value from the environment.
+	Var string
+	// Padded reports a value from the environment with leading or trailing whitespace, which every reader drops.
+	Padded bool
 }
 
 // Options configures Prepare.
@@ -237,16 +265,20 @@ func Prepare(opts Options) ([]Resolved, error) {
 
 func resolve(opts Options, s spec) (Resolved, error) {
 	r := Resolved{Name: s.name}
-	file, err := single(opts.Getenv, s.fileEnvs)
+	file, _, err := single(opts.Getenv, s.fileEnvs)
 	if err != nil {
 		return r, err
 	}
-	value, err := single(opts.Getenv, s.valueEnvs)
+	value, key, err := single(opts.Getenv, s.valueEnvs)
 	if err != nil {
 		return r, err
 	}
 	if file != "" && value != "" {
 		return r, fmt.Errorf("both a file (%s) and a value (%s) are set", strings.Join(s.fileEnvs, "/"), strings.Join(s.valueEnvs, "/"))
+	}
+	// Grafana read a value that is only $__file{path} from that file, so the file stays the source.
+	if p := grafanaFile(value, s.providers); p != "" {
+		file, value = p, ""
 	}
 
 	if file != "" {
@@ -269,7 +301,14 @@ func resolve(opts Options, s spec) (Resolved, error) {
 
 	switch {
 	case value != "":
-		r.Source = SourceEnv
+		value, err = expand(opts.Getenv, value, s.providers)
+		if err != nil {
+			return r, fmt.Errorf("%s: %w", key, err)
+		}
+		if strings.TrimSpace(value) == "" {
+			return r, fmt.Errorf("%s resolves to an empty value", key)
+		}
+		r.Source, r.Var, r.Padded = SourceEnv, key, strings.TrimSpace(value) != value
 	case s.defaultValue != "":
 		r.Source, value = SourceDefault, s.defaultValue
 	default:
@@ -304,8 +343,8 @@ func dirSource(opts Options, s spec, value string) (string, error) {
 	return p, nil
 }
 
-// single returns the one value set among the given variables; set variables must agree.
-func single(getenv func(string) string, keys []string) (string, error) {
+// single returns the one value set among the given variables and a variable that holds it; set variables must agree.
+func single(getenv func(string) string, keys []string) (string, string, error) {
 	var found, foundKey string
 	for _, k := range keys {
 		v := getenv(k)
@@ -313,11 +352,53 @@ func single(getenv func(string) string, keys []string) (string, error) {
 			continue
 		}
 		if found != "" && v != found {
-			return "", fmt.Errorf("%s and %s are set to different values", foundKey, k)
+			return "", "", fmt.Errorf("%s and %s are set to different values", foundKey, k)
 		}
 		found, foundKey = v, k
 	}
-	return found, nil
+	return found, foundKey, nil
+}
+
+// grafanaFile returns the path of a value that is only $__file{path}, when the files provider applies to it.
+func grafanaFile(value string, providers []string) string {
+	if !slices.Contains(providers, fileProvider) {
+		return ""
+	}
+	m := grafanaVar.FindStringSubmatch(value)
+	if m == nil || m[0] != value || m[1] != fileProvider {
+		return ""
+	}
+	return m[2]
+}
+
+// expand applies Grafana's providers to a value the way Grafana does: one provider after the other over the whole
+// value, so a variable may hold a $__file{}, and providers Grafana doesn't have are left as they are.
+func expand(getenv func(string) string, value string, providers []string) (string, error) {
+	for _, p := range providers {
+		for _, m := range grafanaVar.FindAllStringSubmatch(value, -1) {
+			provider := m[1]
+			if provider == "" {
+				provider = envProvider
+			}
+			if provider != p {
+				continue
+			}
+
+			var v string
+			switch p {
+			case envProvider:
+				v = getenv(m[2])
+			case fileProvider:
+				b, err := os.ReadFile(m[2]) //nolint:gosec // a path the operator configured
+				if err != nil {
+					return "", err
+				}
+				v = strings.TrimSpace(string(b))
+			}
+			value = strings.Replace(value, m[0], v, 1)
+		}
+	}
+	return value, nil
 }
 
 // writeFile writes a credential atomically, readable by its owner only, without a trailing newline.

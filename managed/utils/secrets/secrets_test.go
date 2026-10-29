@@ -90,6 +90,65 @@ func TestPrepare(t *testing.T) {
 		assert.Equal(t, "ch-value", linked(t, opts, ClickHousePassword))
 		assert.Equal(t, SourceEnv, m[AdminPassword].Source)
 		assert.Equal(t, "admin-value", linked(t, opts, AdminPassword))
+		assert.False(t, m[AdminPassword].Padded)
+	})
+
+	t.Run("expands a value the way Grafana did", func(t *testing.T) {
+		pw := filepath.Join(t.TempDir(), "pw")
+		require.NoError(t, os.WriteFile(pw, []byte("from-file\n"), 0o440))
+		opts := testOptions(t, map[string]string{
+			"GF_SECURITY_ADMIN_PASSWORD":         "$__file{" + pw + "}",
+			"GF_DATABASE_PASSWORD":               "${REF}-$__env{KEY}-$__vault{key}",
+			"REF":                                "$__file{" + pw + "}",
+			"KEY":                                "from-env",
+			"PMM_CLICKHOUSE_DATASOURCE_PASSWORD": "${KEY}-$__file{" + pw + "}",
+			"GF_SECURITY_SECRET_KEY":             "$__file{" + pw + "}",
+			"PMM_POSTGRES_DBPASSWORD":            "$__file{" + pw + "}",
+		})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		m := byName(t, resolved)
+		// A value that is only $__file{} links the file, as a file variable does.
+		assert.Equal(t, SourceFile, m[AdminPassword].Source)
+		assert.Equal(t, pw, m[AdminPassword].Path)
+		assert.Equal(t, "from-file", linked(t, opts, AdminPassword))
+		// Variables first, then files; Grafana has no vault provider.
+		assert.Equal(t, "from-file-from-env-$__vault{key}", linked(t, opts, GrafanaDBPassword))
+		// Grafana's provisioning applied only the files pass to this one.
+		assert.Equal(t, "${KEY}-from-file", linked(t, opts, ClickHouseDatasourcePassword))
+		// Grafana encrypted with the secret key as written, and nothing expanded pmm-managed's own password.
+		assert.Equal(t, SourceEnv, m[GrafanaSecretKey].Source)
+		assert.Equal(t, "$__file{"+pw+"}", linked(t, opts, GrafanaSecretKey))
+		assert.Equal(t, "$__file{"+pw+"}", linked(t, opts, PostgresPassword))
+	})
+
+	t.Run("ignores Grafana's __FILE variables, as earlier versions did", func(t *testing.T) {
+		file := filepath.Join(t.TempDir(), "pw")
+		require.NoError(t, os.WriteFile(file, []byte("from-file"), 0o440))
+		opts := testOptions(t, map[string]string{
+			"GF_SECURITY_ADMIN_PASSWORD__FILE": file,
+			"GF_SECURITY_SECRET_KEY__FILE":     file,
+			"GF_DATABASE_PASSWORD__FILE":       file,
+		})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		m := byName(t, resolved)
+		assert.Equal(t, SourceUnset, m[AdminPassword].Source)
+		assert.Equal(t, SourceUnset, m[GrafanaSecretKey].Source)
+		assert.Equal(t, SourceDefault, m[GrafanaDBPassword].Source)
+	})
+
+	t.Run("flags a value with surrounding whitespace", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "key\n"})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		r := byName(t, resolved)[GrafanaSecretKey]
+		assert.True(t, r.Padded)
+		assert.Equal(t, "GF_SECURITY_SECRET_KEY", r.Var)
+		assert.Equal(t, "key", linked(t, opts, GrafanaSecretKey))
 	})
 
 	t.Run("uses a file and the secrets directory", func(t *testing.T) {
@@ -165,6 +224,26 @@ func TestPrepare(t *testing.T) {
 			"postgres-password: both " + filepath.Join(dir, string(PostgresPassword)) + " and a value",
 			"clickhouse-datasource-password: " + filepath.Join(dir, string(ClickHouseDatasourcePassword)) + " is empty",
 			"grafana-secret-key:",
+		} {
+			assert.Contains(t, err.Error(), s)
+		}
+		assert.NotContains(t, err.Error(), "q7v")
+	})
+
+	t.Run("reports a value that does not expand", func(t *testing.T) {
+		missing := filepath.Join(t.TempDir(), "missing")
+		opts := testOptions(t, map[string]string{
+			"GF_SECURITY_ADMIN_PASSWORD":         "$__file{" + missing + "}",
+			"PMM_CLICKHOUSE_DATASOURCE_PASSWORD": "q7v-$__file{" + missing + "}",
+			"GF_DATABASE_PASSWORD":               "${UNSET}",
+		})
+
+		_, err := Prepare(opts)
+		require.Error(t, err)
+		for _, s := range []string{
+			"admin-password: open " + missing,
+			"clickhouse-datasource-password: PMM_CLICKHOUSE_DATASOURCE_PASSWORD: open " + missing,
+			"grafana-db-password: GF_DATABASE_PASSWORD resolves to an empty value",
 		} {
 			assert.Contains(t, err.Error(), s)
 		}

@@ -64,7 +64,7 @@
       - name: Create grafana user in postgres
         postgresql_user:
           name: grafana
-          password: "{{ lookup('file', '/run/pmm/secrets/grafana-db-password') }}"
+          password: "{{ lookup('file', '/run/pmm/secrets/grafana-db-password') | trim }}"
           expires: infinity
           login_user: postgres
           state: present
