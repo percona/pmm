@@ -205,4 +205,40 @@ describe('addDashboardItems', () => {
   it('has no MongoDB menu with neither MongoDB nor extras', () => {
     expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
   });
+
+  const ids = (items: ReturnType<typeof addDashboardItems>) =>
+    items.map((i) => i.id);
+
+  it('hides the item when the hook reports no data', () => {
+    expect(ids(addDashboardItems([], [], TEST_USER_ADMIN))).not.toContain(
+      'kubernetes'
+    );
+  });
+
+  it('adds Kubernetes before Operating system when there is data', () => {
+    const list = ids(addDashboardItems([], [], TEST_USER_ADMIN, [], true));
+
+    expect(list).toContain('kubernetes');
+    expect(list.indexOf('kubernetes')).toBe(list.indexOf('system') - 1);
+  });
+
+  it('links the five Kubernetes dashboards', () => {
+    const item = addDashboardItems([], [], TEST_USER_ADMIN, [], true).find(
+      (i) => i.id === 'kubernetes'
+    );
+
+    expect(item?.children?.map((c) => c.url)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('/d/k8s-overview/kubernetes-overview'),
+        expect.stringContaining(
+          '/d/k8s-cluster-summary/kubernetes-cluster-summary'
+        ),
+        expect.stringContaining(
+          '/d/k8s-db-cluster/database-cluster-on-kubernetes'
+        ),
+        expect.stringContaining('/d/k8s-pod/kubernetes-pod'),
+        expect.stringContaining('/d/k8s-node/kubernetes-node'),
+      ])
+    );
+  });
 });

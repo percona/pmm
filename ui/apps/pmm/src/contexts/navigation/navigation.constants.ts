@@ -422,6 +422,41 @@ export const NAV_VALKEY: NavItem = {
   ],
 };
 
+export const NAV_KUBERNETES: NavItem = {
+  id: 'kubernetes',
+  text: 'Kubernetes',
+  icon: 'kubernetes',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-overview/kubernetes-overview`,
+  children: [
+    {
+      id: 'kubernetes-overview',
+      text: 'Overview',
+      icon: PageviewOutlined,
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-overview/kubernetes-overview`,
+    },
+    {
+      id: 'kubernetes-cluster-summary',
+      text: 'Cluster summary',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-cluster-summary/kubernetes-cluster-summary`,
+    },
+    {
+      id: 'kubernetes-db-cluster',
+      text: 'Database cluster',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-db-cluster/database-cluster-on-kubernetes`,
+    },
+    {
+      id: 'kubernetes-pod',
+      text: 'Pod',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-pod/kubernetes-pod`,
+    },
+    {
+      id: 'kubernetes-node',
+      text: 'Node',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/k8s-node/kubernetes-node`,
+    },
+  ],
+};
+
 //
 // QAN
 //
@@ -830,6 +865,7 @@ export const NAV_FOLDER_MAP: Record<string, string> = {
   mongo: 'MongoDB',
   postgre: 'PostgreSQL',
   valkey: 'Valkey',
+  kubernetes: 'Kubernetes',
 };
 
 export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {

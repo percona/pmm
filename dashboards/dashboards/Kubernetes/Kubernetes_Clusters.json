@@ -1,0 +1,641 @@
+{
+    "annotations": {
+        "list": []
+    },
+    "description": "Every Kubernetes cluster sending metrics to PMM.",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Kubernetes"
+            ],
+            "targetBlank": false,
+            "title": "Kubernetes",
+            "type": "dashboards"
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "Usage and requests are % of allocatable. Click a cluster to drill down.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": true
+                    },
+                    "mappings": [],
+                    "noValue": "No Kubernetes clusters are sending metrics to PMM. See Kubernetes monitoring in the PMM documentation.",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": ".*"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue",
+                                "value": "—"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "K8s cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Kubernetes cluster ${__data.fields.k8s_cluster_id}",
+                                        "url": "/graph/d/k8s-cluster-summary?var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CPU used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge",
+                                    "valueDisplayMode": "text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3987e5",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CPU requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge",
+                                    "valueDisplayMode": "text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3987e5",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Memory used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge",
+                                    "valueDisplayMode": "text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3987e5",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Memory requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge",
+                                    "valueDisplayMode": "text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3987e5",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Nodes"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Nodes",
+                                        "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-4&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Ready"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Nodes",
+                                        "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-4&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DB clusters"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Database clusters",
+                                        "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-5&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pods running"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Pods",
+                                        "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-8&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Restarts"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Pods that need attention",
+                                        "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-7&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 20,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": []
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "count by (k8s_cluster_id) (max by (k8s_cluster_id, node) (kube_node_info{k8s_cluster_id=~\"$k8s_cluster\"}))",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (kube_node_status_condition{k8s_cluster_id=~\"$k8s_cluster\",condition=\"Ready\",status=\"true\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (rate(container_cpu_usage_seconds_total{k8s_cluster_id=~\"$k8s_cluster\",container!=\"\",image!=\"\"}[2m])) / sum by (k8s_cluster_id) (kube_node_status_allocatable{k8s_cluster_id=~\"$k8s_cluster\",resource=\"cpu\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (kube_pod_container_resource_requests{k8s_cluster_id=~\"$k8s_cluster\",resource=\"cpu\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) / sum by (k8s_cluster_id) (kube_node_status_allocatable{k8s_cluster_id=~\"$k8s_cluster\",resource=\"cpu\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (container_memory_working_set_bytes{k8s_cluster_id=~\"$k8s_cluster\",container!=\"\",image!=\"\"}) / sum by (k8s_cluster_id) (kube_node_status_allocatable{k8s_cluster_id=~\"$k8s_cluster\",resource=\"memory\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (kube_pod_container_resource_requests{k8s_cluster_id=~\"$k8s_cluster\",resource=\"memory\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) / sum by (k8s_cluster_id) (kube_node_status_allocatable{k8s_cluster_id=~\"$k8s_cluster\",resource=\"memory\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (kube_pod_status_phase{k8s_cluster_id=~\"$k8s_cluster\",phase=\"Running\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "G"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "count by (k8s_cluster_id) ((max by (k8s_cluster_id, namespace, db_cluster) (label_replace(({__name__=~\"kube_(psmdb|pxc|pg|ps_mysql)_status_state\",k8s_cluster_id=~\"$k8s_cluster\",state=~\"ready\"} == 1) * 1 or ({__name__=~\"kube_(psmdb|pxc|pg|ps_mysql)_status_state\",k8s_cluster_id=~\"$k8s_cluster\",state=~\"initializing\"} == 1) * 2 or ({__name__=~\"kube_(psmdb|pxc|pg|ps_mysql)_status_state\",k8s_cluster_id=~\"$k8s_cluster\",state=~\"paused|stopping\"} == 1) * 3 or ({__name__=~\"kube_(psmdb|pxc|pg|ps_mysql)_status_state\",k8s_cluster_id=~\"$k8s_cluster\",state=~\"error|unknown\"} == 1) * 4, \"db_cluster\", \"$1\", \"name\", \"(.+)\")) or on (k8s_cluster_id, namespace, db_cluster) ((((((count by (k8s_cluster_id, namespace, db_cluster) (max by (k8s_cluster_id, namespace, pod) (kube_pod_status_ready{k8s_cluster_id=~\"$k8s_cluster\",condition=\"true\"} == 1) * on (k8s_cluster_id, namespace, pod) group_left (db_cluster) (max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) or (count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) * 0) / count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) == 1) * 0 + 1) or (((((count by (k8s_cluster_id, namespace, db_cluster) (max by (k8s_cluster_id, namespace, pod) (kube_pod_status_ready{k8s_cluster_id=~\"$k8s_cluster\",condition=\"true\"} == 1) * on (k8s_cluster_id, namespace, pod) group_left (db_cluster) (max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) or (count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) * 0) / count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) == 0) * 0 + 6) or (((((count by (k8s_cluster_id, namespace, db_cluster) (max by (k8s_cluster_id, namespace, pod) (kube_pod_status_ready{k8s_cluster_id=~\"$k8s_cluster\",condition=\"true\"} == 1) * on (k8s_cluster_id, namespace, pod) group_left (db_cluster) (max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) or (count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) * 0) / count by (k8s_cluster_id, namespace, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=~\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=~\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=~\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"}))) > 0 < 1) * 0 + 5))))",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "H"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id) (round(increase_prometheus(kube_pod_container_status_restarts_total{k8s_cluster_id=~\"$k8s_cluster\"}[$__range])))",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "I"
+                }
+            ],
+            "title": "Kubernetes clusters",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "includeByName": {
+                            "Value #A": true,
+                            "Value #B": true,
+                            "Value #C": true,
+                            "Value #D": true,
+                            "Value #E": true,
+                            "Value #F": true,
+                            "Value #G": true,
+                            "Value #H": true,
+                            "Value #I": true,
+                            "k8s_cluster_id": true
+                        },
+                        "indexByName": {
+                            "Value #A": 1,
+                            "Value #B": 2,
+                            "Value #C": 3,
+                            "Value #D": 4,
+                            "Value #E": 5,
+                            "Value #F": 6,
+                            "Value #G": 7,
+                            "Value #H": 8,
+                            "Value #I": 9,
+                            "k8s_cluster_id": 0
+                        },
+                        "renameByName": {
+                            "Value #A": "Nodes",
+                            "Value #B": "Ready",
+                            "Value #C": "CPU used",
+                            "Value #D": "CPU requested",
+                            "Value #E": "Memory used",
+                            "Value #F": "Memory requested",
+                            "Value #G": "Pods running",
+                            "Value #H": "DB clusters",
+                            "Value #I": "Restarts",
+                            "k8s_cluster_id": "K8s cluster"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "Kubernetes",
+        "Percona"
+    ],
+    "templating": {
+        "list": [
+            {
+                "allValue": ".+",
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "PA58DA793C7250F1B"
+                },
+                "definition": "label_values(kube_node_info, k8s_cluster_id)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "K8s cluster",
+                "multi": true,
+                "name": "k8s_cluster",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(kube_node_info, k8s_cluster_id)",
+                    "refId": "V"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timezone": "",
+    "title": "Kubernetes Clusters",
+    "uid": "k8s-clusters"
+}

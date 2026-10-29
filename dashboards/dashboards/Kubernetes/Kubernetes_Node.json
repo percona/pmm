@@ -1,0 +1,3138 @@
+{
+    "annotations": {
+        "list": []
+    },
+    "description": "One node: capacity vs requests vs usage, and the pods it runs.",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Kubernetes"
+            ],
+            "targetBlank": false,
+            "title": "Kubernetes",
+            "type": "dashboards"
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "text",
+                        "mode": "fixed"
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "#1c3324",
+                                                "index": 0,
+                                                "text": "✓ Ready"
+                                            },
+                                            "2": {
+                                                "color": "#5a4210",
+                                                "index": 1,
+                                                "text": "⚠ Pressure"
+                                            },
+                                            "3": {
+                                                "color": "#7a2230",
+                                                "index": 2,
+                                                "text": "✕ Not ready"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kubelet"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "OS"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CPU requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Memory requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pods / max"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#181b1f",
+                                                "index": 0,
+                                                "text": "—"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pods / max · total"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "prefix:/"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "index": 0,
+                                                "text": " "
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "inlineEditing": false,
+                "panZoom": false,
+                "root": {
+                    "background": {
+                        "color": {
+                            "fixed": "transparent"
+                        }
+                    },
+                    "border": {
+                        "color": {
+                            "fixed": "transparent"
+                        }
+                    },
+                    "constraint": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                    },
+                    "elements": [
+                        {
+                            "background": {
+                                "color": {
+                                    "field": "Status",
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile0",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 0.0,
+                                "right": 85.63,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#e8e8ee"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "Status",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label0",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 0.6,
+                                "right": 88.5,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 17,
+                                "text": {
+                                    "field": "Status",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value0",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 3.59,
+                                "right": 86.23,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "#2a2d33"
+                                },
+                                "width": 1
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile1",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 14.97,
+                                "right": 70.66,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "Kubelet",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label1",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 15.57,
+                                "right": 73.53,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 15,
+                                "text": {
+                                    "field": "kubelet_version",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value1",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 18.56,
+                                "right": 71.26,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "#2a2d33"
+                                },
+                                "width": 1
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile2",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 29.94,
+                                "right": 53.29,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "OS",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label2",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 30.54,
+                                "right": 56.65,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 15,
+                                "text": {
+                                    "field": "os_image",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value2",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 31.95,
+                                "right": 53.89,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "#2a2d33"
+                                },
+                                "width": 1
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile3",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 47.31,
+                                "right": 36.53,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "CPU requested",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label3",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 47.91,
+                                "right": 39.76,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 22,
+                                "text": {
+                                    "field": "CPU requested",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value3",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 53.77,
+                                "right": 37.13,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "#2a2d33"
+                                },
+                                "width": 1
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile4",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 64.07,
+                                "right": 18.56,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "Memory requested",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label4",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 64.67,
+                                "right": 22.04,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 22,
+                                "text": {
+                                    "field": "Memory requested",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value4",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 71.02,
+                                "right": 19.16,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "#181b1f"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "#2a2d33"
+                                },
+                                "width": 1
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "tile5",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 82.04,
+                                "right": 0.0,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "Pods / max",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "label5",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 82.64,
+                                "right": 3.59,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "right",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 22,
+                                "text": {
+                                    "field": "Pods / max",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "value5",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 89.22,
+                                "right": 6.6,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#f1f1f5"
+                                },
+                                "size": 22,
+                                "text": {
+                                    "field": "Pods / max · total",
+                                    "mode": "field"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "name": "total5",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 93.4,
+                                "right": 4.0,
+                                "top": 0
+                            },
+                            "type": "text"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "links": [
+                                {
+                                    "oneClick": true,
+                                    "targetBlank": false,
+                                    "title": "Pods on this node",
+                                    "url": "/graph/d/k8s-node?viewPanel=panel-4&${k8s_cluster:queryparam}&${node:queryparam}&${__url_time_range}"
+                                }
+                            ],
+                            "name": "click3",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 47.31,
+                                "right": 36.53,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "links": [
+                                {
+                                    "oneClick": true,
+                                    "targetBlank": false,
+                                    "title": "Pods on this node",
+                                    "url": "/graph/d/k8s-node?viewPanel=panel-4&${k8s_cluster:queryparam}&${node:queryparam}&${__url_time_range}"
+                                }
+                            ],
+                            "name": "click4",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 64.07,
+                                "right": 18.56,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        },
+                        {
+                            "background": {
+                                "color": {
+                                    "fixed": "transparent"
+                                }
+                            },
+                            "border": {
+                                "color": {
+                                    "fixed": "transparent"
+                                },
+                                "width": 0
+                            },
+                            "config": {
+                                "align": "left",
+                                "color": {
+                                    "fixed": "#ccccdc"
+                                },
+                                "size": 13,
+                                "text": {
+                                    "fixed": "",
+                                    "mode": "fixed"
+                                },
+                                "valign": "middle"
+                            },
+                            "constraint": {
+                                "horizontal": "scale",
+                                "vertical": "scale"
+                            },
+                            "links": [
+                                {
+                                    "oneClick": true,
+                                    "targetBlank": false,
+                                    "title": "Pods on this node",
+                                    "url": "/graph/d/k8s-node?viewPanel=panel-4&${k8s_cluster:queryparam}&${node:queryparam}&${__url_time_range}"
+                                }
+                            ],
+                            "name": "click5",
+                            "placement": {
+                                "bottom": 0,
+                                "left": 82.04,
+                                "right": 0.0,
+                                "top": 0
+                            },
+                            "type": "rectangle"
+                        }
+                    ],
+                    "name": "root",
+                    "placement": {
+                        "height": 100,
+                        "left": 0,
+                        "top": 0,
+                        "width": 100
+                    },
+                    "type": "frame"
+                },
+                "showAdvancedTypes": true,
+                "tooltip": {
+                    "mode": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "((max(kube_node_status_condition{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",condition=~\"Ready\",status=\"true\"}) == 0) * 3 or (max(kube_node_status_condition{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",condition=~\"MemoryPressure|DiskPressure|PIDPressure\",status=\"true\"}) == 1) * 2 or (max(kube_node_status_condition{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",condition=~\"Ready\",status=\"true\"}) == 1) * 1) or on () vector(-1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "Status",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (kubelet_version) (kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})) or on () label_replace(vector(-1), \"kubelet_version\", \"—\", \"\", \"\")",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "Kubelet",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (os_image) (kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})) or on () label_replace(vector(-1), \"os_image\", \"—\", \"\", \"\")",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "OS",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum by (node) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"cpu\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) / sum by (node) (kube_node_status_allocatable{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"cpu\"})) or on () vector(-1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "CPU requested",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum by (node) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"memory\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) / sum by (node) (kube_node_status_allocatable{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"memory\"})) or on () vector(-1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "Memory requested",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(count(max by (namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"}) * on (namespace, pod) group_left () max by (namespace, pod) (kube_pod_status_phase{k8s_cluster_id=\"$k8s_cluster\",phase=\"Running\"} == 1))) or on () vector(-1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "Pods / max",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum by (node) (kube_node_status_allocatable{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"pods\"})) or on () vector(-1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "legendFormat": "Pods / max · total",
+                    "range": false,
+                    "refId": "G"
+                }
+            ],
+            "title": "",
+            "transformations": [
+                {
+                    "filter": {
+                        "id": "byRefId",
+                        "options": "B"
+                    },
+                    "id": "labelsToFields",
+                    "options": {
+                        "keepLabels": [
+                            "kubelet_version"
+                        ],
+                        "mode": "columns"
+                    }
+                },
+                {
+                    "filter": {
+                        "id": "byRefId",
+                        "options": "C"
+                    },
+                    "id": "labelsToFields",
+                    "options": {
+                        "keepLabels": [
+                            "os_image"
+                        ],
+                        "mode": "columns"
+                    }
+                }
+            ],
+            "transparent": true,
+            "type": "canvas"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "Allocatable = what the kubelet offers pods: node capacity minus system/kube reserved and the eviction threshold (kube_node_status_allocatable), not the node's total. Requested = what the scheduler reserved; used = what containers consume.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "No metrics for this node yet",
+                    "unit": "cores"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Used"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3987e5",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#d95926",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Allocatable"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#8e8e8e",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        8,
+                                        6
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 2
+            },
+            "id": 2,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node) (label_replace(sum by (k8s_cluster_id, instance) (rate(node_cpu_seconds_total{k8s_cluster_id=\"$k8s_cluster\",mode!~\"idle|iowait|steal\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Used",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (node) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"cpu\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1))",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Requested",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (node) (kube_node_status_allocatable{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"cpu\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Allocatable",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "CPU: used vs requested vs allocatable",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "Allocatable = what the kubelet offers pods: node capacity minus system/kube reserved and the eviction threshold (kube_node_status_allocatable), not the node's total. Requested = what the scheduler reserved; used = what containers consume.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "No metrics for this node yet",
+                    "unit": "bytes"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Used"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3987e5",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#d95926",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Allocatable"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#8e8e8e",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        8,
+                                        6
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 2
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node) (label_replace(node_memory_MemTotal_bytes{k8s_cluster_id=\"$k8s_cluster\"} - node_memory_MemAvailable_bytes{k8s_cluster_id=\"$k8s_cluster\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Used",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (node) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"memory\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1))",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Requested",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (node) (kube_node_status_allocatable{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\",resource=\"memory\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Allocatable",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Memory: used vs requested vs allocatable",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "Running pods scheduled on this node, heaviest CPU first.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": true
+                    },
+                    "mappings": [],
+                    "noValue": "No pods",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": ".*"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue",
+                                "value": "—"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pod"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Pod ${__data.fields.pod}",
+                                        "url": "/graph/d/k8s-pod?var-k8s_cluster=${__data.fields.k8s_cluster_id}&var-namespace=${__data.fields.namespace}&var-pod=${__data.fields.pod}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Database cluster ${__data.fields.db_cluster} (Kubernetes view)",
+                                        "url": "/graph/d/k8s-db-cluster?var-k8s_cluster=${__data.fields.k8s_cluster_id}&var-namespace=${__data.fields.namespace}&var-db_cluster=${__data.fields.db_cluster}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "k8s_cluster_id"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hidden",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "running"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hidden",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CPU used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "cores"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CPU requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "cores"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Memory used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Memory requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Restarts"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 12
+            },
+            "id": 4,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "CPU used"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (k8s_cluster_id, namespace, pod, db_cluster) ((max by (k8s_cluster_id, namespace, pod, db_cluster, db_type, pmm_dash) ((label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") or on (k8s_cluster_id, namespace, pod) label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (owner_name) max by (k8s_cluster_id, namespace, pod, owner_name) (kube_pod_owner{k8s_cluster_id=\"$k8s_cluster\"}), \"db_cluster\", \"$1\", \"owner_name\", \"(.+)\")) or on (k8s_cluster_id, namespace, pod) label_replace(kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}, \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\") * on (k8s_cluster_id, namespace, db_cluster) group_left (db_type, pmm_dash) topk by (k8s_cluster_id, namespace, db_cluster) (1, max by (k8s_cluster_id, namespace, db_cluster, db_type, pmm_dash) (label_replace(((label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*mongo.*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MongoDB\", \"\", \"\"), \"pmm_dash\", \"mongodb-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(postgres|spilo|timescale|postgis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"PostgreSQL\", \"\", \"\"), \"pmm_dash\", \"postgresql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(mysql|mariadb|percona-server[:@]|percona-xtradb).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"MySQL\", \"\", \"\"), \"pmm_dash\", \"mysql-instance-summary\", \"\", \"\") or label_replace(label_replace(max by (k8s_cluster_id, namespace, pod) (kube_pod_container_info{k8s_cluster_id=\"$k8s_cluster\",image=~\".*(valkey|redis).*\",image!~\".*(operator|exporter|pmm-client|pgbouncer|pgbackrest|backup|haproxy|proxysql|orchestrator|router).*\"}), \"db_type\", \"Valkey\", \"\", \"\"), \"pmm_dash\", \"valkey-overview\", \"\", \"\")) unless on (k8s_cluster_id, namespace, pod) (kube_pod_owner{k8s_cluster_id=\"$k8s_cluster\",owner_kind=\"ReplicaSet\"} unless on (k8s_cluster_id, namespace, pod) kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"})) * on (k8s_cluster_id, namespace, pod) group_left (label_app_kubernetes_io_instance) max by (k8s_cluster_id, namespace, pod, label_app_kubernetes_io_instance) (kube_pod_labels{k8s_cluster_id=\"$k8s_cluster\",label_app_kubernetes_io_instance!=\"\"}), \"db_cluster\", \"$1\", \"label_app_kubernetes_io_instance\", \"(.+)\")))) unless on (k8s_cluster_id, namespace, pod) kube_pod_owner{owner_kind=\"Job\"})) and on (k8s_cluster_id, namespace, pod) max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id, namespace, pod) (rate(container_cpu_usage_seconds_total{k8s_cluster_id=\"$k8s_cluster\",container!=\"\",image!=\"\"}[2m])) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id, namespace, pod) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",resource=\"cpu\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id, namespace, pod) (container_memory_working_set_bytes{k8s_cluster_id=\"$k8s_cluster\",container!=\"\",image!=\"\"}) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id, namespace, pod) (kube_pod_container_resource_requests{k8s_cluster_id=\"$k8s_cluster\",resource=\"memory\"} * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1)) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (k8s_cluster_id, namespace, pod) (round(increase_prometheus(kube_pod_container_status_restarts_total{k8s_cluster_id=\"$k8s_cluster\"}[$__range]))) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (k8s_cluster_id, namespace, pod) (kube_pod_status_phase{k8s_cluster_id=\"$k8s_cluster\",phase=\"Running\"}) * on (k8s_cluster_id, namespace, pod) group_left () max by (k8s_cluster_id, namespace, pod) (kube_pod_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "G"
+                }
+            ],
+            "title": "Pods on this node",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "includeByName": {
+                            "Value #B": true,
+                            "Value #C": true,
+                            "Value #D": true,
+                            "Value #E": true,
+                            "Value #F": true,
+                            "Value #G": true,
+                            "db_cluster": true,
+                            "k8s_cluster_id": true,
+                            "namespace": true,
+                            "pod": true
+                        },
+                        "indexByName": {
+                            "Value #B": 3,
+                            "Value #C": 4,
+                            "Value #D": 5,
+                            "Value #E": 6,
+                            "Value #F": 7,
+                            "Value #G": 9,
+                            "db_cluster": 2,
+                            "k8s_cluster_id": 8,
+                            "namespace": 0,
+                            "pod": 1
+                        },
+                        "renameByName": {
+                            "Value #B": "CPU used",
+                            "Value #C": "CPU requested",
+                            "Value #D": "Memory used",
+                            "Value #E": "Memory requested",
+                            "Value #F": "Restarts",
+                            "Value #G": "running",
+                            "db_cluster": "Database cluster",
+                            "k8s_cluster_id": "k8s_cluster_id",
+                            "namespace": "Namespace",
+                            "pod": "Pod"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "node-exporter reports no root filesystem for this node",
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Used"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3987e5",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 22
+            },
+            "id": 5,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node) (label_replace(1 - node_filesystem_avail_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"} / node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Used",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Root filesystem used",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "node-exporter reports no network interfaces for this node",
+                    "unit": "Bps"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Received"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3987e5",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Sent"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#d95926",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 22
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node) (label_replace(sum by (k8s_cluster_id, instance) (rate(node_network_receive_bytes_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"lo|veth.*|cni.*|flannel.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Received",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node) (label_replace(sum by (k8s_cluster_id, instance) (rate(node_network_transmit_bytes_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"lo|veth.*|cni.*|flannel.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "Sent",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Network",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 29
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Disk",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "One line per device (node-exporter); LVM / encrypted volumes (dm-*) show as the physical disk under them. ",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "node-exporter reports no disks for this node",
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 30
+            },
+            "id": 8,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_read_bytes_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} read",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_written_bytes_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} written",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Disk throughput",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "One line per device (node-exporter); LVM / encrypted volumes (dm-*) show as the physical disk under them. ",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "node-exporter reports no disks for this node",
+                    "unit": "iops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 30
+            },
+            "id": 9,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_reads_completed_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} reads",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_writes_completed_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} writes",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Disk IOPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "One line per device (node-exporter); LVM / encrypted volumes (dm-*) show as the physical disk under them. Time per completed I/O; sustained values above ~10 ms on SSD hurt database latency.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "min": 0,
+                    "noValue": "node-exporter reports no disks for this node",
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 37
+            },
+            "id": 10,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_read_time_seconds_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"}) / (max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_reads_completed_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} read",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_write_time_seconds_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"}) / (max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_writes_completed_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}} write",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Disk latency (average per I/O)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "One line per device (node-exporter); LVM / encrypted volumes (dm-*) show as the physical disk under them. Share of time the device had I/O in flight (saturation).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        }
+                    },
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "node-exporter reports no disks for this node",
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 37
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, node, device) (label_replace(sum by (k8s_cluster_id, instance, device) (rate(node_disk_io_time_seconds_total{k8s_cluster_id=\"$k8s_cluster\",device!~\"loop.*|ram.*|dm-.*|sr.*|nbd.*\"}[2m])), \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) and on (node) kube_node_info{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "time_series",
+                    "instant": false,
+                    "legendFormat": "{{device}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Disk busy",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PA58DA793C7250F1B"
+            },
+            "description": "Dedicated volumes show kubelet used/capacity/inodes. PVCs on a shared node disk (local-path) show the node disk instead.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": true
+                    },
+                    "mappings": [],
+                    "noValue": "No PersistentVolumeClaims mounted on this node",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": ".*"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue",
+                                "value": "—"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PVC"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 270
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pod"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Pod ${__data.fields.pod}",
+                                        "url": "/graph/d/k8s-pod?var-k8s_cluster=${__data.fields.k8s_cluster_id}&var-namespace=${__data.fields.namespace}&var-pod=${__data.fields.pod}&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Namespace"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Storage class"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Phase"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "#0ca30c",
+                                                "index": 0,
+                                                "text": "✓ Bound"
+                                            },
+                                            "2": {
+                                                "color": "#fab219",
+                                                "index": 1,
+                                                "text": "◐ Pending"
+                                            },
+                                            "3": {
+                                                "color": "#d03b3b",
+                                                "index": 2,
+                                                "text": "✕ Lost"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 95
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Backing"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Dedicated volume"
+                                            },
+                                            "2": {
+                                                "color": "#fab219",
+                                                "index": 1,
+                                                "text": "Shared node disk"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 135
+                            },
+                            {
+                                "id": "description",
+                                "value": "Shared node disk = kubelet reports the node's root filesystem as the volume (local-path/hostPath): per-volume usage is not available, the node disk is what fills up."
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Requested"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Capacity"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Free"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "description",
+                                "value": "Bytes left: on the volume, or on the shared node disk for local-path PVCs."
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Full"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge",
+                                    "valueDisplayMode": "text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3987e5",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "description",
+                                "value": "Dedicated volume: used / capacity. Shared node disk: that node's root-disk usage."
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Inodes used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fab219",
+                                            "value": 0.8
+                                        },
+                                        {
+                                            "color": "#d03b3b",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "k8s_cluster_id"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hidden",
+                                "value": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 44
+            },
+            "id": 12,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "PVC"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kube_persistentvolumeclaim_resource_requests_storage_bytes{k8s_cluster_id=\"$k8s_cluster\"})) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim, storageclass) (kube_persistentvolumeclaim_info{k8s_cluster_id=\"$k8s_cluster\"})) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((kube_persistentvolumeclaim_status_phase{k8s_cluster_id=\"$k8s_cluster\",phase=\"Bound\"} == 1) * 1 or (kube_persistentvolumeclaim_status_phase{k8s_cluster_id=\"$k8s_cluster\",phase=\"Pending\"} == 1) * 2 or (kube_persistentvolumeclaim_status_phase{k8s_cluster_id=\"$k8s_cluster\",phase=\"Lost\"} == 1) * 3)) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim, pod) (kube_pod_spec_volumes_persistentvolumeclaims_info{k8s_cluster_id=\"$k8s_cluster\"})) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01) * 0 + 2) or max by (k8s_cluster_id, namespace, persistentvolumeclaim) (max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) * 0 + 1)) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"})) unless on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01))) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_used_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"})) unless on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01))) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "G"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) (label_replace(((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_used_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) / max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"})) unless on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01)), \"basis\", \"volume\", \"\", \"\") or label_replace(((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) and on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01)) * 0 + on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(1 - node_filesystem_avail_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"} / node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))), \"basis\", \"node disk\", \"\", \"\"))) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "H"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_used_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"})) unless on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01)) or max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) and on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01)) * 0 + on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_avail_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)))) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "J"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "expr": "(max by (k8s_cluster_id, namespace, persistentvolumeclaim) ((max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_inodes_used{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) / max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_inodes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"})) unless on (k8s_cluster_id, namespace, persistentvolumeclaim) (abs(max by (k8s_cluster_id, namespace, persistentvolumeclaim, node) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node!=\"\"}) - on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info))) / on (k8s_cluster_id, node) group_left () max by (k8s_cluster_id, node) (label_replace(node_filesystem_size_bytes{k8s_cluster_id=\"$k8s_cluster\",mountpoint=~\"/|/sysroot\"}, \"internal_ip\", \"$1\", \"instance\", \"(.+):\\\\d+\") * on (k8s_cluster_id, internal_ip) group_left (node) max by (k8s_cluster_id, internal_ip, node) (kube_node_info)) < 0.01))) and on (k8s_cluster_id, namespace, persistentvolumeclaim) max by (k8s_cluster_id, namespace, persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{k8s_cluster_id=\"$k8s_cluster\",node=\"$node\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "I"
+                }
+            ],
+            "title": "Volumes mounted on this node",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "includeByName": {
+                            "Value #A": true,
+                            "Value #C": true,
+                            "Value #E": true,
+                            "Value #F": true,
+                            "Value #G": true,
+                            "Value #H": true,
+                            "Value #I": true,
+                            "Value #J": true,
+                            "k8s_cluster_id": true,
+                            "namespace": true,
+                            "persistentvolumeclaim": true,
+                            "pod": true,
+                            "storageclass": true
+                        },
+                        "indexByName": {
+                            "Value #A": 5,
+                            "Value #C": 4,
+                            "Value #E": 9,
+                            "Value #F": 6,
+                            "Value #G": 7,
+                            "Value #H": 10,
+                            "Value #I": 11,
+                            "Value #J": 8,
+                            "k8s_cluster_id": 12,
+                            "namespace": 1,
+                            "persistentvolumeclaim": 0,
+                            "pod": 2,
+                            "storageclass": 3
+                        },
+                        "renameByName": {
+                            "Value #A": "Requested",
+                            "Value #C": "Phase",
+                            "Value #E": "Backing",
+                            "Value #F": "Capacity",
+                            "Value #G": "Used",
+                            "Value #H": "Full",
+                            "Value #I": "Inodes used",
+                            "Value #J": "Free",
+                            "k8s_cluster_id": "k8s_cluster_id",
+                            "namespace": "Namespace",
+                            "persistentvolumeclaim": "PVC",
+                            "pod": "Pod",
+                            "storageclass": "Storage class"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "Kubernetes",
+        "Percona"
+    ],
+    "templating": {
+        "list": [
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "PA58DA793C7250F1B"
+                },
+                "definition": "label_values(kube_node_info, k8s_cluster_id)",
+                "hide": 0,
+                "includeAll": false,
+                "label": "K8s cluster",
+                "multi": false,
+                "name": "k8s_cluster",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(kube_node_info, k8s_cluster_id)",
+                    "refId": "V"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "PA58DA793C7250F1B"
+                },
+                "definition": "label_values(kube_node_info{k8s_cluster_id=\"$k8s_cluster\"}, node)",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Node",
+                "multi": false,
+                "name": "node",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(kube_node_info{k8s_cluster_id=\"$k8s_cluster\"}, node)",
+                    "refId": "V"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timezone": "",
+    "title": "Kubernetes Node",
+    "uid": "k8s-node"
+}

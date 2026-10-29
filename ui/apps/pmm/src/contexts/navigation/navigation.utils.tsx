@@ -32,6 +32,7 @@ import {
   NAV_EXPLORE_METRICS,
   NAV_FOLDER_MAP,
   NAV_HAPROXY,
+  NAV_KUBERNETES,
   NAV_MONGO,
   NAV_MYSQL,
   NAV_OS,
@@ -114,7 +115,8 @@ export const addDashboardItems = (
   types: ServiceType[],
   folders: DashboardFolder[],
   user?: User,
-  mongoExtras: NavItem[] = []
+  mongoExtras: NavItem[] = [],
+  hasKubernetes = false
 ): NavItem[] => {
   const children: NavItem[] = [];
 
@@ -146,6 +148,11 @@ export const addDashboardItems = (
   if (types.includes(ServiceType.valkey)) {
     addOtherDashboardsItem(NAV_VALKEY, folders);
     children.push(NAV_VALKEY);
+  }
+
+  if (hasKubernetes) {
+    addOtherDashboardsItem(NAV_KUBERNETES, folders);
+    children.push(NAV_KUBERNETES);
   }
 
   addOtherDashboardsItem(NAV_OS, folders);

@@ -9,6 +9,8 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'emergency-home': () => import('icons/emergency-home.svg?react'),
   // todo: move to peak-ui
   'chat-info-outlined': () => import('icons/chat-info-outlined.svg?react'),
+  // todo: move to peak-ui
+  kubernetes: () => import('icons/kubernetes.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
