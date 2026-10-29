@@ -53,8 +53,8 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const hasServerSession = Boolean(data);
   const isLoggedIn = hasServerSession && clientSessionEstablished;
-  const isAuthenticated =
-    isLoggedIn || Boolean(settings.data?.anonymousEnabled);
+  const isAnonymous = !isLoggedIn && Boolean(settings.data?.anonymousEnabled);
+  const isAuthenticated = isLoggedIn || isAnonymous;
 
   // Pick up the URL the user asked for before being bounced to login.
   useEffect(() => {
@@ -134,7 +134,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoading, isLoggedIn }}>
+    <AuthContext.Provider value={{ isLoading, isLoggedIn, isAnonymous }}>
       {children}
     </AuthContext.Provider>
   );

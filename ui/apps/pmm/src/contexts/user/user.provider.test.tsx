@@ -37,7 +37,9 @@ const mockQueries = (preferences: object = loaded({})) => {
 const renderUser = (isLoggedIn: boolean) =>
   renderHook(() => useUser(), {
     wrapper: ({ children }: PropsWithChildren) => (
-      <AuthContext.Provider value={{ isLoading: false, isLoggedIn }}>
+      <AuthContext.Provider
+        value={{ isLoading: false, isLoggedIn, isAnonymous: false }}
+      >
         <UserProvider>{children}</UserProvider>
       </AuthContext.Provider>
     ),

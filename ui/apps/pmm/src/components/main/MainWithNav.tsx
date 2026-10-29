@@ -14,10 +14,10 @@ import Header from './header/Header';
 import AlertThresholds from 'components/alert-thresholds';
 
 const useMainNavVisible = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAnonymous } = useAuth();
   const { isFullScreen } = useGrafana();
 
-  return isLoggedIn && !isFullScreen && !isRenderingServer();
+  return (isLoggedIn || isAnonymous) && !isFullScreen && !isRenderingServer();
 };
 
 export const MainWithNav = () => {

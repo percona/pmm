@@ -13,7 +13,7 @@ interface TestWrapperProps extends PropsWithChildren {
 
 export const TestWrapper: FC<TestWrapperProps> = ({
   children,
-  authContext = { isLoading: false, isLoggedIn: true },
+  authContext = { isLoading: false, isLoggedIn: true, isAnonymous: false },
   userContext = {
     isLoading: false,
     user: TEST_USER_ADMIN,

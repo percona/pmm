@@ -16,8 +16,21 @@ import {
 } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
+import type { AuthContextProps } from 'contexts/auth';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
+import {
+  NAV_ALERTS,
+  NAV_HELP,
+  NAV_INVENTORY,
+  NAV_MONGO,
+  NAV_MYSQL,
+  NAV_OS,
+  NAV_POSTGRESQL,
+  NAV_QAN,
+  NAV_SIGN_IN,
+  NAV_VALKEY,
+} from './navigation.constants';
 
 vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
@@ -40,18 +53,20 @@ vi.mock('hooks/theme', () => ({
 }));
 
 const renderNavTree = (
-  user: User = TEST_USER_ADMIN,
+  user: User | null = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
   settings?: {
     extensionsEnabled?: boolean;
     backupManagementEnabled?: boolean;
     omEnabled?: boolean;
-  }
+  },
+  authContext?: AuthContextProps
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
       <TestWrapper
-        userContext={{ isLoading: false, user }}
+        authContext={authContext}
+        userContext={{ isLoading: false, user: user ?? undefined }}
         routerProps={routerProps}
       >
         {wrapWithSettings(
@@ -78,6 +93,49 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
 describe('NavigationProvider', () => {
+  describe('Anonymous visitors', () => {
+    const anonymousIds = () =>
+      renderNavTree(null, undefined, undefined, {
+        isLoading: false,
+        isLoggedIn: false,
+        isAnonymous: true,
+      }).map((item) => item.id);
+
+    it('get every database menu, since they cannot list service types', () => {
+      expect(anonymousIds()).toEqual(
+        expect.arrayContaining([
+          NAV_MYSQL.id,
+          NAV_MONGO.id,
+          NAV_POSTGRESQL.id,
+          NAV_VALKEY.id,
+          NAV_OS.id,
+        ])
+      );
+    });
+
+    it('get a sign-in entry and nothing that needs PMM APIs', () => {
+      const ids = anonymousIds();
+
+      expect(ids).toContain(NAV_SIGN_IN.id);
+      for (const id of [
+        NAV_QAN.id,
+        NAV_INVENTORY.id,
+        NAV_ALERTS.id,
+        NAV_HELP.id,
+        'account',
+      ]) {
+        expect(ids).not.toContain(id);
+      }
+    });
+
+    it('leave Query Analytics in place for a signed-in Viewer', () => {
+      const ids = renderNavTree(TEST_USER_VIEWER).map((item) => item.id);
+
+      expect(ids).toContain(NAV_QAN.id);
+      expect(ids).not.toContain(NAV_SIGN_IN.id);
+    });
+  });
+
   describe('Apps section', () => {
     it.each([
       ['admin', TEST_USER_ADMIN],

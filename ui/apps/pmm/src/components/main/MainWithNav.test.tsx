@@ -8,11 +8,13 @@ import { User } from 'types/user.types';
 const setup = ({
   isLoading = false,
   isLoggedIn = false,
+  isAnonymous = false,
   kioskModeActive = false,
   search = '',
 }: {
   isLoading?: boolean;
   isLoggedIn?: boolean;
+  isAnonymous?: boolean;
   kioskModeActive?: boolean;
   /** URL search string (e.g. "render=1" for Grafana renderer). Prepended with "?" when setting location.search */
   search?: string;
@@ -34,7 +36,7 @@ const setup = ({
 
   return render(
     <TestWrapper
-      authContext={{ isLoading, isLoggedIn }}
+      authContext={{ isLoading, isLoggedIn, isAnonymous }}
       userContext={{ isLoading: false, user }}
     >
       {wrapWithQueryProvider(
@@ -67,6 +69,12 @@ describe('MainWithNav', () => {
     setup({ isLoading: false, isLoggedIn: false, kioskModeActive: false });
 
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
+  });
+
+  it('shows sidebar to an anonymous visitor', () => {
+    setup({ isLoading: false, isLoggedIn: false, isAnonymous: true });
+
+    expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
 
   it('does not show sidebar when kiosk mode is active', () => {
