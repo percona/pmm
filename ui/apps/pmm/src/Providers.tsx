@@ -11,6 +11,7 @@ import { FC, PropsWithChildren } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useThemeSync } from 'hooks/useThemeSync';
 import { FirstLoginRedirect } from 'components/first-login-redirect';
+import { SearchProvider } from 'search';
 
 const ThemeSyncProvider: FC<PropsWithChildren> = ({ children }) => {
   useThemeSync();
@@ -38,7 +39,9 @@ const Providers: FC<PropsWithChildren> = () => (
                         },
                       }}
                     />
-                    <Outlet />
+                    <SearchProvider>
+                      <Outlet />
+                    </SearchProvider>
                   </TourProvider>
                 </NavigationProvider>
               </GrafanaProvider>

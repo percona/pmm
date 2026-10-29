@@ -16,7 +16,9 @@ export type MessageType =
   | 'SERVICE_DELETED'
   | 'TIMEZONE_CHANGED'
   | 'OPEN_ALERT_THRESHOLDS_MODAL'
-  | 'DASHBOARD_STARS_CHANGED';
+  | 'DASHBOARD_STARS_CHANGED'
+  | 'OPEN_SEARCH'
+  | 'SEARCH_CONFIG';
 
 export type LocationState = { fromGrafana?: boolean } | null;
 
@@ -71,6 +73,14 @@ export type FrontendSettingsChangedMessage =
 export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;
 
 export type DashboardStarsChangedMessage = Message<'DASHBOARD_STARS_CHANGED'>;
+
+export interface SearchConfigPayload {
+  enabled: boolean;
+}
+
+export type SearchConfigMessage = Message<'SEARCH_CONFIG', SearchConfigPayload>;
+
+export type OpenSearchMessage = Message<'OPEN_SEARCH'>;
 
 export type OpenAlertThresholdsModalMessage = Message<
   'OPEN_ALERT_THRESHOLDS_MODAL',
