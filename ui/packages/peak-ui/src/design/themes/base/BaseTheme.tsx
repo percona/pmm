@@ -534,6 +534,10 @@ const rowStateStyles = (theme: Theme): CSSObject => ({
   },
   '&.Mui-selected': {
     backgroundColor: theme.palette.primary.selected,
+    // MUI's own selected hover and focus rules outrank the two above, so a selected row pins them.
+    '&:hover, &.Mui-focusVisible': {
+      backgroundColor: theme.palette.primary.selected,
+    },
   },
 });
 

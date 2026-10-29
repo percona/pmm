@@ -67,6 +67,20 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
       }
     );
 
+    it.each(['MuiMenuItem', 'MuiListItemButton'] as const)(
+      'keeps a selected %s on the selected token while hovered or keyboard-focused',
+      (component) => {
+        const { primary } = theme.palette;
+
+        expect(slotStyle(theme, component, 'root', { dense: false })).toMatchObject({
+          '&.Mui-selected': {
+            backgroundColor: primary.selected,
+            '&:hover, &.Mui-focusVisible': { backgroundColor: primary.selected },
+          },
+        });
+      }
+    );
+
     it('heads a run of rows with the overline', () => {
       expect(slotStyle(theme, 'MuiListSubheader', 'root')).toMatchObject({
         fontFamily: theme.typography.overline.fontFamily,
