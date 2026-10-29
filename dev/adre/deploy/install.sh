@@ -105,7 +105,7 @@ join_pmm_network() {
 # Docker fixes a container's env, mounts and networking when it is created, so an existing PMM Server is checked
 # before anything is changed; what only a recreate can fix is listed with the docker run options that fix it.
 check_existing_server() {
-  local c=$EXISTING running env cfg_dir mount drop_mount='' callback ip port where image opts added user_env rerun
+  local c=$EXISTING running env cfg_dir mount drop_mount='' callback ip port where image new_image='' opts added user_env rerun
   local -a recreate=() flags=()
   running=$($DOCKER inspect -f '{{.State.Running}}' "$c" 2>/dev/null) || { echo "ERROR: there is no container named '$c'."; exit 1; }
   [ "$running" = true ] || { echo "ERROR: container '$c' is not running."; exit 1; }
@@ -138,7 +138,13 @@ check_existing_server() {
       401) echo "ERROR: PMM_ADMIN_PASSWORD is not the admin password of '$c' (install.sh never changes it on an existing server)."; exit 1 ;;
       *) echo "ERROR: $PMM_LOCAL does not answer like PMM Server; set PMM_LOCAL to its HTTPS URL."; exit 1 ;;
     esac
-    require_assistant "the image of '$c'"
+    case $(curl -ks -o /dev/null -w '%{http_code}' -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/adre/settings") in
+      200) ;;
+      404)
+        new_image=$PMM_IMAGE
+        recreate+=("its image has no PMM Assistant (stock PMM); it has to run $new_image") ;;
+      *) echo "ERROR: $PMM_LOCAL/v1/adre/settings failed; check: $DOCKER logs $c"; exit 1 ;;
+    esac
   fi
 
   cfg_dir=$(getenv ADRE_CONFIG_DIR)
@@ -205,11 +211,18 @@ check_existing_server() {
   echo "ERROR: '$c' has to be recreated; a restart is not enough, because Docker fixes a container's env, mounts and"
   echo "       networking when it is created. To fix:"
   printf '         - %s\n' "${recreate[@]}"
-  echo "       Recreate it with the same image, data volume and ports, adding: ${flags[*]}"
+  if [ -n "$new_image" ]; then
+    echo "       Recreate it from $new_image instead of $image, with the same data volume and ports, adding: ${flags[*]}"
+    echo "       WARNING: moving its data to $new_image is one-way. The prototype adds its own database changes, so"
+    echo "       going back to stock PMM or upgrading to a later official release is not supported. Use a test server,"
+    echo "       or back up the data volume first."
+  else
+    echo "       Recreate it with the same image, data volume and ports, adding: ${flags[*]}"
+  fi
   [ -z "$user_env" ] || echo "       Its other -e options ($(paste -sd' ' <<<"$user_env")) are saved in ./$c.env (mode 0600)."
   echo "       For example (data in the volume is kept):"
   echo "         $DOCKER stop $c && $DOCKER rm $c"
-  echo "         $DOCKER run -d --name $c $opts ${flags[*]} $image"
+  echo "         $DOCKER run -d --name $c $opts ${flags[*]} ${new_image:-$image}"
   echo "       Then run: $rerun"
   echo "       Nothing else was changed."
   exit 2

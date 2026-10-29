@@ -49,10 +49,12 @@ bash install.sh --existing-server=my-pmm          # any other name
 
 It first checks the container and changes nothing until the check passes. It never changes the admin password.
 
-- **Stops with an error** when the container is missing or stopped, the password is wrong, the image has no
-  Assistant, or a `holmesgpt` container installed from another directory exists.
+- **Stops with an error** when the container is missing or stopped, the password is wrong, or a `holmesgpt`
+  container installed from another directory exists.
 - **Asks for a recreate** (exit code 2) when the container lacks something Docker only sets when a container is
-  created: the shared config dir (a host directory mounted at `ADRE_CONFIG_DIR`, default `/holmes-config`),
+  created: an image with the Assistant (a stock PMM server gets a command that switches it to `PMM_IMAGE`; that
+  move is one-way, because the prototype adds its own database changes, so going back to stock PMM or upgrading to
+  a later official release is not supported), the shared config dir (a host directory mounted at `ADRE_CONFIG_DIR`, default `/holmes-config`),
   `GF_RENDERING_SERVER_URL`, a `GF_RENDERING_CALLBACK_URL` that answers on the container's network address
   (Grafana listens on `127.0.0.1:3000` only, so use nginx's `http://<container>:8080/graph/`), a published HTTPS
   port, or a network other than `host`. A restart is not enough. It prints the `docker run` options to add and a
