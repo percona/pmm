@@ -57,6 +57,8 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.3.0",
+    "@types/hast": "3.0.5",
+    "@types/mdast": "4.0.4",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@types/react-syntax-highlighter": "^15.5.13",

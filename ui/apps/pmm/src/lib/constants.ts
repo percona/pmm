@@ -17,6 +17,10 @@ export const GRAFANA_HOME_PATHS: string[] = [
   `${GRAFANA_SUB_PATH}/`,
 ];
 export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
+export const PMM_ASSISTANT_PATH = `${PMM_NEW_NAV_PATH}/assistant`;
+export const PMM_LOGS_PATH = `${PMM_NEW_NAV_PATH}/logs`;
+export const PMM_ASSISTANT_CONFIG_PATH = `${PMM_NEW_NAV_PATH}/configuration/assistant`;
+export const PMM_ASSISTANT_CONFIG_URL = `/pmm-ui${PMM_ASSISTANT_CONFIG_PATH}/configuration`;
 export const PMM_HELP_PATH = `${PMM_NEW_NAV_PATH}/help`;
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';

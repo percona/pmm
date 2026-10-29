@@ -19,7 +19,16 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import AdrePage from 'pages/adre/AdrePage';
+import AdreUsagePage from 'pages/adre/AdreUsagePage';
+import AdreSettingsPage from 'pages/configuration/AdreSettingsPage';
+import AdreDeploymentPage from 'pages/configuration/AdreDeploymentPage';
+import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
+import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
+import QanPage from 'pages/qan/QanPage';
+import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
 import { AlertsPage } from 'pages/alerting/status';
+import { LogsPage } from 'pages/logs/LogsPage';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { OmApp } from '@pmm/plugins-om';
 import { OmPage } from 'om/OmPage';
@@ -73,6 +82,63 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: 'assistant',
+              element: <AdrePage />,
+            },
+            {
+              path: 'configuration/assistant/configuration',
+              element: <AdreSettingsPage />,
+            },
+            {
+              path: 'configuration/assistant/deployment',
+              element: <AdreDeploymentPage />,
+            },
+            {
+              path: 'configuration/assistant/usage',
+              element: <AdreUsagePage />,
+            },
+            // Earlier paths, kept so bookmarks and links keep working.
+            {
+              path: 'adre',
+              element: <Navigate to="/assistant" replace />,
+            },
+            {
+              path: 'adre/usage',
+              element: <Navigate to="/configuration/assistant/usage" replace />,
+            },
+            {
+              path: 'configuration/ai-assistant',
+              element: (
+                <Navigate to="/configuration/assistant/configuration" replace />
+              ),
+            },
+            {
+              path: 'configuration/ai-deployment',
+              element: (
+                <Navigate to="/configuration/assistant/deployment" replace />
+              ),
+            },
+            {
+              path: 'investigations',
+              element: <InvestigationsListPage />,
+            },
+            {
+              path: 'investigations/:id',
+              element: <InvestigationDetailPage />,
+            },
+            {
+              path: 'qan',
+              element: <QanPage />,
+            },
+            {
+              path: 'logs/:tab?',
+              element: <LogsPage />,
+            },
+            {
+              path: 'qan/ai-insights',
+              element: <QanAiInsightsPage />,
             },
             {
               path: 'rta',

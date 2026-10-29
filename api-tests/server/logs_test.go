@@ -56,6 +56,7 @@ func TestDownloadLogs(t *testing.T) {
 		"installed.json",
 		"nginx.conf",
 		"nginx.log",
+		"otel-collector.log",
 		"pmm-agent.log",
 		"pmm-agent.yaml",
 		"pmm-init.log",

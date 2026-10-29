@@ -68,5 +68,24 @@ If you experience Query Analytics performance issues in low-memory environments 
 
 ## Get started
 
-- [Stored metrics QAN](../qan/QAN-stored-metrics.md) 
-- [Real-time analytics for MongoDB](../qan/QAN-realtime-analytics.md) 
+### Enable QAN for PMM Server
+To include PMM Server’s own queries in QAN, enable the feature in the settings:
+{.power-number}
+
+1. Go to **PMM Configuration > Settings > Advanced Settings**.
+2. Switch on the **QAN for PMM Server** option.
+3. Open **PMM Query Analytics (QAN)** from the main menu and filter by the `pmm-server-postgresql` service to view queries.
+
+When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. 
+
+These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.
+
+!!! warning
+    Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.
+
+## AI-assisted query tuning
+
+When ADRE and HolmesGPT are configured, you can use **[QAN AI Insights](../ai-features/qan-ai-insights.md)** for AI-guided query optimisation and tuning from QAN.
+
+- [Stored metrics QAN](../qan/QAN-stored-metrics.md)
+- [Real-time analytics for MongoDB](../qan/QAN-realtime-analytics.md)

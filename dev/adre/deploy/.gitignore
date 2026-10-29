@@ -1,0 +1,7 @@
+# Runtime state produced by install.sh — never commit (contains secrets: LLM key, minted PMM_API_TOKEN,
+# HOLMES_API_KEY, and the self-signed TLS key).
+.env
+.env.bak.*
+holmes-config/
+# The -e options of an existing PMM Server, saved by install.sh --existing-server for its recreate.
+*.env

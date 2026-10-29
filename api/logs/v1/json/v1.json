@@ -1,0 +1,1290 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Logs API",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/logs:findQuery": {
+      "post": {
+        "description": "Matches the statement of a PostgreSQL log line against the QAN fingerprints of its node within 30 minutes of the line, ignoring literals, placeholders, comments, case and spacing.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Find a log line's QAN query",
+        "operationId": "FindLogQuery",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "description": "Time of the line.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node of the line.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "body": {
+                  "description": "Body of the line, such as \"statement: SELECT ...\" from a PostgreSQL log or \"Slow query\" from a MongoDB log.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "attributes": {
+                  "description": "Attributes of the line; a MongoDB slow-query line needs attr, which holds the operation.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "query_id": {
+                  "description": "QAN query ID; empty when no QAN query matches the line.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_name": {
+                  "description": "QAN service with the most executions of the query around the line's time.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "service_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "fingerprint": {
+                  "description": "QAN fingerprint of the query.",
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logs:getContext": {
+      "post": {
+        "description": "Returns the lines before and after a line of the same node and file.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Get log context",
+        "operationId": "GetLogContext",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "description": "Time of the line to show context for.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "file_name": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "lines": {
+                  "description": "Lines before and after; 0 means 50.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 3
+                },
+                "source": {
+                  "description": "Source of the line; optional, narrows the scan.",
+                  "type": "string",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "lines": {
+                  "description": "Lines of the same node and file, oldest first.",
+                  "type": "array",
+                  "items": {
+                    "description": "LogLine is one log entry.",
+                    "type": "object",
+                    "properties": {
+                      "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "preset": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "file_name": {
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "severity_number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
+                      "severity_text": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "body": {
+                        "description": "Body, cut to 4 KiB in lists and 64 KiB in context.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "body_truncated": {
+                        "description": "True when body was cut.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "pattern_hash": {
+                        "description": "Hash of the line's pattern; filter with pattern_hash.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "anchor_index": {
+                  "description": "Index in lines of the line at the requested time.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logs:getFacets": {
+      "post": {
+        "description": "Returns the nodes, sources and parser presets with lines in the time range, with line counts.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Get log facets",
+        "operationId": "GetLogFacets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filter": {
+                  "description": "LogFilter selects log lines; every logs call takes it.",
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "description": "Start of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 0
+                    },
+                    "end": {
+                      "description": "End of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 1
+                    },
+                    "node_names": {
+                      "description": "Only lines from these nodes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "sources": {
+                      "description": "Only lines from these sources (the component for PMM Server logs, the node for client logs).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "presets": {
+                      "description": "Only lines read with these parser presets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "min_severity": {
+                      "description": "Only lines with at least this OpenTelemetry severity number (17 error, 13 warning, 9 info).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
+                    "text": {
+                      "description": "Only lines containing this text, ignoring case.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "pattern": {
+                      "description": "Only lines with this pattern, as returned by GetLogPatterns.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "pattern_hash": {
+                      "description": "Only lines with this pattern hash, as returned with a line or pattern.",
+                      "type": "string",
+                      "format": "uint64",
+                      "x-order": 10
+                    },
+                    "exclude_pattern_hashes": {
+                      "description": "No lines with these pattern hashes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_names": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 1
+                },
+                "presets": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "clusters": {
+                  "description": "Lines of the nodes running services with each label; a node with services of several clusters counts for each.",
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "environments": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
+                "replication_sets": {
+                  "type": "array",
+                  "items": {
+                    "description": "Facet is one filter value with its line count.",
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logs:getPatterns": {
+      "post": {
+        "description": "Returns the most frequent log patterns, marking those absent from the preceding range.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Get log patterns",
+        "operationId": "GetLogPatterns",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filter": {
+                  "description": "LogFilter selects log lines; every logs call takes it.",
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "description": "Start of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 0
+                    },
+                    "end": {
+                      "description": "End of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 1
+                    },
+                    "node_names": {
+                      "description": "Only lines from these nodes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "sources": {
+                      "description": "Only lines from these sources (the component for PMM Server logs, the node for client logs).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "presets": {
+                      "description": "Only lines read with these parser presets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "min_severity": {
+                      "description": "Only lines with at least this OpenTelemetry severity number (17 error, 13 warning, 9 info).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
+                    "text": {
+                      "description": "Only lines containing this text, ignoring case.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "pattern": {
+                      "description": "Only lines with this pattern, as returned by GetLogPatterns.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "pattern_hash": {
+                      "description": "Only lines with this pattern hash, as returned with a line or pattern.",
+                      "type": "string",
+                      "format": "uint64",
+                      "x-order": 10
+                    },
+                    "exclude_pattern_hashes": {
+                      "description": "No lines with these pattern hashes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "patterns": {
+                  "description": "Up to 50 patterns, most frequent first.",
+                  "type": "array",
+                  "items": {
+                    "description": "LogPattern is a group of lines that differ only in values.",
+                    "type": "object",
+                    "properties": {
+                      "pattern": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "count": {
+                        "description": "Lines with this pattern in the time range.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      },
+                      "max_severity_number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 2
+                      },
+                      "first_seen": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "last_seen": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "sample": {
+                        "description": "One line with this pattern.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "is_new": {
+                        "description": "True when the pattern did not occur in the preceding range of the same length.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "pattern_hash": {
+                        "description": "Hash of the pattern; filter with pattern_hash.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 7
+                      },
+                      "previous_count": {
+                        "description": "Lines with this pattern in the preceding range of the same length.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 8
+                      },
+                      "top_sources": {
+                        "description": "Up to three sources with the most lines of this pattern; only set when the filter has a pattern or pattern hash.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logs:getVolume": {
+      "post": {
+        "description": "Returns line counts per severity class in up to 100 time buckets.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Get log volume",
+        "operationId": "GetLogVolume",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filter": {
+                  "description": "LogFilter selects log lines; every logs call takes it.",
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "description": "Start of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 0
+                    },
+                    "end": {
+                      "description": "End of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 1
+                    },
+                    "node_names": {
+                      "description": "Only lines from these nodes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "sources": {
+                      "description": "Only lines from these sources (the component for PMM Server logs, the node for client logs).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "presets": {
+                      "description": "Only lines read with these parser presets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "min_severity": {
+                      "description": "Only lines with at least this OpenTelemetry severity number (17 error, 13 warning, 9 info).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
+                    "text": {
+                      "description": "Only lines containing this text, ignoring case.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "pattern": {
+                      "description": "Only lines with this pattern, as returned by GetLogPatterns.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "pattern_hash": {
+                      "description": "Only lines with this pattern hash, as returned with a line or pattern.",
+                      "type": "string",
+                      "format": "uint64",
+                      "x-order": 10
+                    },
+                    "exclude_pattern_hashes": {
+                      "description": "No lines with these pattern hashes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "buckets": {
+                  "type": "array",
+                  "items": {
+                    "description": "VolumeBucket counts lines per severity class in one time bucket.",
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
+                      },
+                      "error": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 1
+                      },
+                      "warning": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 2
+                      },
+                      "info": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 3
+                      },
+                      "other": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "step": {
+                  "description": "Bucket width.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logs:search": {
+      "post": {
+        "description": "Returns log lines matching the filter, newest first, one page at a time.",
+        "tags": [
+          "LogsService"
+        ],
+        "summary": "Search logs",
+        "operationId": "SearchLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "filter": {
+                  "description": "LogFilter selects log lines; every logs call takes it.",
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "description": "Start of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 0
+                    },
+                    "end": {
+                      "description": "End of the time range.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 1
+                    },
+                    "node_names": {
+                      "description": "Only lines from these nodes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "sources": {
+                      "description": "Only lines from these sources (the component for PMM Server logs, the node for client logs).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "presets": {
+                      "description": "Only lines read with these parser presets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "min_severity": {
+                      "description": "Only lines with at least this OpenTelemetry severity number (17 error, 13 warning, 9 info).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
+                    "text": {
+                      "description": "Only lines containing this text, ignoring case.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "pattern": {
+                      "description": "Only lines with this pattern, as returned by GetLogPatterns.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "max_severity": {
+                      "description": "Only lines with at most this OpenTelemetry severity number; with min_severity it selects one class (13 to 16 for warnings).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "exclude_node_names": {
+                      "description": "No lines from these nodes, e.g. pmm-server to hide PMM Server's own logs.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "pattern_hash": {
+                      "description": "Only lines with this pattern hash, as returned with a line or pattern.",
+                      "type": "string",
+                      "format": "uint64",
+                      "x-order": 10
+                    },
+                    "exclude_pattern_hashes": {
+                      "description": "No lines with these pattern hashes.",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "x-order": 11
+                    },
+                    "clusters": {
+                      "description": "Only lines from nodes running services in these clusters.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "environments": {
+                      "description": "Only lines from nodes running services in these environments.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "replication_sets": {
+                      "description": "Only lines from nodes running services in these replication sets.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 0
+                },
+                "cursor": {
+                  "description": "Cursor from the previous page's next_cursor.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "limit": {
+                  "description": "Page size; 0 means 200.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "lines": {
+                  "description": "Lines, newest first.",
+                  "type": "array",
+                  "items": {
+                    "description": "LogLine is one log entry.",
+                    "type": "object",
+                    "properties": {
+                      "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "preset": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "file_name": {
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "severity_number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
+                      "severity_text": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "body": {
+                        "description": "Body, cut to 4 KiB in lists and 64 KiB in context.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "body_truncated": {
+                        "description": "True when body was cut.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "pattern_hash": {
+                        "description": "Hash of the line's pattern; filter with pattern_hash.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "next_cursor": {
+                  "description": "Cursor of the next page; empty on the last page.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "LogsService reads the logs PMM collects.",
+      "name": "LogsService"
+    }
+  ]
+}

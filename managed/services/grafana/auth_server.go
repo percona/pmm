@@ -116,6 +116,7 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/otlp": viewer, // OTLP ingest from pmm-agent (logs/traces); viewer is enough for push
 	"/v1/om": viewer,
 
 	"/prometheus":      admin,
@@ -139,6 +140,23 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/services":       viewer,
 	"/v1/realtimeanalytics/queries:search": viewer,
 
+	// ADRE (Autonomous Database Reliability Engineer) / HolmesGPT.
+	"/v1/adre/qan-insights/servicenow": admin,
+	"/v1/adre/settings":                viewer,
+	"/v1/adre":                         viewer,
+
+	// Grafana panel render (image or JSON with image_url/dashboard_url).
+	"/v1/grafana/render": viewer,
+	// Observability map (intent-based dashboard/panel routing for ADRE/Holmes).
+	"/v1/grafana/observability-map": viewer,
+
+	// Investigations (AI Investigations).
+	"/v1/investigations": viewer,
+
+	// Logs; users with label-based access filters are refused by the service.
+	"/v1/logs":  viewer,
+	"/logs.v1.": viewer,
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -153,6 +171,9 @@ var methodRules = map[string]role{
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
 
+	// ADRE settings writes are admin-only (they set integration URLs/secrets);
+	// the GET on the same path stays viewer (see rules).
+	http.MethodPost + " /v1/adre/settings": admin,
 	// OM inventory writes.
 	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
 	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
@@ -169,6 +190,8 @@ var lbacPrefixes = []string{
 	"/graph/api/ds/query",
 	"/prometheus/api/v1/",
 	"/v1/qan/",
+	"/v1/logs",
+	"/logs.v1.",
 	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
 	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
 	// tree instead of enumerating them: every shape left out is served unfiltered, and

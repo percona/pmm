@@ -239,6 +239,20 @@ A merge to `main` publishes the documentation live, so don't merge docs for a fe
 
 ---
 
+## Feature areas
+
+Some areas span multiple directories. When working on them, read **both** the component guide and the paths below.
+
+| Area | Backend | UI | Notes |
+|------|---------|-----|-------|
+| **PMM Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage. User-facing name is "PMM Assistant" / "Assistant"; `adre` stays only in code, API paths and env vars |
+| **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
+| **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
+| **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
+| **Logs** | `api/logs/v1/`, `managed/services/logs/` | `ui/apps/pmm/src/pages/logs/` | Logs page and API over ClickHouse `otel.logs` (`/v1/logs:*`); see `dev/otel/README.md` |
+
+---
+
 ## Product Overview
 
 Percona Monitoring and Management (PMM) is an open-source database monitoring solution for MySQL, MongoDB, PostgreSQL, ProxySQL, HAProxy, Valkey, and cloud databases (AWS RDS, Azure). It uses a **client-server architecture** where lightweight agents on monitored hosts collect metrics and query analytics data, sending them to a central server for storage, alerting, and visualization.
