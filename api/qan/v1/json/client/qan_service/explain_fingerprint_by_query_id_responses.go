@@ -349,8 +349,8 @@ type ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// explain fingerprint by query ID default body details items0
-	ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// explain fingerprint by query ID default body details items0 additional properties
+	ExplainFingerprintByQueryIDDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -385,7 +385,7 @@ func (o *ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data
 			}
 			result[k] = toadd
 		}
-		o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 = result
+		o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -406,12 +406,12 @@ func (o ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) MarshalJSON() ([]by
 		return nil, err
 	}
 
-	if len(o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ExplainFingerprintByQueryIDDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
