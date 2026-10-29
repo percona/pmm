@@ -12,7 +12,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Scaffolded by the `pmm-rn-create` skill, filled in on the release branch |
+| `documentation/docs/release-notes/` | One page per released version | Entries go to `next.md` on `main`; the RC job turns it into `X.Y.Z.md` |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -22,7 +22,11 @@ Dashboard panel `description` strings and PMM UI strings are in-product copy, no
 
 ## Publishing
 
-**A merge to `main` publishes immediately.** `.github/workflows/documentation.yml` runs `mike deploy 3 -b publish -p` on every push to `main` touching `documentation/**` (except `documentation/api/**`). There is no staging step and no release gate, so do not merge documentation for a feature that has not shipped.
+**The site is published from the release branch of the latest GA version, not from `main`.** `.github/workflows/documentation.yml` runs `mike deploy 3 -b publish -p` from `pmm-<latest GA>` when that branch gets a push touching `documentation/**` (except `documentation/api/**`), and when its `v<latest GA>` tag is created. Documentation merged to `main` goes live with the release that ships it; the edit button on the site opens the file on that release branch.
+
+To fix a live page, merge the fix to `main` with the `doc-hotfix` label (added before or after the merge). `.github/workflows/doc-hotfix.yml` copies the PR's `documentation/` changes to `pmm-<latest GA>`, which republishes the site, and comments on the PR with the result; on a conflict, open a PR against that branch by hand. A documentation commit made directly on the release branch must reach `main` with `git cherry-pick -x <sha>`: the `Documentation fixes reached main` job fails, on each release-branch push and every weekday, until every such commit since GA is on `main`.
+
+The release branch is cut at RC, before GA. Pushes to it do not publish until its `v<version>` tag exists, so a fix during RC is cherry-picked to that branch like any code fix.
 
 CI on a documentation PR:
 
@@ -183,7 +187,11 @@ Rules for the entry:
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
 
-The version page itself — the release summary, highlights, security updates and the `nav`/`variables.yml` bump — is scaffolded by the `pmm-rn-create` skill and written by the doc team on the release branch. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
+Put the entry in `documentation/docs/release-notes/next.md` on `main`: it holds the next release, whatever its number, and is never published. A fix for a version in RC goes in that version's `X.Y.Z.md` instead, and its cherry-pick to `pmm-X.Y.Z` carries the entry. Merge to `main` first, then cherry-pick.
+
+Right before the RC job (`pmm3-release-candidate` in Jenkins) creates `pmm-X.Y.Z`, it turns `next.md` into `X.Y.Z.md` on `main`, lists it in the index and nav, and starts `next.md` over from `documentation/resources/release-notes-template.md`. It does nothing when `X.Y.Z.md` already exists. The version comes from `VERSION` in [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/blob/v3/VERSION). The doc team writes the release summary, highlights, security updates and release date in `X.Y.Z.md`, on `main` and cherry-picked to `pmm-X.Y.Z`. An entry whose code is reverted on the release branch, as features are on a patch, comes out of `X.Y.Z.md` on both and goes back to `next.md`.
+
+At GA the site build fails unless `X.Y.Z.md` is the same on `pmm-X.Y.Z` and on `main`, and `next.md` on `pmm-X.Y.Z` is still empty: an entry there came with a cherry-picked fix and belongs in `X.Y.Z.md`.
 
 ## Content type templates
 
@@ -277,7 +285,7 @@ Before you start, make sure that:
 ## Build and preview
 
 ```shell
-# Live reload at http://127.0.0.1:8000/ (Docker; amd64 image)
+# Live reload at http://127.0.0.1:8000/ (Docker; builds the pmm-doc-build image on first run)
 make doc-build-preview
 
 # One-off build, as CI runs it

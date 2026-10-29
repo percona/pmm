@@ -113,6 +113,18 @@ services:
       - ./testscripts/:/scripts
       - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
 
+  mongo_arbiter:
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
+    container_name: pmm-agent_mongo_arbiter
+    environment:
+      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    volumes:
+      - ./testscripts/:/scripts
+    command: /scripts/mongo_arbiter.sh
+    ports:
+      - "127.0.0.1:27025:27025"
+
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:14}
     platform: linux/amd64

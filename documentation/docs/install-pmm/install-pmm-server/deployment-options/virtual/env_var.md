@@ -1,14 +1,8 @@
-# Configure environment variables for PMM Server (Virtual machines: AMI/OVF)
+# Configure environment variables for PMM Server (AWS AMI)
 
-!!! warning "OVF support ending in PMM 3.9.0"
-    OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, [migrate to a supported deployment method](index.md).
+Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on an AWS AMI instance deployed from AWS Marketplace.
 
-Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
-
-- **AWS AMI instances**: EC2 instances deployed from AWS Marketplace
-- **Virtual appliances (OVF)**: Deployed on VirtualBox and some other virtualization platforms
-
-Both deployment types use the same `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
+AMI instances use a `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
 
 ## Configure environment variables
 Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the `pmm-server.env` file on your virtual machine.
@@ -30,7 +24,7 @@ To set environment variables for PMM Server on virtual machine deployments:
 3. Add your desired environment variables in `KEY=VALUE` format:
 
     ```bash
-    PMM_DEBUG=true
+    PMM_METRICS_RESOLUTION_HR=10s
     PMM_ENABLE_ACCESS_CONTROL=true
     ```
 
@@ -52,16 +46,16 @@ Unlike Docker deployments that use `-e` flags, virtual machines configure PMM Se
 
 ### Common examples for virtual machines
 
-These variables are particularly useful for both AWS AMI and virtual appliance deployments:
+These variables are particularly useful for AWS AMI deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
-| `PMM_ENABLE_UPDATES` | `true` | Allow version checks and updates |
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours |
+| `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
-| `PMM_DEBUG` | `true` | Enable verbose logging |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
 
 ### VictoriaMetrics performance tuning
 

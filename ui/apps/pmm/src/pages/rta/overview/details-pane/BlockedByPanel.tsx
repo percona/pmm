@@ -145,10 +145,8 @@ const BlockedByPanel: FC<Props> = ({
   // A second root must be resolved too, while a non-root clears on its own.
   const others = blockers.filter((blocker) => blocker !== primary);
   const otherRoots = others.filter((blocker) => blocker.root);
-  // No root means a cycle or a partly read graph, where nothing clears on its own.
-  const isCycle = roots.length === 0;
-  const queuedAhead = isCycle ? [] : others.filter((blocker) => !blocker.root);
-  const cycleParticipants = isCycle ? others : [];
+  // No root is a lock chain: InnoDB and MDL roll a real deadlock back at once.
+  const queuedAhead = others.filter((blocker) => !blocker.root);
 
   if (!primary) {
     return (
@@ -317,12 +315,6 @@ const BlockedByPanel: FC<Props> = ({
                   blockers={otherRoots}
                 />
               )}
-              {cycleParticipants.length > 0 && (
-                <BlockerList
-                  title={Messages.cycleParticipants(cycleParticipants.length)}
-                  blockers={cycleParticipants}
-                />
-              )}
               {queuedAhead.length > 0 && (
                 <BlockerList
                   title={Messages.otherBlockers(queuedAhead.length)}
@@ -336,14 +328,16 @@ const BlockedByPanel: FC<Props> = ({
         <Divider />
         <Typography variant="caption" color="text.secondary">
           {sole
-            ? lockType === LockType.metadata
-              ? Messages.resolveHintMetadata(sole.blockingConnId)
-              : holdsSessionLock(sole, technology)
-                ? Messages.resolveHintSessionLock(sole.blockingConnId)
-                : Messages.resolveHint(sole.blockingConnId)
+            ? !sole.root
+              ? Messages.resolveHintWaiting(sole.blockingConnId)
+              : lockType === LockType.metadata
+                ? Messages.resolveHintMetadata(sole.blockingConnId)
+                : holdsSessionLock(sole, technology)
+                  ? Messages.resolveHintSessionLock(sole.blockingConnId)
+                  : Messages.resolveHint(sole.blockingConnId)
             : roots.length > 1
               ? Messages.resolveHintRoots(culpritCount, queuedAhead.length)
-              : Messages.resolveHintCycle}
+              : Messages.resolveHintAllWaiting(culpritCount)}
         </Typography>
       </Stack>
     </PanelFrame>

@@ -181,14 +181,15 @@ export const blockingRoots = (
 export const soleBlockerOf = (
   blockers: BlockingTransaction[]
 ): BlockingTransaction | undefined => {
-  const roots = blockingRoots(blockers);
-
-  if (roots.length === 1) {
-    return roots[0];
+  // Named even when itself waiting: a lone non-root blocker is a lock chain, not a cycle.
+  if (blockers.length === 1) {
+    return blockers[0];
   }
 
-  // No root means a cycle or a partly read lock graph, so no single blocker can be blamed.
-  return undefined;
+  const roots = blockingRoots(blockers);
+
+  // Several roots, or several blockers all waiting themselves, leave no single one to blame.
+  return roots.length === 1 ? roots[0] : undefined;
 };
 
 export const soleBlocker = (

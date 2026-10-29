@@ -165,8 +165,7 @@ func (e QueryMongoDBDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryMongoDBDataValidationError{}
@@ -340,8 +339,7 @@ func (e BlockingTransactionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = BlockingTransactionValidationError{}
@@ -540,8 +538,7 @@ func (e QueryMySQLDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryMySQLDataValidationError{}
@@ -1055,8 +1052,7 @@ func (e QueryDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryDataValidationError{}
