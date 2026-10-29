@@ -250,12 +250,13 @@ const meta = {
       options: ['empty-state', 'alert'],
       control: { type: 'inline-radio' },
       description:
-        '**Peak UI prop.** How an empty table reads. `empty-state` renders a small `EmptyState`; `alert` keeps the info alert from before `EmptyState` existed, for tables not yet moved to it.',
+        '**Peak UI prop.** How an empty table reads, with no data or with every row filtered out. `empty-state` renders a small `EmptyState`; `alert` keeps the info alert from before `EmptyState` existed, for tables not yet moved to it.',
       table: { category: 'Empty state', defaultValue: { summary: "'empty-state'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      description: '**Peak UI prop.** Message shown when filtering excludes all rows.',
+      description:
+        '**Peak UI prop.** Title of the empty state shown when filtering excludes all rows.',
       table: { category: 'Empty state', defaultValue: { summary: "'No data found'" } },
     },
     emptyState: {
@@ -945,7 +946,7 @@ export const EmptyFilterResults: Story = {
     docs: {
       description: {
         story:
-          'When filters exclude every row, the table shows `emptyFilterResultsMessage` instead of the no-data message. This story starts with a non-matching filter pre-applied.',
+          'When filters exclude every row, the table renders the same small `EmptyState`, titled with `emptyFilterResultsMessage` instead of the no-data message. This story starts with a non-matching filter pre-applied.',
       },
     },
   },

@@ -42,3 +42,25 @@ describe('Table with no data', () => {
     expect(screen.queryByText('No servers yet')).not.toBeInTheDocument();
   });
 });
+
+describe('Table with every row filtered out', () => {
+  const filteredOutProps = {
+    data: [{ name: 'alpha' }],
+    enableGlobalFilter: true,
+    initialState: { showGlobalFilter: true, globalFilter: 'zzzzz' },
+    emptyFilterResultsMessage: 'No servers match these filters',
+  };
+
+  it('renders an EmptyState titled with emptyFilterResultsMessage by default', () => {
+    renderEmptyTable(filteredOutProps);
+
+    expect(screen.getByText('No servers match these filters')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('keeps the info alert for tables that opt into noDataVariant="alert"', () => {
+    renderEmptyTable({ ...filteredOutProps, noDataVariant: 'alert' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('No servers match these filters');
+  });
+});

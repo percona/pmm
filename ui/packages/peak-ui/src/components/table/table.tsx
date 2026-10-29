@@ -149,20 +149,21 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
   const rowExpandConsumerOpts = displayColumnDefOptions?.['mrt-row-expand'];
 
   const table = useMaterialReactTable({
-    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => (
-      <>
-        {/* This means there was data before filtering, so we show the message of empty filtering result */}
-        {getPreFilteredRowModel().rows.length > 0 ? (
-          <NoDataAlertMessage message={emptyFilterResultsMessage} {...noDataAlertProps} />
-        ) : emptyState ? (
-          <Box>{emptyState}</Box>
-        ) : noDataVariant === 'alert' ? (
-          <NoDataAlertMessage message={noDataMessage} {...noDataAlertProps} />
-        ) : (
-          <EmptyState size="small" width="100%" title={noDataMessage} titleComponent="p" />
-        )}
-      </>
-    ),
+    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => {
+      const isFilteredOut = getPreFilteredRowModel().rows.length > 0;
+
+      if (emptyState && !isFilteredOut) {
+        return <Box>{emptyState}</Box>;
+      }
+
+      const message = isFilteredOut ? emptyFilterResultsMessage : noDataMessage;
+
+      return noDataVariant === 'alert' ? (
+        <NoDataAlertMessage message={message} {...noDataAlertProps} />
+      ) : (
+        <EmptyState size="small" width="100%" title={message} titleComponent="p" />
+      );
+    },
     layoutMode: 'grid',
     enablePagination: data.length > 10,
     enableBottomToolbar: rest.enablePagination ?? data.length > 10,

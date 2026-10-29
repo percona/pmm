@@ -32,12 +32,13 @@ export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   /** Replaces the default empty state; pass an `EmptyState` with a description, an illustration or actions. */
   emptyState?: React.ReactNode;
   /**
-   * How an empty table reads: `empty-state` renders a small `EmptyState`; `alert` keeps the
-   * info alert from before `EmptyState` existed, for tables not yet moved to it.
+   * How an empty table reads, with no data or with every row filtered out: `empty-state` renders a
+   * small `EmptyState`; `alert` keeps the info alert from before `EmptyState` existed, for tables not
+   * yet moved to it.
    * @default 'empty-state'
    */
   noDataVariant?: TableNoDataVariant;
-  /** Props for the info alert: the empty-filter-results one, and the no-data one under `noDataVariant="alert"`. */
+  /** Props for the info alert under `noDataVariant="alert"`. */
   noDataAlertProps?: AlertProps;
   enableRowHoverAction?: boolean;
   rowHoverAction?: (row: MRT_Row<T>) => void;
