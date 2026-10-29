@@ -3,10 +3,15 @@ import { Add as AddIcon } from '@mui/icons-material';
 import LabeledContent, { LabeledContentProps } from '../labeled-content';
 
 export type ActionableLabeledContentProps = LabeledContentProps & {
+  /** Shows a small "Technical preview" chip next to the label. */
   techPreview?: boolean;
+  /** Adds an "Add new" text button on the right; MUI Button props plus the fields below. */
   actionButtonProps?: {
+    /** Test id of the button. Defaults to "labeled-content-action-button". */
     dataTestId?: string;
+    /** Called when the user clicks the button. */
     onClick: () => void;
+    /** Label of the button. Defaults to "Add new". */
     buttonText?: string;
   } & ButtonProps;
 };

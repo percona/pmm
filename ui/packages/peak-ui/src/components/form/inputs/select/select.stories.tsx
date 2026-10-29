@@ -38,9 +38,9 @@ const meta = {
           formControlProps={{
             sx: { width },
             disabled,
-            required,
             size,
           }}
+          isRequired={required}
           name={'select'}
           label={label}
         >
@@ -57,20 +57,26 @@ const meta = {
   },
 
   argTypes: {
+    options: { description: 'Choices shown in this demo, rendered as MenuItem children.' },
     disabled: {
+      description: 'Greys out the field so it cannot be opened.',
       type: 'boolean',
     },
     error: {
+      description: 'Shows the field in its error state.',
       type: 'boolean',
     },
     required: {
+      description: 'Marks the field required with an asterisk on the label.',
       type: 'boolean',
     },
     size: {
+      description: 'Field height: small or medium.',
       options: ['small', 'medium'],
       control: { type: 'inline-radio' },
     },
     width: {
+      description: 'Width of the field in this demo.',
       type: 'string',
       defaultValue: '200px',
     },
@@ -88,9 +94,9 @@ const meta = {
           formControlProps={{
             sx: { width },
             disabled,
-            required,
             size,
           }}
+          isRequired={required}
           name={'select'}
           label={label}
         >

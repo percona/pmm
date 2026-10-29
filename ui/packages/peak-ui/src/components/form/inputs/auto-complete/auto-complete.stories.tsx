@@ -54,6 +54,7 @@ const meta = {
   },
 
   argTypes: {
+    width: { description: 'Width of the field in this demo.' },
     disabled: {
       type: 'boolean',
     },
@@ -64,9 +65,11 @@ const meta = {
       type: 'boolean',
     },
     error: {
+      description: 'Shows the field in its error state.',
       type: 'boolean',
     },
     size: {
+      description: 'Field height: small (default) or medium.',
       options: ['small', 'medium'],
       control: { type: 'inline-radio' },
     },
