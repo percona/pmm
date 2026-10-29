@@ -73,7 +73,7 @@ func TestCheckEnteredRunning(t *testing.T) {
 		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
 		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
 		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
-		"username", "password", "agent_password", "tls", "tls_skip_verify",
+		"username", "password", "agent_password", "tls", "tls_skip_verify", "vault_path",
 		"log_level", "exporter_options", "qan_options", "rta_options",
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
 	}
@@ -82,7 +82,7 @@ func TestCheckEnteredRunning(t *testing.T) {
 		return sqlmock.NewRows(agentColumns).AddRow(
 			agentID, string(models.PMMAgentType), "test-node", nil, nil, nil, nil, nil,
 			time.Now(), time.Now(), false, status, 8080, nil, nil, false,
-			nil, nil, nil, false, false, nil,
+			nil, nil, nil, false, false, nil, nil,
 			`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 		)
 	}
