@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"database/sql/driver"
 	"testing"
 	"time"
 
@@ -544,6 +545,21 @@ func TestStateChanged(t *testing.T) {
 		)
 	}
 
+	// updateArgs expects updateAgentStatus to store the reported port; the other columns are not
+	// what this test is about.
+	updateArgs := func(listenPort uint32) []driver.Value {
+		args := make([]driver.Value, 0, len(agentColumns))
+		for _, column := range agentColumns[1:] { // agent_id is the WHERE argument, last
+			if column == "listen_port" {
+				args = append(args, listenPort)
+				continue
+			}
+			args = append(args, sqlmock.AnyArg())
+		}
+
+		return append(args, agentID)
+	}
+
 	starting, running := inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
 
 	for _, tc := range []struct {
@@ -612,7 +628,7 @@ func TestStateChanged(t *testing.T) {
 					mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // checkEnteredRunning
 				}
 				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // updateAgentStatus
-				mock.ExpectExec(`UPDATE "agents" SET`).WillReturnResult(sqlmock.NewResult(0, 1))
+				mock.ExpectExec(`UPDATE "agents" SET`).WithArgs(updateArgs(r.listenPort)...).WillReturnResult(sqlmock.NewResult(0, 1))
 				mock.ExpectCommit()
 				// The Agent again, for its pmm_agent_id: roster.get returns the Agent's own ID.
 				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored))
