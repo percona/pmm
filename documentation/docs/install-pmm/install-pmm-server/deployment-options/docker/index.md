@@ -68,6 +68,8 @@ You can install PMM Server using one of two methods:
       percona/pmm-server:3
     ```
 
+    If the manual installation already created a `pmm-server` container, remove that container first and reuse its storage. For the steps, see [Run the examples on an existing installation](../docker/env_var.md#run-the-examples-on-an-existing-installation).
+
     Common variables:
 
     | Variable | Default | Description |

@@ -26,7 +26,9 @@ docker stop pmm-server
 docker rm pmm-server
 ```
 
-Removing the container doesn't delete your data. The new container reuses the `pmm-data` volume, so you keep your monitoring data and your current admin password.
+Removing the container doesn't delete your data. If the existing container uses the `pmm-data` volume, the new container reuses it, so you keep your monitoring data and your current admin password.
+
+If the existing container uses a host directory or a different volume, replace `--volume pmm-data:/srv` in the examples with the `--volume` option of the existing container. Without that change, the new container starts with empty storage and the default admin password. If the existing container uses a `--network` option, add the same option to the examples.
 
 ## Core configuration variables
 
