@@ -98,3 +98,5 @@ export * from './status-icon';
 
 export * from './page-container';
 export { default as PageContainer } from './page-container';
+
+export * from './empty-state';
