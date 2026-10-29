@@ -47,6 +47,11 @@ type stagingTransport struct {
 	runtime.ClientTransport
 }
 
+// Unwrap returns the transport requests are sent with.
+func (t stagingTransport) Unwrap() runtime.ClientTransport { //nolint:ireturn // the transport it wraps is any one
+	return t.ClientTransport
+}
+
 // Submit implements runtime.ClientTransport.
 func (t stagingTransport) Submit(op *runtime.ClientOperation) (any, error) {
 	ctx := context.Background()
