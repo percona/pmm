@@ -18,7 +18,7 @@ import { LabeledContentProps } from './labeled-content.types';
 const LabeledContent = ({
   label,
   caption,
-  children: verticalStackChildrenSlot,
+  children,
   isRequired = false,
   verticalStackSx: verticalSx = {
     '.MuiTextField-root': {},
@@ -65,7 +65,7 @@ const LabeledContent = ({
         {horizontalStackChildrenSlot}
       </Stack>
       {caption && <Typography variant="body2">{caption}</Typography>}
-      {verticalStackChildrenSlot}
+      {children}
     </Stack>
   );
 };

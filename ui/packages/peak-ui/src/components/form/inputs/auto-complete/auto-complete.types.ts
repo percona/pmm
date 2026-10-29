@@ -13,7 +13,6 @@
 // limitations under the License.
 import { AutocompleteProps, TextFieldProps } from '@mui/material';
 import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
-import { LabeledContentProps } from '../../../labeled-content';
 
 export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = FieldValues> = {
   /** Form field the value is stored under; also drives the test ids. */
@@ -26,8 +25,6 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
   /** Floating label shown inside the field (that moves to the top when the field is focused/filled). */
   label?: string;
-  /** Not used: this input renders the MUI floating label. Kept for API symmetry with the inputs that use `LabeledContent`. */
-  labelProps?: LabeledContentProps;
   /** MUI Autocomplete props forwarded to the dropdown, such as multiple, freeSolo, or getOptionLabel. */
   autoCompleteProps?: Omit<
     AutocompleteProps<TOption, boolean | undefined, boolean | undefined, boolean | undefined>,
