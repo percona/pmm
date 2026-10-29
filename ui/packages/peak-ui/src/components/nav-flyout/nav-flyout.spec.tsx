@@ -3,12 +3,30 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { getThemeOptions } from '../../design';
 import NavItem from '../nav-item';
 import NavFlyout from './nav-flyout';
 
-const renderFlyout = () => {
+const inventoryEntries = (
+  <>
+    <ListItem disablePadding>
+      <NavItem text="Services" href="#services" />
+      <IconButton aria-label="Add a service">+</IconButton>
+    </ListItem>
+    <ListItem disablePadding>
+      <NavItem text="Nodes" href="#nodes" selected />
+    </ListItem>
+    <Collapse in={false}>
+      <ListItem disablePadding>
+        <NavItem text="Agents" href="#agents" />
+      </ListItem>
+    </Collapse>
+  </>
+);
+
+const renderFlyout = (entries: ReactNode = inventoryEntries) => {
   const anchor = document.createElement('button');
   const onClose = vi.fn();
 
@@ -16,24 +34,22 @@ const renderFlyout = () => {
   render(
     <ThemeProvider theme={createTheme(getThemeOptions('pmm')('light'))}>
       <NavFlyout id="inventory-panel" label="Inventory" anchorEl={anchor} onClose={onClose}>
-        <ListItem disablePadding>
-          <NavItem text="Services" href="#services" />
-          <IconButton aria-label="Add a service">+</IconButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <NavItem text="Nodes" href="#nodes" selected />
-        </ListItem>
-        <Collapse in={false}>
-          <ListItem disablePadding>
-            <NavItem text="Agents" href="#agents" />
-          </ListItem>
-        </Collapse>
+        {entries}
       </NavFlyout>
     </ThemeProvider>
   );
 
   return { onClose };
 };
+
+const entriesWithDisabledRow = (
+  <>
+    <NavItem text="Backups" component="button" disabled />
+    <NavItem text="Services" href="#services" />
+    <NavItem text="Restores" component="button" disabled />
+    <NavItem text="Nodes" href="#nodes" />
+  </>
+);
 
 describe('NavFlyout', () => {
   it('is a navigation landmark named by its heading', () => {
@@ -70,6 +86,28 @@ describe('NavFlyout', () => {
 
     fireEvent.keyDown(services, { key: 'End' });
     expect(nodes).toHaveFocus();
+  });
+
+  it('opens on the first enabled entry when no entry is the current page', async () => {
+    renderFlyout(entriesWithDisabledRow);
+
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Services' })).toHaveFocus());
+  });
+
+  it('skips disabled entries with the arrow keys, Home and End', () => {
+    renderFlyout(entriesWithDisabledRow);
+    const services = screen.getByRole('link', { name: 'Services' });
+    const nodes = screen.getByRole('link', { name: 'Nodes' });
+
+    services.focus();
+    fireEvent.keyDown(services, { key: 'ArrowDown' });
+    expect(nodes).toHaveFocus();
+
+    fireEvent.keyDown(nodes, { key: 'ArrowUp' });
+    expect(services).toHaveFocus();
+
+    fireEvent.keyDown(services, { key: 'Home' });
+    expect(services).toHaveFocus();
   });
 
   it('moves on from the row of a focused action', () => {

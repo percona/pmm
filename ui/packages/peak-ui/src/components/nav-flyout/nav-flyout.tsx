@@ -14,11 +14,13 @@ import type { NavFlyoutProps } from './nav-flyout.types';
 const HEADING_HEIGHT = 40;
 const HEADING_GAP = 8;
 
-// The entries themselves, without their actions or what a closed group holds.
+// The enabled entries themselves, without their actions or what a closed group holds.
 const getEntries = (list: HTMLElement | null) =>
-  Array.from(list?.querySelectorAll<HTMLElement>(`.${listItemButtonClasses.root}`) ?? []).filter(
-    (entry) => !entry.closest(`.${collapseClasses.hidden}`)
-  );
+  Array.from(
+    list?.querySelectorAll<HTMLElement>(
+      `.${listItemButtonClasses.root}:not(.${listItemButtonClasses.disabled})`
+    ) ?? []
+  ).filter((entry) => !entry.closest(`.${collapseClasses.hidden}`));
 
 const NavFlyout = ({
   id,
