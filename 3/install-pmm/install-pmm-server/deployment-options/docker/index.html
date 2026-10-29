@@ -16992,8 +16992,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </table>
 <h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>Configure PMM Server&rsquo;s behavior using environment variables:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DATA_RETENTION</span><span class="o">=</span>720h<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>percona/pmm-server:3
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--detach<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--publish<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--volume<span class="w"> </span>pmm-data:/srv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_DATA_RETENTION</span><span class="o">=</span>720h<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_METRICS_RESOLUTION_HR</span><span class="o">=</span>10s<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-server:3
 </code></pre></div>
+<p>If the manual installation already created a <code>pmm-server</code> container, remove that container first and reuse its storage. For the steps, see <a href="env_var.html#run-the-examples-on-an-existing-installation">Run the examples on an existing installation</a>.</p>
 <p>Common variables:</p>
 <table>
 <thead>
@@ -17006,13 +17015,13 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <tbody>
 <tr>
 <td><code>PMM_DATA_RETENTION</code></td>
-<td><code>30d</code></td>
-<td>Duration to retain metrics data</td>
+<td><code>720h</code></td>
+<td>How long to keep metrics data, in hours</td>
 </tr>
 <tr>
-<td><code>PMM_METRICS_RESOLUTION</code></td>
-<td><code>1s</code></td>
-<td>Base metrics collection interval</td>
+<td><code>PMM_METRICS_RESOLUTION_HR</code></td>
+<td><code>5s</code></td>
+<td>High-resolution metrics interval</td>
 </tr>
 <tr>
 <td><code>PMM_ENABLE_UPDATES</code></td>
@@ -17090,7 +17099,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 30, 2026 08:12:05 UTC">July 30, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 29, 2026 20:59:03 UTC">October 29, 2026</span>
   </span>
 
     
@@ -17100,7 +17109,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 29, 2026 20:59:03 UTC">October 29, 2026</span>
   </span>
 
     
