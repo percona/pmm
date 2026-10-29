@@ -16,6 +16,10 @@ export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'di
   showDot?: boolean;
   /** Color of the status dot. Defaults to warning. */
   dotColor?: NavItemDotColor;
+  /** Marks a group whose nested item is the current page: icon and label take the selected colour without the selected background, so only one item reads as selected. */
+  hasSelectedChild?: boolean;
   /** Element to render as, for example a router link so the row navigates. */
   component?: ElementType;
+  /** Link target; the row renders as an anchor that navigates there. */
+  href?: string;
 }

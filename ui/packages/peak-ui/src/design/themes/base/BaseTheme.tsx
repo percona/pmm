@@ -10,6 +10,7 @@ import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
 import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
 import { inputBaseClasses } from '@mui/material/InputBase';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
+import { listSubheaderClasses } from '@mui/material/ListSubheader';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -516,6 +517,29 @@ const BUTTON_ELEVATION_2 =
   '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
 const BUTTON_ELEVATION_4 =
   '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
+// Figma shadow/elevation8
+const MENU_ELEVATION_8 =
+  '0px 0px 1px 0px rgba(0,0,0,0.16), 0px 8px 4px 0px rgba(0,0,0,0.12), 0px 8px 16px 0px rgba(0,0,0,0.2)';
+
+// The Figma List and Menu row states take the primary tokens, so each theme tints them its own way: neutral in Base, purple in PMM.
+const rowStateStyles = (theme: Theme): CSSObject => ({
+  '&:hover': {
+    backgroundColor: theme.palette.primary.hover,
+    '@media (hover: none)': {
+      backgroundColor: 'transparent',
+    },
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: theme.palette.primary.focus,
+  },
+  '&.Mui-selected': {
+    backgroundColor: theme.palette.primary.selected,
+    // MUI's own selected hover and focus rules outrank the two above, so a selected row pins them.
+    '&:hover, &.Mui-focusVisible': {
+      backgroundColor: theme.palette.primary.selected,
+    },
+  },
+});
 
 const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
   switch (variant) {
@@ -546,6 +570,10 @@ const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
           borderColor: theme.palette.primary.light,
           color: theme.palette.primary.light,
         },
+        // Ripples are off, so keyboard focus needs a look of its own.
+        '&.Mui-focusVisible': {
+          backgroundColor: theme.palette.primary.focusVisible,
+        },
         '&.Mui-disabled': {
           borderWidth: 2,
           color: theme.palette.text.disabled,
@@ -557,6 +585,9 @@ const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
         '&:hover': {
           backgroundColor: theme.palette.primary.hover,
           color: theme.palette.primary.light,
+        },
+        '&.Mui-focusVisible': {
+          backgroundColor: theme.palette.primary.focusVisible,
         },
         '&.Mui-disabled': {
           color: theme.palette.text.disabled,
@@ -756,12 +787,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         letterSpacing: '0.125em',
         textTransform: 'uppercase',
       },
+      // Figma titling/section-heading
       sectionHeading: {
         fontFamily: fontDisplay,
-        fontWeight: 700,
-        fontSize: '0.875rem',
+        fontWeight: 600,
+        fontSize: '1rem',
         lineHeight: '1.25',
-        letterSpacing: '0.00875rem',
+        letterSpacing: 0,
       },
       body1: {
         fontWeight: 400,
@@ -787,7 +819,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       menuText: {
         fontFamily: fontDisplay,
-        fontWeight: 500,
+        fontWeight: 600,
         fontSize: '0.875rem',
         lineHeight: '1.2858',
       },
@@ -1034,13 +1066,43 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      // The Figma Menu surface, shared by every popover: menus and selects included.
+      MuiPopover: {
+        styleOverrides: {
+          paper: ({ theme }) => ({
+            borderRadius: theme.shape.borderRadiusMd,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: MENU_ELEVATION_8,
+            // Dark mode keeps the elevation1 surface instead of MUI's lighter overlay.
+            backgroundImage: 'none',
+            // A menu taller than the screen scrolls on Figma's divider-colored thumb.
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.action.hover}`,
+            // Rows scrolled into view, by focus or otherwise, stay clear of a sticky subheader.
+            [`&:has(.${listSubheaderClasses.sticky})`]: {
+              scrollPaddingTop: 32,
+            },
+          }),
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          // The Figma Menu's width; longer labels widen it.
+          paper: {
+            minWidth: 200,
+          },
+        },
+      },
       MuiMenuItem: {
         styleOverrides: {
-          root: ({ theme }) => ({
-            ...theme.typography.menuText,
-            '.MuiTypography-root': {
-              ...theme.typography.menuText,
-            },
+          // MUI's body1 labels on 40px rows; phones keep MUI's 48px touch rows, dense lists their 32px.
+          root: ({ theme, ownerState }) => ({
+            ...rowStateStyles(theme),
+            ...(!ownerState.dense && {
+              [theme.breakpoints.up('sm')]: {
+                minHeight: 40,
+              },
+            }),
             '&.Mui-disabled': {
               opacity: 0.5,
             },
@@ -1057,6 +1119,22 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               left: 0,
               borderBottom: `1px solid ${theme.palette.divider}`,
             },
+          }),
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: ({ theme }) => rowStateStyles(theme),
+        },
+      },
+      // The Figma List subheader: an overline label heading a run of rows.
+      MuiListSubheader: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            ...theme.typography.overline,
+            minHeight: 32,
+            paddingTop: theme.spacing(1),
+            paddingBottom: theme.spacing(1),
           }),
         },
       },

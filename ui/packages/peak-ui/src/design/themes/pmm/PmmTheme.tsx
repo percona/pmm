@@ -110,7 +110,8 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
               color: primary.main,
               backgroundColor: primary.hover,
             },
-            [`.${iconButtonClasses.root}:focus`]: {
+            // Keyboard focus only: a mouse click must not leave the button tinted.
+            [`.${iconButtonClasses.root}:focus-visible`]: {
               color: primary.main,
               backgroundColor: primary.focus,
             },
@@ -120,7 +121,8 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiListItemButton: {
         styleOverrides: {
           root: {
-            '&:hover, &:focus': {
+            // Keyboard focus only, so a clicked item doesn't keep a hover look.
+            [`&:hover, &.${listItemButtonClasses.focusVisible}`]: {
               color: primary.main,
               backgroundColor: primary.hover,
 

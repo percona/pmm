@@ -67,6 +67,9 @@ export { default as MenuButton } from './buttons/menu-button';
 export * from './nav-item';
 export { default as NavItem } from './nav-item';
 
+export * from './nav-flyout';
+export { default as NavFlyout } from './nav-flyout';
+
 export * from './progress-bar';
 export { default as ProgressBar } from './progress-bar';
 

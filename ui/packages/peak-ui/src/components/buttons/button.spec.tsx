@@ -57,6 +57,13 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
 
         const hover = style['&:hover'] as Record<string, unknown>;
         const disabled = style['&.Mui-disabled'] as Record<string, unknown>;
+        const focusVisible = style['&.Mui-focusVisible'] as Record<string, unknown> | undefined;
+
+        // Ripples are off: outlined and text buttons show keyboard focus with
+        // the primary focus tint, contained ones keep MUI's raised shadow.
+        if (variant !== 'contained') {
+          expect(focusVisible?.backgroundColor).toBe(theme.palette.primary.focusVisible);
+        }
 
         if (variant === 'contained') {
           expect(style.boxShadow).toBe(ELEVATION_2);
