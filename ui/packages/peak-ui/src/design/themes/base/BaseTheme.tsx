@@ -138,6 +138,7 @@ declare module '@mui/material/Alert' {
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
     grey: true;
+    dashed: true;
   }
 }
 
@@ -502,6 +503,13 @@ export const shape = {
 export type ShapeTokens = typeof shape;
 
 const BaseTheme = createTheme();
+
+// A region to point out, such as an empty state: a 2px dashed outline, 6px dashes 4px apart. It is drawn,
+// because a CSS dashed border spaces its dashes however the browser likes; half the 4px stroke is clipped.
+const dashedOutline = (color: string, radius: number) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" rx="${radius}" ry="${radius}" stroke="${color}" stroke-width="4" stroke-dasharray="6 4"/></svg>`
+  )}")`;
 
 // Figma shadow/elevation2 & elevation4
 const BUTTON_ELEVATION_2 =
@@ -1308,6 +1316,19 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
           }),
         },
+      },
+      MuiPaper: {
+        variants: [
+          {
+            props: { variant: 'dashed' },
+            style: ({ theme }) => ({
+              backgroundColor: 'transparent',
+              backgroundImage: dashedOutline(theme.palette.divider, theme.shape.borderRadiusMd),
+              borderRadius: theme.shape.borderRadiusMd,
+              boxShadow: 'none',
+            }),
+          },
+        ],
       },
       MuiCard: {
         variants: [
