@@ -79,6 +79,10 @@ const (
 	// a process that exits after RUNNING is restarted with (see process.Process).
 	failedStartMinDelay = 1 * time.Second
 	failedStartMaxDelay = 30 * time.Second
+
+	// How many starts in a row may fail on the port their failed starts kept before the next one is
+	// given another port, in case the process did not say the port was the problem.
+	failuresPerPort = 5
 )
 
 // configGetter allows for getting a config.
@@ -134,6 +138,8 @@ type failedStart struct {
 	timer          *time.Timer
 	attempt        uint64 // tells a retry it has been superseded by a later attempt
 	port           uint16 // reserved for the next attempt, or 0; see tryStartProcess
+	lastPort       uint16 // the port the last attempt failed on
+	portFailures   int    // consecutive failed starts on lastPort
 }
 
 // agentProcessInfo describes Agent process.
@@ -729,9 +735,9 @@ func (s *Supervisor) dropBackingOff(agentIDs []string) []string {
 // rest the parameters they are requested with now, for their next attempt.
 //
 // New parameters do not bring that attempt forward. They are what pmm-managed answers a failed start
-// with as a matter of course: a vmagent's own scrape configuration names its listen port, and every
-// failed attempt reports a new one, so treating new parameters as a reason to start at once would
-// retry a stuck vmagent as fast as before.
+// with as a matter of course: a vmagent's own scrape configuration names its listen port, which a
+// failed attempt that gives its port up reports anew, and older pmm-agents did on every attempt; so
+// treating new parameters as a reason to start at once would retry a stuck vmagent as fast as before.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) updateFailedStarts(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
 	for agentID, f := range s.failedStarts {
@@ -754,9 +760,20 @@ func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.Set
 		f = &failedStart{backoff: backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay)}
 		s.failedStarts[agentID] = f
 	}
-	if f.port != port {
-		s.releasePort(agentID, f.port)
-		f.port = port
+	// startProcessOrBackOff hands the kept port to every attempt, so it comes back here, or another
+	// one, or none.
+	if port != 0 && port == f.lastPort {
+		f.portFailures++
+	} else {
+		f.portFailures = 1
+	}
+	f.port, f.lastPort = port, port
+	// Telling that the port is the problem relies on the process saying so. One that keeps failing
+	// on the same port is given another anyway, in case it did not.
+	if f.port != 0 && f.portFailures >= failuresPerPort {
+		s.l.Warnf("Agent %s failed to start on port %d %d times in a row, trying another port next.", agentID, f.port, f.portFailures)
+		s.portsRegistry.Forget(f.port)
+		f.port, f.lastPort, f.portFailures = 0, 0, 0
 	}
 	f.requestedState = proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
 	if f.timer != nil {
@@ -925,10 +942,10 @@ const (
 var errPortInUse = errors.New("listen port is in use")
 
 // portInUse reports whether the output of a process that exited early says it could not bind its
-// listen port.
+// listen port: taken by another process, or refused to it, as SELinux port labelling does.
 func portInUse(output []string) bool {
 	for _, line := range output {
-		if strings.Contains(line, "address already in use") {
+		if strings.Contains(line, "address already in use") || strings.Contains(line, "bind: permission denied") {
 			return true
 		}
 	}
@@ -965,11 +982,11 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 			continue
 		}
 
-		// The port is the problem, so the next attempt takes another. Without the release the
-		// reservation would be lost for good: clearing port is the last reference to it, and
-		// portsRegistry only forgets a port on Release.
+		// The port is the problem, so the next attempt takes another, and this one is dropped from
+		// the registry: clearing port is the last reference to it, and Release would refuse it for
+		// as long as whatever holds it keeps listening.
 		if owned {
-			s.releasePort(agentID, port)
+			s.portsRegistry.Forget(port)
 		}
 		port, owned = 0, false
 	}
