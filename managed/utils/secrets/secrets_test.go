@@ -252,7 +252,8 @@ func TestPrepare(t *testing.T) {
 }
 
 func TestExists(t *testing.T) {
-	file := filepath.Join(t.TempDir(), "credential")
+	dir := t.TempDir()
+	file := filepath.Join(dir, "credential")
 	assert.False(t, exists(file))
 
 	require.NoError(t, os.WriteFile(file, []byte("x"), 0o600))
@@ -260,11 +261,18 @@ func TestExists(t *testing.T) {
 
 	// An error other than absence, here "not a directory", leaves the credential to its reader rather than to a default.
 	assert.True(t, exists(filepath.Join(file, "child")))
+
+	// So does a link whose file went away.
+	link := filepath.Join(dir, "link")
+	require.NoError(t, os.Symlink(filepath.Join(dir, "gone"), link))
+	assert.True(t, exists(link))
 }
 
 func TestValue(t *testing.T) {
 	dir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(dir, string(GrafanaDBPassword)), []byte("from-file\n"), 0o600))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, string(AdminPassword)), nil, 0o600))
+	require.NoError(t, os.Symlink(filepath.Join(dir, "gone"), filepath.Join(dir, string(PostgresPassword))))
 
 	v, err := valueIn(dir, "explicit", GrafanaDBPassword, "default")
 	require.NoError(t, err)
@@ -275,8 +283,16 @@ func TestValue(t *testing.T) {
 	assert.Equal(t, "from-file", v)
 
 	v, err = valueIn(dir, "", ClickHousePassword, "default")
-	require.ErrorIs(t, err, os.ErrNotExist)
+	require.ErrorIs(t, err, ErrNotResolved)
 	assert.Equal(t, "default", v)
+
+	// A resolved credential that can't be read is an error, never the default.
+	for _, name := range []Name{AdminPassword, PostgresPassword} {
+		v, err = valueIn(dir, "", name, "default")
+		require.Error(t, err, name)
+		require.NotErrorIs(t, err, ErrNotResolved, name)
+		assert.Empty(t, v, name)
+	}
 }
 
 func TestEnvVarNames(t *testing.T) {

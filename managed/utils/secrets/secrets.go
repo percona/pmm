@@ -151,17 +151,23 @@ func Path(name Name) string {
 	return filepath.Join(Dir, string(name))
 }
 
+// ErrNotResolved means a credential has no link in Dir: it is unset, or an entrypoint that predates the secrets step
+// started the program, as in the development container.
+var ErrNotResolved = errors.New("credential not resolved")
+
 // Exists reports whether a credential was resolved; one that cannot be read counts, so its reader fails loudly.
 func Exists(name Name) bool {
 	return exists(Path(name))
 }
 
 func exists(path string) bool {
-	_, err := os.Stat(path)
+	// A link whose file went away still counts.
+	_, err := os.Lstat(path)
 	return !errors.Is(err, fs.ErrNotExist)
 }
 
-// Value returns value when set, otherwise the credential from its file, otherwise defaultValue with the reason why.
+// Value returns value when set, otherwise the credential from its file. For a credential that was not resolved, it
+// returns defaultValue and ErrNotResolved; any other error means that a resolved credential can't be read.
 func Value(value string, name Name, defaultValue string) (string, error) {
 	return valueIn(Dir, value, name, defaultValue)
 }
@@ -170,11 +176,11 @@ func valueIn(dir, value string, name Name, defaultValue string) (string, error) 
 	if value != "" {
 		return value, nil
 	}
-	v, err := readFile(filepath.Join(dir, string(name)))
-	if err != nil {
-		return defaultValue, err
+	path := filepath.Join(dir, string(name))
+	if !exists(path) {
+		return defaultValue, ErrNotResolved
 	}
-	return v, nil
+	return readFile(path)
 }
 
 func readFile(path string) (string, error) {
