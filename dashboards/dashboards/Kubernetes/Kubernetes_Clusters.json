@@ -27,7 +27,7 @@
                 "type": "prometheus",
                 "uid": "PA58DA793C7250F1B"
             },
-            "description": "Usage and requests are % of allocatable. Click a cluster to drill down.",
+            "description": "Usage and requests are % of allocatable. Click a cluster to drill down. A cluster missing here: see Monitor Kubernetes in the PMM documentation.",
             "fieldConfig": {
                 "defaults": {
                     "custom": {
@@ -339,6 +339,10 @@
                                         "url": "/graph/d/k8s-cluster-summary?viewPanel=panel-5&var-k8s_cluster=${__data.fields.k8s_cluster_id}&${__url_time_range}"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "noValue",
+                                "value": "0"
                             }
                         ]
                     },

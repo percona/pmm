@@ -33,7 +33,7 @@ Lists the pods of the cluster with their component, node, readiness, restarts, t
 
 ## Resource use
 
-**CPU — % of limit, per pod** and **Memory — % of limit, per pod** show each pod's busiest container against its own limit. At 100%, the container is throttled (CPU) or killed for running out of memory. Containers without a limit are left out.
+**CPU — % of limit, per pod** and **Memory — % of limit, per pod** show each pod's busiest container against its own limit. At 100%, Kubernetes throttles the container (CPU) or kills it for running out of memory (memory). The **Last termination** column of the **Pods** table shows whether a container was actually killed. Containers without a limit are left out.
 
 **CPU used, per pod** and **Memory used, per pod** show every pod of the cluster, including proxies, config servers and orchestrators, with or without a limit.
 

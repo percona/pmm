@@ -9,14 +9,11 @@ interface InstantQueryResponse {
   data: { result: unknown[] };
 }
 
+// Errors propagate, so a failed poll keeps the last answer instead of hiding the menu.
 export const hasKubernetesData = async (): Promise<boolean> => {
-  try {
-    const res = await grafanaApi.get<InstantQueryResponse>(
-      `/datasources/proxy/uid/${METRICS_DATASOURCE_UID}/api/v1/query`,
-      { params: { query: PRESENCE_QUERY } }
-    );
-    return res.data.data.result.length > 0;
-  } catch {
-    return false;
-  }
+  const res = await grafanaApi.get<InstantQueryResponse>(
+    `/datasources/proxy/uid/${METRICS_DATASOURCE_UID}/api/v1/query`,
+    { params: { query: PRESENCE_QUERY } }
+  );
+  return res.data.data.result.length > 0;
 };

@@ -118,9 +118,14 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertIn(uid, uids, f'{name} links to {uid}')
 
     def test_overview_explains_an_empty_pmm(self):
+        # An empty table shows only its header, so the docs pointer is in the description.
         panels = {p['title']: p for p in load('Kubernetes_Clusters.json')['panels']}
-        msg = panels['Kubernetes clusters']['fieldConfig']['defaults']['noValue']
-        self.assertIn('PMM documentation', msg)
+        self.assertIn('PMM documentation', panels['Kubernetes clusters']['description'])
+
+    def test_cluster_without_databases_counts_zero(self):
+        panels = {p['title']: p for p in load('Kubernetes_Clusters.json')['panels']}
+        props = [o['properties'] for o in panels['Kubernetes clusters']['fieldConfig']['overrides'] if o['matcher']['options'] == 'DB clusters']
+        self.assertIn({'id': 'noValue', 'value': '0'}, props[0])
 
     def test_no_problem_state_is_not_red(self):
         # "✓ None" is the tile's no-value text; it takes the base threshold colour, so the base must not be the alarm colour.

@@ -1,6 +1,6 @@
 # Kubernetes Cluster Summary
 
-This dashboard shows one Kubernetes cluster: its nodes, the database clusters that run in it, its namespaces, storage and pods. Use the **Namespace** selector to narrow every panel to some namespaces.
+This dashboard shows one Kubernetes cluster: its nodes, the database clusters that run in it, its namespaces, storage and pods. The **Namespace** selector narrows the database cluster, namespace, pod and volume panels. The header tiles, the CPU and memory charts and the **Nodes** table always show the whole cluster.
 
 ![Kubernetes Cluster Summary dashboard](../../images/kubernetes-cluster-summary.png)
 

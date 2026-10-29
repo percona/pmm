@@ -34,9 +34,9 @@ describe('hasKubernetesData', () => {
     expect(await hasKubernetesData()).toBe(false);
   });
 
-  it('returns false when the request fails', async () => {
+  it('rejects when the request fails', async () => {
     get.mockRejectedValue(new Error('502'));
 
-    expect(await hasKubernetesData()).toBe(false);
+    await expect(hasKubernetesData()).rejects.toThrow('502');
   });
 });

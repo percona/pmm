@@ -13,7 +13,7 @@ A collector in each Kubernetes cluster sends the cluster's metrics to PMM:
 - kubelet and cAdvisor: the CPU, memory, network and disk use of each container, and volume usage
 - node-exporter: the CPU, memory, disk and network use of each node
 
-Every series carries the `k8s_cluster_id` label, which is the cluster's name in PMM. The **Kubernetes** menu appears in PMM after the first Kubernetes metrics arrive.
+Every series carries the `k8s_cluster_id` label, which is the cluster's name in PMM. The **Kubernetes** menu appears in PMM within five minutes after the first `kube_node_info` series from kube-state-metrics arrives.
 
 The following table shows which clusters PMM can monitor:
 

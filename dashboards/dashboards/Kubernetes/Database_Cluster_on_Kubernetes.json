@@ -1781,7 +1781,7 @@
                 "type": "prometheus",
                 "uid": "PA58DA793C7250F1B"
             },
-            "description": "Each line is one pod's busiest container against its own limit (containers without a limit are left out). 100% = throttling (CPU) or an OOM kill (memory).",
+            "description": "Each line is one pod's busiest container against its own limit (containers without a limit are left out). 100% = throttling (CPU) or the out-of-memory kill point (memory); Last termination in Pods shows actual kills.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1874,7 +1874,7 @@
                 "type": "prometheus",
                 "uid": "PA58DA793C7250F1B"
             },
-            "description": "Each line is one pod's busiest container against its own limit (containers without a limit are left out). 100% = throttling (CPU) or an OOM kill (memory).",
+            "description": "Each line is one pod's busiest container against its own limit (containers without a limit are left out). 100% = throttling (CPU) or the out-of-memory kill point (memory); Last termination in Pods shows actual kills.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
