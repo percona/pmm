@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { api } from 'api/api';
+import { AuthContext } from 'contexts/auth';
 import { getServerVersion } from 'api/server';
 import { SERVER_VERSION_QUERY_KEY } from 'hooks/api/useServerVersion';
 import { reloadPage } from 'utils/dom.utils';
@@ -47,6 +48,7 @@ const WIRE_3_8_0 = {
 };
 
 let served: object = WIRE_3_7_1;
+let requests = 0;
 
 const Consumer = () => {
   const { isOutdated, serverVersion } = useVersion();
@@ -62,16 +64,20 @@ const setVisibility = (state: DocumentVisibilityState) =>
     configurable: true,
   });
 
-const startTab = () => {
+const startTab = (isLoggedIn = true) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
   render(
     wrapWithQueryProvider(
-      <VersionProvider>
-        <Consumer />
-      </VersionProvider>,
+      <AuthContext.Provider
+        value={{ isLoading: false, isLoggedIn, isAnonymous: !isLoggedIn }}
+      >
+        <VersionProvider>
+          <Consumer />
+        </VersionProvider>
+      </AuthContext.Provider>,
       client
     )
   );
@@ -94,13 +100,18 @@ describe('server version watcher, from the wire', () => {
     sessionStorage.clear();
     setVisibility('visible');
     served = WIRE_3_7_1;
-    api.defaults.adapter = async (config) => ({
-      data: served,
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config,
-    });
+    requests = 0;
+    api.defaults.adapter = async (config) => {
+      requests += 1;
+
+      return {
+        data: served,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      };
+    };
   });
 
   it('finds the commit under the name the API uses for it', async () => {
@@ -155,5 +166,14 @@ describe('server version watcher, from the wire', () => {
     await upgradeServer(client);
 
     await waitFor(() => expect(reloadPage).toHaveBeenCalledTimes(1));
+  });
+
+  it('does not ask a visitor who is not signed in', async () => {
+    const client = startTab(false);
+
+    await upgradeServer(client);
+
+    expect(requests).toBe(0);
+    expect(screen.getByTestId('state')).toHaveTextContent('current:');
   });
 });
