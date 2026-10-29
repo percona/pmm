@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-13674](https://perconadev.atlassian.net/browse/PMM-13674): New Kubernetes dashboards replace the **Kubernetes (experimental)** folder. They show your Kubernetes clusters, the database clusters that run in them from any operator, Helm chart or StatefulSet (MySQL, MongoDB, PostgreSQL and Valkey), and every object that needs attention, under a new **Kubernetes** menu. PMM HA reports its own cluster automatically. To monitor a cluster from PMM Server in Docker or Podman, install the collector described in [Monitor Kubernetes](../reference/dashboards/kubernetes_monitor_operators.md).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues
