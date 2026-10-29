@@ -57,7 +57,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -157,7 +157,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -316,6 +316,11 @@
                       "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -349,7 +354,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -493,6 +498,12 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
+                },
+                "enable_om": {
+                  "description": "Enable OpenManager.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 14
                 }
               }
             }
@@ -639,6 +650,11 @@
                       "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -672,7 +688,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -744,6 +760,11 @@
                       "description": "True if PMM Extensions is enabled.",
                       "type": "boolean",
                       "x-order": 8
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -777,7 +798,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -915,7 +936,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1010,7 +1031,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1105,7 +1126,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1231,7 +1252,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
