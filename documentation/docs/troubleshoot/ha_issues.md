@@ -311,7 +311,7 @@ for r in 0 1 2; do
 done
 ```
 
-**Fix:** In a PMM version with the fix for PMM-15785, no action is needed: every 10 minutes the HA leader checks every ClickHouse replica. It keeps the copy with the most rows and recreates every replica that has another copy or no `pmm` database. Rows that exist only in a recreated copy are lost. The leader's `qan-api2.log` records each change (to find the leader, see [Check cluster health](#check-cluster-health)):
+**Fix:** Starting with PMM 3.11.0, no action is needed: every 10 minutes the HA leader checks every ClickHouse replica. It keeps the copy with the most rows and recreates every replica that has another copy or no `pmm` database. Rows that exist only in a recreated copy are lost. The leader's `qan-api2.log` records each change (to find the leader, see [Check cluster health](#check-cluster-health)):
 
 ```sh
 kubectl exec -n pmm <leader-pod> -c pmm-ha -- grep pmm-db /srv/logs/qan-api2.log
@@ -324,7 +324,7 @@ The log lines mean:
 - `Skipped the pmm database check.`: a ClickHouse replica did not answer, so nothing changed in that pass.
 - `Failed to recreate the pmm database.`: the repair of that replica failed. The logged error says why, and the next pass tries again.
 
-A restore with `pmm-backup.sh` also recreates `pmm` with one UUID on every replica before it restores the data. On an earlier PMM version, upgrade PMM.
+On PMM versions earlier than 3.11.0, upgrade PMM. After the upgrade, the HA leader repairs the split automatically.
 
 ## A backup or restore fails
 
