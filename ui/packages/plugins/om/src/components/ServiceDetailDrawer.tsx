@@ -248,7 +248,7 @@ export const ServiceDetailDrawer = ({
             </Group>
 
             <Group title="What a scan found">
-              <Field label="mongod process">
+              <Field label="Server process">
                 <ProcessRunning row={row} estate={estate} />
               </Field>
               <Field label="Config path">

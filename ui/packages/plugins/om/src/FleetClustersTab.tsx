@@ -633,7 +633,7 @@ export const FleetClustersTab = () => {
             severity="warning"
             title="Could not read scan results"
             messages={[
-              "The Services tab shows no scan status until Operations can read them again. The clusters and their health come from PMM's own data and are unaffected.",
+              "Until Operations can read them again, the Services tab shows no scan status, or the status from its last successful read. The clusters and their health come from PMM's own data and are unaffected.",
               inventoryError instanceof Error ? inventoryError.message : null,
             ]}
           />

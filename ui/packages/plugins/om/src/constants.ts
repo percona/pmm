@@ -244,11 +244,11 @@ export const SERVICE_SCAN_ERROR_KIND: Record<
   },
   no_output: {
     label: 'Not found by the scan',
-    hint: 'The node answered, but the scan reported nothing for this service. Check that mongod is running on the node and listens on the port PMM has registered for this service.',
+    hint: "The node answered, but the scan reported nothing for this service. Check that this service's mongod or mongos is running on the node and listens on the port PMM has registered for it.",
   },
   database_unreachable: {
     label: 'Database unreachable',
-    hint: 'The scan could not connect to this service. Check that mongod is running and its port is reachable from its node.',
+    hint: 'The scan could not connect to this service. Check that its mongod or mongos is running and its port is reachable from its node.',
   },
   database_auth_failed: {
     label: 'Database authentication failed',
@@ -256,11 +256,11 @@ export const SERVICE_SCAN_ERROR_KIND: Record<
   },
   database_error: {
     label: 'Database error',
-    hint: 'This service returned an error to the scan. The error above is what it said.',
+    hint: "This service returned an error to the scan. Check the service's log for the cause.",
   },
   unknown: {
     label: 'Scan failed',
-    hint: 'Operations could not tell what kind of failure this is; the error above is what the scan recorded. If the Nodes page shows the node failing too, start there.',
+    hint: 'Operations could not tell what kind of failure this is. If the Nodes page shows the node failing too, start there.',
   },
 };
 

@@ -491,6 +491,10 @@ describe('describeServiceScanFailure', () => {
       expect(failure?.code).toBe(code);
       expect(failure?.hint).toBeTruthy();
       expect(failure?.hint).not.toMatch(/\bthis node\b/);
+      // The raw error can be blank, so no hint may point at it.
+      expect(failure?.hint).not.toMatch(/\babove\b/);
+      // A router row reads the same hint, and a router runs mongos.
+      expect(failure?.hint).not.toMatch(/\bmongod\b(?! or mongos)/);
     }
   );
 

@@ -134,7 +134,7 @@ const NotRunning = ({
   const scanned = ageSeconds(scannedAt);
   const down = ageSeconds(lastUpAt);
   const title = [
-    `No mongod was running when this service was last scanned${
+    `No mongod or mongos was running when this service was last scanned${
       scanned == null
         ? '.'
         : `, ${formatAge(scannedAt)} (${formatTimestamp(scannedAt)?.title}).`
