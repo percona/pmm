@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -31,8 +32,10 @@ const (
 	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
 	vmagentQueueDirName = "vmagent-temp-dir"
 
-	// How long stopping a leftover vmagent may delay pmm-agent's start: after SIGTERM, and then after
-	// SIGKILL, since its lock is released only once it has exited.
+	// How long stopping leftover vmagents may delay pmm-agent's start: looking for them, which reads
+	// /proc and can block on a process stuck in the kernel; then after SIGTERM, and after SIGKILL,
+	// since a lock is released only once its process has exited. Each is shared by all of them.
+	leftoverScanTimeout = 5 * time.Second
 	leftoverStopTimeout = 5 * time.Second
 	leftoverKillTimeout = 5 * time.Second
 
@@ -40,6 +43,7 @@ const (
 )
 
 type leftoverTimeouts struct {
+	scan time.Duration // looking for them, before pmm-agent starts anyway
 	stop time.Duration // after SIGTERM, before SIGKILL
 	kill time.Duration // after SIGKILL, before giving up
 }
@@ -51,12 +55,44 @@ type leftoverTimeouts struct {
 // parent-death signal, so a pmm-agent that is killed outright takes them with it; a vmagent still
 // holding the queue when pmm-agent starts was left by something else, and only one vmagent can use
 // the queue.
-func stopLeftoverVMAgents(vmagentPath, tempDir string, l *logrus.Entry) {
-	timeouts := leftoverTimeouts{stop: leftoverStopTimeout, kill: leftoverKillTimeout}
-	stopLeftovers(vmagentPath, tempDir, timeouts, unix.PidfdOpen, l)
+func stopLeftoverVMAgents(ctx context.Context, vmagentPath, tempDir string, l *logrus.Entry) {
+	timeouts := leftoverTimeouts{scan: leftoverScanTimeout, stop: leftoverStopTimeout, kill: leftoverKillTimeout}
+	stopLeftoversWithin(ctx, vmagentPath, tempDir, timeouts, unix.PidfdOpen, l)
 }
 
-func stopLeftovers(vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry) {
+// stopLeftoversWithin returns once stopLeftovers has, or once its timeouts have passed, or ctx is
+// done, whichever comes first: a vmagent stuck in the kernel must not keep the rest of pmm-agent
+// from starting. A stopLeftovers it has given up waiting for signals nothing more, and finishes in
+// the background; the returned channel is closed then.
+func stopLeftoversWithin(
+	ctx context.Context, vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
+) <-chan struct{} {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		stopLeftovers(ctx, vmagentPath, tempDir, timeouts, pidfdOpen, l)
+	}()
+
+	budget := timeouts.scan + timeouts.stop + timeouts.kill
+	select {
+	case <-done:
+	case <-ctx.Done():
+	case <-time.After(budget):
+		l.Warnf("Stopping leftover vmagents is taking longer than %s, starting without waiting for it; "+
+			"the vmagent this pmm-agent starts may fail on the queue lock.", budget)
+	}
+
+	return done
+}
+
+// stopLeftovers stops the vmagent processes holding the queue under tempDir, and signals nothing
+// once ctx is done.
+func stopLeftovers(
+	ctx context.Context, vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
+) {
 	if vmagentPath == "" || tempDir == "" {
 		return
 	}
@@ -109,6 +145,10 @@ func stopLeftovers(vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfd
 		if err != nil {
 			continue // gone already
 		}
+		if ctx.Err() != nil {
+			lo.close()
+			break // given up on: pmm-agent may be starting its own vmagent by now
+		}
 		l.Warnf("Stopping vmagent (PID %d, parent PID %d) left running from before this pmm-agent started: "+
 			"it holds %s, so the vmagent this pmm-agent starts would exit on the queue lock.", p.PID, stat.PPID, queueDir)
 		warnLiveParent(stat.PPID, queueDir, l)
@@ -116,17 +156,26 @@ func stopLeftovers(vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfd
 		stopping = append(stopping, lo)
 	}
 
-	// Signaled together, so they share the budget rather than spend it one after another.
+	// Signaled together, so they share the budget rather than spend it one after another; and the
+	// same for those that have to be killed.
 	deadline := time.Now().Add(timeouts.stop)
+	var killed []*leftover
 	for _, lo := range stopping {
-		if !lo.waitExit(time.Until(deadline)) {
-			l.Warnf("vmagent PID %d did not exit within %s, killing it.", lo.pid, timeouts.stop)
-			lo.signal(unix.SIGKILL)
-			if !lo.waitExit(timeouts.kill) {
-				l.Warnf("vmagent PID %d is still running after SIGKILL; "+
-					"the vmagent this pmm-agent starts may fail on the queue lock.", lo.pid)
-			}
+		if lo.waitExit(time.Until(deadline)) || ctx.Err() != nil {
+			continue
 		}
+		l.Warnf("vmagent PID %d did not exit within %s, killing it.", lo.pid, timeouts.stop)
+		lo.signal(unix.SIGKILL)
+		killed = append(killed, lo)
+	}
+	deadline = time.Now().Add(timeouts.kill)
+	for _, lo := range killed {
+		if !lo.waitExit(time.Until(deadline)) {
+			l.Warnf("vmagent PID %d is still running after SIGKILL; "+
+				"the vmagent this pmm-agent starts may fail on the queue lock.", lo.pid)
+		}
+	}
+	for _, lo := range stopping {
 		lo.close()
 	}
 }

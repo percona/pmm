@@ -16,7 +16,11 @@
 
 package commands
 
-import "github.com/sirupsen/logrus"
+import (
+	"context"
+
+	"github.com/sirupsen/logrus"
+)
 
 // stopLeftoverVMAgents does nothing outside Linux, where it has no /proc to look in.
-func stopLeftoverVMAgents(_, _ string, _ *logrus.Entry) {}
+func stopLeftoverVMAgents(_ context.Context, _, _ string, _ *logrus.Entry) {}

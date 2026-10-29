@@ -128,7 +128,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 	t.Parallel()
 
 	l := logrus.WithField("test", t.Name())
-	short := leftoverTimeouts{stop: 300 * time.Millisecond, kill: 5 * time.Second}
+	short := leftoverTimeouts{scan: 5 * time.Second, stop: 300 * time.Millisecond, kill: 5 * time.Second}
 
 	// Each subtest asserts the process has exited the moment stopLeftovers returns, without waiting:
 	// the lock is released only then, and pmm-agent starts its own vmagent right after.
@@ -138,7 +138,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		tempDir, queueDir := newQueue(t)
 		cmd := startLeftover(t, queueDir, "")
 
-		stopLeftovers(testExecutable(t), tempDir, short, unix.PidfdOpen, l)
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, short, unix.PidfdOpen, l)
 		assert.Equal(t, "Z", state(t, cmd.Process.Pid), "still running when stopLeftovers returned")
 		assert.Equal(t, syscall.SIGTERM, exitedBy(t, cmd))
 	})
@@ -149,9 +149,57 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		tempDir, queueDir := newQueue(t)
 		cmd := startLeftover(t, queueDir, "ignore-sigterm")
 
-		stopLeftovers(testExecutable(t), tempDir, short, unix.PidfdOpen, l)
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, short, unix.PidfdOpen, l)
 		assert.Equal(t, "Z", state(t, cmd.Process.Pid), "still running when stopLeftovers returned")
 		assert.Equal(t, syscall.SIGKILL, exitedBy(t, cmd))
+	})
+
+	// They share the wait after SIGTERM, and the one after SIGKILL too, which no test process can
+	// outlast to show.
+	t.Run("kills several that ignore SIGTERM, within one budget", func(t *testing.T) {
+		t.Parallel()
+
+		tempDir, queueDir := newQueue(t)
+		first := startLeftover(t, queueDir, "ignore-sigterm")
+		second := startLeftover(t, queueDir, "ignore-sigterm")
+		timeouts := leftoverTimeouts{scan: 5 * time.Second, stop: time.Second, kill: 5 * time.Second}
+
+		start := time.Now()
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, timeouts, unix.PidfdOpen, l)
+		assert.Less(t, time.Since(start), 2*timeouts.stop-200*time.Millisecond, "each waited out the SIGTERM budget on its own")
+		for _, cmd := range []*exec.Cmd{first, second} {
+			assert.Equal(t, "Z", state(t, cmd.Process.Pid), "still running when stopLeftovers returned")
+			assert.Equal(t, syscall.SIGKILL, exitedBy(t, cmd))
+		}
+	})
+
+	// Reading /proc can block on a process stuck in the kernel. pmm-agent starts anyway, and the
+	// stuck search signals nothing when it gets going again: pmm-agent may have a vmagent of its own
+	// by then.
+	t.Run("does not wait for a search that is stuck, nor let it signal later", func(t *testing.T) {
+		t.Parallel()
+
+		tempDir, queueDir := newQueue(t)
+		cmd := startLeftover(t, queueDir, "")
+
+		stuck := make(chan struct{})
+		stuckOpen := func(pid, flags int) (int, error) {
+			<-stuck
+			return unix.PidfdOpen(pid, flags)
+		}
+		timeouts := leftoverTimeouts{scan: 100 * time.Millisecond, stop: 100 * time.Millisecond, kill: 100 * time.Millisecond}
+
+		start := time.Now()
+		done := stopLeftoversWithin(t.Context(), testExecutable(t), tempDir, timeouts, stuckOpen, l)
+		assert.Less(t, time.Since(start), 5*time.Second)
+
+		close(stuck)
+		select {
+		case <-done:
+		case <-time.After(10 * time.Second):
+			t.Fatal("the search did not finish")
+		}
+		assert.NotEqual(t, "Z", state(t, cmd.Process.Pid), "signaled after it was given up on")
 	})
 
 	// Linux before 5.3 has no pidfd_open; a seccomp profile older than pidfd refuses it.
@@ -163,13 +211,13 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 
 			tempDir, queueDir := newQueue(t)
 			term := startLeftover(t, queueDir, "")
-			stopLeftovers(testExecutable(t), tempDir, short, noPidfd, l)
+			stopLeftovers(t.Context(), testExecutable(t), tempDir, short, noPidfd, l)
 			assert.Equal(t, "Z", state(t, term.Process.Pid), "%s: still running when stopLeftovers returned", errno)
 			assert.Equal(t, syscall.SIGTERM, exitedBy(t, term))
 
 			tempDir, queueDir = newQueue(t)
 			kill := startLeftover(t, queueDir, "ignore-sigterm")
-			stopLeftovers(testExecutable(t), tempDir, short, noPidfd, l)
+			stopLeftovers(t.Context(), testExecutable(t), tempDir, short, noPidfd, l)
 			assert.Equal(t, "Z", state(t, kill.Process.Pid), "%s: still running when stopLeftovers returned", errno)
 			assert.Equal(t, syscall.SIGKILL, exitedBy(t, kill))
 		}
@@ -184,7 +232,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		require.NoError(t, os.Symlink(tempDir, link))
 		cmd := startLeftover(t, filepath.Join(link, vmagentQueueDirName), "")
 
-		stopLeftovers(testExecutable(t), tempDir, short, unix.PidfdOpen, l)
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, short, unix.PidfdOpen, l)
 		assert.Equal(t, syscall.SIGTERM, exitedBy(t, cmd))
 	})
 
@@ -195,7 +243,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		cmd := startLeftover(t, otherQueue, "")
 		tempDir, _ := newQueue(t)
 
-		stopLeftovers(testExecutable(t), tempDir, short, unix.PidfdOpen, l)
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, short, unix.PidfdOpen, l)
 		// Not Signal(0), which also succeeds on a zombie nobody has reaped yet.
 		assert.NotEqual(t, "Z", state(t, cmd.Process.Pid), "the other queue's vmagent must keep running")
 	})
@@ -206,7 +254,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		tempDir := t.TempDir()
 		cmd := startLeftover(t, filepath.Join(tempDir, vmagentQueueDirName), "")
 
-		stopLeftovers(testExecutable(t), tempDir, short, unix.PidfdOpen, l)
+		stopLeftovers(t.Context(), testExecutable(t), tempDir, short, unix.PidfdOpen, l)
 		assert.NotEqual(t, "Z", state(t, cmd.Process.Pid))
 	})
 

@@ -67,7 +67,7 @@ func Run() {
 	// start rather than reacting to a vmagent that exits on the lock also means two pmm-agents
 	// misconfigured to share a queue cannot keep stopping each other's. See stopLeftoverVMAgents.
 	paths := configStorage.Get().Paths
-	stopLeftoverVMAgents(paths.VMAgent, paths.TempDir, l)
+	stopLeftoverVMAgents(rootCtx, paths.VMAgent, paths.TempDir, l)
 
 	for {
 		ctx, cancel := context.WithCancel(rootCtx)
