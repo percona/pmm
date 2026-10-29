@@ -155,7 +155,7 @@ func TestRun(t *testing.T) {
 		}
 		_, err := cmd.RunCmd()
 
-		expected := "Unrecognized option. To create a user, see https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm"
+		expected := "unrecognized option. To create a user, see https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm"
 		require.EqualError(t, err, expected)
 	})
 }

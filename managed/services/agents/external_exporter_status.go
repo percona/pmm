@@ -92,7 +92,7 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 
 	// Query VictoriaMetrics for all external exporter 'up' metrics
 	query := `up{agent_type="external-exporter"}`
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	result, _, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		s.l.Warnf("Failed to query VictoriaMetrics for external exporter status: %v", err)
 		return
@@ -119,7 +119,8 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		for agentID, status := range statusMap {
 			agent := &models.Agent{AgentID: agentID}
-			if err := tx.Reload(agent); err != nil {
+			err := tx.Reload(agent)
+			if err != nil {
 				// Agent might have been deleted, skip it
 				s.l.Debugf("Agent %s not found, skipping status update.", agentID)
 				continue
@@ -133,7 +134,8 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 			newStatus := status.String()
 			if agent.Status != newStatus {
 				agent.Status = newStatus
-				if err := tx.Update(agent); err != nil {
+				err := tx.Update(agent)
+				if err != nil {
 					s.l.Errorf("Failed to update status for agent %s: %v", agentID, err)
 					continue
 				}

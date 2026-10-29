@@ -18,21 +18,18 @@ package server
 
 import (
 	"context"
-	"crypto/subtle"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"math"
 	"os"
 	"os/user"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
@@ -41,16 +38,25 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
+// pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
+const pmmInitProgram = "pmm-init"
+
+// omSwitchEffectsTimeout keeps an unresponsive side-car from holding applyOMSwitch's goroutine forever.
+const omSwitchEffectsTimeout = 5 * time.Minute
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
+	serverv1.UnimplementedServerServiceServer
+
 	db                   *reform.DB
 	vmdb                 prometheusService
 	agentsState          agentsStateUpdater
@@ -65,22 +71,20 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
+	omService            omService
 
 	l *logrus.Entry
-
-	pmmUpdateAuthFileM sync.Mutex
-	pmmUpdateAuthFile  string
 
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
+	// UpdateConfigurations reports the retention it applies, and the SIGHUP handler calls it
+	// without envRW, so it keeps its own copy of the environment value.
+	retentionM          sync.Mutex
+	retentionFromEnv    time.Duration
+	retentionLoggedDays int
+
 	sshKeyM sync.Mutex
-
-	serverv1.UnimplementedServerServiceServer
-}
-
-type pmmUpdateAuth struct {
-	AuthToken string `json:"auth_token"`
 }
 
 // Params holds the parameters needed to create a new service.
@@ -100,15 +104,16 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
+	OmService            omService
 }
 
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
 	path := "/srv"
-	if _, err := os.Stat(path); err != nil {
-		return nil, errors.WithStack(err)
+	_, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create a new server: %w", err)
 	}
-	path = filepath.Join(path, "pmm-update.json")
 
 	s := &Server{
 		db:                   params.DB,
@@ -125,8 +130,8 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
+		omService:            params.OmService,
 		l:                    logrus.WithField("component", "server"),
-		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
 	}
 	return s, nil
@@ -154,11 +159,74 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return []error{err}
 	}
 	s.envSettings = envSettings
+
+	s.retentionM.Lock()
+	s.retentionFromEnv = envSettings.DataRetention
+	s.retentionM.Unlock()
+
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
 	return nil
+}
+
+// reportDataRetention logs the retention period that was just applied, unless it is the one
+// already reported. Start-up retries UpdateSettingsFromEnv every few seconds until it succeeds,
+// and the line must not repeat on every retry, but it must follow a later change.
+func (s *Server) reportDataRetention(settings *models.Settings) {
+	s.retentionM.Lock()
+	defer s.retentionM.Unlock()
+
+	days := settings.DataRetentionDays()
+	if days == s.retentionLoggedDays {
+		return
+	}
+	s.retentionLoggedDays = days
+
+	s.logDataRetention(days, s.retentionFromEnv)
+}
+
+// logDataRetention reports the retention period in force and where it came from.
+//
+// A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
+// back out of the UI as confirmation that it took effect, because the field is not writable
+// there, so this line is what answers "what is this replica actually enforcing".
+func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
+	l := s.l.WithField("days", days)
+	if !s.haService.Params().Enabled {
+		if fromEnv != 0 {
+			l.Info("Data retention: set by PMM_DATA_RETENTION.")
+			return
+		}
+		l.Info("Data retention: changeable through the settings API.")
+
+		return
+	}
+
+	// Every replica writes its own environment to the shared settings row when it starts, and
+	// this one applies whatever that row holds whenever it re-renders its configuration: on its
+	// own start, a settings change it serves, or a SIGHUP. So the value applied here can be one
+	// that another replica wrote.
+	envDays := models.DurationToDays(fromEnv)
+	if fromEnv != 0 && envDays != days {
+		l.WithField("env_days", envDays).Warn("Data retention: written to the shared settings by another replica, " +
+			"and different from this replica's PMM_DATA_RETENTION. High availability is enabled, so replicas " +
+			"disagree until every replica runs with the same pmm-ha chart dataRetentionDays value.")
+		return
+	}
+
+	if fromEnv != 0 {
+		l.Info("Data retention: set by PMM_DATA_RETENTION. High availability is enabled, " +
+			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.")
+		return
+	}
+
+	// Warned rather than corrected. Substituting the default would silently shorten retention
+	// for a deployment that had a longer period stored, and deleted metrics do not come back.
+	l.Warn("Data retention: carried over from the stored settings. High availability is enabled " +
+		"and PMM_DATA_RETENTION is not set, so it cannot be changed through the settings API. " +
+		"The pmm-ha chart is expected to supply it through dataRetentionDays.")
 }
 
 // Version returns PMM Server version.
@@ -171,7 +239,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror"))
+				panic(errors.New("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}
@@ -198,7 +266,8 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
-	if t, err := version.Time(); err == nil {
+	t, err := version.Time()
+	if err == nil {
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
@@ -217,7 +286,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) { //nolint:revive
+func (s *Server) Readiness(ctx context.Context, _ *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"grafana":         s.grafanaClient,
@@ -225,7 +294,8 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 		"vmalert":         s.vmalert,
 		"qan":             s.qanClient,
 	} {
-		if err := svc.IsReady(ctx); err != nil {
+		err := svc.IsReady(ctx)
+		if err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
 			notReady = true
 		}
@@ -241,7 +311,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 // LeaderHealthCheck checks if the instance is the leader in a cluster.
 // Returns an error if the instance isn't the leader.
 // It's used for HA purpose.
-func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) { //nolint:revive
+func (s *Server) LeaderHealthCheck(context.Context, *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) {
 	if s.haService.IsLeader() {
 		return &serverv1.LeaderHealthCheckResponse{}, nil
 	}
@@ -266,7 +336,8 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	}
 
 	if req.Force {
-		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
+		err := s.updater.ForceCheckUpdates(ctx)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -341,135 +412,15 @@ func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsR
 	return res, nil
 }
 
-// StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
-	s.envRW.RLock()
-	updatesEnabled := s.envSettings.EnableUpdates
-	s.envRW.RUnlock()
-
-	if updatesEnabled != nil && !*updatesEnabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_ENABLE_UPDATES environment variable.")
-	}
-
-	newImage := req.GetNewImage()
-	if newImage == "" {
-		_, latest, err := s.updater.latest(ctx)
-		if err != nil {
-			if errors.Is(err, services.ErrPMMUpdatesDisabled) {
-				return nil, status.Error(codes.FailedPrecondition, "PMM updates are disabled")
-			}
-			s.l.WithError(err).Error("Failed to get latest version")
-			return nil, status.Error(codes.Unavailable, "Failed to get latest version")
-		} else if latest == nil {
-			s.l.Info("No new version to update to.")
-			return nil, status.Error(codes.FailedPrecondition, "No new version to update to.")
-		}
-		newImage = latest.DockerImage
-	}
-	err := s.updater.StartUpdate(ctx, newImage)
-	if err != nil {
-		return nil, err
-	}
-
-	authToken := uuid.New().String()
-	if err := s.writeUpdateAuthToken(authToken); err != nil {
-		return nil, err
-	}
-
-	return &serverv1.StartUpdateResponse{
-		AuthToken: authToken,
-		LogOffset: 0,
-	}, nil
-}
-
-// UpdateStatus returns PMM Server update status.
-func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
-	if _, err := os.Stat(s.pmmUpdateAuthFile); err != nil && os.IsNotExist(err) {
-		return &serverv1.UpdateStatusResponse{
-			Done: true,
-		}, nil
-	}
-
-	token, err := s.readUpdateAuthToken()
-	if err != nil {
-		return nil, err
-	}
-	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(token)) == 0 {
-		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
-	}
-
-	// wait up to 30 seconds for new log lines
-	var lines []string
-	var newOffset uint32
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second) //nolint:mnd
-	defer cancel()
-	for ctx.Err() == nil {
-		if !s.updater.IsRunning() {
-			// give supervisord a second to flush logs to file
-			time.Sleep(time.Second)
-		}
-
-		lines, newOffset, err = s.updater.UpdateLog(req.GetLogOffset())
-		if err != nil {
-			s.l.Warn(err)
-		}
-
-		if len(lines) != 0 {
-			break
-		}
-
-		time.Sleep(200 * time.Millisecond) //nolint:mnd
-	}
-
-	return &serverv1.UpdateStatusResponse{
-		LogLines:  lines,
-		LogOffset: newOffset,
-		Done:      false,
-	}, nil
-}
-
-// writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
+// UpdateStatus returns PMM Server initialization status.
 //
-// We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
-// is being changed during update.
-func (s *Server) writeUpdateAuthToken(token string) error {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	a := &pmmUpdateAuth{
-		AuthToken: token,
-	}
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	return errors.WithStack(json.NewEncoder(f).Encode(a))
-}
-
-// readUpdateAuthToken reads authentication token for getting update status and logs from the file.
-func (s *Server) readUpdateAuthToken() (string, error) {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	var a pmmUpdateAuth
-	err = json.NewDecoder(f).Decode(&a)
-	return a.AuthToken, errors.WithStack(err)
+// It exists for pre-3.9 clients: after triggering an update they keep polling it to learn when the
+// freshly started PMM Server has finished initializing. Only the "done" field is meaningful. The
+// progress log fields are left empty.
+func (s *Server) UpdateStatus(ctx context.Context, _ *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+	return &serverv1.UpdateStatusResponse{
+		Done: !s.supervisord.ProgramRunning(ctx, pmmInitProgram),
+	}, nil
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
@@ -500,12 +451,22 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl:  settings.IsAccessControlEnabled(),
-		DefaultRoleId:        uint32(settings.DefaultRoleID),
-		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
+		EnableAccessControl: settings.IsAccessControlEnabled(),
+		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
+
+		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
+		OmEnabled:         settings.IsOMEnabled(),
 	}
 
 	return res
+}
+
+func convertDefaultRoleID(roleID int) uint32 {
+	if roleID < 0 || int64(roleID) > math.MaxUint32 {
+		return 0
+	}
+
+	return uint32(roleID)
 }
 
 // convertReadOnlySettings creates a subset of database settings for non-admin roles.
@@ -519,34 +480,25 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
+		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
+		OmEnabled:               settings.IsOMEnabled(),
 	}
 
 	return res
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
+func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	settings, err := models.GetSettings(s.db)
+	dbCtx := s.db.WithContext(ctx)
+	settings, err := models.GetSettings(dbCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	var disabledInternalPgQan bool
-	if s.haService.Params().Enabled {
-		// In HA mode, internal QAN is always disabled as PostgreSQL is external
-		disabledInternalPgQan = true
-	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
-		if err != nil {
-			// if we can't get the agent, log the error and set it to disabled.
-			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
-		} else {
-			disabledInternalPgQan = internalPgQanAgent.Disabled
-		}
-	}
+	disabledInternalPgQan := s.internalPgQANDisabled(dbCtx)
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, disabledInternalPgQan),
@@ -554,11 +506,11 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 }
 
 // GetReadOnlySettings returns current PMM Server settings .
-func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+func (s *Server) GetReadOnlySettings(ctx context.Context, _ *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	settings, err := models.GetSettings(s.db)
+	settings, err := models.GetSettings(s.db.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -572,7 +524,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	metricsRes := req.MetricsResolutions
 
 	if req.SshKey != nil {
-		if err := s.validateSSHKey(ctx, *req.SshKey); err != nil {
+		err := s.validateSSHKey(ctx, *req.SshKey)
+		if err != nil {
 			return err
 		}
 	}
@@ -599,8 +552,16 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
+	err := s.validateEnableOm(ctx, req.EnableOm)
+	if err != nil {
+		return err
+	}
+
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
-		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.") //nolint:lll
+		return status.Error(
+			codes.FailedPrecondition,
+			"High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.",
+		)
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
@@ -611,12 +572,53 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
+	// In HA the stored value can come from another replica's environment, so the lock is checked
+	// against the stored row instead; see refuseDataRetentionChangeInHA.
+	if !s.haService.Params().Enabled && !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
-		return status.Error(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
+	return nil
+}
+
+// refuseDataRetentionChangeInHA refuses a request for a data retention other than the stored one
+// in HA, where the value comes only from the pmm-ha chart. It runs after models.UpdateSettings,
+// inside the same transaction, so malformed input has already been rejected with the usual
+// InvalidArgument. Repeating the value in force, or leaving it out, is not a change, so a client
+// that sends the whole settings form back is not blocked on every other setting.
+//
+// It checks what the request asked for rather than comparing two reads of the row: at READ
+// COMMITTED another replica can commit a retention change between them, and a request that never
+// mentioned retention would then be refused. That race still exists for the write itself, since
+// the settings row is rewritten whole: a request repeating the old value while another replica
+// writes a new one can put the old value back. The same holds for every other setting in HA;
+// locking the settings row is tracked in PMM-15600.
+func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *models.Settings) error {
+	if !s.haService.Params().Enabled || requested == 0 || requested == stored.DataRetention {
+		return nil
+	}
+
+	return status.Error(codes.FailedPrecondition,
+		"Data retention cannot be changed at runtime when high availability is enabled. "+
+			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
+}
+
+func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
+	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
+		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
+	}
+
+	if enableOm == nil || !*enableOm {
+		return nil
+	}
+
+	currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
+	}
+
+	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: its inventory app is not available in PMM Extensions.")
 	}
 
 	return nil
@@ -626,16 +628,19 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
-	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
+	err := s.validateChangeSettingsRequest(ctx, req)
+	if err != nil {
 		return nil, err
 	}
 
 	var newSettings, oldSettings *models.Settings
 	var disableInternalPgQan bool
+	var internalPgQANAgentID string
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		if oldSettings, err = models.GetSettings(tx); err != nil {
-			return errors.WithStack(err)
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
+			return fmt.Errorf("failed to get server settings: %w", err)
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -650,6 +655,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
+			EnableOM:               req.EnableOm,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
@@ -676,24 +682,37 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		case errors.As(err, &errInvalidArgument):
 			return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", errInvalidArgument.Details)
 		default:
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to update server settings: %w", err)
+		}
+
+		// Before the SSH key write below: returning an error rolls back the row, not that file.
+		err = s.refuseDataRetentionChangeInHA(settingsParams.DataRetention, oldSettings)
+		if err != nil {
+			return err
 		}
 
 		// absent value means "do not change"
 		if req.SshKey != nil {
-			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
-				s.l.Error(errors.WithStack(err))
-				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
+			err = s.writeSSHKey(pointer.GetString(req.SshKey))
+			if err != nil {
+				err = fmt.Errorf("failed to write SSH key: %w", err)
+				s.l.Error(err)
+				return status.Errorf(codes.Internal, "%s", err.Error())
 			}
 		}
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
 		if req.EnableInternalPgQan != nil {
-			disabled, err := s.handleInternalQANToggle(ctx, tx.Querier, req.EnableInternalPgQan)
+			disabled, pmmAgentID, err := s.handleInternalQANToggle(tx.Querier, req.EnableInternalPgQan)
 			if err != nil {
 				return err
 			}
 			disableInternalPgQan = disabled
+			internalPgQANAgentID = pmmAgentID
+		} else {
+			// Report the state as stored. Left at its zero value it would say "enabled" on every
+			// request that omits the field.
+			disableInternalPgQan = s.internalPgQANDisabled(tx.Querier)
 		}
 
 		return nil
@@ -701,7 +720,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
-	if err := s.UpdateConfigurations(ctx); err != nil {
+
+	// Signalled after the transaction commits, the way the inventory path does it: the handler
+	// reads agent state a second later, so a signal sent from inside the transaction can be built
+	// from pre-commit state.
+	if internalPgQANAgentID != "" {
+		s.agentsState.RequestStateUpdate(ctx, internalPgQANAgentID)
+	}
+
+	err = s.UpdateConfigurations(ctx)
+	if err != nil {
 		return nil, err
 	}
 
@@ -718,7 +746,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		if err := s.checksService.StartChecks(nil); err != nil {
+		err := s.checksService.StartChecks(nil)
+		if err != nil {
 			s.l.Error(err)
 		}
 	}
@@ -737,52 +766,87 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
+	s.applyOMSwitch(ctx, oldSettings, newSettings)
+
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
 }
 
-func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agents, err := models.FindAgents(q, models.AgentFilters{
-		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to find agents: %w", err)
+// applyOMSwitch runs in the background because its PMM Extensions calls can outlast the client's timeout
+// on a change that is already saved. Failures are only logged.
+func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	enabled := newSettings.IsOMEnabled()
+	if s.omService == nil || oldSettings.IsOMEnabled() == enabled {
+		return
 	}
-	if len(agents) == 0 {
-		return nil, fmt.Errorf("internal pgQAN agent not found")
-	}
-	return agents[0], nil
+
+	ctx = context.WithoutCancel(ctx)
+	go func() {
+		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
+		defer cancel()
+
+		// Sync first: om_inventory skips a sweep while it is disabled, so collecting earlier would do nothing.
+		s.omService.SyncInventoryEnabled(ctx, enabled)
+		if enabled {
+			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
+			if err != nil {
+				s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
+			}
+		}
+	}()
 }
 
-func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
+// internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.
+//
+// It defaults to true when that cannot be determined: the Service may not exist at all, which is
+// the normal state in HA mode, and reporting QAN as enabled in that case is the wrong way to be
+// wrong -- a UI rendering the toggle from the response would show it on.
+func (s *Server) internalPgQANDisabled(q *reform.Querier) bool {
+	if s.haService.Params().Enabled {
+		// In HA mode, internal QAN is always disabled as PostgreSQL is external.
+		return true
+	}
+
+	agent, err := models.FindInternalPgQANAgent(q)
+	if err != nil {
+		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+
+		return true
+	}
+
+	return agent.Disabled
+}
+
+// handleInternalQANToggle applies the requested state to the QAN Agent of PMM Server's own
+// PostgreSQL and reports the resulting disabled state, plus the pmm-agent that the caller should
+// signal once the transaction has committed.
+func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan *bool) (bool, string, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {
-			return false, status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
+			return false, "", status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
 		}
 
 		// If trying to disable in HA mode, it's already disabled, so just skip
-		return true, nil
+		return true, "", nil
 	}
 
-	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	// Returned unwrapped: FindInternalPgQANAgent returns a gRPC status, and status.FromError
+	// unwraps through %w and then replaces the message with the whole wrapped string, so a wrap
+	// here would put "rpc error: code = ... desc = ..." in front of the client.
+	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return false, fmt.Errorf("failed to get QAN agent: %w", err)
-	}
-	if internalQanAgent == nil {
-		return false, fmt.Errorf("internal QAN agent not found")
+		return false, "", err
 	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
+	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {
-		return false, fmt.Errorf("failed to change QAN agent state: %w", err)
+		return false, "", fmt.Errorf("failed to change QAN agent state: %w", err)
 	}
 
-	s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
-	return newAgent.Disabled, nil
+	return newAgent.Disabled, pointer.GetString(internalQanAgent.PMMAgentID), nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
@@ -792,18 +856,27 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+	err = s.nomad.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
+	err = s.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
+	// qan-api2 takes its retention from the supervisord configuration, and so does VictoriaMetrics
+	// when it runs inside PMM; an external VictoriaMetrics, as in HA, is configured outside PMM. So
+	// the value is in force from here on, whatever happens below.
+	s.reportDataRetention(settings)
+
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
+
 	return nil
 }
 
@@ -821,23 +894,25 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	defer s.sshKeyM.Unlock()
 
 	distributionMethod := s.telemetryService.DistributionMethod()
-	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI && distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF {
-		return errors.New("SSH key can be set only on AMI and OVF distributions")
+	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI {
+		return errors.New("SSH key can be set only on AMI distribution")
 	}
 
 	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
-		return errors.WithStack(err)
+	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
+	if err != nil {
+		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
-		return errors.WithStack(err)
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
+	if err != nil {
+		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}
 	return nil
 }

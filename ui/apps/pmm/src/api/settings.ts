@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios';
 import {
   GetFrontendSettingsResponse,
   GetReadonlySettingsResponse,
@@ -8,8 +9,8 @@ import {
 } from 'types/settings.types';
 import { api, grafanaApi } from './api';
 
-export const getSettings = async () => {
-  const res = await api.get<GetSettingsResponse>('/server/settings');
+export const getSettings = async (config?: AxiosRequestConfig) => {
+  const res = await api.get<GetSettingsResponse>('/server/settings', config);
   return res.data.settings;
 };
 

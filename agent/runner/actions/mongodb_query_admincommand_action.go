@@ -16,20 +16,29 @@ package actions
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"path/filepath"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
-const mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
+const (
+	mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
+
+	mongoDBUnauthorizedCode = 13
+)
+
+// ErrMongoDBArbiter is returned for a command that an arbiter rejects as unauthenticated.
+// An arbiter stores no users, so no connection to it is authenticated.
+var ErrMongoDBArbiter = errors.New(agentv1.MongoDBArbiterUnauthorized)
 
 type mongodbQueryAdmincommandAction struct {
 	id      string
@@ -37,7 +46,7 @@ type mongodbQueryAdmincommandAction struct {
 	dsn     string
 	files   *agentv1.TextFiles //nolint:unused
 	command string
-	arg     interface{}
+	arg     any
 	tmpDir  string
 }
 
@@ -48,13 +57,13 @@ func NewMongoDBQueryAdmincommandAction(
 	dsn string,
 	files *agentv1.TextFiles,
 	command string,
-	arg interface{},
+	arg any,
 	tempDir string,
 ) (Action, error) {
 	tmpDir := filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id)
 	dsn, err := templates.RenderDSN(dsn, files, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &mongodbQueryAdmincommandAction{
@@ -90,27 +99,46 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
 	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
-	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
+	opts, err := mongofix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	runCommand := bson.D{{a.command, a.arg}} //nolint:govet
+	runCommand := bson.D{{Key: a.command, Value: a.arg}}
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
-	var doc map[string]interface{}
-	if err = res.Decode(&doc); err != nil {
-		return nil, errors.WithStack(err)
+	var doc map[string]any
+	err = res.Decode(&doc)
+	if err != nil {
+		if isArbiterUnauthorized(ctx, client, err) {
+			return nil, fmt.Errorf("%w: %w", ErrMongoDBArbiter, err)
+		}
+		return nil, err
 	}
 
-	data := []map[string]interface{}{doc}
+	data := []map[string]any{doc}
 	return agentv1.MarshalActionQueryDocsResult(data)
+}
+
+// isArbiterUnauthorized reports whether err is an Unauthorized error from an arbiter.
+func isArbiterUnauthorized(ctx context.Context, client *mongo.Client, err error) bool {
+	cmdErr, ok := errors.AsType[mongo.CommandError](err)
+	if !ok || !cmdErr.HasErrorCode(mongoDBUnauthorizedCode) {
+		return false
+	}
+
+	// hello doesn't require authentication.
+	serverInfo := struct {
+		ArbiterOnly bool `bson:"arbiterOnly"`
+	}{}
+	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: "hello", Value: 1}}).Decode(&serverInfo)
+	return err == nil && serverInfo.ArbiterOnly
 }
 
 func (a *mongodbQueryAdmincommandAction) sealed() {}

@@ -64,6 +64,14 @@ telemetry:
       - metric_name: "pmm_server_azure_enabled"
         column: "azure_enabled"
 
+  - id: PMMServerMongoOpsEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN om->'enabled' = 'true' THEN '1' ELSE '0' END) AS mongo_ops_enabled FROM settings s, jsonb_extract_path(s.settings, 'om') AS om
+    summary: "PMM Server Operations for MongoDB feature enabled"
+    data:
+      - metric_name: "pmm_server_mongo_ops_enabled"
+        column: "mongo_ops_enabled"
+
   - id: PMMServerFirstServiceAdded
     source: PMMDB_SELECT
     query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');
@@ -633,7 +641,7 @@ telemetry:
 
   - id: PMMNodeMemoryUsage
     source: VM
-    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))+((avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]))-(avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m])) or (avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))*0)))),0)
     summary: "PMM node memory usage"
     data:
       - metric_name: "pmm_server_node_memory_usage"
@@ -951,11 +959,6 @@ telemetry:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
 
-  # UI Events
-  - id: UIEvents
-    summary: "UI Events"
-    extension: UIEventsExtension
-
   - id: PostgresDBCount
     source: VM
     query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
@@ -971,12 +974,33 @@ telemetry:
       - metric_name: "pmm_server_ha_enable"
         column: "PMM_HA_ENABLE"
 
+  - id: PMMServerHAAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in High Availability alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_ha_alerts_enabled"
+        column: "PMM_ENABLE_HA_ALERTS"
+
+  - id: PMMServerComponentAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in component alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_component_alerts_enabled"
+        column: "PMM_ENABLE_COMPONENT_ALERTS"
+
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
     summary: "Use of external PMM database"
     data:
       - metric_name: "pmm_server_builtin_postgres_disable"
         column: "PMM_DISABLE_BUILTIN_POSTGRES"
+
+  - id: PMMServerExtensionsEnabled
+    source: ENV_VARS
+    summary: "Use of PMM Extensions"
+    data:
+      - metric_name: "pmm_server_extensions_enabled"
+        column: "PMM_ENABLE_EXTENSIONS"
 
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS
@@ -990,6 +1014,32 @@ telemetry:
         column: "PMM_POSTGRES_ADDR"
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
+
+  # Deployment environment, reported as presence flags. Only the pmm and pmm-ha Helm charts set
+  # PMM_INSTALL_METHOD, so its presence means "installed with Helm"; KUBERNETES_SERVICE_HOST is
+  # injected by kubelet into every Pod (even when enableServiceLinks is false), so it also covers
+  # Kubernetes deployments that skip Helm. StripValues reports presence only: both values are
+  # external input that a deployment can set to anything, and neither is needed beyond the flag.
+  # Should PMM_INSTALL_METHOD ever carry more than one value, report it through a bounded
+  # allowlist rather than verbatim. All are absent on Docker, OVF, AMI and Azure, where the
+  # variables are unset.
+  - id: PMMServerInstalledWithHelm
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "PMM Server was installed with the Helm chart"
+    data:
+      - metric_name: "pmm_server_installed_with_helm"
+        column: "PMM_INSTALL_METHOD"
+
+  - id: PMMServerInKubernetes
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "PMM Server runs inside a Kubernetes Pod"
+    data:
+      - metric_name: "pmm_server_in_kubernetes"
+        column: "KUBERNETES_SERVICE_HOST"
 
   # Real-Time Analytics for MongoDB (RTA)
   - id: RTAMongoAgentsRegisteredTotalCount
@@ -1055,3 +1105,12 @@ telemetry:
         column: "session_sec"
       - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
+
+  # legacy promdb usage
+  - id: VMPromDBSeriesReadPerQuery
+    source: VM
+    query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
+    summary: "Average number of series read per query against Prometheus-native db on PMM Server for the last 24 hours"
+    data:
+      - metric_name: "vm_promdb_series_read_per_query_avg"
+        value: 1

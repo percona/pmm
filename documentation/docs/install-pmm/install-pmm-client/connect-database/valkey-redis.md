@@ -38,6 +38,7 @@ ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +lat
 #### Password-only authentication
 
 For Redis or Valkey without ACL, use basic password authentication when adding the service.
+
 ### Add service to PMM
 You can add your Valkey or Redis service to PMM either through the user interface or via the command line:
 
@@ -46,7 +47,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **PMM Configuration > PMM Inventory > Services > Add Service**.
+    1. Go to **Inventory > Services > Add Service**.
     
     2. Select **Valkey/Redis** service type.
     
@@ -57,6 +58,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Agents**: Select the PMM agent that should monitor this instance.
         - **Hostname/Port**: The address and port (default: `6379`) of your instance.
         - **Username/Password**: Authentication credentials (if ACL is enabled).
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3s.
 
     4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
         
@@ -69,10 +71,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 
     5. Configure **Additional options**:
         
-        - Check **Skip connection check** to bypass connectivity validation
-        - Check **Use TLS for database connections** to enable TLS
-        - Check **Skip TLS certificate and hostname validation** if using self-signed certificates. For production environments, make sure to always use properly signed certificates. Only skip certificate validation in development or testing scenarios.
-
+        - Check **Skip connection check** to bypass connectivity validation.
+        - Check **Use TLS for database connections** to enable TLS.
+        - Check **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead. 
     6. Click **Add service** to complete the setup.
 
 === ":material-console: Via command line"
@@ -84,8 +85,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         pmm-admin add valkey \
           Valkey-Primary \
           localhost:6379 \
-          --environment=production \
-          Valkey-Primary
+          --environment=production
         ```
     
     === "With authentication"
@@ -93,12 +93,11 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a Valkey instance with authentication:
         ```sh
         pmm-admin add valkey \
-          Valkey-Primary \
+          Valkey-Secure \
           localhost:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production \
-          Valkey-Secure
+          --environment=production
         ```
     
     === "With remote monitoring"
@@ -106,11 +105,11 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a remote Valkey instance:
         ```sh
         pmm-admin add valkey \
-          --address=valkey-server.example.com:6379 \
+          Remote-Valkey \
+          valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production \
-          Remote-Valkey
+          --environment=production
         ```
     
     === "With custom labels"
@@ -123,8 +122,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --username=pmm \
           --password=StrongPassword123! \
           --environment=production \
-          --custom-labels="role=primary,datacenter=east" \
-          Valkey-Primary
+          --custom-labels="role=primary,datacenter=east"
         ```
     
     === "With TLS connection"
@@ -132,13 +130,32 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add an instance with TLS security:
         ```sh
         pmm-admin add valkey \
-          --address=valkey-server.example.com:6379 \
+          Valkey-TLS \
+          valkey-server.example.com:6379 \
+          --username=pmm \
+          --password=StrongPassword123! \
+          --tls \
+          --tls-ca=/path/to/ca.pem
+        ```
+
+        For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).
+    
+    === "With mutual TLS"
+
+        If your server requires a client certificate, use mutual TLS (mTLS). Pass your CA certificate, your client certificate, and its private key. Make sure to provide `--tls-cert` and `--tls-key` together, otherwise PMM rejects the command:
+        ```sh
+        pmm-admin add valkey \
+          Valkey-mTLS \
+          valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --tls \
           --tls-ca=/path/to/ca.pem \
-          Valkey-TLS
+          --tls-cert=/path/to/client-cert.pem \
+          --tls-key=/path/to/client-key.pem
         ```
+
+        For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).    
 
 === ":material-cog: Via inventory commands (Advanced)"
     PMM also provides inventory commands for more granular control:
@@ -146,17 +163,18 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     === ":material-database-plus: Add Valkey service via inventory"
         ```sh
         pmm-admin inventory add service valkey \
-        --address=localhost:6379 \
-        --username=pmm \
-        --password=StrongPassword123! \
-        Valkey-Service
+        Valkey-Service \
+        <node-id> \
+        localhost \
+        6379
         ```
 
     === ":material-robot: Add Valkey exporter agent"
         ```sh
-        pmm-admin inventory add agent valkey_exporter \
-        --address=localhost:6379 \
-        --username=pmm \
+        pmm-admin inventory add agent valkey-exporter \
+        <pmm-agent-id> \
+        <service-id> \
+        pmm \
         --password=StrongPassword123!
         ```
 
@@ -168,6 +186,14 @@ Valkey Service added
 Service ID  : /service_id/abcd1234-5678-efgh-ijkl-mnopqrstuvwx
 Service name: Valkey-Primary
 ```
+
+#### TLS certificate validation
+
+If your server uses a self-signed certificate, pass it (or its CA) with `--tls-ca`. You don't need `--tls-skip-verify`.
+
+If your hostname doesn't match the certificate, connect using a hostname listed in the certificate.
+
+Use `--tls-skip-verify` only as a last resort, and never in production. It turns off server certificate verification, so you won't know if PMM connects to the wrong server.
 
 ## Verify your Valkey/Redis service
 
@@ -208,15 +234,14 @@ After adding your Valkey or Redis service to PMM, verify that it's properly conn
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory**.
-    2. In the **Services** tab, find your newly added Valkey/Redis service.
-    3. Verify the **Service Name** and **Address** match your configuration.
-    4. Check the **Status** column shows as *Active*.
-    5. In the **Options** column, expand the **Details** section to confirm the correct agents are running.
+    1. Navigate to **Inventory > Services > Valkey** service.
+    2. Verify the **Service Name** and **Address** match your configuration.
+    3. Check the **Status** column shows as *Active*.
+    4. In the **Options** column, expand the **Details** section to confirm the correct agents are running.
 
 ### Verify data collection
 
-After adding your Valkey or Redis service to PMM, verify that it's properly connected and collecting data.
+Once the service is registered, check that its metrics are reaching PMM and showing up on the dashboards:
 {.power-number}
 
 1. Open the **Home** dashboard and verify your Valkey/Redis service appears in the **Monitored DB Services** and **Monitored DB Instances** panels.
@@ -253,17 +278,18 @@ If you need to remove a Valkey or Redis service from monitoring:
 
     Or use inventory commands:
     ```bash
+    # Remove agent
+    pmm-admin inventory remove agent <agent-id>
+    
     # Remove service
     pmm-admin inventory remove service <service-id>
-    
-    # Remove agent
     ```
 
 === ":material-web: Via UI"
     To remove the service from the user interface:
     {.power-number}
     
-    1. Navigate to **PMM Configuration > PMM Inventory**.
+    1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
     3. Click the **Remove** button in the **Options** column.
     4. Confirm the removal when prompted.
@@ -272,7 +298,7 @@ If you need to remove a Valkey or Redis service from monitoring:
 
 After successfully connecting your Valkey or Redis instance to PMM:
 
-- Access the [10 Valkey/Redis dashboards](../../../use/dashboards-panels/index.md/#available-dashboards) from the left menu to track performance, memory usage, replication, and slow queries.
+- Access the [10 Valkey/Redis dashboards](../../../use/dashboards-panels/index.md#available-dashboards) from the left menu to track performance, memory usage, replication, and slow queries.
 - [Configure alerts](../../../alert/index.md) for critical metrics like memory usage, replication lag, and slow command execution.
 - Use [PMM Inventory](../../../use/dashboard-inventory.md) to view and manage all monitored instances.
 - [Valkey official documentation](https://valkey.io/docs/)

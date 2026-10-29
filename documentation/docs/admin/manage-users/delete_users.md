@@ -1,4 +1,4 @@
-## Delete Users
+## Delete users
 
 You can delete a user in PMM as follows:
 {.power-number}

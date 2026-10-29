@@ -15,15 +15,16 @@
 package supervisor
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"sync"
 )
 
 var (
-	errNoFreePort      = fmt.Errorf("no free port")
-	errPortBusy        = fmt.Errorf("port busy")
-	errPortNotReserved = fmt.Errorf("port not reserved")
+	errNoFreePort      = errors.New("no free port")
+	errPortBusy        = errors.New("port busy")
+	errPortNotReserved = errors.New("port not reserved")
 )
 
 // portsRegistry keeps track of reserved ports.
@@ -35,15 +36,15 @@ type portsRegistry struct {
 	reserved map[uint16]struct{}
 }
 
-func newPortsRegistry(min, max uint16, reserved []uint16) *portsRegistry {
-	if min > max {
-		panic(fmt.Sprintf("min port (%d) > max port (%d)", min, max))
+func newPortsRegistry(minPort, maxPort uint16, reserved []uint16) *portsRegistry {
+	if minPort > maxPort {
+		panic(fmt.Sprintf("min port (%d) > max port (%d)", minPort, maxPort))
 	}
 
 	r := &portsRegistry{
-		min:      min,
-		max:      max,
-		last:     min - 1,
+		min:      minPort,
+		max:      maxPort,
+		last:     minPort - 1,
 		reserved: make(map[uint16]struct{}, len(reserved)),
 	}
 	for _, p := range reserved {

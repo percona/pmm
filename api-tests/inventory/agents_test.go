@@ -174,11 +174,13 @@ func TestAgents(t *testing.T) {
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterNotExists(t, res, nodeExporterID)
 
-		// Filter by service ID.
+		// Filter by agent type, scoped to this test's pmm-agent to avoid the 404
+		// race an unscoped type filter hits (see the List subtest).
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				AgentType: new(types.AgentTypeMySQLdExporter),
-				Context:   pmmapitests.Context,
+				PMMAgentID: new(pmmAgentID),
+				AgentType:  new(types.AgentTypeMySQLdExporter),
+				Context:    pmmapitests.Context,
 			},
 		)
 		require.NoError(t, err)

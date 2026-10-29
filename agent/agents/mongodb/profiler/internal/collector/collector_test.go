@@ -16,7 +16,6 @@ package collector
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"testing"
@@ -29,9 +28,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -55,7 +55,7 @@ func BenchmarkCollector(b *testing.B) {
 
 	timeout := time.Millisecond*time.Duration(maxDocs*maxLoops) + cursorTimeout*time.Duration(maxLoops*2) + time.Second
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(b.Context(), timeout)
 	defer cancel()
 
 	url := "mongodb://root:root-password@127.0.0.1:27017"
@@ -63,24 +63,29 @@ func BenchmarkCollector(b *testing.B) {
 	// cursorTimeout*time.Duration(maxLoops*2): Wait time between loops to produce iter.TryNext to return a false
 
 	client, err := createSession(url, "pmm-agent")
-	if err != nil {
-		return
-	}
+	require.NoError(b, err)
+	disconnectOnCleanup(b, client)
 
-	cleanUpDBs(b, client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(b, client)
+	// Just in case there are old dbs with matching names
+	require.NoError(b, cleanUpDBs(b.Context(), b, client))
+	b.Cleanup(func() {
+		cleanupCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelCtx()
+		assert.NoError(b, cleanUpDBs(cleanupCtx, b, client))
+	})
 
-	ps := ProfilerStatus{}
+	var ps ProfilerStatus
 	err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
-	defer func() { // restore profiler status
-		client.Database("admin").RunCommand(ctx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
-	}()
+	require.NoError(b, err)
+	b.Cleanup(func() { // restore profiler status
+		cmdCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancelCtx()
+		client.Database("admin").RunCommand(cmdCtx, primitive.D{{Key: "profile", Value: ps.Was}, {Key: "slowms", Value: ps.SlowMs}})
+	})
 
 	// Enable profilling all queries (2, slowms = 0)
-	res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
-	if res.Err() != nil {
-		return
-	}
+	res := client.Database("admin").RunCommand(ctx, primitive.D{{Key: "profile", Value: 2}, {Key: "slowms", Value: 0}})
+	require.NoError(b, res.Err())
 
 	for b.Loop() {
 		ctr := New(client, "test", logrus.WithField("component", "profiler-test"))
@@ -120,18 +125,24 @@ func TestCollector(t *testing.T) {
 	// cursorTimeout*time.Duration(maxLoops*2): Wait time between loops to produce iter.TryNext to return a false
 	timeout := time.Millisecond*time.Duration(maxDocs*maxLoops) + cursorTimeout*time.Duration(maxLoops*2) + 5*time.Second
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(t.Context(), timeout)
 	defer cancel()
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
 
-	cleanUpDBs(t, client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(t, client)
+	require.NoError(t, cleanUpDBs(t.Context(), t, client)) // Just in case there are old dbs with matching names
+	t.Cleanup(func() {
+		cleanupCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelCtx()
+		assert.NoError(t, cleanUpDBs(cleanupCtx, t, client))
+	})
 
 	// It's done create DB before the test.
 	doc := bson.M{}
-	client.Database("test_collector").Collection("test").InsertOne(context.TODO(), doc)
+	_, err = client.Database("test_collector").Collection("test").InsertOne(t.Context(), doc)
+	require.NoError(t, err)
 	<-time.After(time.Second)
 
 	ctr := New(client, "test_collector", logrus.WithField("component", "collector-test"))
@@ -139,6 +150,8 @@ func TestCollector(t *testing.T) {
 	// Start the collector
 	var profiles []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
+	require.NoError(t, err)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	<-time.After(time.Second)
@@ -168,6 +181,76 @@ func TestCollector(t *testing.T) {
 	assert.Len(t, profiles, maxDocs*maxLoops)
 }
 
+func TestCollectorContextCancel(t *testing.T) {
+	url := "mongodb://root:root-password@127.0.0.1:27017"
+	client, err := createSession(url, "pmm-agent-test")
+	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
+
+	// Create a sub-context specifically for this test to trigger cancellation.
+	ctx, cancel := context.WithCancel(t.Context())
+
+	ctr := New(client, "test_context_cancel", logrus.WithField("component", "collector-test"))
+
+	docsChan, err := ctr.Start(ctx)
+	require.NoError(t, err)
+
+	// Verify the collector is running.
+	assert.Equal(t, "collector", ctr.Name())
+
+	// Cancel the context to signal the internal goroutine to exit.
+	// Don't call Stop() before the check: it closes doneChan, which would shut the collector
+	// down on its own and hide a missing ctx.Done() case.
+	cancel()
+
+	exited := make(chan struct{})
+	go func() {
+		ctr.wg.Wait()
+		close(exited)
+	}()
+
+	select {
+	case <-exited:
+		// Success: Internal goroutines shut down gracefully.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector goroutine did not exit on context cancellation")
+	}
+
+	ctr.Stop()
+
+	// Verify that the data channel was closed.
+	_, ok := <-docsChan
+	assert.False(t, ok, "docsChan should be closed after collector stops")
+}
+
+// TestCollectorStartCanceledContext checks that Start() does not block on ready.Wait()
+// when the context is already canceled and the very first iterator creation fails.
+func TestCollectorStartCanceledContext(t *testing.T) {
+	client, err := mongo.Connect(t.Context(), options.Client().ApplyURI("mongodb://127.0.0.1:1").SetDirect(true))
+	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	ctr := New(client, "test_start_canceled_context", logrus.WithField("component", "collector-test"))
+
+	startDone := make(chan struct{})
+	go func() {
+		_, err := ctr.Start(ctx)
+		assert.NoError(t, err)
+		ctr.Stop()
+		close(startDone)
+	}()
+
+	select {
+	case <-startDone:
+		// Success: Start() returned instead of waiting for a "ready" signal that never comes.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector.Start did not return with a canceled context")
+	}
+}
+
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	interval := time.Millisecond
 
@@ -195,11 +278,23 @@ func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	}
 }
 
+// disconnectOnCleanup closes the client when the test ends. It has to be registered
+// right after the client is created so that it runs after the cleanups that still use it.
+func disconnectOnCleanup(tb testing.TB, client *mongo.Client) {
+	tb.Helper()
+
+	tb.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+		defer cancel()
+		assert.NoError(tb, client.Disconnect(ctx))
+	})
+}
+
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +303,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName("QAN-mongodb-profiler-" + agentID)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
@@ -218,15 +313,19 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
+func cleanUpDBs[T testing.TB](ctx context.Context, t T, sess *mongo.Client) error {
 	t.Helper()
-	dbs, err := sess.ListDatabaseNames(context.TODO(), bson.M{})
+	dbs, err := sess.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		return err
 	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(context.TODO())
+			err = sess.Database(dbname).Drop(ctx)
+			if err != nil {
+				t.Logf("failed to drop database %q: %v", dbname, err)
+				continue
+			}
 		}
 	}
 	return nil

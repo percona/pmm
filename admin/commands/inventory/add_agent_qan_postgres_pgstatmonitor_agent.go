@@ -48,6 +48,9 @@ func (res *addAgentQANPostgreSQLPgStatMonitorAgentResult) String() string {
 
 // AddAgentQANPostgreSQLPgStatMonitorAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
+
 	PMMAgentID            string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID             string            `arg:"" help:"Service identifier"`
 	Username              string            `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
@@ -61,9 +64,6 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	TLSCAFile             string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile           string            `help:"TLS certificate file"`
 	TLSKeyFile            string            `help:"TLS certificate key file"`
-
-	flags.CommentsParsingFlags
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd runs the command for AddAgentQANPostgreSQLPgStatMonitorAgentCommand.
@@ -100,7 +100,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 				Password:               cmd.Password,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.QueryExamplesDisabled,
 
@@ -109,7 +109,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 				TLSCa:         tlsCa,
 				TLSCert:       tlsCert,
 				TLSKey:        tlsKey,
-				LogLevel:      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:      cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

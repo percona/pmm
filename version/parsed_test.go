@@ -64,7 +64,7 @@ func TestParsed(t *testing.T) {
 				assert.Equal(t, *expected.p, *actual)
 				assert.Equal(t, expected.s, actual.String())
 
-				for j := 0; j < i; j++ {
+				for j := range i {
 					assert.True(t, data[j].p.Less(actual), "%s is expected to be less than %s", data[j].p, actual)
 				}
 				for j := i + 1; j < len(data); j++ {
@@ -106,7 +106,7 @@ func TestParsed(t *testing.T) {
 				assert.Equal(t, *expected.p, *actual)
 				assert.Equal(t, expected.s, actual.String())
 
-				for j := 0; j < i; j++ {
+				for j := range i {
 					assert.True(t, data[j].p.Less(actual), "%s is expected to be less than %s", data[j].p, actual)
 				}
 				for j := i + 1; j < len(data); j++ {

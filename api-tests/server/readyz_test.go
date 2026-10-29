@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
@@ -53,11 +54,13 @@ func TestReadyz(t *testing.T) {
 				if err != nil {
 					return false
 				}
-				resp, err := http.DefaultClient.Do(req)
+				resp, err := pmmapitests.HTTPClient.Do(req)
 				if err != nil {
 					return false
 				}
-				defer resp.Body.Close() //nolint:errcheck
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
 				b, err := io.ReadAll(resp.Body)
 				if err != nil {

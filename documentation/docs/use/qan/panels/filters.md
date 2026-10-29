@@ -10,7 +10,7 @@ The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.m
 - When [label-based access control (LBAC)](../../../admin/roles/access-control/intro.md) is enabled, filter options are automatically limited to match your role's permissions. You will only see databases, services, and environments you have access to.
 - The first five of each category are shown. If there are more, the list is expanded by clicking **Show all** beside the category name, and collapsed again with **Show top 5**.
 - Applying a filter may make other filters inapplicable. These become grayed out and inactive.
-- Click the chart symbol <i class="uil uil-graph-bar"></i> to navigate directly to an item's associated dashboard.
+- Click the chart symbol :material-chart-bar: to navigate directly to an item's associated dashboard.
 - Separately, the global **Time range** setting filters results by time, either your choice of **Absolute time range**, or one of the predefined **Relative time ranges**.
 
 ![!image](../../../images/PMM_Query_Analytics_Time_Range.jpg)
@@ -19,7 +19,7 @@ The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.m
 The available filter groups depend on the database type you're monitoring.
 
 ### Common filter groups
-These filter groups are available for all database types:
+These filter groups are available for all database types. Most of them correspond to standard labels assigned when you add a service. For the full list of labels and how to set them, see [Labels reference](../../../reference/labels-reference.md). 
 
 - **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.) 
 - **Fingerprint**: filters by normalized query pattern

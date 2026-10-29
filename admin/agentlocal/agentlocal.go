@@ -17,9 +17,8 @@ package agentlocal
 
 import (
 	"context"
-	"crypto/tls"
+	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -30,19 +29,19 @@ import (
 
 	"github.com/percona/pmm/api/agentlocal/v1/json/client"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	"github.com/percona/pmm/utils/apitransport"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
-func SetTransport(ctx context.Context, debug bool, port uint32) {
+func SetTransport(debug bool, port uint32) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
-	transport.Context = ctx
 
-	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	// disable HTTP/2 on a transport of our own: go-openapi hands out http.DefaultTransport,
+	// and disabling it there would do so for every other HTTP client in the process
+	apitransport.ConfigureLocal(transport)
 
 	client.Default.SetTransport(transport)
 }
@@ -62,10 +61,10 @@ const (
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
-var ErrNotSetUp = fmt.Errorf("pmm-agent is running, but not set up")
+var ErrNotSetUp = errors.New("pmm-agent is running, but not set up")
 
 // ErrNotConnected is returned by GetStatus when pmm-agent is running and set up, but not connected to PMM Server.
-var ErrNotConnected = fmt.Errorf("pmm-agent is not connected to PMM Server")
+var ErrNotConnected = errors.New("pmm-agent is not connected to PMM Server")
 
 // Status represents pmm-agent status.
 type Status struct {

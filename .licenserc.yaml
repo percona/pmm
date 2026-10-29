@@ -4,6 +4,7 @@ header:
     paths-ignore:
       - "agent/**"
       - "admin/**"
+      - "utils/**"
       - "**/mock_*"
       - "**/*.pb.go"
       - "**/*.pb.gw.go"
@@ -22,6 +23,7 @@ header:
   - paths:
       - "agent/**/*.go"
       - "admin/**/*.go"
+      - "utils/**/*.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"

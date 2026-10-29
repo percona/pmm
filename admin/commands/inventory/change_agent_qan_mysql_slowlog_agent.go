@@ -85,6 +85,9 @@ type ChangeAgentQANMySQLSlowlogAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentQANMySQLSlowlogAgentCommand and returns the result.
@@ -135,6 +138,7 @@ func (cmd *ChangeAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, er
 		DisableQueryExamples:   cmd.DisableQueryExamples,
 		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
+		SkipConnectionCheck:    cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

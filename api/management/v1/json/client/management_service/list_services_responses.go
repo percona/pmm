@@ -310,8 +310,8 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list services default body details items0
-	ListServicesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list services default body details items0 additional properties
+	ListServicesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 			}
 			result[k] = toadd
 		}
-		o.ListServicesDefaultBodyDetailsItems0 = result
+		o.ListServicesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ListServicesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListServicesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListServicesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListServicesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -910,6 +910,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -1403,6 +1406,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions struct {
 
 	// True if all collectors are enabled.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// True if diagnostic data histograms are enabled.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0 mongo DB options

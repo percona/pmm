@@ -22,17 +22,18 @@ import (
 	"container/ring"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/managed/models"
@@ -43,7 +44,23 @@ import (
 
 const (
 	maxLogReadLines = 50000
+
+	// The entrypoint renders the side-car nginx drop-ins here when
+	// PMM_ENABLE_EXTENSIONS is set. The directory is absent on a default
+	// installation.
+	extensionsNginxConfigDir = "/etc/nginx/extensions.d"
 )
+
+// extensionsConfigFiles returns the side-car nginx drop-ins under dir, and nothing when dir is
+// absent. They are globbed rather than listed because their presence depends on
+// PMM_ENABLE_EXTENSIONS: absent must not mean an error in the archive. Glob's only error
+// is ErrBadPattern, which a caller-supplied directory joined with a literal
+// suffix cannot produce, so it is discarded rather than reported.
+func extensionsConfigFiles(dir string) []string {
+	configs, _ := filepath.Glob(filepath.Join(dir, "*.conf"))
+
+	return configs
+}
 
 // fileContent represents logs.zip item.
 type fileContent struct {
@@ -115,20 +132,23 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 			Modified: file.Modified,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to create zip file header")
+			return fmt.Errorf("failed to create zip file header: %w", err)
 		}
-		if _, err = f.Write(file.Data); err != nil {
-			return errors.Wrap(err, "failed to write zip file data")
+		_, err = f.Write(file.Data)
+		if err != nil {
+			return fmt.Errorf("failed to write zip file data: %w", err)
 		}
 	}
 
-	if err := addAdminSummary(ctx, zw); err != nil {
+	err := addAdminSummary(ctx, zw)
+	if err != nil {
 		// do not let it break the whole archive
 		log.WithField("d", time.Since(start).Seconds()).Errorf("addAdminSummary: %+v", err)
 	}
 
-	if err := zw.Close(); err != nil {
-		return errors.Wrap(err, "failed to close zip file")
+	err = zw.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close zip file: %w", err)
 	}
 	return nil
 }
@@ -139,7 +159,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		b []byte
 		m time.Time
 	)
-	files := make([]fileContent, 0, 20)
+	files := make([]fileContent, 0, 20) //nolint:mnd
 	// add logs
 	logs, err := filepath.Glob("/srv/logs/*.log")
 	if err != nil {
@@ -162,7 +182,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		})
 	}
 	// add configs
-	for _, f := range []string{
+	configs := slices.Concat([]string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
@@ -179,7 +199,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	} {
+	}, extensionsConfigFiles(extensionsNginxConfigDir))
+
+	for _, f := range configs {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
@@ -223,9 +245,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 	if pprofConfig != nil {
 		filesSync := &sync.Mutex{}
 		var wg sync.WaitGroup
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -234,11 +254,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -247,11 +265,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			heapBytes, err := pprofUtils.Heap(true)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -260,7 +276,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
 		wg.Wait()
 	}
@@ -283,13 +299,13 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 	var m time.Time
 	f, err := os.Open(name) //nolint:gosec
 	if err != nil {
-		return nil, m, errors.WithStack(err)
+		return nil, m, fmt.Errorf("failed to open log file %s: %w", name, err)
 	}
 	defer f.Close() //nolint:errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
-		return nil, m, errors.WithStack(err)
+		return nil, m, fmt.Errorf("failed to obtain file info %s: %w", name, err)
 	}
 	m = fi.ModTime()
 
@@ -310,12 +326,12 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 		r = r.Next()
 
 		if err != nil {
-			return nil, m, errors.WithStack(err)
+			return nil, m, fmt.Errorf("failed to read data from log file %s: %w", name, err)
 		}
 	}
 
 	res := []byte{}
-	r.Do(func(v interface{}) {
+	r.Do(func(v any) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
@@ -328,13 +344,13 @@ func readLogUnlimited(name string) ([]byte, time.Time, error) {
 	var m time.Time
 	f, err := os.Open(name) //nolint:gosec
 	if err != nil {
-		return nil, m, errors.WithStack(err)
+		return nil, m, fmt.Errorf("failed to open log file %s: %w", name, err)
 	}
 	defer f.Close() //nolint:errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
-		return nil, m, errors.WithStack(err)
+		return nil, m, fmt.Errorf("failed to obtain file info %s: %w", name, err)
 	}
 	m = fi.ModTime()
 
@@ -353,7 +369,7 @@ func readLogUnlimited(name string) ([]byte, time.Time, error) {
 		res = append(res, b...)
 
 		if err != nil {
-			return nil, m, errors.WithStack(err)
+			return nil, m, fmt.Errorf("failed to read data from log file %s: %w", name, err)
 		}
 	}
 
@@ -365,10 +381,11 @@ func readFile(name string) ([]byte, time.Time, error) {
 	var m time.Time
 	b, err := os.ReadFile(name) //nolint:gosec
 	if err != nil {
-		return nil, m, errors.WithStack(err)
+		return nil, m, err
 	}
 
-	if fi, err := os.Stat(name); err == nil {
+	fi, err := os.Stat(name)
+	if err == nil {
 		m = fi.ModTime()
 	}
 	return b, m, nil
@@ -385,19 +402,19 @@ func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
 func readURL(ctx context.Context, url string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to create http request to %s: %w", url, err)
 	}
 	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to send http request to %s: %w", url, err)
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	// indent JSON output
@@ -414,10 +431,11 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	sf, err := os.CreateTemp("", "*-pmm-admin-summary.zip")
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	if err := sf.Close(); err != nil {
-		return errors.WithStack(err)
+	err = sf.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close temp file %s: %w", sf.Name(), err)
 	}
 	defer os.Remove(sf.Name()) //nolint:errcheck
 
@@ -425,13 +443,14 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	cmd.Stdout = os.Stderr // stdout to stderr
 	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
-		return errors.Wrap(err, "cannot run pmm-admin summary")
+	err = cmd.Run()
+	if err != nil {
+		return fmt.Errorf("cannot run pmm-admin summary: %w", err)
 	}
 
 	zr, err := zip.OpenReader(sf.Name())
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to open zip file %s: %w", sf.Name(), err)
 	}
 	defer zr.Close() //nolint:errcheck
 
@@ -442,21 +461,23 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			Modified: file.Modified,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to create zip file header")
+			return fmt.Errorf("failed to create zip file header: %w", err)
 		}
 
 		fr, err := file.Open()
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to open file %s: %w", file.Name, err)
 		}
 
-		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
-			fr.Close() //nolint:errcheck
-			return errors.WithStack(err)
+		_, err = io.Copy(fw, fr) //nolint:gosec
+		if err != nil {
+			_ = fr.Close()
+			return fmt.Errorf("failed to copy data to file %s: %w", file.Name, err)
 		}
 
-		if err = fr.Close(); err != nil {
-			return errors.WithStack(err)
+		err = fr.Close()
+		if err != nil {
+			return fmt.Errorf("failed to close file %s: %w", file.Name, err)
 		}
 	}
 

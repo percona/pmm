@@ -177,7 +177,7 @@ checks:
 
       def check_context(rows, context):
            results = []
-           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
            description = ""
            for row in rows[0]:
                ver, major = int(row["setting"]), int(row["major"])

@@ -3,11 +3,20 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import RealtimeOverview from './RealtimeOverview';
 import {
   TEST_MONGO_DB_QUERY_DATA,
+  TEST_RAW_MONGO_DB_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages } from './RealtimeOverview.messages';
+
+const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
+  exportRtaQueriesToCsv: vi.fn(),
+}));
+
+vi.mock('./export/exportRtaQueriesToCsv', () => ({
+  exportRtaQueriesToCsv,
+}));
 
 const { searchQueries, getRunningSessions } = vi.hoisted(() => ({
   searchQueries: vi.fn().mockResolvedValue({
@@ -49,7 +58,7 @@ describe('RealtimeOverview', () => {
     vi.clearAllMocks();
 
     searchQueries.mockResolvedValue({
-      queries: [TEST_MONGO_DB_QUERY_DATA],
+      queries: [TEST_RAW_MONGO_DB_QUERY_DATA],
     });
 
     getRunningSessions.mockResolvedValue([
@@ -167,7 +176,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
-    const clearButton = await waitFor(() => screen.findByTitle('Clear'));
+    const clearButton = await screen.findByTitle('Clear');
     fireEvent.click(clearButton);
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
@@ -234,7 +243,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
-    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    const openButton = await screen.findByTitle('Open');
     fireEvent.click(openButton);
 
     const serviceOptionId =
@@ -265,7 +274,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
-    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    const openButton = await screen.findByTitle('Open');
     fireEvent.click(openButton);
 
     const serviceOptionId =
@@ -349,5 +358,57 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(screen.getByTestId('realtime-selection')).toBeInTheDocument()
     );
+  });
+
+  it('hides export while live updates are running', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-export-button')
+    ).not.toBeInTheDocument();
+  });
+
+  it('enables export after pausing live updates', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-export-button')
+      ).not.toBeDisabled()
+    );
+  });
+
+  it('exports visible rows when export is clicked', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+
+    fireEvent.click(screen.getByTestId('overview-table-export-button'));
+
+    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith([
+      expect.objectContaining({
+        queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
+        serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
+        queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
+        queryExecutionDurationMs: 10,
+      }),
+    ]);
   });
 });

@@ -4,7 +4,17 @@
     "rootDir": "../..",
     "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
     "paths": {
-      "@pmm/shared": ["../../../packages/shared/src"]
+      "@pmm/shared": ["../../../packages/shared/src"],
+      "@pmm/shared/*": ["../../../packages/shared/src/*"]
     }
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "target": "es2018",
+      "esModuleInterop": true
+    },
+    "transpileOnly": true
   }
 }

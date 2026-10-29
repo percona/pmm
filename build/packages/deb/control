@@ -1,7 +1,7 @@
 Source: pmm-client
 Section: utils
 Priority: optional
-Maintainer: Percona LLC
+Maintainer: Percona LLC <info@percona.com>
 Version: %{version}
 Homepage: https://percona.com
 Build-Depends: debhelper

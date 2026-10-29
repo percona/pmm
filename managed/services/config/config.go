@@ -20,9 +20,10 @@ package config
 
 import (
 	_ "embed"
+	"errors"
+	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
@@ -63,8 +64,9 @@ func NewService() *Service {
 func (s *Service) Load() error {
 	configPath, present := os.LookupEnv(envConfigPath)
 	if present {
-		if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
-			return errors.Wrapf(err, "config file [%s] doen't not exit", configPath)
+		_, err := os.Stat(configPath)
+		if errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("config file [%s] doesn't exist: %w", configPath, err)
 		}
 	} else {
 		s.l.Debugf("[%s] is not set, using default location [%s]", envConfigPath, defaultConfigPath)
@@ -72,23 +74,27 @@ func (s *Service) Load() error {
 
 	var cfg Config
 
-	if _, err := os.Stat(configPath); err == nil {
+	_, err := os.Stat(configPath)
+	if err == nil {
 		s.l.Trace("config exists, reading file")
 		buf, err := os.ReadFile(configPath) //nolint:gosec
 		if err != nil {
-			return errors.Wrapf(err, "error while reading config [%s]", configPath)
+			return fmt.Errorf("error while reading config [%s]: %w", configPath, err)
 		}
-		if err := yaml.Unmarshal(buf, &cfg); err != nil {
-			return errors.Wrapf(err, "cannot unmarshal config [%s]", configPath)
+		err = yaml.Unmarshal(buf, &cfg)
+		if err != nil {
+			return fmt.Errorf("cannot unmarshal config [%s]: %w", configPath, err)
 		}
 	} else {
 		s.l.Trace("config does not exist, fallback to embedded config")
-		if err := yaml.Unmarshal([]byte(defaultConfig), &cfg); err != nil {
-			return errors.Wrapf(err, "cannot unmarshal config [%s]", configPath)
+		err := yaml.Unmarshal([]byte(defaultConfig), &cfg)
+		if err != nil {
+			return fmt.Errorf("cannot unmarshal config [%s]: %w", configPath, err)
 		}
 	}
 
-	if err := cfg.Services.Telemetry.Init(s.l); err != nil {
+	err = cfg.Services.Telemetry.Init(s.l)
+	if err != nil {
 		return err
 	}
 

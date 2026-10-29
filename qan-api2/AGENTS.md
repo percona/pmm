@@ -76,7 +76,7 @@ The `metrics` table stores one row per query fingerprint per collection period:
 - Use prepared statements for inserts
 - Add ClickHouse migrations as numbered SQL files in `migrations/sql/`
 - Support cluster mode: use template conditions for ReplicatedMergeTree vs MergeTree
-- Use LBAC (Label-Based Access Control) filters from `X-PMM-LBAC-Filters` header when building reports
+- Use LBAC (Label-Based Access Control) filters from `X-Proxy-Filter` header when building reports
 
 ### Don't
 - Don't use an ORM for ClickHouse — raw SQL with sqlx is the pattern
@@ -91,7 +91,7 @@ CLI flags (parsed via `kingpin`):
 - `--json-bind` (default `:9922`) — JSON/REST listen address
 - `--listen-debug-addr` (default `127.0.0.1:9933`) — debug endpoint
 - `--dsn` — ClickHouse DSN (alternative to individual `--clickhouse-*` flags)
-- `--clickhouse-addr`, `--clickhouse-database`, `--clickhouse-pool-size`
+- `--clickhouse-addr`, `--clickhouse-database`, `--clickhouse-user`, `--clickhouse-password` — ClickHouse connection parameters
 - `--clickhouse-cluster` — enable cluster mode
 - `--clickhouse-cluster-name` — cluster name for ReplicatedMergeTree
 - `--data-retention` — how long to keep data (default 30 days)

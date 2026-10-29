@@ -8,7 +8,6 @@ services:
       - './dist:/srv/grafana/plugins/pmm-app/dist'
     environment:
       - PMM_DEBUG=1
-      - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
     ports:
       - 80:8080
       - 443:8443

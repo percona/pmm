@@ -1,3 +1,4 @@
+---
 name: 'API Tests'
 
 on:
@@ -21,7 +22,7 @@ on:
     inputs:
       BRANCH:
         description: "The branch to pull API tests from"
-        default: "v3"
+        default: "main"
         required: true
         type: string
       PMM_SERVER_IMAGE:
@@ -36,20 +37,20 @@ permissions:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       PMM_URL: https://admin:admin@127.0.0.1
-      BRANCH: ${{ github.event.inputs.BRANCH || 'v3' }}
+      BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
       PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE }}
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.BRANCH }}
 
       - name: Login to docker.io registry
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -64,7 +65,6 @@ jobs:
               container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
-                - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
               ports:
                 - 443:8443
               volumes:
@@ -83,13 +83,6 @@ jobs:
         run: |
           make docker-build-image
 
-      - name: Run compose up for test DBs
-        shell: bash
-        run: |
-          pushd api-tests
-          docker compose up test_db # no daemon mode
-          popd
-
       - name: Check connectivity to PMM Server
         shell: bash
         run: curl -kf ${{env.PMM_URL}}/ping
@@ -105,7 +98,7 @@ jobs:
 
       - name: Upload the logs on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "logs.zip"
           path: ${{ github.workspace }}/logs.zip

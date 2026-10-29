@@ -54,7 +54,7 @@ CreateRuleOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type CreateRuleOK struct {
-	Payload any
+	Payload *CreateRuleOKBody
 }
 
 // IsSuccess returns true when this create rule Ok response has a 2xx status code
@@ -97,13 +97,15 @@ func (o *CreateRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/alerting/rules][%d] createRuleOk %s", 200, payload)
 }
 
-func (o *CreateRuleOK) GetPayload() any {
+func (o *CreateRuleOK) GetPayload() *CreateRuleOKBody {
 	return o.Payload
 }
 
 func (o *CreateRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(CreateRuleOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -578,8 +580,8 @@ type CreateRuleDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// create rule default body details items0
-	CreateRuleDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// create rule default body details items0 additional properties
+	CreateRuleDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -614,7 +616,7 @@ func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.CreateRuleDefaultBodyDetailsItems0 = result
+		o.CreateRuleDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -635,12 +637,12 @@ func (o CreateRuleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.CreateRuleDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.CreateRuleDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.CreateRuleDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.CreateRuleDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -674,6 +676,46 @@ func (o *CreateRuleDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res CreateRuleDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreateRuleOKBody create rule OK body
+swagger:model CreateRuleOKBody
+*/
+type CreateRuleOKBody struct {
+	// Identifier PMM assigns to a rule whose thresholds can be overridden per target.
+	// Empty when the rule has no overridable parameters, since nothing can be keyed on it.
+	// This is the rule's identity for threshold purposes rather than its Grafana UID:
+	// copying or renaming the rule in Grafana preserves it.
+	RuleID string `json:"rule_id,omitempty"`
+}
+
+// Validate validates this create rule OK body
+func (o *CreateRuleOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create rule OK body based on context it is used
+func (o *CreateRuleOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateRuleOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateRuleOKBody) UnmarshalBinary(b []byte) error {
+	var res CreateRuleOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

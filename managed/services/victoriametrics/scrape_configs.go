@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -55,7 +56,7 @@ func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *conf
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9363"},
+				Targets: []string{models.LocalhostAddr + ":9363"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -70,7 +71,7 @@ func scrapeConfigForGrafana(interval time.Duration, pmmServerNodeName string) *c
 		MetricsPath:    "/graph/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:3000"},
+				Targets: []string{models.LocalhostAddr + ":3000"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -85,7 +86,7 @@ func scrapeConfigForPMMManaged(interval time.Duration, pmmServerNodeName string)
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7773"},
+				Targets: []string{models.LocalhostAddr + ":7773"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -100,7 +101,7 @@ func scrapeConfigForQANAPI2(interval time.Duration, pmmServerNodeName string) *c
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9933"},
+				Targets: []string{models.LocalhostAddr + ":9933"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -116,7 +117,7 @@ func scrapeConfigForNomadServer(resolution time.Duration, pmmServerNodeName stri
 		Scheme:         "https",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:4646"},
+				Targets: []string{models.LocalhostAddr + ":4646"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -371,6 +372,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		"info_schema.clientstats",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
+		"perf_schema.memory_events",
 		"perf_schema.file_instances",
 		"custom_query.lr",
 		"plugins",
@@ -390,6 +392,14 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
+	}
+	if lr != nil && slices.Contains(lrOptions, "perf_schema.file_instances") {
+		// MySQL 8.0.30+ numbers redo log files ever higher, so per-file series would never stop growing.
+		lr.MetricRelabelConfigs = []*config.RelabelConfig{{
+			SourceLabels: []string{"__name__", "file_name"},
+			Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+			Action:       "drop",
+		}}
 	}
 
 	var r []*config.ScrapeConfig

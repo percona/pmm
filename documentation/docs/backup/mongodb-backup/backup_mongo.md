@@ -10,17 +10,17 @@ The following backup operations are supported for replica sets:
 
   - Storing backups on Amazon S3-compatible object storage, and on mounted filesystem
   - Creating and restoring Logical snapshot backups
-  - Creating and restoring Physical snapshot backups
-  - Creating logical PITR backups both locally and on S3-compatible object storage. Restoring logical PITR backups from S3-compatible object storage.
+  - Creating and restoring Physical snapshot backups for Percona Server for MongoDB
+  - You can create logical PITR backups both locally and on S3-compatible object storage. To restore a PITR backup, you must use S3-compatible object storage. PMM does not support PITR restores from local storage.
 
   
 ## Sharded clusters
 
-PMM 3 supports backing up sharded clusters. However, restoring for sharded cluster configurations is only supported from the CLI, and is handled via [Percona Backup for MongoDB](https://docs.percona.com/percona-backup-mongodb/usage/restore.html).
+PMM 3 supports backing up sharded clusters. However, restoring for sharded cluster configurations is only supported from the CLI, and is handled via [Percona Backup for MongoDB](https://docs.percona.com/percona-backup-mongodb/latest/usage/restore.html).
 
   - Storing backups on Amazon S3-compatible object storage, and on mounted filesystem
   - Creating Logical snapshot backups
-  - Creating Physical snapshot backups
+  - Creating Physical snapshot backups for Percona Server for MongoDB
   - Creating logical PITR backups both locally and on S3-compatible object storage
  
 For a detailed overview of the supported setups for MongoDB, check out the [Support matrix](mongodb_limitations.md).

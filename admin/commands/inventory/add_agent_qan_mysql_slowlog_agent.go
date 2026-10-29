@@ -67,6 +67,9 @@ func (res *addAgentQANMySQLSlowlogAgentResult) SlowlogRotation() string {
 //
 //nolint:lll
 type AddAgentQANMySQLSlowlogAgentCommand struct {
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
+
 	PMMAgentID           string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string            `arg:"" help:"Service identifier"`
 	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
@@ -81,9 +84,6 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
-
-	flags.CommentsParsingFlags
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
@@ -120,7 +120,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				Password:               cmd.Password,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 				MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
@@ -129,7 +129,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				TLSCa:                  tlsCa,
 				TLSCert:                tlsCert,
 				TLSKey:                 tlsKey,
-				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

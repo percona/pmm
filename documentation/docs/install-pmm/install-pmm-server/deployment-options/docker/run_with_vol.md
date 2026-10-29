@@ -21,24 +21,30 @@ To deploy PMM Server using Docker volumes:
     docker volume create pmm-data
     ```
 
-3. Run PMM Server with the volume configured, making sure to replace `your_watchtower_host` with watchtower container hostname (e.g. `--env PMM_WATCHTOWER_HOST=http://watchtower:8080`) and `your_watchtower_token` with the token created during [Watchtower setup](../docker/index.md#installation-options): 
+3. Run PMM Server with the volume configured:
 
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=http://your_watchtower_host:8080 \
-    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume pmm-data:/srv \
     --network=pmm-network \
     --name pmm-server \
     percona/pmm-server:3
     ```
 
-4. Set a secure password for the default `admin` user, replacing `your_secure_password` with a strong, unique password:
+4. Set a secure password for the default `admin` user. You can do this either at startup using environment variables, or after startup using a helper script:
 
-    ```sh
-    docker exec -t pmm-server change-admin-password your_secure_password
-    ```
+    - **At startup** (add to the `docker run` command in step 3):
+
+        ```sh
+        --env GF_SECURITY_ADMIN_PASSWORD="your_secure_password"
+        ```
+
+    - **After startup:**
+
+        ```sh
+        docker exec -t pmm-server change-admin-password your_secure_password
+        ```
 
 5. Access the PMM web interface at `https://localhost` in a web browser. 
 If you are accessing the Docker host remotely, replace `localhost` with your server's IP address or hostname.

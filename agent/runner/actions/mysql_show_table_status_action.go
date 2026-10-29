@@ -20,8 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/agent/tlshelpers"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
@@ -95,7 +93,7 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, err
 	}
 	if len(dataRows) == 0 {
-		return nil, errors.Errorf("table %q not found", table)
+		return nil, fmt.Errorf("table %q not found", table)
 	}
 	return jsonRows(columns, dataRows)
 }

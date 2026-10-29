@@ -49,7 +49,7 @@ Sudden role changes may indicate planned failovers, automatic failover due to pr
 
 ## Replication Offsets
 
-### [Service name] - Replica vs Master Offsets
+### [Service name] - Replica vs Primary offsets
 
 Displays the replication offset difference between primary nodes and their replicas, measured in bytes.
 

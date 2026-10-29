@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
@@ -39,12 +39,10 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
-	agent_version "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	"github.com/percona/pmm/version"
 )
 
 // configGetter allows for getting a config.
@@ -108,7 +106,13 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll
+func (cc *ConnectionChecker) checkMySQLConnection(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 	var err error
 
@@ -147,20 +151,21 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
-		if errors.As(err, &x509.HostnameError{}) {
-			res.Error = errors.Wrap(err,
-				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
-		} else {
-			res.Error = err.Error()
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
+		_, ok := errors.AsType[*x509.HostnameError](err)
+		if ok {
+			err = fmt.Errorf("mysql ssl certificate is misconfigured, make sure the "+
+				"certificate includes the requested hostname/IP in CN or subjectAltName fields: %w", err)
 		}
+		res.Error = err.Error()
 	}
 
 	return &res
 }
 
 func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
-	const helloCommandVersion = "4.2.10"
+	const commandNotFoundCode = 59
 
 	var res agentv1.CheckConnectionResponse
 	var err error
@@ -174,7 +179,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		cc.l.Debugf("failed to parse DSN: %s", err)
 		res.Error = err.Error()
@@ -189,15 +194,9 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	if err = client.Ping(ctx, nil); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
-		res.Error = err.Error()
-		return &res
-	}
-
-	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
+	err = client.Ping(ctx, nil)
 	if err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
+		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
@@ -206,13 +205,15 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		ArbiterOnly bool `bson:"arbiterOnly"`
 	}{}
 
-	// use hello command for newer MongoDB versions
+	// Don't read the version from buildInfo to pick the command: since MongoDB 8.1 buildInfo
+	// requires authentication, which arbiters can't provide. Servers older than 4.2.10 lack hello.
 	command := "hello"
-	if mongoVersion.Less(version.MustParse(helloCommandVersion)) {
-		command = "isMaster"
-	}
-
 	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	cmdErr, ok := errors.AsType[mongo.CommandError](err)
+	if ok && cmdErr.HasErrorCode(commandNotFoundCode) {
+		command = "isMaster"
+		err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	}
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to runCommand %s: %s", command, err)
 		res.Error = err.Error()
@@ -221,7 +222,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	if !serverInfo.ArbiterOnly {
 		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-		if err = resp.Err(); err != nil {
+		err = resp.Err()
+		if err != nil {
 			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 			res.Error = err.Error()
 			return &res
@@ -252,7 +254,8 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 
@@ -313,7 +316,8 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 

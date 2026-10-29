@@ -16,7 +16,7 @@
 package models
 
 import (
-	"fmt"
+	"errors"
 
 	"gopkg.in/reform.v1"
 )
@@ -32,7 +32,7 @@ func ListUsers(q *reform.Querier) (map[int][]uint32, error) {
 	for _, row := range rows {
 		userRole, ok := row.(*UserRoles)
 		if !ok {
-			return nil, fmt.Errorf("invalid data in user_roles table")
+			return nil, errors.New("invalid data in user_roles table")
 		}
 
 		_, ok = roles[userRole.UserID]

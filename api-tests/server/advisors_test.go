@@ -45,7 +45,7 @@ func TestStartChecks(t *testing.T) {
 		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
 }
@@ -56,7 +56,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
 
@@ -127,7 +127,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 
 			// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 			// then in second iteration it returns state to its origin.
-			for i := 0; i < 2; i++ {
+			for range 2 {
 				check = resp.Payload.Checks[0]
 				params := &advisor.ChangeAdvisorChecksParams{
 					Body: advisor.ChangeAdvisorChecksBody{

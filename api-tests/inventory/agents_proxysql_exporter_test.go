@@ -404,7 +404,8 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Password: new("new-rotated-password"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-rotated-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -418,8 +419,9 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username: new("new-proxysql-user"),
-					Password: new("another-new-password"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-proxysql-user"),
+					Password:            new("another-new-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -477,7 +479,8 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username: new("changed-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-user"),
 					// Note: password, custom labels, push metrics, and log level are NOT specified
 				},
 			},
@@ -546,11 +549,12 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username:          new("new-proxysql-user"),
-					Password:          new("new-proxysql-password"),
-					LogLevel:          new("LOG_LEVEL_ERROR"),
-					EnablePushMetrics: new(true),
-					DisableCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
+					SkipConnectionCheck: new(true),
+					Username:            new("new-proxysql-user"),
+					Password:            new("new-proxysql-password"),
+					LogLevel:            new("LOG_LEVEL_ERROR"),
+					EnablePushMetrics:   new(true),
+					DisableCollectors:   []string{"mysql_connection_pool", "mysql_connection_list"},
 					CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",

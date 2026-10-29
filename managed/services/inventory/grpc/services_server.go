@@ -17,10 +17,10 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -31,9 +31,9 @@ import (
 )
 
 type servicesServer struct {
-	s *inventory.ServicesService
-
 	inventoryv1.UnimplementedServicesServiceServer
+
+	s *inventory.ServicesService
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
@@ -99,7 +99,7 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.List
 // ListActiveServiceTypes returns list of active Services.
 func (s *servicesServer) ListActiveServiceTypes(
 	ctx context.Context,
-	req *inventoryv1.ListActiveServiceTypesRequest, //nolint:revive
+	_ *inventoryv1.ListActiveServiceTypesRequest,
 ) (*inventoryv1.ListActiveServiceTypesResponse, error) {
 	types, err := s.s.ListActiveServiceTypes(ctx)
 	if err != nil {
@@ -331,7 +331,8 @@ func (s *servicesServer) addExternalService(ctx context.Context, params *invento
 
 // RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
-	if err := s.s.Remove(ctx, req.GetServiceId(), req.GetForce()); err != nil {
+	err := s.s.Remove(ctx, req.GetServiceId(), req.GetForce())
+	if err != nil {
 		return nil, err
 	}
 

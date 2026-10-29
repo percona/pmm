@@ -16,10 +16,10 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -64,7 +64,7 @@ func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
 }
 
 // ErrUserAlreadyExists is returned when a user already exists in db.
-var ErrUserAlreadyExists = fmt.Errorf("UserAlreadyExists")
+var ErrUserAlreadyExists = errors.New("UserAlreadyExists")
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
@@ -81,13 +81,14 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	case errors.Is(err, reform.ErrNoRows):
 		break
 	default:
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	// Add user entry
 	row = &UserDetails{ID: params.UserID}
-	if err := q.Insert(row); err != nil {
-		return nil, errors.Wrap(err, "failed to create user")
+	err = q.Insert(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return row, nil
@@ -120,8 +121,9 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 		row.SnoozeCount = *params.SnoozeCount
 	}
 
-	if err = q.Update(row); err != nil {
-		return nil, errors.Wrap(err, "failed to update user")
+	err = q.Update(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
 	return row, nil
@@ -139,7 +141,7 @@ func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, ErrNotFound
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return row, nil

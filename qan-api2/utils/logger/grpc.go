@@ -25,8 +25,8 @@ type GRPC struct {
 	*logrus.Entry
 }
 
-// V reports whether verbosity level l is at least the requested verbose level.
-func (v *GRPC) V(l int) bool { //nolint:revive
+// V reports whether verbosity level is at least the requested verbose level.
+func (v *GRPC) V(int) bool {
 	// we don't need real implementation ATM
 	return true
 }
@@ -35,13 +35,13 @@ func (v *GRPC) V(l int) bool { //nolint:revive
 // Override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync.
 //
 // Info logs a message at the Info level.
-func (v *GRPC) Info(args ...interface{}) { v.Trace(args...) }
+func (v *GRPC) Info(args ...any) { v.Trace(args...) }
 
 // Infoln logs a message at the Info level.
-func (v *GRPC) Infoln(args ...interface{}) { v.Traceln(args...) }
+func (v *GRPC) Infoln(args ...any) { v.Traceln(args...) }
 
 // Infof logs a formatted message at the Info level.
-func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
+func (v *GRPC) Infof(format string, args ...any) { v.Tracef(format, args...) }
 
 // check interfaces.
 var (

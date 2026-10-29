@@ -26,7 +26,8 @@ import (
 
 // CreateRole creates a new role.
 func CreateRole(q *reform.Querier, role *Role) error {
-	if err := q.Insert(role); err != nil {
+	err := q.Insert(role)
+	if err != nil {
 		return err
 	}
 
@@ -37,14 +38,16 @@ func CreateRole(q *reform.Querier, role *Role) error {
 func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 	q := tx.Querier
 
-	if _, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID); err != nil {
+	_, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID)
+	if err != nil {
 		return err
 	}
 
 	s := make([]reform.Struct, 0, len(roleIDs))
 	for _, roleID := range roleIDs {
 		var role Role
-		if err := findRole(tx, roleID, &role); err != nil {
+		err = findRole(tx, roleID, &role)
+		if err != nil {
 			return err
 		}
 
@@ -76,7 +79,8 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 	q := tx.Querier
 
 	var role Role
-	if err := findRole(tx, roleID, &role); err != nil {
+	err := findRole(tx, roleID, &role)
+	if err != nil {
 		return err
 	}
 
@@ -90,11 +94,13 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 		return ErrRoleIsDefaultRole
 	}
 
-	if err := replaceRole(tx, roleID, replacementRoleID); err != nil {
+	err = replaceRole(tx, roleID, replacementRoleID)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&role); err != nil {
+	err = q.Delete(&role)
+	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound
 		}
@@ -114,7 +120,8 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 		return err
 	}
 
-	if err := findRole(tx, newRoleID, &Role{}); err != nil {
+	err := findRole(tx, newRoleID, &Role{})
+	if err != nil {
 		return err
 	}
 
@@ -173,7 +180,7 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 
 // findRole retrieves a role by ID.
 func findRole(tx *reform.TX, roleID int, role *Role) error {
-	err := tx.Querier.SelectOneTo(role, "WHERE id = $1", roleID)
+	err := tx.SelectOneTo(role, "WHERE id = $1", roleID)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound
@@ -187,14 +194,15 @@ func findRole(tx *reform.TX, roleID int, role *Role) error {
 // ChangeDefaultRole changes default role in the settings.
 func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	var role Role
-	if err := findRole(tx, roleID, &role); err != nil {
+	err := findRole(tx, roleID, &role)
+	if err != nil {
 		return err
 	}
 
 	var p ChangeSettingsParams
 	p.DefaultRoleID = &roleID
 
-	_, err := UpdateSettings(tx, &p)
+	_, err = UpdateSettings(tx, &p)
 
 	return err
 }
@@ -222,14 +230,16 @@ func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
 	roles := []Role{}
 	for rows.Next() {
 		var role Role
-		if err := rows.Scan(role.Pointers()...); err != nil {
+		err = rows.Scan(role.Pointers()...)
+		if err != nil {
 			return nil, err
 		}
 
 		roles = append(roles, role)
 	}
 
-	if err := rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, err
 	}
 

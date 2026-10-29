@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -95,7 +94,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		request.Type, logger.MaskDSN(request.Dsn), request.Timeout,
 	)
 
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.channel.SendAndWaitResponse(ctx, request)
 	if err != nil {
 		return err
 	}
@@ -112,7 +111,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		// nothing yet
 
 	default:
-		return errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 
 	msg := resp.(*agentv1.CheckConnectionResponse).Error //nolint:forcetypeassert
@@ -130,14 +129,15 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	var node *models.Node
-	if agent.AgentType == models.PostgresExporterType &&
+	// Only dbExporterDialTimeout uses the Service's Node, to pick the RDS/Azure default,
+	// so an explicit timeout makes the lookup unnecessary.
+	if (agent.AgentType == models.MySQLdExporterType || agent.AgentType == models.PostgresExporterType) &&
 		agent.ExporterOptions.ConnectionTimeout == nil &&
-		agent.AzureOptions.ClientID == "" &&
 		service.NodeID != "" {
 		var err error
 		node, err = models.FindNodeByID(q, service.NodeID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get Node: %w", err)
+			return nil, fmt.Errorf("failed to get Node %s of Service %s: %w", service.NodeID, service.ServiceID, err)
 		}
 	}
 	dialTimeout := connectionCheckDialTimeout(node, agent)
@@ -217,8 +217,9 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ValkeyServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
-			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
-			Tls:  agent.TLS,
+			Type:          inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout},
 				nil, pmmAgentVersion),
 			Timeout: requestDeadline,
@@ -229,17 +230,15 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			},
 		}
 	default:
-		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return nil, fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 	return request, nil
 }
 
 func connectionCheckDialTimeout(node *models.Node, agent *models.Agent) time.Duration {
 	switch agent.AgentType {
-	case models.MySQLdExporterType:
-		return mysqlExporterDialTimeout(agent)
-	case models.PostgresExporterType:
-		return postgresExporterDialTimeout(node, agent)
+	case models.MySQLdExporterType, models.PostgresExporterType:
+		return dbExporterDialTimeout(node, agent)
 	default:
 		return agent.EffectiveDialTimeout()
 	}

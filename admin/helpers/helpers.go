@@ -16,9 +16,8 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
@@ -81,7 +80,7 @@ func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
 	case node.RemoteRDS != nil:
 		return node.RemoteRDS.NodeName, nil
 	default:
-		return "", errors.Wrap(errNoNode, "unknown node type")
+		return "", fmt.Errorf("unknown node type: %w", errNoNode)
 	}
 }
 
@@ -89,7 +88,7 @@ func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
 func IsOnPmmServer() (bool, error) {
 	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
-		return false, errors.Wrap(err, "can't get local pmm-agent status")
+		return false, fmt.Errorf("can't get local pmm-agent status: %w", err)
 	}
 
 	return status.NodeID == "pmm-server", nil

@@ -16,10 +16,10 @@
 package agents
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v3"
 
@@ -35,6 +35,7 @@ type rdsInstance struct {
 	Instance               string         `yaml:"instance"`
 	AWSAccessKey           string         `yaml:"aws_access_key,omitempty"`
 	AWSSecretKey           string         `yaml:"aws_secret_key,omitempty"`
+	AWSRoleArn             string         `yaml:"aws_role_arn,omitempty"`
 	DisableBasicMetrics    bool           `yaml:"disable_basic_metrics"`
 	DisableEnhancedMetrics bool           `yaml:"disable_enhanced_metrics"`
 	Labels                 model.LabelSet `yaml:"labels,omitempty"`
@@ -59,10 +60,23 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 	// added to labels anyway
 	delete(res, "region")
 
-	if err = res.Validate(); err != nil {
-		return nil, errors.Wrap(err, "failed to merge labels")
+	err = res.Validate()
+	if err != nil {
+		return nil, fmt.Errorf("failed to merge labels: %w", err)
 	}
 	return res, nil
+}
+
+// checkRDSExporterSupported returns an error when exporter must not be sent to pmmAgent.
+// A role-based rds_exporter needs pmm-agent 3.4.0: an older one accepts the config, reports
+// RUNNING and scrapes nothing. Both models.CreateAgent and models.ChangeAgent refuse such a row,
+// but they only see the version reported when the row is saved, so a pmm-agent downgraded since
+// then is caught here, every time its state is sent.
+func checkRDSExporterSupported(pmmAgent, exporter *models.Agent) error {
+	if exporter.AWSOptions.AWSRoleARN == "" {
+		return nil
+	}
+	return models.IsAgentSupported(pmmAgent, "AWS IAM role assumption", models.PMMAgentMinVersionForAWSRoleARN)
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
@@ -82,6 +96,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 			Instance:               node.InstanceID,
 			AWSAccessKey:           exporter.AWSOptions.AWSAccessKey,
 			AWSSecretKey:           exporter.AWSOptions.AWSSecretKey,
+			AWSRoleArn:             exporter.AWSOptions.AWSRoleARN,
 			Labels:                 labels,
 			DisableBasicMetrics:    exporter.AWSOptions.RDSBasicMetricsDisabled,
 			DisableEnhancedMetrics: exporter.AWSOptions.RDSEnhancedMetricsDisabled,
@@ -121,7 +136,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 
 	b, err := yaml.Marshal(config)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &agentv1.SetStateRequest_AgentProcess{

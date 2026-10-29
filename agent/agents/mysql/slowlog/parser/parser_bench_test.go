@@ -46,7 +46,7 @@ func benchmarkFile(b *testing.B, name string) {
 		b.ReportAllocs()
 		b.ResetTimer()
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			b.StopTimer()
 
 			r, err := filereader.NewSimpleFileReader(name)

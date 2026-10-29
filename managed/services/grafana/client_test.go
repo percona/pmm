@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -24,11 +25,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 
+	"github.com/percona/pmm/managed/services"
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
@@ -461,11 +463,11 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 		wantMsg  string
 	}{
 		{"generic", errors.New("boom"), http.StatusBadGateway, "Bad Gateway"},
-		{"401 with message", errors.WithStack(&clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}), http.StatusUnauthorized, "Invalid"},
-		{"401 empty message", errors.WithStack(&clientError{Code: http.StatusUnauthorized}), http.StatusUnauthorized, "Unauthorized"},
-		{"403", errors.WithStack(&clientError{Code: http.StatusForbidden}), http.StatusForbidden, "Forbidden"},
-		{"404", errors.WithStack(&clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}), http.StatusBadGateway, "Bad Gateway"},
-		{"500 upstream", errors.WithStack(&clientError{Code: http.StatusInternalServerError}), http.StatusBadGateway, "Bad Gateway"},
+		{"401 with message", &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}, http.StatusUnauthorized, "Invalid"},
+		{"401 empty message", &clientError{Code: http.StatusUnauthorized}, http.StatusUnauthorized, "Unauthorized"},
+		{"403", &clientError{Code: http.StatusForbidden}, http.StatusForbidden, "Forbidden"},
+		{"404", &clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}, http.StatusBadGateway, "Bad Gateway"},
+		{"500 upstream", &clientError{Code: http.StatusInternalServerError}, http.StatusBadGateway, "Bad Gateway"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -475,6 +477,130 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 			assert.Equal(t, tc.wantMsg, body["message"])
 		})
 	}
+}
+
+func TestCreateServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	const nodeName = "test-node"
+
+	// grafana answers the calls createServiceAccount makes: POST creates the account, and the search finds
+	// the one a registration left behind. leftover is the account the search holds, none for a Grafana
+	// which has no account for this Node.
+	grafana := func(t *testing.T, createStatus int, leftover string) (*Client, *int) {
+		t.Helper()
+
+		patched := 0
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == http.MethodPost && r.URL.Path == "/api/serviceaccounts":
+				w.WriteHeader(createStatus)
+				if createStatus == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"id": 7}`)
+					return
+				}
+				_, _ = fmt.Fprint(w, `{"message": "Failed to create service account"}`)
+			case r.Method == http.MethodGet && r.URL.Path == "/api/serviceaccounts/search":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, leftover)
+			case r.Method == http.MethodPatch:
+				patched++
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &patched
+	}
+
+	t.Run("creates the account of a Node being registered", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusOK, "")
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 7, id)
+		assert.Equal(t, 1, *patched, "the account has to be moved to the default org")
+	})
+
+	t.Run("takes over the account a failed registration left behind", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana refuses to create it a second time, and the Node holds no registration - the caller has
+		// just taken its name - so the leftover is this Node's and the registration goes on with it.
+		leftover := fmt.Sprintf(`{"id":42,"name":"%s-%s"}`, pmmServiceAccountName, nodeName)
+		c, patched := grafana(t, http.StatusInternalServerError, leftover)
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, 1, *patched)
+	})
+
+	t.Run("reports the failure to create where there is nothing to take over", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusInternalServerError, `{"id":42,"name":"pmm-agent-sa-another-node"}`)
+
+		_, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		// The failure to create is the answer, not the lookup which found no account of this Node.
+		require.ErrorContains(t, err, "Failed to create service account")
+		require.NotErrorIs(t, err, services.ErrServiceAccountNotFound)
+		assert.Equal(t, 0, *patched)
+	})
+}
+
+func TestGetServiceAccountIDFromName(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	// Node names may hold spaces and other characters which are not valid in a query string.
+	const nodeName = "a node named with spaces & signs"
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+
+	newServer := func(t *testing.T, accounts string) (*Client, *string) {
+		t.Helper()
+
+		var gotQuery string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/api/serviceaccounts/search" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			gotQuery = r.URL.Query().Get("query")
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, accounts)
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &gotQuery
+	}
+
+	t.Run("finds the account of a node whose name needs escaping", func(t *testing.T) {
+		t.Parallel()
+
+		c, gotQuery := newServer(t, fmt.Sprintf(`{"id":42,"name":%q}`, serviceAccountName))
+
+		id, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, serviceAccountName, *gotQuery)
+	})
+
+	t.Run("reports a node without an account as not found", func(t *testing.T) {
+		t.Parallel()
+
+		c, _ := newServer(t, `{"id":42,"name":"pmm-another-node"}`)
+
+		_, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		assert.ErrorIs(t, err, services.ErrServiceAccountNotFound)
+	})
 }
 
 func TestClient(t *testing.T) {
@@ -503,7 +629,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
-			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
+			clientError, _ := errors.AsType[*clientError](err)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
@@ -543,7 +669,7 @@ func TestClient(t *testing.T) {
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			t.Run("Basic auth "+role.String(), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -567,7 +693,7 @@ func TestClient(t *testing.T) {
 				assert.Equal(t, role.String(), actualRole.String())
 			})
 
-			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+			t.Run("Service token auth "+role.String(), func(t *testing.T) {
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
@@ -578,7 +704,7 @@ func TestClient(t *testing.T) {
 					require.NoError(t, err)
 				}()
 
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, serviceTokenID)
 				require.NotEmpty(t, serviceToken)
@@ -588,7 +714,7 @@ func TestClient(t *testing.T) {
 				}()
 
 				serviceTokenAuthHeaders := http.Header{}
-				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				serviceTokenAuthHeaders.Set("Authorization", "Bearer "+serviceToken)
 				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
 				require.NoError(t, err)
 				actualRole := u.role
@@ -658,5 +784,113 @@ func TestClient(t *testing.T) {
 	t.Run("IsReady", func(t *testing.T) {
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
+	})
+}
+
+func TestListPMMRuleIDs(t *testing.T) {
+	t.Parallel()
+
+	const rulerPath = "/api/ruler/grafana/api/v1/rules"
+
+	newClient := func(t *testing.T, body string) (*Client, context.Context) {
+		t.Helper()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != rulerPath {
+				w.WriteHeader(http.StatusNotFound)
+
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprint(w, body)
+		}))
+		t.Cleanup(ts.Close)
+
+		ctx := metadata.NewIncomingContext(t.Context(),
+			metadata.Pairs("Authorization", "Basic YWRtaW46YWRtaW4="))
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), ctx
+	}
+
+	t.Run("extracts the identity label from a ruler payload", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, `{
+			"folder one": [
+				{
+					"name": "group-a",
+					"interval": "1m",
+					"rules": [
+						{
+							"grafana_alert": {"uid": "abc", "title": "PMM rule", "condition": "C"},
+							"for": "5m",
+							"labels": {"severity": "warning", "pmm_rule_id": "rule-1"},
+							"annotations": {"summary": "s"}
+						},
+						{
+							"grafana_alert": {"uid": "def", "title": "hand-made rule"},
+							"labels": {"severity": "critical"}
+						}
+					]
+				}
+			],
+			"folder two": [
+				{"name": "group-b", "rules": [
+					{"grafana_alert": {"uid": "ghi"}, "labels": {"pmm_rule_id": "rule-2"}}
+				]}
+			]
+		}`)
+
+		ids, err := c.ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]struct{}{"rule-1": {}, "rule-2": {}}, ids,
+			"only rules carrying the identity label are PMM's")
+	})
+
+	t.Run("a Grafana with no rules yields no ids", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, `{}`)
+
+		ids, err := c.ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, ids)
+	})
+
+	t.Run("an empty body is an error, not an empty Grafana", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, ``)
+
+		_, err := c.ListPMMRuleIDs(ctx)
+		require.Error(t, err)
+	})
+
+	t.Run("lists the PMM org's rules whatever org the caller is in", func(t *testing.T) {
+		t.Parallel()
+
+		var orgID string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			orgID = r.Header.Get("X-Grafana-Org-Id")
+			_, _ = fmt.Fprint(w, `{}`)
+		}))
+		t.Cleanup(ts.Close)
+
+		ctx := metadata.NewIncomingContext(t.Context(),
+			metadata.Pairs("Authorization", "Basic YWRtaW46YWRtaW4="))
+
+		_, err := NewClient(strings.TrimPrefix(ts.URL, "http://")).ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, "1", orgID)
+	})
+
+	t.Run("an unauthenticated context never reaches Grafana", func(t *testing.T) {
+		t.Parallel()
+
+		c, _ := newClient(t, `{}`)
+
+		_, err := c.ListPMMRuleIDs(t.Context())
+		require.Error(t, err)
 	})
 }

@@ -26,7 +26,8 @@ import (
 // GetMongoDBVersion returns the parsed version of the connected MongoDB server.
 func GetMongoDBVersion(ctx context.Context, client *mongo.Client) (*version.Parsed, error) {
 	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "buildInfo", Value: 1}})
-	if err := resp.Err(); err != nil {
+	err := resp.Err()
+	if err != nil {
 		return nil, err
 	}
 
@@ -34,7 +35,8 @@ func GetMongoDBVersion(ctx context.Context, client *mongo.Client) (*version.Pars
 		Version string `bson:"version"`
 	}{}
 
-	if err := resp.Decode(&buildInfo); err != nil {
+	err = resp.Decode(&buildInfo)
+	if err != nil {
 		return nil, err
 	}
 

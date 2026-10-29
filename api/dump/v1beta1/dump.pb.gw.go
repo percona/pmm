@@ -118,9 +118,6 @@ func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Ma
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	val, ok := pathParams["dump_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "dump_id")
@@ -134,6 +131,9 @@ func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Ma
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_DumpService_GetDumpLogs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.GetDumpLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err

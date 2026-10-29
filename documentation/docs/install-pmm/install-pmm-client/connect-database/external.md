@@ -123,7 +123,7 @@ You can create a custom external exporter or extend your application to expose m
 To add an external service via PMM UI:
 {.power-number}
 
-1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Service > External Service**.
+1. In the PMM web interface, go to **Inventory > Add service > External Service**.
 
     ![!Add external service UI](../../../images/PMM_External_Serverless.png)
 
@@ -137,5 +137,5 @@ To add an external service via PMM UI:
 
         ![Parse from URL string](../../../images/PMM_External_Serverless_switcher.png)
 
-3. For HTTPS connections: If your external service uses HTTPS with self-signed certificates or certificates that don't properly validate, check the **Skip TLS certificate and hostname validation** option under **PMM Configuration > PMM Inventory > Services** section.
+3. For HTTPS connections: If your external service uses HTTPS with self-signed certificates or certificates that don't properly validate, check the **Skip TLS certificate and hostname validation** option under **Inventory > Services** section.
 

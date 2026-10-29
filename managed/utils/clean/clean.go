@@ -44,7 +44,8 @@ func (c *Results) Run(ctx context.Context, interval time.Duration, olderThan tim
 
 	for {
 		olderThanTS := models.Now().Add(-1 * olderThan)
-		if err := models.CleanupOldActionResults(c.db.Querier, olderThanTS); err != nil {
+		err := models.CleanupOldActionResults(c.db.Querier, olderThanTS)
+		if err != nil {
 			l.Error(err)
 		}
 

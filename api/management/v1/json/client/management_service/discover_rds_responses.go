@@ -195,6 +195,10 @@ type DiscoverRDSBody struct {
 
 	// AWS Secret key. Optional.
 	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// AWS IAM role ARN to assume using the server's ambient credentials. Optional.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this discover RDS body
@@ -350,8 +354,8 @@ type DiscoverRDSDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// discover RDS default body details items0
-	DiscoverRDSDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// discover RDS default body details items0 additional properties
+	DiscoverRDSDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -386,7 +390,7 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.DiscoverRDSDefaultBodyDetailsItems0 = result
+		o.DiscoverRDSDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -407,12 +411,12 @@ func (o DiscoverRDSDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.DiscoverRDSDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.DiscoverRDSDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.DiscoverRDSDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.DiscoverRDSDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

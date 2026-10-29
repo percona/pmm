@@ -310,8 +310,8 @@ type ListTemplatesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list templates default body details items0
-	ListTemplatesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list templates default body details items0 additional properties
+	ListTemplatesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 			}
 			result[k] = toadd
 		}
-		o.ListTemplatesDefaultBodyDetailsItems0 = result
+		o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListTemplatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ListTemplatesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -575,6 +575,15 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 
 	// YAML template file content. Empty for built-in and SaaS templates.
 	Yaml string `json:"yaml,omitempty"`
+
+	// PromQL query steps for multi-query templates. Empty for single-expression templates.
+	Queries []*ListTemplatesOKBodyTemplatesItems0QueriesItems0 `json:"queries"`
+
+	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
+	Expressions []*ListTemplatesOKBodyTemplatesItems0ExpressionsItems0 `json:"expressions"`
+
+	// Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
+	Condition string `json:"condition,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0
@@ -594,6 +603,14 @@ func (o *ListTemplatesOKBodyTemplatesItems0) Validate(formats strfmt.Registry) e
 	}
 
 	if err := o.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQueries(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExpressions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -759,11 +776,79 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateCreatedAt(formats strfmt.Re
 	return nil
 }
 
+func (o *ListTemplatesOKBodyTemplatesItems0) validateQueries(formats strfmt.Registry) error {
+	if swag.IsZero(o.Queries) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Queries); i++ {
+		if swag.IsZero(o.Queries[i]) { // not required
+			continue
+		}
+
+		if o.Queries[i] != nil {
+			if err := o.Queries[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateExpressions(formats strfmt.Registry) error {
+	if swag.IsZero(o.Expressions) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Expressions); i++ {
+		if swag.IsZero(o.Expressions[i]) { // not required
+			continue
+		}
+
+		if o.Expressions[i] != nil {
+			if err := o.Expressions[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("expressions" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("expressions" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list templates OK body templates items0 based on the context it is used
 func (o *ListTemplatesOKBodyTemplatesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQueries(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateExpressions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -799,6 +884,58 @@ func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.C
 	return nil
 }
 
+func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateQueries(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Queries); i++ {
+		if o.Queries[i] != nil {
+
+			if swag.IsZero(o.Queries[i]) { // not required
+				return nil
+			}
+
+			if err := o.Queries[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateExpressions(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Expressions); i++ {
+		if o.Expressions[i] != nil {
+
+			if swag.IsZero(o.Expressions[i]) { // not required
+				return nil
+			}
+
+			if err := o.Expressions[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("expressions" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("expressions" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListTemplatesOKBodyTemplatesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -810,6 +947,49 @@ func (o *ListTemplatesOKBodyTemplatesItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListTemplatesOKBodyTemplatesItems0) UnmarshalBinary(b []byte) error {
 	var res ListTemplatesOKBodyTemplatesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListTemplatesOKBodyTemplatesItems0ExpressionsItems0 TemplateExpression represents a server-side expression step in a multi-query alert template.
+swagger:model ListTemplatesOKBodyTemplatesItems0ExpressionsItems0
+*/
+type ListTemplatesOKBodyTemplatesItems0ExpressionsItems0 struct {
+	// Reference ID of the expression (e.g. "C").
+	RefID string `json:"ref_id,omitempty"`
+
+	// Expression type. Currently only "math" is supported.
+	Type string `json:"type,omitempty"`
+
+	// Expression body referencing other steps by ref ID (e.g. "$A > $B").
+	Expression string `json:"expression,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 expressions items0
+func (o *ListTemplatesOKBodyTemplatesItems0ExpressionsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates OK body templates items0 expressions items0 based on context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0ExpressionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ExpressionsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ExpressionsItems0) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0ExpressionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -839,6 +1019,11 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
 	// ParamType represents template parameter type.
 	// Enum: ["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]
 	Type *string `json:"type,omitempty"`
+
+	// Whether this parameter's threshold can be overridden per target without editing the
+	// rule. Only set for templates that support it; the scopes it may be set at are
+	// reported per rule by ListThresholds.
+	Overridable bool `json:"overridable,omitempty"`
 
 	// bool
 	Bool *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool `json:"bool,omitempty"`
@@ -1264,6 +1449,46 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b []byte) error {
 	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0String
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListTemplatesOKBodyTemplatesItems0QueriesItems0 TemplateQuery represents a PromQL query step in a multi-query alert template.
+swagger:model ListTemplatesOKBodyTemplatesItems0QueriesItems0
+*/
+type ListTemplatesOKBodyTemplatesItems0QueriesItems0 struct {
+	// Reference ID of the query (e.g. "A").
+	RefID string `json:"ref_id,omitempty"`
+
+	// PromQL query expression with templating parameters (placeholders kept intact).
+	Expr string `json:"expr,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 queries items0
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates OK body templates items0 queries items0 based on context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0QueriesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

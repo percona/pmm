@@ -5,15 +5,16 @@ Alert rules describe the circumstances under which you want to be alerted. The e
 
 An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.
 
-An alert rule can be in three possible states:
+During evaluation, an alert rule moves through the following states:
 
-- Normal: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.
-- Pending: The conditions specified in the alert rule has been met, but for a time that is less than the configured duration.
-- Firing: Both the conditions and the duration specified in the alert rule have both been met.
+- **Normal**: Everything is working correctly, and the conditions specified in the rule have not been met. This is the default state for newly created rules.
+- **Pending**: The conditions specified in the alert rule have been met, but for less time than the configured duration.
+- **Firing**: Both the alert condition and the configured duration have been met.
+- **Recovering**: The alert conditions are no longer met, but the alert remains active until the metric is stable below the threshold. This prevents alerts from repeatedly flipping between **Firing** and **Normal** when metrics briefly cross a threshold.
 
 It takes at least one evaluation cycle for an alert rule to transition from one state to another (e.g., from `Normal` to `Pending`).
 
-## Alert rules templates
+## Alert rule templates
 
 PMM provides a set of Alert Rule templates with common events and expressions for alerting. These templates can be used as a basis for creating Alert Rules. You can also create your own templates if you need custom expressions.
 
@@ -24,7 +25,7 @@ You can check the alert templates available for your account under **Alerting > 
 
 ## Accessing alert templates
 
-To check the alert templates for your PMM instance, go to PMM > **Alerting > Alert Rule Templates** tab.
+To check the alert templates for your PMM instance, go to **Alerts > Alert templates** tab.
 
 To check the full list of available PMM templates, see the [List of available alert templates topic](../alert/templates_list.md)
 
@@ -37,9 +38,9 @@ This section focuses on creating an alert rule based on PMM templates. For infor
 Before creating PMM alert rules, configure the required alert resources:
 {.power-number}
 
-1. Go to **PMM Configuration > Settings > Advanced Settings** and ensure that the **Percona Alerting** option is enabled. When this is disabled, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
-2. Go to **Dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New Folder** and create a custom one.
-3. Go to **Alerting > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
+1. Go to **Configuration > Settings > Advanced settings** and ensure that the **Percona Alerting** option is enabled. When this is disabled, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
+2. Go to **All dashboards > Browse all dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New folder** and create a custom one.
+3. Go to **Alerts > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
 
 ### Configure alert templates
 
@@ -59,14 +60,19 @@ When creating custom templates, make sure to use the required template format be
 - **name** (required): uniquely identifies template. Spaces and special characters are not allowed.
 - **version** (required): defines the template format version.
 - **summary** (required): a template description.
-- **expr** (required): a MetricsQL query string with parameter placeholders.
+- **expr** (required unless you use **queries** and **expressions**): a MetricsQL query string with parameter placeholders.
+- **queries** (optional): a list of MetricsQL queries, each with a `ref_id` and an `expr`. Use them with **expressions** and **condition** instead of **expr**.
+- **expressions** (optional): a list of math expressions over the queries, each with a `ref_id`, `type: math`, and an `expression` that references queries by `$ref_id`, for example `$A > [[ .threshold ]]`.
+- **condition** (required with **expressions**): the `ref_id` of the expression that fires the alert.
 - **params**: contains parameter definitions required for the query. Each parameter has a name, type, and summary. It also may have a unit, available range, and default value.
     - **name** (required): the name of the parameter. Spaces and special characters are not allowed.
     - **summary** (required): a short description of what this parameter represents.
     - **unit** (optional): PMM currently supports either s (seconds) or % (percentage).
     - **type** (required): PMM currently supports the `float` type. `string`, `bool`, and other types will be available in a future release.
     - **range** (optional): defines the boundaries for the value of a  float parameter
-   - **value** (optional): default parameter value. Value strings must not include any of these special characters: `< > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)`
+    - **value** (optional): default parameter value. Value strings must not include any of these special characters: `< > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)`
+    - **overridable** (optional): set to `true` to enable per-node overrides of this threshold without editing the alert rule. The template must use **queries** and **expressions**, and the parameter must be the whole right-hand side of a comparison, for example `$A > [[ .threshold ]]`. For details, see [per-node threshold overrides](alert-thresholds.md).
+    - **override_scopes** (optional): the scopes at which you can override this parameter. Defaults to `[node]`. Only `node` is currently supported. Requires `overridable: true`.
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
  - **labels** (optional): are additional labels to be added to generated alerts
@@ -82,10 +88,15 @@ When creating custom templates, make sure to use the required template format be
       - name: pmm_node_high_cpu_load
         version: 1
         summary: Node high CPU load
-        expr: |-
-          (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
-          * 100
-          > bool [[ .threshold ]]
+        queries:
+          - ref_id: A
+            expr: |-
+              (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
+        expressions:
+          - ref_id: C
+            type: math
+            expression: "$A > [[ .threshold ]]"
+        condition: C
         params:
           - name: threshold
             summary: A percentage from configured maximum
@@ -93,6 +104,7 @@ When creating custom templates, make sure to use the required template format be
             type: float
             range: [0, 100]
             value: 80
+            overridable: true
         for: 5m
         severity: warning
         annotations:
@@ -109,7 +121,7 @@ If you want to create custom templates, you can test the MetricsQL expressions f
 To test expressions for custom templates:
 {.power-number}
 
-1. On the main menu in PMM, choose **Explore > Metrics**.
+1. On the main menu in PMM, choose **Explore > PromQL builder**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
 For example, to check the CPU usage, Go to **Explore > PromQL builder** and run the query expression below:
@@ -133,6 +145,14 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
 4. In the **Filters** section, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name=ps5.7`. When creating alert rule filters, consider the following:
    
     - Filters use conjunction semantics. This means that if you add more than one filter, PMM will combine their conditions to search for matches: filter 1 AND filter 2 AND filter 3.
-    - **Label** must be an exact match. You can find a complete list of labels using the <i class="uil uil-compass"></i> **Explore** menu in PMM.
+    - **Label** must be an exact match. You can find a complete list of labels using the :material-compass-outline: **Explore** menu in PMM, or see [Labels reference](../reference/labels-reference.md).
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
+
+If the template has a **Dynamic** badge, you can later change the threshold of the new alert rule for individual nodes. For details, see [per-node threshold overrides](alert-thresholds.md).
+
+## Recording rules
+
+Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
+
+To create a recording rule, click **Alerts > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.

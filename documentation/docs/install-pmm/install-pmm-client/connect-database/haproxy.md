@@ -57,7 +57,7 @@ pmm-admin add haproxy --listen-port=8404 Production-HAProxy
 To add HAProxy through the PMM web interface:
 {.power-number}
 
-1. Go to **PMM Configuration > PMM Inventory > Add Service**.
+1. Go to **Inventory > Add service**.
 2. Select HAProxy from the service types.
 3. Configure the connection parameters then click **Add Service**.
 

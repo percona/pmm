@@ -19,9 +19,12 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -45,10 +48,13 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)
 
+	chParams, err := models.NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
+	check.NoError(err)
+
 	mockHaService := newMockHaService(t)
 	mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 	mockHaService.On("IsLeader").Return(true).Maybe()
-	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -284,7 +290,9 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 		} {
 			if str, ok := str.(*models.Agent); ok {
-				*str = models.EncryptAgent(*str)
+				encrypted, err := models.EncryptAgent(*str)
+				check.NoError(err)
+				*str = encrypted
 			}
 
 			err := db.Insert(str)
@@ -575,6 +583,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m
@@ -600,6 +609,10 @@ scrape_configs:
         username: pmm
         password: 75bb30d3-ef4a-4147-97a8-621a996611dd
       follow_redirects: false
+      metric_relabel_configs:
+        - source_labels: [__name__, file_name]
+          regex: mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*
+          action: drop
     - job_name: mysqld_exporter_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_hr
       honor_timestamps: false
       params:
@@ -687,6 +700,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m
@@ -712,6 +726,10 @@ scrape_configs:
         username: pmm
         password: f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
       follow_redirects: false
+      metric_relabel_configs:
+        - source_labels: [__name__, file_name]
+          regex: mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*
+          action: drop
     - job_name: postgres_exporter_29e14468-d479-4b4d-bfb7-4ac2fb865bac_hr
       honor_timestamps: false
       params:
@@ -834,6 +852,70 @@ scrape_configs:
 		check.NoError(err)
 		check.Equal(expected, string(actual), "actual:\n%s", actual)
 	})
+}
+
+// TestConfigAndReloadSkipsIdenticalConfig covers the early return for a configuration that is
+// already on disk. Most callers regenerate the whole file on any change anywhere, so forced
+// updates - a changed listen port in particular - routinely ask for exactly what is already there,
+// and validating it forks victoriametrics twice.
+//
+// Neither VictoriaMetrics nor the validation binary is available here, which is the point: without
+// the early return this call reaches validateConfig and fails.
+func TestConfigAndReloadSkipsIdenticalConfig(t *testing.T) {
+	t.Parallel()
+
+	cfg := []byte("# Managed by pmm-managed. DO NOT EDIT.\n")
+	scrapeConfigPath := filepath.Join(t.TempDir(), "scrape.yml")
+	require.NoError(t, os.WriteFile(scrapeConfigPath, cfg, 0o600))
+
+	svc := &Service{
+		scrapeConfigPath: scrapeConfigPath,
+		l:                logrus.WithField("test", t.Name()),
+	}
+
+	require.NoError(t, svc.configAndReload(context.Background(), cfg))
+}
+
+// TestConfigAndReloadSerializes covers the lock that makes the byte-identical shortcut sound: a
+// second caller must not read the file while another is between writing it and reloading, or
+// restoring it after a failure. ForceConfigurationUpdate and the batched Run loop both arrive here.
+func TestConfigAndReloadSerializes(t *testing.T) {
+	t.Parallel()
+
+	cfg := []byte("# Managed by pmm-managed. DO NOT EDIT.\n")
+	scrapeConfigPath := filepath.Join(t.TempDir(), "scrape.yml")
+	require.NoError(t, os.WriteFile(scrapeConfigPath, cfg, 0o600))
+
+	svc := &Service{
+		scrapeConfigPath: scrapeConfigPath,
+		l:                logrus.WithField("test", t.Name()),
+	}
+
+	// Stands in for a call that is between writing the file and reloading it.
+	svc.reloadM.Lock()
+
+	done := make(chan error, 1)
+	go func() {
+		// Identical content, so this returns at the shortcut once it holds the lock -
+		// no VictoriaMetrics needed. Whether it waits for the lock is the point.
+		done <- svc.configAndReload(context.Background(), cfg)
+	}()
+
+	select {
+	case <-done:
+		svc.reloadM.Unlock()
+		t.Fatal("configAndReload ran while another caller held the reload lock")
+	case <-time.After(200 * time.Millisecond):
+	}
+
+	svc.reloadM.Unlock()
+
+	select {
+	case err := <-done:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("configAndReload never completed after the reload lock was released")
+	}
 }
 
 func TestConfigReload(t *testing.T) {
@@ -990,4 +1072,67 @@ scrape_configs:
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	require.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
+}
+
+func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
+	newSvc := func(t *testing.T, chParams *models.ClickHouseParams, vmURL string) (*reform.DB, *Service) {
+		t.Helper()
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, vmURL)
+		require.NoError(t, err)
+
+		mockHaService := newMockHaService(t)
+		mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
+		mockHaService.On("IsLeader").Return(true).Maybe()
+
+		svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
+		require.NoError(t, err)
+		require.NoError(t, svc.IsReady(t.Context()))
+		t.Cleanup(func() { _ = db.DBInterface().(*sql.DB).Close() })
+		return db, svc
+	}
+
+	newCHParams := func(t *testing.T, addr string) *models.ClickHouseParams {
+		t.Helper()
+		chp, err := models.NewClickHouseParams(addr, "pmm", "default", "clickhouse")
+		require.NoError(t, err)
+		return chp
+	}
+
+	cases := []struct {
+		name           string
+		addr           string
+		wantClickhouse bool
+	}{
+		{"internal enabled positive control", "127.0.0.1:9000", true},
+		{"external addr skips scrape", "ch.external:9000", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, svc := newSvc(t, newCHParams(t, tc.addr), models.VMBaseURL)
+			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
+			require.NoError(t, err)
+			assert.Contains(t, string(cfg), "job_name: grafana")
+			assert.Contains(t, string(cfg), "job_name: pmm-managed")
+			assert.Contains(t, string(cfg), "job_name: qan-api2")
+			if tc.wantClickhouse {
+				assert.Contains(t, string(cfg), "127.0.0.1:9363")
+				assert.Contains(t, string(cfg), "job_name: clickhouse")
+			} else {
+				assert.NotContains(t, string(cfg), "127.0.0.1:9363")
+				assert.NotContains(t, string(cfg), "job_name: clickhouse")
+			}
+		})
+	}
+}
+
+func TestNewVictoriaMetrics_NilClickHouseParams(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	svc, err := NewVictoriaMetrics(configPath, nil, vmParams, nil, newMockHaService(t))
+	require.Error(t, err)
+	assert.Nil(t, svc)
+	assert.Contains(t, err.Error(), "ClickHouse params is required")
 }

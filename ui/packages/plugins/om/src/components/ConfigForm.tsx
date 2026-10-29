@@ -1,0 +1,433 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { useEffect, useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  MenuItem,
+  Stack,
+  Switch,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import {
+  SETTING_GROUP,
+  SETTING_HELP,
+  SETTING_LABEL,
+  SETTING_UNIT,
+} from '../constants';
+import {
+  useOmInventoryConfig,
+  useResetOmInventoryConfig,
+  useUpdateOmInventoryConfig,
+} from '../inventoryHooks';
+import type { OmInventorySetting } from '../types';
+import { OmError } from './OmError';
+
+/** The tabs this form is split across. */
+export type SettingGroup = 'general' | 'scanning' | 'advanced';
+
+export const SETTING_GROUP_LABEL: Record<SettingGroup, string> = {
+  general: 'General',
+  scanning: 'Scanning',
+  advanced: 'Advanced',
+};
+
+const groupOf = (setting: OmInventorySetting): SettingGroup =>
+  SETTING_GROUP[setting.key] ?? 'advanced';
+
+/** The periods `SCHEDULE__period` accepts, from `sqlalchemy_celery_beat`. */
+const PERIODS = ['seconds', 'minutes', 'hours', 'days'] as const;
+
+/** Which input can edit a field. */
+type InputKind = 'bool' | 'int' | 'period' | 'text';
+
+/**
+ * Choose the input from the type the app declares, not from the value.
+ *
+ * Guessing from the value would get `PROBE_DATABASE` right and `STALE_RUN_AFTER`
+ * wrong: a `timedelta` arrives as a number of seconds and would render as a bare
+ * integer with no unit beside it.
+ */
+function inputKind(setting: OmInventorySetting): InputKind {
+  if (setting.key === 'SCHEDULE__period') {
+    return 'period';
+  }
+  if (setting.type === 'bool') {
+    return 'bool';
+  }
+  if (setting.type === 'int' || setting.type === 'timedelta') {
+    return 'int';
+  }
+  return 'text';
+}
+
+/**
+ * Parse an edited value back into what the app expects on the wire.
+ *
+ * `Number(draft)` is right for a `timedelta` because a `timedelta` never reaches this
+ * form as a duration string. PMM Extensions declares those fields as
+ * `Annotated[timedelta, PlainSerializer(lambda v: round(v.total_seconds()), int)]`, so
+ * the configuration API dumps `1800`, not `"PT30M"`, and the box holds `"1800"`. The
+ * write goes back as the same integer and the app coerces it.
+ *
+ * That is a load-bearing dependency on PMM Extensions' annotation rather than on its type: drop
+ * the serialiser and pydantic's ISO-8601 default takes over, `Number` yields NaN, and
+ * every duration field renders as invalid. Named here because nothing else would say so.
+ */
+function toWireValue(setting: OmInventorySetting, draft: string): unknown {
+  switch (inputKind(setting)) {
+    case 'bool':
+      return draft === 'true';
+    case 'int':
+      return Number(draft);
+    default:
+      return draft;
+  }
+}
+
+/**
+ * Whether a draft can be submitted.
+ *
+ * Every integer knob here is a count or a duration, and zero breaks each of them: a
+ * zero semaphore admits nobody, a zero interval is not a schedule, a zero retention
+ * keeps nothing. The app rejects them too - refusing here saves a round trip and says
+ * so beside the field rather than in a banner.
+ */
+function isValid(setting: OmInventorySetting, draft: string): boolean {
+  if (inputKind(setting) !== 'int') {
+    return draft.trim().length > 0;
+  }
+  const parsed = Number(draft);
+  return Number.isInteger(parsed) && parsed > 0;
+}
+
+/** One field, rendered as whatever can edit it. */
+const SettingField = ({
+  setting,
+  draft,
+  onChange,
+  onReset,
+  resetting,
+}: {
+  setting: OmInventorySetting;
+  draft: string;
+  onChange: (next: string) => void;
+  onReset: () => void;
+  resetting: boolean;
+}) => {
+  const kind = inputKind(setting);
+  const unit = SETTING_UNIT[setting.key];
+  const label = SETTING_LABEL[setting.key] ?? setting.key;
+  const help = SETTING_HELP[setting.key];
+  const valid = isValid(setting, draft);
+
+  return (
+    <Stack direction="row" gap={2} alignItems="flex-start" sx={{ py: 0.75 }}>
+      <Box sx={{ minWidth: 280, maxWidth: 280 }}>
+        {kind === 'bool' ? (
+          <Stack direction="row" alignItems="center" gap={1}>
+            {/* The Typography beside it is adjacent, not associated, so without an
+                aria-label every boolean setting is an unnamed control - a screen
+                reader announces "switch, on" and nothing about which setting. */}
+            <Switch
+              size="small"
+              checked={draft === 'true'}
+              slotProps={{ input: { 'aria-label': label } }}
+              onChange={(event) =>
+                onChange(event.target.checked ? 'true' : 'false')
+              }
+            />
+            <Typography variant="body2">{label}</Typography>
+          </Stack>
+        ) : kind === 'period' ? (
+          <TextField
+            select
+            size="small"
+            fullWidth
+            label={label}
+            value={draft}
+            onChange={(event) => onChange(event.target.value)}
+          >
+            {PERIODS.map((period) => (
+              <MenuItem key={period} value={period}>
+                {period}
+              </MenuItem>
+            ))}
+          </TextField>
+        ) : (
+          <TextField
+            size="small"
+            fullWidth
+            label={unit ? `${label} (${unit})` : label}
+            value={draft}
+            error={!valid}
+            helperText={
+              // An integer always states its constraint, and `error` turns the same
+              // line red, so the rule and the complaint are one sentence. Text
+              // settings stay quiet until empty: this field serves both, and "a whole
+              // number" is not an instruction the reader of a URL can follow.
+              kind === 'int'
+                ? 'A whole number greater than zero.'
+                : valid
+                  ? undefined
+                  : 'This field cannot be empty.'
+            }
+            onChange={(event) => onChange(event.target.value)}
+          />
+        )}
+      </Box>
+      <Stack sx={{ flex: 1, pt: 0.5 }} gap={0.5}>
+        {help && (
+          <Typography variant="caption" color="text.secondary">
+            {help}
+          </Typography>
+        )}
+        {/* The deployed value, shown only where it differs from what is in the box --
+            so "what would Reset give me back" is answerable without reading the
+            deployment's YAML, and an untouched field stays one line. */}
+        {setting.has_override && setting.default_value != null && (
+          <Typography variant="caption" color="text.secondary">
+            Default: {String(setting.default_value)}
+            {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
+          </Typography>
+        )}
+        {/* Only when it is an override. Saying "from the deployment's configuration"
+            on every unoverridden field is the same sentence thirteen times, which
+            carries no information and buries the two or three rows that do. */}
+        {setting.has_override && (
+          <Stack direction="row" gap={1} alignItems="center">
+            <Chip size="small" variant="outlined" label="overridden" />
+            <Tooltip title="Put this back to the value the deployment configured. Without it, once a value has been set the deployed one is unreachable.">
+              <Button size="small" disabled={resetting} onClick={onReset}>
+                Reset
+              </Button>
+            </Tooltip>
+          </Stack>
+        )}
+      </Stack>
+    </Stack>
+  );
+};
+
+/**
+ * OM's configuration, as a form.
+ *
+ * Three rules, each of which is a way for this form to lie:
+ *
+ * - **Only runtime-changeable fields appear at all.** A field needing a restart would
+ *   promise a change it cannot deliver, and showing one read-only beside editable ones
+ *   just raises the question of why. `reload === 'SETTING_RELOAD_HOT'` is the filter, and it is what
+ *   drops the two that are not: `CREDENTIALS_PATH`, deliberately not overridable
+ *   because it names a file read on every database host and handed to a driver as a
+ *   URI, and `FASTAPI_ENV`, which is the framework's rather than OM's.
+ * - **The effective value is shown, never the submitted one.** The form re-reads after
+ *   writing and re-seeds from what comes back. Beat runs as a forked side-car process,
+ *   and a form that echoed the submission would look identical whether or not the
+ *   change reached it.
+ * - **Units and costs are stated.** "1800" beside "wedged after" is ambiguous in a way
+ *   that matters, and an interval that dispatches a job to every host is an
+ *   operational choice rather than a preference.
+ *
+ * Saved as one batch, because the app applies one: a single bad key rejects all of it
+ * and writes nothing, so per-field saves would misrepresent what the API does.
+ */
+export const ConfigForm = ({
+  group,
+}: {
+  /** Which tab's fields to render. The drafts and Save span all of them. */
+  group: SettingGroup;
+}) => {
+  const { data: settings, isPending, isError, error } = useOmInventoryConfig();
+  const update = useUpdateOmInventoryConfig();
+  const reset = useResetOmInventoryConfig();
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
+  const editable = useMemo(
+    () =>
+      (settings ?? []).filter(
+        (setting) => setting.reload === 'SETTING_RELOAD_HOT'
+      ),
+    [settings]
+  );
+
+  // Re-seed from the effective values whenever they change, including after a write:
+  // what the server settled on wins over what was typed. Without this the boxes would
+  // keep showing a submission the app may have coerced or rejected.
+  useEffect(() => {
+    setDrafts(
+      Object.fromEntries(
+        // Nullish coerces to "" rather than the literal words "null"/"undefined":
+        // setting.value is unknown, and String() would put those in the box, let isValid
+        // pass them as non-empty, and save them back as text.
+        editable.map((setting) => [
+          setting.key,
+          setting.value == null ? '' : String(setting.value),
+        ])
+      )
+    );
+  }, [editable]);
+
+  if (isPending) {
+    return <CircularProgress size={20} />;
+  }
+  if (isError) {
+    return (
+      <Box sx={{ mt: 2 }}>
+        <OmError
+          placement="load"
+          title="Could not read the Operations configuration"
+          messages={(error as Error).message}
+        />
+      </Box>
+    );
+  }
+
+  const dirty = editable.filter(
+    (setting) => drafts[setting.key] !== String(setting.value)
+  );
+  const invalid = dirty.filter(
+    (setting) => !isValid(setting, drafts[setting.key] ?? '')
+  );
+
+  const save = () =>
+    update.mutate(
+      Object.fromEntries(
+        dirty.map((setting) => [
+          setting.key,
+          toWireValue(setting, drafts[setting.key] ?? ''),
+        ])
+      ),
+      {
+        onSuccess: () =>
+          enqueueSnackbar(
+            dirty.length > 1 ? `Saved ${dirty.length} changes` : 'Saved',
+            { variant: 'success' }
+          ),
+      }
+    );
+
+  const render = (setting: OmInventorySetting) => (
+    <SettingField
+      key={setting.key}
+      setting={setting}
+      draft={drafts[setting.key] ?? ''}
+      resetting={reset.isPending}
+      onChange={(next) =>
+        setDrafts((current) => ({ ...current, [setting.key]: next }))
+      }
+      onReset={() =>
+        reset.mutate(setting.key, {
+          onSuccess: () =>
+            enqueueSnackbar(
+              `${SETTING_LABEL[setting.key] ?? setting.key} reset to its default`,
+              { variant: 'success' }
+            ),
+        })
+      }
+    />
+  );
+
+  // Partitioned for display only. `dirty`, `invalid` and `save` above still span every
+  // field, so an edit made on one tab is not lost by looking at another and Save means
+  // the same thing wherever it is pressed.
+  const shown = editable.filter((setting) => groupOf(setting) === group);
+
+  // Save spans every tab, so a field on another one is named with its tab.
+  const labels = (fields: OmInventorySetting[]) =>
+    fields.map((setting) => {
+      const label = SETTING_LABEL[setting.key] ?? setting.key;
+      const settingGroup = groupOf(setting);
+      return settingGroup === group
+        ? label
+        : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
+    });
+  const names = (fields: OmInventorySetting[]) => labels(fields).join(', ');
+
+  return (
+    <Stack gap={1}>
+      {/* No heading: the tab is already labelled, and a second "Configuration"
+          under it would be the same word twice. */}
+      <Typography variant="body2" color="text.secondary">
+        Changes take effect without a restart. Values come from the
+        deployment&apos;s configuration unless marked as overridden.
+      </Typography>
+
+      {group === 'advanced' && (
+        <Alert severity="warning" sx={{ mt: 1 }}>
+          How hard a scan leans on PMM and on your nodes. Raising concurrency or
+          lowering a timeout can make scans fail, and a failing scan shows up on
+          the Nodes page as a node that cannot be reached - not as a setting
+          that was changed here.
+        </Alert>
+      )}
+
+      {shown.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Nothing to configure here.
+        </Typography>
+      ) : (
+        <Box>{shown.map(render)}</Box>
+      )}
+
+      {update.isError && (
+        <OmError
+          placement="action"
+          title="Could not save"
+          messages={update.error.message}
+        />
+      )}
+      {reset.isError && (
+        <OmError
+          placement="action"
+          title="Could not reset"
+          messages={reset.error.message}
+        />
+      )}
+
+      <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
+        <Button
+          variant="contained"
+          disabled={
+            dirty.length === 0 || invalid.length > 0 || update.isPending
+          }
+          onClick={save}
+        >
+          {dirty.length > 1 ? `Save ${dirty.length} changes` : 'Save'}
+        </Button>
+        {dirty.length > 0 && invalid.length === 0 && (
+          <Typography variant="body2" color="text.secondary">
+            {names(dirty)}
+          </Typography>
+        )}
+        {invalid.length > 0 && (
+          <OmError
+            placement="action"
+            title="Fix these first - the app applies the batch or none of it"
+            messages={labels(invalid)}
+          />
+        )}
+      </Stack>
+    </Stack>
+  );
+};

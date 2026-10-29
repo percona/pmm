@@ -643,8 +643,8 @@ type AddNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// add node default body details items0
-	AddNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// add node default body details items0 additional properties
+	AddNodeDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -679,7 +679,7 @@ func (o *AddNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.AddNodeDefaultBodyDetailsItems0 = result
+		o.AddNodeDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -700,12 +700,12 @@ func (o AddNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.AddNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.AddNodeDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.AddNodeDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.AddNodeDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -1332,7 +1332,7 @@ type AddNodeOKBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -1347,7 +1347,7 @@ type AddNodeOKBodyRemoteRDS struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
 }
 
@@ -1610,7 +1610,8 @@ type AddNodeParamsBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address: the instance endpoint. Older clients pass the DB instance identifier here
+	// instead and omit instance_id.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -1624,6 +1625,11 @@ type AddNodeParamsBodyRemoteRDS struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS DB instance identifier: rds_exporter uses it as the CloudWatch DBInstanceIdentifier
+	// dimension. Optional when address is the bare identifier, which is then used; required when
+	// address is an endpoint. Stored in lowercase, as AWS does.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add node params body remote RDS

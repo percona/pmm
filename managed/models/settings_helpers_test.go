@@ -16,10 +16,10 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -55,7 +55,6 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
-		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		assert.Equal(t, expected, actual)
 	})
 
@@ -79,7 +78,6 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
-		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		assert.Equal(t, expected, s)
 	})
 
@@ -89,15 +87,16 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			_, ok := errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
 			require.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo"},
 			}
 			_, err = models.UpdateSettings(sqlDB, s)
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			_, ok = errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
 			require.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
 
 			s = &models.ChangeSettingsParams{
@@ -126,26 +125,26 @@ func TestSettings(t *testing.T) {
 				MetricsResolutions: mr,
 			})
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
 			mr = models.MetricsResolutions{MR: 2*time.Second + (500 * time.Millisecond)} // 2.5s
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 90000 * time.Second, // 25h
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 43200 * time.Second, // 12h
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
 		})
 
@@ -162,13 +161,6 @@ func TestSettings(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.False(t, *ns.Updates.Enabled)
-
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				UpdateSnoozeDuration: time.Hour,
-			})
-
-			require.NoError(t, err)
-			assert.Equal(t, time.Hour, ns.Updates.SnoozeDuration)
 		})
 
 		t.Run("Telemetry and Advisors validation", func(t *testing.T) {
@@ -305,6 +297,16 @@ func TestSettings(t *testing.T) {
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: new(true)})
 			require.NoError(t, err)
 			assert.True(t, *ns.Alerting.Enabled)
+		})
+
+		t.Run("enable OpenManager", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(false)})
+			require.NoError(t, err)
+			assert.False(t, s.IsOMEnabled())
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(true)})
+			require.NoError(t, err)
+			assert.True(t, ns.IsOMEnabled())
 		})
 
 		t.Run("Set PMM server ID", func(t *testing.T) {

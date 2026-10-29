@@ -64,7 +64,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -256,7 +256,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -455,7 +455,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -468,6 +468,7 @@
   },
   "tags": [
     {
+      "description": "AgentLocal service provides public methods for checking pmm-agent status locally.",
       "name": "AgentLocalService"
     }
   ]

@@ -1,12 +1,9 @@
 # Kubernetes Cluster Overview
 
-!!! caution alert alert-warning "Disclaimer"
-    This is an Experimental Dashboard that is not part of the official Percona Monitoring and Management (PMM) deployment and might be updated. We ship this Dashboard to obtain feedback from our users.
-
 
 This dashboard provides a comprehensive view of your Kubernetes cluster's health, resource utilization, and workload status.
 
-![!image](../../images/PMM_K8s_volume.png)
+![Kubernetes Cluster Overview dashboard](../../images/PMM_K8s_volume.png)
 
 ## Overview
 

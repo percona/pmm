@@ -55,6 +55,8 @@ func (res *addAgentValkeyExporterResult) String() string {
 
 // AddAgentValkeyExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentValkeyExporterCommand struct {
+	flags.LogLevelNoFatalFlags
+
 	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string            `arg:"" help:"Service identifier"`
 	Username            string            `arg:"" optional:"" help:"Valkey username for scraping metrics"`
@@ -71,8 +73,6 @@ type AddAgentValkeyExporterCommand struct {
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	flags.LogLevelNoFatalFlags
 }
 
 // RunCmd executes the AddAgentValkeyExporterCommand and returns the result.
