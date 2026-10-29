@@ -353,8 +353,8 @@ type AddAnnotationDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// add annotation default body details items0
-	AddAnnotationDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// add annotation default body details items0 additional properties
+	AddAnnotationDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -389,7 +389,7 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 			}
 			result[k] = toadd
 		}
-		o.AddAnnotationDefaultBodyDetailsItems0 = result
+		o.AddAnnotationDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -410,12 +410,12 @@ func (o AddAnnotationDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.AddAnnotationDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.AddAnnotationDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.AddAnnotationDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.AddAnnotationDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

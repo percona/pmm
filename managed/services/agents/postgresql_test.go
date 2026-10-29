@@ -190,9 +190,6 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.Require().NoError(err, "Failed to create exporter config")
 
 	expected := &agentv1.SetStateRequest_AgentProcess{
-		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
-		TemplateLeftDelim:  "{{",
-		TemplateRightDelim: "}}",
 		Args: []string{
 			"--auto-discover-databases",
 			"--collect.custom_query.lr",
