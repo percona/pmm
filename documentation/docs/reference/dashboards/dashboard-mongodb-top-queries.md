@@ -1,6 +1,6 @@
 # MongoDB Top Queries
 
-This dashboard ranks the MongoDB queries that cost the most, by time spent, executions, documents examined, query targeting, and collection scans. It also shows the busiest collections and the users who run the most queries, so you can decide which queries and collections to optimize first.
+This dashboard ranks MongoDB queries by time spent, executions, documents examined, query targeting, and collection scans. It also shows the busiest collections and the users who run the most queries. Use these rankings to decide which queries and collections to optimize first.
 
 Open it from **MongoDB > Top queries** in the main menu. Use the filters at the top to scope the view to an environment, cluster, node, service, replica set, or node type. The **QAN Agent** filter limits the query panels to one Query Analytics (QAN) source, the profiler or mongolog.
 
@@ -23,7 +23,7 @@ Shows the operations per second for each selected service, excluding commands.
 
 Shows the average latency for each operation type, such as reads, writes, and commands, across the selected services. The data comes from `serverStatus` `opLatencies`.
 
-A rising read latency with flat throughput usually means that queries are examining more documents.
+A rising read latency with flat throughput can mean that queries are examining more documents.
 
 ### Connections
 
@@ -65,7 +65,7 @@ Lists the queries that examined the most documents, with the keys examined and t
 
 Lists the queries with the highest ratio of documents examined to documents returned, which is MongoDB's query targeting ratio. A ratio of 1 is ideal. A large ratio means that the query reads far more documents than it returns.
 
-A **Keys Examined / Returned** value near 0 alongside a high ratio means that no index was used. Operations that return no documents, such as writes and reads that match nothing, are excluded because the ratio is undefined for them. Find those in **Top 10 Queries Examining the Most Documents** and **Top 10 Collection Scans**.
+A **Keys Examined / Returned** value near 0 alongside a high ratio means that no index was used. Operations that return no documents, such as writes and reads that match nothing, are excluded because the ratio is undefined for them. Find those in **Top 10 Queries Examining the Most Documents** and **Top 10 Collection Scans**. Queries that examine no documents, such as covered queries, are also excluded.
 
 ## Missing Indexes / Collection Scans
 
