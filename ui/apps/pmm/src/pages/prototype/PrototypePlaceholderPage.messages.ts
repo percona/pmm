@@ -3,4 +3,5 @@ export const Messages = {
   chip: 'Navigation prototype',
   description:
     'This entry is part of the proposed PMM navigation, but the page behind it does not exist yet. It is here so the sidebar can be reviewed as a whole.',
+  notInThisBuild: 'Part of PMM Extensions; not in this build.',
 };
