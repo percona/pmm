@@ -57,35 +57,6 @@ func TestGetAuthUserWithoutCredentials(t *testing.T) {
 	assert.Equal(t, none, u.role)
 }
 
-func TestIsAnonymousAccessEnabled(t *testing.T) {
-	t.Parallel()
-
-	for _, tc := range []struct {
-		name string
-		body string
-		want bool
-	}{
-		{"enabled", `{"anonymousEnabled":true}`, true},
-		{"disabled", `{"anonymousEnabled":false}`, false},
-		{"absent", `{}`, false},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, "/api/frontend/settings", r.URL.Path)
-				_, _ = fmt.Fprint(w, tc.body)
-			}))
-			defer ts.Close()
-
-			c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
-			enabled, err := c.IsAnonymousAccessEnabled(t.Context())
-			require.NoError(t, err)
-			assert.Equal(t, tc.want, enabled)
-		})
-	}
-}
-
 func TestCreateServiceAccount(t *testing.T) {
 	t.Parallel()
 

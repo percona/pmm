@@ -310,23 +310,6 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
-type frontendSettings struct {
-	AnonymousEnabled bool `json:"anonymousEnabled"`
-}
-
-// IsAnonymousAccessEnabled reports whether Grafana is configured to allow anonymous access
-// ([auth.anonymous] enabled). PMM APIs deny anonymous callers regardless; this is only used
-// to warn operators that Grafana itself is serving dashboards without authentication.
-func (c *Client) IsAnonymousAccessEnabled(ctx context.Context) (bool, error) {
-	var settings frontendSettings
-	err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings)
-	if err != nil {
-		return false, err
-	}
-
-	return settings.AnonymousEnabled, nil
-}
-
 // errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
 var errServiceTokenRejected = errors.New("service token rejected")
 

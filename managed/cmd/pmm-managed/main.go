@@ -58,6 +58,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
+	"gopkg.in/ini.v1"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -139,14 +140,12 @@ const (
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
 
-	// Retry interval while Grafana is still starting up.
-	anonymousAccessCheckInterval = 5 * time.Second
-
 	clickhouseMaxIdleConns = 5
 	clickhouseMaxOpenConns = 10
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+	grafanaConfigPath        = "/etc/grafana/grafana.ini"
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -563,31 +562,23 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
-// warnOnAnonymousGrafanaAccess logs a warning once Grafana reports that anonymous access is
-// enabled. PMM's own APIs always deny anonymous callers, but Grafana still serves dashboards
-// and datasource queries without authentication, which is rarely what an operator intends.
-func warnOnAnonymousGrafanaAccess(ctx context.Context, client *grafana.Client, l *logrus.Entry) {
-	ticker := time.NewTicker(anonymousAccessCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		enabled, err := client.IsAnonymousAccessEnabled(ctx)
-		if err == nil {
-			if enabled {
-				l.Warn("Grafana anonymous access is enabled ([auth.anonymous] in grafana.ini). " +
-					"Dashboards and datasource queries are served without authentication. " +
-					"PMM APIs still require credentials. Set enabled = false unless this is intentional.")
-			}
-			return
+// isGrafanaAnonymousAccessEnabled reads [auth.anonymous] enabled the way Grafana does, with a non-empty GF_AUTH_ANONYMOUS_ENABLED overriding the config file.
+func isGrafanaAnonymousAccessEnabled(configPath string) (bool, error) {
+	value := os.Getenv("GF_AUTH_ANONYMOUS_ENABLED")
+	if value == "" {
+		cfg, err := ini.Load(configPath)
+		if err != nil {
+			return false, fmt.Errorf("failed to load Grafana configuration: %w", err)
 		}
 
-		l.Debugf("Failed to check Grafana anonymous access, retrying: %s", err)
-		select {
-		case <-ticker.C:
-		case <-ctx.Done():
-			return
-		}
+		return cfg.Section("auth.anonymous").Key("enabled").MustBool(false), nil
 	}
+
+	// Parse the override with Grafana's ini library, which also accepts values such as "on" and "yes".
+	key := ini.Empty().Section("auth.anonymous").Key("enabled")
+	key.SetValue(value)
+
+	return key.MustBool(false), nil
 }
 
 type setupDeps struct {
@@ -910,6 +901,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	logrus.Infof("Log level: %s.", logrus.GetLevel())
 
 	l := logrus.WithField("component", "main")
+
+	anonymousEnabled, err := isGrafanaAnonymousAccessEnabled(grafanaConfigPath)
+	if err != nil {
+		l.Fatalf("Failed to check whether Grafana allows anonymous access: %s", err)
+	}
+	if anonymousEnabled {
+		l.Fatal("Anonymous mode is not supported")
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
@@ -928,7 +928,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	err := cfg.Load()
+	err = cfg.Load()
 	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
@@ -1284,10 +1284,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		authServer.Run(ctx)
-	})
-
-	wg.Go(func() {
-		warnOnAnonymousGrafanaAccess(ctx, grafanaClient, l)
 	})
 
 	wg.Go(func() {
