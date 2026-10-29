@@ -62,6 +62,13 @@ func Run() {
 	v := versioner.New(&versioner.RealExecFunctions{})
 	configStorage, configFilepath := prepareConfig(l)
 
+	// Before the loop below starts a vmagent of its own, and only once: on a reload, the vmagent
+	// holding the queue is this pmm-agent's own, and the Supervisor stops it. Doing it on every
+	// start rather than reacting to a vmagent that exits on the lock also means two pmm-agents
+	// misconfigured to share a queue cannot keep stopping each other's. See stopLeftoverVMAgents.
+	paths := configStorage.Get().Paths
+	stopLeftoverVMAgents(rootCtx, paths.VMAgent, paths.TempDir, l)
+
 	for {
 		ctx, cancel := context.WithCancel(rootCtx)
 		cfg := configStorage.Get()
