@@ -138,6 +138,7 @@ declare module '@mui/material/Alert' {
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
     grey: true;
+    dashed: true;
   }
 }
 
@@ -503,6 +504,13 @@ export type ShapeTokens = typeof shape;
 
 const BaseTheme = createTheme();
 
+// A region to point out, such as an empty state: a 2px dashed outline, 6px dashes 4px apart. It is drawn,
+// because a CSS dashed border spaces its dashes however the browser likes; half the 4px stroke is clipped.
+const dashedOutline = (color: string, radius: number) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" rx="${radius}" ry="${radius}" stroke="${color}" stroke-width="4" stroke-dasharray="6 4"/></svg>`
+  )}")`;
+
 // Figma shadow/elevation2 & elevation4
 const BUTTON_ELEVATION_2 =
   '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
@@ -669,62 +677,71 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.8125rem',
+          lineHeight: '1.069',
           letterSpacing: '-0.01813rem',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '2.5rem',
+          lineHeight: '1.075',
           letterSpacing: '-0.025rem',
         },
-        lineHeight: '1.0625',
       },
       h3: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.625rem',
+          lineHeight: '1.077',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '2.0625rem',
+          lineHeight: '1.0607',
         },
-        lineHeight: '1.0625',
       },
       h4: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.4375rem',
+          lineHeight: '1.0435',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.75rem',
+          lineHeight: '1.0715',
         },
-        lineHeight: '1.0625',
       },
       h5: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.25rem',
+          lineHeight: '1.15',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.4375rem',
+          lineHeight: '1.1305',
         },
-        lineHeight: '1.125',
       },
       h6: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.125rem',
+          lineHeight: '1.2778',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.1875rem',
+          lineHeight: '1.2632',
         },
-        lineHeight: '1.25',
+      },
+      // MUI's own subtitle2, kept at its size with a 22px line.
+      subtitle2: {
+        lineHeight: '1.5715',
       },
       subHead1: {
         fontWeight: 500,
         fontSize: '1.1875rem',
-        lineHeight: '1.125',
+        lineHeight: '1.1053',
       },
       subHead2: {
         fontWeight: 500,
@@ -759,20 +776,20 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       caption: {
         fontWeight: 400,
         fontSize: '0.8125rem',
-        lineHeight: '1.375',
+        lineHeight: '1.3847',
       },
       button: {
         fontWeight: 600,
         fontFamily: fontDisplay,
         fontSize: '0.9375rem',
-        lineHeight: '1.0625',
+        lineHeight: '1.0667',
         textTransform: 'none',
       },
       menuText: {
         fontFamily: fontDisplay,
         fontWeight: 500,
         fontSize: '0.875rem',
-        lineHeight: '1.25',
+        lineHeight: '1.2858',
       },
       inputText: {
         fontWeight: 400,
@@ -967,13 +984,14 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
 
             const minHeight = { large: 40, medium: 32, small: 24 }[size];
             const fontSize = { large: 15, medium: 13, small: 13 }[size];
+            const lineHeight = { large: 1.0667, medium: 1.077, small: 1.077 }[size];
 
             return {
               borderRadius: theme.shape.borderRadiusFull,
               minHeight,
               fontSize,
               padding,
-              lineHeight: 1.063,
+              lineHeight,
 
               '.MuiButton-startIcon, .MuiButton-endIcon': {
                 height: 0,
@@ -1298,6 +1316,19 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
           }),
         },
+      },
+      MuiPaper: {
+        variants: [
+          {
+            props: { variant: 'dashed' },
+            style: ({ theme }) => ({
+              backgroundColor: 'transparent',
+              backgroundImage: dashedOutline(theme.palette.divider, theme.shape.borderRadiusMd),
+              borderRadius: theme.shape.borderRadiusMd,
+              boxShadow: 'none',
+            }),
+          },
+        ],
       },
       MuiCard: {
         variants: [

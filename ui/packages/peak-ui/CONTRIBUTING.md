@@ -78,6 +78,11 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 
 ## Design Constraints (non-obvious — verify before "normalizing")
 
+### Line heights
+
+- Every line height is a unitless ratio (never px, rem or em) that lands on a whole pixel: target px ÷ font px, with the fourth decimal rounded **up** (14px text on an 18px line is `1.2858`, not `1.2857`). Chrome floors line heights to 1/64px, so a ratio a hair below the target renders a fraction short and stacked rows drift.
+- A responsive variant sets `lineHeight` inside each breakpoint block next to its `fontSize`, since one ratio cannot land two sizes on whole pixels. Don't "normalize" ratios like `1.069` back to a shared `1.0625`; `src/design/themes/base/typography.spec.ts` checks every variant at every breakpoint in all three themes.
+
 ### Chip
 
 - Outlined uses `palette.[color].light` for text + border — except `warning`, which uses `warning.main`. `warning.light` is a yellow/gold hue with insufficient contrast on light backgrounds; `main` is the smallest step that holds. Don't normalize warning to `light` — it's a perceptual constraint.

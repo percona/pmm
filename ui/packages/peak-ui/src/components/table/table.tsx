@@ -19,6 +19,7 @@ import {
 } from 'material-react-table';
 import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
 import { mergeSx } from '@/utils';
+import EmptyState from '../empty-state';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
@@ -65,6 +66,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiFilterTextFieldProps,
     displayColumnDefOptions,
     noDataMessage = 'No data',
+    noDataVariant = 'empty-state',
     noDataAlertProps,
     emptyFilterResultsMessage = 'No data found',
     hideExpandAllIcon,
@@ -147,18 +149,21 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
   const rowExpandConsumerOpts = displayColumnDefOptions?.['mrt-row-expand'];
 
   const table = useMaterialReactTable({
-    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => (
-      <>
-        {/* This means there was data before filtering, so we show the message of empty filtering result */}
-        {getPreFilteredRowModel().rows.length > 0 ? (
-          <NoDataAlertMessage message={emptyFilterResultsMessage} {...noDataAlertProps} />
-        ) : emptyState ? (
-          <Box>{emptyState}</Box>
-        ) : (
-          <NoDataAlertMessage message={noDataMessage} {...noDataAlertProps} />
-        )}
-      </>
-    ),
+    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => {
+      const isFilteredOut = getPreFilteredRowModel().rows.length > 0;
+
+      if (emptyState && !isFilteredOut) {
+        return <Box>{emptyState}</Box>;
+      }
+
+      const message = isFilteredOut ? emptyFilterResultsMessage : noDataMessage;
+
+      return noDataVariant === 'alert' ? (
+        <NoDataAlertMessage message={message} {...noDataAlertProps} />
+      ) : (
+        <EmptyState size="small" width="100%" title={message} titleComponent="p" />
+      );
+    },
     layoutMode: 'grid',
     enablePagination: data.length > 10,
     enableBottomToolbar: rest.enablePagination ?? data.length > 10,
