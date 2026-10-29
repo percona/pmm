@@ -81,7 +81,7 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 ### Line heights
 
 - Every line height is a unitless ratio (never px, rem or em) that lands on a whole pixel: target px ÷ font px, with the fourth decimal rounded **up** (14px text on an 18px line is `1.2858`, not `1.2857`). Chrome floors line heights to 1/64px, so a ratio a hair below the target renders a fraction short and stacked rows drift.
-- A responsive variant sets `lineHeight` inside each breakpoint block next to its `fontSize`, since one ratio cannot land two sizes on whole pixels. Don't "normalize" ratios like `1.069` back to a shared `1.0625`; `src/design/themes/base/typography.spec.ts` checks every variant at every breakpoint in all three themes, except `sectionHeading`: it pins its 17.5px line (`PENDING_RESTYLE`) until peak-ui #70 moves it to Figma's 20px. Whichever of #70 and this rule reaches main second drops that exception from the spec, this note and Foundations/Typography; the spec fails until it does.
+- A responsive variant sets `lineHeight` inside each breakpoint block next to its `fontSize`, since one ratio cannot land two sizes on whole pixels. Don't "normalize" ratios like `1.069` back to a shared `1.0625`; `src/design/themes/base/typography.spec.ts` checks every variant at every breakpoint in all three themes.
 
 ### Chip
 

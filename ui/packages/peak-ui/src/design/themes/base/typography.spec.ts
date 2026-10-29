@@ -27,7 +27,6 @@ const FIGMA_LINES: Record<string, number[]> = {
 };
 
 // Off-pixel line on main that peak-ui #70 restyles to Figma's 16/20px.
-// CONTRIBUTING and Foundations/Typography name the same exception; drop it from all three together.
 const PENDING_RESTYLE: Record<string, number> = { sectionHeading: 17.5 };
 
 type Style = Record<string, unknown>;
