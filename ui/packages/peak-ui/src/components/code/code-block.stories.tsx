@@ -46,32 +46,23 @@ const meta: Meta<CodeBlockProps> = {
   argTypes: {
     content: {
       control: 'text',
-      description: 'The code content to render. Use a string so it can be copied.',
     },
     copyable: {
       control: 'boolean',
-      description: 'Shows a copy-to-clipboard button in the top-right corner.',
       table: { defaultValue: { summary: 'false' } },
     },
     showCopyButtonText: {
       control: 'boolean',
-      description: 'When copyable, renders a labeled button instead of an icon-only button.',
       table: { defaultValue: { summary: 'false' } },
     },
     value: {
       control: 'text',
-      description:
-        'Overrides the text copied to the clipboard. Useful when the content is not a plain string.',
     },
     language: {
       control: 'text',
-      description:
-        'Prism language id (e.g. `sql`, `javascript`, `yaml`). When set, the block is syntax-highlighted.',
     },
     wrap: {
       control: 'boolean',
-      description:
-        'Wrap long lines instead of scrolling. Defaults to `false`, where lines longer than the container overflow horizontally with a scrollbar.',
       table: { defaultValue: { summary: 'false' } },
     },
   },

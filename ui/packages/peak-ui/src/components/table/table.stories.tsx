@@ -236,34 +236,24 @@ const meta = {
   argTypes: {
     tableName: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Used as the `data-testid` and as the localStorage key for column-visibility persistence. Rename with care — changing it loses user-saved preferences.',
-      table: { category: 'Data' },
+      table: { category: 'Data (Peak UI)' },
     },
     noDataMessage: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Title of the empty state shown when `data` is empty (and no `emptyState` is provided).',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data'" } },
     },
     noDataVariant: {
       options: ['empty-state', 'alert'],
       control: { type: 'inline-radio' },
-      description:
-        '**Peak UI prop.** How an empty table reads, with no data or with every row filtered out. `empty-state` renders a small `EmptyState`; `alert` keeps the info alert from before `EmptyState` existed, for tables not yet moved to it.',
-      table: { category: 'Empty state', defaultValue: { summary: "'empty-state'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'empty-state'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Title of the empty state shown when filtering excludes all rows.',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data found'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data found'" } },
     },
     emptyState: {
       control: false,
-      description:
-        '**Peak UI prop.** React node that replaces the default empty state; pass an `EmptyState` with a description, an illustration or actions. See the [Empty state — custom](?path=/story/data-display-table--empty-state-custom) story.',
-      table: { category: 'Empty state' },
+      table: { category: 'Empty state (Peak UI)' },
     },
     enableTopToolbar: {
       control: 'boolean',
@@ -335,14 +325,10 @@ const meta = {
     },
     hideExpandAllIcon: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Hide the expand-all icon in the header. Only meaningful when `enableExpanding` is `true`. Note: MRT offers a native `enableExpandAll={false}` that achieves the same result.',
-      table: { category: 'Rows' },
+      table: { category: 'Rows (Peak UI)' },
     },
     enableRowHoverAction: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Make whole rows clickable — fires `rowHoverAction(row)` and switches the cursor to a pointer. Use for "click to drill in" patterns.',
       table: { category: 'Rows (Peak UI)', defaultValue: { summary: 'false' } },
     },
     muiTableContainerProps: {

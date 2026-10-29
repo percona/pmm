@@ -4,8 +4,11 @@ import { DEFAULT_TABLE_STATE, type TableStateValues } from './tableState.types';
 export type TableUrlSyncKey = 'filters' | 'sort' | 'globalFilter' | 'pagination';
 
 export interface TableUrlStateOptions {
+  /** Prefix for the URL parameters, so several tables on one page keep separate state. */
   paramPrefix?: string;
+  /** Filters, search text, sorting, or pagination to start from when the URL has none. */
   defaults?: Partial<TableStateValues>;
+  /** Which parts of the state go to the URL; each defaults to true. */
   sync?: Partial<Record<TableUrlSyncKey, boolean>>;
 }
 

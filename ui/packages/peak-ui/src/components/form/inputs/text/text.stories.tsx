@@ -63,68 +63,65 @@ const meta = {
   },
   argTypes: {
     disabled: {
+      description: 'Greys out the field so it cannot be edited.',
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     error: {
+      description: 'Shows the field in its error state with an example message.',
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     isRequired: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     multiline: {
+      description: 'Turns the field into a text area.',
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     readOnly: {
+      description: 'Lets the user read but not edit the value.',
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     label: {
       type: 'string',
-      description: '`string`',
     },
     maxLength: {
+      description: 'Maximum number of characters the user can type.',
       type: 'number',
-      description: '`number`',
     },
     maxRows: {
+      description: 'Largest height of the text area, in rows.',
       type: 'number',
-      description: '`number`',
     },
     minRows: {
+      description: 'Smallest height of the text area, in rows.',
       type: 'number',
-      description: '`number`',
     },
     name: {
       type: 'string',
-      description: '`string`',
     },
     placeholder: {
+      description: 'Grey hint shown inside the field while it is empty.',
       type: 'string',
-      description: '`string`',
     },
     helperText: {
+      description: 'Hint shown under the field.',
       type: 'string',
-      description: '`string`',
     },
     size: {
+      description: 'Field height: small (default) or medium.',
       options: ['small', 'medium'],
       control: { type: 'radio' },
       defaultValue: 'small',
-      description: '`string`',
     },
     type: {
+      description: 'Kind of value the browser expects, such as email, number, or password.',
       options: ['email', 'password', 'number', 'text', 'tel', 'url'],
       control: 'select',
-      description: '`string`',
     },
   },
   render: function Render({

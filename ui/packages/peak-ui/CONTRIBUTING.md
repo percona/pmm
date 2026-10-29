@@ -39,7 +39,7 @@ Pre-existing and cosmetic — do not treat as failures:
 
 - **Themes** — three variants (`base`, `pmm`, `sep`) under `src/design/themes/`. `getThemeOptions(themeName)` is **curried** — call it as `getThemeOptions(name)(mode)` (the return value is `(mode) => ThemeOptions`). PMM/SEP extend Base via `mergeThemeOptions` (`src/design/merge-theme-options.ts`).
 - **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), optionally persisting mode to localStorage.
-- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports, plus a line in `llms.txt`. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
+- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports, plus a line in `llms.txt`. Every prop in a `*Props` or `*Options` type, and in every type the package exports, carries a one-line `/** … */` written in UX terms (what the option means for the user); `src/prop-descriptions.spec.ts` fails when one is missing, and the sentence ships in the built `.d.ts` and in the Storybook props table. Stories never repeat it in `argTypes.<prop>.description` (the same spec fails, and it fails too when it cannot read the props of a story's `component`); that field is only for MUI pass-through props and story-only args, and the story meta names its `component` so Storybook can read the JSDoc. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
 
 ## Storybook maturity tags
 
@@ -90,7 +90,7 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 
 ### NavItem
 
-The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it preserves text start-line alignment with icon-bearing rows.
+The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it pulls the label over to the icon column, so an icon-less row reads as aligned with the icon mass of its siblings rather than with their labels.
 
 ### Tooltip
 
