@@ -39,7 +39,7 @@ Pre-existing and cosmetic — do not treat as failures:
 
 - **Themes** — three variants (`base`, `pmm`, `sep`) under `src/design/themes/`. `getThemeOptions(themeName)` is **curried** — call it as `getThemeOptions(name)(mode)` (the return value is `(mode) => ThemeOptions`). PMM/SEP extend Base via `mergeThemeOptions` (`src/design/merge-theme-options.ts`).
 - **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), optionally persisting mode to localStorage.
-- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports, plus a line in `llms.txt`. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
+- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports, plus a line in `llms.txt`. Every prop in a `*Props` or `*Options` type, and in every type the package exports, carries a one-line `/** … */` written in UX terms (what the option means for the user); `src/prop-descriptions.spec.ts` fails when one is missing, and the sentence ships in the built `.d.ts` and in the Storybook props table. Stories never repeat it in `argTypes.<prop>.description` (the same spec fails, and it fails too when it cannot read the props of a story's `component`); that field is only for MUI pass-through props and story-only args, and the story meta names its `component` so Storybook can read the JSDoc. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
 
 ## Storybook maturity tags
 
@@ -78,6 +78,11 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 
 ## Design Constraints (non-obvious — verify before "normalizing")
 
+### Line heights
+
+- Every line height is a unitless ratio (never px, rem or em) that lands on a whole pixel: target px ÷ font px, with the fourth decimal rounded **up** (14px text on an 18px line is `1.2858`, not `1.2857`). Chrome floors line heights to 1/64px, so a ratio a hair below the target renders a fraction short and stacked rows drift.
+- A responsive variant sets `lineHeight` inside each breakpoint block next to its `fontSize`, since one ratio cannot land two sizes on whole pixels. Don't "normalize" ratios like `1.069` back to a shared `1.0625`; `src/design/themes/base/typography.spec.ts` checks every variant at every breakpoint in all three themes.
+
 ### Chip
 
 - Outlined uses `palette.[color].light` for text + border — except `warning`, which uses `warning.main`. `warning.light` is a yellow/gold hue with insufficient contrast on light backgrounds; `main` is the smallest step that holds. Don't normalize warning to `light` — it's a perceptual constraint.
@@ -85,7 +90,7 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 
 ### NavItem
 
-The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it preserves text start-line alignment with icon-bearing rows.
+The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it pulls the label over to the icon column, so an icon-less row reads as aligned with the icon mass of its siblings rather than with their labels.
 
 ### Tooltip
 

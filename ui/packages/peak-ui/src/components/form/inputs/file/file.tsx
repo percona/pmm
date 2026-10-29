@@ -12,11 +12,17 @@ import {
 } from 'react-hook-form';
 
 type FileInputProps<T extends FieldValues = FieldValues> = {
+  /** Form field the chosen `File` is stored under. */
   name: FieldPath<T>;
+  /** Label shown on the field. */
   label: string;
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control<T>;
+  /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
+  /** MUI TextField props for the field that shows the chosen file name. */
   textFieldProps?: TextFieldProps;
+  /** Attributes of the hidden file input, such as `accept` to limit the file types offered. */
   fileInputProps?: React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
