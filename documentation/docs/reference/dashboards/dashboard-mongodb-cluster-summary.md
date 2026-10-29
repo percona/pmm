@@ -31,7 +31,7 @@ Use these grids to confirm all cluster components are healthy before investigati
     - use the same `--cluster` name for all components of your sharded cluster.
     - add config servers, shard nodes, and mongos routers as separate services.
 
-    For details, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+    For details, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-2-add-mongodb-service-to-pmm).
 
     Example:
 

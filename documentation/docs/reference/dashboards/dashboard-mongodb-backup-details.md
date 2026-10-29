@@ -11,7 +11,7 @@ Use the filters at the top to narrow down to specific environments, clusters, or
 ![MongoDB Backup Details dashboard](../../images/BackupDetails_Dashboard.png)
 
 !!! note
-    This dashboard requires MongoDB services to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+    This dashboard requires MongoDB services to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-2-add-mongodb-service-to-pmm).
 
 ## Overview 
 
