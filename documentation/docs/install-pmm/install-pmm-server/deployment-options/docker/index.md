@@ -57,14 +57,22 @@ You can install PMM Server using one of two methods:
     Configure PMM Server's behavior using environment variables:
 
     ```sh
-    docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+    docker run \
+      --detach \
+      --restart always \
+      --publish 443:8443 \
+      --volume pmm-data:/srv \
+      -e PMM_DATA_RETENTION=720h \
+      -e PMM_DEBUG=1 \
+      --name pmm-server \
+      percona/pmm-server:3
     ```
 
     Common variables:
 
     | Variable | Default | Description |
     |----------|---------|-------------|
-    | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
+    | `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours |
     | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
     | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
     | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |

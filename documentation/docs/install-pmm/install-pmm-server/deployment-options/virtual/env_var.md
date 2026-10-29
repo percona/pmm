@@ -50,7 +50,7 @@ These variables are particularly useful for AWS AMI deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours |
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
