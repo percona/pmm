@@ -64,7 +64,7 @@ You can further customize your PMM Server deployment with:
         percona/pmm-server:3
     ```
 
-    `PMM_DATA_RETENTION` must be a whole number of days, given in hours: at least `24h`, in multiples of `24h`, such as `720h` for 30 days. Values in days, such as `30d`, stop PMM Server from starting.
+    Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 
 - **Port mapping** to expose PMM Server on a different port:
 

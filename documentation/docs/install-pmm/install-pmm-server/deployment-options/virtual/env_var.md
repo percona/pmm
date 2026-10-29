@@ -50,14 +50,14 @@ These variables are particularly useful for AWS AMI deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PMM_DATA_RETENTION` | `720h` (30 days) | Duration to retain metrics data |
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours. The default is 30 days. |
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 | `PMM_DEBUG` | `true` | Enable verbose logging |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
 
-`PMM_DATA_RETENTION` must be a whole number of days, given in hours: at least `24h`, in multiples of `24h`, such as `720h` for 30 days. Values in days, such as `30d`, stop PMM Server from starting.
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 
 ### VictoriaMetrics performance tuning
 
