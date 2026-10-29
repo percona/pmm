@@ -349,8 +349,8 @@ type SchemaByQueryIDDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// schema by query ID default body details items0
-	SchemaByQueryIDDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// schema by query ID default body details items0 additional properties
+	SchemaByQueryIDDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -385,7 +385,7 @@ func (o *SchemaByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 			}
 			result[k] = toadd
 		}
-		o.SchemaByQueryIDDefaultBodyDetailsItems0 = result
+		o.SchemaByQueryIDDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -406,12 +406,12 @@ func (o SchemaByQueryIDDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.SchemaByQueryIDDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.SchemaByQueryIDDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.SchemaByQueryIDDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.SchemaByQueryIDDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

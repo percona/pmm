@@ -222,8 +222,7 @@ func (e GetMetricsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetMetricsRequestValidationError{}
@@ -484,8 +483,7 @@ func (e GetMetricsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetMetricsResponseValidationError{}
@@ -600,8 +598,7 @@ func (e MetricValuesValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricValuesValidationError{}
@@ -699,8 +696,7 @@ func (e LabelsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LabelsValidationError{}
@@ -900,8 +896,7 @@ func (e GetQueryExampleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetQueryExampleRequestValidationError{}
@@ -1037,8 +1032,7 @@ func (e GetQueryExampleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetQueryExampleResponseValidationError{}
@@ -1157,8 +1151,7 @@ func (e QueryExampleValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryExampleValidationError{}
@@ -1320,8 +1313,7 @@ func (e GetLabelsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLabelsRequestValidationError{}
@@ -1469,8 +1461,7 @@ func (e GetLabelsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLabelsResponseValidationError{}
@@ -1570,8 +1561,7 @@ func (e ListLabelValuesValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLabelValuesValidationError{}
@@ -1677,8 +1667,7 @@ func (e GetQueryPlanRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetQueryPlanRequestValidationError{}
@@ -1784,8 +1773,7 @@ func (e GetQueryPlanResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetQueryPlanResponseValidationError{}
@@ -1981,8 +1969,7 @@ func (e GetHistogramRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetHistogramRequestValidationError{}
@@ -2118,8 +2105,7 @@ func (e GetHistogramResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetHistogramResponseValidationError{}
@@ -2223,8 +2209,7 @@ func (e HistogramItemValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = HistogramItemValidationError{}
@@ -2330,8 +2315,7 @@ func (e QueryExistsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryExistsRequestValidationError{}
@@ -2435,8 +2419,7 @@ func (e QueryExistsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryExistsResponseValidationError{}
@@ -2542,8 +2525,7 @@ func (e SchemaByQueryIDRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SchemaByQueryIDRequestValidationError{}
@@ -2647,8 +2629,7 @@ func (e SchemaByQueryIDResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SchemaByQueryIDResponseValidationError{}
@@ -2757,8 +2738,7 @@ func (e ExplainFingerprintByQueryIDRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExplainFingerprintByQueryIDRequestValidationError{}
@@ -2867,8 +2847,7 @@ func (e ExplainFingerprintByQueryIDResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExplainFingerprintByQueryIDResponseValidationError{}
@@ -2997,8 +2976,7 @@ func (e GetSelectedQueryMetadataResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSelectedQueryMetadataResponseValidationError{}

@@ -116,6 +116,7 @@ export function toServiceRows(
         ...service,
         env_name: environment.env_name,
         cluster_name: cluster.name,
+        cluster_id: cluster.id,
       }))
     )
   );
