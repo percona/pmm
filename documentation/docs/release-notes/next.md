@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15773](https://perconadev.atlassian.net/browse/PMM-15773): Fixed an issue where, after PMM Client was restarted or upgraded, a node could stop sending metrics and PMM Server load could rise: a `vmagent` process left running from before held the metrics queue, so the new one kept failing to start. PMM Client now stops the leftover `vmagent` when it starts.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
