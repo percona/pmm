@@ -310,8 +310,8 @@ type ListTemplatesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list templates default body details items0
-	ListTemplatesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list templates default body details items0 additional properties
+	ListTemplatesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 			}
 			result[k] = toadd
 		}
-		o.ListTemplatesDefaultBodyDetailsItems0 = result
+		o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListTemplatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ListTemplatesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
