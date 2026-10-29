@@ -1,0 +1,783 @@
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import type { OmInventoryRun, OmTopologyResponse } from '@pmm/plugins-om';
+import { useCallback, useMemo } from 'react';
+import { useSettings } from 'contexts/settings';
+import { useUser } from 'contexts/user';
+import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
+import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
+import { getRecentKey, readRecent } from 'search/search.recent';
+import type { PrometheusAlertRulesResponse } from 'types/alerting.types';
+import { type QueryData, RealtimeSessionStatus } from 'types/rta.types';
+import {
+  type ManagedService,
+  ServiceStatus,
+  ServiceType,
+} from 'types/services.types';
+import type { BackupArtifact, ScheduledBackup } from 'hubs/api/backups.types';
+import { listArtifacts, listScheduled } from 'hubs/api/backups';
+import { readImpressions, searchDashboards } from 'hubs/api/grafanaDashboards';
+import { listManagedServicesQuietly } from 'hubs/api/inventory';
+import {
+  getBootstrapRuns,
+  getRuns,
+  getTopology,
+  type OmBootstrapRunSummary,
+} from 'hubs/api/operations';
+import { getReport } from 'hubs/api/qan';
+import type { QanReportLabel, QanReportRow } from 'hubs/api/qan.types';
+import { instantQuery } from 'hubs/api/victoriaMetrics';
+import { matchesEnvironment } from 'hubs/template/hub.params';
+import {
+  HUB_NO_ENVIRONMENT,
+  type HubLiveContext,
+  type HubLiveResult,
+  type HubSourceId,
+  type HubSourceState,
+} from 'hubs/template/hub.types';
+import {
+  MONGO_QUERY_IDS,
+  mongoQueries,
+  parseMongoMetrics,
+} from './mongodb.promql';
+import type {
+  MongoAlertInput,
+  MongoAlertRulesInput,
+  MongoBackupMode,
+  MongoBackupsInput,
+  MongoBackupStatus,
+  MongoMetrics,
+  MongoOperationsInput,
+  MongoServiceInput,
+  MongoSnapshot,
+  QanRowInput,
+  RtaQueryInput,
+} from './mongodb.types';
+
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+
+export const MONGO_HUB_INTERVALS = {
+  inventory: MINUTE,
+  metrics: 30 * SECOND,
+  alerts: 30 * SECOND,
+  backups: MINUTE,
+  qan: 5 * MINUTE,
+  realtimeSessions: 30 * SECOND,
+  realtimeQueries: 15 * SECOND,
+  topology: 30 * SECOND,
+  runs: MINUTE,
+  dashboardsStale: 10 * MINUTE,
+} as const;
+
+export const MONGO_HUB_KEYS = {
+  services: 'mongodbHub:services',
+  metrics: 'mongodbHub:metrics',
+  backups: 'mongodbHub:backups',
+  qan: 'mongodbHub:qan',
+  topology: 'mongodbHub:omTopology',
+  runs: 'mongodbHub:omRuns',
+  bootstrapRuns: 'mongodbHub:omBootstrapRuns',
+  dashboards: 'mongodbHub:dashboards',
+  recentDashboards: 'mongodbHub:recentDashboards',
+} as const;
+
+const OM_RUNS_LIMIT = 20;
+const DASHBOARD_QUERY = 'MongoDB';
+
+const EMPTY_METRICS: MongoMetrics = {
+  up: {},
+  lastUpAt: {},
+  self: {},
+  roles: {},
+  stateSince: {},
+  versions: {},
+  lag: {},
+  oplogWindow: {},
+  oplogFill: {},
+  shardsByCluster: {},
+  pbmConfiguredByCluster: {},
+};
+
+const INVENTORY_STATUS: Partial<
+  Record<ServiceStatus, MongoServiceInput['inventoryStatus']>
+> = {
+  [ServiceStatus.up]: 'up',
+  [ServiceStatus.down]: 'down',
+};
+
+/** Management services as the snapshot keeps them; an empty label is no label. */
+export const toServiceInputs = (
+  services: ManagedService[]
+): MongoServiceInput[] =>
+  services.map((service) => ({
+    serviceId: service.serviceId,
+    serviceName: service.serviceName,
+    nodeName: service.nodeName,
+    ...(service.environment ? { environment: service.environment } : {}),
+    ...(service.cluster ? { cluster: service.cluster } : {}),
+    ...(service.replicationSet
+      ? { replicationSet: service.replicationSet }
+      : {}),
+    inventoryStatus:
+      (service.status && INVENTORY_STATUS[service.status]) ?? 'unknown',
+  }));
+
+/** Every hub query at once; one failure fails the source, so nothing reads as no data by mistake. */
+export const fetchMongoMetrics = async (
+  environment: string | null,
+  signal?: AbortSignal
+): Promise<MongoMetrics> => {
+  const queries = mongoQueries(environment);
+  const results = await Promise.all(
+    MONGO_QUERY_IDS.map((id) => instantQuery(queries[id], { signal }))
+  );
+
+  return parseMongoMetrics(
+    Object.fromEntries(
+      MONGO_QUERY_IDS.map((id, index) => [id, results[index]])
+    ) as Record<(typeof MONGO_QUERY_IDS)[number], (typeof results)[number]>
+  );
+};
+
+const isFiring = (state?: string) =>
+  !!state && (state === 'firing' || state.startsWith('Alerting'));
+
+/** Firing alerts about MongoDB: a mongodb service type, a MongoDB service, cluster or set name, or a host a member runs on. */
+export const toAlertInputs = (
+  response: PrometheusAlertRulesResponse | undefined,
+  services: MongoServiceInput[]
+): MongoAlertInput[] => {
+  const serviceNames = new Set(services.map((service) => service.serviceName));
+  const nodeNames = new Set(services.map((service) => service.nodeName));
+  const clusters = new Set(
+    services.flatMap((service) => (service.cluster ? [service.cluster] : []))
+  );
+  // Set alerts of services without a cluster label carry only the set's name.
+  const replicaSets = new Set(
+    services.flatMap((service) =>
+      service.replicationSet ? [service.replicationSet] : []
+    )
+  );
+
+  return (response?.data.groups ?? []).flatMap((group) =>
+    (group.rules ?? []).flatMap((rule) =>
+      (rule.alerts ?? []).flatMap((alert): MongoAlertInput[] => {
+        const labels = alert.labels ?? {};
+        const firing = alert.state
+          ? isFiring(alert.state)
+          : rule.state === 'firing';
+        const serviceName = labels.service_name || labels.service;
+        const replicaSet = labels.rs_nm || labels.set || labels.replication_set;
+        // A host alert names only its node, such as pmm_node_high_cpu_load's node_name.
+        const host =
+          !serviceName && !!labels.node_name && nodeNames.has(labels.node_name);
+        const mongo =
+          labels.service_type === 'mongodb' ||
+          (!!serviceName && serviceNames.has(serviceName)) ||
+          (!!labels.cluster && clusters.has(labels.cluster)) ||
+          (!!replicaSet && replicaSets.has(replicaSet)) ||
+          host;
+
+        if (!firing || !mongo) {
+          return [];
+        }
+
+        return [
+          {
+            name: labels.alertname || rule.name,
+            ...(labels.template_name
+              ? { templateName: labels.template_name }
+              : {}),
+            ...(labels.severity ? { severity: labels.severity } : {}),
+            ...(serviceName ? { serviceName } : {}),
+            ...(labels.node_name ? { nodeName: labels.node_name } : {}),
+            ...(labels.cluster ? { cluster: labels.cluster } : {}),
+            ...(labels.environment ? { environment: labels.environment } : {}),
+            ...(replicaSet ? { replicaSet } : {}),
+            activeAt: alert.activeAt ?? '',
+            ...(alert.annotations?.summary
+              ? { summary: alert.annotations.summary }
+              : {}),
+          },
+        ];
+      })
+    )
+  );
+};
+
+/** Every rule's template, and how many template-less rules read MongoDB metrics, firing or not. */
+export const toAlertRules = (
+  response: PrometheusAlertRulesResponse
+): MongoAlertRulesInput => {
+  const rules = response.data.groups.flatMap((group) => group.rules ?? []);
+
+  return {
+    templates: [
+      ...new Set(
+        rules.flatMap((rule) =>
+          rule.labels?.template_name ? [rule.labels.template_name] : []
+        )
+      ),
+    ].sort(),
+    custom: rules.filter(
+      (rule) => !rule.labels?.template_name && rule.query?.includes('mongodb_')
+    ).length,
+  };
+};
+
+const BACKUP_MODE: Record<string, MongoBackupMode | undefined> = {
+  BACKUP_MODE_SNAPSHOT: 'snapshot',
+  BACKUP_MODE_INCREMENTAL: 'incremental',
+  BACKUP_MODE_PITR: 'pitr',
+};
+
+const BACKUP_STATUS: Record<string, MongoBackupStatus | undefined> = {
+  BACKUP_STATUS_SUCCESS: 'success',
+  BACKUP_STATUS_ERROR: 'error',
+  BACKUP_STATUS_IN_PROGRESS: 'inProgress',
+  BACKUP_STATUS_PENDING: 'pending',
+};
+
+const isMongo = (vendor?: string) => vendor?.toLowerCase() === 'mongodb';
+
+export const toBackupsInput = (
+  enabled: boolean,
+  artifacts: BackupArtifact[],
+  scheduled: ScheduledBackup[]
+): MongoBackupsInput => ({
+  enabled,
+  artifacts: artifacts
+    .filter((a) => isMongo(a.vendor))
+    .map((a) => ({
+      artifactId: a.artifactId,
+      name: a.name,
+      serviceId: a.serviceId,
+      serviceName: a.serviceName,
+      mode: BACKUP_MODE[a.mode] ?? 'snapshot',
+      status: BACKUP_STATUS[a.status] ?? 'other',
+      createdAt: a.createdAt,
+    })),
+  scheduled: scheduled
+    .filter((s) => isMongo(s.vendor))
+    .map((s) => ({
+      scheduledBackupId: s.scheduledBackupId,
+      name: s.name,
+      serviceId: s.serviceId,
+      serviceName: s.serviceName,
+      mode: BACKUP_MODE[s.mode] ?? 'snapshot',
+      enabled: s.enabled,
+      cronExpression: s.cronExpression,
+      ...(s.nextRun ? { nextRun: s.nextRun } : {}),
+      ...(s.lastRun ? { lastRun: s.lastRun } : {}),
+    })),
+});
+
+/** Report rows with their average query time in seconds; the total row has no query id. */
+// QAN sends "NaN" as a string for an empty window.
+const finite = (value: unknown) => {
+  const number = Number(value);
+
+  return value != null && Number.isFinite(number) ? number : undefined;
+};
+
+export const toQanRows = (rows: QanReportRow[]): QanRowInput[] =>
+  rows.flatMap((row) => {
+    const numQueries =
+      finite(row.numQueries) ??
+      finite(row.metrics?.numQueries?.stats?.sum) ??
+      0;
+    const stats = row.metrics?.queryTime?.stats;
+    const sum = finite(stats?.sum);
+    const avgQueryTime =
+      finite(stats?.avg) ??
+      (sum !== undefined && numQueries > 0 ? sum / numQueries : undefined);
+
+    return row.dimension && avgQueryTime !== undefined
+      ? [
+          {
+            queryId: row.dimension,
+            fingerprint: row.fingerprint ?? row.dimension,
+            numQueries,
+            avgQueryTime,
+          },
+        ]
+      : [];
+  });
+
+export const qanLabels = (environment: string | null): QanReportLabel[] => [
+  { key: 'service_type', value: ['mongodb'] },
+  ...(environment === null
+    ? []
+    : [
+        {
+          key: 'environment',
+          value: [environment === HUB_NO_ENVIRONMENT ? '' : environment],
+        },
+      ]),
+];
+
+/** The last hour against the 24 hours before it. */
+export const fetchQan = async (
+  environment: string | null,
+  now = Date.now()
+) => {
+  const labels = qanLabels(environment);
+  const [current, baseline] = await Promise.all([
+    getReport({ from: new Date(now - HOUR), to: new Date(now), labels }),
+    getReport({
+      from: new Date(now - 25 * HOUR),
+      to: new Date(now - HOUR),
+      labels,
+    }),
+  ]);
+
+  return { current: toQanRows(current), baseline: toQanRows(baseline) };
+};
+
+export const toRtaQueries = (queries: QueryData[]): RtaQueryInput[] =>
+  queries.map((query) => {
+    const { databaseName, collection, operation } = query.mongoDbPayload ?? {};
+
+    return {
+      serviceId: query.serviceId,
+      serviceName: query.serviceName,
+      queryText: query.queryText,
+      ...(operation ? { operation } : {}),
+      ...(databaseName && collection
+        ? { namespace: `${databaseName}.${collection}` }
+        : {}),
+      // useRealtimeQueries stores seconds in this field, whatever its name says.
+      durationMs: (query.queryExecutionDurationMs ?? 0) * 1000,
+    };
+  });
+
+const TERMINAL_RUN = new Set([
+  'RUN_STATUS_SUCCESS',
+  'RUN_STATUS_PARTIAL',
+  'RUN_STATUS_FAILED',
+]);
+const FAILED_RUN = new Set(['RUN_STATUS_PARTIAL', 'RUN_STATUS_FAILED']);
+const FAILED_INSTALL = new Set(['failed', 'rolled_back']);
+
+/** Service counts, and the failures worth a row: the newest scan if it failed, and failed installs. */
+export const toOperationsInput = (
+  topology: OmTopologyResponse,
+  runs: OmInventoryRun[],
+  bootstrapRuns: OmBootstrapRunSummary[],
+  environment: string | null
+): MongoOperationsInput => {
+  let services = 0;
+  let up = 0;
+
+  topology.environments.forEach((env) => {
+    const shown = matchesEnvironment(env.env_name, environment);
+
+    if (!shown) {
+      return;
+    }
+    env.clusters.forEach((cluster) => {
+      services += cluster.services.length;
+      up += cluster.services.filter(
+        (service) => service.status === 'SERVICE_STATUS_UP'
+      ).length;
+    });
+  });
+
+  const lastScan = [...runs]
+    .filter((run) => TERMINAL_RUN.has(run.status))
+    .sort((a, b) => Date.parse(b.start_time) - Date.parse(a.start_time))[0];
+  const lastScanAt = lastScan
+    ? (lastScan.end_time ?? lastScan.start_time)
+    : undefined;
+
+  return {
+    summary: { services, up, ...(lastScanAt ? { lastScanAt } : {}) },
+    // Operations does not report upgrades yet.
+    upgrades: [],
+    failedRuns: [
+      ...(lastScan && FAILED_RUN.has(lastScan.status)
+        ? [
+            {
+              id: lastScan.run_id,
+              kind: 'scan' as const,
+              target: '',
+              finishedAt: lastScanAt ?? lastScan.start_time,
+              ...(lastScan.failing_nodes?.length
+                ? { failingNodes: lastScan.failing_nodes.length }
+                : {}),
+            },
+          ]
+        : []),
+      ...bootstrapRuns
+        .filter(
+          (run) =>
+            FAILED_INSTALL.has(run.status) &&
+            matchesEnvironment(run.environment, environment)
+        )
+        .map((run) => ({
+          id: run.run_id,
+          kind: 'install' as const,
+          target:
+            run.hosts.map((host) => host.host).join(', ') ||
+            run.replica_set_name,
+          finishedAt: run.finished_at ?? run.started_at,
+        })),
+    ],
+  };
+};
+
+/** Grafana's recently viewed dashboards, else the ones PMM search recorded. */
+export const readRecentDashboards = (user: {
+  orgId: number;
+  id: number;
+}): Array<{ uid: string; visitedAt?: string }> => {
+  const impressions = readImpressions(user.orgId);
+
+  if (impressions.length) {
+    return impressions.map((uid) => ({ uid }));
+  }
+
+  return readRecent(getRecentKey(user))
+    .filter((entry) => entry.kind === 'dashboard')
+    .sort((a, b) => b.at - a.at)
+    .map((entry) => ({
+      uid: entry.id.replace(/^dashboard:/, ''),
+      visitedAt: new Date(entry.at).toISOString(),
+    }));
+};
+
+/** A failed refresh keeps the last good data and its time, so the page reads stale instead of losing what it showed. */
+const sourceState = (
+  enabled: boolean,
+  query: Pick<
+    UseQueryResult<unknown>,
+    'data' | 'isPending' | 'isError' | 'error' | 'dataUpdatedAt'
+  >,
+  refreshEvery?: number
+): HubSourceState => {
+  if (!enabled) {
+    return { status: 'disabled' };
+  }
+  if (query.isError && query.data === undefined) {
+    return {
+      status: 'error',
+      ...(query.error instanceof Error ? { message: query.error.message } : {}),
+    };
+  }
+  if (query.isPending) {
+    return { status: 'loading' };
+  }
+
+  return {
+    status: 'ready',
+    ...(query.dataUpdatedAt ? { updatedAt: query.dataUpdatedAt } : {}),
+    ...(refreshEvery ? { refreshEvery } : {}),
+  };
+};
+
+/** The data a query holds, kept through a failed refresh; null only when it never loaded. */
+const lastGood = <T>(query: { data: T | undefined; isError: boolean }) =>
+  query.data === undefined && query.isError ? null : query.data;
+
+const combine = (...states: HubSourceState[]): HubSourceState =>
+  states.find((state) => state.status === 'error') ??
+  states.find((state) => state.status === 'loading') ??
+  states.find((state) => state.status === 'ready') ??
+  states[0];
+
+/** Every live source of the MongoDB hub, each its own query, so one failure blanks only its section. */
+export const useMongoLiveSnapshot = ({
+  enabled,
+  refreshEvery,
+  environment,
+  operations,
+}: HubLiveContext): HubLiveResult<MongoSnapshot> => {
+  const { settings } = useSettings();
+  const { user } = useUser();
+  const alertsEnabled = enabled && settings?.alertingEnabled === true;
+  const backupsEnabled = enabled && settings?.backupManagementEnabled === true;
+  const opsEnabled = enabled && operations;
+  const I = MONGO_HUB_INTERVALS;
+  // Each scheduled source at the picked interval, but a slow one never faster than its own; none with auto-refresh off.
+  const every = (own: number) =>
+    refreshEvery === false
+      ? undefined
+      : own > MINUTE
+        ? Math.max(own, refreshEvery)
+        : refreshEvery;
+
+  // Scheduled sources catch up as soon as the tab is back, so a hidden tab never reads stale on return.
+  const inventory = useQuery({
+    queryKey: [MONGO_HUB_KEYS.services],
+    queryFn: () => listManagedServicesQuietly(ServiceType.mongodb),
+    enabled,
+    refetchInterval: every(I.inventory),
+    refetchOnWindowFocus: true,
+  });
+  const metrics = useQuery({
+    queryKey: [MONGO_HUB_KEYS.metrics, { environment }],
+    queryFn: ({ signal }) => fetchMongoMetrics(environment, signal),
+    enabled,
+    refetchInterval: every(I.metrics),
+    refetchIntervalInBackground: true,
+  });
+  const alerts = usePrometheusAlertRules({
+    enabled: alertsEnabled,
+    refetchInterval: every(I.alerts),
+    refetchIntervalInBackground: true,
+  });
+  const backups = useQuery({
+    queryKey: [MONGO_HUB_KEYS.backups],
+    queryFn: async () => {
+      const [artifacts, scheduled] = await Promise.all([
+        listArtifacts(),
+        listScheduled(),
+      ]);
+
+      return toBackupsInput(true, artifacts, scheduled);
+    },
+    enabled: backupsEnabled,
+    refetchInterval: every(I.backups),
+    refetchOnWindowFocus: true,
+  });
+  const qan = useQuery({
+    queryKey: [MONGO_HUB_KEYS.qan, { environment }],
+    queryFn: () => fetchQan(environment),
+    enabled,
+    refetchInterval: every(I.qan),
+    refetchOnWindowFocus: true,
+  });
+  const sessions = useRealtimeSessions({
+    enabled,
+    refetchInterval: every(I.realtimeSessions),
+    refetchOnWindowFocus: true,
+  });
+  const services = useMemo(
+    () => toServiceInputs(inventory.data ?? []),
+    [inventory.data]
+  );
+  const sessionServiceIds = useMemo(() => {
+    const mongo = new Set(services.map((service) => service.serviceId));
+
+    return (sessions.data ?? [])
+      .filter(
+        (session) =>
+          session.status === RealtimeSessionStatus.running &&
+          mongo.has(session.serviceId)
+      )
+      .map((session) => session.serviceId)
+      .sort();
+  }, [services, sessions.data]);
+  const realtime = useRealtimeQueries(
+    { serviceIds: sessionServiceIds },
+    {
+      enabled: enabled && sessionServiceIds.length > 0,
+      refetchInterval: every(I.realtimeQueries),
+      refetchOnWindowFocus: true,
+    }
+  );
+  const topology = useQuery({
+    queryKey: [MONGO_HUB_KEYS.topology],
+    queryFn: getTopology,
+    enabled: opsEnabled,
+    refetchInterval: every(I.topology),
+    refetchIntervalInBackground: true,
+  });
+  const runs = useQuery({
+    queryKey: [MONGO_HUB_KEYS.runs, OM_RUNS_LIMIT],
+    queryFn: () => getRuns(OM_RUNS_LIMIT),
+    enabled: opsEnabled,
+    refetchInterval: every(I.runs),
+    refetchOnWindowFocus: true,
+  });
+  const bootstrapRuns = useQuery({
+    queryKey: [MONGO_HUB_KEYS.bootstrapRuns, OM_RUNS_LIMIT],
+    queryFn: () => getBootstrapRuns(OM_RUNS_LIMIT),
+    enabled: opsEnabled,
+    refetchInterval: every(I.runs),
+    refetchOnWindowFocus: true,
+  });
+  const catalog = useQuery({
+    queryKey: [MONGO_HUB_KEYS.dashboards, DASHBOARD_QUERY],
+    queryFn: () => searchDashboards(DASHBOARD_QUERY),
+    enabled,
+    staleTime: MONGO_HUB_INTERVALS.dashboardsStale,
+  });
+  const recent = useQuery({
+    queryKey: [MONGO_HUB_KEYS.recentDashboards, user?.orgId, user?.id],
+    queryFn: () => (user ? readRecentDashboards(user) : []),
+    enabled: enabled && !!user,
+    staleTime: 0,
+    refetchOnWindowFocus: 'always',
+  });
+
+  // Keyed by content, so the sources (and the snapshot) keep their identity between renders.
+  const sourcesKey = JSON.stringify({
+    inventory: sourceState(enabled, inventory, every(I.inventory)),
+    metrics: sourceState(enabled, metrics, every(I.metrics)),
+    alerts: sourceState(alertsEnabled, alerts, every(I.alerts)),
+    backups: sourceState(backupsEnabled, backups, every(I.backups)),
+    qan: sourceState(enabled, qan, every(I.qan)),
+    realtime: combine(
+      sourceState(enabled, sessions, every(I.realtimeSessions)),
+      ...(sessionServiceIds.length
+        ? [sourceState(enabled, realtime, every(I.realtimeQueries))]
+        : [])
+    ),
+    operations: combine(
+      sourceState(opsEnabled, topology, every(I.topology)),
+      sourceState(opsEnabled, runs, every(I.runs)),
+      sourceState(opsEnabled, bootstrapRuns, every(I.runs))
+    ),
+    dashboards: sourceState(enabled, catalog),
+  } satisfies Record<HubSourceId, HubSourceState>);
+  const sources = useMemo(
+    () => JSON.parse(sourcesKey) as Record<HubSourceId, HubSourceState>,
+    [sourcesKey]
+  );
+
+  // What each source last delivered; null only for one that never loaded.
+  const inventoryData = lastGood(inventory);
+  const metricsData = lastGood(metrics);
+  const alertsData = lastGood(alerts);
+  const backupsData = lastGood(backups);
+  const qanData = lastGood(qan);
+  const sessionsData = lastGood(sessions);
+  const realtimeData = lastGood(realtime);
+  const runsData = lastGood(runs);
+  const bootstrapRunsData = lastGood(bootstrapRuns);
+
+  const snapshot = useMemo<MongoSnapshot>(() => {
+    const updated = Object.values(sources).flatMap((source) =>
+      source.updatedAt ? [source.updatedAt] : []
+    );
+
+    return {
+      fetchedAt: updated.length ? Math.max(...updated) : Date.now(),
+      services: inventoryData === null ? null : services,
+      metrics: metricsData === null ? null : (metricsData ?? EMPTY_METRICS),
+      alerts:
+        alertsData === null
+          ? null
+          : toAlertInputs(alertsData ?? undefined, services),
+      alertRules: alertsEnabled && alertsData ? toAlertRules(alertsData) : null,
+      backups: !backupsEnabled
+        ? toBackupsInput(false, [], [])
+        : (backupsData ?? null),
+      qan: qanData === null ? null : (qanData ?? { current: [], baseline: [] }),
+      realtime:
+        sessionsData === null || realtimeData === null
+          ? null
+          : {
+              sessionServiceIds,
+              queries: toRtaQueries(
+                sessionServiceIds.length ? (realtimeData ?? []) : []
+              ),
+            },
+      operations:
+        opsEnabled &&
+        topology.data &&
+        runsData !== null &&
+        bootstrapRunsData !== null
+          ? toOperationsInput(
+              topology.data,
+              runsData ?? [],
+              bootstrapRunsData ?? [],
+              environment
+            )
+          : null,
+      dashboards: catalog.data
+        ? { catalog: catalog.data, recent: recent.data ?? [] }
+        : null,
+    };
+  }, [
+    sources,
+    inventoryData,
+    services,
+    metricsData,
+    alertsData,
+    alertsEnabled,
+    backupsData,
+    backupsEnabled,
+    qanData,
+    sessionsData,
+    realtimeData,
+    sessionServiceIds,
+    opsEnabled,
+    topology.data,
+    runsData,
+    bootstrapRunsData,
+    environment,
+    catalog.data,
+    recent.data,
+  ]);
+
+  const hasSessions = sessionServiceIds.length > 0;
+  const { refetch: refetchInventory } = inventory;
+  const { refetch: refetchMetrics } = metrics;
+  const { refetch: refetchAlerts } = alerts;
+  const { refetch: refetchBackups } = backups;
+  const { refetch: refetchQan } = qan;
+  const { refetch: refetchSessions } = sessions;
+  const { refetch: refetchRealtime } = realtime;
+  const { refetch: refetchTopology } = topology;
+  const { refetch: refetchRuns } = runs;
+  const { refetch: refetchBootstrapRuns } = bootstrapRuns;
+  const { refetch: refetchCatalog } = catalog;
+  const { refetch: refetchRecent } = recent;
+  const refetch = useCallback(() => {
+    if (!enabled) {
+      return;
+    }
+    const pending = [
+      refetchInventory,
+      refetchMetrics,
+      refetchQan,
+      refetchSessions,
+      refetchCatalog,
+      refetchRecent,
+      ...(alertsEnabled ? [refetchAlerts] : []),
+      ...(backupsEnabled ? [refetchBackups] : []),
+      ...(hasSessions ? [refetchRealtime] : []),
+      ...(opsEnabled
+        ? [refetchTopology, refetchRuns, refetchBootstrapRuns]
+        : []),
+    ];
+
+    pending.forEach((run) => void run());
+  }, [
+    enabled,
+    alertsEnabled,
+    backupsEnabled,
+    hasSessions,
+    opsEnabled,
+    refetchInventory,
+    refetchMetrics,
+    refetchAlerts,
+    refetchBackups,
+    refetchQan,
+    refetchSessions,
+    refetchRealtime,
+    refetchTopology,
+    refetchRuns,
+    refetchBootstrapRuns,
+    refetchCatalog,
+    refetchRecent,
+  ]);
+
+  const fetching = [
+    inventory,
+    metrics,
+    alerts,
+    backups,
+    qan,
+    sessions,
+    realtime,
+    topology,
+    runs,
+    bootstrapRuns,
+  ].some((query) => query.isFetching);
+
+  return { snapshot, sources, refetch, fetching };
+};

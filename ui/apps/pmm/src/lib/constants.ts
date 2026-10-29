@@ -49,6 +49,9 @@ export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 // bearer -- which is why it sits beside the PMM Extensions mounts above rather than under them.
 export const OM_PATH = `${PMM_NEW_NAV_PATH}/operations`;
 
+// The MongoDB hub, the page the sidebar's MongoDB entry opens (PMM-15353).
+export const MONGODB_HUB_PATH = `${PMM_NEW_NAV_PATH}/mongodb`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,

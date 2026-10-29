@@ -206,7 +206,7 @@ describe('flattenNavTree', () => {
 });
 
 describe('technologyDashboards', () => {
-  const dashboards = technologyDashboards();
+  const dashboards = technologyDashboards(navTreeFor(TEST_USER_ADMIN));
   const byId = (id: string) => dashboards.find((item) => item.id === id);
 
   it('labels each child with its technology first', () => {
@@ -229,6 +229,24 @@ describe('technologyDashboards', () => {
   it('drops the overview child, which opens the technology page itself', () => {
     expect(byId('dashboard:mysql-instance-overview')).toBeUndefined();
     expect(byId('dashboard:node-instance-overview')).toBeUndefined();
+  });
+
+  it('keeps the MongoDB overview dashboard, since the MongoDB entry opens its hub', () => {
+    expect(byId('dashboard:mongodb-instance-overview')).toMatchObject({
+      label: 'MongoDB overview',
+      description: ['Technologies', 'MongoDB'],
+      to: '/graph/d/mongodb-instance-overview/mongodb-instances-overview',
+    });
+  });
+
+  it('drops a child only when the sidebar entry opens it', () => {
+    const tree: NavItem[] = [
+      { ...NAV_MYSQL, url: '/mysql', children: undefined },
+    ];
+    const ids = technologyDashboards(tree).map((item) => item.id);
+
+    expect(ids).toContain('dashboard:mysql-instance-overview');
+    expect(ids).toContain('dashboard:node-instance-overview');
   });
 
   it('gives a high availability group’s place to its first child', () => {
