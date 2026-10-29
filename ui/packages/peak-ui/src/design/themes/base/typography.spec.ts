@@ -13,6 +13,7 @@ const FIGMA_LINES: Record<string, number[]> = {
   h4: [24, 30],
   h5: [23, 26],
   h6: [23, 24],
+  sectionHeading: [20],
   subHead1: [21],
   subHead2: [20],
   body1: [22],
@@ -25,9 +26,6 @@ const FIGMA_LINES: Record<string, number[]> = {
   inputLabel: [12],
   helperText: [15],
 };
-
-// Off-pixel line on main that peak-ui #70 restyles to Figma's 16/20px.
-const PENDING_RESTYLE: Record<string, number> = { sectionHeading: 17.5 };
 
 type Style = Record<string, unknown>;
 
@@ -86,7 +84,7 @@ const offPixel = (theme: Theme, line: Line): string | null => {
   const above = px - Math.round(px);
   // Rounding the ratio's fourth decimal up overshoots by at most 0.0001 per font px.
   if (above >= 0 && above <= fontPx(theme, line) * 0.0001 + 1e-9) return null;
-  return PENDING_RESTYLE[variant] === px ? null : `${variant} (${range}): ${px}px`;
+  return `${variant} (${range}): ${px}px`;
 };
 
 describe.each(THEMES)('%s theme typography', (themeName) => {
@@ -97,13 +95,6 @@ describe.each(THEMES)('%s theme typography', (themeName) => {
       const lines = allLines(theme);
       expect(lines.length).toBeGreaterThan(0);
       expect(lines.map((line) => offPixel(theme, line)).filter(Boolean)).toEqual([]);
-    });
-
-    it('pins only lines that are still off-pixel', () => {
-      const pinned = allLines(theme).filter(({ variant }) => variant in PENDING_RESTYLE);
-      expect(Object.fromEntries(pinned.map((line) => [line.variant, linePx(theme, line)]))).toEqual(
-        PENDING_RESTYLE
-      );
     });
 
     it.each(Object.entries(FIGMA_LINES))('gives %s the Figma line heights', (variant, expected) => {

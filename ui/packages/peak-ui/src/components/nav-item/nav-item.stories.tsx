@@ -59,7 +59,12 @@ const meta: Meta<typeof NavItem> = {
     // State
     selected: {
       control: 'boolean',
-      description: 'Highlights the item as the current active page.',
+      description:
+        'Highlights the item as the current page and tells assistive technology so with `aria-current="page"`. Pass `aria-current` to override it, e.g. `"true"` on a group that stands in for a hidden current page.',
+      table: { category: 'State', defaultValue: { summary: 'false' } },
+    },
+    hasSelectedChild: {
+      control: 'boolean',
       table: { category: 'State', defaultValue: { summary: 'false' } },
     },
     disabled: {
@@ -136,6 +141,28 @@ export const WithoutIcon: Story = {
   },
   args: {
     text: 'Query Analytics',
+  },
+};
+
+export const GroupWithSelectedChild: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When the current page is nested in a group, the nested item is `selected` and the group gets `hasSelectedChild`: it shows where the user is without a second selected background. Once the group is collapsed and the nested item is hidden, give the group `selected` instead.',
+      },
+    },
+  },
+  render: function Render() {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <NavItem text="Inventory" icon={<StorageOutlined />} hasSelectedChild />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 4.75 }}>
+          <NavItem text="Services" selected />
+          <NavItem text="Nodes" />
+        </Box>
+      </Box>
+    );
   },
 };
 
