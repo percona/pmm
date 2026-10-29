@@ -19,6 +19,9 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): PMM no longer supports Grafana anonymous access. Starting with PMM 3.8.0, enabling it also gave visitors without credentials Viewer access to PMM's own APIs, such as Query Analytics. If Grafana anonymous access is enabled, PMM Server now doesn't start, and `/srv/logs/pmm-managed.log` shows `Anonymous mode is not supported`. If you enabled it with `GF_AUTH_ANONYMOUS_ENABLED` or in `/etc/grafana/grafana.ini`, disable it before you upgrade. For details, see [Supported external variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables).
+- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): If access control is enabled, service account tokens are denied again on the Query Analytics and VictoriaMetrics query APIs, as they were before PMM 3.8.0. If your automation queries these APIs with a service account token, switch it to a user account that has the matching access role. For details, see [About label based access control (LBAC) in PMM](../admin/roles/access-control/intro.md).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
