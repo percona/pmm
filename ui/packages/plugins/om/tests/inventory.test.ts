@@ -16,17 +16,21 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { SCAN_ERROR_KIND, SERVICE_SCAN_ERROR_KIND } from '../src/constants';
 import {
   ageSeconds,
   databaseState,
   describeScanFailure,
+  describeServiceScanFailure,
   expectedScanSeconds,
   groupRuns,
   isBoundedPeriod,
   isFailing,
   isRunPeriod,
   joinServiceInventory,
+  notRunningScanAt,
   periodSince,
+  processReadAt,
   repoReachability,
   scanErrorCode,
   toHostRows,
@@ -465,6 +469,107 @@ describe('describeScanFailure', () => {
     expect(failure?.shortReason.length).toBe(80);
     expect(failure?.shortReason.endsWith('…')).toBe(true);
     expect(failure?.error).toBe(`${long}\nsecond line`);
+  });
+});
+
+describe('describeServiceScanFailure', () => {
+  const now = Date.parse('2026-10-07T10:24:05Z');
+
+  it.each(Object.keys(SERVICE_SCAN_ERROR_KIND))(
+    'words %s for the service, with a hint',
+    (code) => {
+      const failure = describeServiceScanFailure(
+        freshness({
+          failing_since: '2026-10-07T08:24:05Z',
+          consecutive_failures: 1,
+          last_error: 'raw detail',
+          last_error_code: code,
+        }),
+        now
+      );
+
+      expect(failure?.code).toBe(code);
+      expect(failure?.hint).toBeTruthy();
+      expect(failure?.hint).not.toMatch(/\bthis node\b/);
+    }
+  );
+
+  // The node's no_output hint says "nothing about this node"; a service row
+  // reading it would send the reader to the node when the service is what is missing.
+  it('does not reuse the node hint for no_output', () => {
+    const failure = describeServiceScanFailure(
+      freshness({
+        failing_since: '2026-10-07T08:24:05Z',
+        consecutive_failures: 1,
+        last_error_code: 'no_output',
+      }),
+      now
+    );
+
+    expect(failure?.hint).not.toBe(SCAN_ERROR_KIND.no_output.hint);
+    expect(failure?.hint).toMatch(/this service/);
+  });
+});
+
+describe('processReadAt and notRunningScanAt', () => {
+  const inventory = (
+    overrides: Partial<OmInventoryService> = {},
+    fresh: Partial<OmInventoryFreshness> = {}
+  ): OmInventoryService => ({
+    service_id: 's1',
+    node_id: 'n1',
+    observed: {},
+    server_running: false,
+    freshness: freshness({
+      last_attempt_at: '2026-10-07T10:00:00Z',
+      last_success_at: '2026-10-07T09:00:00Z',
+      ...fresh,
+    }),
+    ...overrides,
+  });
+  const failing = (code: string) => ({
+    failing_since: '2026-10-07T10:00:00Z',
+    consecutive_failures: 1,
+    last_error_code: code,
+  });
+
+  it('dates a healthy scan by its success', () => {
+    expect(notRunningScanAt(inventory())).toBe('2026-10-07T09:00:00Z');
+  });
+
+  it.each([
+    ['database_unreachable'],
+    ['database_auth_failed'],
+    ['database_error'],
+  ])('dates a %s failure by the attempt, which read the process', (code) => {
+    expect(notRunningScanAt(inventory({}, failing(code)))).toBe(
+      '2026-10-07T10:00:00Z'
+    );
+  });
+
+  // These never reached the service, so the stored reading is an older scan's.
+  it.each([
+    ['timed_out'],
+    ['no_output'],
+    ['scan_crashed'],
+    ['environment_setup_failed'],
+    ['unknown'],
+  ])('cannot date the reading after a %s failure', (code) => {
+    expect(processReadAt(inventory({}, failing(code)))).toBeNull();
+    expect(notRunningScanAt(inventory({}, failing(code)))).toBeNull();
+  });
+
+  it.each([[true], [null], [undefined]])(
+    'says nothing for server_running %s',
+    (running) => {
+      expect(
+        notRunningScanAt(inventory({ server_running: running }))
+      ).toBeNull();
+    }
+  );
+
+  it('says nothing without a scan row', () => {
+    expect(notRunningScanAt(null)).toBeNull();
   });
 });
 

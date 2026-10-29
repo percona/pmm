@@ -201,6 +201,69 @@ export const SCAN_ERROR_KIND: Record<
   },
 };
 
+/**
+ * {@link SCAN_ERROR_KIND} as a service row reads it.
+ *
+ * A service fails for every reason its node can, since it is scanned by the node's
+ * job, plus `no_output`, which for a service means the node answered without it. A
+ * hint that says "this node" on a service row sends the reader to the wrong place, so
+ * every kind is worded for the service, and every one carries a hint: on Fleet the
+ * Nodes page, where the node's own failure is described, is advice worth giving.
+ */
+export const SERVICE_SCAN_ERROR_KIND: Record<
+  OmScanErrorCode,
+  { label: string; hint: string }
+> = {
+  dispatch_rejected: {
+    label: 'Scan not queued',
+    hint: "The scan of this service's node could not be queued. This is usually temporary load on PMM Extensions; it is retried on the next scan.",
+  },
+  not_started: {
+    label: 'Scan never started',
+    hint: "The scan of this service's node was queued but never started. Check that PMM Extensions' workers are running.",
+  },
+  timed_out: {
+    label: 'Scan timed out',
+    hint: "The scan of this service's node did not finish in time. Check that the node is up and not overloaded.",
+  },
+  blocked: {
+    label: 'Blocked by a stuck scan',
+    hint: "A scan of this service's node that was given up on could not be stopped, and blocks the node's next scans until it is stopped. The Nodes page shows the node's own state.",
+  },
+  environment_setup_failed: {
+    label: 'Environment setup failed',
+    hint: "This service's node could not prepare the scan's Python environment. Install python3 and python3-venv on it, and allow it to reach PyPI or configure a pip mirror or proxy.",
+  },
+  scan_crashed: {
+    label: 'Scan crashed',
+    hint: "The scan crashed on this service's node before it reported the service. Check the node's Python version.",
+  },
+  scan_lost: {
+    label: 'Scan lost',
+    hint: "The scan was lost before it reported, usually because this service's node or its agent restarted. It is retried on the next scan.",
+  },
+  no_output: {
+    label: 'Not found by the scan',
+    hint: 'The node answered, but the scan reported nothing for this service. Check that mongod is running on the node and listens on the port PMM has registered for this service.',
+  },
+  database_unreachable: {
+    label: 'Database unreachable',
+    hint: 'The scan could not connect to this service. Check that mongod is running and its port is reachable from its node.',
+  },
+  database_auth_failed: {
+    label: 'Database authentication failed',
+    hint: "This service rejected the scan's credentials. Check the credentials file the scan uses on this service's node.",
+  },
+  database_error: {
+    label: 'Database error',
+    hint: 'This service returned an error to the scan. The error above is what it said.',
+  },
+  unknown: {
+    label: 'Scan failed',
+    hint: 'Operations could not tell what kind of failure this is; the error above is what the scan recorded. If the Nodes page shows the node failing too, start there.',
+  },
+};
+
 export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
   service_not_observed:
     'Not observed — the service has no automation agent, or it did not answer this run',
@@ -436,6 +499,10 @@ export const FLEET_NOT_COLLECTED =
  */
 export const NOMAD_DOC_URL =
   'https://docs.percona.com/percona-monitoring-and-management/3/reference/nomad.html';
+
+/** The Operations for MongoDB guide, for a fleet tab with nothing on it yet. */
+export const OPERATIONS_DOC_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/3/use/mongodb-operations.html';
 
 /**
  * The pmm-agent version that first carries an automation agent.

@@ -108,6 +108,38 @@ describe('ServiceDetailDrawer', () => {
     expect(screen.getByRole('link')).toBeInTheDocument();
   });
 
+  it('dates whether mongod was running by the scan that read it', () => {
+    renderDrawer({
+      row: row({ inventory: scanned({ server_running: false }) }),
+    });
+
+    expect(screen.getByText(/^Not running, at the scan/)).toBeInTheDocument();
+    expect(screen.queryByTestId('scan-failure')).toBeNull();
+  });
+
+  it('leads with the failure when the scans are failing', () => {
+    renderDrawer({
+      row: row({
+        inventory: scanned({
+          freshness: {
+            last_success_at: '2026-10-06T09:00:00Z',
+            failing_since: '2026-10-06T10:00:00Z',
+            consecutive_failures: 3,
+            last_error: 'Authentication failed.',
+            last_error_code: 'database_auth_failed',
+          },
+        }),
+      }),
+    });
+
+    const panel = screen.getByTestId('scan-failure');
+    expect(panel).toHaveTextContent(
+      'Scans failing: Database authentication failed'
+    );
+    expect(panel).toHaveTextContent('Authentication failed.');
+    expect(panel).toHaveTextContent('Check the credentials file');
+  });
+
   it('closes on the close button', () => {
     const onClose = vi.fn();
     renderDrawer({ onClose });

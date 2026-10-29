@@ -19,6 +19,7 @@ import { useMemo, useState } from 'react';
 import {
   Box,
   LinearProgress,
+  Link,
   Stack,
   Table,
   TableBody,
@@ -39,7 +40,11 @@ import {
   type MRT_Row,
   type MRT_TableInstance,
 } from 'material-react-table';
-import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
+import {
+  FLEET_NOT_COLLECTED,
+  OPERATIONS_DOC_URL,
+  PROCESS_ROLE_LABEL,
+} from './constants';
 import { NESTED_TABLE_WRAPPER } from './nestedTable';
 import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
@@ -53,6 +58,7 @@ import {
   type GroupByOption,
 } from './components/GroupBySelect';
 import { useOmTopology } from './topologyHooks';
+import { useOmInventoryServices } from './inventoryHooks';
 import { pluralize } from './format';
 import { clusterHealthRank, downFirst, toClusterRows } from './topology';
 import type { OmClusterHealth, OmClusterRow, OmProcessRole } from './types';
@@ -593,6 +599,11 @@ const Counts = ({
  */
 export const FleetClustersTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
+  // Read only to say when it fails. This tab shows no scan results, but the Services
+  // tab beside it does, and the reader should learn they are missing here rather
+  // than from a column of blanks one click away. Same query, so it is shared.
+  const { isError: inventoryFailed, error: inventoryError } =
+    useOmInventoryServices();
   const rows = useMemo(() => toClusterRows(data), [data]);
 
   if (isPending) {
@@ -616,6 +627,17 @@ export const FleetClustersTab = () => {
     <Stack gap={3}>
       <Stack gap={1}>
         <SnapshotBar envelope={data.snapshot} />
+        {inventoryFailed && (
+          <OmError
+            placement="load"
+            severity="warning"
+            title="Could not read scan results"
+            messages={[
+              "The Services tab shows no scan status until Operations can read them again. The clusters and their health come from PMM's own data and are unaffected.",
+              inventoryError instanceof Error ? inventoryError.message : null,
+            ]}
+          />
+        )}
         <Counts
           environments={data.summary.environments}
           clusters={data.summary.clusters}
@@ -631,7 +653,10 @@ export const FleetClustersTab = () => {
           each one&apos;s members.{' '}
           {data.snapshot.generated_at
             ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
-            : FLEET_NOT_COLLECTED}
+            : FLEET_NOT_COLLECTED}{' '}
+          <Link href={OPERATIONS_DOC_URL} target="_blank" rel="noopener">
+            Read about Operations for MongoDB
+          </Link>
         </EmptyState>
       ) : (
         <ClustersTable rows={rows} />

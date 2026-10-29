@@ -21,11 +21,18 @@ import CloseIcon from '@mui/icons-material/Close';
 import { StatusBadge } from './HealthBadge';
 import { MemberState } from './MemberState';
 import { Duration, Percent } from './Metric';
+import { Age } from './Age';
 import { ProbeValue } from './ProbeValue';
+import { ScanFailureDetail } from './ScanFailureDetail';
 import { ServiceLink } from './ServiceLink';
 import { Unavailable } from './Unavailable';
 import { PROCESS_ROLE_LABEL } from '../constants';
-import type { OmEstateStatus } from '../inventory';
+import {
+  describeServiceScanFailure,
+  notRunningScanAt,
+  processReadAt,
+  type OmEstateStatus,
+} from '../inventory';
 import type { OmServiceInventoryRow } from '../types';
 
 /**
@@ -73,6 +80,32 @@ const Group = ({ title, children }: { title: string; children: ReactNode }) => (
   </Box>
 );
 
+/**
+ * Whether a scan found mongod running, dated by that scan. A reading the page cannot
+ * date is an older scan's, so it goes through `ProbeValue` and is marked stale.
+ */
+const ProcessRunning = ({
+  row,
+  estate,
+}: {
+  row: OmServiceInventoryRow;
+  estate: OmEstateStatus;
+}) => {
+  const running = row.inventory?.server_running;
+  const reading = running == null ? null : running ? 'Running' : 'Not running';
+  const readAt = processReadAt(row.inventory);
+  if (reading === null || readAt === null) {
+    return (
+      <ProbeValue inventory={row.inventory} value={reading} estate={estate} />
+    );
+  }
+  return (
+    <Typography variant="body2">
+      {reading}, at the scan <Age value={readAt} />
+    </Typography>
+  );
+};
+
 /** A plain string field, or the reason it is absent. */
 const Text = ({ value }: { value: string | null | undefined }) =>
   value ? (
@@ -91,155 +124,173 @@ export const ServiceDetailDrawer = ({
   /** What the estate query is doing, so a missing scan row reads correctly. */
   estate: OmEstateStatus;
   onClose: () => void;
-}) => (
-  <Drawer
-    anchor="right"
-    open={row !== null}
-    onClose={onClose}
-    slotProps={{
-      paper: {
-        sx: { width: DRAWER_WIDTH },
-        role: 'dialog',
-        'aria-modal': true,
-        'aria-labelledby': HEADING_ID,
-      },
-    }}
-    data-testid="om-service-detail-drawer"
-  >
-    {row && (
-      <Stack sx={{ height: '100%' }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          gap={1}
-          sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-              variant="h6"
-              noWrap
-              title={row.service_name}
-              id={HEADING_ID}
-            >
-              {row.service_name}
-            </Typography>
-          </Box>
-          <StatusBadge status={row.status} lastUpAt={row.last_up_at} />
-          <IconButton
-            size="small"
-            onClick={onClose}
-            aria-label="Close service details"
+}) => {
+  const failure = row?.inventory
+    ? describeServiceScanFailure(row.inventory.freshness)
+    : null;
+  return (
+    <Drawer
+      anchor="right"
+      open={row !== null}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: { width: DRAWER_WIDTH },
+          role: 'dialog',
+          'aria-modal': true,
+          'aria-labelledby': HEADING_ID,
+        },
+      }}
+      data-testid="om-service-detail-drawer"
+    >
+      {row && (
+        <Stack sx={{ height: '100%' }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={1}
+            sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}
           >
-            <CloseIcon />
-          </IconButton>
-        </Stack>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                variant="h6"
+                noWrap
+                title={row.service_name}
+                id={HEADING_ID}
+              >
+                {row.service_name}
+              </Typography>
+            </Box>
+            <StatusBadge
+              status={row.status}
+              lastUpAt={row.last_up_at}
+              notRunningAt={notRunningScanAt(row.inventory)}
+            />
+            <IconButton
+              size="small"
+              onClick={onClose}
+              aria-label="Close service details"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
 
-        <Stack sx={{ p: 2, flex: 1, overflowY: 'auto' }} gap={2.5}>
-          <Group title="Where it runs">
-            <Field label="Node">
-              <Text value={row.host} />
-            </Field>
-            <Field label="Environment">
-              <Text value={row.env_name} />
-            </Field>
-            <Field label="Cluster">
-              <Text value={row.cluster_name} />
-            </Field>
-            <Field label="Replication set">
-              <Text value={row.replication_set} />
-            </Field>
-            <Field label="Endpoint">
-              <Text value={row.endpoint} />
-            </Field>
-          </Group>
+          <Stack sx={{ p: 2, flex: 1, overflowY: 'auto' }} gap={2.5}>
+            {/* First, because a failing scan is why the rest of the drawer may be
+              stale: every scan field below is from the last scan that answered. */}
+            {failure && <ScanFailureDetail failure={failure} />}
 
-          <Group title="What it is">
-            <Field label="Member state">
-              <MemberState service={row} />
-            </Field>
-            <Field label="Process">
-              <Text
-                value={PROCESS_ROLE_LABEL[row.process_role] ?? row.process_role}
-              />
-            </Field>
-            <Field label="Service type">
-              <Text value={row.service_type} />
-            </Field>
-            <Field label="Vendor">
-              <Text value={row.vendor} />
-            </Field>
-            <Field label="Edition">
-              <Text value={row.edition} />
-            </Field>
-            <Field label="Version">
-              <Text value={row.version} />
-            </Field>
-            <Field label="Installed version">
-              {/* From the scan rather than the fleet document, so an absent value
+            <Group title="Where it runs">
+              <Field label="Node">
+                <Text value={row.host} />
+              </Field>
+              <Field label="Environment">
+                <Text value={row.env_name} />
+              </Field>
+              <Field label="Cluster">
+                <Text value={row.cluster_name} />
+              </Field>
+              <Field label="Replication set">
+                <Text value={row.replication_set} />
+              </Field>
+              <Field label="Endpoint">
+                <Text value={row.endpoint} />
+              </Field>
+            </Group>
+
+            <Group title="What it is">
+              <Field label="Member state">
+                <MemberState service={row} />
+              </Field>
+              <Field label="Process">
+                <Text
+                  value={
+                    PROCESS_ROLE_LABEL[row.process_role] ?? row.process_role
+                  }
+                />
+              </Field>
+              <Field label="Service type">
+                <Text value={row.service_type} />
+              </Field>
+              <Field label="Vendor">
+                <Text value={row.vendor} />
+              </Field>
+              <Field label="Edition">
+                <Text value={row.edition} />
+              </Field>
+              <Field label="Version">
+                <Text value={row.version} />
+              </Field>
+              <Field label="Installed version">
+                {/* From the scan rather than the fleet document, so an absent value
                   means something different and `ProbeValue` says which. */}
-              <ProbeValue
-                inventory={row.inventory}
-                value={row.inventory?.installed_version}
-                estate={estate}
-              />
-            </Field>
-          </Group>
+                <ProbeValue
+                  inventory={row.inventory}
+                  value={row.inventory?.installed_version}
+                  estate={estate}
+                />
+              </Field>
+            </Group>
 
-          <Group title="Load">
-            <Field label="CPU">
-              <Percent value={row.cpu_usage_percent} />
-            </Field>
-            <Field label="Connections free">
-              <Percent value={row.connections_free_percent} />
-            </Field>
-            <Field label="Replication lag">
-              <Duration value={row.replication_lag_seconds} />
-            </Field>
-            <Field label="Oplog window">
-              <Duration value={row.oplog_window_seconds} />
-            </Field>
-          </Group>
+            <Group title="Load">
+              <Field label="CPU">
+                <Percent value={row.cpu_usage_percent} />
+              </Field>
+              <Field label="Connections free">
+                <Percent value={row.connections_free_percent} />
+              </Field>
+              <Field label="Replication lag">
+                <Duration value={row.replication_lag_seconds} />
+              </Field>
+              <Field label="Oplog window">
+                <Duration value={row.oplog_window_seconds} />
+              </Field>
+            </Group>
 
-          <Group title="What a scan found">
-            <Field label="Config path">
-              <ProbeValue
-                inventory={row.inventory}
-                value={row.inventory?.config_path}
-                estate={estate}
-              />
-            </Field>
-            <Field label="Command line">
-              {/* The one field that is a paragraph rather than a value, and the
+            <Group title="What a scan found">
+              <Field label="mongod process">
+                <ProcessRunning row={row} estate={estate} />
+              </Field>
+              <Field label="Config path">
+                <ProbeValue
+                  inventory={row.inventory}
+                  value={row.inventory?.config_path}
+                  estate={estate}
+                />
+              </Field>
+              <Field label="Command line">
+                {/* The one field that is a paragraph rather than a value, and the
                   reason the table could never show it: in a cell it is either
                   truncated to uselessness or it sets the table's width. */}
-              <ProbeValue
-                inventory={row.inventory}
-                value={row.inventory?.argv}
-                estate={estate}
-              />
-            </Field>
-          </Group>
+                <ProbeValue
+                  inventory={row.inventory}
+                  value={row.inventory?.argv}
+                  estate={estate}
+                />
+              </Field>
+            </Group>
 
-          <Group title="Identifiers">
-            <Field label="Service ID">
-              <Text value={row.service_id} />
-            </Field>
-            <Field label="Node ID">
-              <ProbeValue
-                inventory={row.inventory}
-                value={row.inventory?.node_id}
-                estate={estate}
-              />
-            </Field>
-          </Group>
+            <Group title="Identifiers">
+              <Field label="Service ID">
+                <Text value={row.service_id} />
+              </Field>
+              <Field label="Node ID">
+                <ProbeValue
+                  inventory={row.inventory}
+                  value={row.inventory?.node_id}
+                  estate={estate}
+                />
+              </Field>
+            </Group>
 
-          <Box>
-            {/* The design review's last P17 bullet: a detail view links out to
+            <Box>
+              {/* The design review's last P17 bullet: a detail view links out to
                 where the rest of PMM describes the same service. */}
-            <ServiceLink serviceName={row.service_name} />
-          </Box>
+              <ServiceLink serviceName={row.service_name} />
+            </Box>
+          </Stack>
         </Stack>
-      </Stack>
-    )}
-  </Drawer>
-);
+      )}
+    </Drawer>
+  );
+};
