@@ -36,6 +36,9 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  ShareIcon,
+  StarFillIcon,
+  StarIcon,
   SupportDiagnosticsIcon,
 } from '../../components/icons';
 
@@ -209,6 +212,24 @@ const customIcons: CustomIconEntry[] = [
     importName: 'ExtensionIcon',
     designName: 'extension',
     keywords: 'extension app plugin add-on puzzle piece integration',
+  },
+  {
+    component: StarIcon,
+    importName: 'StarIcon',
+    designName: 'star',
+    keywords: 'star favorite starred bookmark pin',
+  },
+  {
+    component: StarFillIcon,
+    importName: 'StarFillIcon',
+    designName: 'star-fill',
+    keywords: 'star favorite starred bookmark pin filled selected',
+  },
+  {
+    component: ShareIcon,
+    importName: 'ShareIcon',
+    designName: 'share',
+    keywords: 'share link copy send',
   },
 ];
 
