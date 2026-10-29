@@ -1896,8 +1896,8 @@ func TestGetBootstrapRun(t *testing.T) {
 	t.Run("confirms monitoring against the inventory app once the run has succeeded", func(t *testing.T) {
 		t.Parallel()
 
-		// The run, then the host list confirmMonitoringLookup fetches once it sees "succeeded".
-		// n1 already has a service; the inventory sweep has not caught up with n2 yet.
+		// The run, then the host list confirmMonitoringLookup fetches once it sees "succeeded". Only n1 lists the
+		// install's own service: n2 lists none yet, n3 someone else's, n4 the install's name on another port.
 		stub := newSEPStubSeq(t, http.StatusOK,
 			`{
 				"id": "run-abc",
@@ -1906,17 +1906,22 @@ func TestGetBootstrapRun(t *testing.T) {
 				"os": "ubuntu",
 				"mongodb_version": "7.0.8",
 				"replica_set_name": "rs-orders-prod",
+				"port": 27017,
 				"started_at": "2026-01-01T00:00:00Z",
 				"hosts": [
 					{"host": "n1", "steps": [], "rollback_steps": [], "finalize_steps": []},
-					{"host": "n2", "steps": [], "rollback_steps": [], "finalize_steps": []}
+					{"host": "n2", "steps": [], "rollback_steps": [], "finalize_steps": []},
+					{"host": "n3", "steps": [], "rollback_steps": [], "finalize_steps": []},
+					{"host": "n4", "steps": [], "rollback_steps": [], "finalize_steps": []}
 				],
 				"run_steps": []
 			}`,
 			`{"items": [
-				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
-				{"node_id": "node-2", "executor_host": "n2", "services": []}
-			], "total": 2, "offset": 0, "limit": 200}`)
+				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1", "name": "n1-mongod", "port": 27017}]},
+				{"node_id": "node-2", "executor_host": "n2", "services": []},
+				{"node_id": "node-3", "executor_host": "n3", "services": [{"service_id": "s3", "name": "mongo-1", "port": 27017}]},
+				{"node_id": "node-4", "executor_host": "n4", "services": [{"service_id": "s4", "name": "n4-mongod", "port": 27018}]}
+			], "total": 4, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.GetBootstrapRun(t.Context(),
@@ -1926,13 +1931,15 @@ func TestGetBootstrapRun(t *testing.T) {
 		require.Len(t, stub.calls, 2)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc", stub.calls[0].path)
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
-		require.Len(t, response.GetHosts(), 2)
+		require.Len(t, response.GetHosts(), 4)
 		n1Confirm := response.GetHosts()[0].GetFinalizeSteps()[0]
 		assert.Equal(t, "confirm_monitoring", n1Confirm.GetName())
 		assert.Equal(t, "succeeded", n1Confirm.GetStatus())
-		n2Confirm := response.GetHosts()[1].GetFinalizeSteps()[0]
-		assert.Equal(t, "confirm_monitoring", n2Confirm.GetName())
-		assert.Equal(t, "running", n2Confirm.GetStatus())
+		for _, host := range response.GetHosts()[1:] {
+			confirm := host.GetFinalizeSteps()[0]
+			assert.Equal(t, "confirm_monitoring", confirm.GetName())
+			assert.Equal(t, "running", confirm.GetStatus(), host.GetHost())
+		}
 	})
 
 	t.Run("a run nobody created answers NotFound, not 500", func(t *testing.T) {
@@ -2016,6 +2023,7 @@ func TestListBootstrapRuns(t *testing.T) {
 				"os": "ubuntu",
 				"mongodb_version": "7.0.8",
 				"replica_set_name": "rs-orders-prod",
+				"port": 27017,
 				"started_at": "2026-01-01T00:00:00Z",
 				"finished_at": "2026-01-01T00:05:00Z",
 				"hosts": [{"host": "n1", "steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}]}],
@@ -2034,7 +2042,7 @@ func TestListBootstrapRuns(t *testing.T) {
 			}
 		]`,
 			// confirmMonitoringLookup's GET /hosts, fetched because run-abc succeeded.
-			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`)
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1", "name": "n1-mongod", "port": 27017}]}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
@@ -2050,7 +2058,7 @@ func TestListBootstrapRuns(t *testing.T) {
 		assert.Equal(t, "rs-orders-prod", response.GetRuns()[0].GetReplicaSetName())
 		assert.Equal(t, mustParseTime(t, "2026-01-01T00:05:00Z"), response.GetRuns()[0].GetFinishedAt().AsTime())
 		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
-		// confirm_monitoring succeeded because n1 already has a service.
+		// confirm_monitoring succeeded because n1's own service is listed.
 		n1FinalizeSteps := response.GetRuns()[0].GetHosts()[0].GetFinalizeSteps()
 		assert.Equal(t, "confirm_monitoring", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetName())
 		assert.Equal(t, "succeeded", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetStatus())

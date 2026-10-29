@@ -1015,11 +1015,11 @@ func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...strin
 // has noticed the registered service. It is appended to finalize_steps so it renders wherever steps do.
 const confirmMonitoringStepName = "confirm_monitoring"
 
-func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
+func confirmMonitoringStep(runStatus, executorHost string, port uint32, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
 	stepStatus := bootstrapStepPending
 	if runStatus == bootstrapRunSucceeded {
 		stepStatus = bootstrapStepRunning
-		if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
+		if hasBootstrapService(hostsByExecutor[executorHost], executorHost, port) {
 			stepStatus = bootstrapStepSucceeded
 		}
 	}
@@ -1031,7 +1031,7 @@ func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string
 	for _, host := range run.Hosts {
 		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
 		finalizeSteps = append(finalizeSteps,
-			confirmMonitoringStep(run.Status, host.Host, hostsByExecutor))
+			confirmMonitoringStep(run.Status, host.Host, run.Port, hostsByExecutor))
 		hosts = append(hosts, &omv1.BootstrapHost{
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),

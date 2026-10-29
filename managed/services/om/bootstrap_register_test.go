@@ -48,6 +48,27 @@ func registerTestNode(t *testing.T, db *reform.DB, nodeName string) (string, str
 	return node.NodeID, pmmAgent.AgentID
 }
 
+// addTestService registers a service on the node that no install created; a nil port makes it socket-only.
+func addTestService(t *testing.T, db *reform.DB, serviceType models.ServiceType, nodeID, name, replicaSetName string, port *uint16) {
+	t.Helper()
+	params := &models.AddDBMSServiceParams{
+		ServiceName:    name,
+		NodeID:         nodeID,
+		ReplicationSet: replicaSetName,
+		Socket:         new("/tmp/mongodb-27017.sock"),
+	}
+	if port != nil {
+		params.Socket = nil
+		params.Address = new("127.0.0.1")
+		params.Port = port
+	}
+	err := db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+		_, err := models.AddNewService(tx.Querier, serviceType, params)
+		return err
+	})
+	require.NoError(t, err)
+}
+
 func TestRegisterBootstrapHost(t *testing.T) {
 	t.Run("registers a service on the given port and an exporter agent for the node", func(t *testing.T) {
 		db := storeTestDB(t)
@@ -129,6 +150,72 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 		require.NoError(t, err)
 		assert.Len(t, services, 1, "a second call must not create a duplicate service")
+	})
+
+	t.Run("registers the install's service next to another MongoDB service on the node", func(t *testing.T) {
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+		addTestService(t, db, models.MongoDBServiceType, nodeID, "other-mongod", "rs-other", new(uint16(27018)))
+
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
+		require.NoError(t, err)
+		assert.Len(t, services, 2)
+		service, err := models.FindServiceByName(db.Querier, "node00-mongod")
+		require.NoError(t, err)
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: service.ServiceID})
+		require.NoError(t, err)
+		assert.Len(t, agents, 1)
+	})
+
+	t.Run("takes a service with the install's name, node and port as its own whatever its replica set", func(t *testing.T) {
+		// The replica set is a label users can edit, so it does not identify the service.
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+		addTestService(t, db, models.MongoDBServiceType, nodeID, "node00-mongod", "rs-relabelled", new(uint16(27017)))
+
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret"))
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{})
+		require.NoError(t, err)
+		assert.Len(t, services, 1)
+	})
+
+	t.Run("refuses a service with the install's name that is not the install's", func(t *testing.T) {
+		for _, tc := range []struct {
+			name        string
+			serviceType models.ServiceType
+			onOtherNode bool
+			port        *uint16
+		}{
+			{name: "on another node", serviceType: models.MongoDBServiceType, onOtherNode: true, port: new(uint16(27017))},
+			{name: "on another port", serviceType: models.MongoDBServiceType, port: new(uint16(27018))},
+			{name: "socket-only", serviceType: models.MongoDBServiceType},
+			{name: "of another type", serviceType: models.MySQLServiceType, port: new(uint16(27017))},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				db := storeTestDB(t)
+				updater := &fakeStateUpdater{}
+				svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
+				nodeID, _ := registerTestNode(t, db, "node00")
+				existingNodeID := nodeID
+				if tc.onOtherNode {
+					existingNodeID, _ = registerTestNode(t, db, "node01")
+				}
+				addTestService(t, db, tc.serviceType, existingNodeID, "node00-mongod", "rs-test", tc.port)
+
+				err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", 27017, "", "", "admin", "secret")
+				require.ErrorContains(t, err, "service node00-mongod already exists")
+				assert.Empty(t, updater.requested)
+
+				services, err := models.FindServices(db.Querier, models.ServiceFilters{})
+				require.NoError(t, err)
+				assert.Len(t, services, 1)
+			})
+		}
 	})
 
 	t.Run("gives the exporter push metrics mode", func(t *testing.T) {

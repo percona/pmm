@@ -117,7 +117,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			t, http.StatusOK,
 			fmt.Sprintf(
 				`{"items": [
-					{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]},
+					{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1", "name": "node00-mongod", "port": 27017}]},
 					{"node_id": %q, "executor_host": "node01", "services": []}
 				], "total": 2, "offset": 0, "limit": 200}`, node00, node01,
 			),
@@ -156,6 +156,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 
 	t.Run("keeps an unconfirmed run in the sweep even when both nudges were accepted", func(t *testing.T) {
 		// The sync answers 202 and finishes in the background, so the probe after it can miss the new service.
+		// node00 lists only someone else's service, which does not confirm the install's own.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -166,7 +167,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		}))
 
 		stub := newSEPStub(t, http.StatusOK,
-			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00))
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s9", "name": "other-mongod", "port": 27018}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
@@ -179,6 +180,10 @@ func TestCompleteSucceededRun(t *testing.T) {
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
+
+		require.Len(t, stub.calls, 3)
+		assert.Equal(t, "/api/apps/inventory/sync/", stub.calls[1].path)
+		assert.JSONEq(t, `{"node_ids": ["`+node00+`"]}`, stub.calls[2].body)
 
 		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
 		require.NoError(t, err)
@@ -348,7 +353,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		}))
 
 		stub := newSEPStub(t, http.StatusOK,
-			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1", "name": "node00-mongod", "port": 27017}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
@@ -376,15 +381,17 @@ func TestCompleteSucceededRun(t *testing.T) {
 		}))
 
 		stub := newSEPStub(t, http.StatusOK,
-			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1", "name": "node00-mongod", "port": 27018}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
+		finished := time.Now()
 		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
 			Port:           27018,
+			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
 
@@ -393,6 +400,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		require.Len(t, services, 1)
 		require.NotNil(t, services[0].Port)
 		assert.Equal(t, uint16(27018), *services[0].Port)
+		require.Len(t, stub.calls, 1, "the inventory app lists the service on 27018, so no sync or refresh")
 
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
 		require.NoError(t, err, "an unlabelled run gets its row on completion")
