@@ -19,7 +19,11 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"slices"
 
+	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -31,8 +35,21 @@ func pushMetricsFor(pmmAgentID string) bool {
 	return pmmAgentID != models.PMMServerAgentID
 }
 
-// registerBootstrapHost is idempotent. Service names are keyed on host, not replica set name,
-// because names must be unique across PMM and every member shares the replica set name.
+// bootstrapServiceName keys an install's service on its host rather than its replica set name,
+// because service names are unique across PMM and every member shares the replica set name.
+func bootstrapServiceName(host string) string {
+	return host + "-mongod"
+}
+
+// hasBootstrapService reports whether the inventory app lists the service an install registers on executorHost.
+func hasBootstrapService(host extensionsHost, executorHost string, port uint32) bool {
+	name := bootstrapServiceName(executorHost)
+	return slices.ContainsFunc(host.Services, func(service extensionsService) bool {
+		return service.Name == name && service.Port != nil && int64(*service.Port) == int64(port)
+	})
+}
+
+// registerBootstrapHost is idempotent.
 func (s *Service) registerBootstrapHost(
 	ctx context.Context, nodeID, host, replicaSetName string, port uint32, environment, cluster, username, password string,
 ) error {
@@ -50,11 +67,17 @@ func (s *Service) registerBootstrapHost(
 	}
 	pmmAgentID := agents[0].AgentID
 
-	existing, err := models.FindServices(s.db.Querier, models.ServiceFilters{NodeID: nodeID, ServiceType: new(models.MongoDBServiceType)})
-	if err != nil {
-		return fmt.Errorf("failed to check for an existing MongoDB service on node %s: %w", nodeID, err)
+	name := bootstrapServiceName(host)
+	existing, err := models.FindServiceByName(s.db.Querier, name)
+	if err != nil && status.Code(err) != codes.NotFound {
+		return fmt.Errorf("failed to look up service %s: %w", name, err)
 	}
-	if len(existing) > 0 {
+	if err == nil {
+		existingPort := pointer.GetUint16(existing.Port)
+		if existing.NodeID != nodeID || existing.ServiceType != models.MongoDBServiceType || existingPort != servicePort {
+			return fmt.Errorf("service %s already exists as a %s service on node %s, port %d, not this install's mongod on node %s, port %d",
+				name, existing.ServiceType, existing.NodeID, existingPort, nodeID, servicePort)
+		}
 		// Request a state update anyway: pmm-agent starts the exporter only on one, and an earlier
 		// registration may have missed it.
 		if s.stateUpdater != nil {
@@ -71,7 +94,7 @@ func (s *Service) registerBootstrapHost(
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:    host + "-mongod",
+			ServiceName:    name,
 			NodeID:         nodeID,
 			Environment:    environment,
 			Cluster:        cluster,

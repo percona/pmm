@@ -214,7 +214,7 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *extensionsBootstr
 }
 
 // completeSucceededRun registers a succeeded run's hosts with PMM, then marks the run registered once the
-// inventory app shows a service on each host or bootstrapInventoryRefreshWindow has passed.
+// inventory app shows each host's own service or bootstrapInventoryRefreshWindow has passed.
 func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBootstrapRun) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, run.ID)
 	if err != nil {
@@ -244,7 +244,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 			continue
 		}
 		done++
-		if len(inventoryHost.Services) == 0 {
+		if !hasBootstrapService(inventoryHost, host.Host, run.Port) {
 			unconfirmed = append(unconfirmed, inventoryHost.NodeID)
 		}
 	}
