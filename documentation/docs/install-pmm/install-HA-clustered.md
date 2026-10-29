@@ -1089,7 +1089,7 @@ To set other PMM environment variables, add them to `pmmEnv`. For all available 
 |-----------|-------------|---------|
 | `replicas` | Number of PMM server replicas | `3` |
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
-| `image.tag` | PMM server image tag | `3.9.1` (pinned in `values.yaml`, bumped with each chart release) |
+| `image.tag` | PMM server image tag | `3.10.0` (pinned in `values.yaml`, bumped with each chart release) |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
@@ -1303,7 +1303,7 @@ PMM images can be large (several GB). Before performing upgrades or scaling oper
 kubectl get nodes
 
 # For each node, pre-pull the image (example for node1)
-kubectl debug node/node1 -it --image=percona/pmm-server:3.9.1  # use the tag your chart deploys
+kubectl debug node/node1 -it --image=percona/pmm-server:3.10.0  # use the tag your chart deploys
 ```
 
 ### Monitor cluster health
