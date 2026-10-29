@@ -34,6 +34,11 @@ const PADDING: Record<(typeof VARIANTS)[number], Record<(typeof SIZES)[number], 
 
 const MIN_HEIGHT: Record<(typeof SIZES)[number], number> = { large: 40, medium: 32, small: 24 };
 const FONT_SIZE: Record<(typeof SIZES)[number], number> = { large: 15, medium: 13, small: 13 };
+const LINE_HEIGHT: Record<(typeof SIZES)[number], number> = {
+  large: 1.0667,
+  medium: 1.077,
+  small: 1.077,
+};
 
 describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
   describe.each(MODES)('%s mode', (mode) => {
@@ -48,7 +53,7 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
         expect(style.padding).toBe(PADDING[variant][size]);
         expect(style.minHeight).toBe(MIN_HEIGHT[size]);
         expect(style.fontSize).toBe(FONT_SIZE[size]);
-        expect(style.lineHeight).toBe(1.063);
+        expect(style.lineHeight).toBe(LINE_HEIGHT[size]);
 
         const hover = style['&:hover'] as Record<string, unknown>;
         const disabled = style['&.Mui-disabled'] as Record<string, unknown>;
