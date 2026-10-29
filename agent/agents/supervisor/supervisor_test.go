@@ -1197,8 +1197,8 @@ func TestFailedStartAndPorts(t *testing.T) {
 		script := "#!/bin/sh\n" +
 			"[ $# -eq 0 ] && exit 0\n" +
 			"port=${1#--port=}\n" +
-			"if [ -e " + dir + "/busy-$port ]; then echo \"listen tcp 127.0.0.1:$port: bind: address already in use\" >&2; exit 1; fi\n" +
-			"if [ -e " + dir + "/fail ]; then echo failed >&2; exit 1; fi\n" +
+			"if [ -e \"" + dir + "/busy-$port\" ]; then echo \"listen tcp 127.0.0.1:$port: bind: address already in use\" >&2; exit 1; fi\n" +
+			"if [ -e \"" + dir + "/fail\" ]; then echo failed >&2; exit 1; fi\n" +
 			"exec sleep 100\n"
 		bin := filepath.Join(dir, "node_exporter")
 		require.NoError(t, os.WriteFile(bin, []byte(script), 0o755))
@@ -1261,6 +1261,20 @@ func TestFailedStartAndPorts(t *testing.T) {
 
 		return ports
 	}
+	// retryNow makes the next attempt to start the Agent, without waiting for it.
+	retryNow := func(t *testing.T, s *Supervisor) {
+		t.Helper()
+
+		s.rw.RLock()
+		f := s.failedStarts["agent1"]
+		var attempt uint64
+		if f != nil {
+			attempt = f.attempt
+		}
+		s.rw.RUnlock()
+		require.NotNil(t, f, "no failed start to retry")
+		s.retryFailedStart("agent1", f, attempt)
+	}
 	// waitRunning reads statuses until the Agent reports RUNNING, and returns its port.
 	waitRunning := func(t *testing.T, s *Supervisor) uint16 {
 		t.Helper()
@@ -1292,7 +1306,11 @@ func TestFailedStartAndPorts(t *testing.T) {
 		require.Equal(t, []uint16{port, port, port}, ports)
 		assert.True(t, isReserved(s, port), "port kept for the next attempt was released")
 
-		// Not requested any more: nothing will use it.
+		// Not requested any more: nothing will use it, even though something else listens on it now.
+		var lc net.ListenConfig
+		squatter, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = squatter.Close() })
 		setState(s, nil)
 		assert.False(t, isReserved(s, port), "port of a failed start that is not retried was not released")
 	})
@@ -1316,13 +1334,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		require.NoError(t, err)
 		t.Cleanup(func() { _ = squatter.Close() })
 
-		// The next attempt, without waiting for it.
-		s.rw.RLock()
-		f := s.failedStarts["agent1"]
-		require.NotNil(t, f)
-		attempt := f.attempt
-		s.rw.RUnlock()
-		s.retryFailedStart("agent1", f, attempt)
+		retryNow(t, s)
 
 		// Started on another port, and the busy one is dropped although Release would refuse it.
 		running := waitRunning(t, s)
@@ -1388,7 +1400,28 @@ func TestFailedStartAndPorts(t *testing.T) {
 		assert.False(t, isReserved(s, restarted), "port of the Agent RestartAgents replaced is still reserved")
 	})
 
-	t.Run("FailedRestartGivesBackThePortItTook", func(t *testing.T) {
+	t.Run("FailedRestartIsRetriedOnItsPort", func(t *testing.T) {
+		t.Parallel()
+
+		s, dir := setup(t, 64300, time.Hour)
+
+		setState(s, exporter("a"))
+		port := waitRunning(t, s)
+
+		// Restarted with parameters it fails to start with: the next attempt starts it on the port
+		// of the entry it replaces, which that entry keeps meanwhile.
+		mark(t, dir, "fail")
+		setState(s, exporter("b"))
+		require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
+		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
+
+		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
+		retryNow(t, s)
+		assert.Equal(t, port, waitRunning(t, s))
+		assert.True(t, isReserved(s, port))
+	})
+
+	t.Run("FailedRestartAgentsIsRetried", func(t *testing.T) {
 		t.Parallel()
 
 		s, dir := setup(t, 64960, time.Hour)
@@ -1396,8 +1429,9 @@ func TestFailedStartAndPorts(t *testing.T) {
 		setState(s, exporter("a"))
 		port := waitRunning(t, s)
 
-		// RestartAgents finds the Agent's port taken, takes another, and fails on that one too.
-		// It schedules no further attempt, so nothing else would give that one back.
+		// RestartAgents finds the Agent's port taken, takes another, and fails on that one too. A
+		// SetState with the same parameters would not start the Agent again, its entry being there,
+		// so the start is retried like any other, on the port it took.
 		markBusy(t, dir, port)
 		mark(t, dir, "fail")
 		s.RestartAgents()
@@ -1405,8 +1439,14 @@ func TestFailedStartAndPorts(t *testing.T) {
 		taken := ports[1]
 		require.Equal(t, []uint16{port, taken, taken}, ports)
 		require.NotEqual(t, port, taken)
-		assert.False(t, isReserved(s, taken), "port the failed restart took is still reserved")
+		assert.True(t, isReserved(s, taken), "port kept for the next attempt was released")
 		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
+
+		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
+		retryNow(t, s)
+		assert.Equal(t, taken, waitRunning(t, s))
+		assert.True(t, isReserved(s, taken))
+		assert.False(t, isReserved(s, port), "port of the entry the retry replaced is still reserved")
 	})
 
 	t.Run("GivesUpAPortThatKeepsFailing", func(t *testing.T) {
@@ -1761,4 +1801,22 @@ type versionerStub struct{}
 
 func (versionerStub) BinaryVersion(string, int, *regexp.Regexp, ...string) (string, error) {
 	return "", nil
+}
+
+func TestPortInUse(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		line string
+		want bool
+	}{
+		{`err="listen tcp :42000: bind: address already in use"`, true},
+		{"cannot start http server: listen tcp4 127.0.0.1:42000: bind: address already in use", true},
+		{"listen tcp [::]:42000: bind: permission denied", true},
+		{"listen tcp :9187: bind: address already in use", false}, // another listener: another port does not help
+		{"address already in use", false},
+		{"cannot acquire lock on file", false},
+	} {
+		assert.Equal(t, tc.want, portInUse([]string{"starting", tc.line}, 42000), tc.line)
+	}
 }

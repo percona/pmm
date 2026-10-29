@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -80,8 +81,9 @@ const (
 	failedStartMinDelay = 1 * time.Second
 	failedStartMaxDelay = 30 * time.Second
 
-	// How many starts in a row may fail on the port their failed starts kept before the next one is
-	// given another port, in case the process did not say the port was the problem.
+	// How many failed starts in a row, each of processRetryCount attempts, may use the port they kept
+	// before the next one is given another, in case the process did not say the port was the problem.
+	// With the backoff between them, that is about half a minute on one port.
 	failuresPerPort = 5
 )
 
@@ -367,17 +369,13 @@ func (s *Supervisor) RestartAgents() {
 		}
 
 		// This starts the entry's own parameters, so a retry of other ones that failed before would
-		// start them over it once its timer fires; the next SetState asks for those again.
+		// start them over it once its timer fires; the next SetState asks for those again. A failed
+		// start is retried like any other: a SetState with the same parameters would not start the
+		// Agent again, as its entry is still there.
 		s.forgetFailedStart(id)
-		kept, err := s.tryStartProcess(id, agent.requestedState, port, false)
+		err := s.startProcessOrBackOff(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
-			s.releasePort(id, kept) // no attempt is scheduled to use it
-			continue
-		}
-		// Restarted on another port, its old one being in use: the old entry referred to it last.
-		if restarted := s.agentProcesses[id]; port != 0 && restarted != nil && restarted.listenPort != port {
-			s.releasePort(id, port)
 		}
 	}
 
@@ -794,7 +792,9 @@ func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.Set
 func (s *Supervisor) forgetFailedStart(agentID string) {
 	if f := s.failedStarts[agentID]; f != nil {
 		f.timer.Stop()
-		s.releasePort(agentID, f.port)
+		// Not Release, which keeps a port that something listens on reserved: nothing of the Agent's
+		// does, as its start failed, so anything that does is not ours.
+		s.portsRegistry.Forget(f.port)
 		delete(s.failedStarts, agentID)
 	}
 }
@@ -941,11 +941,14 @@ const (
 // port it was given.
 var errPortInUse = errors.New("listen port is in use")
 
-// portInUse reports whether the output of a process that exited early says it could not bind its
-// listen port: taken by another process, or refused to it, as SELinux port labelling does.
-func portInUse(output []string) bool {
+// portInUse reports whether the output of a process that exited early says it could not bind port,
+// its listen port: taken by another process, or refused to it, as SELinux port labelling does. The
+// error must name the port, as Go's net package does ("listen tcp :42000: bind: ..."): a process may
+// have other listeners, and another port does nothing for those.
+func portInUse(output []string, port uint16) bool {
+	bind := ":" + strconv.Itoa(int(port)) + ": bind: "
 	for _, line := range output {
-		if strings.Contains(line, "address already in use") || strings.Contains(line, "bind: permission denied") {
+		if strings.Contains(line, bind+"address already in use") || strings.Contains(line, bind+"permission denied") {
 			return true
 		}
 	}
@@ -1083,7 +1086,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 			s.waitForwarderDrained(agentID, done)
 
 			err := processWrapper.GetError()
-			if portInUse(processWrapper.Logs()) {
+			if portInUse(processWrapper.Logs(), port) {
 				return fmt.Errorf("%w: %w", errPortInUse, err)
 			}
 			return err
