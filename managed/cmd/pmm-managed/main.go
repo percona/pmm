@@ -904,10 +904,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	anonymousEnabled, err := isGrafanaAnonymousAccessEnabled(grafanaConfigPath)
 	if err != nil {
-		l.Fatalf("Failed to check whether Grafana allows anonymous access: %s", err)
+		l.Warnf("Failed to check whether Grafana allows anonymous access: %s", err)
 	}
 	if anonymousEnabled {
-		l.Fatal("Anonymous mode is not supported")
+		l.Warn("Grafana anonymous mode is enabled, which PMM can't fully support due to security issues. " +
+			"Please be aware that support of anonymous mode will be deprecated in the future. " +
+			"Consider disabling it to ensure your infrastructure stays protected.")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

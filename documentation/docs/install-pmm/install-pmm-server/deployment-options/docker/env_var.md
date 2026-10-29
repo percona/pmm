@@ -237,7 +237,7 @@ PMM Server passes these variables to integrated components:
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
 
-PMM doesn't support Grafana anonymous access. If `GF_AUTH_ANONYMOUS_ENABLED` is set to `true`, PMM Server doesn't start, and `/srv/logs/pmm-managed.log` shows `Anonymous mode is not supported`.
+PMM doesn't fully support Grafana anonymous access, and support for it will be deprecated. If `GF_AUTH_ANONYMOUS_ENABLED` is set to `true`, visitors who aren't signed in can view Grafana dashboards but not PMM features such as Query Analytics, and `/srv/logs/pmm-managed.log` shows a warning at startup.
 
 ## Preview variables
 
