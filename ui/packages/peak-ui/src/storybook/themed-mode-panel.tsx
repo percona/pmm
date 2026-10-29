@@ -5,9 +5,13 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { getThemeOptions } from '../design';
 
 interface ThemedModePanelProps {
+  /** Color mode of the panel, independent of the Storybook toolbar. */
   mode: 'light' | 'dark';
+  /** Peak theme to render under, such as `base`, `pmm` or `sep`. */
   themeName: string;
+  /** Overline above the content; defaults to "Light mode" or "Dark mode". */
   label?: ReactNode;
+  /** Content rendered under the panel's theme and mode. */
   children: ReactNode;
 }
 
