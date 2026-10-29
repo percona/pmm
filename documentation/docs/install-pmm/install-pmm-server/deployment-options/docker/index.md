@@ -63,7 +63,7 @@ You can install PMM Server using one of two methods:
       --publish 443:8443 \
       --volume pmm-data:/srv \
       -e PMM_DATA_RETENTION=720h \
-      -e PMM_DEBUG=1 \
+      -e PMM_METRICS_RESOLUTION_HR=10s \
       --name pmm-server \
       percona/pmm-server:3
     ```
