@@ -113,7 +113,7 @@ func TestAgentsCredentialsInVault(t *testing.T) {
 
 	pmmAgent, err := models.CreatePMMAgent(as.db.Querier, models.PMMServerNodeID, nil)
 	require.NoError(t, err)
-	pmmAgent.Version = new("3.10.0")
+	pmmAgent.Version = new("3.11.0")
 	require.NoError(t, models.UpdateAgent(as.db.Querier, pmmAgent))
 	service, err := models.AddNewService(as.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "vault-mysql",

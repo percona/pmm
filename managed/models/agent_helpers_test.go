@@ -335,7 +335,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.9.1"),
 		}))
 		require.NoError(t, q.Insert(&models.Agent{
-			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.10.0"),
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.11.0"),
 		}))
 
 		// An older pmm-agent would use the tokens as the credentials.
@@ -398,7 +398,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.9.1"),
 		}))
 		require.NoError(t, q.Insert(&models.Agent{
-			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.10.0"),
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.11.0"),
 		}))
 		const ref = "vault:secret/data/pmm/mysql#tls_key"
 

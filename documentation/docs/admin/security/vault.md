@@ -19,7 +19,7 @@ If Vault is unreachable, or answers with an error such as when it is sealed, PMM
 
 To read secrets from Vault, you need:
 
-- PMM Server and PMM Client 3.10.0 or later
+- PMM Server and PMM Client 3.11.0 or later
 - A Vault secret for each set of credentials, in a [KV](https://developer.hashicorp.com/vault/docs/secrets/kv) version 1 or 2 secrets engine, or credentials issued by the [database secrets engine](https://developer.hashicorp.com/vault/docs/secrets/databases)
 - A Vault policy that grants `read` on those paths to the identity PMM logs in with, and `create` and `update` on the paths where PMM is to store credentials for you
 
