@@ -127,6 +127,9 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 - [ElectricBoltOffIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power, speed, or an active mode, switched off or deactivated.
 - [SupportDiagnosticsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Support diagnostics and troubleshooting tools.
 - [ExtensionIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Extension or app built on an extensions framework; the Material Symbols artwork, which differs from MUI's `Extension`.
+- [StarIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Something the user can star, such as a page they keep in the sidebar; pair it with `StarFillIcon` for the starred state. Material Symbols at 20px.
+- [StarFillIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): The starred state of `StarIcon`.
+- [ShareIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Share or copy a link to the current page. Material Symbols at 20px, which differs from MUI's `Share`.
 - [ErrorIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="error"`. Legacy status icons take `LegacyStatusIconProps` (`SvgIconProps` plus `size`); `IconsProps` and `StatusIconProviderProps` are their internal shapes.
 - [WarningIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="warning"`.
 - [SuccessIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="success"`.
