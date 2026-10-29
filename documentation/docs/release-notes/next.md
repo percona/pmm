@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15816](https://perconadev.atlassian.net/browse/PMM-15816): `PMM_DATA_RETENTION` now accepts days, such as `30d`, as the [environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) documentation shows. Previously, a value in days stopped PMM Server from starting. Values in hours, such as `720h`, still work.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
