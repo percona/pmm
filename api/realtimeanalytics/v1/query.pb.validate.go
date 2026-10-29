@@ -754,8 +754,7 @@ func (e QueryPostgreSQLDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryPostgreSQLDataValidationError{}
