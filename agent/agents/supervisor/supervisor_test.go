@@ -18,6 +18,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 	"time"
 
@@ -749,12 +750,12 @@ func TestStartProcessFail(t *testing.T) {
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65101, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65101, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65101, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65102, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65102, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65102, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
 		)
 		require.Empty(t, s.AgentsList())
 	})
@@ -1194,7 +1195,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		return s, reserved
 	}
 
-	t.Run("ReleasesAPortItReserved", func(t *testing.T) {
+	t.Run("KeepsThePortForTheNextAttempt", func(t *testing.T) {
 		t.Parallel()
 
 		s, reserved := setup(t, 65200, 65299)
@@ -1206,8 +1207,8 @@ func TestFailedStartAndPorts(t *testing.T) {
 
 		// Each attempt reports STARTING, INITIALIZATION_ERROR and DONE, and startProcess
 		// waits for its forwarder before returning, so they are all buffered by now.
-		// Collecting the ports they were reported on is what keeps the assertion below
-		// from passing vacuously - it has to be these three that were reserved.
+		// Collecting the ports they were reported on is what keeps the assertions below
+		// from passing vacuously.
 		var ports []uint16
 		for range processRetryCount * 3 {
 			change := <-s.Changes()
@@ -1215,10 +1216,59 @@ func TestFailedStartAndPorts(t *testing.T) {
 				ports = append(ports, uint16(change.ListenPort))
 			}
 		}
-		require.Equal(t, []uint16{65200, 65201, 65202}, ports)
 
+		// The port was not the problem, so every attempt used it, and it stays reserved for the
+		// next one rather than the Agent's address moving with every attempt.
+		require.Equal(t, []uint16{65200, 65200, 65200}, ports)
+		assert.True(t, reserved(65200), "port kept for the next attempt was released")
+
+		// Not requested any more: nothing will use it.
+		s.SetState(t.Context(), &agentv1.SetStateRequest{})
+		assert.False(t, reserved(65200), "port of a failed start that is not retried was not released")
+	})
+
+	t.Run("MovesOnFromAPortInUse", func(t *testing.T) {
+		t.Parallel()
+
+		// A stand-in node_exporter that fails the way an exporter does when its port is taken.
+		exporter := filepath.Join(t.TempDir(), "node_exporter")
+		script := "#!/bin/sh\necho 'listen tcp 127.0.0.1:1: bind: address already in use' >&2\nexit 1\n"
+		require.NoError(t, os.WriteFile(exporter, []byte(script), 0o755))
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir(), NodeExporter: exporter},
+			Ports:         config.Ports{Min: 65250, Max: 65299},
+			Server:        config.Server{Address: "localhost:443"},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(t.Context(), versionerStub{}, cfgStorage)
+		go s.Run(t.Context())
+		reserved := func(port uint16) bool {
+			s.portsRegistry.m.Lock()
+			defer s.portsRegistry.m.Unlock()
+			_, ok := s.portsRegistry.reserved[port]
+
+			return ok
+		}
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+				"node1": {Type: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER},
+			},
+		})
+
+		var ports []uint16
+		for range processRetryCount * 3 {
+			change := <-s.Changes()
+			if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
+				ports = append(ports, uint16(change.ListenPort))
+			}
+		}
+
+		// The port was the problem, so each attempt took another and gave the failed one back.
+		require.Equal(t, []uint16{65250, 65251, 65252}, ports)
 		for _, port := range ports {
-			assert.False(t, reserved(port), "port %d of a failed start attempt was not released", port)
+			assert.False(t, reserved(port), "port %d the process could not listen on was not released", port)
 		}
 	})
 
@@ -1236,7 +1286,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		require.Equal(t, uint16(65300), port)
 
 		s.rw.Lock()
-		err = s.tryStartProcess("sleep1", failing, port)
+		_, err = s.tryStartProcess("sleep1", failing, port, false)
 		s.rw.Unlock()
 		require.Error(t, err)
 
@@ -1478,6 +1528,37 @@ func TestFailedStartBackoff(t *testing.T) {
 		assertNoChanges(t, s, time.Second)
 	})
 
+	t.Run("TriedAgainOnTheKeptPort", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64800, 200*time.Millisecond)
+
+		// startingPorts reads the statuses of one call of tryStartProcess and returns the ports
+		// its attempts reported STARTING on.
+		startingPorts := func() []uint32 {
+			var ports []uint32
+			for len(ports) < processRetryCount {
+				select {
+				case change := <-s.Changes():
+					if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
+						ports = append(ports, change.ListenPort)
+					}
+				case <-time.After(10 * time.Second):
+					t.Fatalf("%d of %d attempts started", len(ports), processRetryCount)
+				}
+			}
+			return ports
+		}
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
+		first := startingPorts()
+		port := first[0] // the first free one, which is not always 64800 where 64800 is ephemeral
+		assert.Equal(t, []uint32{port, port, port}, first)
+
+		// The Supervisor's own next attempt: still the same address for pmm-managed.
+		assert.Equal(t, []uint32{port, port, port}, startingPorts())
+	})
+
 	t.Run("TriedWithTheLatestParameters", func(t *testing.T) {
 		t.Parallel()
 
@@ -1533,4 +1614,12 @@ func TestFailedStartBackoff(t *testing.T) {
 		s.RestartAgents()
 		assert.Zero(t, failedStarts(s))
 	})
+}
+
+// versionerStub answers the version check of exporter types, which the stand-in binaries above
+// cannot.
+type versionerStub struct{}
+
+func (versionerStub) BinaryVersion(string, int, *regexp.Regexp, ...string) (string, error) {
+	return "", nil
 }
