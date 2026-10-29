@@ -240,7 +240,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 
 			// If task was running by an old agent. Hacky code to support artifacts created on new server and old agent.
 			if metadata == nil && artifact.Mode == models.PITR && artifact.Folder != artifact.Name {
-				artifact, err := models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
+				_, err = models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
 				if err != nil {
 					return fmt.Errorf("failed to update artifact %s: %w", artifact.ID, err)
 				}

@@ -380,7 +380,7 @@ func (s *ManagementService) queryUpMetrics(ctx context.Context, stale bool) (map
 		selectors[i] = sel
 	}
 
-	result, _, err := s.vmClient.Query(ctx, strings.Join(selectors, " or "), time.Now())
+	result, _, _, err := s.vmClient.Query(ctx, strings.Join(selectors, " or "), time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}

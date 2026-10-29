@@ -46,7 +46,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
@@ -310,14 +309,10 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, &grpc_gateway.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				EmitUnpopulated: true,
-				Indent:          "  ",
-				UseProtoNames:   true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
+			EmitUnpopulated: true,
+			Indent:          "  ",
+			UseProtoNames:   true,
+			DiscardUnknown:  true,
 		}),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
 	)

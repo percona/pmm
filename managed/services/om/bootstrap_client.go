@@ -68,16 +68,17 @@ type extensionsBootstrapRun struct {
 }
 
 type extensionsTriggerBootstrapRunRequest struct {
-	Hosts          []string                          `json:"hosts"`
-	InstallMethod  string                            `json:"install_method"`
-	OS             string                            `json:"os"`
-	MongoDBVersion string                            `json:"mongodb_version"`
-	ReplicaSetName string                            `json:"replica_set_name"`
-	DataPath       string                            `json:"data_path"`
-	LogPath        string                            `json:"log_path"`
-	Port           uint32                            `json:"port"`
-	BindIP         string                            `json:"bind_ip"`
-	MemberConfigs  map[string]extensionsMemberConfig `json:"member_configs,omitempty"`
+	Hosts           []string                          `json:"hosts"`
+	InstallMethod   string                            `json:"install_method"`
+	OS              string                            `json:"os"`
+	MongoDBVersion  string                            `json:"mongodb_version"`
+	ReplicaSetName  string                            `json:"replica_set_name"`
+	DataPath        string                            `json:"data_path"`
+	LogPath         string                            `json:"log_path"`
+	Port            uint32                            `json:"port"`
+	BindIP          string                            `json:"bind_ip"`
+	MemberConfigs   map[string]extensionsMemberConfig `json:"member_configs,omitempty"`
+	CreateAdminUser bool                              `json:"create_admin_user,omitempty"`
 }
 
 // extensionsMemberConfig uses pointers so unset fields are omitted and om_bootstrap's defaults apply;

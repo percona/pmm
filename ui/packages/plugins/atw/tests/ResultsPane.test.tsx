@@ -126,6 +126,12 @@ describe('ResultsPane', () => {
         screen.getByText(/Run snippets from the Collect pane/i)
       ).toBeTruthy();
     });
+    // An empty pane is not news: plain text, not an info alert.
+    expect(
+      screen
+        .getByText(/Run snippets from the Collect pane/i)
+        .closest('[role="alert"]')
+    ).toBeNull();
   });
 
   it('does not point a read-only session at the withheld Collect pane', async () => {
@@ -747,22 +753,16 @@ const rowToggle = (filename: string) =>
 /**
  * How the toggle presents itself to a screen reader.
  *
- * MUI leaves the native `checked` property false in the mixed state, so the
- * indeterminate case has to be read off an attribute. `aria-checked="mixed"`
- * is the contract a screen reader consumes, but MUI only started emitting it
- * after 7.3.7 — the version this repo's lockfile resolves — so fall back to
- * the `data-indeterminate` attribute MUI documents for that release.
+ * MUI reports the mixed state as `aria-checked="mixed"` and leaves the native
+ * `checked` property false, so asserting the ARIA state pins the contract a
+ * screen reader actually consumes rather than MUI's own markup.
  */
-const toggleState = () => {
-  const toggle = selectAllToggle();
-  const indeterminate =
-    toggle.getAttribute('aria-checked') === 'mixed' ||
-    toggle.getAttribute('data-indeterminate') === 'true';
-  if (indeterminate) {
-    return 'mixed';
-  }
-  return toggle.checked ? 'checked' : 'unchecked';
-};
+const toggleState = () =>
+  selectAllToggle().getAttribute('aria-checked') === 'mixed'
+    ? 'mixed'
+    : selectAllToggle().checked
+      ? 'checked'
+      : 'unchecked';
 
 /** Serve `pages` keyed by offset, so a case can select across a page flip. */
 function pagesByOffset(pages: Record<number, unknown[]>, total: number) {

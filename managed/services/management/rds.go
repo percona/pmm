@@ -267,8 +267,8 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// return better gRPC errors in typical cases
 	err = wg.Wait()
 	if err != nil {
-		var apiErr *smithy.GenericAPIError
-		if errors.As(err, &apiErr) {
+		apiErr, ok := errors.AsType[*smithy.GenericAPIError](err)
+		if ok {
 			switch {
 			case apiErr.Code == "InvalidClientTokenId":
 				return res, status.Error(codes.InvalidArgument, apiErr.Message)

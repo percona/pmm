@@ -48,6 +48,8 @@ var (
 	// DefaultEncryption is the default implementation of encryption, lazily initialized.
 	defaultEncryption    *Encryption
 	defaultEncryptionMtx sync.Mutex
+	// In tests without a key file, all instances share this key.
+	inMemoryKey = sync.OnceValues((&Encryption{}).GenerateKey)
 )
 
 // CustomEncryptionKeyPathEnvVar is an environment variable to set custom encryption key path.
@@ -122,17 +124,25 @@ func New() *Encryption {
 
 	e := &Encryption{Path: KeyPath()}
 
-	bytes, err := os.ReadFile(e.Path)
-	switch {
-	case os.IsNotExist(err):
-		err = e.generateAndPersistKey()
+	if e.Path == "" {
+		key, err := inMemoryKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
-	case err != nil:
-		logrus.Panicf("Encryption: %v", err)
-	default:
-		e.Key = string(bytes)
+		e.Key = key
+	} else {
+		bytes, err := os.ReadFile(e.Path)
+		switch {
+		case os.IsNotExist(err):
+			err = e.generateAndPersistKey()
+			if err != nil {
+				logrus.Panicf("Encryption: %v", err)
+			}
+		case err != nil:
+			logrus.Panicf("Encryption: %v", err)
+		default:
+			e.Key = string(bytes)
+		}
 	}
 
 	primitive, err := e.getPrimitive()
