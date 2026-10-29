@@ -24,10 +24,6 @@ vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
 }));
 
-vi.mock('hooks/api/useAdvisors', () => ({
-  useAdvisors: () => ({ data: [] }),
-}));
-
 vi.mock('hooks/api/useFolders', () => ({
   useFolders: () => ({ data: [] }),
 }));

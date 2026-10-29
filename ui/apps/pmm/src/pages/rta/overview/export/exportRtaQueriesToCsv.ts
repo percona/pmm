@@ -1,9 +1,8 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { type CsvRow, toCsvValue } from 'utils/csv.utils';
 import { isPlainObject } from 'utils/object.utils';
-
-const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
 // Headers that differ from the API field name. Every other field falls back to
 // the snake_case form of its key, which round-trips back to the name the API
@@ -15,17 +14,6 @@ const CSV_HEADER_OVERRIDES: Record<string, string> = {
   username: 'user_name',
   queryCollectTime: 'data_capture_time',
   queryRawJson: 'raw_query',
-};
-
-type CsvValue = string | number | boolean;
-type CsvRow = Record<string, CsvValue>;
-
-export const sanitizeCsvCell = (value: string): string => {
-  if (CSV_FORMULA_PREFIX.test(value)) {
-    return `'${value}`;
-  }
-
-  return value;
 };
 
 export const toCsvHeader = (key: string): string =>
@@ -57,24 +45,6 @@ const columnRank = (column: string): number => {
   const index = CSV_COLUMN_ORDER.indexOf(column);
 
   return index === -1 ? CSV_COLUMN_ORDER.length : index;
-};
-
-// export-to-csv rejects object values outright, so anything that is not a
-// primitive has to be flattened or serialized before it reaches the generator.
-export const toCsvValue = (value: unknown): CsvValue => {
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  if (typeof value === 'string') {
-    return sanitizeCsvCell(value);
-  }
-
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return value;
-  }
-
-  return sanitizeCsvCell(JSON.stringify(value) ?? '');
 };
 
 // Recurses so that nested payloads are hoisted into the parent key space,

@@ -29,10 +29,6 @@ const (
 	MinMetricsResolution = time.Second
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
-	// MinAdvisorRunInterval is the smallest value Advisors run intervals can accept.
-	MinAdvisorRunInterval = time.Second
-	// AdvisorRunIntervalMultipleOf is value Advisors run intervals should be multiple of.
-	AdvisorRunIntervalMultipleOf = time.Second
 	// MinDataRetention is the smallest value data retention can accept.
 	MinDataRetention = 24 * time.Hour
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
@@ -64,11 +60,6 @@ func validateDuration(d, minDuration, multipleOf time.Duration) (time.Duration, 
 		return d, DurationNotAllowedError{fmt.Sprintf("%v is not multiple of %v", d, multipleOf)}
 	}
 	return d, nil
-}
-
-// ValidateAdvisorRunInterval validates an Advisor run interval.
-func ValidateAdvisorRunInterval(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, MinAdvisorRunInterval, AdvisorRunIntervalMultipleOf)
 }
 
 // ValidateMetricResolution validate metric resolution.

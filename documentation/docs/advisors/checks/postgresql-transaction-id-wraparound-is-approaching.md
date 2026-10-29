@@ -1,7 +1,7 @@
 # Transaction ID wraparound is approaching
  
 ## Description
-This advisor check verifies the age of the database's transaction IDs, and notifies if any is approaching the wraparound limit by 20% or more.
+This Advisor check verifies the age of the database's transaction IDs, and notifies if any is approaching the wraparound limit by 20% or more.
 To understand the PostgreSQL wraparound concept, here's an excerpt from Robert Bernier blog post:
 
 *PostgreSQL at any one time has a number of transactions that are tracked by a unique ID.* 

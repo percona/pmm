@@ -217,7 +217,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX`; lowercase, dashes, always a short description |
 | Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
 | Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
@@ -367,7 +367,9 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
-- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
+- Use `new(expr)` instead of `pointer.To(expr)` when a pointer to a value is needed
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`
+- Don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next

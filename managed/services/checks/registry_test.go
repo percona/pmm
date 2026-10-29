@@ -16,11 +16,14 @@
 package checks
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
@@ -32,7 +35,6 @@ func TestRegistry(t *testing.T) {
 		checkResults := []services.CheckResult{
 			{
 				CheckName: "name",
-				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
 					ServiceID: "123",
@@ -63,7 +65,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -72,65 +74,8 @@ func TestRegistry(t *testing.T) {
 		}
 
 		r.set(checkResults)
-
-		// Empty interval means standard
-		checkResults[1].Interval = check.Standard
-
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		assert.ElementsMatch(t, checkResults, collectedAlerts)
-	})
-
-	t.Run("delete check results by interval", func(t *testing.T) {
-		r := newRegistry()
-		checkResults := []services.CheckResult{
-			{
-				CheckName: "name",
-				Interval:  check.Standard,
-				Target: services.Target{
-					AgentID:   "123",
-					ServiceID: "123",
-					Labels: map[string]string{
-						"foo": "bar",
-					},
-				},
-				Result: check.Result{
-					Summary:     "check summary",
-					Description: "check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Warning,
-					Labels: map[string]string{
-						"baz": "qux",
-					},
-				},
-			},
-			{
-				CheckName: "name2",
-				Interval:  check.Frequent,
-				Target: services.Target{
-					AgentID:   "321",
-					ServiceID: "321",
-					Labels: map[string]string{
-						"bar": "foo",
-					},
-				},
-				Result: check.Result{
-					Summary:     "check summary 2",
-					Description: "check description 2",
-					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
-					Labels: map[string]string{
-						"qux": "baz",
-					},
-				},
-			},
-		}
-
-		r.set(checkResults)
-		r.deleteByInterval(check.Standard)
-
-		collectedAlerts := r.getCheckResults("")
-		require.Len(t, collectedAlerts, 1)
-		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
 
 	t.Run("delete check result by name", func(t *testing.T) {
@@ -138,7 +83,6 @@ func TestRegistry(t *testing.T) {
 		checkResults := []services.CheckResult{
 			{
 				CheckName: "name1",
-				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "123",
 					ServiceID: "123",
@@ -158,7 +102,6 @@ func TestRegistry(t *testing.T) {
 			},
 			{
 				CheckName: "name2",
-				Interval:  check.Standard,
 				Target: services.Target{
 					AgentID:   "321",
 					ServiceID: "321",
@@ -170,7 +113,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -181,59 +124,91 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByName([]string{"name1"})
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		require.Len(t, collectedAlerts, 1)
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
 
-	t.Run("empty interval recognized as standard", func(t *testing.T) {
+	t.Run("delete check result by name and service", func(t *testing.T) {
 		r := newRegistry()
 		checkResults := []services.CheckResult{
 			{
-				CheckName: "name",
-				Interval:  check.Standard,
-				Target: services.Target{
-					AgentID:   "123",
-					ServiceID: "123",
-					Labels: map[string]string{
-						"foo": "bar",
-					},
-				},
-				Result: check.Result{
-					Summary:     "check summary",
-					Description: "check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Warning,
-					Labels: map[string]string{
-						"baz": "qux",
-					},
-				},
+				CheckName: "name1",
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "service 123", Severity: common.Warning},
+			},
+			{
+				CheckName: "name1",
+				Target:    services.Target{AgentID: "321", ServiceID: "321"},
+				Result:    check.Result{Summary: "service 321", Severity: common.Warning},
 			},
 			{
 				CheckName: "name2",
-				Target: services.Target{
-					AgentID:   "321",
-					ServiceID: "321",
-					Labels: map[string]string{
-						"bar": "foo",
-					},
-				},
-				Result: check.Result{
-					Summary:     "check summary 2",
-					Description: "check description 2",
-					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
-					Labels: map[string]string{
-						"qux": "baz",
-					},
-				},
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "other check", Severity: common.Info},
 			},
 		}
 
 		r.set(checkResults)
-		r.deleteByInterval(check.Standard)
+		r.deleteByNameAndService([]string{"name1"}, []string{"123"})
 
-		collectedAlerts := r.getCheckResults("")
-		assert.Empty(t, collectedAlerts)
+		collectedAlerts := r.getCheckResults()
+		require.Len(t, collectedAlerts, 2)
+		assert.NotContains(t, collectedAlerts, checkResults[0])
+		assert.Contains(t, collectedAlerts, checkResults[1])
+		assert.Contains(t, collectedAlerts, checkResults[2])
 	})
+
+	t.Run("delete check results of all checks for a service", func(t *testing.T) {
+		r := newRegistry()
+		checkResults := []services.CheckResult{
+			{
+				CheckName: "name1",
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "service 123", Severity: common.Warning},
+			},
+			{
+				CheckName: "name1",
+				Target:    services.Target{AgentID: "321", ServiceID: "321"},
+				Result:    check.Result{Summary: "service 321", Severity: common.Warning},
+			},
+			{
+				CheckName: "name2",
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "other check", Severity: common.Info},
+			},
+		}
+
+		r.set(checkResults)
+		r.deleteByNameAndService(nil, []string{"123"})
+
+		assert.Equal(t, []services.CheckResult{checkResults[1]}, r.getCheckResults())
+	})
+}
+
+func TestRegistryInsightsMetric(t *testing.T) {
+	r := newRegistry()
+	r.set([]services.CheckResult{
+		{
+			CheckName: "mysql_version",
+			Category:  "adv",
+			Target: services.Target{
+				ServiceID:   "svc-id",
+				ServiceName: "mysql-prod",
+				ServiceType: models.MySQLServiceType,
+			},
+			Result: check.Result{
+				Summary:  "outdated",
+				Severity: common.Error,
+			},
+		},
+	})
+
+	const expected = `
+# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, category, check name and severity
+# TYPE pmm_managed_advisor_check_insights gauge
+pmm_managed_advisor_check_insights{category="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
+`
+	err := testutil.CollectAndCompare(r, strings.NewReader(expected), "pmm_managed_advisor_check_insights")
+	require.NoError(t, err)
 }

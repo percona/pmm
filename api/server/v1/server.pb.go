@@ -20,6 +20,7 @@ import (
 
 	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/management/v1"
 )
 
 const (
@@ -912,70 +913,6 @@ func (x *MetricsResolutions) GetLr() *durationpb.Duration {
 	return nil
 }
 
-// AdvisorRunIntervals represents intervals between each run of Advisor checks.
-type AdvisorRunIntervals struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Standard check interval.
-	StandardInterval *durationpb.Duration `protobuf:"bytes,1,opt,name=standard_interval,json=standardInterval,proto3" json:"standard_interval,omitempty"`
-	// Interval for rare check runs.
-	RareInterval *durationpb.Duration `protobuf:"bytes,2,opt,name=rare_interval,json=rareInterval,proto3" json:"rare_interval,omitempty"`
-	// Interval for frequent check runs.
-	FrequentInterval *durationpb.Duration `protobuf:"bytes,3,opt,name=frequent_interval,json=frequentInterval,proto3" json:"frequent_interval,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *AdvisorRunIntervals) Reset() {
-	*x = AdvisorRunIntervals{}
-	mi := &file_server_v1_server_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AdvisorRunIntervals) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AdvisorRunIntervals) ProtoMessage() {}
-
-func (x *AdvisorRunIntervals) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AdvisorRunIntervals.ProtoReflect.Descriptor instead.
-func (*AdvisorRunIntervals) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *AdvisorRunIntervals) GetStandardInterval() *durationpb.Duration {
-	if x != nil {
-		return x.StandardInterval
-	}
-	return nil
-}
-
-func (x *AdvisorRunIntervals) GetRareInterval() *durationpb.Duration {
-	if x != nil {
-		return x.RareInterval
-	}
-	return nil
-}
-
-func (x *AdvisorRunIntervals) GetFrequentInterval() *durationpb.Duration {
-	if x != nil {
-		return x.FrequentInterval
-	}
-	return nil
-}
-
 // Settings represents PMM Server settings.
 type Settings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -995,8 +932,6 @@ type Settings struct {
 	AlertingEnabled bool `protobuf:"varint,10,opt,name=alerting_enabled,json=alertingEnabled,proto3" json:"alerting_enabled,omitempty"`
 	// PMM Server public address.
 	PmmPublicAddress string `protobuf:"bytes,11,opt,name=pmm_public_address,json=pmmPublicAddress,proto3" json:"pmm_public_address,omitempty"`
-	// Intervals between Advisor runs.
-	AdvisorRunIntervals *AdvisorRunIntervals `protobuf:"bytes,12,opt,name=advisor_run_intervals,json=advisorRunIntervals,proto3" json:"advisor_run_intervals,omitempty"`
 	// True if Backup Management is enabled.
 	BackupManagementEnabled bool `protobuf:"varint,13,opt,name=backup_management_enabled,json=backupManagementEnabled,proto3" json:"backup_management_enabled,omitempty"`
 	// True if Azure Discover is enabled.
@@ -1017,14 +952,22 @@ type Settings struct {
 	// Server process was started, and cannot be changed through ChangeSettings.
 	ExtensionsEnabled bool `protobuf:"varint,21,opt,name=extensions_enabled,json=extensionsEnabled,proto3" json:"extensions_enabled,omitempty"`
 	// True if OpenManager is enabled.
-	OmEnabled     bool `protobuf:"varint,22,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	OmEnabled bool `protobuf:"varint,22,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `protobuf:"varint,23,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
+	// Severities of the Advisor insights that are emailed.
+	AdvisorNotificationSeverities []v1.Severity `protobuf:"varint,24,rep,packed,name=advisor_notification_severities,json=advisorNotificationSeverities,proto3,enum=management.v1.Severity" json:"advisor_notification_severities,omitempty"`
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `protobuf:"bytes,25,rep,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3" json:"advisor_notification_email_addresses,omitempty"`
+	// Advisor check results history retention.
+	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,26,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
 	*x = Settings{}
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1036,7 +979,7 @@ func (x *Settings) String() string {
 func (*Settings) ProtoMessage() {}
 
 func (x *Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,7 +992,7 @@ func (x *Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Settings.ProtoReflect.Descriptor instead.
 func (*Settings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Settings) GetUpdatesEnabled() bool {
@@ -1123,13 +1066,6 @@ func (x *Settings) GetPmmPublicAddress() string {
 	return ""
 }
 
-func (x *Settings) GetAdvisorRunIntervals() *AdvisorRunIntervals {
-	if x != nil {
-		return x.AdvisorRunIntervals
-	}
-	return nil
-}
-
 func (x *Settings) GetBackupManagementEnabled() bool {
 	if x != nil {
 		return x.BackupManagementEnabled
@@ -1194,6 +1130,34 @@ func (x *Settings) GetOmEnabled() bool {
 	return false
 }
 
+func (x *Settings) GetAdvisorNotificationsEnabled() bool {
+	if x != nil {
+		return x.AdvisorNotificationsEnabled
+	}
+	return false
+}
+
+func (x *Settings) GetAdvisorNotificationSeverities() []v1.Severity {
+	if x != nil {
+		return x.AdvisorNotificationSeverities
+	}
+	return nil
+}
+
+func (x *Settings) GetAdvisorNotificationEmailAddresses() []string {
+	if x != nil {
+		return x.AdvisorNotificationEmailAddresses
+	}
+	return nil
+}
+
+func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
+	if x != nil {
+		return x.AdvisorHistoryRetention
+	}
+	return nil
+}
+
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 type ReadOnlySettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1223,7 +1187,7 @@ type ReadOnlySettings struct {
 
 func (x *ReadOnlySettings) Reset() {
 	*x = ReadOnlySettings{}
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1235,7 +1199,7 @@ func (x *ReadOnlySettings) String() string {
 func (*ReadOnlySettings) ProtoMessage() {}
 
 func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1248,7 +1212,7 @@ func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadOnlySettings.ProtoReflect.Descriptor instead.
 func (*ReadOnlySettings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ReadOnlySettings) GetUpdatesEnabled() bool {
@@ -1329,7 +1293,7 @@ type GetSettingsRequest struct {
 
 func (x *GetSettingsRequest) Reset() {
 	*x = GetSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1341,7 +1305,7 @@ func (x *GetSettingsRequest) String() string {
 func (*GetSettingsRequest) ProtoMessage() {}
 
 func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1354,7 +1318,7 @@ func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
 }
 
 type GetReadOnlySettingsRequest struct {
@@ -1365,7 +1329,7 @@ type GetReadOnlySettingsRequest struct {
 
 func (x *GetReadOnlySettingsRequest) Reset() {
 	*x = GetReadOnlySettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1341,7 @@ func (x *GetReadOnlySettingsRequest) String() string {
 func (*GetReadOnlySettingsRequest) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1354,7 @@ func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
 }
 
 type GetSettingsResponse struct {
@@ -1402,7 +1366,7 @@ type GetSettingsResponse struct {
 
 func (x *GetSettingsResponse) Reset() {
 	*x = GetSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1414,7 +1378,7 @@ func (x *GetSettingsResponse) String() string {
 func (*GetSettingsResponse) ProtoMessage() {}
 
 func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1427,7 +1391,7 @@ func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetSettingsResponse) GetSettings() *Settings {
@@ -1446,7 +1410,7 @@ type GetReadOnlySettingsResponse struct {
 
 func (x *GetReadOnlySettingsResponse) Reset() {
 	*x = GetReadOnlySettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1458,7 +1422,7 @@ func (x *GetReadOnlySettingsResponse) String() string {
 func (*GetReadOnlySettingsResponse) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1471,7 +1435,7 @@ func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetReadOnlySettingsResponse) GetSettings() *ReadOnlySettings {
@@ -1496,8 +1460,6 @@ type ChangeSettingsRequest struct {
 	EnableAlerting *bool `protobuf:"varint,8,opt,name=enable_alerting,json=enableAlerting,proto3,oneof" json:"enable_alerting,omitempty"`
 	// PMM Server public address.
 	PmmPublicAddress *string `protobuf:"bytes,9,opt,name=pmm_public_address,json=pmmPublicAddress,proto3,oneof" json:"pmm_public_address,omitempty"`
-	// Intervals between Advisor runs.
-	AdvisorRunIntervals *AdvisorRunIntervals `protobuf:"bytes,10,opt,name=advisor_run_intervals,json=advisorRunIntervals,proto3" json:"advisor_run_intervals,omitempty"`
 	// Enable Azure Discover.
 	EnableAzurediscover *bool `protobuf:"varint,11,opt,name=enable_azurediscover,json=enableAzurediscover,proto3,oneof" json:"enable_azurediscover,omitempty"`
 	// Enable Backup Management.
@@ -1507,14 +1469,23 @@ type ChangeSettingsRequest struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
 	// Enable OpenManager.
-	EnableOm      *bool `protobuf:"varint,16,opt,name=enable_om,json=enableOm,proto3,oneof" json:"enable_om,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	EnableOm *bool `protobuf:"varint,16,opt,name=enable_om,json=enableOm,proto3,oneof" json:"enable_om,omitempty"`
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,17,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `protobuf:"varint,18,opt,name=enable_advisor_notifications,json=enableAdvisorNotifications,proto3,oneof" json:"enable_advisor_notifications,omitempty"`
+	// Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
+	AdvisorNotificationSeverities []v1.Severity `protobuf:"varint,19,rep,packed,name=advisor_notification_severities,json=advisorNotificationSeverities,proto3,enum=management.v1.Severity" json:"advisor_notification_severities,omitempty"`
+	// Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
+	// array clears the list.
+	AdvisorNotificationEmailAddresses *common.StringArray `protobuf:"bytes,20,opt,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3,oneof" json:"advisor_notification_email_addresses,omitempty"`
+	unknownFields                     protoimpl.UnknownFields
+	sizeCache                         protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
 	*x = ChangeSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1526,7 +1497,7 @@ func (x *ChangeSettingsRequest) String() string {
 func (*ChangeSettingsRequest) ProtoMessage() {}
 
 func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1539,7 +1510,7 @@ func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsRequest.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{22}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ChangeSettingsRequest) GetEnableUpdates() bool {
@@ -1605,13 +1576,6 @@ func (x *ChangeSettingsRequest) GetPmmPublicAddress() string {
 	return ""
 }
 
-func (x *ChangeSettingsRequest) GetAdvisorRunIntervals() *AdvisorRunIntervals {
-	if x != nil {
-		return x.AdvisorRunIntervals
-	}
-	return nil
-}
-
 func (x *ChangeSettingsRequest) GetEnableAzurediscover() bool {
 	if x != nil && x.EnableAzurediscover != nil {
 		return *x.EnableAzurediscover
@@ -1647,6 +1611,34 @@ func (x *ChangeSettingsRequest) GetEnableOm() bool {
 	return false
 }
 
+func (x *ChangeSettingsRequest) GetAdvisorHistoryRetention() *durationpb.Duration {
+	if x != nil {
+		return x.AdvisorHistoryRetention
+	}
+	return nil
+}
+
+func (x *ChangeSettingsRequest) GetEnableAdvisorNotifications() bool {
+	if x != nil && x.EnableAdvisorNotifications != nil {
+		return *x.EnableAdvisorNotifications
+	}
+	return false
+}
+
+func (x *ChangeSettingsRequest) GetAdvisorNotificationSeverities() []v1.Severity {
+	if x != nil {
+		return x.AdvisorNotificationSeverities
+	}
+	return nil
+}
+
+func (x *ChangeSettingsRequest) GetAdvisorNotificationEmailAddresses() *common.StringArray {
+	if x != nil {
+		return x.AdvisorNotificationEmailAddresses
+	}
+	return nil
+}
+
 type ChangeSettingsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *Settings              `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
@@ -1656,7 +1648,7 @@ type ChangeSettingsResponse struct {
 
 func (x *ChangeSettingsResponse) Reset() {
 	*x = ChangeSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1668,7 +1660,7 @@ func (x *ChangeSettingsResponse) String() string {
 func (*ChangeSettingsResponse) ProtoMessage() {}
 
 func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1681,7 +1673,7 @@ func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsResponse.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{23}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ChangeSettingsResponse) GetSettings() *Settings {
@@ -1695,7 +1687,7 @@ var File_server_v1_server_proto protoreflect.FileDescriptor
 
 const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
-	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
+	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cmanagement/v1/severity.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
 	"\vVersionInfo\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12!\n" +
 	"\ffull_version\x18\x02 \x01(\tR\vfullVersion\x128\n" +
@@ -1745,11 +1737,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12MetricsResolutions\x12)\n" +
 	"\x02hr\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x02hr\x12)\n" +
 	"\x02mr\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x02mr\x12)\n" +
-	"\x02lr\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x02lr\"\xe5\x01\n" +
-	"\x13AdvisorRunIntervals\x12F\n" +
-	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
-	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x8a\b\n" +
+	"\x02lr\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x02lr\"\xa0\n" +
+	"\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1761,8 +1750,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x0eplatform_email\x18\b \x01(\tB\x02\x18\x01R\rplatformEmail\x12)\n" +
 	"\x10alerting_enabled\x18\n" +
 	" \x01(\bR\x0falertingEnabled\x12,\n" +
-	"\x12pmm_public_address\x18\v \x01(\tR\x10pmmPublicAddress\x12R\n" +
-	"\x15advisor_run_intervals\x18\f \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x12:\n" +
+	"\x12pmm_public_address\x18\v \x01(\tR\x10pmmPublicAddress\x12:\n" +
 	"\x19backup_management_enabled\x18\r \x01(\bR\x17backupManagementEnabled\x123\n" +
 	"\x15azurediscover_enabled\x18\x0e \x01(\bR\x14azurediscoverEnabled\x126\n" +
 	"\x15connected_to_platform\x18\x0f \x01(\bB\x02\x18\x01R\x13connectedToPlatform\x12/\n" +
@@ -1772,7 +1760,11 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12-\n" +
 	"\x12extensions_enabled\x18\x15 \x01(\bR\x11extensionsEnabled\x12\x1d\n" +
 	"\n" +
-	"om_enabled\x18\x16 \x01(\bR\tomEnabledJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\xdd\x03\n" +
+	"om_enabled\x18\x16 \x01(\bR\tomEnabled\x12B\n" +
+	"\x1dadvisor_notifications_enabled\x18\x17 \x01(\bR\x1badvisorNotificationsEnabled\x12_\n" +
+	"\x1fadvisor_notification_severities\x18\x18 \x03(\x0e2\x17.management.v1.SeverityR\x1dadvisorNotificationSeverities\x12O\n" +
+	"$advisor_notification_email_addresses\x18\x19 \x03(\tR!advisorNotificationEmailAddresses\x12U\n" +
+	"\x19advisor_history_retention\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetentionJ\x04\b\f\x10\rJ\x04\b\x14\x10\x15R\x15advisor_run_intervalsR\x16update_snooze_duration\"\xdd\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1791,7 +1783,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xed\b\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xea\v\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1801,15 +1793,17 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x0eaws_partitions\x18\x06 \x01(\v2\x13.common.StringArrayH\x03R\rawsPartitions\x88\x01\x01\x12*\n" +
 	"\x0eenable_advisor\x18\a \x01(\bH\x04R\renableAdvisor\x88\x01\x01\x12,\n" +
 	"\x0fenable_alerting\x18\b \x01(\bH\x05R\x0eenableAlerting\x88\x01\x01\x121\n" +
-	"\x12pmm_public_address\x18\t \x01(\tH\x06R\x10pmmPublicAddress\x88\x01\x01\x12R\n" +
-	"\x15advisor_run_intervals\x18\n" +
-	" \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x126\n" +
+	"\x12pmm_public_address\x18\t \x01(\tH\x06R\x10pmmPublicAddress\x88\x01\x01\x126\n" +
 	"\x14enable_azurediscover\x18\v \x01(\bH\aR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
 	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
 	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x128\n" +
 	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
 	"R\x13enableInternalPgQan\x88\x01\x01\x12 \n" +
-	"\tenable_om\x18\x10 \x01(\bH\vR\benableOm\x88\x01\x01B\x11\n" +
+	"\tenable_om\x18\x10 \x01(\bH\vR\benableOm\x88\x01\x01\x12U\n" +
+	"\x19advisor_history_retention\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12E\n" +
+	"\x1cenable_advisor_notifications\x18\x12 \x01(\bH\fR\x1aenableAdvisorNotifications\x88\x01\x01\x12_\n" +
+	"\x1fadvisor_notification_severities\x18\x13 \x03(\x0e2\x17.management.v1.SeverityR\x1dadvisorNotificationSeverities\x12i\n" +
+	"$advisor_notification_email_addresses\x18\x14 \x01(\v2\x13.common.StringArrayH\rR!advisorNotificationEmailAddresses\x88\x01\x01B\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -1823,7 +1817,10 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x16_enable_access_controlB\x19\n" +
 	"\x17_enable_internal_pg_qanB\f\n" +
 	"\n" +
-	"_enable_omJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
+	"_enable_omB\x1f\n" +
+	"\x1d_enable_advisor_notificationsB'\n" +
+	"%_advisor_notification_email_addressesJ\x04\b\n" +
+	"\x10\vJ\x04\b\x0f\x10\x10R\x15advisor_run_intervalsR\x16update_snooze_duration\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
@@ -1860,7 +1857,7 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 
 var (
 	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 24)
+	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 23)
 	file_server_v1_server_proto_goTypes   = []any{
 		DistributionMethod(0),               // 0: server.v1.DistributionMethod
 		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
@@ -1878,66 +1875,66 @@ var (
 		(*UpdateStatusRequest)(nil),         // 13: server.v1.UpdateStatusRequest
 		(*UpdateStatusResponse)(nil),        // 14: server.v1.UpdateStatusResponse
 		(*MetricsResolutions)(nil),          // 15: server.v1.MetricsResolutions
-		(*AdvisorRunIntervals)(nil),         // 16: server.v1.AdvisorRunIntervals
-		(*Settings)(nil),                    // 17: server.v1.Settings
-		(*ReadOnlySettings)(nil),            // 18: server.v1.ReadOnlySettings
-		(*GetSettingsRequest)(nil),          // 19: server.v1.GetSettingsRequest
-		(*GetReadOnlySettingsRequest)(nil),  // 20: server.v1.GetReadOnlySettingsRequest
-		(*GetSettingsResponse)(nil),         // 21: server.v1.GetSettingsResponse
-		(*GetReadOnlySettingsResponse)(nil), // 22: server.v1.GetReadOnlySettingsResponse
-		(*ChangeSettingsRequest)(nil),       // 23: server.v1.ChangeSettingsRequest
-		(*ChangeSettingsResponse)(nil),      // 24: server.v1.ChangeSettingsResponse
-		(*timestamppb.Timestamp)(nil),       // 25: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),         // 26: google.protobuf.Duration
+		(*Settings)(nil),                    // 16: server.v1.Settings
+		(*ReadOnlySettings)(nil),            // 17: server.v1.ReadOnlySettings
+		(*GetSettingsRequest)(nil),          // 18: server.v1.GetSettingsRequest
+		(*GetReadOnlySettingsRequest)(nil),  // 19: server.v1.GetReadOnlySettingsRequest
+		(*GetSettingsResponse)(nil),         // 20: server.v1.GetSettingsResponse
+		(*GetReadOnlySettingsResponse)(nil), // 21: server.v1.GetReadOnlySettingsResponse
+		(*ChangeSettingsRequest)(nil),       // 22: server.v1.ChangeSettingsRequest
+		(*ChangeSettingsResponse)(nil),      // 23: server.v1.ChangeSettingsResponse
+		(*timestamppb.Timestamp)(nil),       // 24: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),         // 25: google.protobuf.Duration
+		v1.Severity(0),                      // 26: management.v1.Severity
 		(*common.StringArray)(nil),          // 27: common.StringArray
 	}
 )
 
 var file_server_v1_server_proto_depIdxs = []int32{
-	25, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	24, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
 	1,  // 2: server.v1.VersionResponse.managed:type_name -> server.v1.VersionInfo
 	0,  // 3: server.v1.VersionResponse.distribution_method:type_name -> server.v1.DistributionMethod
-	25, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	24, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 5: server.v1.CheckUpdatesResponse.installed:type_name -> server.v1.VersionInfo
 	9,  // 6: server.v1.CheckUpdatesResponse.latest:type_name -> server.v1.DockerVersionInfo
-	25, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
+	24, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
 	9,  // 8: server.v1.ListChangeLogsResponse.updates:type_name -> server.v1.DockerVersionInfo
-	25, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
-	26, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
-	26, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
-	26, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
-	26, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
-	26, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
-	26, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
-	15, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	26, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
-	16, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	17, // 19: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
-	18, // 20: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
-	15, // 21: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	26, // 22: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	27, // 23: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
-	16, // 24: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	17, // 25: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	24, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
+	25, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
+	25, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
+	25, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
+	15, // 13: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	25, // 14: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
+	26, // 15: server.v1.Settings.advisor_notification_severities:type_name -> management.v1.Severity
+	25, // 16: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
+	16, // 17: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
+	17, // 18: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
+	15, // 19: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	25, // 20: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
+	27, // 21: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	25, // 22: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
+	26, // 23: server.v1.ChangeSettingsRequest.advisor_notification_severities:type_name -> management.v1.Severity
+	27, // 24: server.v1.ChangeSettingsRequest.advisor_notification_email_addresses:type_name -> common.StringArray
+	16, // 25: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
 	2,  // 26: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
 	4,  // 27: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
 	6,  // 28: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
 	8,  // 29: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
 	11, // 30: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
 	13, // 31: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	19, // 32: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	20, // 33: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	23, // 34: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	18, // 32: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	19, // 33: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	22, // 34: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
 	3,  // 35: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
 	5,  // 36: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
 	7,  // 37: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
 	10, // 38: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
 	12, // 39: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
 	14, // 40: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	21, // 41: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	22, // 42: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	24, // 43: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	20, // 41: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	21, // 42: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	23, // 43: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
 	35, // [35:44] is the sub-list for method output_type
 	26, // [26:35] is the sub-list for method input_type
 	26, // [26:26] is the sub-list for extension type_name
@@ -1950,14 +1947,14 @@ func file_server_v1_server_proto_init() {
 	if File_server_v1_server_proto != nil {
 		return
 	}
-	file_server_v1_server_proto_msgTypes[22].OneofWrappers = []any{}
+	file_server_v1_server_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_v1_server_proto_rawDesc), len(file_server_v1_server_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   24,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

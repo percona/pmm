@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -33,9 +35,15 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
+	AdvisorNotificationsEnabledDefault = false
 	OMEnabledDefault                   = false
 	awsPartitionID                     = "aws"
 )
+
+// DefaultAdvisorNotificationSeverities returns the insight severities emailed when none are configured.
+func DefaultAdvisorNotificationSeverities() []common.Severity {
+	return []common.Severity{common.Critical, common.Error}
+}
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
 type MetricsResolutions struct {
@@ -50,14 +58,10 @@ func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 
-// Advisors contains settings related to the Portal Advisors.
+// Advisors contains Advisor settings.
 type Advisors struct {
-	// Advisor checks disabled, false by default.
+	// Enabled turns Advisor checks on or off; nil means AdvisorsEnabledDefault.
 	Enabled *bool `json:"enabled"`
-	// List of disabled advisors
-	DisabledAdvisors []string `json:"disabled_advisors"`
-	// Advisor run intervals
-	AdvisorRunIntervals AdvisorsRunIntervals `json:"advisor_run_intervals"`
 }
 
 // Settings contains PMM Server settings.
@@ -77,6 +81,8 @@ type Settings struct {
 
 	DataRetention time.Duration `json:"data_retention"`
 
+	AdvisorHistoryRetention time.Duration `json:"advisor_history_retention"`
+
 	AWSPartitions []string `json:"aws_partitions"`
 
 	AWSInstanceChecked bool `json:"aws_instance_checked"`
@@ -87,15 +93,24 @@ type Settings struct {
 		CacheEnabled *bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
 
-	SaaS Advisors `json:"sass"` // sic :(
+	Advisors Advisors `json:"advisors"`
 
 	Nomad struct {
 		Enabled *bool `json:"enabled"`
-	}
+	} `json:"Nomad"`
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
+
+	// AdvisorNotifications controls emailing Advisor check results to the configured recipients.
+	AdvisorNotifications struct {
+		Enabled *bool `json:"enabled"`
+		// Severities lists the insight severities that are emailed, most severe first.
+		Severities []common.Severity `json:"severities"`
+		// EmailAddresses is the recipient list the run summaries are sent to.
+		EmailAddresses []string `json:"email_addresses"`
+	} `json:"advisor_notifications"`
 
 	Azurediscover struct {
 		Enabled *bool `json:"enabled"`
@@ -140,6 +155,14 @@ func (s *Settings) IsAlertingEnabled() bool {
 	return AlertingEnabledDefault
 }
 
+// IsAdvisorNotificationsEnabled returns true if Advisor email notifications are enabled.
+func (s *Settings) IsAdvisorNotificationsEnabled() bool {
+	if s.AdvisorNotifications.Enabled != nil {
+		return *s.AdvisorNotifications.Enabled
+	}
+	return AdvisorNotificationsEnabledDefault
+}
+
 // IsTelemetryEnabled returns true if telemetry is enabled.
 func (s *Settings) IsTelemetryEnabled() bool {
 	if s.Telemetry.Enabled != nil {
@@ -166,8 +189,8 @@ func (s *Settings) IsBackupManagementEnabled() bool {
 
 // IsAdvisorsEnabled returns true if advisors are enabled.
 func (s *Settings) IsAdvisorsEnabled() bool {
-	if s.SaaS.Enabled != nil {
-		return *s.SaaS.Enabled
+	if s.Advisors.Enabled != nil {
+		return *s.Advisors.Enabled
 	}
 
 	return AdvisorsEnabledDefault
@@ -222,13 +245,6 @@ func DurationToDays(d time.Duration) int {
 	return int(d.Hours() / 24) //nolint:mnd
 }
 
-// AdvisorsRunIntervals represents intervals between Advisors checks.
-type AdvisorsRunIntervals struct {
-	StandardInterval time.Duration `json:"standard_interval"`
-	RareInterval     time.Duration `json:"rare_interval"`
-	FrequentInterval time.Duration `json:"frequent_interval"`
-}
-
 // fillDefaults sets zero values to their default values.
 // Used for migrating settings to the newer version.
 func (s *Settings) fillDefaults() {
@@ -248,19 +264,15 @@ func (s *Settings) fillDefaults() {
 		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
+	if s.AdvisorHistoryRetention == 0 {
+		s.AdvisorHistoryRetention = 30 * 24 * time.Hour //nolint:mnd
+	}
+
+	if len(s.AdvisorNotifications.Severities) == 0 {
+		s.AdvisorNotifications.Severities = DefaultAdvisorNotificationSeverities()
+	}
+
 	if len(s.AWSPartitions) == 0 {
 		s.AWSPartitions = []string{awsPartitionID}
-	}
-
-	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
 	}
 }

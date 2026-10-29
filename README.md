@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/pmm-logo-dark.png">
+    <source media="(prefers-color-scheme: dark)" srcset="documentation/api/images/pmm-logo-dark.png">
     <img src="documentation/docs/assets/pmm-logo.png" width="360" alt="Percona Monitoring and Management">
   </picture>
 </p>
@@ -27,7 +27,7 @@
   <a href="https://forums.percona.com/c/percona-monitoring-and-management-pmm">Forum</a>
 </p>
 
-![PMM: from a CPU spike to the PostgreSQL query behind it](.github/readme/pmm-hero.gif)
+![PMM: from a CPU spike to the PostgreSQL query behind it](documentation/api/images/pmm-hero.gif)
 
 <p align="center"><sub>From a CPU spike on the node to the PostgreSQL query behind it.</sub></p>
 
@@ -110,7 +110,7 @@ For MySQL, PostgreSQL, MongoDB, Valkey/Redis, ProxySQL and HAProxy. Built on Gra
 <details>
 <summary><b>Advisors: automatic checks for security, configuration and performance</b></summary>
 
-![Advisor checks: failed checks by severity](documentation/docs/images/FailedChecks.png)
+![Advisor insights: findings from a check run, with service, category and severity](documentation/api/images/advisor-insights.png)
 
 </details>
 
