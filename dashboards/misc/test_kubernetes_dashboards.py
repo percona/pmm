@@ -136,10 +136,8 @@ class KubernetesDashboardsTest(unittest.TestCase):
         return panels[0], panels[1]
 
     def test_overview_summary_rows(self):
-        # Inventory: one Canvas, so a tile reads "Nodes ready  5/5" on one line; both rows run full width and the one
-        # hover menu each has sits over the last tile, whose value is moved clear of it.
-        # Problems: one stat panel (Canvas data links don't click) without a description, so hovering shows only one
-        # menu button, over the last tile, whose value is padded clear of it.
+        # Inventory is one Canvas (one-line "label value" tiles); problems are one stat panel. Each row's hover menu
+        # sits over its last tile, so that tile's value is moved clear of it.
         inventory, problems = self._summary_rows()
         self.assertEqual((inventory['type'], problems['type']), ('canvas', 'stat'))
         self.assertEqual((len(inventory['targets']), len(problems['targets'])), (7, 5))
@@ -184,8 +182,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertTrue(t['expr'].endswith('or on () vector(0)'), t['legendFormat'])
 
     def test_overview_is_tiles_and_one_attention_list(self):
-        # Chetan (review point 3): at 100 clusters / 1000 databases the Overview shows only what needs attention;
-        # the full lists are one click away (Kubernetes Clusters, Database Clusters on Kubernetes).
+        # The Overview lists only what needs attention, so it stays short at scale; full lists are separate dashboards.
         panels = sorted(load('Kubernetes_Overview.json')['panels'], key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))
         self.assertEqual([p['type'] for p in panels], ['canvas', 'stat', 'stat', 'table'])
         tiles = [t['legendFormat'] for p in panels[1:3] for t in p['targets']]
@@ -198,9 +195,9 @@ class KubernetesDashboardsTest(unittest.TestCase):
         self.assertEqual(len(attn['targets']), 1)
         q = attn['targets'][0]['expr']
         self.assertIn('✓ Nothing needs attention', q)
-        # "restarts > 0 * on(...) group_left(reason)" binds as "restarts > (0 * ...)": the reason never attached
+        # "restarts > 0 * on(...)" binds as "restarts > (0 * ...)", so the comparison is parenthesized.
         self.assertRegex(q, r'\(\(\(sum by \(k8s_cluster_id, namespace, pod\) \(round\(increase_prometheus\(kube_pod_container_status_restarts_total[^)]*\)\)\) > 0\) and on [^*]*\)\) \* on \(k8s_cluster_id, namespace, pod\) group_left \(terminated\)')
-        # an operator restarting for a few seconds (API stall -> lost leader lease) is not "down"
+        # an operator that restarts for a few seconds is not "down"
         self.assertIn('max_over_time(kube_deployment_status_replicas_available', q)
         # restarts look back over the range: a pod deleted since then does not need attention
         self.assertIn('> 0) and on (k8s_cluster_id, namespace, pod) max by (k8s_cluster_id, namespace, pod) (kube_pod_info', q)
@@ -213,7 +210,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
         self.assertEqual([p['title'] for p in d['panels']], ['Database clusters', 'Database pods'])
 
     def test_database_pods_leave_out_job_pods(self):
-        # Backup Job pods are not database pods: a finished one is never Ready, which turned "DB pods not ready" red.
+        # Backup Job pods are not database pods: a finished one is never Ready.
         for name in ('Kubernetes_Overview.json', 'Kubernetes_Cluster_Summary.json', 'Database_Clusters_on_Kubernetes.json'):
             for e in exprs(load(name)):
                 if 'kube_pod_container_info' in e:
@@ -227,7 +224,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
                     self.assertIn('external-exporter', e, name)
 
     def test_tile_labels_have_room(self):
-        # Canvas text keeps its size, so a label boxed into 70% of the tile wrapped ("Database clusters / ready").
+        # Canvas text does not shrink, so a label must get enough of the tile width to stay on one line.
         for name in EXPECTED:
             for p in walk(load(name)):
                 if p.get('type') != 'canvas':
@@ -297,8 +294,8 @@ class KubernetesDashboardsTest(unittest.TestCase):
                     self.assertEqual(p['transformations'][-1], {'id': 'concatenate', 'options': {'frameNameMode': 'drop'}}, name)
 
     def test_percent_of_limit_is_per_container(self):
-        # All containers' usage over the limits of only the limited ones read 100.4% for a mongod at 84% of its own
-        # limit (pmm-client has none). Divide each container by its own limit, then take the busiest.
+        # Each container is divided by its own limit, then the busiest is taken: summing usage over only the
+        # limited containers' limits overstates the pod.
         lim = [e for e in exprs(load('Database_Cluster_on_Kubernetes.json'))
                if 'kube_pod_container_resource_limits' in e and ('container_cpu_usage_seconds_total' in e or 'container_memory_working_set_bytes' in e)]
         self.assertGreaterEqual(len(lim), 4)
@@ -306,7 +303,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
             self.assertIn('sum by (k8s_cluster_id, namespace, pod, container) (kube_pod_container_resource_limits', e)
 
     def test_limits_look_like_limits(self):
-        # Chetan: the limit should look scarier than grey. Limit lines red; % of limit warns at 80% and alarms at 100%.
+        # Limit lines are red; % of limit warns at 80% and alarms at 100%.
         for p in load('Kubernetes_Pod.json')['panels']:
             for o in p.get('fieldConfig', {}).get('overrides', []):
                 if o['matcher']['options'] == 'Limit':
@@ -324,7 +321,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
         self.assertIn('Memory used, per pod', titles)
 
     def test_storage_shows_free_bytes(self):
-        # 90% of a 10 TB volume still leaves 1 TB: every PVC table and fullest-disk tile shows free bytes next to %.
+        # A percentage hides the size: every PVC table and fullest-disk tile also shows free bytes.
         for name in EXPECTED:
             for p in walk(load(name)):
                 if p.get('type') == 'table' and 'PVC' in json.dumps(p.get('transformations', [])):
@@ -343,7 +340,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
         return next(p for p in cs['panels'] if p['type'] == 'canvas' and p['gridPos']['y'] == storage + 1)
 
     def test_storage_row_is_one_tile_row(self):
-        # Same one-line tiles as the headers ("PVCs bound 28/28"), each opening the list behind it.
+        # Same one-line tiles as the headers, each opening the list behind it.
         row = self._storage_row()
         els = {e['name']: e for e in row['options']['root']['elements']}
         want = [('PVCs bound', 'Persistent volume claims'), ('Requested', 'Persistent volume claims'),
@@ -359,8 +356,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertTrue(t['expr'].endswith('or on () vector(-1)'), t['legendFormat'])
 
     def test_pod_tables_say_why_containers_restarted(self):
-        # A restart count without the reason (OOMKilled, Error, Completed) sends people digging: every pod list that
-        # counts restarts also shows the last termination reason, one row per pod.
+        # Every pod list that counts restarts also shows the last termination reason, one row per pod.
         for name, title in (('Database_Cluster_on_Kubernetes.json', 'Pods'), ('Database_Clusters_on_Kubernetes.json', 'Database pods'),
                             ('Kubernetes_Cluster_Summary.json', 'Pods that need attention'), ('Kubernetes_Pod.json', 'Containers')):
             p = next(p for p in walk(load(name)) if p.get('type') == 'table' and p.get('title') == title)
@@ -369,15 +365,14 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertIn('topk by (k8s_cluster_id, namespace, pod) (1,', json.dumps(p['targets']), f'{name}: {title} one row per pod')
 
     def test_state_bars_bridge_short_gaps(self):
-        # A kube-state-metrics restart leaves ~1 min without samples, which split "Ready" into separate blocks
-        # (reproduced 2026-10-28). Bridge gaps up to 10 min; a longer outage still shows as a gap.
+        # A kube-state-metrics restart leaves ~1 min without samples: bridge gaps up to 10 min, show longer ones.
         for name in EXPECTED:
             for p in walk(load(name)):
                 if p.get('type') == 'state-timeline':
                     self.assertEqual(p['fieldConfig']['defaults']['custom'].get('spanNulls'), 600000, f"{name}: {p['title']}")
 
     def test_every_panel_says_why_it_is_empty(self):
-        # Chetan: "No volumes attached" instead of "No data". Every data panel carries its own empty message.
+        # Every data panel says why it is empty instead of "No data".
         for name in EXPECTED:
             for p in load(name)['panels']:
                 if p['type'] in ('row', 'canvas'):
@@ -385,7 +380,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertTrue(p['fieldConfig']['defaults'].get('noValue'), f"{name}: {p.get('title') or p['type']}")
 
     def test_lists_filter_and_link(self):
-        # Chetan: no way to filter, scrolling hurts at scale, every number should open its list.
+        # Lists filter from their headers, and every number opens its list.
         for name in EXPECTED:
             for p in walk(load(name)):
                 if p.get('type') == 'table':
@@ -405,7 +400,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
             self.assertTrue(url.startswith(f"/graph/d/k8s-cluster-summary?viewPanel=panel-{ids[table]}&var-k8s_cluster=${{__data.fields.k8s_cluster_id}}"), f'{col}: {url}')
 
     def test_node_numbers_explain_themselves(self):
-        # Chetan asked where "allocatable" and "18/110" come from: the panels say it.
+        # Panels whose numbers need a definition ("allocatable", "pods / max") explain them.
         for name in ('Kubernetes_Cluster_Summary.json', 'Kubernetes_Node.json'):
             for p in load(name)['panels']:
                 if 'allocatable' in p.get('title', ''):
@@ -415,15 +410,15 @@ class KubernetesDashboardsTest(unittest.TestCase):
                 self.assertIn('one line per device', p['description'].lower(), p['title'])
 
     def test_pods_list_shows_only_existing_pods(self):
-        # Restarts look back over the whole time range, so a pod deleted an hour ago came back as a row of dashes.
+        # Restarts look back over the whole time range: only pods that still exist are listed.
         pods = next(p for p in walk(load('Kubernetes_Cluster_Summary.json')) if p.get('type') == 'table' and p.get('title') == 'Pods')
         for t in pods['targets']:
             if 'restarts_total' in t['expr'] or 'last_terminated_reason' in t['expr']:
                 self.assertIn('and on (k8s_cluster_id, namespace, pod) max by (k8s_cluster_id, namespace, pod) (kube_pod_info', t['expr'], t['refId'])
 
     def test_detects_databases_from_any_operator(self):
-        # Review: not only Percona operators. A database pod runs a database image (any operator, Helm chart or plain
-        # StatefulSet); its cluster is the app.kubernetes.io/instance label, else the owning controller.
+        # A database pod runs a database image (any operator, Helm chart or StatefulSet); its cluster is the
+        # app.kubernetes.io/instance label, else the owning controller.
         for name in EXPECTED:
             for e in exprs(load(name)):
                 self.assertNotIn('percona-.+-operator', e, name)
@@ -450,9 +445,8 @@ class KubernetesDashboardsTest(unittest.TestCase):
             self.assertIn('query_result(', vars_[v]['definition'], v)
 
     def test_tiles_never_show_the_canvas_placeholder(self):
-        # A tile query that returns nothing leaves its field missing, and Canvas then prints its editor hint
-        # "Double click to set text" (seen with a deleted namespace or pod selected). Every tile query falls back
-        # to -1 (or "—" for text), and every shown field maps -1 to "—" (blank for totals and extras).
+        # A missing field makes Canvas print "Double click to set text": every tile query falls back to -1 (or "—"),
+        # and every shown field maps -1 to "—" (blank for totals and extras).
         for name in EXPECTED:
             for p in walk(load(name)):
                 if p.get('type') != 'canvas':
@@ -465,8 +459,7 @@ class KubernetesDashboardsTest(unittest.TestCase):
                         self.assertIn('"-1"', maps.get(t['legendFormat'], ''), where)
 
     def test_one_line_per_object_gets_its_own_colour(self):
-        # Chetan: Network and Disk drew every pod in the same blue. A chart with one series per pod, container, PVC or
-        # disk uses the palette (a colour per series), never one fixed colour or a colour per query.
+        # A chart with one series per pod, container, PVC or disk uses the palette, so each series has its own colour.
         for name in EXPECTED:
             for p in load(name)['panels']:
                 if p['type'] != 'timeseries' or not re.search(r'\{\{(pod|container|persistentvolumeclaim|device)\}\}', json.dumps(p['targets'])):
