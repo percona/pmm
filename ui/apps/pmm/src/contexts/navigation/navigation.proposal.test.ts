@@ -2,8 +2,10 @@ import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   MONGODB_HUB_PATH,
+  OM_PATH,
   PROTOTYPE_PLACEHOLDER_PATH,
 } from 'lib/constants';
+import { ExtensionIcon } from 'lib/peak-ui-pending-icons';
 import { HAInfo } from 'types/ha.types';
 import { NavItem } from 'types/navigation.types';
 import { UpdateStatus } from 'types/updates.types';
@@ -15,6 +17,8 @@ import {
 } from 'utils/testStubs';
 import {
   buildProposedNavTree,
+  DEFAULT_STARRED_APPS,
+  findAppPage,
   ProposedNavTreeInput,
 } from './navigation.proposal';
 
@@ -39,6 +43,7 @@ const build = (overrides: Partial<ProposedNavTreeInput> = {}) =>
     updateStatus: UpdateStatus.UpToDate,
     colorMode: 'light',
     toggleColorMode: () => {},
+    starredApps: DEFAULT_STARRED_APPS,
     ...overrides,
   });
 
@@ -52,8 +57,8 @@ describe('buildProposedNavTree', () => {
     expect(ids(build())).toEqual([
       'home-page',
       'section-starred',
-      'pinned-mongodb-backups',
-      'pinned-mysql-backups',
+      'app-mongodb-backups',
+      'app-mysql-backups',
       'section-technologies',
       'mongo',
       'mysql',
@@ -83,11 +88,29 @@ describe('buildProposedNavTree', () => {
     expect(build()[0]).toMatchObject({ id: 'home-page', text: 'Overview' });
   });
 
-  it('marks the sample entries as pinned', () => {
-    const pinned = build().filter((item) => item.id.startsWith('pinned-'));
+  it('lists the starred apps under Starred, pinned, with the puzzle piece', () => {
+    const starred = build().filter((item) => item.id.startsWith('app-'));
 
-    expect(pinned).toHaveLength(2);
-    expect(pinned.every((item) => item.pinned)).toBe(true);
+    expect(ids(starred)).toEqual(['app-mongodb-backups', 'app-mysql-backups']);
+    expect(
+      starred.every((item) => item.pinned && item.icon === ExtensionIcon)
+    ).toBe(true);
+  });
+
+  it('moves a starred app from Apps to Starred, in the order apps were starred', () => {
+    const tree = build({
+      starredApps: ['app-schema-changes', 'app-mysql-backups'],
+    });
+    const start = tree.findIndex((item) => item.id === 'section-starred');
+    const apps = ids(findById(tree, 'apps')?.children);
+
+    expect(ids(tree.slice(start + 1, start + 3))).toEqual([
+      'app-schema-changes',
+      'app-mysql-backups',
+    ]);
+    expect(apps).not.toContain('app-schema-changes');
+    expect(apps).not.toContain('app-mysql-backups');
+    expect(apps).toContain('app-mongodb-backups');
   });
 
   it('makes each technology a single entry that opens its overview dashboard', () => {
@@ -150,8 +173,8 @@ describe('buildProposedNavTree', () => {
     const start = tree.findIndex((item) => item.id === 'section-starred');
 
     expect(ids(tree.slice(start + 1, start + 5))).toEqual([
-      'pinned-mongodb-backups',
-      'pinned-mysql-backups',
+      'app-mongodb-backups',
+      'app-mysql-backups',
       'starred-dashboard-mysql-innodb',
       'starred-dashboard-node-disk',
     ]);
@@ -202,7 +225,7 @@ describe('buildProposedNavTree', () => {
     ]);
   });
 
-  it('lists the projected app catalog without the pinned apps', () => {
+  it('lists the apps not starred under Apps, then All apps', () => {
     const apps = findById(build(), 'apps')?.children;
 
     expect(apps?.map((app) => app.text)).toEqual([
@@ -218,6 +241,16 @@ describe('buildProposedNavTree', () => {
     expect(findById(apps, 'app-schema-changes')?.url).toBe(
       `${PROTOTYPE_PLACEHOLDER_PATH}/schema-changes`
     );
+    expect(
+      findById(build({ starredApps: [] }), 'apps')
+        ?.children?.map((app) => app.text)
+        .slice(0, 4)
+    ).toEqual([
+      'Data archiving',
+      'MongoDB backups',
+      'MySQL backups',
+      'Operations for MongoDB',
+    ]);
   });
 
   it('offers a quick add on the inventory rows', () => {
@@ -229,14 +262,14 @@ describe('buildProposedNavTree', () => {
     ]);
   });
 
-  it('keeps a deep link into a pinned app active on its starred entry', () => {
+  it('keeps a deep link into a starred app active on its starred entry', () => {
     const tree = build();
     const backups = findActiveNavItem(
       tree,
       `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`
     );
 
-    expect(backups?.id).toBe('pinned-mysql-backups');
+    expect(backups?.id).toBe('app-mysql-backups');
     expect(backups?.url).toBe(EXTENSIONS_MYSQL_BACKUPS_PATH);
     expect(tree).toContain(backups);
   });
@@ -324,5 +357,45 @@ describe('buildProposedNavTree', () => {
 
     expect(ids(tree)).toContain('sign-in');
     expect(ids(tree)).not.toContain('account');
+  });
+});
+
+describe('findAppPage', () => {
+  it('finds the app a page belongs to, starrable when it is under Apps', () => {
+    expect(
+      findAppPage(`${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`)
+    ).toMatchObject({ app: { id: 'app-mysql-backups' }, starrable: true });
+    expect(findAppPage('/graph/backup/inventory')).toMatchObject({
+      app: { text: 'MongoDB backups' },
+      starrable: true,
+    });
+    expect(findAppPage(`${OM_PATH}/nodes`)?.app.id).toBe(
+      'app-operations-for-mongodb'
+    );
+    expect(
+      findAppPage(`${PROTOTYPE_PLACEHOLDER_PATH}/schema-changes`)?.starrable
+    ).toBe(true);
+  });
+
+  it('shares, but cannot star, the apps with places of their own and the index of apps', () => {
+    [
+      ['/graph/d/pmm-qan/pmm-query-analytics', 'Query analytics'],
+      ['/rta/sessions', 'Real-time queries'],
+      [`${EXTENSIONS_ATW_PATH}/incidents/abc`, 'Diagnostics'],
+      [`${PROTOTYPE_PLACEHOLDER_PATH}/all-apps`, 'All apps'],
+    ].forEach(([path, text]) =>
+      expect(findAppPage(path)).toMatchObject({
+        app: { text },
+        starrable: false,
+      })
+    );
+  });
+
+  it('finds no app on other pages', () => {
+    expect(findAppPage(MONGODB_HUB_PATH)).toBeUndefined();
+    expect(findAppPage('/graph/d/node-disk/disk-details')).toBeUndefined();
+    expect(
+      findAppPage(`${PROTOTYPE_PLACEHOLDER_PATH}/add-service`)
+    ).toBeUndefined();
   });
 });

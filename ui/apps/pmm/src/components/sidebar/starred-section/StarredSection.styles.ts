@@ -1,5 +1,6 @@
 import { listItemButtonClasses } from '@mui/material/ListItemButton';
 import { Theme } from '@mui/material/styles';
+import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 
 export const getStyles = (theme: Theme) => {
   const quick = { duration: theme.transitions.duration.shorter };
@@ -52,6 +53,34 @@ export const getStyles = (theme: Theme) => {
           boxShadow: theme.shadows[4],
         },
       },
+    },
+    // A dashed Paper as tall as its note, lined up with the heading. It keeps
+    // the open drawer's width, so the drawer opening or closing over it
+    // reveals or covers the note instead of rewrapping it.
+    empty: {
+      boxSizing: 'border-box',
+      width: DRAWER_WIDTH,
+      px: 2,
+      py: 0.5,
+    },
+    emptyNote: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 1,
+      // The dashed line's 2px, then 8px.
+      p: '10px',
+    },
+    // The sidebar keeps its labels on one line while it animates; the note wraps.
+    emptyText: {
+      minWidth: 0,
+      whiteSpace: 'normal',
+      textWrap: 'pretty',
+    },
+    // Centred on the note's first 18px line.
+    emptyStar: {
+      flexShrink: 0,
+      my: '-1px',
+      color: 'text.secondary',
     },
     visuallyHidden: {
       position: 'absolute',

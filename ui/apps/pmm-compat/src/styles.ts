@@ -6,6 +6,7 @@ export const applyCustomStyles = () => {
   // Hide toolbar elements
   style.innerText = `
     ${LOCATORS.menuToggle},
+    ${LOCATORS.homeBreadcrumb},
     ${LOCATORS.helpButton},
     ${LOCATORS.searchButton},
     ${LOCATORS.toolbarSignIn},

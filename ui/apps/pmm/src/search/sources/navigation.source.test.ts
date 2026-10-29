@@ -109,7 +109,7 @@ describe('flattenNavTree', () => {
       'Users and access',
     ]);
     expect(byId('page:inventory')).toMatchObject({ label: 'Inventory' });
-    expect(byId('page:pinned-mongodb-backups')).toMatchObject({
+    expect(byId('page:app-mongodb-backups')).toMatchObject({
       starred: true,
       description: ['Starred'],
     });

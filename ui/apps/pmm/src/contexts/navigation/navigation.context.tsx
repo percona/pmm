@@ -5,4 +5,6 @@ export const NavigationContext = createContext<NavigationContextProps>({
   navTree: [],
   navOpen: false,
   setNavOpen: () => {},
+  starredApps: [],
+  toggleStarredApp: () => {},
 });

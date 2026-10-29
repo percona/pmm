@@ -250,7 +250,7 @@ export function IncidentWorkspacePage() {
               label="Incident name"
               required
               variant="h4"
-              component="h1"
+              component="h2"
               disabled={!canMutate}
               saving={updateMutation.isPending}
               editing={editingName}
@@ -264,7 +264,7 @@ export function IncidentWorkspacePage() {
               testId="atw-incident-name"
             />
           ) : (
-            <Typography variant="h4" component="h1">
+            <Typography variant="h4" component="h2">
               Incident
             </Typography>
           )}

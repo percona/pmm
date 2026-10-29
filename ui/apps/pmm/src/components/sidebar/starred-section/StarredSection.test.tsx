@@ -72,6 +72,45 @@ describe('StarredSection', () => {
     );
   });
 
+  it('says how to add an entry while there is none, and leaves the rail without it', async () => {
+    const { rerender } = render(section([]));
+
+    expect(screen.getByTestId('starred-empty')).toHaveTextContent(
+      'Click the star on apps or dashboards to add them here.'
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Edit order' })
+    ).not.toBeInTheDocument();
+
+    rerender(section([], false));
+
+    // It folds away with the drawer, heading included: the rail would show two dividers together.
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('list', { name: 'Starred' })
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('starred-section')).toHaveAttribute(
+      'role',
+      'none'
+    );
+  });
+
+  it('offers to edit the order only once there are two entries', () => {
+    const { rerender } = render(section(ITEMS.slice(0, 1)));
+
+    expect(screen.queryByTestId('starred-empty')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Edit order' })
+    ).not.toBeInTheDocument();
+
+    rerender(section(ITEMS.slice(0, 2)));
+
+    expect(
+      screen.getByRole('button', { name: 'Edit order' })
+    ).toBeInTheDocument();
+  });
+
   it('turns the entries into rows to reorder, and back with the same button', () => {
     renderSection();
 

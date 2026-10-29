@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useMemo } from 'react';
+import { FC, PropsWithChildren, useCallback, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
 import { NavItem } from 'types/navigation.types';
 import { useUser } from 'contexts/user';
@@ -9,7 +9,12 @@ import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useStarredDashboards } from 'hooks/api/useStarredDashboards';
 import { useAuth } from 'contexts/auth';
-import { buildProposedNavTree } from './navigation.proposal';
+import {
+  buildProposedNavTree,
+  DEFAULT_STARRED_APPS,
+} from './navigation.proposal';
+
+export const STARRED_APPS_KEY = 'pmm-ui.sidebar.starred-apps';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -27,6 +32,19 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: starredDashboards } = useStarredDashboards({
     enabled: user?.isAnonymous === false,
   });
+  const [starredApps, setStarredApps] = useLocalStorage<string[]>(
+    STARRED_APPS_KEY,
+    DEFAULT_STARRED_APPS
+  );
+  const toggleStarredApp = useCallback(
+    (id: string) =>
+      setStarredApps(
+        starredApps.includes(id)
+          ? starredApps.filter((starred) => starred !== id)
+          : [...starredApps, id]
+      ),
+    [starredApps, setStarredApps]
+  );
 
   const navTree = useMemo<NavItem[]>(
     () =>
@@ -40,6 +58,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         colorMode,
         toggleColorMode,
         starredDashboards,
+        starredApps,
       }),
     [
       user,
@@ -51,6 +70,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       colorMode,
       toggleColorMode,
       starredDashboards,
+      starredApps,
     ]
   );
 
@@ -60,6 +80,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         navTree,
         navOpen,
         setNavOpen,
+        starredApps,
+        toggleStarredApp,
       }}
     >
       {children}

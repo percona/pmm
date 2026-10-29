@@ -1395,7 +1395,7 @@ export function PluginDetailPage({
         <Box>
           {headingWhenChromeHidden ? (
             <Typography
-              component="h1"
+              component="h2"
               variant="h4"
               sx={{ mb: 2, fontWeight: 600 }}
             >
@@ -1414,7 +1414,7 @@ export function PluginDetailPage({
         <Box>
           {headingWhenChromeHidden ? (
             <Typography
-              component="h1"
+              component="h2"
               variant="h4"
               sx={{ mb: 2, fontWeight: 600 }}
             >
@@ -1456,7 +1456,7 @@ export function PluginDetailPage({
 
         {headingWhenChromeHidden ? (
           <Typography
-            component="h1"
+            component="h2"
             variant="h4"
             sx={{ mb: 2, fontWeight: 600 }}
           >

@@ -20,6 +20,7 @@ import { ExtensionIcon } from 'lib/peak-ui-pending-icons';
 import { HAInfo } from 'types/ha.types';
 import type { StarredDashboard } from 'types/dashboards.types';
 import { NavItem } from 'types/navigation.types';
+import { findActiveNavItem } from 'utils/navigation.utils';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { User } from 'types/user.types';
 import {
@@ -74,28 +75,21 @@ export const NAV_SECTIONS = {
   administration: section('administration', 'Administration'),
 };
 
-// Sample starred apps: starring an app is a later iteration, so these stand in
-// for it. Dashboards come from the stars users set in Grafana. Each entry
+// Apps are starred from their header and dashboards in Grafana. Each entry
 // carries the icon of the kind of thing it is, an app or a dashboard, and a
-// starred app leaves the Apps list.
-export const NAV_STARRED: NavItem[] = [
-  {
-    id: 'pinned-mongodb-backups',
-    icon: ExtensionIcon,
-    text: 'MongoDB backups',
-    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-    matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
-    pinned: true,
-  },
-  {
-    id: 'pinned-mysql-backups',
-    icon: ExtensionIcon,
-    text: 'MySQL backups',
-    url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-    matches: ['*'],
-    pinned: true,
-  },
+// starred app leaves the Apps list. A first visit starts with the backups
+// apps starred.
+export const DEFAULT_STARRED_APPS = [
+  'app-mongodb-backups',
+  'app-mysql-backups',
 ];
+
+// A starred app: the puzzle piece, unless its developer gave it an icon.
+export const starredApp = (app: NavItem): NavItem => ({
+  ...app,
+  icon: app.icon ?? ExtensionIcon,
+  pinned: true,
+});
 
 // A dashboard the user starred in Grafana. The entry follows the dashboard's
 // uid, so it stays highlighted whatever the address's slug or query.
@@ -183,44 +177,66 @@ const plannedApp = (slug: string, text: string): NavItem => ({
   url: `${PROTOTYPE_PLACEHOLDER_PATH}/${slug}`,
 });
 
-// The app catalog as the IA projects it. Every entry opens the placeholder page
-// so the list can be reviewed in full. Diagnostics is promoted to Analysis and
-// alerting and, like the pinned MongoDB and MySQL backups, leaves this list.
-export const NAV_APPS: NavItem = {
+// The app catalog as the IA projects it: every app under Apps, each of which
+// can be starred. The planned ones open the placeholder page so the list can
+// be reviewed in full. Diagnostics, Query analytics and Real-time queries have
+// places of their own in the sidebar instead.
+export const APPS: NavItem[] = [
+  plannedApp('data-archiving', 'Data archiving'),
+  {
+    id: 'app-mongodb-backups',
+    text: 'MongoDB backups',
+    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+    matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
+  },
+  {
+    id: 'app-mysql-backups',
+    text: 'MySQL backups',
+    url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+    matches: ['*'],
+  },
+  // A real app, listed here rather than under MongoDB. Its own tabs carry
+  // Fleet, Nodes, Automations and Settings, so it needs one entry,
+  // highlighted on all of them.
+  {
+    id: 'app-operations-for-mongodb',
+    text: 'Operations for MongoDB',
+    url: OM_PATH,
+    matches: ['*'],
+    badge: createElement(PreviewChip, { level: 'developer' }),
+    badgeAlwaysVisible: true,
+  },
+  plannedApp('postgresql-backups', 'PostgreSQL backups'),
+  plannedApp('proxysql-manager', 'ProxySQL manager'),
+  plannedApp('replication-checksums', 'Replication checksums'),
+  plannedApp('schema-changes', 'Schema changes'),
+  // A fictional Technical Preview: still maturing and not production-ready.
+  // The chip is a label rather than news, so it puts no dot on the closed
+  // group.
+  {
+    ...plannedApp('valkey-backups', 'Valkey backups'),
+    badge: createElement(PreviewChip, { level: 'tech' }),
+    badgeAlwaysVisible: true,
+  },
+];
+
+// Not an app but the index of them all, installed and available. Named like
+// All dashboards, which does the same for dashboards.
+export const NAV_ALL_APPS: NavItem = {
+  ...plannedApp('all-apps', 'All apps'),
+  icon: AppRegistrationRounded,
+};
+
+// The Apps group: the apps not starred, then the index of them all.
+export const appsEntry = (starredApps: string[] = []): NavItem => ({
   id: 'apps',
   icon: AppsRounded,
   text: 'Apps',
   children: [
-    plannedApp('data-archiving', 'Data archiving'),
-    // A real app, listed here rather than under MongoDB. Its own tabs carry
-    // Fleet, Nodes, Automations and Settings, so it needs one entry,
-    // highlighted on all of them.
-    {
-      id: 'app-operations-for-mongodb',
-      text: 'Operations for MongoDB',
-      url: OM_PATH,
-      matches: ['*'],
-      badge: createElement(PreviewChip, { level: 'developer' }),
-      badgeAlwaysVisible: true,
-    },
-    plannedApp('postgresql-backups', 'PostgreSQL backups'),
-    plannedApp('proxysql-manager', 'ProxySQL manager'),
-    plannedApp('replication-checksums', 'Replication checksums'),
-    plannedApp('schema-changes', 'Schema changes'),
-    // A fictional Technical Preview: still maturing and not production-ready.
-    // The chip is a label rather than news, so it puts no dot on the closed
-    // group.
-    {
-      ...plannedApp('valkey-backups', 'Valkey backups'),
-      badge: createElement(PreviewChip, { level: 'tech' }),
-      badgeAlwaysVisible: true,
-    },
-    // Not an app but the index of them all, installed and available, where
-    // people star the apps they want in the sidebar. Named like All
-    // dashboards, which does the same for dashboards.
-    { ...plannedApp('all-apps', 'All apps'), icon: AppRegistrationRounded },
+    ...APPS.filter((app) => !starredApps.includes(app.id)),
+    NAV_ALL_APPS,
   ],
-};
+});
 
 // The ATW app runs diagnostic checks against monitored databases; sending the
 // results to a Percona Support case is one action inside it, not its purpose.
@@ -245,6 +261,8 @@ export interface ProposedNavTreeInput {
   colorMode: ColorMode;
   toggleColorMode: () => void;
   starredDashboards?: StarredDashboard[];
+  // The ids of the starred apps, in the order they were starred.
+  starredApps?: string[];
 }
 
 // Configuration is the one place for everything configurable about PMM, so
@@ -286,11 +304,14 @@ export const buildProposedNavTree = (
     colorMode,
     toggleColorMode,
     starredDashboards = [],
+    starredApps = [],
   } = input;
   const items: NavItem[] = [
     { ...addHomePage(user?.preferences), icon: HomeIcon },
     NAV_SECTIONS.starred,
-    ...NAV_STARRED,
+    ...starredApps.flatMap((id) =>
+      APPS.filter((app) => app.id === id).map(starredApp)
+    ),
     ...starredDashboards.map(starredDashboard),
     NAV_SECTIONS.technologies,
     ...NAV_TECHNOLOGIES,
@@ -303,7 +324,7 @@ export const buildProposedNavTree = (
     NAV_REALTIME_QUERIES,
     NAV_SECTIONS.browse,
     NAV_DASHBOARDS,
-    NAV_APPS,
+    appsEntry(starredApps),
     NAV_INVENTORY,
     NAV_SECTIONS.administration,
     // Listed whether or not the instance runs in HA, so its place can be
@@ -323,4 +344,30 @@ export const buildProposedNavTree = (
   }
 
   return items;
+};
+
+// Apps with places of their own in the sidebar, and the index of all apps:
+// their headers share a link but cannot star them.
+const FIXED_APPS: NavItem[] = [
+  NAV_DIAGNOSTICS,
+  NAV_QUERY_ANALYTICS,
+  NAV_REALTIME_QUERIES,
+  NAV_ALL_APPS,
+];
+
+export interface AppPage {
+  app: NavItem;
+  starrable: boolean;
+}
+
+// The app a page belongs to, for its header; undefined outside any app.
+export const findAppPage = (pathname: string): AppPage | undefined => {
+  const app = findActiveNavItem(APPS, pathname);
+
+  if (app) {
+    return { app, starrable: true };
+  }
+  const fixed = findActiveNavItem(FIXED_APPS, pathname);
+
+  return fixed && { app: fixed, starrable: false };
 };

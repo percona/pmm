@@ -1,18 +1,20 @@
-import { FC } from 'react';
+import type { FC } from 'react';
+import { AppHeader } from 'components/app-header';
 import { useHeader } from 'hooks/useHeader';
-import Stack from '@mui/material/Stack';
 
 const Header: FC = () => {
-  const { visible, Component } = useHeader();
+  const { page, inset } = useHeader();
 
-  if (!visible || !Component) {
+  if (!page) {
     return null;
   }
 
   return (
-    <Stack sx={{ justifyContent: 'center' }}>
-      <Component />
-    </Stack>
+    <AppHeader
+      title={page.app.text ?? ''}
+      starId={page.starrable ? page.app.id : undefined}
+      inset={inset}
+    />
   );
 };
 

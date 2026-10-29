@@ -22,9 +22,9 @@ const GrafanaPageFrame: FC<PropsWithChildren> = ({ children }) => {
           {
             flex: 1,
           },
+          // Under the app header's rule, as a page's content is.
           headerVisible && {
             p: 2,
-            pt: 0,
           },
         ]}
       >

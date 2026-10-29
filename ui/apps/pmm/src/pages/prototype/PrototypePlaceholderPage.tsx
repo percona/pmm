@@ -5,6 +5,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useNavigation } from 'contexts/navigation';
+import { findAppPage } from 'contexts/navigation/navigation.proposal';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { Messages } from './PrototypePlaceholderPage.messages';
 
@@ -30,9 +31,11 @@ export const PrototypePlaceholderPage: FC = () => {
     findActiveNavItem(navTree, pathname)?.text ||
     fromSlug(slug) ||
     Messages.title;
+  // A planned app's name is in the app header above, across the full width.
+  const isApp = !!findAppPage(pathname);
 
   return (
-    <Page title={title}>
+    <Page title={title} hideTitle={isApp} maxWidth={isApp ? 'full' : undefined}>
       <Stack
         gap={2}
         sx={{ alignItems: 'flex-start' }}
