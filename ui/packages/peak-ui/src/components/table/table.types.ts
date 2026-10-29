@@ -23,13 +23,17 @@ import { type MutableRefObject } from 'react';
 export type TableNoDataVariant = 'empty-state' | 'alert';
 
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
+  /** Gives the parent access to the table instance, for example to read the visible rows or reset filters. */
   tableInstanceRef?: MutableRefObject<MRT_TableInstance<T> | null>;
-  /** Title of the empty state shown when `data` is empty. */
+  /** Title of the empty state shown when `data` is empty. Defaults to "No data". */
   noDataMessage?: string;
+  /** Title of the empty state shown when search or filters hide every row. Defaults to "No data found". */
   emptyFilterResultsMessage?: string;
+  /** Hides the "expand all" control in the header of expandable tables, so rows expand one by one; same as `enableExpandAll={false}`. */
   hideExpandAllIcon?: boolean;
+  /** Unique name of this table; also its test id and the key for the user's saved column choices, so renaming it breaks both. */
   tableName: string;
-  /** Replaces the default empty state; pass an `EmptyState` with a description, an illustration or actions. */
+  /** Replaces the default empty state when `data` is empty; pass an `EmptyState` with a description, an illustration or actions (see the "Empty state — custom" story). */
   emptyState?: React.ReactNode;
   /**
    * How an empty table reads, with no data or with every row filtered out: `empty-state` renders a
@@ -38,8 +42,10 @@ export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
    * @default 'empty-state'
    */
   noDataVariant?: TableNoDataVariant;
-  /** Props for the info alert under `noDataVariant="alert"`. */
+  /** MUI Alert props for the info alert under `noDataVariant="alert"`, for example to change the severity. */
   noDataAlertProps?: AlertProps;
+  /** Makes whole rows clickable: shows a pointer cursor and calls `rowHoverAction` on click. */
   enableRowHoverAction?: boolean;
+  /** Called with the clicked row when `enableRowHoverAction` is on, for example to open a details pane. */
   rowHoverAction?: (row: MRT_Row<T>) => void;
 }
