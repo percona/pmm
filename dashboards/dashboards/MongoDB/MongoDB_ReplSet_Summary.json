@@ -2100,7 +2100,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[$interval])) /\nsum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval]))\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[5m])) /\nsum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])))",
+                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[$interval])) /\n(sum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval])) > 0)\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[5m])) /\n(sum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])) > 0))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2112,7 +2112,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[$interval])) /\nsum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval]))\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[5m])) /\nsum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])))",
+                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[$interval])) /\n(sum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval])) > 0)\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[5m])) /\n(sum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])) > 0))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",

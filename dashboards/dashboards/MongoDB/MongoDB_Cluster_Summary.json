@@ -3313,7 +3313,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[1m])) / on() group_left() sum(max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[1m])))",
+                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[1m])) / on() group_left() sum(max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[1m])))",
                             "format": "time_series",
                             "hide": false,
                             "instant": true,
@@ -3397,7 +3397,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "avg by (shard) (mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"})",
+                            "expr": "avg by (shard) (mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -3519,7 +3519,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "avg by (shard) (deriv(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[$interval]) or deriv(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[5m]))",
+                            "expr": "avg by (shard) (deriv(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[$interval]) or deriv(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[5m]))",
                             "interval": "$interval",
                             "legendFormat": "{{shard}}",
                             "refId": "A"
@@ -3616,7 +3616,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*moveChunk.*\"})",
+                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{environment=~\"$environment\", cluster=\"$cluster\", event=~\".*moveChunk.*\"})",
                             "interval": "$interval",
                             "legendFormat": "{{event}}",
                             "refId": "A"
@@ -3713,7 +3713,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*split.*\"})",
+                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{environment=~\"$environment\", cluster=\"$cluster\", event=~\".*split.*\"})",
                             "interval": "$interval",
                             "legendFormat": "{{event}}",
                             "refId": "A"
