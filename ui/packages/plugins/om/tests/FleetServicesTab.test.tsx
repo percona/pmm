@@ -16,13 +16,18 @@
  */
 
 import {
+  act,
   fireEvent,
   render,
   screen,
   waitFor,
   within,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import {
+  MemoryRouter,
+  RouterProvider,
+  createMemoryRouter,
+} from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { FleetServicesTab } from '../src/FleetServicesTab';
@@ -215,6 +220,41 @@ describe('FleetServicesTab', () => {
     const empty = screen.getByTestId('om-empty-state');
     expect(empty).toHaveTextContent('No service is failing a scan right now');
     expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
+  });
+
+  it('keeps the failing filter in the URL, beside the other parameters', async () => {
+    serve(ordersEstate());
+    scanned(null);
+    const router = createMemoryRouter(
+      [{ path: '/fleet', element: <FleetServicesTab /> }],
+      { initialEntries: ['/fleet?tab=services&failing=true'] }
+    );
+    render(<RouterProvider router={router} />);
+
+    expect(screen.getByTestId('om-empty-state')).toHaveTextContent(
+      'No service is failing a scan right now'
+    );
+
+    fireEvent.click(screen.getByText('0 failing a scan'));
+    expect(router.state.location.search).toBe('?tab=services');
+    expect(screen.queryByTestId('om-empty-state')).toBeNull();
+
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(router.state.location.search).toBe('?tab=services&failing=true');
+  });
+
+  it('ignores a failing value it does not know', () => {
+    serve(ordersEstate());
+    scanned(null);
+    render(
+      <MemoryRouter initialEntries={['/?failing=yes']}>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('om-empty-state')).toBeNull();
   });
 
   it('puts the local collection time and zone on the Collected hover', () => {

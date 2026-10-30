@@ -20,6 +20,7 @@ import type {
   OmBootstrapRunStatus,
   OmBootstrapStepStatus,
   OmClusterHealth,
+  OmClusterType,
   OmHostDatabaseState,
   OmProcessRole,
   OmScanErrorCode,
@@ -90,11 +91,21 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
 };
 
 /** How each cluster state reads on Overview: the word, then the colour behind it. */
+/** Reading that means "not measured" in the two percentage fields. */
+export const UNMEASURED = -1;
+
 export const CLUSTER_HEALTH_LABEL: Record<OmClusterHealth, string> = {
   healthy: 'Healthy',
   degraded: 'Degraded',
   down: 'Down',
   unknown: 'Unknown',
+};
+
+/** A cluster's inferred shape; UNSPECIFIED only occurs on a never-built document. */
+export const CLUSTER_TYPE_LABEL: Partial<Record<OmClusterType, string>> = {
+  CLUSTER_TYPE_REPLICA_SET: 'Replica set',
+  CLUSTER_TYPE_SHARDED: 'Sharded',
+  CLUSTER_TYPE_STANDALONE: 'Standalone',
 };
 
 export const CLUSTER_HEALTH_COLOR: Record<OmClusterHealth, ChipProps['color']> =

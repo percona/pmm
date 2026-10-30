@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import {
   clusterHealth,
   clusterHealthRank,
+  compareVersions,
   downFirst,
   serviceStatusRank,
   toClusterRows,
@@ -405,5 +406,132 @@ describe('downFirst', () => {
     expect(serviceStatusRank('SOMETHING_NEW' as OmServiceStatus)).toBe(
       serviceStatusRank('SERVICE_STATUS_UNSPECIFIED')
     );
+  });
+});
+
+/** One cluster's roll-up, from its services alone. */
+const rollUp = (services: OmService[], overrides: Partial<OmCluster> = {}) =>
+  toClusterRows(
+    topology([
+      {
+        env_name: 'production',
+        clusters: [cluster({ name: 'orders', services, ...overrides })],
+      },
+    ])
+  )[0];
+
+describe('cluster roll-ups (PMM-15806)', () => {
+  it('carries the cluster type', () => {
+    expect(rollUp([], { type: 'CLUSTER_TYPE_SHARDED' }).type).toBe(
+      'CLUSTER_TYPE_SHARDED'
+    );
+  });
+
+  it('reads Last seen off the stalest member, skipping one never observed', () => {
+    const row = rollUp([
+      service({ observed_at: '2026-08-12T09:00:00Z' }),
+      service({ observed_at: '2026-08-12T08:00:00Z' }),
+      service({ observed_at: null }),
+    ]);
+
+    expect(row.last_seen_at).toBe('2026-08-12T08:00:00Z');
+  });
+
+  it('has no Last seen when no member was observed', () => {
+    expect(rollUp([service({}), service({})]).last_seen_at).toBeNull();
+  });
+
+  it('takes the busiest CPU and the tightest free connections, ignoring -1', () => {
+    const row = rollUp([
+      service({ cpu_usage_percent: 12, connections_free_percent: 80 }),
+      service({ cpu_usage_percent: 0, connections_free_percent: 0 }),
+      service({ cpu_usage_percent: 90, connections_free_percent: -1 }),
+      service({ cpu_usage_percent: -1, connections_free_percent: 55 }),
+    ]);
+
+    expect(row.max_cpu_percent).toBe(90);
+    // 0 is a reading, not a missing one.
+    expect(row.min_connections_free_percent).toBe(0);
+  });
+
+  it('leaves CPU and connections empty when no member measures them', () => {
+    const row = rollUp([
+      service({ cpu_usage_percent: -1, connections_free_percent: -1 }),
+    ]);
+
+    expect(row.max_cpu_percent).toBeNull();
+    expect(row.min_connections_free_percent).toBeNull();
+  });
+
+  it('sorts versions numerically, build suffix included', () => {
+    const row = rollUp([
+      service({ version: '7.0.24-13' }),
+      service({ version: '7.0.9-1' }),
+      service({ version: '7.0.9-10' }),
+    ]);
+
+    expect(row.versions).toEqual(['7.0.9-1', '7.0.9-10', '7.0.24-13']);
+  });
+
+  describe('version drift', () => {
+    it('is drift when one replica set runs two versions', () => {
+      const row = rollUp([
+        service({ version: '7.0.24-13' }),
+        service({ version: '7.0.9-1' }),
+      ]);
+
+      expect(row.version_drift).toBe(true);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1', '7.0.24-13'] },
+      ]);
+    });
+
+    it('is not drift when each shard is consistent but they differ', () => {
+      const row = rollUp(
+        [
+          service({ replication_set: 'shard0', version: '7.0.9-1' }),
+          service({ replication_set: 'shard0', version: '7.0.9-1' }),
+          service({ replication_set: 'shard1', version: '8.0.4-1' }),
+        ],
+        { type: 'CLUSTER_TYPE_SHARDED' }
+      );
+
+      expect(row.version_drift).toBe(false);
+      expect(row.versions).toEqual(['7.0.9-1', '8.0.4-1']);
+      expect(row.version_sets.map((set) => set.replication_set)).toEqual([
+        'shard0',
+        'shard1',
+      ]);
+    });
+
+    it('ignores routers and arbiters, which hold no data', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({ version: '6.0.1-1', state: 'ARBITER' }),
+        service({
+          version: '8.0.4-1',
+          replication_set: null,
+          state: null,
+          process_role: 'PROCESS_ROLE_MONGOS',
+        }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
+  });
+});
+
+describe('compareVersions', () => {
+  it.each([
+    ['7.0.9-1', '7.0.24-13', -1],
+    ['7.0.24-13', '7.0.9-1', 1],
+    ['7.0.9-1', '7.0.9-10', -1],
+    ['7.0.9', '7.0.9-1', -1],
+    ['8.0.4-1', '8.0.4-1', 0],
+  ])('orders %s against %s', (a, b, sign) => {
+    expect(Math.sign(compareVersions(a, b))).toBe(sign);
   });
 });

@@ -15,8 +15,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  MemoryRouter,
+  RouterProvider,
+  createMemoryRouter,
+} from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../src/constants';
 import { FleetClustersTab } from '../src/FleetClustersTab';
@@ -527,6 +531,337 @@ describe('FleetClustersTab', () => {
       expect(
         screen.getByRole('combobox', { name: 'Group by' })
       ).toHaveTextContent('Environment');
+    });
+  });
+
+  describe('search and filters, kept in the URL (PMM-15806)', () => {
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: twoEnvironments(),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    /** On a real router, so the URL and its history can be read and walked. */
+    const renderAt = (url: string) => {
+      const router = createMemoryRouter(
+        [{ path: '/fleet', element: <FleetClustersTab /> }],
+        { initialEntries: [url] }
+      );
+      render(<RouterProvider router={router} />);
+      return router;
+    };
+
+    const search = () =>
+      screen.getByRole('textbox', { name: 'Search clusters' });
+
+    const pick = (filter: string, ...options: string[]) => {
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: filter }));
+      const listbox = screen.getByRole('listbox');
+      for (const option of options) {
+        fireEvent.click(within(listbox).getByRole('option', { name: option }));
+      }
+      fireEvent.keyDown(listbox, { key: 'Escape' });
+    };
+
+    const query = (router: ReturnType<typeof renderAt>) =>
+      new URLSearchParams(router.state.location.search);
+
+    it('searches cluster names case-insensitively, keeping the tab', () => {
+      const router = renderAt('/fleet?tab=clusters');
+
+      fireEvent.change(search(), { target: { value: 'ZU' } });
+
+      expect(clusterNames()).toEqual(['zulu']);
+      expect(query(router).toString()).toBe('tab=clusters&q=ZU');
+      expect(screen.getByTestId('om-cluster-match-count')).toHaveTextContent(
+        '1 of 4 clusters'
+      );
+    });
+
+    it('filters by health, several values ORed', () => {
+      const router = renderAt('/fleet');
+
+      pick('Health', 'Down', 'Degraded');
+
+      expect(clusterNames()).toEqual(['zulu', 'yankee']);
+      expect(query(router).getAll('health')).toEqual(['down', 'degraded']);
+    });
+
+    it('filters by type', () => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'alpha',
+                type: 'CLUSTER_TYPE_SHARDED',
+                services: [service({ service_name: 'alpha-1' })],
+              }),
+              cluster({
+                name: 'bravo',
+                services: [service({ service_name: 'bravo-1' })],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      const router = renderAt('/fleet');
+
+      pick('Type', 'Sharded');
+
+      expect(clusterNames()).toEqual(['alpha']);
+      expect(query(router).get('type')).toBe('sharded');
+    });
+
+    it('filters by environment, the unnamed one included', () => {
+      const router = renderAt('/fleet');
+
+      pick('Environment', 'Unassigned environment');
+
+      expect(clusterNames()).toEqual(['yankee', 'bravo']);
+      expect(query(router).getAll('environment')).toEqual(['']);
+    });
+
+    it('ANDs search and filters', () => {
+      renderAt('/fleet?environment=production&health=healthy&health=down');
+
+      expect(clusterNames()).toEqual(['alpha']);
+
+      fireEvent.change(search(), { target: { value: 'b' } });
+      expect(clusterNames()).toEqual([]);
+    });
+
+    it('opens a shared link filtered, ignoring values it does not know', () => {
+      renderAt('/fleet?tab=clusters&q=a&health=on-fire&environment=staging');
+
+      expect(search()).toHaveValue('a');
+      expect(
+        screen.getByRole('combobox', { name: 'Health' })
+      ).toHaveTextContent('Any');
+      expect(
+        screen.getByRole('combobox', { name: 'Environment' })
+      ).toHaveTextContent('Any');
+      // The unknown environment is ignored too, not matched against nothing.
+      expect(clusterNames()).toEqual(['alpha', 'yankee', 'bravo']);
+    });
+
+    it('walks filters back and forward through history', async () => {
+      const router = renderAt('/fleet?tab=clusters');
+
+      pick('Health', 'Down');
+      expect(clusterNames()).toEqual(['yankee']);
+
+      await act(async () => {
+        await router.navigate(-1);
+      });
+      expect(clusterNames()).toEqual(['zulu', 'alpha', 'yankee', 'bravo']);
+      expect(query(router).toString()).toBe('tab=clusters');
+
+      await act(async () => {
+        await router.navigate(1);
+      });
+      expect(clusterNames()).toEqual(['yankee']);
+      expect(
+        screen.getByRole('combobox', { name: 'Health' })
+      ).toHaveTextContent('Down');
+    });
+
+    it('makes one history entry for a search, however it is typed', async () => {
+      const router = renderAt('/fleet');
+
+      for (const value of ['z', 'zu', 'zul']) {
+        fireEvent.change(search(), { target: { value } });
+      }
+      expect(clusterNames()).toEqual(['zulu']);
+
+      await act(async () => {
+        await router.navigate(-1);
+      });
+      expect(search()).toHaveValue('');
+      expect(clusterNames()).toHaveLength(4);
+    });
+
+    it('undoes a filter alone with Back while a search is active', async () => {
+      const router = renderAt('/fleet?q=a');
+
+      pick('Health', 'Down');
+      expect(clusterNames()).toEqual(['yankee']);
+
+      await act(async () => {
+        await router.navigate(-1);
+      });
+      expect(query(router).toString()).toBe('q=a');
+      expect(search()).toHaveValue('a');
+      expect(clusterNames()).toEqual(['alpha', 'yankee', 'bravo']);
+    });
+
+    it('keeps the controls when nothing matches, and clears back to the fleet', () => {
+      const router = renderAt('/fleet?tab=clusters&q=nothing');
+
+      expect(clusterNames()).toEqual([]);
+      expect(
+        screen.getByText('No cluster matches the search and filters.')
+      ).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+      expect(clusterNames()).toHaveLength(4);
+      expect(query(router).toString()).toBe('tab=clusters');
+    });
+
+    it('keeps Group by out of the URL and as it was', () => {
+      const router = renderAt('/fleet');
+
+      groupBy('Health');
+      pick('Environment', 'production');
+
+      expect(query(router).has('grouping')).toBe(false);
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Health');
+    });
+  });
+
+  describe('type, freshness and load columns (PMM-15806)', () => {
+    const observed = (minutes: number) =>
+      new Date(Date.now() - minutes * 60 * 1000).toISOString();
+
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'orders',
+                type: 'CLUSTER_TYPE_SHARDED',
+                services: [
+                  service({
+                    service_name: 'orders-1',
+                    replication_set: 'shard0',
+                    version: '7.0.24-13',
+                    observed_at: observed(1),
+                    cpu_usage_percent: 40,
+                    connections_free_percent: 70,
+                  }),
+                  service({
+                    service_name: 'orders-2',
+                    replication_set: 'shard0',
+                    version: '7.0.9-1',
+                    observed_at: observed(15),
+                    cpu_usage_percent: 85.5,
+                    connections_free_percent: -1,
+                  }),
+                ],
+              }),
+              cluster({
+                name: 'quiet',
+                services: [
+                  service({
+                    service_name: 'quiet-1',
+                    observed_at: null,
+                    cpu_usage_percent: -1,
+                    connections_free_percent: -1,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    const rowOf = (name: string) =>
+      clusterRows().find((row) =>
+        row.textContent?.includes(name)
+      ) as HTMLElement;
+
+    it('labels each cluster with its type beside its name', () => {
+      renderPage();
+
+      expect(
+        within(rowOf('orders')).getByTestId('om-cluster-type')
+      ).toHaveTextContent('Sharded');
+      expect(
+        within(rowOf('quiet')).getByTestId('om-cluster-type')
+      ).toHaveTextContent('Replica set');
+    });
+
+    it('keeps Type, Last seen, Max CPU and Min conn. free in the chooser', () => {
+      renderPage();
+
+      for (const name of ['Type', 'Last seen', 'Max CPU', 'Min conn. free']) {
+        expect(
+          screen.queryByRole('columnheader', { name: new RegExp(`^${name}`) })
+        ).toBeNull();
+      }
+
+      showColumn('Last seen');
+      showColumn('Max CPU');
+      showColumn('Min conn. free');
+
+      const orders = rowOf('orders');
+      expect(orders).toHaveTextContent('15m ago');
+      expect(orders).toHaveTextContent('85.5%');
+      expect(orders).toHaveTextContent('70.0%');
+      // Nobody reporting is a dash with its reason, never a zero.
+      const quiet = rowOf('quiet');
+      expect(quiet).not.toHaveTextContent('%');
+      expect(within(quiet).getAllByText('—').length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('reads drift as Mixed, listing each set and its versions', async () => {
+      renderPage();
+      showColumn('Versions');
+
+      fireEvent.mouseOver(within(rowOf('orders')).getByText('Mixed'));
+
+      expect(await screen.findByTestId('om-version-sets')).toHaveTextContent(
+        'shard0: 7.0.9-1, 7.0.24-13'
+      );
+    });
+
+    it('sorts Versions as versions, not as strings', () => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'newer',
+                services: [service({ version: '7.0.24-13' })],
+              }),
+              cluster({
+                name: 'older',
+                services: [service({ version: '7.0.9-1' })],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+      showColumn('Versions');
+
+      fireEvent.click(
+        within(
+          screen.getByRole('columnheader', { name: /^Versions/ })
+        ).getByText('Versions')
+      );
+
+      expect(
+        clusterRows().map((row) =>
+          row.textContent?.includes('older') ? 'older' : 'newer'
+        )
+      ).toEqual(['older', 'newer']);
     });
   });
 });

@@ -34,7 +34,9 @@ import type {
   OmServiceRow,
   OmServiceStatus,
   OmTopologyResponse,
+  OmVersionSet,
 } from './types';
+import { UNMEASURED } from './constants';
 
 /** Worst first: the order a reader looking for trouble wants services in. */
 const SERVICE_STATUS_RANK: Record<OmServiceStatus, number> = {
@@ -123,6 +125,71 @@ export function toServiceRows(
 }
 
 /**
+ * Order two MongoDB versions numerically, build suffix included, so 7.0.9-1 comes
+ * before 7.0.24-13. A part that is not a number compares as text.
+ */
+export function compareVersions(a: string, b: string): number {
+  const left = a.split(/[.-]/);
+  const right = b.split(/[.-]/);
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    if (left[i] === undefined || right[i] === undefined) {
+      return left[i] === undefined ? -1 : 1;
+    }
+    const x = Number(left[i]);
+    const y = Number(right[i]);
+    const order =
+      Number.isNaN(x) || Number.isNaN(y)
+        ? left[i].localeCompare(right[i])
+        : x - y;
+    if (order !== 0) {
+      return order;
+    }
+  }
+  return 0;
+}
+
+const sortedVersions = (versions: Iterable<string>) =>
+  [...versions].sort(compareVersions);
+
+/**
+ * A member that holds data: a router holds none, and an arbiter only votes, so
+ * neither can drift a replica set's data off its version.
+ */
+const isDataBearing = (service: OmService) =>
+  service.process_role !== 'PROCESS_ROLE_MONGOS' && service.state !== 'ARBITER';
+
+/**
+ * Each replica set's versions among its data-bearing members, the same rule as
+ * PMM-15804's version-drift condition: a sharded cluster whose shards each run one
+ * version is not drifting, while one set running two is.
+ */
+function versionSets(services: OmService[]): OmVersionSet[] {
+  const sets = new Map<string, Set<string>>();
+  for (const service of services) {
+    if (
+      !service.replication_set ||
+      !service.version ||
+      !isDataBearing(service)
+    ) {
+      continue;
+    }
+    const versions = sets.get(service.replication_set) ?? new Set<string>();
+    versions.add(service.version);
+    sets.set(service.replication_set, versions);
+  }
+  return [...sets]
+    .map(([replicationSet, versions]) => ({
+      replication_set: replicationSet,
+      versions: sortedVersions(versions),
+    }))
+    .sort((a, b) => a.replication_set.localeCompare(b.replication_set));
+}
+
+/** A percentage reading, with the worker's not-measured `-1` as null. */
+const measured = (value: number | null | undefined) =>
+  value == null || value === UNMEASURED ? null : value;
+
+/**
  * Roll one cluster up into a row, keeping its services for the unfolded view.
  *
  * The two duration fields take opposite ends on purpose. Lag is a problem at its
@@ -140,6 +207,9 @@ function rollUpCluster(
   const versions = new Set<string>();
   let maxLag: number | null = null;
   let minWindow: number | null = null;
+  let maxCpu: number | null = null;
+  let minConnectionsFree: number | null = null;
+  let lastSeen: { at: string; time: number } | null = null;
 
   for (const service of cluster.services) {
     byProcessRole[service.process_role] =
@@ -166,7 +236,25 @@ function rollUpCluster(
           ? service.oplog_window_seconds
           : Math.min(minWindow, service.oplog_window_seconds);
     }
+    const cpu = measured(service.cpu_usage_percent);
+    if (cpu != null) {
+      maxCpu = maxCpu == null ? cpu : Math.max(maxCpu, cpu);
+    }
+    const connectionsFree = measured(service.connections_free_percent);
+    if (connectionsFree != null) {
+      minConnectionsFree =
+        minConnectionsFree == null
+          ? connectionsFree
+          : Math.min(minConnectionsFree, connectionsFree);
+    }
+    const observed = service.observed_at
+      ? Date.parse(service.observed_at)
+      : NaN;
+    if (!Number.isNaN(observed) && (!lastSeen || observed < lastSeen.time)) {
+      lastSeen = { at: service.observed_at as string, time: observed };
+    }
   }
+  const sets = versionSets(cluster.services);
 
   const total = cluster.services.length;
   const up = cluster.services.filter(
@@ -187,7 +275,13 @@ function rollUpCluster(
     health: clusterHealth(total, up, down),
     by_process_role: byProcessRole,
     by_state: byState,
-    versions: [...versions].sort(),
+    type: cluster.type,
+    versions: sortedVersions(versions),
+    version_sets: sets,
+    version_drift: sets.some((set) => set.versions.length > 1),
+    last_seen_at: lastSeen?.at ?? null,
+    max_cpu_percent: maxCpu,
+    min_connections_free_percent: minConnectionsFree,
     max_replication_lag_seconds: maxLag,
     min_oplog_window_seconds: minWindow,
   };

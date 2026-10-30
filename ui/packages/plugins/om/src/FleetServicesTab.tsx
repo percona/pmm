@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Chip,
@@ -548,7 +549,20 @@ export const FleetServicesTab = () => {
     : inventoryPending
       ? 'pending'
       : 'ready';
-  const [failingOnly, setFailingOnly] = useState(false);
+  // In the URL, as the Clusters tab's filters are, so the failing view can be shared
+  // and Back turns it off.
+  const [params, setParams] = useSearchParams();
+  const failingOnly = params.get('failing') === 'true';
+  const toggleFailing = () =>
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      if (failingOnly) {
+        next.delete('failing');
+      } else {
+        next.set('failing', 'true');
+      }
+      return next;
+    });
   const [grouping, setGrouping] = useSessionGrouping<string>(
     'om.fleet.services.grouping',
     GROUP_BY_OPTIONS,
@@ -753,7 +767,7 @@ export const FleetServicesTab = () => {
         failing={failingCount}
         estate={estate}
         failingOnly={failingOnly}
-        onToggleFailing={() => setFailingOnly((on) => !on)}
+        onToggleFailing={toggleFailing}
       />
       {rows.length > 0 ? (
         <MaterialReactTable table={table} />
