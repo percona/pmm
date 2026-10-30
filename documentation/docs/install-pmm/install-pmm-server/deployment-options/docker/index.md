@@ -57,17 +57,29 @@ You can install PMM Server using one of two methods:
     Configure PMM Server's behavior using environment variables:
 
     ```sh
-    docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+    docker run \
+      --detach \
+      --restart always \
+      --publish 443:8443 \
+      --volume pmm-data:/srv \
+      -e PMM_DATA_RETENTION=720h \
+      -e PMM_METRICS_RESOLUTION_HR=10s \
+      --name pmm-server \
+      percona/pmm-server:3
     ```
+
+    If the manual installation already created a `pmm-server` container, remove that container first and reuse its storage. For the steps, see [Run the examples on an existing installation](../docker/env_var.md#run-the-examples-on-an-existing-installation).
 
     Common variables:
 
     | Variable | Default | Description |
     |----------|---------|-------------|
-    | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
-    | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+    | `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours. The default is 30 days. |
+    | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
     | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
     | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
+
+    Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 
     For a complete list, see the [environment variables](../docker/env_var.md).
 
