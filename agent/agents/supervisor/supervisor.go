@@ -17,12 +17,14 @@ package supervisor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -45,6 +47,7 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -72,6 +75,16 @@ const (
 	// they spend it concurrently rather than one after another. It is sized well above
 	// process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
 	agentsStopTimeout = 60 * time.Second
+
+	// How long an Agent process whose start failed waits before it is tried again: the same range
+	// a process that exits after RUNNING is restarted with (see process.Process).
+	failedStartMinDelay = 1 * time.Second
+	failedStartMaxDelay = 30 * time.Second
+
+	// How many failed starts in a row, each of processRetryCount attempts, may use the port they kept
+	// before the next one is given another, in case the process did not say the port was the problem.
+	// With the backoff between them, that is about half a minute on one port.
+	failuresPerPort = 5
 )
 
 // configGetter allows for getting a config.
@@ -94,6 +107,11 @@ type Supervisor struct {
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
 	builtinAgents  map[string]*builtinAgentInfo
+	// failedStarts holds the Agent processes whose last start failed, until they are tried again.
+	// A SetState repeating their parameters does not start them before then: pmm-managed answers
+	// the statuses of every failed attempt with another SetState, so without this a process that
+	// cannot start is retried about once a second, for as long as the cause lasts. See PMM-15773.
+	failedStarts map[string]*failedStart
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
@@ -110,7 +128,20 @@ type Supervisor struct {
 	forwarders atomic.Int64
 
 	// for unit tests only
-	agentsStopTimeout time.Duration
+	agentsStopTimeout                        time.Duration
+	failedStartMinDelay, failedStartMaxDelay time.Duration
+}
+
+// failedStart is an Agent process whose start failed, waiting to be tried again.
+type failedStart struct {
+	requestedState *agentv1.SetStateRequest_AgentProcess
+	backoff        *backoff.Backoff
+	retryAt        time.Time
+	timer          *time.Timer
+	attempt        uint64 // tells a retry it has been superseded by a later attempt
+	port           uint16 // reserved for the next attempt, or 0; see tryStartProcess
+	lastPort       uint16 // the port the last attempt failed on
+	portFailures   int    // consecutive failed starts on lastPort
 }
 
 // agentProcessInfo describes Agent process.
@@ -154,10 +185,13 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
+		failedStarts:   make(map[string]*failedStart),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
 		instances:      make(map[string]uint64),
 
-		agentsStopTimeout: agentsStopTimeout,
+		agentsStopTimeout:   agentsStopTimeout,
+		failedStartMinDelay: failedStartMinDelay,
+		failedStartMaxDelay: failedStartMaxDelay,
 	}
 }
 
@@ -334,7 +368,12 @@ func (s *Supervisor) RestartAgents() {
 			port = 0
 		}
 
-		err := s.tryStartProcess(id, agent.requestedState, port)
+		// This starts the entry's own parameters, so a retry of other ones that failed before would
+		// start them over it once its timer fires; the next SetState asks for those again. A failed
+		// start is retried like any other: a SetState with the same parameters would not start the
+		// Agent again, as its entry is still there.
+		s.forgetFailedStart(id)
+		err := s.startProcessOrBackOff(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
@@ -581,6 +620,9 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		newParams[id] = p
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
+	s.updateFailedStarts(agentProcesses)
+	toStart = s.dropBackingOff(toStart)
+	toRestart = s.dropBackingOff(toRestart)
 	if len(toStart)+len(toRestart)+len(toStop) == 0 {
 		return
 	}
@@ -626,7 +668,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 			port = 0
 		}
 
-		err := s.tryStartProcess(agentID, agentProcesses[agentID], port)
+		err := s.startProcessOrBackOff(agentID, agentProcesses[agentID], port)
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
@@ -635,11 +677,155 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 	// start new agents
 	for _, agentID := range toStart {
-		err := s.tryStartProcess(agentID, agentProcesses[agentID], 0)
+		err := s.startProcessOrBackOff(agentID, agentProcesses[agentID], 0)
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
+	}
+}
+
+// startProcessOrBackOff starts an Agent process and keeps track of a failed start (see
+// failedStarts). It starts on the port the Agent's last failed start kept, if there is one, or else
+// on entryPort: the port of the Agent entry it replaces, which stays that entry's, or 0.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) startProcessOrBackOff(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, entryPort uint16) error {
+	port, owned := entryPort, false
+	if f := s.failedStarts[agentID]; f != nil && f.port != 0 {
+		port, owned = f.port, true
+		f.port = 0 // handed to tryStartProcess
+	}
+
+	kept, err := s.tryStartProcess(agentID, agentProcess, port, owned)
+	if err != nil {
+		s.recordFailedStart(agentID, agentProcess, kept)
+		return err
+	}
+	s.forgetFailedStart(agentID)
+
+	// Started on another port: the entry it replaced was the last to refer to that one.
+	if agent := s.agentProcesses[agentID]; entryPort != 0 && agent != nil && agent.listenPort != entryPort {
+		s.releasePort(agentID, entryPort)
+	}
+
+	return nil
+}
+
+// dropBackingOff removes from agentIDs the Agents whose last start failed and whose next attempt is
+// not due yet; their own timer starts them then, with the latest parameters (see
+// updateFailedStarts).
+// Must be called with s.rw held for writing.
+func (s *Supervisor) dropBackingOff(agentIDs []string) []string {
+	now := time.Now()
+	res := make([]string, 0, len(agentIDs))
+	for _, agentID := range agentIDs {
+		if f := s.failedStarts[agentID]; f != nil && now.Before(f.retryAt) {
+			s.l.Debugf("Not starting Agent %s again before %s, its last start failed.", agentID, f.retryAt.Format(time.RFC3339))
+			continue
+		}
+		res = append(res, agentID)
+	}
+
+	return res
+}
+
+// updateFailedStarts forgets the failed starts of Agents that are no longer requested, and gives the
+// rest the parameters they are requested with now, for their next attempt.
+//
+// New parameters do not bring that attempt forward. They are what pmm-managed answers a failed start
+// with as a matter of course: a vmagent's own scrape configuration names its listen port, which a
+// failed attempt that gives its port up reports anew, and older pmm-agents did on every attempt; so
+// treating new parameters as a reason to start at once would retry a stuck vmagent as fast as before.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) updateFailedStarts(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
+	for agentID, f := range s.failedStarts {
+		requested, ok := agentProcesses[agentID]
+		if !ok {
+			s.forgetFailedStart(agentID)
+			continue
+		}
+		f.requestedState = proto.Clone(requested).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
+	}
+}
+
+// recordFailedStart schedules the next attempt to start an Agent process whose start failed, with
+// a delay that grows with each consecutive failure. The port tryStartProcess kept for that attempt,
+// or 0, is now the failed start's.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) {
+	f := s.failedStarts[agentID]
+	if f == nil {
+		f = &failedStart{backoff: backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay)}
+		s.failedStarts[agentID] = f
+	}
+	// startProcessOrBackOff hands the kept port to every attempt, so it comes back here, or another
+	// one, or none.
+	if port != 0 && port == f.lastPort {
+		f.portFailures++
+	} else {
+		f.portFailures = 1
+	}
+	f.port, f.lastPort = port, port
+	// Telling that the port is the problem relies on the process saying so. One that keeps failing
+	// on the same port is given another anyway, in case it did not.
+	if f.port != 0 && f.portFailures >= failuresPerPort {
+		s.l.Warnf("Agent %s failed to start on port %d %d times in a row, trying another port next.", agentID, f.port, f.portFailures)
+		s.portsRegistry.Forget(f.port)
+		f.port, f.lastPort, f.portFailures = 0, 0, 0
+	}
+	f.requestedState = proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
+	if f.timer != nil {
+		f.timer.Stop()
+	}
+
+	delay := f.backoff.Delay()
+	f.retryAt = time.Now().Add(delay)
+	f.attempt++
+	attempt := f.attempt
+	f.timer = time.AfterFunc(delay, func() { s.retryFailedStart(agentID, f, attempt) })
+	s.l.Warnf("Agent %s failed to start, trying again in %s.", agentID, delay.Round(time.Millisecond))
+}
+
+// forgetFailedStart cancels the next attempt to start an Agent, if one is scheduled, and gives back
+// the port it kept.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) forgetFailedStart(agentID string) {
+	if f := s.failedStarts[agentID]; f != nil {
+		f.timer.Stop()
+		// Not Release, which keeps a port that something listens on reserved: nothing of the Agent's
+		// does, as its start failed, so anything that does is not ours.
+		s.portsRegistry.Forget(f.port)
+		delete(s.failedStarts, agentID)
+	}
+}
+
+// retryFailedStart is the scheduled next attempt to start an Agent process whose start failed.
+func (s *Supervisor) retryFailedStart(agentID string, f *failedStart, attempt uint64) {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	// Superseded while waiting for the lock: stopped, started by a SetState, or rescheduled.
+	if s.ctx.Err() != nil || s.failedStarts[agentID] != f || f.attempt != attempt {
+		return
+	}
+
+	// A restart whose old Agent stopped in time keeps that Agent's entry when the replacement fails to
+	// start, and with it the port the replacement was to reuse. A running entry means something else
+	// started the Agent since, so there is nothing left to retry.
+	var entryPort uint16
+	if agent := s.agentProcesses[agentID]; agent != nil {
+		select {
+		case <-agent.done:
+			entryPort = agent.listenPort
+		default:
+			s.forgetFailedStart(agentID)
+			return
+		}
+	}
+
+	err := s.startProcessOrBackOff(agentID, f.requestedState, entryPort)
+	if err != nil {
+		s.l.Errorf("Failed to start Agent: %s.", err)
 	}
 }
 
@@ -751,39 +937,68 @@ const (
 	forwarderDrainTimeout = 3 * time.Second
 )
 
-func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
+// errPortInUse wraps the error of a start that failed because the process could not listen on the
+// port it was given.
+var errPortInUse = errors.New("listen port is in use")
+
+// portInUse reports whether the output of a process that exited early says it could not bind port,
+// its listen port: taken by another process, or refused to it, as SELinux port labelling does. The
+// error must name the port, as Go's net package does ("listen tcp :42000: bind: ..."): a process may
+// have other listeners, and another port does nothing for those.
+func portInUse(output []string, port uint16) bool {
+	bind := ":" + strconv.Itoa(int(port)) + ": bind: "
+	for _, line := range output {
+		if strings.Contains(line, bind+"address already in use") || strings.Contains(line, bind+"permission denied") {
+			return true
+		}
+	}
+
+	return false
+}
+
+// tryStartProcess makes processRetryCount attempts to start an Agent process. A failed attempt is
+// tried again on the same port unless the process could not listen on it: another port helps
+// nothing else, and every new one changes the Agent's address, and with it what pmm-managed sends
+// back (see failedStarts).
+//
+// The owned flag tells whether port was reserved for this start, so that tryStartProcess may give it
+// back, or belongs to the caller's Agent entry, which goes on referring to it whatever happens. When every
+// attempt fails, tryStartProcess returns the port reserved for the start that it kept for the next
+// one, which the caller then owns, or 0.
+func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16, owned bool) (uint16, error) {
 	var err error
 	for range processRetryCount {
-		// Only a port reserved here is given back below. One passed in belongs to the
-		// caller's Agent entry, which goes on referring to it if every attempt fails.
-		var reserved bool
 		if port == 0 {
-			var _port uint16
-			_port, err = s.portsRegistry.Reserve()
+			port, err = s.portsRegistry.Reserve()
 			if err != nil {
 				s.l.Errorf("Failed to reserve port: %s.", err)
 				continue
 			}
-			port = _port
-			reserved = true
+			owned = true
 		}
 
 		err = s.startProcess(agentID, agentProcess, port)
 		if err == nil {
-			return nil
+			return 0, nil
+		}
+		if !errors.Is(err, errPortInUse) {
+			continue
 		}
 
-		// The next attempt reserves a port of its own, so without this the failed
-		// attempt's reservation is lost for good: clearing port is the last reference to
-		// it, and portsRegistry only forgets a port on Release. The Agent never started,
-		// so nothing of ours is listening on it and the release succeeds.
-		if reserved {
-			s.releasePort(agentID, port)
+		// The port is the problem, so the next attempt takes another, and this one is dropped from
+		// the registry: clearing port is the last reference to it, and Release would refuse it for
+		// as long as whatever holds it keeps listening.
+		if owned {
+			s.portsRegistry.Forget(port)
 		}
-		port = 0
+		port, owned = 0, false
 	}
 
-	return err
+	if owned {
+		return port, err
+	}
+
+	return 0, err
 }
 
 // startProcess starts Agent's process.
@@ -870,7 +1085,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 			// s.changes and this runs with s.rw held. See PMM-15431.
 			s.waitForwarderDrained(agentID, done)
 
-			return processWrapper.GetError()
+			err := processWrapper.GetError()
+			if portInUse(processWrapper.Logs(), port) {
+				return fmt.Errorf("%w: %w", errPortInUse, err)
+			}
+			return err
 		}
 	case <-t.C:
 	}
