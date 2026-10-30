@@ -398,7 +398,7 @@ func (s *Service) Run(ctx context.Context) error {
 	// memberlist delivers node events while holding its lock, so keep reading them from the moment shutdown starts,
 	// when runRaftNodesSynchronizer stops, until memberlist has shut down.
 	drained := make(chan struct{})
-	context.AfterFunc(ctx, func() {
+	drain := func() {
 		for {
 			select {
 			case <-s.nodeCh:
@@ -406,8 +406,13 @@ func (s *Service) Run(ctx context.Context) error {
 				return
 			}
 		}
-	})
+	}
+	stopDrain := context.AfterFunc(ctx, drain)
 	defer func() {
+		// Run can also return early on an error, before the context is canceled.
+		if stopDrain() {
+			go drain()
+		}
 		s.leaveMemberlist()
 		close(drained)
 	}()
