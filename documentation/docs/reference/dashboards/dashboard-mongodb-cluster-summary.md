@@ -193,7 +193,7 @@ Shows the rate of change in chunks per shard over time. Positive values mean chu
 
 Shows the number of chunk migrations between shards in the last 10 minutes, as reported by the `mongos` changelog. Sustained high migration counts can consume network and disk I/O on the affected shards and increase replication lag. Investigate if chunk moves are frequent during peak traffic hours.
 
-### Chunk Split Events
+### Chunks Split Events
 
 Shows the number of chunk splits in the last 10 minutes, as reported by the `mongos` changelog. Splits happen automatically when a chunk grows beyond the configured maximum size. A high split count indicates rapid data growth or a sharding key with low cardinality that is causing hotspots.
 

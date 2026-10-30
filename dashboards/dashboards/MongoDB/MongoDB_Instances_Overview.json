@@ -361,7 +361,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "min(\n  avg_over_time(\n    (max by (set) (mongodb_mongod_replset_my_state{environment=~\"$environment\", cluster=~\"$cluster\"} == bool 1))[$__range:]\n  )\n) * 100",
+                    "expr": "min(\n  avg_over_time(\n    (max by (environment, cluster, set) (mongodb_mongod_replset_my_state{environment=~\"$environment\", cluster=~\"$cluster\"} == bool 1))[$__range:]\n  )\n) * 100",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,

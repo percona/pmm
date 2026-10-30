@@ -3313,7 +3313,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[1m])) / on() group_left() sum(max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[1m])))",
+                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[10m])) / on() group_left() sum(max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[10m])))",
                             "format": "time_series",
                             "hide": false,
                             "instant": true,
