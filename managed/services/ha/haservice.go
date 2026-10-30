@@ -48,6 +48,7 @@ const (
 	defaultLeaveTimeout         = 5 * time.Second
 	defaultLeaveAnnounceTimeout = 2 * time.Second
 	defaultObservationChanSize  = 16
+	defaultRaftProbeTimeout     = time.Second
 	defaultTickerInterval       = 5 * time.Second
 	defaultApplyTimeout         = 3 * time.Second
 	defaultRaftDataDir          = "/srv/ha"
@@ -79,6 +80,8 @@ type Service struct {
 	nodeCh   chan memberlist.NodeEvent
 	leaderCh chan raft.Observation
 	delegate *memberlistDelegate
+	// raftReachable checks a Raft address before a removal, see liveVoters.
+	raftReachable func(ctx context.Context, address raft.ServerAddress) bool
 
 	l  *logrus.Entry
 	wg *sync.WaitGroup
@@ -261,6 +264,7 @@ func New(params *models.HAParams) *Service {
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
 		delegate:         &memberlistDelegate{},
+		raftReachable:    raftReachable,
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
 		left:             make(map[string]struct{}),
@@ -475,8 +479,8 @@ func (s *Service) leaveMemberlist() {
 	}
 }
 
-// startHeartbeatObserver tracks which voters this node, while it is the leader, fails to reach over Raft.
-// Unlike memberlist, which takes over 30 s to declare a node dead, Raft reports a failed heartbeat right away.
+// startHeartbeatObserver tracks which voters this node, while it is the leader, fails to heartbeat over Raft.
+// It catches a peer that accepts connections but doesn't answer, which memberlist only declares dead after over 30 s.
 func (s *Service) startHeartbeatObserver(ctx context.Context) {
 	observations := make(chan raft.Observation, defaultObservationChanSize)
 	s.raftNode.RegisterObserver(raft.NewObserver(observations, false, func(o *raft.Observation) bool {
@@ -555,7 +559,7 @@ func (s *Service) handleNodeEvent(ctx context.Context, event memberlist.NodeEven
 	}
 }
 
-// aliveQuorumWithout reports whether a majority of the voters that remain after removing id is alive in memberlist.
+// aliveQuorumWithout reports whether a majority of the voters that remain after removing id is alive.
 func aliveQuorumWithout(servers []raft.Server, alive map[string]struct{}, id raft.ServerID) bool {
 	var voters, aliveVoters int
 	for _, server := range servers {
@@ -585,6 +589,33 @@ func (s *Service) hasLeft(name string) bool {
 	defer s.peersMu.Unlock()
 	_, ok := s.left[name]
 	return ok
+}
+
+// liveVoters returns the voters that are alive in memberlist, aren't failing Raft heartbeats and accept
+// a connection on their Raft address: memberlist and Raft can take 10 to 30 s to notice a lost node.
+func (s *Service) liveVoters(ctx context.Context, servers []raft.Server, members map[string]*memberlist.Node) map[string]struct{} {
+	live := make(map[string]struct{})
+	for _, server := range servers {
+		id := string(server.ID)
+		if _, ok := members[id]; !ok || server.Suffrage != raft.Voter || s.isUnreachable(server.ID) {
+			continue
+		}
+		if id == s.params.NodeID || s.raftReachable(ctx, server.Address) {
+			live[id] = struct{}{}
+		}
+	}
+	return live
+}
+
+// raftReachable reports whether a Raft address accepts a TCP connection.
+func raftReachable(ctx context.Context, address raft.ServerAddress) bool {
+	dialer := net.Dialer{Timeout: defaultRaftProbeTimeout}
+	conn, err := dialer.DialContext(ctx, "tcp", string(address))
+	if err != nil {
+		return false
+	}
+	_ = conn.Close()
+	return true
 }
 
 func (s *Service) setUnreachable(id raft.ServerID, unreachable bool) {
@@ -682,12 +713,8 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 
 	// Build a map of current memberlist members for quick lookup
 	memberMap := make(map[string]*memberlist.Node)
-	alive := make(map[string]struct{})
 	for _, member := range members {
 		memberMap[member.Name] = member
-		if !s.isUnreachable(raft.ServerID(member.Name)) {
-			alive[member.Name] = struct{}{}
-		}
 	}
 
 	// Build a map of current Raft servers
@@ -706,7 +733,7 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 		}
 		// Raft counts quorum on the new configuration as soon as the change is appended, so a removal
 		// that the remaining live voters can't commit would make this leader step down.
-		if !aliveQuorumWithout(servers, alive, server.ID) {
+		if !aliveQuorumWithout(servers, s.liveVoters(ctx, servers, memberMap), server.ID) {
 			s.l.Debugf("Keeping node %s in Raft: too few voters are alive to commit its removal", serverID)
 			continue
 		}

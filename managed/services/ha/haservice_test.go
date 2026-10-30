@@ -17,8 +17,10 @@ package ha
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"slices"
@@ -296,6 +298,7 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 		members     int
 		left        int
 		unreachable bool
+		refused     bool
 		wantVoters  int
 	}{
 		{name: "keeps a failed node in a three-voter cluster", voters: 3, members: 2, wantVoters: 3},
@@ -304,6 +307,7 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 		{name: "removes nodes that left after a scale-down from five to three", voters: 5, members: 3, left: 2, wantVoters: 3},
 		{name: "keeps a node that left while another voter is down", voters: 3, members: 1, left: 1, wantVoters: 3},
 		{name: "keeps a node that left while another voter is unreachable over Raft", voters: 3, members: 2, left: 1, unreachable: true, wantVoters: 3},
+		{name: "keeps a node that left while another voter refuses Raft connections", voters: 3, members: 2, left: 1, refused: true, wantVoters: 3},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -320,6 +324,10 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 					members++
 					if tc.unreachable {
 						s.setUnreachable(server.ID, true)
+					}
+					if tc.refused {
+						refused := server.Address
+						s.raftReachable = func(_ context.Context, address raft.ServerAddress) bool { return address != refused }
 					}
 				case left < tc.left:
 					s.setLeft(string(server.ID), true)
@@ -524,7 +532,22 @@ func newTestService(nodeID string, r *raft.Raft, m *memberlist.Memberlist) *Serv
 	s := New(&models.HAParams{Enabled: true, NodeID: nodeID})
 	s.raftNode = r
 	s.memberlist = m
+	// In-memory Raft addresses can't be dialed.
+	s.raftReachable = func(context.Context, raft.ServerAddress) bool { return true }
 	return s
+}
+
+func TestRaftReachable(t *testing.T) {
+	t.Parallel()
+
+	var lc net.ListenConfig
+	listener, err := lc.Listen(t.Context(), "tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	address := listener.Addr().String()
+	assert.True(t, raftReachable(t.Context(), raft.ServerAddress(address)))
+
+	require.NoError(t, listener.Close())
+	assert.False(t, raftReachable(t.Context(), raft.ServerAddress(address)))
 }
 
 // newTestRaftCluster starts n in-memory Raft voters named pmm-ha-<i> and returns the leader once it has committed,
