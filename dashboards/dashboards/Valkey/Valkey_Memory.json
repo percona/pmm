@@ -249,7 +249,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_key_value{key=\"maxmemory-policy\",role=\"primary\"}",
+                    "expr": "redis_config_key_value{key=\"maxmemory-policy\",service_name=~\"$service_name\",role!~\"replica|slave\"}",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
