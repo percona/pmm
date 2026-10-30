@@ -65,7 +65,7 @@ Find all available commands for managing monitored services:
 | Command | Description | Documentation |
 |---------|-------------|---------------|
 | `pmm-admin add` | Add database services to monitoring | [Add database services](../pmm-admin/add.md) |
-| `pmm-admin update` | Change monitored services in place | [Update monitored services](../pmm-admin/update.md) |
+| `pmm-admin update` | Change monitored services and node labels in place | [Update monitored services](../pmm-admin/update.md) |
 | `pmm-admin inventory` | List and modify agents and services | [Manage inventory](../pmm-admin/inventory.md) |
 | `pmm-admin config` | Configure local pmm-agent | [Configuration commands](../pmm-admin/config.md) |
 | `pmm-admin register` | Register node with PMM Server | [Configuration commands](../pmm-admin/config.md) |
@@ -78,7 +78,7 @@ Find all available commands for managing monitored services:
 ### Add and remove services
 
 - [`pmm-admin add`](../pmm-admin/add.md): Add database services to monitoring
-- [`pmm-admin update`](../pmm-admin/update.md): Change monitored services in place
+- [`pmm-admin update`](../pmm-admin/update.md): Change monitored services and node labels in place
 - [`pmm-admin remove`](../pmm-admin/config.md): Remove service from monitoring
 
 ### Manage inventory

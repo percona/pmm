@@ -2,7 +2,7 @@
 
 Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again. The service and its agents keep their IDs, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service.
 
-Starting with PMM 3.11.0, `pmm-admin update` supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services.
+Starting with PMM 3.11.0, `pmm-admin update` supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services. To change the environment and the labels of a node, see [Update a node](#update-a-node).
 
 ## Syntax
 
@@ -124,6 +124,29 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     pmm-admin update mysql mysql-prod --environment=staging --custom-labels=team=db,tier=1
     ```
 
+## Update a node
+
+`pmm-admin update node` changes the labels of a node: its environment, node model, region, availability zone, and custom labels. The node, its agents, and the services on it keep their IDs and history, and their metrics carry the new labels from the next scrape.
+
+Run it on the node that you want to change, or pass the ID of another node with `--node-id`:
+
+```bash
+pmm-admin update node --environment=prod
+pmm-admin update node --node-id=<NODE_ID> --custom-labels=team=db,tier=1
+```
+
+The same rules apply as for services: only the flags that you pass are changed, an empty value clears a label, `--custom-labels` replaces all custom labels, and `--dry-run` previews the change.
+
+If you gave the node an environment with a custom label, for example `--custom-labels=environment=staging` when you registered it, `--environment` replaces that custom label. While the node has an environment, it can't also have an `environment` custom label, because the custom label would override it.
+
+A service takes the environment of its node unless it sets its own. To make a service use the environment of its node, clear the environment of the service:
+
+```bash
+pmm-admin update mysql mysql-prod --environment=
+```
+
+The region of an Amazon RDS node can't be changed, because PMM uses it to find the DB instance.
+
 ## Use update in scripts
 
 With `--json`, `pmm-admin update` prints the result as JSON. The `changed` field tells whether any setting changed, and `changes` lists each changed setting with its previous and new value:
@@ -138,9 +161,9 @@ pmm-admin update mysql mysql-prod --log-level=info --json
 
 - the name of the service
 - the node and the pmm-agent that monitor the service (`--node-id`, `--pmm-agent-id`)
-- the address and the node properties of an `external-serverless` service
+- the address of an `external-serverless` service
 
-To change them, [remove the service](../../remove-services.md) and add it again with `pmm-admin add`.
+To change them, [remove the service](../../remove-services.md) and add it again with `pmm-admin add`. The node model, region, and availability zone of an `external-serverless` service belong to its node: change them with [`pmm-admin update node`](#update-a-node).
 
 ## See also
 

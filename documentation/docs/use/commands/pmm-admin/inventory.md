@@ -253,6 +253,7 @@ Whether you can change an agent in place or have to remove and add its service a
 | Change labels, collectors, collection limits or the log level | `change agent` | The service keeps its ID and history |
 | Turn an agent on or off | `change agent` | The service keeps its ID and history |
 | Change a service and all its agents at once, switch the Query Analytics source, or move the service to a new address | [`pmm-admin update`](update.md) | The service keeps its ID and history |
+| Change the environment and the labels of a node | [`pmm-admin update node`](update.md#update-a-node) | The node keeps its ID and history |
 | Rename the service or monitor a different database instance | `pmm-admin remove`, then `pmm-admin add` | PMM creates a new service with a new ID |
 
 ### Find the agent ID
