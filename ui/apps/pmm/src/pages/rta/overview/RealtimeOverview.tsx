@@ -209,9 +209,9 @@ const RealtimeOverviewPage: FC = () => {
           <Stack
             flex={1}
             direction="row"
-            alignItems="flex-start"
+            alignItems="center"
             alignContent="flex-start"
-            rowGap={0}
+            rowGap={1}
             columnGap={1}
             sx={{
               width: '100%',
@@ -245,7 +245,7 @@ const RealtimeOverviewPage: FC = () => {
               direction="row"
               alignItems="center"
               gap={1}
-              sx={{ mt: 1, minWidth: 0, flex: '0 0 auto' }}
+              sx={{ minWidth: 0, flex: '0 0 auto' }}
             >
               <AutoRefreshSelect
                 isFetching={fetching}
@@ -320,7 +320,6 @@ const RealtimeOverviewPage: FC = () => {
                 alignItems="center"
                 gap={1}
                 sx={{
-                  mt: 1,
                   flex: '0 0 auto',
                   order: 3,
                   flexBasis: '100%',
