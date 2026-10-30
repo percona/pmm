@@ -66,7 +66,9 @@ export function parseClusterFilters(params: URLSearchParams): ClusterFilters {
       HEALTH_FILTER_VALUES.includes(value as OmClusterHealth)
     ) as OmClusterHealth[],
     type: unique(params.getAll('type')).filter((value) =>
-      Object.hasOwn(TYPE_FILTER_VALUES, value)
+      // Not `in`: that admits inherited names such as `toString`. Not `Object.hasOwn`
+      // either, which the PMM app's TypeScript lib predates.
+      Object.prototype.hasOwnProperty.call(TYPE_FILTER_VALUES, value)
     ),
     environment: unique(params.getAll('environment')),
   };
