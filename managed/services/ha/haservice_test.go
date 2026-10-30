@@ -165,7 +165,7 @@ func TestNew(t *testing.T) {
 		AdvertiseAddress: "127.0.0.1",
 		RaftPort:         7300,
 		GossipPort:       7301,
-		Nodes:            []string{"node-2"},
+		Nodes:            []string{"node-1", "node-2"},
 	}
 
 	service := New(params)
@@ -566,7 +566,10 @@ func TestBootstrapsCluster(t *testing.T) {
 		{name: "other peer", nodeID: "pmm-ha-2", nodes: peers, want: false},
 		{name: "peer with a port", nodeID: "pmm-ha-1", nodes: []string{"pmm-ha-0.svc:9096", "pmm-ha-1.svc:9096"}, want: false},
 		{name: "IP peers", nodeID: "pmm-ha-1", nodes: []string{"10.0.0.1", "10.0.0.2"}, want: true},
+		{name: "IPv6 peers", nodeID: "pmm-ha-1", nodes: []string{"[fd00::1]:9096", "[fd00::2]:9096"}, want: true},
 		{name: "node ID not among peers", nodeID: "node-2", nodes: []string{"pmm-a.example.com", "pmm-b.example.com"}, want: true},
+		{name: "pod added by kubectl scale", nodeID: "pmm-ha-3", nodes: peers, want: false},
+		{name: "pod of another StatefulSet", nodeID: "pmm-3", nodes: peers, want: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

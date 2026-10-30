@@ -296,19 +296,34 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 func bootstrapsCluster(params *models.HAParams) bool {
 	ids := make([]string, 0, len(params.Nodes))
 	for _, peer := range params.Nodes {
-		host, _, err := net.SplitHostPort(peer)
-		if err != nil {
-			host = peer
-		}
-		if net.ParseIP(host) != nil {
+		id, ok := models.HAPeerNodeName(peer)
+		if !ok {
 			return true
 		}
-		ids = append(ids, strings.Split(host, ".")[0])
+		ids = append(ids, id)
 	}
-	if !slices.Contains(ids, params.NodeID) {
+	if len(ids) == 0 {
 		return true
 	}
-	return ids[0] == params.NodeID
+	if slices.Contains(ids, params.NodeID) {
+		return ids[0] == params.NodeID
+	}
+	// kubectl scale adds pods that the chart's PMM_HA_PEERS doesn't list; they join through the listed ones.
+	set := statefulSetName(params.NodeID)
+	return set == "" || set != statefulSetName(ids[0])
+}
+
+// statefulSetName returns the StatefulSet name of a pod name such as pmm-ha-3, or "" if the name has no ordinal.
+func statefulSetName(pod string) string {
+	i := strings.LastIndex(pod, "-")
+	if i <= 0 {
+		return ""
+	}
+	_, err := strconv.Atoi(pod[i+1:])
+	if err != nil {
+		return ""
+	}
+	return pod[:i]
 }
 
 // New provides a new instance of the high availability service.
@@ -494,6 +509,8 @@ func (s *Service) Run(ctx context.Context) error {
 			}
 			s.l.Info("Cluster already bootstrapped, skipping")
 		}
+	} else {
+		s.l.Info("Not bootstrapping the Raft cluster: the first node in PMM_HA_PEERS does, and its leader adds this node")
 	}
 	if len(s.params.Nodes) != 0 {
 		_, err := s.memberlist.Join(s.params.Nodes)
