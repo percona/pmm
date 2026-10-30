@@ -5,6 +5,7 @@ import {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
 } from 'react';
 import { TourProvider as ReactTourProvider, StepType } from '@reactour/tour';
 import { TourContext } from './tour.context';
@@ -14,6 +15,7 @@ import { DRAWER_WIDTH } from 'components/sidebar/drawer/Drawer.constants';
 import { waitForVisible } from 'utils/dom.utils';
 import { useUpdateUserInfo } from 'hooks/api/useUser';
 import { useUser } from 'contexts/user';
+import { useSettings } from 'contexts/settings';
 import { getProductTourSteps } from './steps/product.steps';
 import { getAlertingTourSteps } from './steps/alerting.steps';
 import { TourCloseButton } from 'components/tour-close-button';
@@ -24,31 +26,43 @@ import { useTheme } from '@mui/material/styles';
 export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();
   const { user } = useUser();
+  const { settings } = useSettings();
   const [tourName, setTourName] = useState<TourName>('product');
   const { mutateAsync: updateUserInfoAsync } = useUpdateUserInfo();
+  const { navTree, navOpen, setNavOpen } = useNavigation();
   const stepsMap = useMemo<StepsMap>(
     () => ({
       product: getProductTourSteps(user),
-      alerting: getAlertingTourSteps(user),
+      alerting: getAlertingTourSteps(navTree),
     }),
-    [user]
+    [user, navTree]
   );
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<StepType[]>([]);
-  const { navOpen, setNavOpen } = useNavigation();
+  // Closing the tour re-runs the auto-start effect before the saved
+  // completion reaches user.info, which would restart the tour.
+  const alertingAutoStarted = useRef(false);
   const location = useLocation();
 
   const startTour = useCallback(
     async (tourName: TourName) => {
       const steps = stepsMap[tourName];
 
+      if (!steps.length) {
+        return;
+      }
+
       if (!navOpen) {
         setNavOpen(true);
       }
 
-      if (steps[0] && typeof steps[0].selector === 'string') {
-        await waitForVisible(steps[0].selector);
+      if (typeof steps[0].selector === 'string') {
+        try {
+          await waitForVisible(steps[0].selector);
+        } catch {
+          return;
+        }
       }
 
       setTourName(tourName);
@@ -60,26 +74,48 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 
   const endTour = useCallback(async () => {
-    if (tourName === 'alerting') {
-      await updateUserInfoAsync({ alertingTourCompleted: true });
-    } else if (tourName === 'product') {
-      await updateUserInfoAsync({ productTourCompleted: true });
+    try {
+      if (tourName === 'alerting') {
+        await updateUserInfoAsync({ alertingTourCompleted: true });
+      } else if (tourName === 'product') {
+        await updateUserInfoAsync({ productTourCompleted: true });
+      }
+    } catch {
+      // The API client already shows the error; the tour must still close.
     }
     setIsOpen(false);
   }, [tourName, updateUserInfoAsync]);
 
   useEffect(() => {
-    if (isOpen || !user?.info) {
+    if (!isOpen) {
+      return;
+    }
+
+    // Menu rows above the target (e.g. per-service dashboards) can load after
+    // the tour opens; reactour only re-measures its highlight on resize.
+    const frame = requestAnimationFrame(() =>
+      window.dispatchEvent(new Event('resize'))
+    );
+
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen, navTree]);
+
+  useEffect(() => {
+    // The Alerts menu, and so the alerting tour, is incomplete until settings load.
+    // Anonymous users can't save tour completion, so it would reopen on every visit.
+    if (isOpen || !user?.info || user.isAnonymous || !settings) {
       return;
     }
 
     if (
+      !alertingAutoStarted.current &&
       !user.info.alertingTourCompleted &&
       location.pathname.includes('/alerting')
     ) {
+      alertingAutoStarted.current = true;
       startTour('alerting');
     }
-  }, [isOpen, location.pathname, user?.info, startTour]);
+  }, [isOpen, location.pathname, user?.info, settings, startTour]);
 
   return (
     <TourContext.Provider
