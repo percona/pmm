@@ -367,7 +367,7 @@ func (s *Service) Run(ctx context.Context) error {
 		return err
 	}
 	defer func() {
-		if s.IsLeader() {
+		if s.IsLeader() && s.hasOtherVoters() {
 			err := s.raftNode.LeadershipTransfer().Error()
 			if err != nil {
 				s.l.Warnf("Couldn't transfer leadership: %s", err)
@@ -458,6 +458,17 @@ func (s *Service) Run(ctx context.Context) error {
 	s.services.Wait()
 
 	return nil
+}
+
+// hasOtherVoters reports whether the Raft configuration has a voter besides this node to hand leadership to.
+func (s *Service) hasOtherVoters() bool {
+	future := s.raftNode.GetConfiguration()
+	if future.Error() != nil {
+		return true
+	}
+	return slices.ContainsFunc(future.Configuration().Servers, func(server raft.Server) bool {
+		return server.Suffrage == raft.Voter && string(server.ID) != s.params.NodeID
+	})
 }
 
 // leaveMemberlist announces a graceful leave to the other nodes, then leaves memberlist and shuts it down.

@@ -537,6 +537,16 @@ func newTestService(nodeID string, r *raft.Raft, m *memberlist.Memberlist) *Serv
 	return s
 }
 
+func TestService_HasOtherVoters(t *testing.T) {
+	t.Parallel()
+
+	alone, aloneID, _ := newTestRaftCluster(t, 1)
+	assert.False(t, newTestService(aloneID, alone, nil).hasOtherVoters())
+
+	leader, leaderID, _ := newTestRaftCluster(t, 3)
+	assert.True(t, newTestService(leaderID, leader, nil).hasOtherVoters())
+}
+
 func TestRaftReachable(t *testing.T) {
 	t.Parallel()
 
