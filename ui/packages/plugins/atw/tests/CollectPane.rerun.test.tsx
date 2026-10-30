@@ -184,7 +184,7 @@ describe('CollectPane rerun requests', () => {
     );
   });
 
-  it('names an unresolved snippet by its title when the execution carried one', async () => {
+  it('names an unresolved snippet by its title and file when the execution carried a title', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.startsWith('/apps/atw/snippets/')) {
         return Promise.resolve({
@@ -204,11 +204,12 @@ describe('CollectPane rerun requests', () => {
     await waitFor(
       () => {
         expect(
-          screen.getByText(/Could not find “Renamed Away”/)
+          screen.getByText(
+            /Could not find “Renamed Away \(diag\/renamed-away\.sh\)”/
+          )
         ).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
-    expect(screen.queryByText(/renamed-away\.sh/)).toBeNull();
   });
 });

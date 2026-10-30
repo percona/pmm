@@ -44,7 +44,7 @@ import {
   useAtwMergedSchema,
   useAtwSnippetSearch,
 } from './hooks';
-import { scriptLabel, scriptLabels } from './scriptLabels';
+import { scriptLabel, scriptLabeler } from './scriptLabels';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -266,25 +266,26 @@ export interface BatchItemError {
   message: string;
 }
 
-/** Display names of `snippets`, keyed by filename (see `scriptLabels`). */
-function snippetLabels(
+/** Labels a snippet among `snippets` (see `scriptLabeler`). */
+function snippetLabeler(
   snippets: readonly AtwSnippetSummary[]
-): Map<string, string> {
-  return scriptLabels(
+): (snippet: AtwSnippetSummary) => string {
+  const label = scriptLabeler(
     snippets.map((snippet) => ({
       title: snippet.title,
       filename: snippet.name,
     }))
   );
+  return (snippet) => label(snippet.title, snippet.name);
 }
 
 /**
  * Caption under a picker option: its filename when only that explains the hit
- * or tells `sameTitle` twins apart, otherwise its description.
+ * or tells `sameLabel` twins apart, otherwise its description.
  */
 export function scriptOptionCaption(
   option: AtwSnippetSummary,
-  sameTitle: readonly AtwSnippetSummary[],
+  sameLabel: readonly AtwSnippetSummary[],
   term: string
 ): string | undefined {
   const description = option.description.trim();
@@ -292,14 +293,14 @@ export function scriptOptionCaption(
   const matchedOnlyFilename =
     needle !== '' &&
     option.name.toLowerCase().includes(needle) &&
-    !option.title.toLowerCase().includes(needle) &&
+    !scriptLabel(option.title, option.name).toLowerCase().includes(needle) &&
     !description.toLowerCase().includes(needle);
   const descriptions = new Set(
-    sameTitle.map((peer) => peer.description.trim())
+    sameLabel.map((peer) => peer.description.trim())
   );
   const twinsLookAlike =
-    sameTitle.length > 1 &&
-    (descriptions.size < sameTitle.length || descriptions.has(''));
+    sameLabel.length > 1 &&
+    (descriptions.size < sameLabel.length || descriptions.has(''));
   if (matchedOnlyFilename || twinsLookAlike) {
     return option.name;
   }
@@ -311,13 +312,15 @@ export function batchItemErrors(
   response: AtwBatchExecuteResponse,
   snippets: AtwSnippetSummary[]
 ): BatchItemError[] {
-  const labels = snippetLabels(snippets);
+  const byName = new Map(snippets.map((snippet) => [snippet.name, snippet]));
+  const label = snippetLabeler(snippets);
   return response.items
     .filter((item) => item.error !== null && item.error !== undefined)
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      const name = labels.get(item.snippet_filename) ?? item.snippet_filename;
+      const snippet = byName.get(item.snippet_filename);
+      const name = snippet ? label(snippet) : item.snippet_filename;
       return {
         key: item.snippet_filename,
         message: `${name}: ${detail}`,
@@ -536,10 +539,11 @@ export function CollectPane({
     ) {
       return;
     }
-    const failedName = scriptLabel(
-      rerunRequest.snippetTitle,
-      rerunRequest.snippetFilename
-    );
+    // Titles are not unique, and the file is what the lookup missed.
+    const failedTitle = rerunRequest.snippetTitle?.trim();
+    const failedName = failedTitle
+      ? `${failedTitle} (${rerunRequest.snippetFilename})`
+      : rerunRequest.snippetFilename;
     if (rerunResolveQuery.isError) {
       setResolvingRerunNonce(null);
       setRerunResolveTerm(null);
@@ -573,20 +577,20 @@ export function CollectPane({
     [available, selected, searchResults]
   );
 
-  // Grouped once per option list: every rendered row looks up its same-titled
+  // Grouped once per option list: every rendered row looks up its same-label
   // twins for its caption, on every keystroke.
-  const optionsByTitle = useMemo(() => {
+  const optionsByLabel = useMemo(() => {
     const groups = new Map<string, AtwSnippetSummary[]>();
     for (const option of options) {
-      const title = option.title.trim();
-      groups.set(title, [...(groups.get(title) ?? []), option]);
+      const label = scriptLabel(option.title, option.name);
+      groups.set(label, [...(groups.get(label) ?? []), option]);
     }
     return groups;
   }, [options]);
 
   // Titles are not unique by contract, so every place naming a selected script
-  // uses these, which carry the filename when two selected titles collide.
-  const selectedLabels = useMemo(() => snippetLabels(selected), [selected]);
+  // uses this, which adds the filename when two selected titles collide.
+  const labelSelected = useMemo(() => snippetLabeler(selected), [selected]);
 
   // Whether the page currently in hand was fetched for the term now in the box.
   // `isPlaceholderData` is the precise signal: under `keepPreviousData` it is set
@@ -644,7 +648,7 @@ export function CollectPane({
         return;
       }
       result.push({
-        title: selectedLabels.get(snippet.name) ?? snippet.title,
+        title: labelSelected(snippet),
         description: snippet.description || undefined,
         collapsible: true,
         // Closed unless the reader has to type something: a batch of two
@@ -658,7 +662,7 @@ export function CollectPane({
       });
     });
     return result;
-  }, [schemaQuery.data, selected, selectedLabels]);
+  }, [schemaQuery.data, selected, labelSelected]);
 
   // Namespacing per-snippet fields does not rewrite their gate predicates, so a
   // gated field would stop gating once namespaced. Detect any such snippet and
@@ -676,8 +680,8 @@ export function CollectPane({
         );
         return (entry?.fields ?? []).some(fieldDeclaresGate);
       })
-      .map((snippet) => selectedLabels.get(snippet.name) ?? snippet.title);
-  }, [schemaQuery.data, selected, selectedLabels]);
+      .map((snippet) => labelSelected(snippet));
+  }, [schemaQuery.data, selected, labelSelected]);
 
   const renderField = useCallback<RenderFieldOverride>(
     ({ field, renderDefault }) =>
@@ -689,12 +693,12 @@ export function CollectPane({
             sudoName="sudo"
             snippets={selected.map((snippet) => ({
               ...snippet,
-              title: selectedLabels.get(snippet.name) ?? snippet.title,
+              title: labelSelected(snippet),
             }))}
           />
         </>
       ) : null,
-    [selected, selectedLabels]
+    [selected, labelSelected]
   );
 
   const handleSubmit = (values: Record<string, unknown>) => {
@@ -809,19 +813,17 @@ export function CollectPane({
             : 'No approved script matches this search.'
         }
         // Names the chips, so two selected scripts sharing a title stay distinct.
-        getOptionLabel={(option) =>
-          selectedLabels.get(option.name) ??
-          scriptLabel(option.title, option.name)
-        }
+        getOptionLabel={(option) => labelSelected(option)}
         // Without this MUI keys each row on the label, and titles are not unique
         // by contract — two snippets sharing one would collide on re-render.
         getOptionKey={(option) => option.name}
         isOptionEqualToValue={(option, value) => option.name === value.name}
         renderOption={(props, option, { inputValue }) => {
           const { key, ...liProps } = props as typeof props & { key: string };
+          const label = scriptLabel(option.title, option.name);
           const caption = scriptOptionCaption(
             option,
-            optionsByTitle.get(option.title.trim()) ?? [option],
+            optionsByLabel.get(label) ?? [option],
             inputValue
           );
           return (
@@ -829,7 +831,7 @@ export function CollectPane({
             // look unrelated to the typed term without its caption.
             <Box component="li" key={key} {...liProps}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="body2">{option.title}</Typography>
+                <Typography variant="body2">{label}</Typography>
                 {caption && (
                   <Typography variant="caption" color="text.secondary">
                     {caption}

@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { scriptLabel, scriptLabels } from '../src/scriptLabels';
+import { scriptLabel, scriptLabeler } from '../src/scriptLabels';
 
 describe('scriptLabel', () => {
   it('prefers the trimmed title', () => {
@@ -30,39 +30,53 @@ describe('scriptLabel', () => {
   });
 });
 
-describe('scriptLabels', () => {
+describe('scriptLabeler', () => {
   it('uses the title alone when no other file shares it', () => {
-    const labels = scriptLabels([
+    const label = scriptLabeler([
       { title: 'Summary', filename: 'a.sh' },
       { title: 'Other', filename: 'b.sh' },
     ]);
 
-    expect(labels.get('a.sh')).toBe('Summary');
-    expect(labels.get('b.sh')).toBe('Other');
+    expect(label('Summary', 'a.sh')).toBe('Summary');
+    expect(label('Other', 'b.sh')).toBe('Other');
   });
 
   it('appends the filename when files share a title, ignoring surrounding whitespace', () => {
-    const labels = scriptLabels([
+    const label = scriptLabeler([
       { title: 'Summary', filename: 'a.sh' },
       { title: 'Summary ', filename: 'b.sh' },
     ]);
 
-    expect(labels.get('a.sh')).toBe('Summary (a.sh)');
-    expect(labels.get('b.sh')).toBe('Summary (b.sh)');
+    expect(label('Summary', 'a.sh')).toBe('Summary (a.sh)');
+    expect(label('Summary ', 'b.sh')).toBe('Summary (b.sh)');
   });
 
   it('does not treat two runs of one file as a collision', () => {
-    const labels = scriptLabels([
+    const label = scriptLabeler([
       { title: 'Summary', filename: 'a.sh' },
       { title: 'Summary', filename: 'a.sh' },
     ]);
 
-    expect(labels.get('a.sh')).toBe('Summary');
+    expect(label('Summary', 'a.sh')).toBe('Summary');
   });
 
-  it('names an untitled file by its filename', () => {
-    expect(scriptLabels([{ title: null, filename: 'a.sh' }]).get('a.sh')).toBe(
-      'a.sh'
-    );
+  it('labels each entry of one file by its own title', () => {
+    const label = scriptLabeler([
+      { title: null, filename: 'a.sh' },
+      { title: 'Summary', filename: 'a.sh' },
+    ]);
+
+    expect(label(null, 'a.sh')).toBe('a.sh');
+    expect(label('Summary', 'a.sh')).toBe('Summary');
+  });
+
+  it('appends the filename when a fallback name matches another title', () => {
+    const label = scriptLabeler([
+      { title: null, filename: 'Summary' },
+      { title: 'Summary', filename: 'b.sh' },
+    ]);
+
+    expect(label(null, 'Summary')).toBe('Summary (Summary)');
+    expect(label('Summary', 'b.sh')).toBe('Summary (b.sh)');
   });
 });

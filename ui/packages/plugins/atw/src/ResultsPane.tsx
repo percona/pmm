@@ -59,7 +59,7 @@ import {
   useAtwIncidentExecutions,
   useAtwSendJobs,
 } from './hooks';
-import { scriptLabels } from './scriptLabels';
+import { scriptLabeler } from './scriptLabels';
 import { SendDialog } from './SendDialog';
 import { SendUnavailableNotice } from './SendUnavailableNotice';
 import type {
@@ -294,9 +294,9 @@ export function ResultsPane({
     return map;
   }, [rows]);
 
-  const rowLabels = useMemo(
+  const rowLabel = useMemo(
     () =>
-      scriptLabels(
+      scriptLabeler(
         (rows ?? []).map((execution) => ({
           title: execution.snippet_title,
           filename: execution.snippet_filename,
@@ -531,10 +531,10 @@ export function ResultsPane({
         <ExecutionRow
           key={execution.id}
           execution={execution}
-          displayName={
-            rowLabels.get(execution.snippet_filename) ??
+          displayName={rowLabel(
+            execution.snippet_title,
             execution.snippet_filename
-          }
+          )}
           elapsedSeconds={runSeconds(execution, now)}
           highlighted={Boolean(
             highlightedTaskIds?.has(execution.task_history_id)

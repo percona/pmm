@@ -1799,6 +1799,35 @@ describe('ResultsPane execution rows', () => {
     });
   });
 
+  it.each([
+    ['untitled first', [null, 'MySQL Summary']],
+    ['titled first', ['MySQL Summary', null]],
+  ])(
+    'labels each run of one file by its own title (%s)',
+    async (_order, titles) => {
+      routeGet({
+        executions: {
+          items: titles.map((title, index) => ({
+            ...NAMED_EXECUTION,
+            id: `exec-${index}`,
+            task_history_id: 40 + index,
+            snippet_title: title,
+          })),
+          total: 2,
+          offset: 0,
+          limit: 20,
+        },
+      });
+
+      renderPane(<ResultsPane incidentId="inc-1" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('MySQL Summary')).toBeTruthy();
+      });
+      expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
+    }
+  );
+
   it('appends the filename to rows whose different scripts share a title', async () => {
     routeGet({
       executions: {

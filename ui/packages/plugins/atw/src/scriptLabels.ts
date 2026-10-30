@@ -23,25 +23,22 @@ export function scriptLabel(
   return title?.trim() || filename;
 }
 
-/** Display names keyed by filename, appending the filename to a title that several files share. */
-export function scriptLabels(
+/** Labels a script by its own title, appending its filename when another file in `scripts` resolves to the same label. */
+export function scriptLabeler(
   scripts: readonly { title?: string | null; filename: string }[]
-): Map<string, string> {
-  const filenamesByTitle = new Map<string, Set<string>>();
-  for (const { title, filename } of scripts) {
-    const trimmed = title?.trim();
-    if (trimmed) {
-      filenamesByTitle.set(
-        trimmed,
-        (filenamesByTitle.get(trimmed) ?? new Set<string>()).add(filename)
-      );
-    }
-  }
-  const labels = new Map<string, string>();
+): (title: string | null | undefined, filename: string) => string {
+  const filenamesByLabel = new Map<string, Set<string>>();
   for (const { title, filename } of scripts) {
     const label = scriptLabel(title, filename);
-    const shared = (filenamesByTitle.get(label)?.size ?? 0) > 1;
-    labels.set(filename, shared ? `${label} (${filename})` : label);
+    filenamesByLabel.set(
+      label,
+      (filenamesByLabel.get(label) ?? new Set<string>()).add(filename)
+    );
   }
-  return labels;
+  return (title, filename) => {
+    const label = scriptLabel(title, filename);
+    const filenames = filenamesByLabel.get(label) ?? new Set<string>();
+    const shared = [...filenames].some((other) => other !== filename);
+    return shared ? `${label} (${filename})` : label;
+  };
 }

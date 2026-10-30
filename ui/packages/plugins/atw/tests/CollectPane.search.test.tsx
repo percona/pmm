@@ -327,6 +327,25 @@ describe('CollectPane snippet search', () => {
     expect(option).not.toHaveTextContent(SEARCH_ROW.description);
   });
 
+  it('names an untitled hit by its filename, once', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/untitled.sh', title: ' ', description: 'Gathers logs.' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('untitled');
+
+    const option = await screen.findByRole(
+      'option',
+      { name: /ops\/untitled\.sh/ },
+      { timeout: 3000 }
+    );
+    expect(within(option).getAllByText('ops/untitled.sh')).toHaveLength(1);
+    expect(within(option).getByText('Gathers logs.')).toBeInTheDocument();
+  });
+
   it('names two selected same-titled scripts by their filenames', async () => {
     mockApis({
       items: [
