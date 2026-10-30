@@ -33,6 +33,7 @@ import {
   processReadAt,
   repoReachability,
   scanErrorCode,
+  serverRunning,
   toHostRows,
 } from '../src/inventory';
 import type {
@@ -515,7 +516,7 @@ describe('describeServiceScanFailure', () => {
   });
 });
 
-describe('processReadAt and notRunningScanAt', () => {
+describe('processReadAt, serverRunning and notRunningScanAt', () => {
   const inventory = (
     overrides: Partial<OmInventoryService> = {},
     fresh: Partial<OmInventoryFreshness> = {}
@@ -538,7 +539,7 @@ describe('processReadAt and notRunningScanAt', () => {
   });
 
   it('dates a healthy scan by its success', () => {
-    expect(notRunningScanAt(inventory())).toBe('2026-10-07T09:00:00Z');
+    expect(processReadAt(inventory())).toBe('2026-10-07T09:00:00Z');
   });
 
   it.each([
@@ -546,10 +547,30 @@ describe('processReadAt and notRunningScanAt', () => {
     ['database_auth_failed'],
     ['database_error'],
   ])('dates a %s failure by the attempt, which read the process', (code) => {
-    expect(notRunningScanAt(inventory({}, failing(code)))).toBe(
+    expect(processReadAt(inventory({}, failing(code)))).toBe(
       '2026-10-07T10:00:00Z'
     );
   });
+
+  it('trusts not running from a scan that could not reach the server', () => {
+    const unreachable = inventory({}, failing('database_unreachable'));
+
+    expect(serverRunning(unreachable)).toBe(false);
+    expect(notRunningScanAt(unreachable)).toBe('2026-10-07T10:00:00Z');
+  });
+
+  // A server answered these scans, so a false is an unmatched process, not a stopped one.
+  it.each([
+    ['healthy', {}],
+    ['database_auth_failed', failing('database_auth_failed')],
+    ['database_error', failing('database_error')],
+  ])(
+    'ignores not running from a %s scan that reached the server',
+    (_, fresh) => {
+      expect(serverRunning(inventory({}, fresh))).toBeNull();
+      expect(notRunningScanAt(inventory({}, fresh))).toBeNull();
+    }
+  );
 
   // These never reached the service, so the stored reading is an older scan's.
   it.each([

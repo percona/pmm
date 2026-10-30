@@ -458,9 +458,9 @@ describe('FleetServicesTab', () => {
       ).toBeInTheDocument();
     });
 
-    it('reads a down service with no mongod running as "not running", dated by that scan', () => {
+    it('reads a down service whose scan found no server process as "not running", dated by that scan', () => {
       serve(ordersEstate('SERVICE_STATUS_DOWN'));
-      withScan({ server_running: false });
+      failingWith('database_unreachable', { server_running: false });
       renderTab();
 
       const caption = within(rowFor('orders-1')).getByTestId('om-not-running');
@@ -474,14 +474,14 @@ describe('FleetServicesTab', () => {
       ).toBeNull();
     });
 
-    it('dates "not running" by a failed scan that still read the process', () => {
+    it('leaves a down row as it is when a scan that reached the server read no process', () => {
       serve(ordersEstate('SERVICE_STATUS_DOWN'));
-      failingWith('database_unreachable', { server_running: false });
+      withScan({ server_running: false });
       renderTab();
 
-      expect(
-        within(rowFor('orders-1')).getByTestId('om-not-running')
-      ).toBeInTheDocument();
+      const row = within(rowFor('orders-1'));
+      expect(row.queryByTestId('om-not-running')).toBeNull();
+      expect(row.getByTestId('om-down-for')).toBeInTheDocument();
     });
 
     it('leaves a down row as it is when server_running is unset', () => {

@@ -31,6 +31,7 @@ import {
   describeServiceScanFailure,
   notRunningScanAt,
   processReadAt,
+  serverRunning,
   type OmEstateStatus,
 } from '../inventory';
 import type { OmServiceInventoryRow } from '../types';
@@ -91,7 +92,7 @@ const ProcessRunning = ({
   row: OmServiceInventoryRow;
   estate: OmEstateStatus;
 }) => {
-  const running = row.inventory?.server_running;
+  const running = serverRunning(row.inventory);
   const reading = running == null ? null : running ? 'Running' : 'Not running';
   const readAt = processReadAt(row.inventory);
   if (reading === null || readAt === null) {

@@ -356,13 +356,34 @@ export function processReadAt(
 }
 
 /**
- * When the latest scan to read this service's process found no mongod running, or
- * null when `server_running` is unset, true, or older than the latest scan.
+ * `server_running`, or null for a false the page cannot trust.
+ *
+ * A false is trusted only from a `database_unreachable` failure, where the process
+ * listing is the only evidence. Any other scan reached a server on the port, so its
+ * false means PMM Extensions could not tell which of several server processes is
+ * this service's, not that none was running.
+ */
+export function serverRunning(
+  inventory: OmInventoryService | null | undefined
+): boolean | null {
+  if (inventory?.server_running !== false) {
+    return inventory?.server_running ?? null;
+  }
+  return isFailing(inventory) &&
+    scanErrorCode(inventory.freshness.last_error_code) ===
+      'database_unreachable'
+    ? false
+    : null;
+}
+
+/**
+ * When the latest scan to read this service's process found neither mongod nor
+ * mongos running, or null when {@link serverRunning} does not say false.
  */
 export function notRunningScanAt(
   inventory: OmInventoryService | null | undefined
 ): string | null {
-  return inventory?.server_running === false ? processReadAt(inventory) : null;
+  return serverRunning(inventory) === false ? processReadAt(inventory) : null;
 }
 
 /**

@@ -108,13 +108,40 @@ describe('ServiceDetailDrawer', () => {
     expect(screen.getByRole('link')).toBeInTheDocument();
   });
 
-  it('dates whether mongod was running by the scan that read it', () => {
+  it('dates whether the server process was running by the scan that read it', () => {
+    renderDrawer({
+      row: row({ inventory: scanned({ server_running: true }) }),
+    });
+
+    expect(screen.getByText(/^Running, at the scan/)).toBeInTheDocument();
+    expect(screen.queryByTestId('scan-failure')).toBeNull();
+  });
+
+  it('does not say not running after a scan that reached the server', () => {
     renderDrawer({
       row: row({ inventory: scanned({ server_running: false }) }),
     });
 
+    expect(screen.queryByText(/^Not running/)).toBeNull();
+  });
+
+  it('says not running after a scan that could not reach the server', () => {
+    renderDrawer({
+      row: row({
+        inventory: scanned({
+          server_running: false,
+          freshness: {
+            last_success_at: '2026-10-06T09:00:00Z',
+            last_attempt_at: '2026-10-06T10:00:00Z',
+            failing_since: '2026-10-06T10:00:00Z',
+            consecutive_failures: 1,
+            last_error_code: 'database_unreachable',
+          },
+        }),
+      }),
+    });
+
     expect(screen.getByText(/^Not running, at the scan/)).toBeInTheDocument();
-    expect(screen.queryByTestId('scan-failure')).toBeNull();
   });
 
   it('leads with the failure when the scans are failing', () => {
