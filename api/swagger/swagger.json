@@ -17339,6 +17339,11 @@
                         "description": "True if this node is a PMM Server node (HA mode).",
                         "type": "boolean",
                         "x-order": 9
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -17407,6 +17412,11 @@
                         "description": "True if this node is a PMM Server node (HA mode).",
                         "type": "boolean",
                         "x-order": 10
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
@@ -17455,6 +17465,11 @@
                           "type": "string"
                         },
                         "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -17508,6 +17523,11 @@
                         "description": "AWS DB instance identifier.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 8
                       }
                     }
                   },
@@ -17556,6 +17576,11 @@
                           "type": "string"
                         },
                         "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -17903,6 +17928,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -17968,6 +17998,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -18013,6 +18048,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 2
@@ -18063,6 +18103,11 @@
                       "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 3
@@ -18108,6 +18153,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 4
@@ -18228,6 +18278,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -18293,6 +18348,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -18338,6 +18398,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 2
@@ -18388,6 +18453,11 @@
                       "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 3
@@ -18433,6 +18503,413 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "Change a Node",
+        "operationId": "ChangeNode",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique randomly generated instance identifier.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 0
+                },
+                "node_model": {
+                  "description": "Node model.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
+                },
+                "region": {
+                  "description": "Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 2
+                },
+                "az": {
+                  "description": "Node availability zone.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 3
+                },
+                "custom_labels": {
+                  "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 0
+                    }
+                  },
+                  "x-nullable": true,
+                  "x-order": 4
+                },
+                "dry_run": {
+                  "description": "Validate the change and return the Node as it would be, without applying it.",
+                  "type": "boolean",
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                },
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 1
+                },
+                "remote": {
+                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS DB instance identifier.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 4
@@ -22009,6 +22486,11 @@
                         "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                         "type": "boolean",
                         "x-order": 19
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 20
                       }
                     }
                   },
@@ -22170,6 +22652,11 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 16
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 17
                 }
               }
             }
@@ -22237,6 +22724,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -22302,6 +22794,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -22571,6 +23068,11 @@
                       "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                       "type": "boolean",
                       "x-order": 19
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -27142,6 +27644,11 @@
                           "description": "AWS DB instance identifier.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "environment": {
+                          "description": "Environment name.",
+                          "type": "string",
+                          "x-order": 8
                         }
                       },
                       "x-order": 0

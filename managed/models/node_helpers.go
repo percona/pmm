@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"net"
 	"strings"
 
@@ -28,6 +29,21 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+// nodeEnvironmentLabel is the label that the Node environment sets. UnifiedLabels copies the custom labels over
+// the standard ones, so a custom label of that name would override the environment.
+const nodeEnvironmentLabel = "environment"
+
+// withoutLabel returns the labels without the named one: a copy when they have it, the labels themselves otherwise.
+func withoutLabel(labels map[string]string, name string) map[string]string {
+	if _, ok := labels[name]; !ok {
+		return labels
+	}
+
+	res := maps.Clone(labels)
+	delete(res, name)
+	return res
+}
 
 func checkUniqueNodeID(q *reform.Querier, id string) error {
 	if id == "" {
@@ -223,6 +239,7 @@ type CreateNodeParams struct {
 	Region          *string
 	Password        *string
 	IsPMMServerNode bool
+	Environment     string
 }
 
 // createNodeWithID creates a Node with given ID.
@@ -291,8 +308,16 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		Address:         params.Address,
 		Region:          params.Region,
 		IsPMMServerNode: params.IsPMMServerNode,
+		Environment:     params.Environment,
 	}
-	err = node.SetCustomLabels(params.CustomLabels)
+
+	customLabels := params.CustomLabels
+	if params.Environment != "" {
+		// Before the environment field, a custom label was the way to give a Node an environment. The field takes
+		// it over, as the custom label would otherwise override it.
+		customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+	}
+	err = node.SetCustomLabels(customLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -308,6 +333,103 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
 	id := uuid.New().String()
 	return createNodeWithID(q, id, nodeType, params)
+}
+
+// ChangeNodeParams contains the Node labels to change. A nil field keeps its value. A non-nil
+// CustomLabels replaces all custom labels, and an empty one removes them. A non-nil Environment, empty included,
+// also removes an "environment" custom label, which would otherwise override it.
+type ChangeNodeParams struct {
+	Environment  *string
+	NodeModel    *string
+	Region       *string
+	AZ           *string
+	CustomLabels map[string]string
+}
+
+// ChangeNode changes the labels of the Node with the given ID.
+func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*Node, error) {
+	node, err := FindNodeByID(q, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var columns []string
+
+	if params.Environment != nil {
+		node.Environment = *params.Environment
+		columns = append(columns, "environment")
+	}
+
+	if params.NodeModel != nil {
+		node.NodeModel = *params.NodeModel
+		columns = append(columns, "node_model")
+	}
+
+	if params.AZ != nil {
+		node.AZ = *params.AZ
+		columns = append(columns, "az")
+	}
+
+	if params.Region != nil {
+		region := pointer.ToStringOrNil(*params.Region)
+		if pointer.GetString(region) != pointer.GetString(node.Region) {
+			// rds_exporter asks AWS for the DB instance in the Node's region.
+			if node.NodeType == RemoteRDSNodeType {
+				return nil, status.Error(codes.InvalidArgument, "The region of a Remote RDS Node can't be changed.")
+			}
+
+			_, err = CheckUniqueNodeAddressRegion(q, node.Address, region)
+			if err != nil {
+				return nil, err
+			}
+		}
+		node.Region = region
+		columns = append(columns, "region")
+	}
+
+	customLabels := params.CustomLabels
+	switch {
+	case params.Environment != nil:
+		// The environment takes over a custom label of the same name, which would otherwise override it.
+		if customLabels == nil {
+			stored, err := node.GetCustomLabels()
+			if err != nil {
+				return nil, err
+			}
+			if _, ok := stored[nodeEnvironmentLabel]; ok {
+				customLabels = withoutLabel(stored, nodeEnvironmentLabel)
+			}
+		} else {
+			customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+		}
+
+	case node.Environment != "":
+		if _, ok := customLabels[nodeEnvironmentLabel]; ok {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"Node %s has an environment, so it can't also have an %q custom label; change the environment instead.",
+				node.NodeName, nodeEnvironmentLabel)
+		}
+	}
+
+	if customLabels != nil {
+		err = node.SetCustomLabels(customLabels)
+		if err != nil {
+			return nil, err
+		}
+		columns = append(columns, "custom_labels")
+	}
+
+	// to avoid "reform: nothing to update" error
+	if len(columns) == 0 {
+		return node, nil
+	}
+
+	err = q.UpdateColumns(node, append(columns, "updated_at")...)
+	if err != nil {
+		return nil, err
+	}
+
+	return node, nil
 }
 
 // RemoveNode removes single Node.

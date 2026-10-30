@@ -27,6 +27,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	commonv1 "github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -392,6 +393,101 @@ func TestNodes(t *testing.T) {
 		warning, err := ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 		assert.Empty(t, warning)
+	})
+
+	t.Run("Change", func(t *testing.T) {
+		_, as, ns, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{
+					NodeName:     "test-bm",
+					NodeModel:    "m5",
+					CustomLabels: map[string]string{"team": "db"},
+				},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000006").Return(true)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{RunsOnNodeId: nodeID})
+		require.NoError(t, err)
+		pmmAgentID := pmmAgent.GetPmmAgent().AgentId
+
+		// The labels are on the metrics of the Node: the scrape configuration and the pmm-agent on the
+		// Node have to pick the change up.
+		vmdb.On("RequestConfigurationUpdate").Once().Return()
+		ns.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgentID).Once().Return()
+		node, err := ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{
+			NodeId:       nodeID,
+			Environment:  new("prod"),
+			CustomLabels: &commonv1.StringMap{Values: map[string]string{"tier": "1"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &inventoryv1.GenericNode{
+			NodeId:       nodeID,
+			NodeName:     "test-bm",
+			NodeModel:    "m5",
+			CustomLabels: map[string]string{"tier": "1"},
+			Environment:  "prod",
+		}, node)
+
+		// An empty map removes the custom labels, and the fields left out keep their values.
+		vmdb.On("RequestConfigurationUpdate").Once().Return()
+		ns.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgentID).Once().Return()
+		node, err = ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{
+			NodeId:       nodeID,
+			CustomLabels: &commonv1.StringMap{},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &inventoryv1.GenericNode{
+			NodeId:      nodeID,
+			NodeName:    "test-bm",
+			NodeModel:   "m5",
+			Environment: "prod",
+		}, node)
+	})
+
+	t.Run("ChangeNotFound", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		node, err := ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{NodeId: "no-such-node", Environment: new("prod")})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-node" not found.`), err)
+		assert.Nil(t, node)
+	})
+
+	t.Run("ChangeDryRun", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// A dry run returns the Node as it would be, and neither stores it nor asks anybody to pick it up:
+		// no expectations are set on the scrape configuration or the pmm-agents.
+		node, err := ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{NodeId: nodeID, Environment: new("prod"), DryRun: true})
+		require.NoError(t, err)
+		assert.Equal(t, "prod", node.(*inventoryv1.GenericNode).Environment)
+
+		stored, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		require.NoError(t, err)
+		assert.Empty(t, stored.(*inventoryv1.GenericNode).Environment)
+
+		// A dry run still validates the change.
+		_, err = ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{
+			NodeId:       nodeID,
+			CustomLabels: &commonv1.StringMap{Values: map[string]string{"__name__": "x"}},
+			DryRun:       true,
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "__name__".`), err)
 	})
 }
 
