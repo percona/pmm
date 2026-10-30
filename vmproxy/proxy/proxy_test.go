@@ -398,6 +398,63 @@ func TestProxy(t *testing.T) {
 		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 
+	// Grafana's /resources/ route forwards a user's POST body to any path, but always with a form
+	// Content-Type and the user's X-Grafana-Id, which tells it apart from a recording rule's write.
+	t.Run("shall forward only Grafana's recording-rule writes", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			name        string
+			method      string
+			path        string
+			contentType string
+			grafanaID   string
+			proxied     bool
+		}{
+			{name: "recording rule", method: http.MethodPost, path: "/api/v1/push", contentType: "application/x-protobuf", proxied: true},
+			{name: "user through resources", method: http.MethodPost, path: "/api/v1/push", contentType: "application/x-www-form-urlencoded", grafanaID: "token"},
+			{name: "user with a protobuf content type", method: http.MethodPost, path: "/api/v1/push", contentType: "application/x-protobuf", grafanaID: "token"},
+			{name: "form body without a user", method: http.MethodPost, path: "/api/v1/push", contentType: "application/x-www-form-urlencoded"},
+			{name: "not a POST", method: http.MethodGet, path: "/api/v1/push", contentType: "application/x-protobuf"},
+			{name: "another write path", method: http.MethodPost, path: "/api/v1/write", contentType: "application/x-protobuf"},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				proxied := false
+				server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+					proxied = true
+				}))
+				t.Cleanup(server.Close)
+
+				uri, err := url.Parse(server.URL)
+				require.NoError(t, err)
+
+				rec := httptest.NewRecorder()
+				req := httptest.NewRequestWithContext(t.Context(), tc.method, "http://127.0.0.1"+tc.path, nil)
+				req.Header.Set("Content-Type", tc.contentType)
+				if tc.grafanaID != "" {
+					req.Header.Set("X-Grafana-Id", tc.grafanaID)
+				}
+
+				getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+				resp := rec.Result()
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
+
+				if tc.proxied {
+					assert.Equal(t, http.StatusOK, resp.StatusCode)
+					assert.True(t, proxied, "a recording rule's write must reach VictoriaMetrics")
+				} else {
+					assert.Equal(t, http.StatusForbidden, resp.StatusCode)
+					assert.False(t, proxied, "refused request must not reach VictoriaMetrics")
+				}
+			})
+		}
+	})
+
 	// A percent-encoded separator reaches the handler decoded in req.URL.Path, so deriving
 	// the upstream path from it a second time reads the '#' or '?' as a delimiter and drops
 	// everything after it: /metrics%23/../api/v1/query passes the allow-list as
