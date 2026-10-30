@@ -2,7 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BlockingTransaction, LockType } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import BlockedByPanel from './BlockedByPanel';
+import { Messages } from './BlockedByPanel.messages';
 
 // 409 sits idle in an open transaction and heads the chain; 412 is queued and waiting itself.
 const IDLE_ROOT: BlockingTransaction = {
@@ -30,7 +32,8 @@ const renderPanel = (
   lockedTable = 'sbtest.sbtest1',
   lockedIndex = 'PRIMARY',
   lockType: LockType | undefined = LockType.row,
-  requestedLockMode: string | undefined = 'X,REC_NOT_GAP'
+  requestedLockMode: string | undefined = 'X,REC_NOT_GAP',
+  technology: ServiceType | undefined = ServiceType.mysql
 ) =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
@@ -40,9 +43,28 @@ const renderPanel = (
         lockedIndex={lockedIndex}
         lockType={lockType}
         requestedLockMode={requestedLockMode}
+        technology={technology}
       />
     </ThemeProvider>
   );
+
+// As QueryAndDetails renders a PostgreSQL row: lock facts come from the MySQL payload only.
+const renderPostgreSQLPanel = (blockers: BlockingTransaction[]) =>
+  render(
+    <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
+      <BlockedByPanel blockers={blockers} technology={ServiceType.posgresql} />
+    </ThemeProvider>
+  );
+
+const PG_IDLE_ROOT: BlockingTransaction = {
+  blockingConnId: '4472',
+  blockingQuery: 'UPDATE rta_t SET v = v + 1 WHERE id = 1;',
+  blockingCommand: 'idle in transaction',
+  blockingUsername: 'app',
+  waitDuration: '134s',
+  blockerTransactionDuration: '154s',
+  root: true,
+};
 
 // SHARED_READ heads the chain; the DDL wanting EXCLUSIVE is queued behind it, blocking the rest.
 const MDL_ROOT: BlockingTransaction = {
@@ -366,6 +388,51 @@ describe('BlockedByPanel', () => {
     expect(
       screen.queryByTestId('blocker-query-truncated')
     ).not.toBeInTheDocument();
+  });
+
+  it('treats a PostgreSQL session idle in transaction as idle', () => {
+    renderPostgreSQLPanel([PG_IDLE_ROOT]);
+
+    expect(screen.getByText(Messages.idleNote)).toBeInTheDocument();
+    expect(screen.getByText('idle in transaction 2m 34s')).toBeInTheDocument();
+    expect(screen.getByText(Messages.resolveHint('4472'))).toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.titles.lockType)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.titles.lockedTable)
+    ).not.toBeInTheDocument();
+  });
+
+  it('treats an idle PostgreSQL session outside a transaction as idle', () => {
+    // A session-level advisory lock outlives the statement and has no transaction.
+    renderPostgreSQLPanel([
+      {
+        ...PG_IDLE_ROOT,
+        blockingCommand: 'idle',
+        blockingQuery: 'SELECT pg_advisory_lock(42);',
+        blockerTransactionDuration: undefined,
+      },
+    ]);
+
+    expect(
+      screen.getByText(Messages.idleNoteNoTransaction)
+    ).toBeInTheDocument();
+    expect(screen.getByText('idle')).toBeInTheDocument();
+    expect(
+      screen.getByText(Messages.resolveHintSessionLock('4472'))
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.resolveHint('4472'))
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not suggest a MySQL consumer for a PostgreSQL blocker without a statement', () => {
+    renderPostgreSQLPanel([{ ...PG_IDLE_ROOT, blockingQuery: '' }]);
+
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      Messages.noStatement
+    );
   });
 
   it('says an idle blocker has no current statement instead of leaving it blank', () => {

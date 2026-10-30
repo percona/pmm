@@ -40,8 +40,12 @@ func TestIsRTASupported(t *testing.T) {
 	assert.True(t, models.IsRTASupported("3.10.0", models.MySQLServiceType))
 	assert.True(t, models.IsRTASupported("3.10.1", models.MySQLServiceType))
 
+	// 3.10.0 was released without the PostgreSQL collector.
+	assert.False(t, models.IsRTASupported("3.9.1", models.PostgreSQLServiceType))
+	assert.False(t, models.IsRTASupported("3.10.0", models.PostgreSQLServiceType))
+	assert.True(t, models.IsRTASupported("3.10.1", models.PostgreSQLServiceType))
+
 	assert.False(t, models.IsRTASupported("3.9.0", models.ValkeyServiceType))
-	assert.False(t, models.IsRTASupported("3.9.0", models.PostgreSQLServiceType))
 
 	assert.False(t, models.IsRTASupported("not-a-version", models.MySQLServiceType))
 }
@@ -57,6 +61,10 @@ func TestRTANotSupportedError(t *testing.T) {
 	err = models.RTANotSupportedError("mongo-1", "svc-2", "", models.MongoDBServiceType)
 	assert.Equal(t, "Service mongo-1 (id svc-2) has pmm-agent with version unknown not supporting Real-Time Analytics; "+
 		"pmm-agent 3.7.0 or later is required.", status.Convert(err).Message())
+
+	err = models.RTANotSupportedError("pg-1", "svc-4", "3.10.0", models.PostgreSQLServiceType)
+	assert.Equal(t, "Service pg-1 (id svc-4) has pmm-agent with version 3.10.0 not supporting Real-Time Analytics; "+
+		"pmm-agent 3.10.1 or later is required.", status.Convert(err).Message())
 
 	err = models.RTANotSupportedError("valkey-1", "svc-3", "3.10.0", models.ValkeyServiceType)
 	assert.Equal(t, "Service valkey-1 (id svc-3) of type valkey does not support Real-Time Analytics.", status.Convert(err).Message())

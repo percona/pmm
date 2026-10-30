@@ -8,6 +8,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Chip, CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
 import { BlockingTransaction, LockType } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { formatDurationSeconds, parseDuration } from 'utils/duration.utils';
 import {
   blockingRoots,
@@ -24,6 +25,7 @@ export interface Props {
   lockedIndex?: string;
   lockType?: LockType;
   requestedLockMode?: string;
+  technology?: ServiceType;
 }
 
 // Unknown lock types render no row rather than "Lock type: —".
@@ -39,7 +41,19 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
 };
 
 // An idle connection's statement is its last one, not necessarily the one that took the lock.
+// MySQL reports one as "Sleep", PostgreSQL as "idle" or "idle in transaction".
 const IDLE_COMMAND = 'Sleep';
+const isIdleCommand = (command: string) =>
+  command === IDLE_COMMAND ||
+  command === 'idle' ||
+  command.startsWith('idle in transaction');
+
+// LOCK TABLE and row locks need a transaction, so a PostgreSQL session idle outside one can only
+// be holding a session-level lock, such as one from pg_advisory_lock().
+const holdsSessionLock = (
+  blocker: BlockingTransaction,
+  technology?: ServiceType
+) => technology === ServiceType.posgresql && blocker.blockingCommand === 'idle';
 
 const durationText = (duration?: string | null): string =>
   duration ? formatDurationSeconds(parseDuration(duration) / 1000) : '';
@@ -119,6 +133,7 @@ const BlockedByPanel: FC<Props> = ({
   lockedIndex,
   lockType,
   requestedLockMode,
+  technology,
 }) => {
   // Shared helpers, so this pane, the table chip and the CSV name the same transaction.
   const roots = blockingRoots(blockers);
@@ -158,7 +173,7 @@ const BlockedByPanel: FC<Props> = ({
     );
   }
 
-  const isIdle = primary.blockingCommand === IDLE_COMMAND;
+  const isIdle = isIdleCommand(primary.blockingCommand);
   const blockerAge = durationText(primary.blockerTransactionDuration);
   const waitText = durationText(primary.waitDuration);
 
@@ -215,7 +230,7 @@ const BlockedByPanel: FC<Props> = ({
               color="text.secondary"
               data-testid="blocker-query-unavailable"
             >
-              {isIdle
+              {isIdle && technology === ServiceType.mysql
                 ? blockerAge
                   ? Messages.noStatementIdleInTransaction
                   : Messages.noStatementIdle
@@ -230,7 +245,10 @@ const BlockedByPanel: FC<Props> = ({
                 {Messages.blockerStatement}
               </Typography>
               {primary.blockingQueryTruncated && (
-                <TruncatedChip dataTestId="blocker-query-truncated" />
+                <TruncatedChip
+                  dataTestId="blocker-query-truncated"
+                  technology={technology}
+                />
               )}
             </Stack>
             <CodeBlock
@@ -257,7 +275,10 @@ const BlockedByPanel: FC<Props> = ({
             title={Messages.titles.blockerState}
             value={
               isIdle && blockerAge
-                ? Messages.idleInTransaction(blockerAge)
+                ? Messages.idleInTransaction(
+                    primary.blockingCommand,
+                    blockerAge
+                  )
                 : primary.blockingCommand
             }
           />
@@ -311,7 +332,9 @@ const BlockedByPanel: FC<Props> = ({
               ? Messages.resolveHintWaiting(sole.blockingConnId)
               : lockType === LockType.metadata
                 ? Messages.resolveHintMetadata(sole.blockingConnId)
-                : Messages.resolveHint(sole.blockingConnId)
+                : holdsSessionLock(sole, technology)
+                  ? Messages.resolveHintSessionLock(sole.blockingConnId)
+                  : Messages.resolveHint(sole.blockingConnId)
             : roots.length > 1
               ? Messages.resolveHintRoots(culpritCount, queuedAhead.length)
               : Messages.resolveHintAllWaiting(culpritCount)}
