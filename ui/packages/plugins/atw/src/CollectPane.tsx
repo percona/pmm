@@ -44,6 +44,7 @@ import {
   useAtwMergedSchema,
   useAtwSnippetSearch,
 } from './hooks';
+import { scriptLabel, scriptLabels } from './scriptLabels';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -265,47 +266,44 @@ export interface BatchItemError {
   message: string;
 }
 
-/**
- * Display name for a script in a list that prefers titles.
- *
- * Titles are not unique by contract. When more than one entry in `peers` shares
- * this title, the filename is appended so the reader can tell them apart.
- */
-export function scriptListLabel(
-  title: string | undefined,
-  filename: string,
-  peers: readonly { title: string }[]
-): string {
-  const trimmed = title?.trim();
-  if (!trimmed) {
-    return filename;
-  }
-  const ambiguous =
-    peers.filter((peer) => peer.title.trim() === trimmed).length > 1;
-  return ambiguous ? `${trimmed} (${filename})` : trimmed;
+/** Display names of `snippets`, keyed by filename (see `scriptLabels`). */
+function snippetLabels(
+  snippets: readonly AtwSnippetSummary[]
+): Map<string, string> {
+  return scriptLabels(
+    snippets.map((snippet) => ({
+      title: snippet.title,
+      filename: snippet.name,
+    }))
+  );
 }
 
 /**
- * Caption under a picker option: description when it is enough, otherwise the
- * filename when titles (and descriptions) do not distinguish the row.
+ * Caption under a picker option: its filename when only that explains the hit
+ * or tells `sameTitle` twins apart, otherwise its description.
  */
 export function scriptOptionCaption(
   option: AtwSnippetSummary,
-  options: readonly AtwSnippetSummary[]
+  sameTitle: readonly AtwSnippetSummary[],
+  term: string
 ): string | undefined {
-  const sameTitle = options.filter((peer) => peer.title === option.title);
-  if (sameTitle.length > 1) {
-    const descriptions = new Set(
-      sameTitle.map((peer) => peer.description.trim())
-    );
-    const descriptionsDistinguish =
-      descriptions.size === sameTitle.length &&
-      ![...descriptions].some((text) => text === '');
-    if (!descriptionsDistinguish) {
-      return option.name;
-    }
+  const description = option.description.trim();
+  const needle = term.trim().toLowerCase();
+  const matchedOnlyFilename =
+    needle !== '' &&
+    option.name.toLowerCase().includes(needle) &&
+    !option.title.toLowerCase().includes(needle) &&
+    !description.toLowerCase().includes(needle);
+  const descriptions = new Set(
+    sameTitle.map((peer) => peer.description.trim())
+  );
+  const twinsLookAlike =
+    sameTitle.length > 1 &&
+    (descriptions.size < sameTitle.length || descriptions.has(''));
+  if (matchedOnlyFilename || twinsLookAlike) {
+    return option.name;
   }
-  return option.description.trim() || undefined;
+  return description || undefined;
 }
 
 /** Summarise the batch response's per-item errors for a banner, by script title. */
@@ -313,19 +311,13 @@ export function batchItemErrors(
   response: AtwBatchExecuteResponse,
   snippets: AtwSnippetSummary[]
 ): BatchItemError[] {
-  const titles = new Map(
-    snippets.map((snippet) => [snippet.name, snippet.title])
-  );
+  const labels = snippetLabels(snippets);
   return response.items
     .filter((item) => item.error !== null && item.error !== undefined)
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      const name = scriptListLabel(
-        titles.get(item.snippet_filename),
-        item.snippet_filename,
-        snippets
-      );
+      const name = labels.get(item.snippet_filename) ?? item.snippet_filename;
       return {
         key: item.snippet_filename,
         message: `${name}: ${detail}`,
@@ -544,8 +536,10 @@ export function CollectPane({
     ) {
       return;
     }
-    const failedName =
-      rerunRequest.snippetTitle || rerunRequest.snippetFilename;
+    const failedName = scriptLabel(
+      rerunRequest.snippetTitle,
+      rerunRequest.snippetFilename
+    );
     if (rerunResolveQuery.isError) {
       setResolvingRerunNonce(null);
       setRerunResolveTerm(null);
@@ -578,6 +572,21 @@ export function CollectPane({
     () => mergeSnippetOptions(selected, available, searchResults),
     [available, selected, searchResults]
   );
+
+  // Grouped once per option list: every rendered row looks up its same-titled
+  // twins for its caption, on every keystroke.
+  const optionsByTitle = useMemo(() => {
+    const groups = new Map<string, AtwSnippetSummary[]>();
+    for (const option of options) {
+      const title = option.title.trim();
+      groups.set(title, [...(groups.get(title) ?? []), option]);
+    }
+    return groups;
+  }, [options]);
+
+  // Titles are not unique by contract, so every place naming a selected script
+  // uses these, which carry the filename when two selected titles collide.
+  const selectedLabels = useMemo(() => snippetLabels(selected), [selected]);
 
   // Whether the page currently in hand was fetched for the term now in the box.
   // `isPlaceholderData` is the precise signal: under `keepPreviousData` it is set
@@ -635,7 +644,7 @@ export function CollectPane({
         return;
       }
       result.push({
-        title: snippet.title,
+        title: selectedLabels.get(snippet.name) ?? snippet.title,
         description: snippet.description || undefined,
         collapsible: true,
         // Closed unless the reader has to type something: a batch of two
@@ -649,7 +658,7 @@ export function CollectPane({
       });
     });
     return result;
-  }, [schemaQuery.data, selected]);
+  }, [schemaQuery.data, selected, selectedLabels]);
 
   // Namespacing per-snippet fields does not rewrite their gate predicates, so a
   // gated field would stop gating once namespaced. Detect any such snippet and
@@ -667,8 +676,8 @@ export function CollectPane({
         );
         return (entry?.fields ?? []).some(fieldDeclaresGate);
       })
-      .map((snippet) => snippet.title);
-  }, [schemaQuery.data, selected]);
+      .map((snippet) => selectedLabels.get(snippet.name) ?? snippet.title);
+  }, [schemaQuery.data, selected, selectedLabels]);
 
   const renderField = useCallback<RenderFieldOverride>(
     ({ field, renderDefault }) =>
@@ -678,11 +687,14 @@ export function CollectPane({
           <HostElevationWarning
             name="executor_host"
             sudoName="sudo"
-            snippets={selected}
+            snippets={selected.map((snippet) => ({
+              ...snippet,
+              title: selectedLabels.get(snippet.name) ?? snippet.title,
+            }))}
           />
         </>
       ) : null,
-    [selected]
+    [selected, selectedLabels]
   );
 
   const handleSubmit = (values: Record<string, unknown>) => {
@@ -796,18 +808,25 @@ export function CollectPane({
             ? 'Type to search every diagnostic script, or filter by category below.'
             : 'No approved script matches this search.'
         }
-        getOptionLabel={(option) => option.title}
+        // Names the chips, so two selected scripts sharing a title stay distinct.
+        getOptionLabel={(option) =>
+          selectedLabels.get(option.name) ??
+          scriptLabel(option.title, option.name)
+        }
         // Without this MUI keys each row on the label, and titles are not unique
         // by contract — two snippets sharing one would collide on re-render.
         getOptionKey={(option) => option.name}
         isOptionEqualToValue={(option, value) => option.name === value.name}
-        renderOption={(props, option) => {
+        renderOption={(props, option, { inputValue }) => {
           const { key, ...liProps } = props as typeof props & { key: string };
-          const caption = scriptOptionCaption(option, options);
+          const caption = scriptOptionCaption(
+            option,
+            optionsByTitle.get(option.title.trim()) ?? [option],
+            inputValue
+          );
           return (
-            // The server matches the description too, so a hit can look
-            // unrelated to the typed term. Filename appears only when titles
-            // (and descriptions) would leave two options looking the same.
+            // The server matches filename and description too, so a hit can
+            // look unrelated to the typed term without its caption.
             <Box component="li" key={key} {...liProps}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="body2">{option.title}</Typography>
@@ -875,9 +894,9 @@ export function CollectPane({
 
       {gatedSnippetTitles.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          These scripts use conditional (required/forbidden) fields, which are
-          not evaluated when several scripts run together — review their inputs
-          before running: {gatedSnippetTitles.join(', ')}.
+          These scripts use conditional (required/forbidden) fields, which this
+          form does not evaluate — review their inputs before running:{' '}
+          {gatedSnippetTitles.join(', ')}.
         </Alert>
       )}
 

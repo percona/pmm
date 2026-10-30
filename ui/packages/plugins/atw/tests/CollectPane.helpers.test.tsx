@@ -26,7 +26,6 @@ import {
   mergeSnippetOptions,
   namespaceField,
   omitCliUsageTrapFields,
-  scriptListLabel,
   scriptOptionCaption,
   snippetMatchesTerm,
 } from '../src/CollectPane';
@@ -74,26 +73,6 @@ describe('batchItemErrors', () => {
   });
 });
 
-describe('scriptListLabel', () => {
-  it('uses the title alone when it is unique among peers', () => {
-    expect(
-      scriptListLabel('Summary', 'a.sh', [
-        { title: 'Summary' },
-        { title: 'Other' },
-      ])
-    ).toBe('Summary');
-  });
-
-  it('appends the filename when the title is shared', () => {
-    expect(
-      scriptListLabel('Summary', 'a.sh', [
-        { title: 'Summary' },
-        { title: 'Summary' },
-      ])
-    ).toBe('Summary (a.sh)');
-  });
-});
-
 describe('scriptOptionCaption', () => {
   const a: AtwSnippetSummary = {
     name: 'ops/a.sh',
@@ -107,11 +86,20 @@ describe('scriptOptionCaption', () => {
   };
 
   it('prefers the description when titles are unique', () => {
-    expect(scriptOptionCaption(a, [a])).toBe('Toolkit summary.');
+    expect(scriptOptionCaption(a, [a], '')).toBe('Toolkit summary.');
   });
 
   it('keeps distinct descriptions when titles collide', () => {
-    expect(scriptOptionCaption(a, [a, b])).toBe('Toolkit summary.');
+    expect(scriptOptionCaption(a, [a, b], '')).toBe('Toolkit summary.');
+  });
+
+  it('shows the filename when only the filename matched the term', () => {
+    expect(scriptOptionCaption(a, [a], 'OPS/')).toBe('ops/a.sh');
+  });
+
+  it('keeps the description when the title or description matched too', () => {
+    expect(scriptOptionCaption(a, [a], 'summary')).toBe('Toolkit summary.');
+    expect(scriptOptionCaption(a, [a], 'toolkit')).toBe('Toolkit summary.');
   });
 
   it('falls back to the filename when titles collide and descriptions do not help', () => {
@@ -125,7 +113,7 @@ describe('scriptOptionCaption', () => {
       title: 'Summary',
       description: '',
     };
-    expect(scriptOptionCaption(empty, [empty, twin])).toBe('ops/a.sh');
+    expect(scriptOptionCaption(empty, [empty, twin], '')).toBe('ops/a.sh');
   });
 });
 

@@ -290,6 +290,79 @@ describe('CollectPane snippet search', () => {
     ]);
   });
 
+  it('treats titles that differ only by surrounding whitespace as the same', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary ', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('summary');
+
+    const options = await screen.findAllByRole(
+      'option',
+      { name: /Summary/ },
+      { timeout: 3000 }
+    );
+    expect(options.map((option) => option.textContent)).toEqual([
+      expect.stringContaining('ops/pt-summary.sh'),
+      expect.stringContaining('diag/summary.sh'),
+    ]);
+  });
+
+  it('shows the filename of a hit that matched on its filename alone', async () => {
+    mockApis({ items: [SEARCH_ROW] });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('ops/pt');
+
+    const option = await screen.findByRole(
+      'option',
+      { name: /PT Summary/ },
+      { timeout: 3000 }
+    );
+    expect(option).toHaveTextContent(SEARCH_ROW.name);
+    expect(option).not.toHaveTextContent(SEARCH_ROW.description);
+  });
+
+  it('names two selected same-titled scripts by their filenames', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    const input = await typeSearch('summary');
+    for (const filename of ['ops/pt-summary.sh', 'diag/summary.sh']) {
+      const options = await screen.findAllByRole(
+        'option',
+        { name: /Summary/ },
+        { timeout: 3000 }
+      );
+      const option = options.find((candidate) =>
+        candidate.textContent?.includes(filename)
+      );
+      await userEvent.click(option as HTMLElement);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'summary');
+    }
+    await userEvent.keyboard('{Escape}');
+
+    const picker = input.closest('.MuiAutocomplete-root') as HTMLElement;
+    await waitFor(() => {
+      expect(
+        within(picker).getByText('Summary (ops/pt-summary.sh)')
+      ).toBeInTheDocument();
+    });
+    expect(
+      within(picker).getByText('Summary (diag/summary.sh)')
+    ).toBeInTheDocument();
+  });
+
   it('drops the previous term’s hits while the next search is in flight', async () => {
     // The second term never resolves, so the query is still fetching and holds
     // the first term's page as placeholder data throughout the assertion.

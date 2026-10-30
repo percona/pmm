@@ -21,6 +21,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -679,11 +680,11 @@ describe('ResultsPane diagnostics send', () => {
     ).toBeNull();
   });
 
-  it('keeps an off-page re-send title from the send log when the page has none', async () => {
+  it('names a re-sent execution by the loaded page’s title, since the send log records only the file', async () => {
     routeGet({
       executions: {
-        items: [FINISHED_EXECUTION],
-        total: 40,
+        items: [{ ...FINISHED_EXECUTION, snippet_title: 'Slow Query' }],
+        total: 1,
         offset: 0,
         limit: 20,
       },
@@ -693,8 +694,9 @@ describe('ResultsPane diagnostics send', () => {
             error: 'boom',
             executions: [
               {
-                ...OFF_PAGE_EXECUTION,
-                snippet_title: 'Off-page Summary',
+                id: FINISHED_EXECUTION.id,
+                task_history_id: FINISHED_EXECUTION.task_history_id,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
               },
             ],
           }),
@@ -712,10 +714,9 @@ describe('ResultsPane diagnostics send', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
 
-    await waitFor(() => {
-      expect(screen.getByText('Off-page Summary')).toBeTruthy();
-    });
-    expect(screen.queryByText('diag/off-page.sh')).toBeNull();
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Slow Query')).toBeTruthy();
+    expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
   });
 
   it('flags a send history it could not load', async () => {
@@ -1115,7 +1116,7 @@ describe('ResultsPane send-unavailable notice', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending to a support case needs a connection/i)
+      screen.getByText(/Sending to a support case needs a valid connection/i)
     ).toBeTruthy();
     expect(
       screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')
@@ -1796,6 +1797,41 @@ describe('ResultsPane execution rows', () => {
     await waitFor(() => {
       expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
     });
+  });
+
+  it('appends the filename to rows whose different scripts share a title', async () => {
+    routeGet({
+      executions: {
+        items: [
+          NAMED_EXECUTION,
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-named-again',
+            task_history_id: 32,
+          },
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-twin',
+            snippet_filename: 'ops/mysql-summary.sh',
+            task_history_id: 33,
+          },
+        ],
+        total: 3,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByText('MySQL Summary (pt-mysql-summary.sh)')
+      ).toHaveLength(2);
+    });
+    expect(
+      screen.getByText('MySQL Summary (ops/mysql-summary.sh)')
+    ).toBeTruthy();
   });
 
   it('counts up while a run is still going', async () => {

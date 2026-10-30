@@ -180,7 +180,7 @@ export interface AtwSendLogExecution {
   id: string;
   task_history_id: number;
   snippet_filename: string;
-  /** Display title; a recorded send log carries only the filename. */
+  /** Display title, filled in from the execution list: a recorded send log never carries it. */
   snippet_title?: string | null;
 }
 

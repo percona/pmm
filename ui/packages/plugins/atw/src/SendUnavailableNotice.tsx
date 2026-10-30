@@ -41,7 +41,7 @@ export function SendUnavailableNotice() {
         ) : undefined
       }
     >
-      Sending to a support case needs a connection to Percona Support.
+      Sending to a support case needs a valid connection to Percona Support.
     </Alert>
   );
 }
