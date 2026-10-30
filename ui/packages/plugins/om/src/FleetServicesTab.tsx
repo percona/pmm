@@ -20,6 +20,7 @@ import {
   Box,
   Chip,
   LinearProgress,
+  Link,
   Stack,
   Tooltip,
   Typography,
@@ -34,7 +35,11 @@ import {
   type MRT_ColumnDef,
   type MRT_Row,
 } from 'material-react-table';
-import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
+import {
+  FLEET_NOT_COLLECTED,
+  OPERATIONS_DOC_URL,
+  PROCESS_ROLE_LABEL,
+} from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
@@ -46,9 +51,11 @@ import { serviceStatusRank, toServiceRows } from './topology';
 import { useOmInventoryServices } from './inventoryHooks';
 import {
   ageSeconds,
+  describeServiceScanFailure,
   isFailing,
   joinServiceInventory,
   missingRowReason,
+  notRunningScanAt,
   type OmEstateStatus,
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
@@ -214,6 +221,7 @@ function useColumns(
           <StatusBadge
             status={original.status}
             lastUpAt={original.last_up_at}
+            notRunningAt={notRunningScanAt(original.inventory)}
           />
         ),
       },
@@ -282,10 +290,32 @@ function useColumns(
             return <Unavailable reason={missingRowReason(estate)} />;
           }
           const collected = original.inventory.freshness.last_success_at;
-          return ageSeconds(collected) == null ? (
-            <Unavailable reason="probe_never_succeeded" />
-          ) : (
-            <Age value={collected} />
+          const never = ageSeconds(collected) == null;
+          // The failure goes here, under the age it makes stale, rather than in a
+          // column of its own: the default columns already fill the table
+          // (PMM-15712), and a last success read without it looks healthy.
+          const failure = describeServiceScanFailure(
+            original.inventory.freshness
+          );
+          if (!failure) {
+            return never ? (
+              <Unavailable reason="probe_never_succeeded" />
+            ) : (
+              <Age value={collected} />
+            );
+          }
+          return (
+            <Stack spacing={0.25} data-testid="om-scan-failure-reason">
+              <Box
+                component="span"
+                sx={{ color: 'error.main', whiteSpace: 'normal' }}
+              >
+                {failure.shortReason}
+              </Box>
+              <Typography variant="caption" color="text.secondary">
+                {never ? 'never collected' : <Age value={collected} />}
+              </Typography>
+            </Stack>
           );
         },
       },
@@ -464,14 +494,14 @@ const Counts = ({
  */
 const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
   const since = ageSeconds(inventory.freshness.failing_since);
-  if (since == null) {
+  const failure = describeServiceScanFailure(inventory.freshness);
+  if (since == null || !failure) {
     return <>{inventory.probe_status ?? 'ok'}</>;
   }
   return (
     <Tooltip
       title={
-        inventory.freshness.last_error ??
-        'The last scan of this service failed.'
+        failure.error ? `${failure.label}: ${failure.error}` : failure.label
       }
     >
       <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
@@ -737,7 +767,10 @@ export const FleetServicesTab = () => {
           The same fleet as the Clusters tab, one row per MongoDB service.{' '}
           {data.snapshot.generated_at
             ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
-            : FLEET_NOT_COLLECTED}
+            : FLEET_NOT_COLLECTED}{' '}
+          <Link href={OPERATIONS_DOC_URL} target="_blank" rel="noopener">
+            Read about Operations for MongoDB
+          </Link>
         </EmptyState>
       )}
       <ServiceDetailDrawer

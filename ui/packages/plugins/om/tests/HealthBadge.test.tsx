@@ -57,6 +57,32 @@ describe('StatusBadge', () => {
     );
   });
 
+  it('says a down service is not running, with the scan time on hover', () => {
+    render(
+      <StatusBadge
+        status="SERVICE_STATUS_DOWN"
+        lastUpAt={hoursAgo(5)}
+        notRunningAt={hoursAgo(1)}
+      />
+    );
+
+    const caption = screen.getByTestId('om-not-running');
+    expect(caption).toHaveTextContent('not running');
+    expect(caption).toHaveAttribute(
+      'title',
+      expect.stringMatching(/last scanned, 1h( \d+s)? ago .*Last seen up /)
+    );
+    expect(screen.queryByTestId('om-down-for')).toBeNull();
+  });
+
+  it('ignores the scan reading on a service that is up', () => {
+    render(
+      <StatusBadge status="SERVICE_STATUS_UP" notRunningAt={hoursAgo(1)} />
+    );
+
+    expect(screen.queryByTestId('om-not-running')).toBeNull();
+  });
+
   it('says nothing about time for a service that is up', () => {
     render(<StatusBadge status="SERVICE_STATUS_UP" lastUpAt={hoursAgo(3)} />);
 

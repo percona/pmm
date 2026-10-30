@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
+
 ## ✅ Fixed issues
 
 - [PMM-15787](https://perconadev.atlassian.net/browse/PMM-15787): Fixed an issue where a PMM High Availability (HA) cluster could stay without a leader for several minutes with two of its three nodes running, after it lost one node and then the leader. A node that fails now keeps its vote, so any two running nodes elect a leader. The `/v1/ha/nodes` endpoint now lists a node that is down with the status `dead` instead of leaving it out. For details, see [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md).

@@ -33,7 +33,7 @@ import {
   SERVICE_STATUS_LABEL,
 } from '../constants';
 import { isRunActive } from '../api';
-import { formatCompactDuration } from '../format';
+import { formatAge, formatCompactDuration } from '../format';
 import { ageSeconds } from '../inventory';
 import type {
   OmClusterHealth,
@@ -69,10 +69,16 @@ const CLUSTER_HEALTH_ICON: Record<OmClusterHealth, ReactElement> = {
 export const StatusBadge = ({
   status,
   lastUpAt,
+  notRunningAt,
 }: {
   status: OmServiceStatus;
   /** The service's `last_up_at`, read only when it is down. */
   lastUpAt?: string | null;
+  /**
+   * When the last scan found no mongod running, from `notRunningScanAt`. Read only
+   * when it is down, where it says which kind of down this is.
+   */
+  notRunningAt?: string | null;
 }) => {
   // A value this build does not know reads as unknown throughout, so the icon, the
   // word and the colour cannot disagree.
@@ -94,8 +100,62 @@ export const StatusBadge = ({
   return (
     <Stack direction="row" alignItems="center" gap={0.75}>
       {chip}
-      <DownFor lastUpAt={lastUpAt} />
+      {notRunningAt ? (
+        <NotRunning scannedAt={notRunningAt} lastUpAt={lastUpAt} />
+      ) : (
+        <DownFor lastUpAt={lastUpAt} />
+      )}
     </Stack>
+  );
+};
+
+/** Shared by the two captions beside a Down chip, so both focus the same way. */
+const CAPTION_SX = {
+  '&:focus-visible': {
+    outline: '2px solid',
+    outlineColor: 'primary.main',
+    outlineOffset: 2,
+    borderRadius: 0.5,
+  },
+} as const;
+
+/**
+ * A down service whose node a scan reached and found no mongod on: stopped, rather
+ * than running and unreachable. The scan's time is in the tooltip, since the row has
+ * no room for it beside the chip, and so is how long PMM has seen it down.
+ */
+const NotRunning = ({
+  scannedAt,
+  lastUpAt,
+}: {
+  scannedAt: string;
+  lastUpAt?: string | null;
+}) => {
+  const scanned = ageSeconds(scannedAt);
+  const down = ageSeconds(lastUpAt);
+  const title = [
+    `No mongod or mongos was running when this service was last scanned${
+      scanned == null
+        ? '.'
+        : `, ${formatAge(scannedAt)} (${formatTimestamp(scannedAt)?.title}).`
+    }`,
+    down == null
+      ? `No metric shows it up in the last ${METRICS_LOOKBACK}.`
+      : `Last seen up ${formatTimestamp(lastUpAt)?.title}.`,
+  ].join(' ');
+  return (
+    <Tooltip title={title} describeChild>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        noWrap
+        data-testid="om-not-running"
+        tabIndex={0}
+        sx={CAPTION_SX}
+      >
+        not running
+      </Typography>
+    </Tooltip>
   );
 };
 
@@ -123,14 +183,7 @@ const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
         noWrap
         data-testid="om-down-for"
         tabIndex={0}
-        sx={{
-          '&:focus-visible': {
-            outline: '2px solid',
-            outlineColor: 'primary.main',
-            outlineOffset: 2,
-            borderRadius: 0.5,
-          },
-        }}
+        sx={CAPTION_SX}
       >
         {text}
       </Typography>
