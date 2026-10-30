@@ -28,7 +28,7 @@ var (
 	// MySQLRtaAgentSupportVersion is the first pmm-agent release with the MySQL RTA collector.
 	MySQLRtaAgentSupportVersion FeatureVersion = MustParse("3.10.0-0")
 	// PostgreSQLRtaAgentSupportVersion is the first release that ships the PostgreSQL RTA collector.
-	PostgreSQLRtaAgentSupportVersion FeatureVersion = MustParse("3.10.0-0")
+	PostgreSQLRtaAgentSupportVersion FeatureVersion = MustParse("3.10.1-0")
 
 	// NodeExporterV1_8 is the first pmm-agent shipping node_exporter 1.8, the oldest build that knows
 	// every collector we may have to disable explicitly. In pmm-agent 2.x, which ships 1.4.0, flags

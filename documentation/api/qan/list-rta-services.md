@@ -13,7 +13,7 @@ category:
 
 Returns a list of services that support Real-time Analytics. Use this endpoint to discover which services can be monitored with RTA before starting a session.
 
-This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.10.0 or later for MySQL and PostgreSQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is never returned.
+This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.10.0 or later for MySQL**, **3.10.1 or later for PostgreSQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is never returned.
 
 ### Query parameters
 

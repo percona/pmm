@@ -202,7 +202,7 @@ func TestListServices(t *testing.T) {
 		require.NoError(t, err)
 		pmmAgent3, err := models.CreatePMMAgent(db.Querier, node3.NodeID, nil)
 		require.NoError(t, err)
-		pmmAgent3.Version = new("3.10.0")
+		pmmAgent3.Version = new("3.10.1")
 		err = db.Update(pmmAgent3)
 		require.NoError(t, err)
 
@@ -1083,7 +1083,8 @@ func TestPostgreSQLSession(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	pmmAgent.Version = new("3.9.1")
+	// 3.10.0 was released without the PostgreSQL collector.
+	pmmAgent.Version = new("3.10.0")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 
@@ -1119,7 +1120,7 @@ func TestPostgreSQLSession(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 	})
 
-	pmmAgent.Version = new("3.10.0")
+	pmmAgent.Version = new("3.10.1")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 

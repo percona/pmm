@@ -17,7 +17,7 @@ RTA requires at least one PostgreSQL service monitored by PMM. If you haven't se
 
 You need:
 
-- **PMM Client 3.10.0 or later** on the monitored host. Run `pmm-admin status` to check.
+- **PMM Client 3.10.1 or later** on the monitored host. Run `pmm-admin status` to check.
 - **A monitoring user that can see every session.** RTA reuses the credentials of the service's PostgreSQL exporter or QAN agent. A superuser, which PMM recommends for the monitoring account, sees every session. Any other monitoring user must be a member of `pg_monitor` or `pg_read_all_stats`:
 
     ```sql
@@ -222,7 +222,7 @@ RTA displays what the server returns and exposes nothing beyond what `pg_stat_ac
 
 Check each requirement:
 
-- **PMM Client version**: 3.10.0 or later. Run `pmm-admin status` on the monitored host. A service monitored by an older PMM Client does not appear in the **Cluster/Service** drop-down.
+- **PMM Client version**: 3.10.1 or later. Run `pmm-admin status` on the monitored host. A service monitored by an older PMM Client does not appear in the **Cluster/Service** drop-down.
 - **Connection**: RTA connects with the credentials of the service's PostgreSQL exporter or QAN agent, so the exporter must be able to connect.
 - **Admin role**: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions.
 
