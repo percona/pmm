@@ -653,6 +653,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
 	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
+	// Names of the environment variables passed to the exporter from pmm-agent's environment.
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 

@@ -108,9 +108,9 @@ type AddMySQLCommand struct {
 	// TODO add "auto", make it default
 	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	DisableQueryExamples   bool              `negatable:"" name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
-	DisableTablestats      bool              `help:"Disable table statistics collection"`
+	DisableTablestats      bool              `negatable:"" help:"Disable table statistics collection"`
 	DisableTablestatsLimit uint16            `placeholder:"NUMBER" help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
 	Environment            string            `help:"Environment name"`
 	Cluster                string            `help:"Cluster name"`
@@ -118,14 +118,14 @@ type AddMySQLCommand struct {
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	ExtraDSNParams         map[string]string `name:"extra-dsn-params" mapsep:"," help:"Additional DSN parameters, e.g. 'param1=value1,param2=value2'"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	TLS                    bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
+	TLS                    bool              `negatable:"" help:"Use TLS to connect to the database"`
+	TLSSkipVerify          bool              `negatable:"" help:"Skip TLS certificate verification"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ExposeExporter         bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
