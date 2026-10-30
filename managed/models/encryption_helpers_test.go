@@ -213,6 +213,16 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 		return n
 	}
 
+	postgresUsername := func(t *testing.T, db *reform.DB) string {
+		t.Helper()
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: new(models.PostgresExporterType)})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		require.NotNil(t, agents[0].Username)
+
+		return *agents[0].Username
+	}
+
 	t.Run("HA node with a foreign key writes nothing", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
@@ -366,11 +376,7 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 		require.NoError(t, err)
 		assert.ElementsMatch(t, all, settings.EncryptedItems)
 
-		agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: new(models.PostgresExporterType)})
-		require.NoError(t, err)
-		require.Len(t, agents, 1)
-		require.NotNil(t, agents[0].Username)
-		assert.Equal(t, "postgres", *agents[0].Username, "username must be encrypted exactly once")
+		assert.Equal(t, "postgres", postgresUsername(t, db), "username must be encrypted exactly once")
 
 		require.NoError(t, db.InTransaction(func(tx *reform.TX) error {
 			return models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
@@ -380,6 +386,53 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 		require.NoError(t, err)
 		assert.Empty(t, settings.EncryptedItems)
 		assert.Empty(t, settings.EncryptionKeyFingerprint)
+	})
+
+	t.Run("a table added on upgrade keeps the recorded columns", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		require.NoError(t, setup(t, sqlDB, ""))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		settings := func(t *testing.T) *models.Settings {
+			t.Helper()
+			s, err := models.GetSettings(db)
+			require.NoError(t, err)
+
+			return s
+		}
+
+		var all, agentColumns []string
+		var added []encryption.Table
+		for _, table := range models.DefaultAgentEncryptionColumnsV3 {
+			columns := make([]string, 0, len(table.Columns))
+			for _, column := range table.Columns {
+				columns = append(columns, dbName+"."+table.Name+"."+column.Name)
+			}
+			all = append(all, columns...)
+			if table.Name == "agents" {
+				agentColumns = columns
+				continue
+			}
+			added = append(added, table)
+		}
+		require.NotEmpty(t, added)
+		require.ElementsMatch(t, all, settings(t).EncryptedItems)
+
+		// As the first start after an upgrade finds it: only the agents columns recorded, no key fingerprint.
+		require.NoError(t, db.InTransaction(func(tx *reform.TX) error {
+			return models.DecryptDB(tx, dbName, added)
+		}))
+		setFingerprint(t, db, "")
+		require.ElementsMatch(t, agentColumns, settings(t).EncryptedItems)
+
+		// The first start encrypts the added tables, the second finds nothing left to encrypt.
+		for i := range 2 {
+			require.NoError(t, setup(t, sqlDB, ""))
+			assert.ElementsMatch(t, all, settings(t).EncryptedItems, "start %d", i+1)
+			assert.Equal(t, localFingerprint, settings(t).EncryptionKeyFingerprint, "start %d", i+1)
+		}
+
+		assert.Equal(t, "postgres", postgresUsername(t, db), "username must be encrypted exactly once")
 	})
 }
 
