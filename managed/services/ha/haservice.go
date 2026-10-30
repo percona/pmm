@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/hashicorp/memberlist"
@@ -62,8 +63,8 @@ const (
 	defaultRejoinDialTimeout  = 2 * time.Second
 )
 
-// minRaftVoters is the voter count below which a node missing from memberlist stays in Raft, so it can vote when it returns.
-const minRaftVoters = 3
+// memberlistMetaLeaving is the memberlist metadata a node gossips while it shuts down gracefully.
+const memberlistMetaLeaving = "leaving"
 
 // Service represents the high-availability service.
 type Service struct {
@@ -74,6 +75,7 @@ type Service struct {
 
 	nodeCh   chan memberlist.NodeEvent
 	leaderCh chan raft.Observation
+	delegate *memberlistDelegate
 
 	l  *logrus.Entry
 	wg *sync.WaitGroup
@@ -81,7 +83,39 @@ type Service struct {
 	rw         sync.RWMutex
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
+
+	// leftMu guards left, the nodes that announced a graceful leave and haven't rejoined since.
+	leftMu sync.Mutex
+	left   map[string]struct{}
 }
+
+// memberlistDelegate lets other nodes tell a graceful leave from a failure: on shutdown, this node's metadata
+// becomes memberlistMetaLeaving before it leaves, and memberlist passes that metadata with the leave event.
+type memberlistDelegate struct {
+	leaving atomic.Bool
+}
+
+// NodeMeta implements memberlist.Delegate.
+func (d *memberlistDelegate) NodeMeta(int) []byte {
+	if d.leaving.Load() {
+		return []byte(memberlistMetaLeaving)
+	}
+	return nil
+}
+
+// NotifyMsg implements memberlist.Delegate.
+func (d *memberlistDelegate) NotifyMsg([]byte) {}
+
+// GetBroadcasts implements memberlist.Delegate.
+func (d *memberlistDelegate) GetBroadcasts(int, int) [][]byte { return nil }
+
+// LocalState implements memberlist.Delegate.
+func (d *memberlistDelegate) LocalState(bool) []byte { return nil }
+
+// MergeRemoteState implements memberlist.Delegate.
+func (d *memberlistDelegate) MergeRemoteState([]byte, bool) {}
+
+var _ memberlist.Delegate = (*memberlistDelegate)(nil)
 
 // Apply applies a log entry to the high-availability service.
 // Currently only used for Raft consensus, not for state replication.
@@ -221,8 +255,10 @@ func New(params *models.HAParams) *Service {
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
+		delegate:         &memberlistDelegate{},
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
+		left:             make(map[string]struct{}),
 	}
 }
 
@@ -338,6 +374,7 @@ func (s *Service) Run(ctx context.Context) error {
 	memberlistConfig.AdvertiseAddr = s.params.AdvertiseAddress
 	memberlistConfig.AdvertisePort = s.params.GossipPort
 	memberlistConfig.Events = &memberlist.ChannelEventDelegate{Ch: s.nodeCh}
+	memberlistConfig.Delegate = s.delegate
 	memberlistConfig.LogOutput = newMemberlistLogWriter(s.l.WithField("subsystem", "memberlist"))
 
 	// Create the memberlist
@@ -346,7 +383,12 @@ func (s *Service) Run(ctx context.Context) error {
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
 	defer func() {
-		err := s.memberlist.Leave(defaultLeaveTimeout)
+		s.delegate.leaving.Store(true)
+		err := s.memberlist.UpdateNode(defaultLeaveTimeout)
+		if err != nil {
+			s.l.Errorf("couldn't announce leaving the memberlist cluster: %q", err)
+		}
+		err = s.memberlist.Leave(defaultLeaveTimeout)
 		if err != nil {
 			s.l.Errorf("couldn't leave memberlist cluster: %q", err)
 		}
@@ -409,18 +451,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 	for {
 		select {
 		case event := <-s.nodeCh:
-			if !s.IsLeader() {
-				continue
-			}
-			node := event.Node
-			switch event.Event {
-			case memberlist.NodeJoin:
-				s.addMemberlistNodeToRaft(ctx, node)
-			case memberlist.NodeLeave:
-				s.l.Infof("Node %s left memberlist", node.Name)
-			case memberlist.NodeUpdate:
-				continue
-			}
+			s.handleNodeEvent(ctx, event)
 		case <-t.C:
 			if !s.IsLeader() {
 				continue
@@ -433,6 +464,58 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 			return
 		}
 	}
+}
+
+// handleNodeEvent records graceful leaves on every node, so that a later leader knows about them too.
+// On the leader it adds joined nodes to Raft and removes nodes that left; a failed node stays a voter, see PMM-15787.
+func (s *Service) handleNodeEvent(ctx context.Context, event memberlist.NodeEvent) {
+	node := event.Node
+	switch event.Event {
+	case memberlist.NodeJoin:
+		s.setLeft(node.Name, false)
+		if s.IsLeader() {
+			s.addMemberlistNodeToRaft(ctx, node)
+		}
+	case memberlist.NodeLeave:
+		if string(node.Meta) != memberlistMetaLeaving {
+			s.l.Warnf("Node %s failed, keeping it in Raft", node.Name)
+			return
+		}
+		s.l.Infof("Node %s left the cluster", node.Name)
+		s.setLeft(node.Name, true)
+		if s.IsLeader() {
+			s.removeMemberlistNodeFromRaft(node)
+		}
+	case memberlist.NodeUpdate:
+	}
+}
+
+func (s *Service) setLeft(name string, left bool) {
+	s.leftMu.Lock()
+	defer s.leftMu.Unlock()
+	if left {
+		s.left[name] = struct{}{}
+	} else {
+		delete(s.left, name)
+	}
+}
+
+func (s *Service) hasLeft(name string) bool {
+	s.leftMu.Lock()
+	defer s.leftMu.Unlock()
+	_, ok := s.left[name]
+	return ok
+}
+
+func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, defaultServerOpTimeout).Error()
+	if err != nil {
+		s.l.Errorf("Couldn't remove node %s from Raft: %s", node.Name, err)
+		return
+	}
+	s.l.Infof("Removed node %s from Raft cluster", node.Name)
 }
 
 // runMemberlistRejoiner periodically joins the configured peers again while some of them are missing from memberlist.
@@ -465,8 +548,6 @@ func (s *Service) rejoinMemberlist(ctx context.Context) {
 			address = net.JoinHostPort(peer, strconv.Itoa(s.params.GossipPort))
 		}
 
-		// memberlist.Join takes no context and waits out its TCP timeout on an unreachable peer,
-		// so probe the peer first to keep shutdown fast.
 		conn, err := dialer.DialContext(ctx, "tcp", address)
 		if err != nil {
 			s.l.Debugf("Memberlist peer %s is not reachable: %v", address, err)
@@ -477,17 +558,27 @@ func (s *Service) rejoinMemberlist(ctx context.Context) {
 			s.l.Debugf("Couldn't close the probe connection to %s: %v", address, err)
 		}
 
-		_, err = s.memberlist.Join([]string{address})
-		if err != nil {
-			s.l.Warnf("Couldn't rejoin memberlist peer %s: %v", address, err)
+		// memberlist.Join takes no context and can wait out its 30 s TCP timeout on a peer that accepts
+		// connections but doesn't answer, so it must not hold up shutdown.
+		joined := make(chan error, 1)
+		go func() {
+			_, err := s.memberlist.Join([]string{address})
+			joined <- err
+		}()
+		select {
+		case err = <-joined:
+			if err != nil {
+				s.l.Warnf("Couldn't rejoin memberlist peer %s: %v", address, err)
+			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }
 
 // reconcileRaftWithMemberlist ensures Raft cluster configuration matches memberlist membership.
 // This method is invoked when a node becomes the Raft leader. It reconciles
-// any missed NodeJoin/NodeLeave events and removes stale Raft members,
-// but never shrinks the cluster below minRaftVoters voters.
+// any missed NodeJoin/NodeLeave events and removes Raft members that left the cluster gracefully.
 func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
@@ -515,37 +606,19 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 		raftServerMap[string(server.ID)] = struct{}{}
 	}
 
-	voters := 0
-	for _, server := range raftServers {
-		if server.Suffrage == raft.Voter {
-			voters++
-		}
-	}
-
-	// Remove nodes that are in Raft but NOT in memberlist (stale nodes). Each removal applies only to the
-	// configuration it was decided on, so concurrent reconciliations can't shrink the cluster below the floor.
-	configIndex := configFuture.Index()
+	// Remove nodes that are in Raft but left the cluster gracefully. A failed node stays a voter,
+	// so that it can vote again when it returns, see PMM-15787.
 	for _, server := range raftServers {
 		serverID := string(server.ID)
-		if _, exists := memberMap[serverID]; exists {
+		if _, exists := memberMap[serverID]; exists || !s.hasLeft(serverID) {
 			continue
 		}
-		if server.Suffrage == raft.Voter && voters <= minRaftVoters {
-			s.l.Debugf("Keeping node %s in Raft although it is not in memberlist (%d voters)", serverID, voters)
-			continue
-		}
-
-		s.l.Warnf("Removing stale node %s from Raft (not in memberlist)", serverID)
-		removeFuture := s.raftNode.RemoveServer(server.ID, configIndex, defaultServerOpTimeout)
-		err := removeFuture.Error()
+		s.l.Warnf("Removing node %s from Raft (left the cluster)", serverID)
+		err := s.raftNode.RemoveServer(server.ID, 0, defaultServerOpTimeout).Error()
 		if err != nil {
-			s.l.Errorf("Failed to remove stale server %s from Raft: %v", serverID, err)
-			return
-		}
-		s.l.Infof("Successfully removed stale node %s from Raft cluster", serverID)
-		configIndex = removeFuture.Index()
-		if server.Suffrage == raft.Voter {
-			voters--
+			s.l.Errorf("Failed to remove server %s from Raft: %v", serverID, err)
+		} else {
+			s.l.Infof("Successfully removed node %s from Raft cluster", serverID)
 		}
 	}
 
