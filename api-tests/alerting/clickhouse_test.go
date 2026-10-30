@@ -168,6 +168,7 @@ func TestClickHouseTemplate(t *testing.T) {
 			}
 
 			// MISMATCH `.*` excludes the empty label, so no row survives whatever QAN data there is.
+			require.Contains(t, results, "A")
 			for _, frame := range results["A"].Frames {
 				for _, values := range frame.Data.Values {
 					assert.Empty(t, values, "a missing label must read as empty")
@@ -237,6 +238,7 @@ func assertEvaluates(t *testing.T, data []*models.AlertQuery) map[string]evalRes
 		Results map[string]evalResult `json:"results"`
 	}
 	require.NoError(t, json.Unmarshal(respBody, &result))
+	require.NotEmpty(t, result.Results, "eval returned no step results: %s", respBody)
 	for refID, res := range result.Results {
 		assert.Emptyf(t, res.Error, "step %s failed to evaluate", refID)
 	}
