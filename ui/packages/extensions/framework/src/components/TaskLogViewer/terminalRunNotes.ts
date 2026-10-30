@@ -35,5 +35,5 @@ export const NON_FAILURE_TERMINAL_NOTES: Partial<Record<string, string>> = {
   stale:
     'This run was skipped because no host could pick it up before the staleness threshold.',
   unlaunchable:
-    'The host could not launch this run, so the script never executed. This is not a script failure.',
+    'The host could not launch this run, so nothing was executed. This is not a failure of the run itself.',
 };

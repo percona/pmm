@@ -27,12 +27,6 @@ import type { FinishStatus } from '../../hooks/useTaskLogs';
 
 export type BadgeStatus = FinishStatus | 'stream-error' | 'executor-gone';
 
-const NOT_IN_EXECUTOR = {
-  label: 'Cannot run on this host',
-  color: 'warning',
-  icon: <CloudOffIcon />,
-} as const;
-
 const MAP: Record<
   BadgeStatus,
   {
@@ -55,10 +49,18 @@ const MAP: Record<
     color: 'error',
     icon: <ErrorIcon />,
   },
-  // Shared rather than spelled twice: to the operator both mean the node could
-  // not run this, not that the script failed, so the two must stay identical.
-  unlaunchable: NOT_IN_EXECUTOR,
-  'executor-gone': NOT_IN_EXECUTOR,
+  unlaunchable: {
+    label: 'Cannot run on this host',
+    color: 'warning',
+    icon: <CloudOffIcon />,
+  },
+  // A 410 on the log stream: the run may well have finished, but the host no
+  // longer holds it, so it must not read as a run that could not start.
+  'executor-gone': {
+    label: 'No longer on host',
+    color: 'warning',
+    icon: <CloudOffIcon />,
+  },
 };
 
 export interface StatusBadgeProps {

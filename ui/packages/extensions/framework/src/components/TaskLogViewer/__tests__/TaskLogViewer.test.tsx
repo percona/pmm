@@ -1261,7 +1261,7 @@ describe('TaskLogViewer', () => {
     await waitFor(() => expect(screen.getByText('gone')).toBeInTheDocument());
     // The sentence names the host directly, not behind the expand.
     expect(screen.getByText('Host: nomad-a')).toBeInTheDocument();
-    expect(screen.getByText('Cannot run on this host')).toBeInTheDocument();
+    expect(screen.getByText('No longer on host')).toBeInTheDocument();
 
     // The job id is technical detail, behind its own (separate) expand from
     // the page's Execution-events "Technical details" section below.

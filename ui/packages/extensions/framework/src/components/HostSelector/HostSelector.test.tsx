@@ -288,9 +288,7 @@ describe('HostSelector', () => {
     );
 
     expect(
-      await screen.findByText(
-        /Failed to load executor hosts: tasks unreachable/
-      )
+      await screen.findByText(/Failed to load hosts: tasks unreachable/)
     ).toBeInTheDocument();
   });
 
