@@ -42,6 +42,7 @@ import {
 } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 import { watchDashboardStars } from 'compat/stars';
+import { initSearch } from 'compat/search';
 
 export const initialize = () => {
   // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
@@ -92,6 +93,9 @@ export const initialize = () => {
       changeTheme(msg.payload.theme);
     },
   });
+
+  // Before GRAFANA_READY, so PMM UI's SEARCH_CONFIG reply always finds a listener.
+  initSearch(messenger);
 
   messenger.sendMessage({ type: 'MESSENGER_READY' });
 
