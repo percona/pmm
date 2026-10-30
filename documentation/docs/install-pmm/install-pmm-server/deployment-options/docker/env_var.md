@@ -42,6 +42,8 @@ Fine-tune data retention and [how often PMM collects metrics](../../../../config
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
 
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
+
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
