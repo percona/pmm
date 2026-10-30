@@ -122,14 +122,16 @@ const GROUP_BY_OPTIONS: GroupByOption[] = [
 /**
  * Widths while grouped, which adds the expand column the flat table does not have.
  *
- * The default columns fill the ~1056px the page gets at 1440 with the nav open, so
- * the expand column's 60px overflowed it. The column holds only the 28px toggle (a
- * group's header runs across the row), and Member state's values (PRIMARY, RECOVERING)
- * need far less than 185px; the service and node names keep their width (PMM-15767).
+ * The default columns add up to 1039px: the ~1056px the page gets at 1440 with the
+ * nav open, less the 17px a classic (non-overlay) scrollbar takes. The expand column
+ * holds only the 28px toggle (a group's header runs across the row), and Member
+ * state's values (PRIMARY, RECOVERING) need far less than 185px, so it gives up the
+ * toggle's 44px and grouped stays at 1039. With `layoutMode: 'grid'` a size is a
+ * minimum, so the columns still fill the row where the scrollbar overlays (PMM-15767).
  */
 const GROUPED_COLUMN_SIZING = {
   'mrt-row-expand': 44,
-  state: 147,
+  state: 141,
 };
 
 /** What a group header calls a group whose services carry no name for it. */
@@ -266,8 +268,8 @@ function useColumns(
       },
       {
         id: 'last_success_at',
-        // 130, not 140: the six default columns then fit the ~1056px the page gets
-        // at 1440 with the nav open, rather than overflowing it by 4px.
+        // With Repl. lag, sized so the default columns add up to 1039px; see
+        // GROUPED_COLUMN_SIZING.
         size: 130,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
@@ -315,7 +317,8 @@ function useColumns(
       },
       {
         accessorKey: 'replication_lag_seconds',
-        size: 145,
+        // With Collected, sized so the default columns add up to 1039px.
+        size: 134,
         header: 'Repl. lag',
         Cell: ({ row: { original } }) => (
           <Duration value={original.replication_lag_seconds} />
