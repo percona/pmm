@@ -4,9 +4,16 @@ The list of featured dashboards:
 
 - Advanced Data Exploration
 - CPU Utilization Details
+- Database Cluster on Kubernetes
+- Database Clusters on Kubernetes
 - Disk Details
 - HAProxy Instance Summary
 - Home Dashboard
+- Kubernetes Cluster Summary
+- Kubernetes Clusters
+- Kubernetes Node
+- Kubernetes Overview
+- Kubernetes Pod
 - Memory Details
 - MongoDB Cluster Summary
 - MongoDB InMemory Details

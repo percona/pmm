@@ -535,8 +535,8 @@ nav:
           - Environments:
               - reference/dashboards/dashboard-env-overview.md
           - Kubernetes:
-              - reference/dashboards/kubernetes_cluster_summary.md
               - reference/dashboards/kubernetes_monitor_operators.md
+              - reference/dashboards/kubernetes_cluster_summary.md
               - reference/dashboards/kubernetes_monitor_db_clusters_managed.md
           - OS Dashboards:
               - reference/dashboards/dashboard-cpu-utilization-details.md

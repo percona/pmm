@@ -32,7 +32,7 @@ dashboards/dashboards/*.json
 | `Experimental/` | Databases Overview, DB Cluster Summary |
 | `PMM Health/` | Environments Overview, PMM Health Overview, PMM HA Health Overview |
 | `Query Analytics/` | QAN panel wrapper (`pmm-qan.json`) |
-| `Kubernetes (experimental)/` | Kubernetes operator monitoring |
+| `Kubernetes/` | Kubernetes clusters and the database clusters running on them (checked by `misc/test_kubernetes_dashboards.py`) |
 
 ## Patterns and Conventions
 
