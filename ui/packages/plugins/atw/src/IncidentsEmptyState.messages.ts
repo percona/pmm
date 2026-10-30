@@ -25,7 +25,7 @@ export const SUPPORT_DIAGNOSTICS_DOCS_URL =
 export const Messages = {
   title: 'No incidents yet',
   description:
-    'An incident is a workspace for one support case. Create one, run diagnostic snippets against your monitored databases, and review outputs in Results — nothing is sent until you choose Send.',
+    'An incident is a workspace for one support case. Create one, run diagnostic scripts against your monitored databases, and review outputs in Results — nothing is sent until you choose Send.',
   create: 'New incident',
   // Label matches the target: the generic docs root, not a diagnostics page.
   documentation: 'PMM documentation',

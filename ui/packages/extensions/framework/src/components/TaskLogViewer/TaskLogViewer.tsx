@@ -498,7 +498,7 @@ export function TaskLogViewer({
 
   const download = useLogDownload();
   const handleDownload = () => {
-    const filename = `task-${taskHistoryId}-${activeStep ?? 'step'}-${topTab}.log`;
+    const filename = `run-${taskHistoryId}-${activeStep ?? 'step'}-${topTab}.log`;
     download(filename, currentPaneText);
   };
 

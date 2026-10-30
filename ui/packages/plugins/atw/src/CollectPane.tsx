@@ -44,6 +44,7 @@ import {
   useAtwMergedSchema,
   useAtwSnippetSearch,
 } from './hooks';
+import { scriptLabel, scriptLabeler } from './scriptLabels';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -259,14 +260,71 @@ export function buildBatchPayload(
   };
 }
 
-/** Summarise the batch response's per-item errors for a banner. */
-function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
+/** One per-item failure for the Collect banner, keyed by filename for React. */
+export interface BatchItemError {
+  key: string;
+  message: string;
+}
+
+/** Labels a snippet among `snippets` (see `scriptLabeler`). */
+function snippetLabeler(
+  snippets: readonly AtwSnippetSummary[]
+): (snippet: AtwSnippetSummary) => string {
+  const label = scriptLabeler(
+    snippets.map((snippet) => ({
+      title: snippet.title,
+      filename: snippet.name,
+    }))
+  );
+  return (snippet) => label(snippet.title, snippet.name);
+}
+
+/**
+ * Caption under a picker option: its filename when only that explains the hit
+ * or tells `sameLabel` twins apart, otherwise its description.
+ */
+export function scriptOptionCaption(
+  option: AtwSnippetSummary,
+  sameLabel: readonly AtwSnippetSummary[],
+  term: string
+): string | undefined {
+  const description = option.description.trim();
+  const needle = term.trim().toLowerCase();
+  const matchedOnlyFilename =
+    needle !== '' &&
+    option.name.toLowerCase().includes(needle) &&
+    !scriptLabel(option.title, option.name).toLowerCase().includes(needle) &&
+    !description.toLowerCase().includes(needle);
+  const descriptions = new Set(
+    sameLabel.map((peer) => peer.description.trim())
+  );
+  const twinsLookAlike =
+    sameLabel.length > 1 &&
+    (descriptions.size < sameLabel.length || descriptions.has(''));
+  if (matchedOnlyFilename || twinsLookAlike) {
+    return option.name;
+  }
+  return description || undefined;
+}
+
+/** Summarise the batch response's per-item errors for a banner, by script title. */
+export function batchItemErrors(
+  response: AtwBatchExecuteResponse,
+  snippets: AtwSnippetSummary[]
+): BatchItemError[] {
+  const byName = new Map(snippets.map((snippet) => [snippet.name, snippet]));
+  const label = snippetLabeler(snippets);
   return response.items
     .filter((item) => item.error !== null && item.error !== undefined)
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      return `${item.snippet_filename}: ${detail}`;
+      const snippet = byName.get(item.snippet_filename);
+      const name = snippet ? label(snippet) : item.snippet_filename;
+      return {
+        key: item.snippet_filename,
+        message: `${name}: ${detail}`,
+      };
     });
 }
 
@@ -345,7 +403,7 @@ export function CollectPane({
   const { canMutate } = useAuth();
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
   const [selected, setSelected] = useState<AtwSnippetSummary[]>([]);
-  const [itemErrors, setItemErrors] = useState<string[]>([]);
+  const [itemErrors, setItemErrors] = useState<BatchItemError[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [formDefaults, setFormDefaults] = useState<
@@ -370,7 +428,7 @@ export function CollectPane({
   // off the prop would remount the form with the *previous* defaults and
   // never re-render again once the right ones arrived.
   const [appliedRerunNonce, setAppliedRerunNonce] = useState(0);
-  // The filename a rerun request could not resolve — renamed, removed, or no
+  // The script a rerun request could not resolve — renamed, removed, or no
   // longer approved since the tab that dispatched it closed. Cleared by the
   // next rerun request, or by a match finally resolving.
   const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
@@ -481,10 +539,15 @@ export function CollectPane({
     ) {
       return;
     }
+    // Titles are not unique, and the file is what the lookup missed.
+    const failedTitle = rerunRequest.snippetTitle?.trim();
+    const failedName = failedTitle
+      ? `${failedTitle} (${rerunRequest.snippetFilename})`
+      : rerunRequest.snippetFilename;
     if (rerunResolveQuery.isError) {
       setResolvingRerunNonce(null);
       setRerunResolveTerm(null);
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
       return;
     }
     if (!rerunResolveQuery.isSuccess) {
@@ -499,7 +562,7 @@ export function CollectPane({
       setSelected([match]);
       setRerunResolveFailed(null);
     } else {
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
     }
   }, [
     rerunResolveQuery.data,
@@ -513,6 +576,21 @@ export function CollectPane({
     () => mergeSnippetOptions(selected, available, searchResults),
     [available, selected, searchResults]
   );
+
+  // Grouped once per option list: every rendered row looks up its same-label
+  // twins for its caption, on every keystroke.
+  const optionsByLabel = useMemo(() => {
+    const groups = new Map<string, AtwSnippetSummary[]>();
+    for (const option of options) {
+      const label = scriptLabel(option.title, option.name);
+      groups.set(label, [...(groups.get(label) ?? []), option]);
+    }
+    return groups;
+  }, [options]);
+
+  // Titles are not unique by contract, so every place naming a selected script
+  // uses this, which adds the filename when two selected titles collide.
+  const labelSelected = useMemo(() => snippetLabeler(selected), [selected]);
 
   // Whether the page currently in hand was fetched for the term now in the box.
   // `isPlaceholderData` is the precise signal: under `keepPreviousData` it is set
@@ -570,7 +648,7 @@ export function CollectPane({
         return;
       }
       result.push({
-        title: snippet.title,
+        title: labelSelected(snippet),
         description: snippet.description || undefined,
         collapsible: true,
         // Closed unless the reader has to type something: a batch of two
@@ -584,7 +662,7 @@ export function CollectPane({
       });
     });
     return result;
-  }, [schemaQuery.data, selected]);
+  }, [schemaQuery.data, selected, labelSelected]);
 
   // Namespacing per-snippet fields does not rewrite their gate predicates, so a
   // gated field would stop gating once namespaced. Detect any such snippet and
@@ -602,8 +680,8 @@ export function CollectPane({
         );
         return (entry?.fields ?? []).some(fieldDeclaresGate);
       })
-      .map((snippet) => snippet.title);
-  }, [schemaQuery.data, selected]);
+      .map((snippet) => labelSelected(snippet));
+  }, [schemaQuery.data, selected, labelSelected]);
 
   const renderField = useCallback<RenderFieldOverride>(
     ({ field, renderDefault }) =>
@@ -613,11 +691,14 @@ export function CollectPane({
           <HostElevationWarning
             name="executor_host"
             sudoName="sudo"
-            snippets={selected}
+            snippets={selected.map((snippet) => ({
+              ...snippet,
+              title: labelSelected(snippet),
+            }))}
           />
         </>
       ) : null,
-    [selected]
+    [selected, labelSelected]
   );
 
   const handleSubmit = (values: Record<string, unknown>) => {
@@ -633,7 +714,7 @@ export function CollectPane({
         const stillCurrent = selectionRef.current === snippetsAtSubmit;
         const started = startedCount(response);
         if (stillCurrent) {
-          setItemErrors(batchItemErrors(response));
+          setItemErrors(batchItemErrors(response, snippetsAtSubmit));
           if (started > 0) {
             // Seeded so reopening the confirmation's form comes back filled:
             // the collapse unmounts the form, and `defaultValues` is the only
@@ -651,7 +732,7 @@ export function CollectPane({
   };
 
   const submitError = batchMutation.isError
-    ? (batchMutation.error?.message ?? 'Batch execution failed')
+    ? (batchMutation.error?.message ?? "Couldn't start the diagnostics")
     : null;
 
   // Remount the form when the selection changes so react-hook-form rebuilds its
@@ -670,7 +751,7 @@ export function CollectPane({
           Collect
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          This incident is closed. Reopen it to run more diagnostic snippets.
+          This incident is closed. Reopen it to run more diagnostic scripts.
         </Typography>
       </Box>
     );
@@ -684,7 +765,7 @@ export function CollectPane({
 
       {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Snippet search failed: {searchQuery.error.message}
+          Script search failed: {searchQuery.error.message}
         </Alert>
       )}
 
@@ -698,7 +779,7 @@ export function CollectPane({
         // the user keeps typing, and must not interrupt a screen reader mid-word.
         <Alert severity="info" role="status" sx={{ mb: 2 }}>
           Showing the first {searchResults.length} of {searchPagination?.total}{' '}
-          snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
+          scripts matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
           name or description to narrow the results.
         </Alert>
       )}
@@ -725,32 +806,38 @@ export function CollectPane({
           !categoryFilterActive &&
           searchQuery.isFetching
         }
-        loadingText="Searching snippets…"
+        loadingText="Searching scripts…"
         noOptionsText={
           searchInput.trim() === ''
-            ? 'Type to search every snippet, or filter by category below.'
-            : 'No approved snippet matches this search.'
+            ? 'Type to search every diagnostic script, or filter by category below.'
+            : 'No approved script matches this search.'
         }
-        getOptionLabel={(option) => option.title}
+        // Names the chips, so two selected scripts sharing a title stay distinct.
+        getOptionLabel={(option) => labelSelected(option)}
         // Without this MUI keys each row on the label, and titles are not unique
         // by contract — two snippets sharing one would collide on re-render.
         getOptionKey={(option) => option.name}
         isOptionEqualToValue={(option, value) => option.name === value.name}
-        renderOption={(props, option) => {
+        renderOption={(props, option, { inputValue }) => {
           const { key, ...liProps } = props as typeof props & { key: string };
+          const label = scriptLabel(option.title, option.name);
+          const caption = scriptOptionCaption(
+            option,
+            optionsByLabel.get(label) ?? [option],
+            inputValue
+          );
           return (
-            // The server matches filename and description too, so a hit can look
-            // unrelated to the typed term.
-            <Box
-              component="li"
-              key={key}
-              {...liProps}
-              sx={{ display: 'flex', gap: 0.5 }}
-            >
-              <Typography variant="body2">{option.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {option.name}
-              </Typography>
+            // The server matches filename and description too, so a hit can
+            // look unrelated to the typed term without its caption.
+            <Box component="li" key={key} {...liProps}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="body2">{label}</Typography>
+                {caption && (
+                  <Typography variant="caption" color="text.secondary">
+                    {caption}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           );
         }}
@@ -809,18 +896,18 @@ export function CollectPane({
 
       {gatedSnippetTitles.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          These snippets use conditional (required/forbidden) fields, which
-          batch collection does not evaluate — review their inputs before
-          executing: {gatedSnippetTitles.join(', ')}.
+          These scripts use conditional (required/forbidden) fields, which this
+          form does not evaluate — review their inputs before running:{' '}
+          {gatedSnippetTitles.join(', ')}.
         </Alert>
       )}
 
       {itemErrors.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          Some snippets did not dispatch:
+          Some scripts did not start:
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
-            {itemErrors.map((message) => (
-              <li key={message}>{message}</li>
+            {itemErrors.map((item) => (
+              <li key={item.key}>{item.message}</li>
             ))}
           </Box>
         </Alert>
@@ -859,7 +946,7 @@ export function CollectPane({
               onSubmit={handleSubmit}
               renderField={renderField}
               submitLabel={
-                batchMutation.isPending ? 'Starting…' : 'Execute batch'
+                batchMutation.isPending ? 'Starting…' : 'Run diagnostics'
               }
               loading={batchMutation.isPending}
               submitError={submitError}

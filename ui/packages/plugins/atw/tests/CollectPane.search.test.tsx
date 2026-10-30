@@ -196,7 +196,8 @@ describe('CollectPane snippet search', () => {
       { name: /PT Summary/ },
       { timeout: 3000 }
     );
-    expect(option).toHaveTextContent('ops/pt-summary.sh');
+    expect(option).toHaveTextContent(SEARCH_ROW.description);
+    expect(option).not.toHaveTextContent(SEARCH_ROW.name);
     await userEvent.click(option);
 
     // Clearing the search must not take the selection with it.
@@ -260,11 +261,125 @@ describe('CollectPane snippet search', () => {
       { timeout: 3000 }
     );
     expect(options.map((option) => option.textContent)).toEqual([
-      expect.stringContaining('ops/pt-summary.sh'),
-      expect.stringContaining('diag/summary.sh'),
+      expect.stringContaining('Toolkit summary.'),
+      expect.stringContaining('Diagnostic summary.'),
     ]);
     expect(consoleError.mock.calls.flat().join(' ')).not.toContain('same key');
     consoleError.mockRestore();
+  });
+
+  it('shows filenames when same-titled hits have no distinguishing description', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('summary');
+
+    const options = await screen.findAllByRole(
+      'option',
+      { name: /Summary/ },
+      { timeout: 3000 }
+    );
+    expect(options.map((option) => option.textContent)).toEqual([
+      expect.stringContaining('ops/pt-summary.sh'),
+      expect.stringContaining('diag/summary.sh'),
+    ]);
+  });
+
+  it('treats titles that differ only by surrounding whitespace as the same', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary ', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('summary');
+
+    const options = await screen.findAllByRole(
+      'option',
+      { name: /Summary/ },
+      { timeout: 3000 }
+    );
+    expect(options.map((option) => option.textContent)).toEqual([
+      expect.stringContaining('ops/pt-summary.sh'),
+      expect.stringContaining('diag/summary.sh'),
+    ]);
+  });
+
+  it('shows the filename of a hit that matched on its filename alone', async () => {
+    mockApis({ items: [SEARCH_ROW] });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('ops/pt');
+
+    const option = await screen.findByRole(
+      'option',
+      { name: /PT Summary/ },
+      { timeout: 3000 }
+    );
+    expect(option).toHaveTextContent(SEARCH_ROW.name);
+    expect(option).not.toHaveTextContent(SEARCH_ROW.description);
+  });
+
+  it('names an untitled hit by its filename, once', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/untitled.sh', title: ' ', description: 'Gathers logs.' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('untitled');
+
+    const option = await screen.findByRole(
+      'option',
+      { name: /ops\/untitled\.sh/ },
+      { timeout: 3000 }
+    );
+    expect(within(option).getAllByText('ops/untitled.sh')).toHaveLength(1);
+    expect(within(option).getByText('Gathers logs.')).toBeInTheDocument();
+  });
+
+  it('names two selected same-titled scripts by their filenames', async () => {
+    mockApis({
+      items: [
+        { name: 'ops/pt-summary.sh', title: 'Summary', description: '' },
+        { name: 'diag/summary.sh', title: 'Summary', description: '' },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    const input = await typeSearch('summary');
+    for (const filename of ['ops/pt-summary.sh', 'diag/summary.sh']) {
+      const options = await screen.findAllByRole(
+        'option',
+        { name: /Summary/ },
+        { timeout: 3000 }
+      );
+      const option = options.find((candidate) =>
+        candidate.textContent?.includes(filename)
+      );
+      await userEvent.click(option as HTMLElement);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'summary');
+    }
+    await userEvent.keyboard('{Escape}');
+
+    const picker = input.closest('.MuiAutocomplete-root') as HTMLElement;
+    await waitFor(() => {
+      expect(
+        within(picker).getByText('Summary (ops/pt-summary.sh)')
+      ).toBeInTheDocument();
+    });
+    expect(
+      within(picker).getByText('Summary (diag/summary.sh)')
+    ).toBeInTheDocument();
   });
 
   it('drops the previous term’s hits while the next search is in flight', async () => {
@@ -320,7 +435,7 @@ describe('CollectPane snippet search', () => {
     await typeSearch('log');
 
     const notice = await screen.findByText(
-      /Showing the first 1 of 137 snippets/,
+      /Showing the first 1 of 137 scripts/,
       undefined,
       {
         timeout: 3000,
@@ -419,7 +534,7 @@ describe('CollectPane snippet search', () => {
 
     await typeSearch('summary');
 
-    const alert = await screen.findByText(/Snippet search failed/, undefined, {
+    const alert = await screen.findByText(/Script search failed/, undefined, {
       timeout: 3000,
     });
     expect(alert).toHaveTextContent('search backend down');
@@ -449,7 +564,7 @@ describe('CollectPane — write access', () => {
     expect(
       await screen.findByRole(
         'button',
-        { name: /Execute batch/i },
+        { name: /Run diagnostics/i },
         { timeout: 3000 }
       )
     ).toBeInTheDocument();
@@ -462,7 +577,7 @@ describe('CollectPane — write access', () => {
     // The picker still works — only the execute form is withheld.
     await waitFor(() => {
       expect(
-        screen.queryByRole('button', { name: /Execute batch/i })
+        screen.queryByRole('button', { name: /Run diagnostics/i })
       ).not.toBeInTheDocument();
     });
   });
