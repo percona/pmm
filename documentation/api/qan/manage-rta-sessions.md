@@ -70,7 +70,7 @@ Starting a session for a MySQL or PostgreSQL service returns the same shape with
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
 | `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
-| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL and PostgreSQL services by PMM Client 3.10.0 and later; omitted when there is nothing to report |
+| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL services by PMM Client 3.10.0 and later, and for PostgreSQL services by PMM Client 3.10.1 and later; omitted when there is nothing to report |
 
 ### Example
 ```bash
