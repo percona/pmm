@@ -696,6 +696,9 @@ func TestArgListFromPgParams(t *testing.T) {
 		}, {
 			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
 			[]string{"--username", "person", "--port", "555", "--host", "10.20.30.40"},
+		}, {
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret", Tls: true},
+			[]string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret", "--no-disable-ssl"},
 		},
 	}
 
