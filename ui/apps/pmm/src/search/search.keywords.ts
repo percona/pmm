@@ -67,6 +67,8 @@ const BACKUPS = ['backup', 'restore', 'pitr'];
 const USERS_AND_ACCESS = ['users and access', 'rbac', 'permissions'];
 const ADVISORS = ['checks', 'stt'];
 const INVENTORY = ['agents', 'exporters'];
+const FLEET = ['fleet', 'clusters'];
+const AUTOMATIONS = ['scan', 'install', 'runs'];
 
 // Every key must name an item of an admin index with every feature on; the drift test checks it.
 export const KEYWORDS: Record<string, string[]> = {
@@ -94,6 +96,7 @@ export const KEYWORDS: Record<string, string[]> = {
   'page:backup-restore': BACKUPS,
   'page:backup-locations': BACKUPS,
   'action:create-backup': BACKUPS,
+  'action:new-mysql-backup': BACKUPS,
   'page:users': USERS_AND_ACCESS,
   'page:teams': USERS_AND_ACCESS,
   'page:rbac-roles': USERS_AND_ACCESS,
@@ -109,6 +112,19 @@ export const KEYWORDS: Record<string, string[]> = {
   'page:updates': ['upgrade', 'version'],
   'page:high-availability': ['high availability', 'cluster', 'raft', 'leader'],
   'page:extensions-atw': ['support bundle', 'logs'],
+  'page:app-operations-for-mongodb': [
+    'om',
+    'operations',
+    'fleet',
+    'install mongodb',
+    'replica set',
+  ],
+  'page:om-clusters': FLEET,
+  'page:om-services': FLEET,
+  'page:om-nodes': ['hosts', 'machines'],
+  'page:om-installs': AUTOMATIONS,
+  'page:om-scans': AUTOMATIONS,
+  'action:om-install-mongodb': ['bootstrap', 'new replica set'],
   'action:sign-out': ['log out', 'logout'],
   'action:theme-toggle': ['dark mode', 'light mode', 'theme'],
   // The overview child folds into its technology page as a whole phrase, so a bare "overview" still ranks Overview first.
