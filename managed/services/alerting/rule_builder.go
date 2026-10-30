@@ -295,7 +295,8 @@ func validateFilters(filters []*alertingv1.Filter) error {
 	return nil
 }
 
-// filterClickHouseSQL keeps the rows whose label columns pass the filters, matching like label_match and label_mismatch.
+// filterClickHouseSQL keeps the rows whose label columns pass the filters, matching like label_match and label_mismatch;
+// a column the query doesn't return reads as empty, like a missing MetricsQL label.
 func filterClickHouseSQL(sql string, filters []*alertingv1.Filter) (string, error) {
 	if len(filters) == 0 {
 		return sql, nil
@@ -303,13 +304,13 @@ func filterClickHouseSQL(sql string, filters []*alertingv1.Filter) (string, erro
 
 	conditions := make([]string, 0, len(filters))
 	for _, filter := range filters {
-		// The label goes into the SQL as a quoted column name, unescaped.
+		// The label goes into the SQL as a column-name regexp, unescaped.
 		if !model.LegacyValidation.IsValidLabelName(filter.Label) {
 			return "", fmt.Errorf("filter label '%s' is not a valid label name", filter.Label)
 		}
 
-		// Compared as text, with NULL as the empty label MetricsQL sees for a missing one.
-		column := fmt.Sprintf("ifNull(toString(`%s`), '')", filter.Label)
+		// COLUMNS expands to nothing for a missing column, and arrayStringConcat skips NULL, so both read as ''.
+		column := fmt.Sprintf("arrayStringConcat([COLUMNS('^%s$')])", filter.Label)
 
 		var condition string
 		switch filter.Type {

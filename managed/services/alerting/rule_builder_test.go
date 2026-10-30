@@ -387,7 +387,7 @@ func TestBuildClickHouseRuleDataWithFilters(t *testing.T) {
 	// Each datasource gets the same filter in its own language.
 	var model clickhouseQueryModel
 	require.NoError(t, json.Unmarshal(byRef["A"].Model, &model))
-	assert.Contains(t, model.RawSQL, "WHERE match(ifNull(toString(`service_name`), ''), '^(?:(?:db.*)|)$')")
+	assert.Contains(t, model.RawSQL, "WHERE match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:(?:db.*)|)$')")
 	assert.Equal(t, `label_match(up, "service_name", "(db.*)|")`, exprOf(t, byRef["M"]))
 }
 
@@ -410,42 +410,49 @@ func TestFilterClickHouseSQL(t *testing.T) {
 			name:    "match keeps an empty label, like label_match",
 			sql:     "SELECT 1",
 			filters: []*alertingv1.Filter{matchFilter("service_name", "db1|db2")},
-			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(ifNull(toString(`service_name`), ''), '^(?:(?:db1|db2)|)$')",
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:(?:db1|db2)|)$')",
 		},
 		{
-			name:    "mismatch",
+			name:    "mismatch looks the label up by name, so a column the query doesn't return reads as empty",
 			sql:     "SELECT 1",
 			filters: []*alertingv1.Filter{mismatchFilter("environment", "dev")},
-			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(ifNull(toString(`environment`), ''), '^(?:dev)$')",
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(arrayStringConcat([COLUMNS('^environment$')]), '^(?:dev)$')",
 		},
 		{
 			name:    "several filters are ANDed",
 			sql:     "SELECT 1",
 			filters: []*alertingv1.Filter{matchFilter("service_name", "db"), mismatchFilter("node_name", "n1")},
-			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(ifNull(toString(`service_name`), ''), '^(?:(?:db)|)$') AND NOT match(ifNull(toString(`node_name`), ''), '^(?:n1)$')",
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:(?:db)|)$') AND NOT match(arrayStringConcat([COLUMNS('^node_name$')]), '^(?:n1)$')",
 		},
 		{
 			name:    "trailing semicolon and whitespace are dropped",
 			sql:     "SELECT 1 ;\n",
 			filters: []*alertingv1.Filter{mismatchFilter("service_name", "db")},
-			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(ifNull(toString(`service_name`), ''), '^(?:db)$')",
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:db)$')",
 		},
 		{
 			name:    "a trailing line comment stays inside the subquery",
 			sql:     "SELECT 1 -- slow ones",
 			filters: []*alertingv1.Filter{mismatchFilter("service_name", "db")},
-			want:    "SELECT * FROM (\nSELECT 1 -- slow ones\n) WHERE NOT match(ifNull(toString(`service_name`), ''), '^(?:db)$')",
+			want:    "SELECT * FROM (\nSELECT 1 -- slow ones\n) WHERE NOT match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:db)$')",
 		},
 		{
 			name:    "quotes and backslashes in the regexp stay inside the string literal",
 			sql:     "SELECT 1",
 			filters: []*alertingv1.Filter{mismatchFilter("service_name", `\d') OR 1=1 --`)},
-			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(ifNull(toString(`service_name`), ''), '^(?:\\\\d\\') OR 1=1 --)$')",
+			want:    "SELECT * FROM (\nSELECT 1\n) WHERE NOT match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:\\\\d\\') OR 1=1 --)$')",
 		},
 		{
-			name:    "a label that is not a column name is rejected",
+			name:    "a label that is not a valid label name is rejected",
 			sql:     "SELECT 1",
 			filters: []*alertingv1.Filter{matchFilter("a`) OR 1=1 --", "x")},
+			wantErr: "is not a valid label name",
+		},
+		{
+			// The label lands unescaped in the COLUMNS string literal, so a UTF-8 label name must not get through.
+			name:    "a quote in the label is rejected",
+			sql:     "SELECT 1",
+			filters: []*alertingv1.Filter{matchFilter("a.b')]), '') OR 1=1 --", "x")},
 			wantErr: "is not a valid label name",
 		},
 		{

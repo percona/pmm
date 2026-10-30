@@ -151,8 +151,29 @@ func TestClickHouseTemplate(t *testing.T) {
 
 		model, ok := queryByRefID(t, data, "A").Model.(map[string]any)
 		require.True(t, ok)
-		assert.Contains(t, model["rawSql"], "WHERE match(ifNull(toString(`service_name`), ''), '^(?:(?:pmm-server.*)|)$')")
+		assert.Contains(t, model["rawSql"], "WHERE match(arrayStringConcat([COLUMNS('^service_name$')]), '^(?:(?:pmm-server.*)|)$')")
 		assertEvaluates(t, data)
+	})
+
+	// The SQL never returns agent_type, so the filter compares it as an empty label, like MetricsQL does.
+	t.Run("filters on a label the SQL doesn't return still evaluate", func(t *testing.T) {
+		for _, filterType := range []string{"FILTER_TYPE_MATCH", "FILTER_TYPE_MISMATCH"} {
+			data := createRule(t, "pmm_qan_slow_queries", "test-clickhouse-missing-label-"+filterType, []*alerting.CreateRuleParamsBodyFiltersItems0{
+				{Type: new(filterType), Label: "agent_type", Regexp: ".*"},
+			})
+
+			results := assertEvaluates(t, data)
+			if filterType != "FILTER_TYPE_MISMATCH" {
+				continue
+			}
+
+			// MISMATCH `.*` excludes the empty label, so no row survives whatever QAN data there is.
+			for _, frame := range results["A"].Frames {
+				for _, values := range frame.Data.Values {
+					assert.Empty(t, values, "a missing label must read as empty")
+				}
+			}
+		}
 	})
 
 	t.Run("built-in pmm_qan_slow_queries evaluates with its threshold step", func(t *testing.T) {
@@ -179,7 +200,17 @@ func queryByRefID(t *testing.T, data []*models.AlertQuery, refID string) *models
 
 // assertEvaluates runs the rule's steps through Grafana's alert evaluation, which fails a step
 // whose datasource rejects its query model.
-func assertEvaluates(t *testing.T, data []*models.AlertQuery) {
+// evalResult is one step's result from Grafana's /api/v1/eval.
+type evalResult struct {
+	Error  string `json:"error"`
+	Frames []struct {
+		Data struct {
+			Values [][]any `json:"values"`
+		} `json:"data"`
+	} `json:"frames"`
+}
+
+func assertEvaluates(t *testing.T, data []*models.AlertQuery) map[string]evalResult {
 	t.Helper()
 
 	body, err := json.Marshal(map[string]any{"data": data})
@@ -203,12 +234,12 @@ func assertEvaluates(t *testing.T, data []*models.AlertQuery) {
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "eval failed: %s", respBody)
 
 	var result struct {
-		Results map[string]struct {
-			Error string `json:"error"`
-		} `json:"results"`
+		Results map[string]evalResult `json:"results"`
 	}
 	require.NoError(t, json.Unmarshal(respBody, &result))
 	for refID, res := range result.Results {
 		assert.Emptyf(t, res.Error, "step %s failed to evaluate", refID)
 	}
+
+	return result.Results
 }
