@@ -200,7 +200,7 @@ func queryByRefID(t *testing.T, data []*models.AlertQuery, refID string) *models
 
 // assertEvaluates runs the rule's steps through Grafana's alert evaluation, which fails a step
 // whose datasource rejects its query model.
-// evalResult is one step's result from Grafana's /api/v1/eval.
+// The result of one step from Grafana's /api/v1/eval.
 type evalResult struct {
 	Error  string `json:"error"`
 	Frames []struct {
