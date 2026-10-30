@@ -113,3 +113,64 @@ resource_groups:
 	require.Equal(t, expected.TextFiles["config"], actual.TextFiles["config"])
 	require.Equal(t, expected, actual)
 }
+
+func TestAzureExporterConfigPostgreSQL(t *testing.T) {
+	service := &models.Service{
+		ServiceID:   "service1",
+		ServiceType: models.PostgreSQLServiceType,
+	}
+	agent := &models.Agent{
+		AgentID:   "agent1",
+		AgentType: models.AzureDatabaseExporterType,
+		ServiceID: &service.ServiceID,
+		AzureOptions: models.AzureOptions{
+			ClientID:       "azure_database_client_id",
+			ClientSecret:   "azure_database_client_secret",
+			TenantID:       "azure_database_tenant_id",
+			SubscriptionID: "azure_database_subscription_id",
+			ResourceGroup:  "azure_database_resource_group",
+		},
+	}
+
+	actual, err := azureDatabaseExporterConfig(agent, service, redactSecrets, version.MustParse("2.28.0"))
+	require.NoError(t, err)
+	expected := strings.TrimSpace(`---
+active_directory_authority_url: "https://login.microsoftonline.com/"
+resource_manager_url: "https://management.azure.com/"
+credentials:
+  client_id: "azure_database_client_id"
+  client_secret: "azure_database_client_secret"
+  tenant_id: "azure_database_tenant_id"
+  subscription_id: "azure_database_subscription_id"
+
+targets:
+resource_groups:
+  - resource_group: "azure_database_resource_group"
+    aggregations:
+      - Average
+    resource_types:
+      - "Microsoft.DBforPostgreSQL/servers"
+      - "Microsoft.DBforPostgreSQL/serversv2"
+    metrics:
+      - name: "cpu_percent"
+      - name: "memory_percent"
+      - name: "storage_percent"
+      - name: "storage_used"
+      - name: "storage_limit"
+      - name: "network_bytes_egress"
+      - name: "network_bytes_ingress"
+  - resource_group: "azure_database_resource_group"
+    aggregations:
+      - Average
+    resource_types:
+      - "Microsoft.DBforPostgreSQL/flexibleServers"
+    metrics:
+      - name: "cpu_percent"
+      - name: "memory_percent"
+      - name: "storage_percent"
+      - name: "storage_used"
+      - name: "network_bytes_egress"
+      - name: "network_bytes_ingress"
+`) + "\n"
+	require.Equal(t, expected, actual.TextFiles["config"])
+}
