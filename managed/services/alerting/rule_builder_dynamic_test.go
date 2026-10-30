@@ -475,4 +475,14 @@ func TestBuildRuleDataForQANSlowQueries(t *testing.T) {
 	assert.Equal(t, "clickhouse-uid", byRef["A"].DatasourceUID)
 	assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
 	assert.Contains(t, byRef, "T_threshold")
+
+	// A filter on a label the SQL drops would silently read as empty, so pin the standard labels it returns.
+	var model clickhouseQueryModel
+	require.NoError(t, json.Unmarshal(byRef["A"].Model, &model))
+	for _, label := range []string{
+		"service_name", "service_id", "service_type", "node_name", "node_id", "node_type", "node_model", "machine_id",
+		"container_id", "container_name", "environment", "cluster", "replication_set", "region", "az",
+	} {
+		assert.Regexp(t, `\b`+label+`\b`, model.RawSQL)
+	}
 }

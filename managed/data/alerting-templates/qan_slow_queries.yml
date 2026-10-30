@@ -7,18 +7,20 @@ templates:
       - ref_id: A
         datasource: clickhouse
         # One row per service with a constant time, so the reduce never sees a gap. greatest() takes
-        # a query class's longest run where the engine reports one, else its average.
+        # a query class's longest run where the engine reports one, else its average. Every inner column
+        # but queryid and query_time becomes an alert label.
         expr: |-
-          SELECT $__toTime AS time, service_name, node_name, service_type, environment, cluster,
-                 max(query_time) AS query_time
+          SELECT $__toTime AS time, * EXCEPT (queryid, query_time), max(query_time) AS query_time
           FROM (
-            SELECT service_name, node_name, service_type, environment, cluster,
+            SELECT queryid,
+                   service_name, service_id, service_type, node_name, node_id, node_type, node_model, machine_id,
+                   container_id, container_name, environment, cluster, replication_set, region, az,
                    greatest(max(m_query_time_max), ifNull(sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0), 0)) AS query_time
             FROM pmm.metrics
             WHERE period_start >= $__fromTime AND period_start <= $__toTime
-            GROUP BY service_name, node_name, service_type, environment, cluster, queryid
+            GROUP BY ALL
           )
-          GROUP BY service_name, node_name, service_type, environment, cluster
+          GROUP BY ALL
     expressions:
       - ref_id: B
         type: reduce
