@@ -2,6 +2,15 @@ export const Messages = {
   details: {
     summary: 'Summary',
     expression: 'Expression',
+    stepQuery: 'Query',
+    stepSqlQuery: 'SQL query',
+    stepThreshold: 'Threshold',
+    stepReduce: 'Reduce',
+    stepMath: 'Math',
+    stepExpression: 'Expression',
+    stepCondition: 'condition',
+    thresholdStep:
+      'Per-target threshold: the override set for the target, or the rule default.',
     ruleConfiguration: 'Rule configuration',
     alertName: 'Alert name',
     state: 'State',

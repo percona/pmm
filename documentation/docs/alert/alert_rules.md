@@ -44,8 +44,7 @@ Before creating PMM alert rules, configure the required alert resources:
 
 ### Configure alert templates
 
-Alerts templates are YAML files that provide the source framework for alert rules.
-Alert templates contain general template details and an alert expression defined in [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html). This query language is backward compatible with PromQL.
+Alert templates are YAML files that provide the source framework for alert rules. Alert templates contain general template details and alert queries defined in [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html). This query language is backward compatible with PromQL. Starting with PMM 3.11.0, a template query can also be an SQL query on the ClickHouse database that stores Query Analytics (QAN) data. For details, see [Alert on Query Analytics data](#alert-on-query-analytics-data).
 
 ### Create custom templates
 
@@ -61,9 +60,14 @@ When creating custom templates, make sure to use the required template format be
 - **version** (required): defines the template format version.
 - **summary** (required): a template description.
 - **expr** (required unless you use **queries** and **expressions**): a MetricsQL query string with parameter placeholders.
-- **queries** (optional): a list of MetricsQL queries, each with a `ref_id` and an `expr`. Use them with **expressions** and **condition** instead of **expr**.
-- **expressions** (optional): a list of math expressions over the queries, each with a `ref_id`, `type: math`, and an `expression` that references queries by `$ref_id`, for example `$A > [[ .threshold ]]`.
-- **condition** (required with **expressions**): the `ref_id` of the expression that fires the alert.
+- **queries** (optional): a list of queries. Use them with **expressions** and **condition** instead of **expr**. Each query has these fields:
+    - **ref_id** (required): the step ID. It must start with a letter or underscore and contain only letters, digits, and underscores.
+    - **expr** (required): a MetricsQL query, or SQL for a ClickHouse query.
+    - **datasource** (optional): `metrics` (the default) for a MetricsQL query, or `clickhouse` for an SQL query on Query Analytics data.
+- **expressions** (optional): a list of expressions over the queries, each with a `ref_id`, a `type`, and an `expression` that references other steps by `$ref_id`. Each `ref_id` follows the same rules as for queries. The supported types are:
+    - **type: math**: a calculation or comparison, for example `$A > [[ .threshold ]]`.
+    - **type: reduce**: reduces one query or expression to a single value for each series. Set `expression` to that step, for example `$A`, and `reducer` to `sum`, `mean`, `min`, `max`, `count`, `last`, or `median`.
+- **condition** (required with **queries**): the `ref_id` of the query or expression that fires the alert. The condition can't be a ClickHouse query.
 - **params**: contains parameter definitions required for the query. Each parameter has a name, type, and summary. It also may have a unit, available range, and default value.
     - **name** (required): the name of the parameter. Spaces and special characters are not allowed.
     - **summary** (required): a short description of what this parameter represents.
@@ -75,8 +79,7 @@ When creating custom templates, make sure to use the required template format be
     - **override_scopes** (optional): the scopes at which you can override this parameter. Defaults to `[node]`. Only `node` is currently supported. Requires `overridable: true`.
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
- - **labels** (optional): are additional labels to be added to generated alerts
-
+- **labels** (optional): are additional labels to be added to generated alerts
 - **annotations** (optional): are additional annotations to be added to generated alerts.
 
 ??? info "Template example"
@@ -114,6 +117,75 @@ When creating custom templates, make sure to use the required template format be
     {% endraw %}
     ```
 
+### Alert on Query Analytics data
+
+Starting with PMM 3.11.0, an alert template can run SQL on the ClickHouse database where Query Analytics stores query metrics. Use this to alert on query performance, for example when queries on a service run longer than a threshold. The built-in [`pmm_qan_slow_queries`](templates_list.md#qan_alerts) template is an example.
+
+A ClickHouse query in a template must meet these requirements:
+
+- sets `datasource: clickhouse`
+- returns a `DateTime` time column and exactly one numeric value column
+- returns the label columns that you want to filter on, route by, or show on the alert, such as `service_name`, `node_name`, `region`, and `environment`
+- passes through a `reduce` expression before a `math` expression or the condition uses it, because alerts need one value for each series
+- uses only `float` parameters
+- reads the reduce expression, not the query, through `$values` in annotations and labels, for example `$values.B.Value`
+
+Every string column that the query returns becomes an alert label. Each combination of label values becomes a separate alert. Don't return high-cardinality columns such as `queryid` or `fingerprint`. Query Analytics data is in the `pmm.metrics` table.
+
+??? info "Example: alert on slow queries"
+
+    ```yaml
+    {% raw %}
+    ---
+    templates:
+      - name: custom_qan_slow_queries
+        version: 1
+        summary: Slow queries
+        queries:
+          - ref_id: A
+            datasource: clickhouse
+            expr: |-
+              SELECT $__toTime AS time, service_name, node_name, max(m_query_time_max) AS query_time
+              FROM pmm.metrics
+              WHERE period_start >= $__fromTime AND period_start <= $__toTime
+              GROUP BY service_name, node_name
+        expressions:
+          - ref_id: B
+            type: reduce
+            reducer: max
+            expression: $A
+          - ref_id: C
+            type: math
+            expression: "$B > [[ .threshold ]]"
+        condition: C
+        params:
+          - name: threshold
+            summary: Query execution time
+            unit: s
+            type: float
+            value: 10
+        for: 1m
+        severity: warning
+        annotations:
+          summary: Slow queries on {{ $labels.service_name }}
+          description: |-
+            A query on {{ $labels.service_name }} took {{ printf "%.2f" $values.B.Value }}s, more than [[ .threshold ]]s.
+    {% endraw %}
+    ```
+
+The example uses `m_query_time_max`, which only MySQL slow log and MongoDB report. For PostgreSQL and MySQL Performance Schema, use the average run time, as the built-in `pmm_qan_slow_queries` template does.
+
+Alerts on Query Analytics data have the following limitations:
+
+- PMM supports the ClickHouse time series format only.
+- Each evaluation reads the last 5 minutes of Query Analytics data. Query Analytics data arrives in one-minute buckets, about one to two minutes late. As a result, these alerts fire and resolve a few minutes later than metric alerts.
+- A single slow query keeps the alert active until the slow query leaves the 5-minute window.
+- Rule filters apply to the columns that the query returns. As with metrics, a label that the query doesn't return counts as empty. A match filter on that label keeps every row. A mismatch filter on that label keeps every row, unless its regular expression matches an empty value. Filters apply after any `LIMIT` in the query.
+- Custom labels that you add to nodes and services aren't available to ClickHouse queries, so a filter on a custom label doesn't narrow Query Analytics alerts.
+- `[[` starts a template parameter, so it can't appear in the SQL, for example in nested array literals.
+- Each rule queries ClickHouse separately. To alert on many services, create one rule and route the alerts by the `service_name` label in your notification policies.
+- If ClickHouse is unavailable, rules with ClickHouse queries report a data source error in addition to the **PMM ClickHouse is down** alert.
+
 ### Test alert expressions
 
 If you want to create custom templates, you can test the MetricsQL expressions for your custom template in the **Explore** section of PMM. Here you can also query any PMM internal database.
@@ -132,6 +204,14 @@ For example, to check the CPU usage, Go to **Explore > PromQL builder** and run 
 
 Note that to paste the query above, **Explore** must be in `Code` mode, and not in `Builder` mode.
 
+To test an SQL query for a ClickHouse template:
+{.power-number}
+
+1. In **Explore**, select the **ClickHouse** data source.
+2. Select **SQL Editor**, and set **Query Type** to **Time Series**.
+3. Set the time range to **Last 5 minutes** to match what the alert rule reads.
+4. Enter the query and click **Run query**.
+
 ### Add an alert rule based on a template
 
 After provisioning the resources required for creating Percona templated alerts, you are now ready to create your alert rule based on a Percona template. 
@@ -146,6 +226,7 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
    
     - Filters use conjunction semantics. This means that if you add more than one filter, PMM will combine their conditions to search for matches: filter 1 AND filter 2 AND filter 3.
     - **Label** must be an exact match. You can find a complete list of labels using the :material-compass-outline: **Explore** menu in PMM, or see [Labels reference](../reference/labels-reference.md).
+    - For templates with ClickHouse queries, filters apply to the columns that the query returns. For details, see [Alert on Query Analytics data](#alert-on-query-analytics-data).
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
 

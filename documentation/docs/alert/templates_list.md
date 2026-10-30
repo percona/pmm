@@ -10,6 +10,7 @@ Browse the alert templates by what they monitor:
 - [PMM templates](#pmm_alerts)
 - [PMM High Availability (HA)templates](#pmm_ha_alerts)
 - [PMM internal component templates](#pmm_component_alerts)
+- [Query Analytics templates](#qan_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
 - [MySQL templates](#mysql_alerts)
@@ -86,6 +87,15 @@ Whether the component alerts fire depends on which component fails and how:
 | ClickHouse or the QAN API is down | The matching alert always fires, because VictoriaMetrics keeps running and records the failure. |
 | A VictoriaMetrics or ClickHouse pod on a PMM HA Cluster isn't monitored by the `pmm-ha` Helm chart | The alert for that pod stays silent instead of firing. |
 | A PMM Client stops reporting | These alerts cover PMM Server only. Use the *PMM agent down* template instead. |
+
+<a id="qan_alerts"></a>
+### Query Analytics templates
+
+These templates alert on query performance data that Query Analytics collects. For how they work, see [Alert on Query Analytics data](alert_rules.md#alert-on-query-analytics-data).
+
+| Area | Template name | Description | Database technology |
+| :----|:------------- | :---------- | :------------------ |
+| QAN | **QAN slow queries** | Alerts when the slowest query class on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the longest run for MySQL slow log and MongoDB, and the average run for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. This template has a **Dynamic** badge, meaning that you can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
