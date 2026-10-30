@@ -18,6 +18,8 @@ package agents
 import (
 	"sort"
 
+	"github.com/AlekSi/pointer"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -67,7 +69,18 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	dsnParams := models.DSNParams{}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 
-	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, tdp, pmmAgentVersion))
+	addr := exporter.DSN(service, dsnParams, tdp, pmmAgentVersion)
+	var env []string
+	if socket := pointer.GetString(service.Socket); socket != "" {
+		// valkey_exporter dials a unix:// address as a bare path, so credentials go through its environment.
+		addr = "unix://" + socket
+		env = []string{
+			"REDIS_USER=" + pointer.GetString(exporter.Username),
+			"REDIS_PASSWORD=" + pointer.GetString(exporter.Password),
+		}
+	}
+
+	args = append(args, "--redis.addr="+addr)
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	// valkey_exporter parses flags with the stdlib flag package, which rejects --log.level
 	// and has no fatal level.
@@ -79,6 +92,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
+		Env:                env,
 		TextFiles:          textFiles,
 	}
 	if redactMode != exposeSecrets {

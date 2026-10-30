@@ -285,7 +285,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
-			require.Contains(t, actual.Args, "--redis.addr=rediss://username:secret@%2Ftmp%2Fvalkey.sock")
+			require.Contains(t, actual.Args, "--redis.addr=unix:///tmp/valkey.sock")
+			require.Equal(t, []string{"REDIS_USER=username", "REDIS_PASSWORD=secret"}, actual.Env)
 		})
 
 		// No feature gate applies: every flag exists in the exporter shipped since Valkey support landed.

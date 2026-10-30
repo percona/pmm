@@ -24,6 +24,7 @@ import (
 	"encoding/pem"
 	"math/big"
 	"net"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -468,4 +469,33 @@ func TestGetValkeyTLSConfigHandshake(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "certificate")
 	})
+}
+
+func TestDialValkeySocket(t *testing.T) {
+	t.Parallel()
+
+	socket := filepath.Join(t.TempDir(), "valkey.sock")
+
+	l, err := (&net.ListenConfig{}).Listen(t.Context(), "unix", socket)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = l.Close() })
+
+	received := make(chan []string, 1)
+	go func() {
+		conn, err := l.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+
+		// The client command is a RESP array, so redigo's reply parser reads it as one.
+		args, _ := redis.Strings(redis.NewConn(conn, time.Second, time.Second).Receive())
+		received <- args
+		_, _ = conn.Write([]byte("+OK\r\n"))
+	}()
+
+	c, err := DialValkey(t.Context(), "unix://username:s3cur3%20p%40ss@"+socket)
+	require.NoError(t, err)
+	require.NoError(t, c.Close())
+	assert.Equal(t, []string{"AUTH", "username", "s3cur3 p@ss"}, <-received)
 }

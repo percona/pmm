@@ -29,7 +29,6 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
@@ -288,7 +287,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 		res.Error = err.Error()
 		return &res
 	}
-	c, err := redis.DialURLContext(ctx, dsn, opts...)
+	c, err := tlshelpers.DialValkey(ctx, dsn, opts...)
 	if err != nil {
 		res.Error = err.Error()
 		return &res

@@ -15,9 +15,11 @@
 package tlshelpers
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"net/url"
 
 	"github.com/gomodule/redigo/redis"
 
@@ -66,4 +68,28 @@ func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([
 	}
 
 	return opts, nil
+}
+
+// DialValkey connects by a redis:// or rediss:// URL, or by a unix:// socket URL that redigo's DialURL rejects.
+func DialValkey(ctx context.Context, dsn string, options ...redis.DialOption) (redis.Conn, error) { //nolint:ireturn
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	if u.Scheme != "unix" {
+		return redis.DialURLContext(ctx, dsn, options...)
+	}
+
+	// Credentials follow redigo's DialURL: a lone username is a requirepass password.
+	password, isSet := u.User.Password()
+	username := u.User.Username()
+	switch {
+	case isSet:
+		options = append(options, redis.DialUsername(username), redis.DialPassword(password))
+	case username != "":
+		options = append(options, redis.DialPassword(username))
+	}
+
+	return redis.DialContext(ctx, "unix", u.Path, options...)
 }
