@@ -293,13 +293,14 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 		name       string
 		voters     int
 		members    int
-		left       bool
+		left       int
 		wantVoters int
 	}{
 		{name: "keeps a failed node in a three-voter cluster", voters: 3, members: 2, wantVoters: 3},
 		{name: "keeps failed nodes in a five-voter cluster", voters: 5, members: 3, wantVoters: 5},
-		{name: "removes a node that left a three-voter cluster", voters: 3, members: 2, left: true, wantVoters: 2},
-		{name: "removes nodes that left after a scale-down from five to three", voters: 5, members: 3, left: true, wantVoters: 3},
+		{name: "removes a node that left a three-voter cluster", voters: 3, members: 2, left: 1, wantVoters: 2},
+		{name: "removes nodes that left after a scale-down from five to three", voters: 5, members: 3, left: 2, wantVoters: 3},
+		{name: "keeps a node that left while another voter is down", voters: 3, members: 1, left: 1, wantVoters: 3},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -307,13 +308,15 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 			leader, leaderID := newTestRaftCluster(t, tc.voters)
 			ml := newTestMemberlist(t, leaderID)
 			s := newTestService(leaderID, leader, ml)
+			left := 0
 			for _, server := range raftServers(t, leader) {
 				switch {
 				case string(server.ID) == leaderID:
 				case ml.NumMembers() < tc.members:
 					newTestMemberlist(t, string(server.ID), ml.LocalNode().Address())
-				case tc.left:
+				case left < tc.left:
 					s.setLeft(string(server.ID), true)
+					left++
 				}
 			}
 			require.Eventually(t, func() bool { return ml.NumMembers() == tc.members }, 5*time.Second, 10*time.Millisecond)
@@ -332,26 +335,43 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 func TestService_HandleNodeEvent(t *testing.T) {
 	t.Parallel()
 
-	leader, leaderID := newTestRaftCluster(t, 3)
-	s := newTestService(leaderID, leader, nil)
-	var followers []string
-	for _, id := range raftServerIDs(t, leader) {
-		if id != leaderID {
-			followers = append(followers, id)
+	t.Run("every node records graceful leaves only", func(t *testing.T) {
+		t.Parallel()
+
+		s := newTestService("pmm-ha-0", nil, nil)
+		s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: &memberlist.Node{Name: "pmm-ha-1"}})
+		assert.False(t, s.hasLeft("pmm-ha-1"))
+
+		leaving := &memberlist.Node{Name: "pmm-ha-2", Meta: []byte(memberlistMetaLeaving)}
+		s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: leaving})
+		assert.True(t, s.hasLeft("pmm-ha-2"))
+
+		s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeJoin, Node: &memberlist.Node{Name: "pmm-ha-2"}})
+		assert.False(t, s.hasLeft("pmm-ha-2"))
+	})
+
+	t.Run("the leader removes a node that left", func(t *testing.T) {
+		t.Parallel()
+
+		leader, leaderID := newTestRaftCluster(t, 3)
+		ml := newTestMemberlist(t, leaderID)
+		s := newTestService(leaderID, leader, ml)
+		var followers []string
+		for _, id := range raftServerIDs(t, leader) {
+			if id != leaderID {
+				followers = append(followers, id)
+			}
 		}
-	}
+		newTestMemberlist(t, followers[0], ml.LocalNode().Address())
+		require.Eventually(t, func() bool { return ml.NumMembers() == 2 }, 5*time.Second, 10*time.Millisecond)
 
-	s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: &memberlist.Node{Name: followers[0]}})
-	assert.Len(t, raftServerIDs(t, leader), 3, "a failed node must stay a voter")
-	assert.False(t, s.hasLeft(followers[0]))
+		s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: &memberlist.Node{Name: followers[1]}})
+		assert.Len(t, raftServerIDs(t, leader), 3, "a failed node must stay a voter")
 
-	leaving := &memberlist.Node{Name: followers[1], Meta: []byte(memberlistMetaLeaving)}
-	s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: leaving})
-	assert.NotContains(t, raftServerIDs(t, leader), followers[1], "a node that left must be removed")
-	assert.True(t, s.hasLeft(followers[1]))
-
-	s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeJoin, Node: &memberlist.Node{Name: followers[1]}})
-	assert.False(t, s.hasLeft(followers[1]))
+		leaving := &memberlist.Node{Name: followers[1], Meta: []byte(memberlistMetaLeaving)}
+		s.handleNodeEvent(t.Context(), memberlist.NodeEvent{Event: memberlist.NodeLeave, Node: leaving})
+		assert.ElementsMatch(t, []string{leaderID, followers[0]}, raftServerIDs(t, leader), "a node that left must be removed")
+	})
 }
 
 func TestMemberlistDelegate(t *testing.T) {
@@ -495,6 +515,8 @@ func newTestMemberlist(t *testing.T, name string, join ...string) *memberlist.Me
 	cfg.BindAddr = "127.0.0.1"
 	cfg.BindPort = 0
 	cfg.LogOutput = io.Discard
+	// Failure detection isn't under test here, and on a loaded host it marks live peers dead.
+	cfg.ProbeInterval = time.Minute
 
 	m, err := memberlist.Create(cfg)
 	require.NoError(t, err)

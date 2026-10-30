@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,26 +42,27 @@ import (
 )
 
 const (
-	defaultNodeEventChanSize  = 5
-	defaultRaftRetries        = 3
-	defaultTransportTimeout   = 10 * time.Second
-	defaultLeaveTimeout       = 5 * time.Second
-	defaultTickerInterval     = 5 * time.Second
-	defaultApplyTimeout       = 3 * time.Second
-	defaultRaftDataDir        = "/srv/ha"
-	defaultRaftDataDirPerm    = 0o750
-	defaultSnapshotRetention  = 3
-	defaultSnapshotThreshold  = 8192
-	defaultTrailingLogs       = 10240
-	defaultHeartbeatTimeout   = 1000 * time.Millisecond
-	defaultElectionTimeout    = 1000 * time.Millisecond
-	defaultCommitTimeout      = 50 * time.Millisecond
-	defaultLeaderLeaseTimeout = 500 * time.Millisecond
-	defaultSnapshotInterval   = 120 * time.Second
-	defaultServerOpTimeout    = 10 * time.Second
-	defaultDNSLookupTimeout   = 3 * time.Second
-	defaultRejoinInterval     = 30 * time.Second
-	defaultRejoinDialTimeout  = 2 * time.Second
+	defaultNodeEventChanSize    = 5
+	defaultRaftRetries          = 3
+	defaultTransportTimeout     = 10 * time.Second
+	defaultLeaveTimeout         = 5 * time.Second
+	defaultLeaveAnnounceTimeout = 2 * time.Second
+	defaultTickerInterval       = 5 * time.Second
+	defaultApplyTimeout         = 3 * time.Second
+	defaultRaftDataDir          = "/srv/ha"
+	defaultRaftDataDirPerm      = 0o750
+	defaultSnapshotRetention    = 3
+	defaultSnapshotThreshold    = 8192
+	defaultTrailingLogs         = 10240
+	defaultHeartbeatTimeout     = 1000 * time.Millisecond
+	defaultElectionTimeout      = 1000 * time.Millisecond
+	defaultCommitTimeout        = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout   = 500 * time.Millisecond
+	defaultSnapshotInterval     = 120 * time.Second
+	defaultServerOpTimeout      = 10 * time.Second
+	defaultDNSLookupTimeout     = 3 * time.Second
+	defaultRejoinInterval       = 30 * time.Second
+	defaultRejoinDialTimeout    = 2 * time.Second
 )
 
 // memberlistMetaLeaving is the memberlist metadata a node gossips while it shuts down gracefully.
@@ -383,8 +385,21 @@ func (s *Service) Run(ctx context.Context) error {
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
 	defer func() {
+		// memberlist delivers node events while holding its lock, and nothing else reads them once Run is returning.
+		drained := make(chan struct{})
+		defer close(drained)
+		go func() {
+			for {
+				select {
+				case <-s.nodeCh:
+				case <-drained:
+					return
+				}
+			}
+		}()
+
 		s.delegate.leaving.Store(true)
-		err := s.memberlist.UpdateNode(defaultLeaveTimeout)
+		err := s.memberlist.UpdateNode(defaultLeaveAnnounceTimeout)
 		if err != nil {
 			s.l.Errorf("couldn't announce leaving the memberlist cluster: %q", err)
 		}
@@ -484,10 +499,25 @@ func (s *Service) handleNodeEvent(ctx context.Context, event memberlist.NodeEven
 		s.l.Infof("Node %s left the cluster", node.Name)
 		s.setLeft(node.Name, true)
 		if s.IsLeader() {
-			s.removeMemberlistNodeFromRaft(node)
+			s.reconcileRaftWithMemberlist(ctx)
 		}
 	case memberlist.NodeUpdate:
 	}
+}
+
+// aliveQuorumWithout reports whether a majority of the voters that remain after removing id is alive in memberlist.
+func aliveQuorumWithout(servers []raft.Server, alive map[string]*memberlist.Node, id raft.ServerID) bool {
+	var voters, aliveVoters int
+	for _, server := range servers {
+		if server.ID == id || server.Suffrage != raft.Voter {
+			continue
+		}
+		voters++
+		if _, ok := alive[string(server.ID)]; ok {
+			aliveVoters++
+		}
+	}
+	return aliveVoters*2 > voters
 }
 
 func (s *Service) setLeft(name string, left bool) {
@@ -505,17 +535,6 @@ func (s *Service) hasLeft(name string) bool {
 	defer s.leftMu.Unlock()
 	_, ok := s.left[name]
 	return ok
-}
-
-func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, defaultServerOpTimeout).Error()
-	if err != nil {
-		s.l.Errorf("Couldn't remove node %s from Raft: %s", node.Name, err)
-		return
-	}
-	s.l.Infof("Removed node %s from Raft cluster", node.Name)
 }
 
 // runMemberlistRejoiner periodically joins the configured peers again while some of them are missing from memberlist.
@@ -608,18 +627,26 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 
 	// Remove nodes that are in Raft but left the cluster gracefully. A failed node stays a voter,
 	// so that it can vote again when it returns, see PMM-15787.
+	servers := raftServers
 	for _, server := range raftServers {
 		serverID := string(server.ID)
 		if _, exists := memberMap[serverID]; exists || !s.hasLeft(serverID) {
+			continue
+		}
+		// Raft counts quorum on the new configuration as soon as the change is appended, so a removal
+		// that the remaining live voters can't commit would make this leader step down.
+		if !aliveQuorumWithout(servers, memberMap, server.ID) {
+			s.l.Debugf("Keeping node %s in Raft: too few voters are alive to commit its removal", serverID)
 			continue
 		}
 		s.l.Warnf("Removing node %s from Raft (left the cluster)", serverID)
 		err := s.raftNode.RemoveServer(server.ID, 0, defaultServerOpTimeout).Error()
 		if err != nil {
 			s.l.Errorf("Failed to remove server %s from Raft: %v", serverID, err)
-		} else {
-			s.l.Infof("Successfully removed node %s from Raft cluster", serverID)
+			continue
 		}
+		s.l.Infof("Successfully removed node %s from Raft cluster", serverID)
+		servers = slices.DeleteFunc(slices.Clone(servers), func(srv raft.Server) bool { return srv.ID == server.ID })
 	}
 
 	// Add nodes that are in memberlist but NOT in Raft
