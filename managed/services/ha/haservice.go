@@ -42,29 +42,30 @@ import (
 )
 
 const (
-	defaultNodeEventChanSize    = 5
-	defaultRaftRetries          = 3
-	defaultTransportTimeout     = 10 * time.Second
-	defaultLeaveTimeout         = 5 * time.Second
-	defaultLeaveAnnounceTimeout = 2 * time.Second
-	defaultObservationChanSize  = 16
-	defaultRaftProbeTimeout     = time.Second
-	defaultTickerInterval       = 5 * time.Second
-	defaultApplyTimeout         = 3 * time.Second
-	defaultRaftDataDir          = "/srv/ha"
-	defaultRaftDataDirPerm      = 0o750
-	defaultSnapshotRetention    = 3
-	defaultSnapshotThreshold    = 8192
-	defaultTrailingLogs         = 10240
-	defaultHeartbeatTimeout     = 1000 * time.Millisecond
-	defaultElectionTimeout      = 1000 * time.Millisecond
-	defaultCommitTimeout        = 50 * time.Millisecond
-	defaultLeaderLeaseTimeout   = 500 * time.Millisecond
-	defaultSnapshotInterval     = 120 * time.Second
-	defaultServerOpTimeout      = 10 * time.Second
-	defaultDNSLookupTimeout     = 3 * time.Second
-	defaultRejoinInterval       = 30 * time.Second
-	defaultRejoinDialTimeout    = 2 * time.Second
+	defaultNodeEventChanSize     = 5
+	defaultRaftRetries           = 3
+	defaultTransportTimeout      = 10 * time.Second
+	defaultLeaveTimeout          = 5 * time.Second
+	defaultLeaveAnnounceTimeout  = 2 * time.Second
+	defaultObservationChanSize   = 16
+	defaultRaftProbeTimeout      = time.Second
+	defaultRaftLogRepeatInterval = time.Minute
+	defaultTickerInterval        = 5 * time.Second
+	defaultApplyTimeout          = 3 * time.Second
+	defaultRaftDataDir           = "/srv/ha"
+	defaultRaftDataDirPerm       = 0o750
+	defaultSnapshotRetention     = 3
+	defaultSnapshotThreshold     = 8192
+	defaultTrailingLogs          = 10240
+	defaultHeartbeatTimeout      = 1000 * time.Millisecond
+	defaultElectionTimeout       = 1000 * time.Millisecond
+	defaultCommitTimeout         = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout    = 500 * time.Millisecond
+	defaultSnapshotInterval      = 120 * time.Second
+	defaultServerOpTimeout       = 10 * time.Second
+	defaultDNSLookupTimeout      = 3 * time.Second
+	defaultRejoinInterval        = 30 * time.Second
+	defaultRejoinDialTimeout     = 2 * time.Second
 )
 
 // memberlistMetaLeaving is the memberlist metadata a node gossips while it shuts down gracefully.
@@ -212,6 +213,41 @@ func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 
 var _ io.Writer = (*memberlistLogWriter)(nil)
 
+// raftPeerFailure matches Raft's per-peer RPC failures, which repeat for as long as a voter is down.
+var raftPeerFailure = regexp.MustCompile(`raft: failed to (?:heartbeat|appendEntries) to: peer=("[^"]*"|\S+)`)
+
+// raftLogLimiter writes Raft's log lines through, but each per-peer RPC failure at most once per interval:
+// a voter that refuses connections otherwise logs about two errors a second while it is down.
+type raftLogLimiter struct {
+	out      io.Writer
+	interval time.Duration
+
+	mu     sync.Mutex
+	logged map[string]time.Time
+}
+
+func newRaftLogLimiter(out io.Writer, interval time.Duration) *raftLogLimiter {
+	return &raftLogLimiter{out: out, interval: interval, logged: make(map[string]time.Time)}
+}
+
+// Write implements io.Writer; hclog writes each log line with a single call.
+func (w *raftLogLimiter) Write(p []byte) (int, error) {
+	match := raftPeerFailure.Find(p)
+	if match != nil {
+		w.mu.Lock()
+		last, ok := w.logged[string(match)]
+		if ok && time.Since(last) < w.interval {
+			w.mu.Unlock()
+			return len(p), nil
+		}
+		w.logged[string(match)] = time.Now()
+		w.mu.Unlock()
+	}
+	return w.out.Write(p)
+}
+
+var _ io.Writer = (*raftLogLimiter)(nil)
+
 // setupRaftStorage sets up persistent storage for Raft.
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
 	// Create the Raft data directory for this node
@@ -321,7 +357,7 @@ func (s *Service) Run(ctx context.Context) error {
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(s.params.NodeID)
-	raftConfig.LogOutput = s.l.Logger.Out
+	raftConfig.LogOutput = newRaftLogLimiter(s.l.Logger.Out, defaultRaftLogRepeatInterval)
 
 	// Set log level based on environment
 	if os.Getenv("PMM_DEBUG") == "1" {

@@ -576,6 +576,36 @@ func TestBootstrapsCluster(t *testing.T) {
 	}
 }
 
+func TestRaftLogLimiter(t *testing.T) {
+	t.Parallel()
+
+	heartbeat := func(peer string) string {
+		return "2026-10-30T15:24:08.123Z [ERROR] raft: failed to heartbeat to: peer=" + peer +
+			" backoff time=500ms error=\"dial tcp: connect: connection refused\"\n"
+	}
+	appendEntries := "2026-10-30T15:24:08.456Z [ERROR] raft: failed to appendEntries to: " +
+		"peer=\"{Voter pmm-ha-1 pmm-ha-1.svc:9097}\" error=\"dial tcp: connect: connection refused\"\n"
+	other := "2026-10-30T15:24:09.000Z [WARN]  raft: failed to contact: server-id=pmm-ha-1 time=500ms\n"
+
+	var out bytes.Buffer
+	w := newRaftLogLimiter(&out, time.Hour)
+	for _, line := range []string{
+		heartbeat("pmm-ha-1.svc:9097"), heartbeat("pmm-ha-1.svc:9097"), heartbeat("pmm-ha-2.svc:9097"),
+		appendEntries, appendEntries, other, other,
+	} {
+		n, err := w.Write([]byte(line))
+		require.NoError(t, err)
+		assert.Equal(t, len(line), n)
+	}
+	assert.Equal(t, heartbeat("pmm-ha-1.svc:9097")+heartbeat("pmm-ha-2.svc:9097")+appendEntries+other+other, out.String())
+
+	out.Reset()
+	w.interval = 0
+	_, err := w.Write([]byte(heartbeat("pmm-ha-1.svc:9097")))
+	require.NoError(t, err)
+	assert.Equal(t, heartbeat("pmm-ha-1.svc:9097"), out.String(), "a failure is logged again once the interval has passed")
+}
+
 func TestRaftReachable(t *testing.T) {
 	t.Parallel()
 
