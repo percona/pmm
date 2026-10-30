@@ -21,4 +21,6 @@ import { cleanup } from '@testing-library/react';
 
 afterEach(() => {
   cleanup();
+  // The Fleet tables keep their grouping for the session; one test's must not leak.
+  sessionStorage.clear();
 });
