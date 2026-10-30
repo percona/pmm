@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15193](https://perconadev.atlassian.net/browse/PMM-15193): Alert templates can now query Query Analytics data in ClickHouse, so you can alert on query performance. The new built-in **QAN slow queries** template alerts when the slowest query class on a service runs longer than a threshold. For details, see [Alert on Query Analytics data](../alert/alert_rules.md#alert-on-query-analytics-data).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues
