@@ -87,6 +87,31 @@ func TestChangeNode(t *testing.T) {
 		assert.Empty(t, res.Payload.Generic.CustomLabels)
 	})
 
+	// Before the environment field, a custom label was the way to give a Node an environment, and it would
+	// override the field.
+	t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
+		t.Parallel()
+
+		nodeID := pmmapitests.AddNode(t, &nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName:     pmmapitests.TestString(t, "node-with-environment-label"),
+				Address:      pmmapitests.TestString(t, "10.10.10.10"),
+				CustomLabels: map[string]string{"environment": "staging", "team": "db"},
+			},
+		}).Generic.NodeID
+
+		res, err := changeNode(nodeID, nodes.ChangeNodeBody{Environment: new("prod")})
+		require.NoError(t, err)
+		assert.Equal(t, "prod", res.Payload.Generic.Environment)
+		assert.Equal(t, map[string]string{"team": "db"}, res.Payload.Generic.CustomLabels)
+
+		_, err = changeNode(nodeID, nodes.ChangeNodeBody{
+			CustomLabels: &nodes.ChangeNodeParamsBodyCustomLabels{Values: map[string]string{"environment": "staging"}},
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			`can't also have an "environment" custom label; change the environment instead.`)
+	})
+
 	t.Run("RemoteRDSRegionIsFixed", func(t *testing.T) {
 		t.Parallel()
 

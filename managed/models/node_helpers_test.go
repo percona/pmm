@@ -154,6 +154,33 @@ func TestNodeHelpers(t *testing.T) {
 			}
 			assert.Equal(t, expected, structs[1])
 		})
+
+		t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			labels := map[string]string{"environment": "staging", "team": "db"}
+			node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName:     t.Name(),
+				Environment:  "prod",
+				CustomLabels: labels,
+			})
+			require.NoError(t, err)
+			custom, err := node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "db"}, custom)
+			assert.Equal(t, "staging", labels["environment"], "the caller's labels are left as they are")
+
+			// Without an environment the custom label stays: it was the way to give a Node one before the field.
+			node, err = models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName:     t.Name() + "-custom",
+				CustomLabels: labels,
+			})
+			require.NoError(t, err)
+			unified, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.Equal(t, "staging", unified["environment"])
+		})
 	})
 
 	t.Run("ChangeNode", func(t *testing.T) {
@@ -205,6 +232,60 @@ func TestNodeHelpers(t *testing.T) {
 			labels, err := stored.GetCustomLabels()
 			require.NoError(t, err)
 			assert.Empty(t, labels)
+		})
+
+		t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Before the environment field, a custom label was the way to give a Node an environment.
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging", "team": "db"},
+			})
+			require.NoError(t, err)
+
+			node, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{Environment: new("prod")})
+			require.NoError(t, err)
+			custom, err := node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "db"}, custom)
+			labels, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.Equal(t, "prod", labels["environment"])
+
+			// The same goes for a custom label given in the same change.
+			node, err = models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				Environment:  new("qa"),
+				CustomLabels: map[string]string{"environment": "staging", "team": "ops"},
+			})
+			require.NoError(t, err)
+			custom, err = node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "ops"}, custom)
+			assert.Equal(t, "qa", node.Environment)
+
+			// Next to a set environment the custom label would override it again.
+			_, err = models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging"},
+			})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+				`Node Empty Node has an environment, so it can't also have an "environment" custom label; change the environment instead.`), err)
+		})
+
+		t.Run("ClearingEnvironmentRemovesCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging"},
+			})
+			require.NoError(t, err)
+
+			node, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{Environment: new("")})
+			require.NoError(t, err)
+			labels, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.NotContains(t, labels, "environment")
 		})
 
 		t.Run("InvalidLabelName", func(t *testing.T) {

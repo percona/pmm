@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"net"
 	"strings"
 
@@ -28,6 +29,21 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+// nodeEnvironmentLabel is the label that the Node environment sets. UnifiedLabels copies the custom labels over
+// the standard ones, so a custom label of that name would override the environment.
+const nodeEnvironmentLabel = "environment"
+
+// withoutLabel returns the labels without the named one: a copy when they have it, the labels themselves otherwise.
+func withoutLabel(labels map[string]string, name string) map[string]string {
+	if _, ok := labels[name]; !ok {
+		return labels
+	}
+
+	res := maps.Clone(labels)
+	delete(res, name)
+	return res
+}
 
 func checkUniqueNodeID(q *reform.Querier, id string) error {
 	if id == "" {
@@ -294,7 +310,14 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		IsPMMServerNode: params.IsPMMServerNode,
 		Environment:     params.Environment,
 	}
-	err = node.SetCustomLabels(params.CustomLabels)
+
+	customLabels := params.CustomLabels
+	if params.Environment != "" {
+		// Before the environment field, a custom label was the way to give a Node an environment. The field takes
+		// it over, as the custom label would otherwise override it.
+		customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+	}
+	err = node.SetCustomLabels(customLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +336,8 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // ChangeNodeParams contains the Node labels to change. A nil field keeps its value. A non-nil
-// CustomLabels replaces all custom labels, and an empty one removes them.
+// CustomLabels replaces all custom labels, and an empty one removes them. A non-nil Environment, empty included,
+// also removes an "environment" custom label, which would otherwise override it.
 type ChangeNodeParams struct {
 	Environment  *string
 	NodeModel    *string
@@ -363,8 +387,32 @@ func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*No
 		columns = append(columns, "region")
 	}
 
-	if params.CustomLabels != nil {
-		err = node.SetCustomLabels(params.CustomLabels)
+	customLabels := params.CustomLabels
+	switch {
+	case params.Environment != nil:
+		// The environment takes over a custom label of the same name, which would otherwise override it.
+		if customLabels == nil {
+			stored, err := node.GetCustomLabels()
+			if err != nil {
+				return nil, err
+			}
+			if _, ok := stored[nodeEnvironmentLabel]; ok {
+				customLabels = withoutLabel(stored, nodeEnvironmentLabel)
+			}
+		} else {
+			customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+		}
+
+	case node.Environment != "":
+		if _, ok := customLabels[nodeEnvironmentLabel]; ok {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"Node %s has an environment, so it can't also have an %q custom label; change the environment instead.",
+				node.NodeName, nodeEnvironmentLabel)
+		}
+	}
+
+	if customLabels != nil {
+		err = node.SetCustomLabels(customLabels)
 		if err != nil {
 			return nil, err
 		}

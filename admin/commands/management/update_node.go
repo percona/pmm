@@ -27,6 +27,7 @@ import (
 const updateNodeHelp = `Changes the labels of the Node in place: the Node, its Agents and its Services keep their IDs and
 history, and the metrics of the Node and of the Services on it carry the new labels from the next scrape.
 A Service with an environment of its own keeps it; the Node environment applies to the others.
+--environment also replaces an "environment" custom label, which would otherwise override it.
 
 Only the flags you pass are changed; everything else stays as it is. Use an empty value, e.g. --region=
 or --custom-labels=, to clear a label.`
