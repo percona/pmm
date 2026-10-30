@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 
@@ -290,30 +291,36 @@ func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
-		name       string
-		voters     int
-		members    int
-		left       int
-		wantVoters int
+		name        string
+		voters      int
+		members     int
+		left        int
+		unreachable bool
+		wantVoters  int
 	}{
 		{name: "keeps a failed node in a three-voter cluster", voters: 3, members: 2, wantVoters: 3},
 		{name: "keeps failed nodes in a five-voter cluster", voters: 5, members: 3, wantVoters: 5},
 		{name: "removes a node that left a three-voter cluster", voters: 3, members: 2, left: 1, wantVoters: 2},
 		{name: "removes nodes that left after a scale-down from five to three", voters: 5, members: 3, left: 2, wantVoters: 3},
 		{name: "keeps a node that left while another voter is down", voters: 3, members: 1, left: 1, wantVoters: 3},
+		{name: "keeps a node that left while another voter is unreachable over Raft", voters: 3, members: 2, left: 1, unreachable: true, wantVoters: 3},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			leader, leaderID := newTestRaftCluster(t, tc.voters)
+			leader, leaderID, _ := newTestRaftCluster(t, tc.voters)
 			ml := newTestMemberlist(t, leaderID)
 			s := newTestService(leaderID, leader, ml)
-			left := 0
+			members, left := 1, 0
 			for _, server := range raftServers(t, leader) {
 				switch {
 				case string(server.ID) == leaderID:
-				case ml.NumMembers() < tc.members:
+				case members < tc.members:
 					newTestMemberlist(t, string(server.ID), ml.LocalNode().Address())
+					members++
+					if tc.unreachable {
+						s.setUnreachable(server.ID, true)
+					}
 				case left < tc.left:
 					s.setLeft(string(server.ID), true)
 					left++
@@ -353,7 +360,7 @@ func TestService_HandleNodeEvent(t *testing.T) {
 	t.Run("the leader removes a node that left", func(t *testing.T) {
 		t.Parallel()
 
-		leader, leaderID := newTestRaftCluster(t, 3)
+		leader, leaderID, _ := newTestRaftCluster(t, 3)
 		ml := newTestMemberlist(t, leaderID)
 		s := newTestService(leaderID, leader, ml)
 		var followers []string
@@ -392,24 +399,24 @@ func TestMemberlistDelegate(t *testing.T) {
 	})
 
 	leaveMeta := func(name string, graceful bool) []byte {
-		delegate := &memberlistDelegate{}
+		s := New(&models.HAParams{Enabled: true, NodeID: name})
 		cfg := memberlist.DefaultLocalConfig()
 		cfg.Name = name
 		cfg.BindAddr = "127.0.0.1"
 		cfg.BindPort = 0
 		cfg.LogOutput = io.Discard
-		cfg.Delegate = delegate
+		cfg.Delegate = s.delegate
 		m, err := memberlist.Create(cfg)
 		require.NoError(t, err)
+		s.memberlist = m
 		_, err = m.Join([]string{observer.LocalNode().Address()})
 		require.NoError(t, err)
 
 		if graceful {
-			delegate.leaving.Store(true)
-			require.NoError(t, m.UpdateNode(time.Second))
-			require.NoError(t, m.Leave(time.Second))
+			s.leaveMemberlist()
+		} else {
+			require.NoError(t, m.Shutdown())
 		}
-		require.NoError(t, m.Shutdown())
 
 		for {
 			select {
@@ -425,6 +432,77 @@ func TestMemberlistDelegate(t *testing.T) {
 
 	assert.Equal(t, []byte(memberlistMetaLeaving), leaveMeta("graceful", true))
 	assert.Empty(t, leaveMeta("failed", false))
+
+	alone := New(&models.HAParams{Enabled: true, NodeID: "alone"})
+	alone.memberlist = newTestMemberlist(t, "alone")
+	start := time.Now()
+	alone.leaveMemberlist()
+	assert.Less(t, time.Since(start), defaultLeaveAnnounceTimeout, "a node without peers has no one to announce leaving to")
+}
+
+func TestService_HeartbeatObserver(t *testing.T) {
+	t.Parallel()
+
+	leader, leaderID, isolate := newTestRaftCluster(t, 3)
+	s := newTestService(leaderID, leader, nil)
+	s.startHeartbeatObserver(t.Context())
+	var follower raft.ServerID
+	for _, id := range raftServerIDs(t, leader) {
+		if id != leaderID {
+			follower = raft.ServerID(id)
+			break
+		}
+	}
+
+	heal := isolate(string(follower))
+	assert.Eventually(t, func() bool { return s.isUnreachable(follower) }, 10*time.Second, 10*time.Millisecond)
+
+	heal()
+	assert.Eventually(t, func() bool { return !s.isUnreachable(follower) }, 10*time.Second, 10*time.Millisecond)
+}
+
+func TestAliveQuorumWithout(t *testing.T) {
+	t.Parallel()
+
+	voters := func(ids ...string) []raft.Server {
+		servers := make([]raft.Server, 0, len(ids))
+		for _, id := range ids {
+			servers = append(servers, raft.Server{Suffrage: raft.Voter, ID: raft.ServerID(id)})
+		}
+		return servers
+	}
+	alive := func(ids ...string) map[string]struct{} {
+		m := make(map[string]struct{}, len(ids))
+		for _, id := range ids {
+			m[id] = struct{}{}
+		}
+		return m
+	}
+
+	for _, tc := range []struct {
+		name    string
+		servers []raft.Server
+		alive   map[string]struct{}
+		want    bool
+	}{
+		{name: "two voters, the other one leaves", servers: voters("l", "x"), alive: alive("l"), want: true},
+		{name: "three voters, the third is alive", servers: voters("l", "a", "x"), alive: alive("l", "a"), want: true},
+		{name: "three voters, the third is down", servers: voters("l", "a", "x"), alive: alive("l"), want: false},
+		{name: "five voters, three alive", servers: voters("l", "a", "b", "c", "x"), alive: alive("l", "a", "b"), want: true},
+		{name: "five voters, two alive", servers: voters("l", "a", "b", "c", "x"), alive: alive("l", "a"), want: false},
+		{
+			name:    "non-voters don't count",
+			servers: append(voters("l", "a", "x"), raft.Server{Suffrage: raft.Nonvoter, ID: "n"}),
+			alive:   alive("l", "a"),
+			want:    true,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, aliveQuorumWithout(tc.servers, tc.alive, "x"))
+		})
+	}
 }
 
 func TestService_RejoinMemberlist(t *testing.T) {
@@ -449,8 +527,9 @@ func newTestService(nodeID string, r *raft.Raft, m *memberlist.Memberlist) *Serv
 	return s
 }
 
-// newTestRaftCluster starts n in-memory Raft voters named pmm-ha-<i> and returns the leader once it has committed.
-func newTestRaftCluster(t *testing.T, n int) (*raft.Raft, string) {
+// newTestRaftCluster starts n in-memory Raft voters named pmm-ha-<i> and returns the leader once it has committed,
+// with a function that cuts a node off from the others and returns the function that reconnects it.
+func newTestRaftCluster(t *testing.T, n int) (*raft.Raft, string, func(id string) func()) {
 	t.Helper()
 
 	addrs := make([]raft.ServerAddress, n)
@@ -503,7 +582,25 @@ func newTestRaftCluster(t *testing.T, n int) (*raft.Raft, string) {
 		return false
 	}, 10*time.Second, 10*time.Millisecond)
 
-	return leader, leaderID
+	isolate := func(id string) func() {
+		i := slices.IndexFunc(servers, func(server raft.Server) bool { return string(server.ID) == id })
+		transports[i].DisconnectAll()
+		for j := range n {
+			if j != i {
+				transports[j].Disconnect(addrs[i])
+			}
+		}
+		return func() {
+			for j := range n {
+				if j != i {
+					transports[i].Connect(addrs[j], transports[j])
+					transports[j].Connect(addrs[i], transports[i])
+				}
+			}
+		}
+	}
+
+	return leader, leaderID, isolate
 }
 
 // newTestMemberlist starts a loopback memberlist node with the given name, joined to join if set.

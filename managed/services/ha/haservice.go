@@ -47,6 +47,7 @@ const (
 	defaultTransportTimeout     = 10 * time.Second
 	defaultLeaveTimeout         = 5 * time.Second
 	defaultLeaveAnnounceTimeout = 2 * time.Second
+	defaultObservationChanSize  = 16
 	defaultTickerInterval       = 5 * time.Second
 	defaultApplyTimeout         = 3 * time.Second
 	defaultRaftDataDir          = "/srv/ha"
@@ -86,9 +87,11 @@ type Service struct {
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
 
-	// leftMu guards left, the nodes that announced a graceful leave and haven't rejoined since.
-	leftMu sync.Mutex
-	left   map[string]struct{}
+	// peersMu guards left, the nodes that announced a graceful leave and haven't rejoined since,
+	// and unreachable, the voters this node failed to heartbeat as the leader.
+	peersMu     sync.Mutex
+	left        map[string]struct{}
+	unreachable map[raft.ServerID]struct{}
 }
 
 // memberlistDelegate lets other nodes tell a graceful leave from a failure: on shutdown, this node's metadata
@@ -261,6 +264,7 @@ func New(params *models.HAParams) *Service {
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
 		left:             make(map[string]struct{}),
+		unreachable:      make(map[raft.ServerID]struct{}),
 	}
 }
 
@@ -360,7 +364,10 @@ func (s *Service) Run(ctx context.Context) error {
 	}
 	defer func() {
 		if s.IsLeader() {
-			s.raftNode.LeadershipTransfer()
+			err := s.raftNode.LeadershipTransfer().Error()
+			if err != nil {
+				s.l.Warnf("Couldn't transfer leadership: %s", err)
+			}
 		}
 		err := s.raftNode.Shutdown().Error()
 		if err != nil {
@@ -384,34 +391,24 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
-	defer func() {
-		// memberlist delivers node events while holding its lock, and nothing else reads them once Run is returning.
-		drained := make(chan struct{})
-		defer close(drained)
-		go func() {
-			for {
-				select {
-				case <-s.nodeCh:
-				case <-drained:
-					return
-				}
+	// memberlist delivers node events while holding its lock, so keep reading them from the moment shutdown starts,
+	// when runRaftNodesSynchronizer stops, until memberlist has shut down.
+	drained := make(chan struct{})
+	context.AfterFunc(ctx, func() {
+		for {
+			select {
+			case <-s.nodeCh:
+			case <-drained:
+				return
 			}
-		}()
-
-		s.delegate.leaving.Store(true)
-		err := s.memberlist.UpdateNode(defaultLeaveAnnounceTimeout)
-		if err != nil {
-			s.l.Errorf("couldn't announce leaving the memberlist cluster: %q", err)
 		}
-		err = s.memberlist.Leave(defaultLeaveTimeout)
-		if err != nil {
-			s.l.Errorf("couldn't leave memberlist cluster: %q", err)
-		}
-		err = s.memberlist.Shutdown()
-		if err != nil {
-			s.l.Errorf("couldn't shutdown memberlist listeners: %q", err)
-		}
+	})
+	defer func() {
+		s.leaveMemberlist()
+		close(drained)
 	}()
+
+	s.startHeartbeatObserver(ctx)
 
 	if s.bootstrapCluster {
 		// Start the Raft node
@@ -457,6 +454,59 @@ func (s *Service) Run(ctx context.Context) error {
 	s.services.Wait()
 
 	return nil
+}
+
+// leaveMemberlist announces a graceful leave to the other nodes, then leaves memberlist and shuts it down.
+func (s *Service) leaveMemberlist() {
+	if s.memberlist.NumMembers() > 1 {
+		s.delegate.leaving.Store(true)
+		err := s.memberlist.UpdateNode(defaultLeaveAnnounceTimeout)
+		if err != nil {
+			s.l.Warnf("Couldn't announce leaving the memberlist cluster: %s", err)
+		}
+	}
+	err := s.memberlist.Leave(defaultLeaveTimeout)
+	if err != nil {
+		s.l.Errorf("couldn't leave memberlist cluster: %q", err)
+	}
+	err = s.memberlist.Shutdown()
+	if err != nil {
+		s.l.Errorf("couldn't shutdown memberlist listeners: %q", err)
+	}
+}
+
+// startHeartbeatObserver tracks which voters this node, while it is the leader, fails to reach over Raft.
+// Unlike memberlist, which takes over 30 s to declare a node dead, Raft reports a failed heartbeat right away.
+func (s *Service) startHeartbeatObserver(ctx context.Context) {
+	observations := make(chan raft.Observation, defaultObservationChanSize)
+	s.raftNode.RegisterObserver(raft.NewObserver(observations, false, func(o *raft.Observation) bool {
+		switch o.Data.(type) {
+		case raft.FailedHeartbeatObservation, raft.ResumedHeartbeatObservation, raft.LeaderObservation:
+			return true
+		default:
+			return false
+		}
+	}))
+
+	s.wg.Go(func() {
+		for {
+			select {
+			case o := <-observations:
+				switch data := o.Data.(type) {
+				case raft.FailedHeartbeatObservation:
+					s.setUnreachable(data.PeerID, true)
+				case raft.ResumedHeartbeatObservation:
+					s.setUnreachable(data.PeerID, false)
+				case raft.LeaderObservation:
+					s.peersMu.Lock()
+					clear(s.unreachable)
+					s.peersMu.Unlock()
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	})
 }
 
 func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
@@ -506,7 +556,7 @@ func (s *Service) handleNodeEvent(ctx context.Context, event memberlist.NodeEven
 }
 
 // aliveQuorumWithout reports whether a majority of the voters that remain after removing id is alive in memberlist.
-func aliveQuorumWithout(servers []raft.Server, alive map[string]*memberlist.Node, id raft.ServerID) bool {
+func aliveQuorumWithout(servers []raft.Server, alive map[string]struct{}, id raft.ServerID) bool {
 	var voters, aliveVoters int
 	for _, server := range servers {
 		if server.ID == id || server.Suffrage != raft.Voter {
@@ -521,8 +571,8 @@ func aliveQuorumWithout(servers []raft.Server, alive map[string]*memberlist.Node
 }
 
 func (s *Service) setLeft(name string, left bool) {
-	s.leftMu.Lock()
-	defer s.leftMu.Unlock()
+	s.peersMu.Lock()
+	defer s.peersMu.Unlock()
 	if left {
 		s.left[name] = struct{}{}
 	} else {
@@ -531,9 +581,26 @@ func (s *Service) setLeft(name string, left bool) {
 }
 
 func (s *Service) hasLeft(name string) bool {
-	s.leftMu.Lock()
-	defer s.leftMu.Unlock()
+	s.peersMu.Lock()
+	defer s.peersMu.Unlock()
 	_, ok := s.left[name]
+	return ok
+}
+
+func (s *Service) setUnreachable(id raft.ServerID, unreachable bool) {
+	s.peersMu.Lock()
+	defer s.peersMu.Unlock()
+	if unreachable {
+		s.unreachable[id] = struct{}{}
+	} else {
+		delete(s.unreachable, id)
+	}
+}
+
+func (s *Service) isUnreachable(id raft.ServerID) bool {
+	s.peersMu.Lock()
+	defer s.peersMu.Unlock()
+	_, ok := s.unreachable[id]
 	return ok
 }
 
@@ -615,8 +682,12 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 
 	// Build a map of current memberlist members for quick lookup
 	memberMap := make(map[string]*memberlist.Node)
+	alive := make(map[string]struct{})
 	for _, member := range members {
 		memberMap[member.Name] = member
+		if !s.isUnreachable(raft.ServerID(member.Name)) {
+			alive[member.Name] = struct{}{}
+		}
 	}
 
 	// Build a map of current Raft servers
@@ -635,7 +706,7 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 		}
 		// Raft counts quorum on the new configuration as soon as the change is appended, so a removal
 		// that the remaining live voters can't commit would make this leader step down.
-		if !aliveQuorumWithout(servers, memberMap, server.ID) {
+		if !aliveQuorumWithout(servers, alive, server.ID) {
 			s.l.Debugf("Keeping node %s in Raft: too few voters are alive to commit its removal", serverID)
 			continue
 		}
@@ -663,6 +734,7 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 				s.l.Errorf("Failed to add server %s to Raft: %v", member.Name, err)
 			} else {
 				s.l.Infof("Successfully added node %s to Raft cluster with address: %s", member.Name, serverAddress)
+				s.setUnreachable(raft.ServerID(member.Name), false)
 			}
 		}
 	}
@@ -680,6 +752,7 @@ func (s *Service) addMemberlistNodeToRaft(ctx context.Context, node *memberlist.
 		s.l.Errorf("Couldn't add a server node %s (address: %s): %s", node.Name, serverAddress, err)
 	} else {
 		s.l.Infof("Added node %s to Raft cluster with address: %s", node.Name, serverAddress)
+		s.setUnreachable(raft.ServerID(node.Name), false)
 	}
 }
 
