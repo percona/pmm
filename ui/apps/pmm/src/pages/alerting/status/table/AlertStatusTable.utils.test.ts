@@ -1,6 +1,10 @@
 import { type MRT_Row } from 'material-react-table';
 import { AlertsTableRow } from '../AlertsPage.types';
-import { filterTriggeredAt } from './AlertStatusTable.utils';
+import {
+  filterTriggeredAt,
+  getSeverityFilterValue,
+  sortBySeverity,
+} from './AlertStatusTable.utils';
 
 const createRow = (activeAt?: string) =>
   ({
@@ -79,5 +83,38 @@ describe('filterTriggeredAt', () => {
     expect(filterTriggeredAt(row, 'activeAt', [new Date('invalid'), ''])).toBe(
       true
     );
+  });
+});
+
+describe('getSeverityFilterValue', () => {
+  it('filters by band and falls back to unknown', () => {
+    expect(getSeverityFilterValue('alert')).toBe('critical');
+    expect(getSeverityFilterValue('notice')).toBe('info');
+    expect(getSeverityFilterValue(undefined)).toBe('unknown');
+    expect(getSeverityFilterValue('custom')).toBe('unknown');
+  });
+});
+
+describe('sortBySeverity', () => {
+  const alert = (severity?: string) =>
+    ({
+      type: 'alert',
+      labels: severity ? { severity } : {},
+    }) as AlertsTableRow;
+
+  it('orders most severe first and unrecognized last', () => {
+    const sorted = ['custom', 'debug', 'warning', 'emergency', 'error', 'alert']
+      .map(alert)
+      .sort(sortBySeverity)
+      .map((row) => row.type === 'alert' && row.labels.severity);
+
+    expect(sorted).toEqual([
+      'emergency',
+      'alert',
+      'error',
+      'warning',
+      'debug',
+      'custom',
+    ]);
   });
 });
