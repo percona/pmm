@@ -21,6 +21,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15168](https://perconadev.atlassian.net/browse/PMM-15168): PMM Server reads its database passwords, the admin password and Grafana's secret key from files. It no longer writes them into its program configuration files, and it removes the environment variables it reads them from before it starts its services. You can supply them as files, for example from a secrets manager. For details, see [Supply credentials as files](../admin/security/credentials_as_files.md).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

@@ -74,6 +74,21 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("Credential file variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_SECRETS_DIR=/etc/pmm/secrets",
+			"PMM_CLICKHOUSE_PASSWORD_FILE=/etc/pmm/ch",
+			"PMM_GRAFANA_SECRET_KEY_FILE=/etc/pmm/key",
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("AWS SDK env variables", func(t *testing.T) {
 		t.Parallel()
 

@@ -37,6 +37,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -72,6 +73,9 @@ type Service struct {
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
 	haParams *models.HAParams
+
+	// secretExists reports whether a credential was resolved; tests replace it.
+	secretExists func(secrets.Name) bool
 }
 
 // values from supervisord configuration.
@@ -89,6 +93,7 @@ func New(configDir string, params *models.Params) *Service {
 		vmParams:          params.VMParams,
 		pgParams:          params.PGParams,
 		haParams:          params.HAParams,
+		secretExists:      secrets.Exists,
 	}
 }
 
@@ -306,7 +311,11 @@ environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
 	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+{{- if .ClickhousePasswordFile }}
+	PMM_CLICKHOUSE_PASSWORD_FILE="{{ .ClickhousePasswordFile }}",
+{{- else }}
 	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+{{- end }}
 
 
 autorestart = true
@@ -328,11 +337,13 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
+        {{- if .GrafanaSecretKeyFile }}
+        cfg:security.secret_key=$__file{{ "{" }}{{ .GrafanaSecretKeyFile }}{{ "}" }}
+        {{- end }}
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
     PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
     PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
@@ -340,7 +351,15 @@ environment =
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_DATASOURCE_USER="{{ .ClickhouseDatasourceUser }}",
+    {{- if not .DatasourcePasswordFile }}
     PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
+    {{- end }}
+    {{- if .GrafanaDBPasswordFile }}
+    GF_DATABASE_PASSWORD="$__file{{ "{" }}{{ .GrafanaDBPasswordFile }}{{ "}" }}",
+    {{- end }}
+    {{- if .AdminPasswordFile }}
+    GF_SECURITY_ADMIN_PASSWORD="$__file{{ "{" }}{{ .AdminPasswordFile }}{{ "}" }}",
+    {{- end }}
     {{- if .PMMServerHost}}
     GF_SERVER_DOMAIN="{{ .PMMServerHost }}",
     {{- end}}
@@ -456,8 +475,13 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
+		"ClickhousePasswordFile":       s.credentialFile(secrets.ClickHousePassword),
 		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
 		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
+		"DatasourcePasswordFile":       s.credentialFile(secrets.ClickHouseDatasourcePassword),
+		"GrafanaDBPasswordFile":        s.credentialFile(secrets.GrafanaDBPassword),
+		"AdminPasswordFile":            s.credentialFile(secrets.AdminPassword),
+		"GrafanaSecretKeyFile":         s.credentialFile(secrets.GrafanaSecretKey),
 		"PMMServerHost":                "",
 	}
 
@@ -485,6 +509,16 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
+// credentialFile returns the path of a resolved credential, or an empty string. Without one, a program keeps what it
+// was given before PMM-15168: no credential at all, or the value. That happens only in an image whose entrypoint
+// predates the secrets step, as in the development container, or when the credential is left unset.
+func (s *Service) credentialFile(name secrets.Name) string {
+	if !s.secretExists(name) {
+		return ""
+	}
+	return secrets.Path(name)
+}
+
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func (s *Service) addPostgresParams(templateParams map[string]any) {
 	if s.pgParams == nil {
@@ -493,7 +527,6 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
-	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
 	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath

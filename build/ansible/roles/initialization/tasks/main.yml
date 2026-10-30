@@ -64,12 +64,14 @@
       - name: Create grafana user in postgres
         postgresql_user:
           name: grafana
-          password: grafana
+          password: "{{ lookup('file', '/run/pmm/secrets/grafana-db-password') | trim }}"
           expires: infinity
           login_user: postgres
           state: present
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+          # The statement carries the password, which pg_stat_statements would otherwise record.
+          PGOPTIONS: "-c pg_stat_statements.track_utility=off"
 
       # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
       # database is what lets the user create tables in it.
