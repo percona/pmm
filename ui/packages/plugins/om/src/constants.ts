@@ -164,8 +164,8 @@ export const SCAN_ERROR_KIND: Record<
     hint: 'The scan started but did not finish in time. Check that the node is up and not overloaded.',
   },
   blocked: {
-    label: 'Blocked by a stuck scan',
-    hint: "A scan that was given up on could not be stopped, and blocks this node's next scans until it is stopped.",
+    label: 'Scan could not be stopped',
+    hint: 'A scan that was given up on could not be stopped and may still be running on the node. It does not hold up later scans. Check that the node is up and not overloaded.',
   },
   environment_setup_failed: {
     label: 'Environment setup failed',
