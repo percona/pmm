@@ -808,7 +808,8 @@ describe('FleetClustersTab', () => {
       showColumn('Min conn. free');
 
       const orders = rowOf('orders');
-      expect(orders).toHaveTextContent('15m ago');
+      // A slow runner can tick past the minute between fixture and render.
+      expect(orders).toHaveTextContent(/15m( \d+s)? ago/);
       expect(orders).toHaveTextContent('85.5%');
       expect(orders).toHaveTextContent('70.0%');
       // Nobody reporting is a dash with its reason, never a zero.
