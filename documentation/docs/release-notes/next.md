@@ -21,6 +21,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15787](https://perconadev.atlassian.net/browse/PMM-15787): Fixed an issue where a PMM High Availability (HA) cluster could stay without a leader for several minutes with two of its three nodes running, after it lost one node and then the leader. A node that fails now keeps its vote, so any two running nodes elect a leader. The `/v1/ha/nodes` endpoint now lists a node that is down with the status `dead` instead of leaving it out. For details, see [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
