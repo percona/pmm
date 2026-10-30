@@ -137,6 +137,8 @@ pmm-admin update node --node-id=<NODE_ID> --custom-labels=team=db,tier=1
 
 The same rules apply as for services: only the flags that you pass are changed, an empty value clears a label, `--custom-labels` replaces all custom labels, and `--dry-run` previews the change.
 
+If you gave the node an environment with a custom label, for example `--custom-labels=environment=staging` when you registered it, `--environment` replaces that custom label. While the node has an environment, it can't also have an `environment` custom label, because the custom label would override it.
+
 A service takes the environment of its node unless it sets its own. To make a service use the environment of its node, clear the environment of the service:
 
 ```bash
