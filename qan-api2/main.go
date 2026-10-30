@@ -359,6 +359,7 @@ func main() {
 
 	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
 	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
+	clickhouseNodesF := kingpin.Flag("clickhouse-nodes", "Comma-separated ClickHouse replica hosts (PMM HA)").Default("").Envar("PMM_CLICKHOUSE_NODES").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -393,7 +394,11 @@ func main() {
 	}
 	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
+	chNodes, err := openNodes(dsn, *clickhouseNodesF)
+	if err != nil {
+		l.Fatalf("ClickHouse nodes: %v", err)
+	}
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF, chNodes)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	seedRetentionCounters()
@@ -443,6 +448,12 @@ func main() {
 			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
 		})
 	})
+
+	if len(chNodes) > 0 {
+		wg.Go(func() {
+			runPmmRepairLoop(ctx, chNodes, *clickhouseDatabaseF)
+		})
+	}
 
 	wg.Wait()
 }

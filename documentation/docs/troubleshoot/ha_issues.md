@@ -270,29 +270,75 @@ kubectl get pods -n pmm | grep -E 'vmstorage|vmselect|vminsert|vmagent'
 !!! note ""
     Metrics for a newly added service appear after a few scrape intervals. An empty result immediately after adding a service does not indicate a problem.
 
-## Query Analytics shows no data
+## Query Analytics (QAN) shows no data
 
-QAN is empty while dashboards show data.
+The [PMM Query Analytics](../use/qan/index.md) dashboard shows no queries, but other dashboards for the same database, such as **MySQL Instance Summary**, still show data like CPU usage and connections. 
 
-First check the PMM HA Health Overview dashboard and the Inventory page as described above. Continue only if ClickHouse is healthy and your services are listed.
+This means PMM can reach your database, so the problem is with collecting or storing QAN data. In PMM HA, QAN data is stored in a separate ClickHouse cluster, not on the PMM Server pod.
 
-**Cause:** QAN data is stored in the external ClickHouse cluster, not on the PMM Server pod.
+### Find out why QAN shows no data
 
-**Fix:** Check that the ClickHouse pods and their Keeper pods are running, and read their logs:
+Don't try to fix this by enabling **Query Analytics for PMM Server** under **Configuration > Settings > Advanced Settings**. That setting shows queries from the PMM Server database, not from your databases, and PMM HA already turns it on. If you try, you see the error `QAN for internal PostgreSQL is already configured via an environment variable`.
+
+Instead, check where QAN data stops, in this order:
+
+1. Go to **All Dashboards > PMM Health > PMM HA Health Overview** and check that ClickHouse is healthy. You can't see QAN data until ClickHouse is running.
+2. Go to **Inventory > Services** and check that the agents for your database are running. PMM collects QAN data through these agents, so fix any agent that isn't running.
+3. Check that the ClickHouse pods and their Keeper pods are running:
+
+    ```sh
+    kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
+    ```
+
+4. Read the ClickHouse logs and look for errors:
+
+    ```sh
+    kubectl logs -n pmm pmm-ha-pmmdb-0-0-0 -c clickhouse --tail=100
+    ```
+
+5. Read `qan-api2.log` on the PMM Server pod and look for errors:
+
+    ```sh
+    kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/qan-api2.log
+    ```
+
+## Query Analytics shows different data on different PMM nodes
+
+The [PMM Query Analytics](../use/qan/index.md) dashboard misses queries or shows changing totals after a PMM pod restarts or the leader changes.
+
+**Cause:** Your PMM HA setup stores QAN data across multiple ClickHouse servers that share a single `pmm` database and keep it synchronized.
+
+In PMM versions earlier than 3.11.0, a server that was unavailable during installation, or that lost its data during a pod restart or restore, could create a separate `pmm` database instead of rejoining the shared database.
+
+When this happens, ClickHouse doesn't synchronize the separate database with the others. As a result, your QAN data becomes split across servers, and the dashboard displays only part of the data.
+
+Each `pmm` database has its own ID, called a UUID. To find the server with the separate database, compare the UUIDs across your servers.
+
+**Check:** Run the following command to see the UUID of the `pmm` database on each of your ClickHouse servers. The server that shows a different UUID, or no UUID at all, has the separate database:
 
 ```sh
-kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
-kubectl logs -n pmm pmm-ha-pmmdb-0-0-0 -c clickhouse --tail=100
+CHU=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_USER}' | base64 -d)
+CHPW=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_PASSWORD}' | base64 -d)
+for r in 0 1 2; do
+  kubectl exec -n pmm pmm-ha-pmmdb-0-$r-0 -c clickhouse -- clickhouse-client -u "$CHU" --password "$CHPW" \
+    -q "SELECT uuid FROM system.databases WHERE name = 'pmm'"
+done
 ```
 
-Then check `qan-api2.log` on the PMM Server pod:
+**Fix:** We recommend that you [upgrade PMM](../pmm-upgrade/upgrade_helm_ha.md) to 3.11.0 or later. PMM then repairs this automatically. Every 10 minutes, the HA leader checks the copies on all ClickHouse servers and keeps the one with the most data. It replaces every copy that doesn't match and creates the database on any server that has none. ClickHouse then copies the data from the kept copy to the other servers. Data that exists only in a replaced copy is deleted.
+
+To check what PMM changed and how much data it removed, [find the leader pod](#check-cluster-health) and search its `qan-api2.log`:
 
 ```sh
-kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/qan-api2.log
+kubectl exec -n pmm <leader-pod> -c pmm-ha -- grep pmm-db /srv/logs/qan-api2.log
 ```
 
-!!! note ""
-    The **Query Analytics for PMM Server** option under **Configuration > Settings > Advanced Settings** cannot be enabled in HA mode. It returns `QAN for internal PostgreSQL is already configured via an environment variable`. This is expected.
+Each log line tells you what happened:
+
+- `Recreated the pmm database ...`: the server held a mismatched copy, so PMM replaced it. `dropped_rows` shows how many rows were deleted.
+- `Created the missing pmm database ...`: the server had no `pmm` database, so PMM created it.
+- `Skipped the pmm database check.`: a ClickHouse server didn't respond, so PMM made no changes. PMM checks again in 10 minutes.
+- `Failed to recreate the pmm database.`: PMM couldn't replace the mismatched copy on a server. The error in the log explains why. PMM tries again in 10 minutes.
 
 ## A backup or restore fails
 
