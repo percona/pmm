@@ -547,6 +547,35 @@ func TestService_HasOtherVoters(t *testing.T) {
 	assert.True(t, newTestService(leaderID, leader, nil).hasOtherVoters())
 }
 
+func TestBootstrapsCluster(t *testing.T) {
+	t.Parallel()
+
+	peers := []string{
+		"pmm-ha-0.monitoring-service.pmm.svc.cluster.local",
+		"pmm-ha-1.monitoring-service.pmm.svc.cluster.local",
+		"pmm-ha-2.monitoring-service.pmm.svc.cluster.local",
+	}
+	for _, tc := range []struct {
+		name   string
+		nodeID string
+		nodes  []string
+		want   bool
+	}{
+		{name: "no peers", nodeID: "pmm-ha-0", want: true},
+		{name: "first peer", nodeID: "pmm-ha-0", nodes: peers, want: true},
+		{name: "other peer", nodeID: "pmm-ha-2", nodes: peers, want: false},
+		{name: "peer with a port", nodeID: "pmm-ha-1", nodes: []string{"pmm-ha-0.svc:9096", "pmm-ha-1.svc:9096"}, want: false},
+		{name: "IP peers", nodeID: "pmm-ha-1", nodes: []string{"10.0.0.1", "10.0.0.2"}, want: true},
+		{name: "node ID not among peers", nodeID: "node-2", nodes: []string{"pmm-a.example.com", "pmm-b.example.com"}, want: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, bootstrapsCluster(&models.HAParams{NodeID: tc.nodeID, Nodes: tc.nodes}))
+		})
+	}
+}
+
 func TestRaftReachable(t *testing.T) {
 	t.Parallel()
 

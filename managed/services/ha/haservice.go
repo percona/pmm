@@ -255,11 +255,31 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	return logStore, stableStore, snapshotStore, nil
 }
 
+// bootstrapsCluster reports whether this node bootstraps the Raft cluster: only the first of PMM_HA_PEERS, which then adds
+// the others, so that no node starts a cluster of its own, unless the peers aren't named <node ID>.<domain> as the chart does.
+func bootstrapsCluster(params *models.HAParams) bool {
+	ids := make([]string, 0, len(params.Nodes))
+	for _, peer := range params.Nodes {
+		host, _, err := net.SplitHostPort(peer)
+		if err != nil {
+			host = peer
+		}
+		if net.ParseIP(host) != nil {
+			return true
+		}
+		ids = append(ids, strings.Split(host, ".")[0])
+	}
+	if !slices.Contains(ids, params.NodeID) {
+		return true
+	}
+	return ids[0] == params.NodeID
+}
+
 // New provides a new instance of the high availability service.
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
-		bootstrapCluster: true,
+		bootstrapCluster: bootstrapsCluster(params),
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
