@@ -1,6 +1,6 @@
 import {
-  FC,
-  PropsWithChildren,
+  type FC,
+  type PropsWithChildren,
   useEffect,
   useMemo,
   useRef,
@@ -23,7 +23,7 @@ import {
 } from './auth.utils';
 import { consumeReturnTo } from './auth.returnTo';
 import { constructUrl } from 'utils/link.utils';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { type AxiosError, HttpStatusCode } from 'axios';
 import { useFrontendSettings } from 'hooks/api/useSettings';
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -38,19 +38,25 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     ensureClientSessionListener();
   }, []);
 
-  const { error, isLoading, data } = useQuery({
+  const { error, isLoading, isFetched, data } = useQuery({
     queryKey: ROTATE_TOKEN_QUERY_KEY,
     queryFn: async () => {
       const token = await rotateToken();
       establishClientSession();
       return token;
     },
-    refetchInterval: () => getRefetchInterval(),
+    // Without a session (anonymous access) there is nothing to rotate.
+    refetchInterval: (query) =>
+      query.state.data ? getRefetchInterval() : false,
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: () => (isSessionExpired() ? 'always' : false),
+    refetchOnWindowFocus: (query) =>
+      query.state.data && isSessionExpired() ? 'always' : false,
     retry: false,
   });
 
+  // A refetch without data goes back to pending; holding the tree back then would re-mount the
+  // Grafana iframe, so only the first check counts as loading.
+  const isCheckingSession = isLoading && !isFetched;
   const hasServerSession = Boolean(data);
   const isLoggedIn = hasServerSession && clientSessionEstablished;
   const isAnonymous = !isLoggedIn && Boolean(settings.data?.anonymousEnabled);
@@ -110,7 +116,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     settings.data?.anonymousEnabled,
   ]);
 
-  if (isLoading || settings.isLoading) {
+  if (isCheckingSession || settings.isLoading) {
     return null;
   }
 
@@ -134,7 +140,9 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoading, isLoggedIn, isAnonymous }}>
+    <AuthContext.Provider
+      value={{ isLoading: isCheckingSession, isLoggedIn, isAnonymous }}
+    >
       {children}
     </AuthContext.Provider>
   );
