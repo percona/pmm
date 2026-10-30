@@ -27,9 +27,12 @@ import {
 import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import {
+  MRT_ExpandAllButton,
+  MRT_ExpandButton,
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  type MRT_Row,
 } from 'material-react-table';
 import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
@@ -51,6 +54,12 @@ import {
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
+import {
+  GroupBySelect,
+  NO_GROUPING,
+  useSessionGrouping,
+  type GroupByOption,
+} from './components/GroupBySelect';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -100,6 +109,46 @@ const HIDDEN_BY_DEFAULT = {
   config_path: false,
   argv: false,
   node_id: false,
+  cluster_id: false,
+};
+
+/** Flat by default, as the tab has always opened; the grouping keys lead the columns. */
+const GROUP_BY_OPTIONS: GroupByOption[] = [
+  { value: 'env_name', label: 'Environment' },
+  { value: 'cluster_id', label: 'Cluster' },
+  { value: NO_GROUPING, label: 'None' },
+];
+
+/**
+ * Widths while grouped, which adds the expand column the flat table does not have.
+ *
+ * The default columns add up to 1039px: the ~1056px the page gets at 1440 with the
+ * nav open, less the 17px a classic (non-overlay) scrollbar takes. The expand column
+ * holds only the 28px toggle (a group's header runs across the row), and Member
+ * state's values (PRIMARY, RECOVERING) need far less than 185px, so it gives up the
+ * toggle's 44px and grouped stays at 1039. With `layoutMode: 'grid'` a size is a
+ * minimum, so the columns still fill the row where the scrollbar overlays (PMM-15767).
+ */
+const GROUPED_COLUMN_SIZING = {
+  'mrt-row-expand': 44,
+  state: 141,
+};
+
+/** What a group header calls a group whose services carry no name for it. */
+const UNNAMED_GROUP: Record<string, string> = {
+  env_name: 'Unassigned environment',
+  cluster_id: 'No cluster',
+};
+
+/**
+ * Read off the row, not `groupingValue`: TanStack stringifies that, so an unset
+ * name arrives as "null" or "undefined".
+ */
+const groupLabel = (row: MRT_Row<OmServiceInventoryRow>) => {
+  const column = row.groupingColumnId as 'env_name' | 'cluster_id';
+  const name =
+    column === 'env_name' ? row.original.env_name : row.original.cluster_name;
+  return name || UNNAMED_GROUP[column];
 };
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
@@ -109,16 +158,26 @@ function useColumns(
   return useMemo(
     () => [
       {
-        accessorKey: 'env_name',
+        // '' for unset, so null and undefined fall into one group rather than two.
+        accessorFn: (row) => row.env_name ?? '',
+        id: 'env_name',
         header: 'Environment',
         Cell: ({ row: { original } }) =>
           original.env_name ?? <Unavailable reason="not_applicable" />,
       },
       {
-        accessorKey: 'cluster_name',
+        accessorFn: (row) => row.cluster_name ?? '',
+        id: 'cluster_name',
         header: 'Cluster',
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
+      },
+      {
+        // Grouping only, never shown: the Cluster select option groups on the id so
+        // two clusters sharing a name, or both unnamed, stay apart.
+        accessorKey: 'cluster_id',
+        header: 'Cluster ID',
+        visibleInShowHideMenu: false,
       },
       {
         accessorKey: 'service_name',
@@ -209,7 +268,9 @@ function useColumns(
       },
       {
         id: 'last_success_at',
-        size: 140,
+        // With Repl. lag, sized so the default columns add up to 1039px; see
+        // GROUPED_COLUMN_SIZING.
+        size: 130,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
         // never answered next to the oldest one rather than at the end.
@@ -256,7 +317,8 @@ function useColumns(
       },
       {
         accessorKey: 'replication_lag_seconds',
-        size: 145,
+        // With Collected, sized so the default columns add up to 1039px.
+        size: 134,
         header: 'Repl. lag',
         Cell: ({ row: { original } }) => (
           <Duration value={original.replication_lag_seconds} />
@@ -457,6 +519,11 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
+  const [grouping, setGrouping] = useSessionGrouping<string>(
+    'om.fleet.services.grouping',
+    GROUP_BY_OPTIONS,
+    NO_GROUPING
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
@@ -499,6 +566,79 @@ export const FleetServicesTab = () => {
     columns,
     data: rows,
     enableGrouping: true,
+    // Grouping is the toolbar select's job: no drag handle on any header, and no
+    // "grouped by" banner offering a second way to change it. The grouped column
+    // says the same thing on every row of its group, so it leaves the rows.
+    enableColumnDragging: false,
+    positionToolbarAlertBanner: 'none',
+    groupedColumnMode: 'remove',
+    renderTopToolbarCustomActions: ({ table }) => (
+      <GroupBySelect
+        options={GROUP_BY_OPTIONS}
+        value={grouping}
+        onChange={(value) => {
+          setGrouping(value);
+          // Every group of the new grouping opens, as a fresh grouping should.
+          table.setExpanded(true);
+        }}
+      />
+    ),
+    // MRT labels every toggle "Expand" whatever its state; a group's says which
+    // group and whether it is open.
+    muiExpandButtonProps: ({ row }) =>
+      row.getIsGrouped()
+        ? {
+            'aria-expanded': row.getIsExpanded(),
+            'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${groupLabel(row)}`,
+          }
+        : {},
+    displayColumnDefOptions: {
+      'mrt-row-expand': {
+        size: 60,
+        // Just the expand-all control: the "remove" mode's default header lists the
+        // grouped columns' names, which the select already shows.
+        Header: ({ table }) => <MRT_ExpandAllButton table={table} />,
+        Cell: ({ row, table, staticRowIndex }) => {
+          if (!row.groupingColumnId) {
+            return null;
+          }
+          return (
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={0.5}
+              sx={{ width: 'max-content' }}
+            >
+              <MRT_ExpandButton
+                row={row}
+                table={table}
+                staticRowIndex={staticRowIndex}
+              />
+              <Typography variant="subtitle2" component="span">
+                {groupLabel(row)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                ({row.subRows?.length ?? 0})
+              </Typography>
+            </Stack>
+          );
+        },
+        // A group header is wider than the expand column; its row has nothing in
+        // the other cells, so it runs across them - above them, or their backgrounds
+        // paint over it.
+        muiTableBodyCellProps: ({ row }) =>
+          row.getIsGrouped()
+            ? {
+                sx: {
+                  overflow: 'visible',
+                  whiteSpace: 'nowrap',
+                  position: 'relative',
+                  zIndex: 1,
+                },
+              }
+            : {},
+      },
+    },
     // See FleetClustersTab: without these MRT sizes every column to its header's
     // chrome rather than its content, and the table overflows the width the page
     // actually gets. The per-column menu's only verb beyond sorting is "hide this
@@ -525,9 +665,14 @@ export const FleetServicesTab = () => {
             setSelectedId(row.original.service_id ?? null);
           },
     }),
+    state: {
+      grouping: grouping === NO_GROUPING ? [] : [grouping],
+      columnSizing: grouping === NO_GROUPING ? {} : GROUPED_COLUMN_SIZING,
+    },
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
+      expanded: true,
       // Down services first, so a failure is the first row a reader sees.
       sorting: [
         { id: 'status', desc: false },

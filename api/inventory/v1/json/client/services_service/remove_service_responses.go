@@ -307,8 +307,8 @@ type RemoveServiceDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// remove service default body details items0
-	RemoveServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// remove service default body details items0 additional properties
+	RemoveServiceDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -343,7 +343,7 @@ func (o *RemoveServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 			}
 			result[k] = toadd
 		}
-		o.RemoveServiceDefaultBodyDetailsItems0 = result
+		o.RemoveServiceDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -364,12 +364,12 @@ func (o RemoveServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.RemoveServiceDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.RemoveServiceDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.RemoveServiceDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.RemoveServiceDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
