@@ -17,11 +17,14 @@ package ha
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	raftboltdb "github.com/hashicorp/raft-boltdb/v2"
 	"github.com/sirupsen/logrus"
@@ -281,6 +284,166 @@ func TestService_BroadcastMessage(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "HA is disabled")
 	})
+}
+
+func TestService_ReconcileRaftWithMemberlist(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name       string
+		voters     int
+		members    int
+		wantVoters int
+	}{
+		{name: "keeps a lost node in a three-voter cluster", voters: 3, members: 2, wantVoters: 3},
+		{name: "removes nodes that left after a scale-down from five to three", voters: 5, members: 3, wantVoters: 3},
+		{name: "never shrinks below three voters", voters: 5, members: 1, wantVoters: 3},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			leader := newTestRaftCluster(t, tc.voters)
+			_, leaderID := leader.LeaderWithID()
+			ml := newTestMemberlist(t, string(leaderID))
+			for _, server := range raftServers(t, leader) {
+				if ml.NumMembers() == tc.members {
+					break
+				}
+				if server.ID != leaderID {
+					newTestMemberlist(t, string(server.ID), ml.LocalNode().Address())
+				}
+			}
+			require.Eventually(t, func() bool { return ml.NumMembers() == tc.members }, 5*time.Second, 10*time.Millisecond)
+
+			s := &Service{
+				params:     &models.HAParams{Enabled: true, NodeID: string(leaderID)},
+				l:          logrus.WithField("component", "ha-test"),
+				raftNode:   leader,
+				memberlist: ml,
+			}
+			s.reconcileRaftWithMemberlist(t.Context())
+
+			servers := raftServers(t, leader)
+			voters := make([]string, 0, len(servers))
+			for _, server := range servers {
+				voters = append(voters, string(server.ID))
+			}
+			assert.Len(t, voters, tc.wantVoters)
+			for _, member := range ml.Members() {
+				assert.Contains(t, voters, member.Name)
+			}
+		})
+	}
+}
+
+func TestService_RejoinMemberlist(t *testing.T) {
+	t.Parallel()
+
+	local := newTestMemberlist(t, "pmm-ha-0")
+	peer := newTestMemberlist(t, "pmm-ha-1")
+	require.Equal(t, 1, local.NumMembers())
+
+	s := &Service{
+		params: &models.HAParams{
+			Enabled: true,
+			NodeID:  "pmm-ha-0",
+			Nodes:   []string{local.LocalNode().Address(), peer.LocalNode().Address(), "127.0.0.1:1"},
+		},
+		l:          logrus.WithField("component", "ha-test"),
+		memberlist: local,
+	}
+	s.rejoinMemberlist(t.Context())
+
+	assert.Equal(t, 2, local.NumMembers())
+	assert.Eventually(t, func() bool { return peer.NumMembers() == 2 }, 5*time.Second, 10*time.Millisecond)
+}
+
+// newTestRaftCluster starts n in-memory Raft voters named pmm-ha-<i> and returns the elected leader.
+func newTestRaftCluster(t *testing.T, n int) *raft.Raft {
+	t.Helper()
+
+	addrs := make([]raft.ServerAddress, n)
+	transports := make([]*raft.InmemTransport, n)
+	servers := make([]raft.Server, n)
+	for i := range n {
+		addrs[i], transports[i] = raft.NewInmemTransport("")
+		servers[i] = raft.Server{Suffrage: raft.Voter, ID: raft.ServerID(fmt.Sprintf("pmm-ha-%d", i)), Address: addrs[i]}
+	}
+	for i, from := range transports {
+		for j, to := range transports {
+			if i != j {
+				from.Connect(addrs[j], to)
+			}
+		}
+	}
+
+	nodes := make([]*raft.Raft, n)
+	for i := range n {
+		cfg := raft.DefaultConfig()
+		cfg.LocalID = servers[i].ID
+		cfg.LogOutput = io.Discard
+		cfg.HeartbeatTimeout = 50 * time.Millisecond
+		cfg.ElectionTimeout = 50 * time.Millisecond
+		cfg.LeaderLeaseTimeout = 50 * time.Millisecond
+		cfg.CommitTimeout = 5 * time.Millisecond
+
+		store := raft.NewInmemStore()
+		snapshots := raft.NewInmemSnapshotStore()
+		err := raft.BootstrapCluster(cfg, store, store, snapshots, transports[i], raft.Configuration{Servers: servers})
+		require.NoError(t, err)
+
+		r, err := raft.NewRaft(cfg, &Service{l: logrus.WithField("component", "ha-test")}, store, store, snapshots, transports[i])
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, r.Shutdown().Error())
+		})
+		nodes[i] = r
+	}
+
+	var leader *raft.Raft
+	require.Eventually(t, func() bool {
+		for _, r := range nodes {
+			if r.State() == raft.Leader {
+				leader = r
+				return true
+			}
+		}
+		return false
+	}, 5*time.Second, 10*time.Millisecond)
+
+	return leader
+}
+
+// newTestMemberlist starts a loopback memberlist node with the given name, joined to join if set.
+func newTestMemberlist(t *testing.T, name string, join ...string) *memberlist.Memberlist {
+	t.Helper()
+
+	cfg := memberlist.DefaultLocalConfig()
+	cfg.Name = name
+	cfg.BindAddr = "127.0.0.1"
+	cfg.BindPort = 0
+	cfg.LogOutput = io.Discard
+
+	m, err := memberlist.Create(cfg)
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, m.Shutdown())
+	})
+
+	if len(join) != 0 {
+		_, err = m.Join(join)
+		require.NoError(t, err)
+	}
+
+	return m
+}
+
+func raftServers(t *testing.T, r *raft.Raft) []raft.Server {
+	t.Helper()
+
+	future := r.GetConfiguration()
+	require.NoError(t, future.Error())
+	return future.Configuration().Servers
 }
 
 type mockSnapshotSink struct {
