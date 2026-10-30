@@ -251,6 +251,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
 				pointer.ToStringOrNil(req.Version),
+				pointer.ToStringOrNil(req.StatusMessage),
 			)
 			if err != nil {
 				return err
@@ -362,6 +363,7 @@ func updateAgentStatus(
 	listenPort uint32,
 	processExecPath *string,
 	version *string,
+	statusMessage *string,
 ) error {
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
@@ -385,8 +387,14 @@ func updateAgentStatus(
 			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, status)
 		}
 		status = inventoryv1.AgentStatus_AGENT_STATUS_DONE
+		statusMessage = nil
 	}
 
+	// A status change replaces the message, so an explanation never outlives the status it explained.
+	// The same status without one is a re-send (SendActualStatuses on reconnect), so keep the stored one.
+	if statusMessage != nil || agent.Status != status.String() {
+		agent.StatusMessage = statusMessage
+	}
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16

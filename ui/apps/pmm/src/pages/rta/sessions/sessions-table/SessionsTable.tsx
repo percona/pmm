@@ -7,7 +7,10 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/peak-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_URL_STATE_OPTIONS } from './SessionsTable.constants.ts';
-import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants.tsx';
+import {
+  columnId,
+  SESSIONS_TABLE_COLUMNS,
+} from './SessionsTable.constants.tsx';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
@@ -131,7 +134,7 @@ const SessionsTable: FC = () => {
           columnOrder: [
             'mrt-row-expand',
             'mrt-row-select',
-            ...SESSIONS_TABLE_COLUMNS.map((column) => column.accessorKey || ''),
+            ...SESSIONS_TABLE_COLUMNS.map(columnId),
             ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}

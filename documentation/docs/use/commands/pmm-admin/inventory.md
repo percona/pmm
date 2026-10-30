@@ -225,7 +225,7 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 To change `pmm-agent` itself, for example its PMM Server address, use [`pmm-admin config`](config.md) instead. For every other agent, replace `<AGENT_TYPE>` with one of the following agent types:
 
 - MongoDB: `mongodb-exporter`, `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent`, `rta-mongodb-agent`
-- MySQL: `mysqld-exporter`, `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent`
+- MySQL: `mysqld-exporter`, `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent`, `rta-mysql-agent`
 - PostgreSQL: `postgres-exporter`, `qan-postgresql-pgstatements-agent`, `qan-postgresql-pgstatmonitor-agent`
 - ProxySQL: `proxysql-exporter`
 - Valkey and Redis: `valkey-exporter`
