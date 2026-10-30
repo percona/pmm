@@ -30,6 +30,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -505,8 +506,9 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		service.Address = service.Socket
 	}
 
+	username, password := postgresExporters[0].DBCredentials(vault.EncodingRaw)
 	err = s.a.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(postgresExporters[0].Username), pointer.GetString(postgresExporters[0].Password))
+		username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -572,8 +574,9 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(
 	}
 
 	// Starts the pt-pg-summary with the host address, port, username and password
+	username, password := mongoDBExporters[0].DBCredentials(vault.EncodingRaw)
 	err = s.a.StartPTMongoDBSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(mongoDBExporters[0].Username), pointer.GetString(mongoDBExporters[0].Password))
+		username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -644,9 +647,9 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one mysql exporter")
 	}
 
+	username, password := mysqldExporters[0].DBCredentials(vault.EncodingRaw)
 	err = s.a.StartPTMySQLSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(service.Socket), pointer.GetString(mysqldExporters[0].Username),
-		pointer.GetString(mysqldExporters[0].Password))
+		pointer.GetString(service.Socket), username, password)
 	if err != nil {
 		return nil, err
 	}

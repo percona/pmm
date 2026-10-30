@@ -503,6 +503,43 @@ func TestProxy(t *testing.T) {
 
 		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
 	})
+
+	t.Run("prepareRequest: send credentials as they are", func(t *testing.T) {
+		t.Parallel()
+
+		uri, err := url.Parse(targetURL)
+		require.NoError(t, err)
+		uri.User = url.UserPassword("us@r", "p@ss:w/rd%")
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
+		prepareRequest(req, uri, headerName)
+
+		username, password, ok := req.BasicAuth()
+		require.True(t, ok)
+		assert.Equal(t, "us@r", username)
+		assert.Equal(t, "p@ss:w/rd%", password)
+	})
+}
+
+// Deliberately not parallel: the hook attaches to the standard logger.
+func TestRunProxyDoesNotLogCredentials(t *testing.T) { //nolint:paralleltest
+	hook := test.NewGlobal()
+	uri, err := url.Parse("http://vmadmin:vmpass@127.0.0.1:9090/prometheus")
+	require.NoError(t, err)
+
+	// An invalid listen address makes RunProxy return right after it logs where it proxies to.
+	err = RunProxy(Config{HeaderName: headerName, ListenAddress: "127.0.0.1:-1", TargetURL: uri})
+	require.Error(t, err)
+
+	entries := hook.AllEntries()
+	logged := make([]string, 0, len(entries))
+	for _, e := range entries {
+		logged = append(logged, e.Message)
+	}
+	assert.Contains(t, logged, "Starting to proxy at http://127.0.0.1:-1 to http://vmadmin:xxxxx@127.0.0.1:9090/prometheus")
+	for _, m := range logged {
+		assert.NotContains(t, m, "vmpass")
+	}
 }
 
 // Failures used to be invisible: the invalid-header path logged nothing at all, and

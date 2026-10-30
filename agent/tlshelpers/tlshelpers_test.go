@@ -92,14 +92,14 @@ func TestRegisterMySQLCerts(t *testing.T) {
 	t.Run("nil files is a no-op", func(t *testing.T) {
 		t.Cleanup(DeregisterMySQLCerts)
 
-		require.NoError(t, RegisterMySQLCerts(nil, false))
+		require.NoError(t, RegisterMySQLCerts(t.Context(), nil, false))
 		requireNoMySQLTLSConfig(t)
 	})
 
 	t.Run("empty files still registers a config", func(t *testing.T) {
 		t.Cleanup(DeregisterMySQLCerts)
 
-		require.NoError(t, RegisterMySQLCerts(map[string]string{}, true))
+		require.NoError(t, RegisterMySQLCerts(t.Context(), map[string]string{}, true))
 
 		cfg := registeredMySQLTLSConfig(t)
 		assert.True(t, cfg.InsecureSkipVerify)
@@ -116,7 +116,7 @@ func TestRegisterMySQLCerts(t *testing.T) {
 			agentv1.TLSKeyFileName:  key,
 			agentv1.TLSCaFileName:   cert,
 		}
-		require.NoError(t, RegisterMySQLCerts(files, true))
+		require.NoError(t, RegisterMySQLCerts(t.Context(), files, true))
 
 		cfg := registeredMySQLTLSConfig(t)
 		assert.True(t, cfg.InsecureSkipVerify)
@@ -129,7 +129,7 @@ func TestRegisterMySQLCerts(t *testing.T) {
 
 		cert, _ := generateCertPair(t)
 		files := map[string]string{agentv1.TLSCaFileName: cert}
-		require.NoError(t, RegisterMySQLCerts(files, false))
+		require.NoError(t, RegisterMySQLCerts(t.Context(), files, false))
 
 		cfg := registeredMySQLTLSConfig(t)
 		assert.False(t, cfg.InsecureSkipVerify)
@@ -142,7 +142,7 @@ func TestRegisterMySQLCerts(t *testing.T) {
 
 		cert, _ := generateCertPair(t)
 		files := map[string]string{agentv1.TLSCertFileName: cert, agentv1.TLSCaFileName: cert}
-		require.NoError(t, RegisterMySQLCerts(files, false))
+		require.NoError(t, RegisterMySQLCerts(t.Context(), files, false))
 
 		cfg := registeredMySQLTLSConfig(t)
 		assert.Empty(t, cfg.Certificates)
@@ -156,7 +156,7 @@ func TestRegisterMySQLCerts(t *testing.T) {
 			agentv1.TLSCertFileName: "not a cert",
 			agentv1.TLSKeyFileName:  "not a key",
 		}
-		err := RegisterMySQLCerts(files, false)
+		err := RegisterMySQLCerts(t.Context(), files, false)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "register MySQL client cert failed")
 		requireNoMySQLTLSConfig(t)
@@ -240,7 +240,7 @@ func mutualTLSServerConfigTLS12(t *testing.T, certPEM, keyPEM string) *tls.Confi
 func dialValkey(t *testing.T, addr string, files *agentv1.TextFiles, tlsSkipVerify bool) error {
 	t.Helper()
 
-	opts, err := GetValkeyTLSConfig(files, true, tlsSkipVerify)
+	opts, err := GetValkeyTLSConfig(t.Context(), files, true, tlsSkipVerify)
 	require.NoError(t, err)
 
 	conn, err := redis.DialURLContext(t.Context(), "rediss://"+addr, opts...)
@@ -256,14 +256,14 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 
 	t.Run("no TLS returns no options", func(t *testing.T) {
 		t.Parallel()
-		opts, err := GetValkeyTLSConfig(nil, false, true)
+		opts, err := GetValkeyTLSConfig(t.Context(), nil, false, true)
 		require.NoError(t, err)
 		assert.Nil(t, opts)
 	})
 
 	t.Run("nil files still returns dial options", func(t *testing.T) {
 		t.Parallel()
-		opts, err := GetValkeyTLSConfig(nil, true, true)
+		opts, err := GetValkeyTLSConfig(t.Context(), nil, true, true)
 		require.NoError(t, err)
 		// DialUseTLS, DialTLSSkipVerify and DialTLSConfig.
 		assert.Len(t, opts, 3)
@@ -276,7 +276,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 			agentv1.TLSKeyFileName:  "",
 			agentv1.TLSCaFileName:   "",
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, false)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, false)
 		require.NoError(t, err)
 		assert.Len(t, opts, 3)
 	})
@@ -289,7 +289,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 			agentv1.TLSKeyFileName:  key,
 			agentv1.TLSCaFileName:   cert,
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, true)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, true)
 		require.NoError(t, err)
 		assert.Len(t, opts, 3)
 	})
@@ -300,7 +300,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 		files := &agentv1.TextFiles{Files: map[string]string{
 			agentv1.TLSCaFileName: cert,
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, false)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, false)
 		require.NoError(t, err)
 		assert.Len(t, opts, 3)
 	})
@@ -312,7 +312,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 			agentv1.TLSCertFileName: cert,
 			agentv1.TLSKeyFileName:  key,
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, false)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, false)
 		require.NoError(t, err)
 		assert.Len(t, opts, 3)
 	})
@@ -327,7 +327,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 		} {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
-				opts, err := GetValkeyTLSConfig(&agentv1.TextFiles{Files: files}, true, true)
+				opts, err := GetValkeyTLSConfig(t.Context(), &agentv1.TextFiles{Files: files}, true, true)
 				require.NoError(t, err)
 				assert.Len(t, opts, 3)
 			})
@@ -341,7 +341,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 			agentv1.TLSKeyFileName:  "bad",
 			agentv1.TLSCaFileName:   "bad",
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, false)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, false)
 		require.Error(t, err)
 		assert.Nil(t, opts)
 	})
@@ -354,7 +354,7 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 			agentv1.TLSKeyFileName:  key,
 			agentv1.TLSCaFileName:   "not a valid ca",
 		}}
-		opts, err := GetValkeyTLSConfig(files, true, false)
+		opts, err := GetValkeyTLSConfig(t.Context(), files, true, false)
 		require.ErrorContains(t, err, "failed to append certs from PEM")
 		assert.Nil(t, opts)
 	})

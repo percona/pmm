@@ -105,6 +105,10 @@ message AddMongoDBServiceParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 39;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
+  string vault_path = 40;
 }
 
 message MongoDBServiceResult {

@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -30,6 +32,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 var (
@@ -419,9 +422,11 @@ func (s *JobsService) StartMySQLBackupJob(
 
 	switch {
 	case locationConfig.S3Config != nil:
-		mySQLReq.LocationConfig = &agentv1.StartJobRequest_MySQLBackup_S3Config{
-			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		s3Config, err := convertS3ConfigModel(locationConfig.S3Config)
+		if err != nil {
+			return err
 		}
+		mySQLReq.LocationConfig = &agentv1.StartJobRequest_MySQLBackup_S3Config{S3Config: s3Config}
 	default:
 		return errors.New("unsupported location config")
 	}
@@ -501,9 +506,11 @@ func (s *JobsService) StartMongoDBBackupJob(
 
 	switch {
 	case locationConfig.S3Config != nil:
-		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBBackup_S3Config{
-			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		s3Config, err := convertS3ConfigModel(locationConfig.S3Config)
+		if err != nil {
+			return err
 		}
+		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBBackup_S3Config{S3Config: s3Config}
 	case locationConfig.FilesystemConfig != nil:
 		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
@@ -560,6 +567,10 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	if locationConfig.S3Config == nil {
 		return errors.New("location config is not set")
 	}
+	s3Config, err := convertS3ConfigModel(locationConfig.S3Config)
+	if err != nil {
+		return err
+	}
 
 	req := &agentv1.StartJobRequest{
 		JobId:   jobID,
@@ -570,7 +581,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 				Name:      name,
 				Folder:    folder,
 				LocationConfig: &agentv1.StartJobRequest_MySQLRestoreBackup_S3Config{
-					S3Config: convertS3ConfigModel(locationConfig.S3Config),
+					S3Config: s3Config,
 				},
 			},
 		},
@@ -652,9 +663,11 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 
 	switch {
 	case locationConfig.S3Config != nil:
-		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBRestoreBackup_S3Config{
-			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		s3Config, err := convertS3ConfigModel(locationConfig.S3Config)
+		if err != nil {
+			return err
 		}
+		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBRestoreBackup_S3Config{S3Config: s3Config}
 	case locationConfig.FilesystemConfig != nil:
 		err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
@@ -802,14 +815,22 @@ func (s *JobsService) StopJob(jobID string) error {
 	return err
 }
 
-func convertS3ConfigModel(config *models.S3LocationConfig) *agentv1.S3LocationConfig {
+// convertS3ConfigModel converts the S3 configuration of a backup location, with its keys read from Vault if
+// they are stored there: PMM Server reads them, as it uses them itself to manage the backups.
+func convertS3ConfigModel(config *models.S3LocationConfig) (*agentv1.S3LocationConfig, error) {
+	accessKey, secretKey := config.AccessKey, config.SecretKey
+	err := secrets.ResolveAll(context.Background(), &accessKey, &secretKey)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to read the keys of the backup location: %s.", err)
+	}
+
 	return &agentv1.S3LocationConfig{
 		Endpoint:     config.Endpoint,
-		AccessKey:    config.AccessKey,
-		SecretKey:    config.SecretKey,
+		AccessKey:    accessKey,
+		SecretKey:    secretKey,
 		BucketName:   config.BucketName,
 		BucketRegion: config.BucketRegion,
-	}
+	}, nil
 }
 
 func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {

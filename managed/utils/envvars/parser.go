@@ -31,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/utils/vault"
 )
 
 const (
@@ -135,7 +136,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case pkgenv.EnableExtensions, "PMM_EXTENSIONS_POSTGRES_PASSWORD", "PMM_EXTENSIONS_ADDRESS":
+		case pkgenv.EnableExtensions, "PMM_EXTENSIONS_POSTGRES_PASSWORD", "PMM_EXTENSIONS_SECRET_KEY", "PMM_EXTENSIONS_ADDRESS":
 			// skip env variables consumed by the entrypoint to wire up the side-car.
 			// PMM_ENABLE_EXTENSIONS is not a stored setting: it describes how this
 			// process was started, so it is read from the environment by
@@ -260,8 +261,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		// skip various HA-related variables
-		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
+		case "PMM_NOMAD_VAULT_PKI_PATH":
+			err := vault.ValidatePath(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
+			}
+
+		// skip various HA-related variables, and the encryption key, which must never be logged
+		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ENCRYPTION_KEY", "PMM_ADMIN_PASSWORD":
 			continue
 
 		case pkgenv.EnableAccessControl:
@@ -337,6 +344,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip PMM development environment variables
 			if strings.HasPrefix(k, "PMM_DEV_") {
+				continue
+			}
+
+			// skip the Vault settings of PMM Server and of its pmm-agent, which hold credentials, the rest
+			// of the pmm-agent settings, and the TLS certificate of PMM Server with its key: the unknown
+			// ones are logged with their values
+			if strings.HasPrefix(k, "PMM_VAULT_") || strings.HasPrefix(k, "PMM_AGENT_") || strings.HasPrefix(k, "PMM_TLS_") {
 				continue
 			}
 

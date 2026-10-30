@@ -54,21 +54,10 @@
     group: root
     mode: 0750
 
-- name: Generate random password for postgres superuser
-  shell: openssl rand -hex 16
-  register: postgres_password
-  changed_when: false
-
-- name: Store postgres password securely
-  copy:
-    content: "{{ postgres_password.stdout }}"
-    dest: /srv/.postgres_password
-    owner: pmm
-    group: root
-    mode: 0600
-
+# The postgres superuser gets no password: it connects over the Unix socket, which the local
+# trust rule lets in, so that no superuser password is kept anywhere.
 - name: Initialize Postgres database with password authentication
-  command: /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
+  command: /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres
   become: true
   become_user: pmm
   become_method: su
@@ -78,8 +67,6 @@
   become: true
   become_user: pmm
   become_method: su
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pmm-managed user
   postgresql_user:
@@ -87,8 +74,7 @@
     password: pmm-managed
     expires: infinity
     state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    login_unix_socket: /run/postgresql
 
 # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
 # database is what lets the user create tables in it.
@@ -97,16 +83,14 @@
     name: pmm-managed
     owner: pmm-managed
     state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    login_unix_socket: /run/postgresql
 
 - name: Create pg_stat_statements extension
   postgresql_ext:
     db: postgres
     name: pg_stat_statements
     schema: public
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    login_unix_socket: /run/postgresql
 
 - name: Create grafana user in postgres
   postgresql_user:
@@ -114,16 +98,14 @@
     password: grafana
     expires: infinity
     state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    login_unix_socket: /run/postgresql
 
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
     owner: grafana
     state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    login_unix_socket: /run/postgresql
 
 - name: Stop Postgres 18 database
   command: /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18

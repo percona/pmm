@@ -16,6 +16,7 @@
 package victoriametrics
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
@@ -84,6 +85,13 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			// TODO https://jira.percona.com/browse/PMM-4087
 			continue
 		}
+
+		resolved, err := agent.WithServerSecrets(context.Background())
+		if err != nil {
+			l.Errorf("Leaving %s out of the scrape configuration: cannot read its %s.", agent.AgentID, err)
+			continue
+		}
+		agent = resolved
 
 		// sanity check
 		if (agent.NodeID != nil) && (agent.ServiceID != nil) {

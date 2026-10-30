@@ -125,7 +125,8 @@ func pmmServerStatusWithRetries(status string) bool {
 }
 
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
-	return db.InTransaction(func(tx *reform.TX) error {
+	var rotated bool
+	err := db.InTransaction(func(tx *reform.TX) error {
 		logrus.Infof("DB %s is being decrypted", dbName)
 		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
@@ -138,19 +139,26 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		if err != nil {
 			return err
 		}
+		rotated = true
 		logrus.Infof("New encryption key generated")
 
 		logrus.Infof("DB %s is being encrypted", dbName)
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
-			e := encryption.RestoreOldEncryptionKey()
-			if e != nil {
-				return fmt.Errorf("%w: %w", e, err)
-			}
 			return err
 		}
 		logrus.Infof("DB %s is successfully encrypted", dbName)
 
 		return nil
 	})
+
+	// Whether encrypting the data with the new key or committing that failed, the data is still encrypted
+	// with the old key, which has to be put back: in the key file, or in Vault.
+	if err != nil && rotated {
+		e := encryption.RestoreOldEncryptionKey()
+		if e != nil {
+			return fmt.Errorf("%w: %w", e, err)
+		}
+	}
+	return err
 }

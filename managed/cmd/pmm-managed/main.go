@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"database/sql"
 	"errors"
@@ -84,6 +85,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dump"
+	"github.com/percona/pmm/managed/services/envsecrets"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -112,9 +114,11 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/managed/utils/secrets"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -395,6 +399,8 @@ type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
+	adminPassword      *grafana.AdminPassword
+	sealingKeyHandler  http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -476,6 +482,10 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
+	// nginx passes the password changes of Grafana here, see grafana.AdminPassword.
+	mux.Handle("/graph/api/user/password", deps.adminPassword)
+	mux.Handle("/graph/api/admin/users/{id}/password", deps.adminPassword)
+	mux.Handle("GET /v1/inventory/agents/{agent_id}/sealing-key", deps.sealingKeyHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -887,6 +897,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
+	configureVault(l)
+
 	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
@@ -927,6 +939,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	pmmdb.DSN.Params = q.Encode()
 
 	grafanadb := ds.GrafanaDBSelect
+	// The bundled Grafana database takes the password Grafana connects with, which may be read from Vault.
+	grafanadb.SeparateCredentials.Password = envvars.GetEnv("GF_DATABASE_PASSWORD", grafanadb.SeparateCredentials.Password)
 	grafanadb.DSN.Scheme = "postgres"
 	grafanadb.DSN.Host = *postgresAddrF
 	grafanadb.DSN.DB = "grafana"
@@ -1276,6 +1290,26 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	if secrets.Configured() {
+		wg.Go(func() {
+			agentsStateUpdater.WatchServerSecrets(ctx, secrets.CacheTTL())
+		})
+	}
+
+	wg.Go(func() {
+		nomad.RenewCertificates(ctx, func(ctx context.Context) {
+			// Nomad reloads its certificates on SIGHUP; the agents get theirs with their state.
+			err := supervisord.SignalSupervisedService(ctx, "nomad-server", "HUP")
+			if err != nil {
+				l.Warnf("Failed to reload the certificates of the Nomad server: %s.", err)
+			}
+			err = agentsStateUpdater.UpdateAgentsState(ctx)
+			if err != nil {
+				l.Warnf("Failed to hand the certificates of Nomad to the agents: %s.", err)
+			}
+		})
+	})
+
 	wg.Go(func() {
 		alertingProvisioner.Run(ctx)
 	})
@@ -1351,11 +1385,31 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			})
 	})
 
+	if secrets.Configured() {
+		envSecrets := envsecrets.New(os.Environ(), supervisord)
+		wg.Go(func() {
+			envSecrets.Run(ctx, secrets.CacheTTL())
+		})
+	}
+
+	// Kept the one in Vault while GF_SECURITY_ADMIN_PASSWORD is a reference, which vault-env keeps.
+	gfDatabaseElsewhere := os.Getenv("GF_DATABASE_URL") != "" || os.Getenv("GF_DATABASE_HOST") != ""
+	if on, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES")); on {
+		gfDatabaseElsewhere = true
+	}
+	adminPassword := grafana.NewAdminPassword(os.Getenv("PMM_VAULT_REF_GF_SECURITY_ADMIN_PASSWORD"),
+		cmp.Or(os.Getenv("GF_SECURITY_ADMIN_USER"), "admin"), *grafanaAddrF, gfDatabaseElsewhere)
+	wg.Go(func() {
+		adminPassword.Run(ctx, secrets.CacheTTL())
+	})
+
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:               logs,
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			adminPassword:      adminPassword,
+			sealingKeyHandler:  agentsRegistry.SealingKeyHandler(),
 		})
 	})
 
@@ -1423,4 +1477,25 @@ func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 	}
 
 	return logrus.InfoLevel
+}
+
+// configureVault sets up reading the secrets that PMM Server uses itself from Vault, when the settings that
+// hold them refer to it, see the secrets package.
+func configureVault(l *logrus.Entry) {
+	if os.Getenv("PMM_VAULT_ADDRESS") == "" {
+		return
+	}
+
+	cfg, err := secrets.ConfigFromEnv(os.Getenv)
+	if err != nil {
+		l.Fatalf("Invalid Vault configuration: %s.", err)
+	}
+	client, err := vault.New(cfg)
+	if err != nil {
+		l.Fatalf("Invalid Vault configuration: %s.", err)
+	}
+	client.SetLogger(l)
+
+	secrets.Configure(client, cfg.EffectiveCacheTTL())
+	l.Infof("Reading the secrets stored in Vault from %s.", cfg.Address)
 }

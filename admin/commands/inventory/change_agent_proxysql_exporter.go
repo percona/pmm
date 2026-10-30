@@ -73,6 +73,7 @@ type ChangeAgentProxysqlExporterCommand struct {
 	Enable        *bool   `help:"Enable or disable the agent"`
 	Username      *string `help:"Username for ProxySQL connection"`
 	Password      *string `help:"Password for ProxySQL connection"`
+	VaultPath     *string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	AgentPassword *string `help:"Custom password for agent /metrics endpoint"`
 
 	// TLS options
@@ -103,6 +104,7 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 		Enable:              cmd.Enable,
 		Username:            cmd.Username,
 		Password:            cmd.Password,
+		VaultPath:           cmd.VaultPath,
 		TLS:                 cmd.TLS,
 		TLSSkipVerify:       cmd.TLSSkipVerify,
 		DisableCollectors:   cmd.DisableCollectors,
@@ -146,6 +148,9 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 	}
 	if cmd.Password != nil {
 		changes = append(changes, "updated password")
+	}
+	if cmd.VaultPath != nil {
+		changes = append(changes, "updated vault path")
 	}
 	if cmd.AgentPassword != nil {
 		changes = append(changes, "updated agent password")

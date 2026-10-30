@@ -16,12 +16,16 @@
 package models_test
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -30,7 +34,9 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/vault"
 )
 
 func TestAgent(t *testing.T) {
@@ -977,4 +983,262 @@ func TestAWSOptionsValidate(t *testing.T) {
 			assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		})
 	}
+}
+
+func TestDBCredentialsFromVault(t *testing.T) {
+	t.Parallel()
+
+	const password = "p@ss/w:rd {{ }}"
+	get := func(secret map[string]string) vault.Getter {
+		return func(path, key string) (string, error) {
+			if path != "secret/data/pmm" {
+				return "", errors.New("unexpected path " + path)
+			}
+			v, ok := secret[key]
+			if !ok {
+				return "", &vault.KeyNotFoundError{Path: path, Key: key}
+			}
+			return v, nil
+		}
+	}
+	withUsername := get(map[string]string{"username": "v-pmm", "password": password})
+	withoutUsername := get(map[string]string{"password": password})
+
+	service := &models.Service{Address: new("1.2.3.4"), Port: new(uint16(12345))}
+
+	for _, agentType := range []models.AgentType{
+		models.MySQLdExporterType,
+		models.QANMySQLPerfSchemaAgentType,
+		models.ProxySQLExporterType,
+		models.PostgresExporterType,
+		models.QANPostgreSQLPgStatementsAgentType,
+		models.MongoDBExporterType,
+		models.QANMongoDBProfilerAgentType,
+		models.ValkeyExporterType,
+	} {
+		t.Run(string(agentType), func(t *testing.T) {
+			t.Parallel()
+
+			agent := &models.Agent{AgentType: agentType, Username: new("given"), VaultPath: new("secret/data/pmm")}
+			dsn := agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "db"}, nil, nil)
+			assert.NotContains(t, dsn, "given", "the username must travel inside its token")
+
+			for _, tc := range []struct {
+				name     string
+				get      vault.Getter
+				username string
+			}{
+				{"SecretUsernameWins", withUsername, "v-pmm"},
+				{"GivenUsernameStandsIn", withoutUsername, "given"},
+			} {
+				resolved, values, err := vault.ReplaceTokens(dsn, tc.get)
+				require.NoError(t, err, tc.name)
+				assert.Contains(t, values, password, tc.name)
+
+				var gotUsername, gotPassword string
+				switch agentType {
+				case models.MySQLdExporterType, models.QANMySQLPerfSchemaAgentType, models.ProxySQLExporterType:
+					cfg, err := mysql.ParseDSN(resolved)
+					require.NoError(t, err, tc.name)
+					gotUsername, gotPassword = cfg.User, cfg.Passwd
+				default:
+					u, err := url.Parse(resolved)
+					require.NoError(t, err, tc.name)
+					gotUsername = u.User.Username()
+					gotPassword, _ = u.User.Password()
+				}
+				assert.Equal(t, tc.username, gotUsername, tc.name)
+				assert.Equal(t, password, gotPassword, tc.name)
+			}
+		})
+	}
+
+	t.Run("NoVault", func(t *testing.T) {
+		t.Parallel()
+
+		agent := &models.Agent{AgentType: models.MySQLdExporterType, Username: new("u"), Password: new("p")}
+		username, password := agent.DBCredentials(vault.EncodingRaw)
+		assert.Equal(t, "u", username)
+		assert.Equal(t, "p", password)
+		assert.Equal(t, &models.DBConfig{User: "u", Password: "p", Address: "1.2.3.4", Port: 12345}, agent.DBConfig(service))
+	})
+}
+
+func TestTLSFromVault(t *testing.T) {
+	t.Parallel()
+
+	const keyPassword = "p@ss&w=rd +x"
+	secret := map[string]string{"tls_key": "KEY", "tls_ca": "CA", "tls_certificate_key": "CERT+KEY", "tls_certificate_key_file_password": keyPassword}
+	get := func(path, key string) (string, error) {
+		if path != "secret/data/pmm" {
+			return "", errors.New("unexpected path " + path)
+		}
+		return secret[key], nil
+	}
+	service := &models.Service{Address: new("1.2.3.4"), Port: new(uint16(12345))}
+
+	t.Run("FilesHoldTokens", func(t *testing.T) {
+		t.Parallel()
+
+		for _, agent := range []*models.Agent{
+			{AgentType: models.MySQLdExporterType, MySQLOptions: models.MySQLOptions{TLSKey: "vault:secret/data/pmm#tls_key", TLSCa: "CA"}},
+			{AgentType: models.PostgresExporterType, PostgreSQLOptions: models.PostgreSQLOptions{SSLKey: "vault:secret/data/pmm#tls_key", SSLCa: "CA"}},
+			{AgentType: models.ValkeyExporterType, TLS: true, ValkeyOptions: models.ValkeyOptions{SSLKey: "vault:secret/data/pmm#tls_key", SSLCert: "C", SSLCa: "CA"}},
+		} {
+			assert.True(t, agent.UsesVault(), agent.AgentType)
+			files := agent.Files()
+			resolved := make([]string, 0, len(files))
+			for _, content := range files {
+				v, _, err := vault.ReplaceTokens(content, get)
+				require.NoError(t, err)
+				resolved = append(resolved, v)
+			}
+			assert.Contains(t, resolved, "KEY", agent.AgentType)
+			assert.Contains(t, resolved, "CA", agent.AgentType)
+			for _, content := range files {
+				assert.NotContains(t, content, "vault:", agent.AgentType)
+			}
+		}
+
+		plain := &models.Agent{AgentType: models.MySQLdExporterType, MySQLOptions: models.MySQLOptions{TLSKey: "KEY"}}
+		assert.False(t, plain.UsesVault())
+		assert.Equal(t, map[string]string{"tlsKey": "KEY"}, plain.Files())
+	})
+
+	t.Run("MongoDBKeyAndItsPassword", func(t *testing.T) {
+		t.Parallel()
+
+		agent := &models.Agent{AgentType: models.MongoDBExporterType, MongoDBOptions: models.MongoDBOptions{
+			TLSCertificateKey:             "vault:secret/data/pmm#tls_certificate_key",
+			TLSCertificateKeyFilePassword: "vault:secret/data/pmm#tls_certificate_key_file_password",
+		}}
+		assert.True(t, agent.UsesVault())
+
+		dsn := agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil)
+		assert.NotContains(t, dsn, "vault:")
+		resolved, values, err := vault.ReplaceTokens(dsn, get)
+		require.NoError(t, err)
+		assert.Contains(t, values, keyPassword)
+
+		u, err := url.Parse(resolved)
+		require.NoError(t, err)
+		assert.Equal(t, keyPassword, u.Query().Get("tlsCertificateKeyFilePassword"))
+
+		key, _, err := vault.ReplaceTokens(agent.Files()["certificateKeyFilePlaceholder"], get)
+		require.NoError(t, err)
+		assert.Equal(t, "CERT+KEY", key)
+	})
+
+	t.Run("TakeVaultSecrets", func(t *testing.T) {
+		t.Parallel()
+
+		params := &models.CreateAgentParams{
+			Username: "pmm", Password: "s3cr3t", VaultPath: "/secret/data/pmm/",
+			MySQLOptions: models.MySQLOptions{TLSCa: "CA", TLSKey: "KEY", TLSCert: "vault:secret/data/other#cert"},
+		}
+		assert.Equal(t, map[string]string{"username": "pmm", "password": "s3cr3t", "tls_ca": "CA", "tls_key": "KEY"}, params.TakeVaultSecrets())
+		assert.Empty(t, params.Password)
+		assert.Equal(t, "pmm", params.Username, "it stays as the fallback")
+		assert.Equal(t, models.MySQLOptions{
+			TLSCa:   "vault:secret/data/pmm#tls_ca",
+			TLSKey:  "vault:secret/data/pmm#tls_key",
+			TLSCert: "vault:secret/data/other#cert",
+		}, params.MySQLOptions)
+
+		// Secrets staged in pmm-agent are taken as well: pmm-agent stores them.
+		staged := &models.CreateAgentParams{
+			Password: "vault:pmm-agent-staged/abc#password", VaultPath: "secret/data/pmm",
+			MySQLOptions: models.MySQLOptions{TLSKey: "vault:pmm-agent-staged/abc#tls_key"},
+		}
+		assert.Equal(t, map[string]string{
+			"password": "vault:pmm-agent-staged/abc#password",
+			"tls_key":  "vault:pmm-agent-staged/abc#tls_key",
+		}, staged.TakeVaultSecrets())
+		assert.Empty(t, staged.Password)
+		assert.Equal(t, "vault:secret/data/pmm#tls_key", staged.MySQLOptions.TLSKey)
+
+		// Nothing to take, or no Vault path.
+		assert.Nil(t, (&models.CreateAgentParams{VaultPath: "secret/data/pmm", Username: "pmm"}).TakeVaultSecrets())
+		plain := &models.CreateAgentParams{Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: "KEY"}}
+		assert.Nil(t, plain.TakeVaultSecrets())
+		assert.Equal(t, "p", plain.Password)
+		assert.Equal(t, "KEY", plain.MySQLOptions.TLSKey)
+	})
+}
+
+type mapSecrets map[string]string
+
+func (m mapSecrets) Get(_ context.Context, path, key string) (string, error) {
+	v, ok := m[path+"#"+key]
+	if !ok {
+		return "", errors.New("no such secret")
+	}
+	return v, nil
+}
+
+// Not parallel: it configures the process-wide Vault client of PMM Server.
+func TestServerSecretsFromVault(t *testing.T) {
+	stored := mapSecrets{
+		"secret/data/pmm#agent_password": "metrics-pw",
+		"secret/data/pmm#aws_secret_key": "aws-secret",
+		"secret/data/pmm#client_secret":  "azure-secret",
+		"secret/data/pmm#exporter":       "exporter-pw",
+	}
+	secrets.Configure(stored, time.Minute)
+	t.Cleanup(func() { secrets.Configure(nil, 0) })
+
+	agent := &models.Agent{
+		AgentID:       "agent-id",
+		AgentType:     models.RDSExporterType,
+		AgentPassword: new("vault:secret/data/pmm#agent_password"),
+		AWSOptions:    models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "vault:secret/data/pmm#aws_secret_key"},
+		AzureOptions:  models.AzureOptions{ClientSecret: "vault:secret/data/pmm#client_secret"},
+	}
+	assert.True(t, agent.HasServerSecrets())
+	assert.False(t, agent.UsesVault(), "pmm-agent gets them read")
+
+	resolved, err := agent.WithServerSecrets(t.Context())
+	require.NoError(t, err)
+	assert.Equal(t, "metrics-pw", resolved.GetAgentPassword())
+	assert.Equal(t, "AKIA", resolved.AWSOptions.AWSAccessKey)
+	assert.Equal(t, "aws-secret", resolved.AWSOptions.AWSSecretKey)
+	assert.Equal(t, "azure-secret", resolved.AzureOptions.ClientSecret)
+	assert.Equal(t, "vault:secret/data/pmm#agent_password", *agent.AgentPassword, "the Agent itself is not changed")
+	assert.Equal(t, "vault:secret/data/pmm#aws_secret_key", agent.AWSOptions.AWSSecretKey)
+
+	// A rotated secret changes the fingerprint.
+	before := resolved.ServerSecretsFingerprint()
+	stored["secret/data/pmm#aws_secret_key"] = "rotated"
+	resolved, err = agent.WithServerSecrets(t.Context())
+	require.NoError(t, err)
+	assert.NotEqual(t, before, resolved.ServerSecretsFingerprint())
+
+	t.Run("ExternalExporterPassword", func(t *testing.T) {
+		external := &models.Agent{AgentType: models.ExternalExporterType, Username: new("u"), Password: new("vault:secret/data/pmm#exporter")}
+		assert.True(t, external.HasServerSecrets())
+		assert.False(t, external.UsesVault(), "PMM Server scrapes the exporter with it")
+
+		resolved, err := external.WithServerSecrets(t.Context())
+		require.NoError(t, err)
+		assert.Equal(t, "exporter-pw", pointer.GetString(resolved.Password))
+	})
+
+	t.Run("DatabasePassword", func(t *testing.T) {
+		// pmm-agent reads it, as it does for a Vault path, and PMM Server never does.
+		db := &models.Agent{AgentType: models.MySQLdExporterType, Username: new("pmm"), Password: new("vault:secret/data/db#password")}
+		assert.True(t, db.UsesVault())
+		assert.False(t, db.HasServerSecrets())
+
+		_, password := db.DBCredentials(vault.EncodingRaw)
+		assert.Equal(t, vault.Token("secret/data/db", "password", vault.EncodingRaw), password)
+	})
+
+	t.Run("Unreadable", func(t *testing.T) {
+		secrets.Configure(nil, 0)
+		t.Cleanup(func() { secrets.Configure(stored, time.Minute) })
+
+		_, err := agent.WithServerSecrets(t.Context())
+		require.ErrorIs(t, err, secrets.ErrNotConfigured)
+		require.ErrorContains(t, err, "agent_password")
+	})
 }

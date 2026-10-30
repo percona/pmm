@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -74,25 +75,23 @@ func addData(zipW *zip.Writer, name string, modTime time.Time, r io.Reader) {
 	}
 }
 
-// addFile adds data from fileName to zip file with given name.
-func addFile(zipW *zip.Writer, name string, fileName string) {
-	// do not read the whole file at once - it can be very big
-
-	var r io.ReadCloser
-	r, err := os.Open(fileName) //nolint:gosec
+// addRedactedConfig adds the pmm-agent configuration file to zip file with given name, without the credentials
+// it holds. A vault:<path>#<key> reference is not a credential, so it is kept.
+func addRedactedConfig(zipW *zip.Writer, name string, fileName string) {
+	b, err := os.ReadFile(fileName) //nolint:gosec
 	if err != nil {
-		// use error instead of file data
 		logrus.Debugf("%s", err)
-		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
+		b = []byte(err.Error() + "\n")
 	}
-	defer r.Close() //nolint:gosec,errcheck,nolintlint
+
+	b = vault.MaskConfigSecrets(b)
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {
 		modTime = fi.ModTime()
 	}
 
-	addData(zipW, name, modTime, r)
+	addData(zipW, name, modTime, bytes.NewReader(b))
 }
 
 // addClientCommand adds cmd.Run() results to zip file with given name.
@@ -158,7 +157,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 	}
 
 	if status.ConfigFilepath != "" {
-		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
+		addRedactedConfig(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
 	}
 
 	addClientCommand(zipW, "client/list.txt", &ListCommand{NodeID: status.RunsOnNodeID})

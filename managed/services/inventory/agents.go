@@ -34,6 +34,7 @@ import (
 	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/vault"
 )
 
 // AgentsService works with inventory API Agents.
@@ -402,6 +403,11 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddMySQLdExporterParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
@@ -413,6 +419,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		AgentPassword: p.AgentPassword,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
@@ -455,6 +462,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		AgentPassword:       p.AgentPassword,
@@ -513,6 +521,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 		ServiceID:                p.ServiceId,
 		Username:                 p.Username,
 		Password:                 p.Password,
+		VaultPath:                p.VaultPath,
 		AgentPassword:            p.AgentPassword,
 		CustomLabels:             p.CustomLabels,
 		EnvironmentVariableNames: p.GetEnvironmentVariableNames(),
@@ -570,6 +579,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		Enabled:                  p.Enable,
 		Username:                 p.Username,
 		Password:                 p.Password,
+		VaultPath:                p.VaultPath,
 		TLS:                      p.Tls,
 		TLSSkipVerify:            p.TlsSkipVerify,
 		AgentPassword:            p.AgentPassword,
@@ -623,6 +633,11 @@ func (as *AgentsService) ChangeMongoDBExporter(
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddQANMySQLPerfSchemaAgentParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
@@ -633,6 +648,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -677,6 +693,7 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -725,6 +742,11 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddQANMySQLSlowlogAgentParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
 	if err != nil {
 		return nil, err
@@ -738,6 +760,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -782,6 +805,7 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -831,11 +855,17 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddPostgresExporterParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:    p.PmmAgentId,
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		AgentPassword: p.AgentPassword,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
@@ -881,6 +911,7 @@ func (as *AgentsService) ChangePostgresExporter(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		AgentPassword:       p.AgentPassword,
@@ -925,11 +956,17 @@ func (as *AgentsService) ChangePostgresExporter(
 
 // AddValkeyExporter adds a valkey exporter with the given parameters.
 func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.AddValkeyExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddValkeyExporterParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:    p.PmmAgentId,
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		AgentPassword: p.AgentPassword,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
@@ -971,6 +1008,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		AgentPassword:       p.AgentPassword,
@@ -1021,6 +1059,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -1065,6 +1104,7 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -1118,6 +1158,7 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -1162,6 +1203,7 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -1210,11 +1252,17 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 
 // AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
 func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddProxySQLExporterParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:    p.PmmAgentId,
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		AgentPassword: p.AgentPassword,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
@@ -1259,6 +1307,7 @@ func (as *AgentsService) ChangeProxySQLExporter(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		AgentPassword:       p.AgentPassword,
@@ -1300,11 +1349,17 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 	ctx context.Context,
 	p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams,
 ) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddQANPostgreSQLPgStatementsAgentParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:    p.PmmAgentId,
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -1347,6 +1402,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -1397,11 +1453,17 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(
 	ctx context.Context,
 	p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams,
 ) (*inventoryv1.AddAgentResponse, error) {
+	err := services.RequireUsername("AddQANPostgreSQLPgStatMonitorAgentParams", p.Username, p.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:    p.PmmAgentId,
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -1445,6 +1507,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 		Enabled:             p.Enable,
 		Username:            p.Username,
 		Password:            p.Password,
+		VaultPath:           p.VaultPath,
 		TLS:                 p.Tls,
 		TLSSkipVerify:       p.TlsSkipVerify,
 		CustomLabels:        convertCustomLabels(p.CustomLabels),
@@ -1805,6 +1868,7 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		ServiceID:     p.ServiceId,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		CustomLabels:  p.CustomLabels,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
@@ -1852,6 +1916,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 		Enabled:       p.Enable,
 		Username:      p.Username,
 		Password:      p.Password,
+		VaultPath:     p.VaultPath,
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
 		LogLevel:      convertLogLevel(p.LogLevel),
@@ -2083,12 +2148,21 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 			}
 		}
 
-		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, params)
+		changeParams, vaultSecrets := vaultChange(currentAgent, params)
+		// The querier carries ctx, and ApplyAgentChange reads Vault with it.
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, changeParams) //nolint:contextcheck
 		if err != nil {
 			return err
 		}
 
-		if !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
+		// Checked with the new secrets before they are stored, so the check below would only repeat it.
+		stored, err := services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, updatedAgent,
+			vaultSecrets, params.SkipConnectionCheck)
+		if err != nil {
+			return err
+		}
+
+		if !stored && !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
 			service, err := models.FindServiceByID(tx.Querier, pointer.GetString(updatedAgent.ServiceID))
 			if err != nil {
 				return err
@@ -2108,14 +2182,56 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	return agent, err
 }
 
+// vaultChange takes the secrets that go to Vault off a change of an Agent that reads its credentials from
+// Vault, or is moved to Vault by the change, and returns them by key: a username, password or TLS option
+// given for it replaces the one in its Vault secret, unless the change takes it off Vault with an empty
+// Vault path. The username is kept in PMM Server too, as the fallback for a secret that has none, and the
+// TLS options are left with references to the keys of the secret.
+func vaultChange(current *models.Agent, params *models.ChangeAgentParams) (*models.ChangeAgentParams, map[string]string) {
+	path := pointer.GetString(current.VaultPath)
+	if params.VaultPath != nil {
+		path = *params.VaultPath
+	}
+	if path == "" {
+		return params, nil
+	}
+
+	changed := *params
+	secrets := make(map[string]string)
+	if username := pointer.GetString(params.Username); username != "" {
+		secrets[models.VaultUsernameKey] = username
+	}
+	// A reference to another secret replaces the Vault path rather than goes to it.
+	if password := pointer.GetString(params.Password); vault.ToStore(password) {
+		secrets[models.VaultPasswordKey] = password
+		changed.Password = nil
+	}
+	changed.TakeVaultTLSSecrets(path, secrets)
+
+	if len(secrets) == 0 {
+		return params, nil
+	}
+	return &changed, secrets
+}
+
 // executeAgentAdd creates an agent and returns the agent.
 func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
+
+	// The secrets given with a Vault path go to Vault, never to PMM Server.
+	vaultSecrets := params.TakeVaultSecrets()
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateAgent(tx.Querier, agentType, params)
 		if err != nil {
 			return err
+		}
+
+		if vaultSecrets != nil {
+			_, err = services.StoreCredentialsInVault(ctx, tx.Querier, as.r, as.cc, row, vaultSecrets, params.SkipConnectionCheck)
+			if err != nil {
+				return err
+			}
 		}
 
 		if !params.SkipConnectionCheck && params.ServiceID != "" {

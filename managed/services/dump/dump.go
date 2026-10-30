@@ -22,9 +22,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -142,21 +145,19 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpBin,
 		"export",
 		"--pmm-url=http://127.0.0.1:8080",
-		"--click-house-url="+s.urls.ClickhouseURL,
-		"--victoria-metrics-url="+s.urls.VMURL,
 		"--dump-path="+getDumpFilePath(dump.ID, false))
 
-	if params.Token != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-token="+params.Token)
+	// The URLs carry credentials, so they and the other secrets go to pmm-dump in variables, which its flags take
+	// their values from too, rather than on its command line, which every process can read.
+	secrets := map[string]string{
+		"PMM_DUMP_CLICK_HOUSE_URL":      s.urls.ClickhouseURL,
+		"PMM_DUMP_VICTORIA_METRICS_URL": s.urls.VMURL,
+		"PMM_TOKEN":                     params.Token,
+		"PMM_COOKIE":                    params.Cookie,
 	}
-
-	if params.Cookie != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-cookie="+params.Cookie)
-	}
-
 	if params.User != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-user="+params.User)
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-pass="+params.Password)
+		secrets["PMM_USER"] = params.User
+		secrets["PMM_PASS"] = params.Password
 	}
 
 	for _, instance := range instances {
@@ -181,10 +182,12 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 	if params.EnableEncryption {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--encryption")
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pass="+params.EncryptionPassword)
+		secrets["PMM_DUMP_PASS"] = params.EncryptionPassword
 	} else {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--no-encryption")
 	}
+
+	pmmDumpCmd.Env = pmmDumpEnv(os.Environ(), secrets)
 
 	pReader, pWriter := io.Pipe()
 	pmmDumpCmd.Stdout = pWriter
@@ -347,4 +350,27 @@ func validateFilePath(path string) error {
 	}
 
 	return nil
+}
+
+// pmmDumpEnv returns environ with the given variables of pmm-dump set where they are not empty. The variables that
+// pmm-dump reads are dropped from environ: unset by its caller, they would set its flags otherwise.
+func pmmDumpEnv(environ []string, vars map[string]string) []string {
+	res := make([]string, 0, len(environ)+len(vars))
+	for _, kv := range environ {
+		name, _, _ := strings.Cut(kv, "=")
+		switch name {
+		case "PMM_URL", "PMM_HOST", "PMM_PORT", "PMM_USER", "PMM_PASS", "PMM_TOKEN", "PMM_COOKIE":
+			continue
+		}
+		if strings.HasPrefix(name, "PMM_DUMP_") {
+			continue
+		}
+		res = append(res, kv)
+	}
+	for _, name := range slices.Sorted(maps.Keys(vars)) {
+		if vars[name] != "" {
+			res = append(res, name+"="+vars[name])
+		}
+	}
+	return res
 }

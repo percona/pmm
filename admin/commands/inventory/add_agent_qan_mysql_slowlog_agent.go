@@ -74,6 +74,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	ServiceID            string            `arg:"" help:"Service identifier"`
 	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string            `help:"MySQL password for scraping metrics"`
+	VaultPath            string            `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
@@ -118,6 +119,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				ServiceID:              cmd.ServiceID,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
+				VaultPath:              cmd.VaultPath,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),

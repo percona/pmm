@@ -1,0 +1,294 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package vault
+
+import (
+	"bytes"
+	"cmp"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+)
+
+const (
+	// The Azure Instance Metadata Service.
+	azureMetadataURL = "http://169.254.169.254/metadata"
+	// The metadata server of Google Compute Engine.
+	gcpMetadataURL = "http://metadata.google.internal/computeMetadata/v1"
+	// The IAM Service Account Credentials API, which signs a JWT for a service account.
+	gcpIAMURL = "https://iamcredentials.googleapis.com/v1"
+
+	// How long the JWT of an iam login is valid: Vault refuses one valid for longer than 15 minutes.
+	gcpIAMJWTLifetime = 10 * time.Minute
+
+	// DefaultAzureResource is the resource that the access token of the managed identity is requested for,
+	// which must be the one that the azure auth method of Vault is configured with.
+	DefaultAzureResource = "https://management.azure.com/"
+
+	metadataTimeout = 10 * time.Second
+)
+
+// metadataHTTPClient asks the metadata services of the clouds, which must be reached directly, never through a proxy.
+var metadataHTTPClient = &http.Client{ //nolint:gochecknoglobals
+	Transport: &http.Transport{Proxy: nil},
+	Timeout:   metadataTimeout,
+}
+
+// cloudHTTPClient asks the identity services of the clouds on the internet, through a proxy if one is set.
+var cloudHTTPClient = &http.Client{Timeout: requestTimeout} //nolint:gochecknoglobals
+
+// metadataGet returns the body of a GET request to a metadata service, sending header with it.
+func metadataGet(ctx context.Context, u string, header http.Header) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = header
+
+	resp, err := metadataHTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s: %d %s", req.URL.Redacted(), resp.StatusCode, http.StatusText(resp.StatusCode))
+	}
+	return b, nil
+}
+
+// azureLoginData returns the body of a Vault azure auth login: an access token of the managed identity of the
+// virtual machine, and the virtual machine or scale set that it runs as, from the Azure Instance Metadata Service.
+// See https://developer.hashicorp.com/vault/api-docs/auth/azure#login.
+func azureLoginData(ctx context.Context, metadataURL, resource, clientID string) (map[string]any, error) {
+	header := http.Header{"Metadata": []string{"true"}}
+
+	q := url.Values{"api-version": []string{"2018-02-01"}, "resource": []string{resource}}
+	if clientID != "" {
+		// The user-assigned managed identity to use, rather than the system-assigned one.
+		q.Set("client_id", clientID)
+	}
+	b, err := metadataGet(ctx, metadataURL+"/identity/oauth2/token?"+q.Encode(), header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the managed identity for vault login: %w", err)
+	}
+	var token struct {
+		AccessToken string `json:"access_token"`
+	}
+	err = json.Unmarshal(b, &token)
+	if err == nil && token.AccessToken == "" {
+		err = errors.New("no access token in the response")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the managed identity for vault login: %w", err)
+	}
+
+	b, err = metadataGet(ctx, metadataURL+"/instance/compute?api-version=2021-02-01", header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the virtual machine from the Azure metadata for vault login: %w", err)
+	}
+	var compute struct {
+		SubscriptionID    string `json:"subscriptionId"`
+		ResourceGroupName string `json:"resourceGroupName"`
+		Name              string `json:"name"`
+		VMScaleSetName    string `json:"vmScaleSetName"`
+	}
+	err = json.Unmarshal(b, &compute)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the virtual machine from the Azure metadata for vault login: %w", err)
+	}
+
+	data := map[string]any{
+		"jwt":                 token.AccessToken,
+		"subscription_id":     compute.SubscriptionID,
+		"resource_group_name": compute.ResourceGroupName,
+	}
+	if compute.VMScaleSetName != "" {
+		data["vmss_name"] = compute.VMScaleSetName
+	} else {
+		data["vm_name"] = compute.Name
+	}
+	return data, nil
+}
+
+// gcpLoginData returns the body of a Vault gcp auth login with the gce type: an identity token of the service
+// account of the instance, for the audience of the role, from the metadata server of Google Compute Engine.
+// See https://developer.hashicorp.com/vault/docs/auth/gcp#gce-login.
+func gcpLoginData(ctx context.Context, metadataURL, role string) (map[string]any, error) {
+	q := url.Values{"audience": []string{"http://vault/" + role}, "format": []string{"full"}}
+	b, err := metadataGet(ctx, metadataURL+"/instance/service-accounts/default/identity?"+q.Encode(),
+		http.Header{"Metadata-Flavor": []string{"Google"}})
+	if err == nil && len(b) == 0 {
+		err = errors.New("no identity token in the response")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an identity token of the instance for vault login: %w", err)
+	}
+
+	return map[string]any{"jwt": string(b)}, nil
+}
+
+// gcpIAMLoginData returns the body of a Vault gcp auth login with the iam type: a JWT for the audience of the role,
+// signed by the service account of the instance with the IAM Service Account Credentials API. The service account
+// and an access token of it come from the metadata server, also in GKE with Workload Identity, and it needs
+// iam.serviceAccounts.signJwt on itself (the Service Account Token Creator role).
+// See https://developer.hashicorp.com/vault/docs/auth/gcp#iam-login.
+func gcpIAMLoginData(ctx context.Context, metadataURL, iamURL, role string, now time.Time) (map[string]any, error) {
+	header := http.Header{"Metadata-Flavor": []string{"Google"}}
+	email, err := metadataGet(ctx, metadataURL+"/instance/service-accounts/default/email", header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the service account of the instance for vault login: %w", err)
+	}
+	b, err := metadataGet(ctx, metadataURL+"/instance/service-accounts/default/token", header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the service account for vault login: %w", err)
+	}
+	var token struct {
+		AccessToken string `json:"access_token"`
+	}
+	err = json.Unmarshal(b, &token)
+	if err == nil && token.AccessToken == "" {
+		err = errors.New("no access token in the response")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the service account for vault login: %w", err)
+	}
+
+	claims, err := json.Marshal(map[string]any{
+		"aud": "vault/" + role,
+		"sub": string(email),
+		"exp": now.Add(gcpIAMJWTLifetime).Unix(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := json.Marshal(map[string]string{"payload": string(claims)})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		iamURL+"/projects/-/serviceAccounts/"+url.PathEscape(string(email))+":signJwt", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+
+	resp, err := cloudHTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign a JWT with the service account for vault login: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err = io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return nil, err
+	}
+	var signed struct {
+		SignedJWT string `json:"signedJwt"`
+		Error     struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	_ = json.Unmarshal(b, &signed)
+	if resp.StatusCode != http.StatusOK || signed.SignedJWT == "" {
+		return nil, fmt.Errorf("failed to sign a JWT with the service account for vault login: %d %s %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode), signed.Error.Message)
+	}
+
+	return map[string]any{"jwt": signed.SignedJWT}, nil
+}
+
+// The variables that the workload identity webhook of AKS sets in the pods of a service account bound to an identity.
+const (
+	azureFederatedTokenFileEnv = "AZURE_FEDERATED_TOKEN_FILE"
+	azureClientIDEnv           = "AZURE_CLIENT_ID"
+	azureTenantIDEnv           = "AZURE_TENANT_ID"
+	azureAuthorityHostEnv      = "AZURE_AUTHORITY_HOST"
+
+	defaultAzureAuthorityHost = "https://login.microsoftonline.com/"
+)
+
+// azureWorkloadIdentity reports whether pmm runs in a pod of AKS with a workload identity: the token of its service
+// account, which Microsoft Entra ID trusts, stands in for a managed identity then.
+func azureWorkloadIdentity(getenv func(string) string) bool {
+	return getenv(azureFederatedTokenFileEnv) != ""
+}
+
+// azureWorkloadIdentityLoginData returns the body of a Vault azure auth login with an access token of the workload
+// identity of the pod, which Microsoft Entra ID issues for the token of its service account. The role of the login
+// is bound to the service principal, as no virtual machine stands behind the pod.
+// See https://learn.microsoft.com/azure/aks/workload-identity-overview.
+func azureWorkloadIdentityLoginData(ctx context.Context, getenv func(string) string, resource, clientID string) (map[string]any, error) {
+	assertion, err := os.ReadFile(getenv(azureFederatedTokenFileEnv))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the token of the workload identity for vault login: %w", err)
+	}
+	if clientID == "" {
+		clientID = getenv(azureClientIDEnv)
+	}
+	tenantID := getenv(azureTenantIDEnv)
+	if clientID == "" || tenantID == "" {
+		return nil, fmt.Errorf("%s and %s are needed with %s for vault login", azureClientIDEnv, azureTenantIDEnv, azureFederatedTokenFileEnv)
+	}
+
+	authority := strings.TrimSuffix(cmp.Or(getenv(azureAuthorityHostEnv), defaultAzureAuthorityHost), "/")
+	form := url.Values{
+		"grant_type":            []string{"client_credentials"},
+		"client_id":             []string{clientID},
+		"scope":                 []string{strings.TrimSuffix(resource, "/") + "/.default"},
+		"client_assertion_type": []string{"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+		"client_assertion":      []string{strings.TrimSpace(string(assertion))},
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		authority+"/"+url.PathEscape(tenantID)+"/oauth2/v2.0/token", strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := cloudHTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an access token of the workload identity for vault login: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseSize))
+	if err != nil {
+		return nil, err
+	}
+	var token struct {
+		AccessToken      string `json:"access_token"`
+		ErrorDescription string `json:"error_description"`
+	}
+	_ = json.Unmarshal(b, &token)
+	if resp.StatusCode != http.StatusOK || token.AccessToken == "" {
+		return nil, fmt.Errorf("failed to get an access token of the workload identity for vault login: %d %s %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode), token.ErrorDescription)
+	}
+
+	return map[string]any{"jwt": token.AccessToken}, nil
+}

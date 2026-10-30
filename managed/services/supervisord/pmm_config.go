@@ -163,7 +163,7 @@ redirect_stderr = true
 [program:pmm-managed]
 priority = 14
 command =
-    /usr/sbin/pmm-managed
+    /usr/sbin/pmm-managed-init exec-env /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
         --supervisord-config-dir=/etc/supervisord.d
 autorestart = true

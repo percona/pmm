@@ -318,6 +318,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 			InstanceId: "test-azure",
 			Address:    "test.mysql.database.azure.com",
 			Port:       3306,
+			Username:   "username",
 		})
 		assert.Nil(t, res)
 		tests.AssertGRPCError(t, expectedErr, err)

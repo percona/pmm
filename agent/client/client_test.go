@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -52,6 +53,15 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 }
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
+
+// connectMetadata is the metadata the client connects with: the sealing key is the same for the whole process.
+func connectMetadata(t *testing.T) *agentv1.AgentConnectMetadata {
+	t.Helper()
+
+	sealingKey, err := secrets.SealingPublicKey()
+	require.NoError(t, err)
+	return &agentv1.AgentConnectMetadata{ID: "agent_id", SealingKey: sealingKey}
+}
 
 // awaitClosed waits for ch to be closed, and fails instead of hanging.
 //
@@ -162,7 +172,7 @@ func TestClient(t *testing.T) {
 			connect := func(stream agentv1.AgentService_ConnectServer) error {
 				md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
-				assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+				assert.Equal(t, connectMetadata(t), md)
 				err = agentv1.SendServerConnectMetadata(stream, serverMD)
 				require.NoError(t, err)
 
@@ -242,7 +252,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -323,6 +333,79 @@ func TestUnexpectedActionType(t *testing.T) {
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 }
 
+type writtenSecrets map[string]map[string]string
+
+func (w writtenSecrets) Get(context.Context, string, string) (string, error) {
+	return "", errors.New("not readable")
+}
+
+func (w writtenSecrets) Write(_ context.Context, path string, data map[string]string) error {
+	if path == "secret/data/denied" {
+		return errors.New("permission denied")
+	}
+	w[path] = data
+	return nil
+}
+
+// Not parallel: it configures the process-wide Vault client.
+func TestStoreSecret(t *testing.T) {
+	written := writtenSecrets{}
+	secrets.Configure(written)
+	t.Cleanup(func() { secrets.Configure(nil) })
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		_, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		require.NoError(t, agentv1.SendServerConnectMetadata(stream, &agentv1.ServerConnectMetadata{ServerVersion: t.Name()}))
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		for id, path := range map[uint32]string{1: "secret/data/pmm/mysql", 2: "secret/data/denied"} {
+			err = stream.Send(&agentv1.ServerMessage{
+				Id:      id,
+				Payload: (&agentv1.StoreSecretRequest{Path: path, Data: map[string]string{"password": "s3cr3t"}}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+
+			msg, err = stream.Recv()
+			require.NoError(t, err)
+			assert.Equal(t, id, msg.Id)
+			require.NotNil(t, msg.GetStoreSecret())
+			if id == 1 {
+				assert.Empty(t, msg.GetStoreSecret().Error)
+			} else {
+				assert.Equal(t, "permission denied", msg.GetStoreSecret().Error)
+			}
+		}
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID:     "agent_id",
+		Server: config.Server{Address: fmt.Sprintf("127.0.0.1:%d", port), WithoutTLS: true},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	require.NoError(t, client.Run(context.Background()))
+	assert.Equal(t, writtenSecrets{"secret/data/pmm/mysql": {"password": "s3cr3t"}}, written)
+}
+
 // TestSetStateDoesNotBlockRequestLoop is the regression test for PMM-15431: SetState used to be
 // applied inline on the request loop, so one that could not finish stopped the agent answering
 // anything at all, pings included, with no way back except restarting pmm-agent.
@@ -343,7 +426,7 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -433,7 +516,7 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -514,7 +597,7 @@ func TestDoneClosesWhileActualStatusesAreBlocked(t *testing.T) {
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
@@ -588,7 +671,7 @@ func TestDoneClosesAfterCancel(t *testing.T) {
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		assert.Equal(t, connectMetadata(t), md)
 		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()

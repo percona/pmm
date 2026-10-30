@@ -277,3 +277,21 @@ func TestZip(t *testing.T) {
 	sort.Strings(expected)
 	assert.Equal(t, expected, actual)
 }
+
+func TestReadConfigMasksCredentials(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	scrape := filepath.Join(dir, "victoriametrics-promscrape.yml")
+	require.NoError(t, os.WriteFile(scrape, []byte("basic_auth:\n  username: pmm\n  password: metrics-pw\n"), 0o600))
+	ini := filepath.Join(dir, "vmalert.ini")
+	require.NoError(t, os.WriteFile(ini, []byte("password: kept\n"), 0o600))
+
+	b, _, err := readConfig(scrape)
+	require.NoError(t, err)
+	assert.Equal(t, "basic_auth:\n  username: pmm\n  password: '***'\n", string(b))
+
+	b, _, err = readConfig(ini)
+	require.NoError(t, err)
+	assert.Equal(t, "password: kept\n", string(b), "only YAML files are masked")
+}

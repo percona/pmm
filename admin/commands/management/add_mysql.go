@@ -104,6 +104,7 @@ type AddMySQLCommand struct {
 	PMMAgentID    string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	Username      string `default:"root" help:"MySQL username"`
 	Password      string `help:"MySQL password"`
+	VaultPath     string `help:"Vault secret path with the password and optionally the username; a given --password is stored there"`
 	AgentPassword string `help:"Custom password for /metrics endpoint"`
 	// TODO add "auto", make it default
 	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
@@ -222,6 +223,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				ReplicationSet: cmd.ReplicationSet,
 				Username:       cmd.Username,
 				Password:       cmd.Password,
+				VaultPath:      cmd.VaultPath,
 				AgentPassword:  cmd.AgentPassword,
 				CustomLabels:   pointer.Get(customLabels),
 				ExtraDsnParams: pointer.Get(extraDSNParams),

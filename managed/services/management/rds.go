@@ -44,6 +44,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/duration"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -165,10 +166,17 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	regions := listRegions(settings.AWSPartitions)
 
+	// The keys may be references to them in Vault, as they may be for the RDS exporter they are then added with.
+	accessKey, secretKey := req.AwsAccessKey, req.AwsSecretKey
+	err = secrets.ResolveAll(ctx, &accessKey, &secretKey)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to read the AWS keys: %s.", err)
+	}
+
 	// use given credentials, or default credential chain
 	var creds aws.CredentialsProvider
-	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
-		creds = credentials.NewStaticCredentialsProvider(req.AwsAccessKey, req.AwsSecretKey, "")
+	if accessKey != "" && secretKey != "" {
+		creds = credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
 	}
 
 	opts := []func(*config.LoadOptions) error{
@@ -288,6 +296,12 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 //
 //nolint:gocognit,cyclop,maintidx
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, nil)
+	err := services.RequireUsername("AddRDSServiceParams", req.Username, req.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	rds := &managementv1.RDSServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
@@ -395,6 +409,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
@@ -406,6 +421,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 			})
+			if err != nil {
+				return err
+			}
+			err = s.storeInVault(ctx, tx.Querier, mysqldExporter, vaultSecrets, req.SkipConnectionCheck)
 			if err != nil {
 				return err
 			}
@@ -433,6 +452,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					ServiceID:     service.ServiceID,
 					Username:      req.Username,
 					Password:      req.Password,
+					VaultPath:     req.VaultPath,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
 					QANOptions: models.QANOptions{
@@ -484,6 +504,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
@@ -499,6 +520,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})
+			if err != nil {
+				return err
+			}
+			err = s.storeInVault(ctx, tx.Querier, postgresExporter, vaultSecrets, req.SkipConnectionCheck)
 			if err != nil {
 				return err
 			}
@@ -526,6 +551,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					ServiceID:     service.ServiceID,
 					Username:      req.Username,
 					Password:      req.Password,
+					VaultPath:     req.VaultPath,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
 					QANOptions: models.QANOptions{

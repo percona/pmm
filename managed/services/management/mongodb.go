@@ -31,6 +31,11 @@ import (
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent", "QAN MongoDB Profiler" and "Real-Time Analytics Agent".
 func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, map[string]*string{
+		models.VaultTLSCaKey:                         &req.TlsCa,
+		models.VaultTLSCertificateKeyKey:             &req.TlsCertificateKey,
+		models.VaultTLSCertificateKeyFilePasswordKey: &req.TlsCertificateKeyFilePassword,
+	})
 	mongodb := &managementv1.MongoDBServiceResult{}
 
 	// Pure request validation: this is a new agent, so there is no existing agent to grandfather,
@@ -81,6 +86,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			ServiceID:                service.ServiceID,
 			Username:                 req.Username,
 			Password:                 req.Password,
+			VaultPath:                req.VaultPath,
 			AgentPassword:            req.AgentPassword,
 			EnvironmentVariableNames: req.EnvironmentVariableNames,
 			TLS:                      req.Tls,
@@ -94,6 +100,10 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}
@@ -123,6 +133,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
@@ -150,6 +161,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
@@ -177,6 +189,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ServiceID:      service.ServiceID,
 				Username:       req.Username,
 				Password:       req.Password,
+				VaultPath:      req.VaultPath,
 				TLS:            req.Tls,
 				TLSSkipVerify:  req.TlsSkipVerify,
 				MongoDBOptions: models.MongoDBOptionsFromRequest(req),

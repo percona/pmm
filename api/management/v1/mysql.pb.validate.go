@@ -128,16 +128,7 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 
 	// no validation rules for ReplicationSet
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddMySQLServiceParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -208,6 +199,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)

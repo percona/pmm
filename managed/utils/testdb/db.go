@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -34,8 +35,11 @@ const (
 	username     = "postgres"
 	testDatabase = "pmm-managed-dev"
 
-	// Variable postgresPasswordFile defines the file where the generated PostgreSQL password is stored.
+	// Variable postgresPasswordFile defines the file where PMM Server versions that gave the postgres
+	// superuser a password stored it.
 	postgresPasswordFile = "/srv/.postgres_password" //nolint:gosec
+	// Variable postgresSocket defines the Unix socket of the embedded PostgreSQL of PMM Server.
+	postgresSocket = "/run/postgresql/.s.PGSQL.5432"
 )
 
 // postgresPassword returns the PostgreSQL password, reading it from the password file if available.
@@ -47,12 +51,26 @@ func postgresPassword() string {
 	return strings.TrimSpace(string(data))
 }
 
+// postgresAddress returns the address to connect to PostgreSQL at: the Unix socket of the embedded
+// PostgreSQL of a PMM Server dev container, whose postgres superuser has no password since it is
+// trusted there, or the TCP address of the PostgreSQL that the tests are run with otherwise.
+func postgresAddress() string {
+	if postgresPassword() != "" {
+		return "127.0.0.1:5432"
+	}
+	_, err := os.Stat(postgresSocket)
+	if err != nil {
+		return "127.0.0.1:5432"
+	}
+	return filepath.Dir(postgresSocket)
+}
+
 // Open recreates testing PostgreSQL database and returns an open connection to it.
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
 
 	setupParams := models.SetupDBParams{
-		Address:  "127.0.0.1:5432",
+		Address:  postgresAddress(),
 		Username: username,
 		Password: postgresPassword(),
 	}

@@ -31,6 +31,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/utils/envvars"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -833,6 +834,10 @@ func CreateNodeExporter(q *reform.Querier,
 	if err != nil {
 		return nil, err
 	}
+	err = row.validateVaultRefs(q.Context())
+	if err != nil {
+		return nil, err
+	}
 
 	return insertAgent(q, *row)
 }
@@ -918,6 +923,10 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err != nil {
 		return nil, err
 	}
+	err = row.validateVaultRefs(q.Context())
+	if err != nil {
+		return nil, err
+	}
 
 	return insertAgent(q, *row)
 }
@@ -929,6 +938,7 @@ type CreateAgentParams struct {
 	ServiceID                string
 	Username                 string
 	Password                 string
+	VaultPath                string
 	AgentPassword            string
 	CustomLabels             map[string]string
 	EnvironmentVariableNames []string
@@ -1085,6 +1095,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
+	err = validateVaultPath(params.VaultPath, params.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	exporterOptions := params.ExporterOptions
 	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
 		exporterOptions.ConnectionTimeout = nil
@@ -1098,6 +1113,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		NodeID:            pointer.ToStringOrNil(params.NodeID),
 		Username:          pointer.ToStringOrNil(params.Username),
 		Password:          pointer.ToStringOrNil(params.Password),
+		VaultPath:         pointer.ToStringOrNil(strings.Trim(params.VaultPath, "/")),
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
@@ -1151,7 +1167,148 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	err = row.validateVaultRefs(q.Context())
+	if err != nil {
+		return nil, err
+	}
+	if row.UsesVault() {
+		err = IsAgentSupported(pmmAgent, VaultFunctionality, PMMAgentMinVersionForVault)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
 	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
+}
+
+// VaultFunctionality names reading credentials stored in Vault in version errors.
+const VaultFunctionality = "Credentials stored in Vault"
+
+// TakeVaultSecrets moves the secrets that params gives in plain text for an Agent with a Vault path out
+// of params, and returns them by the key of the Vault secret they are to be stored under: with a Vault
+// path, PMM Server keeps none of them. The TLS options are left with references to the keys, so that the
+// client key and the certificates that go with it are rotated together. The username goes along with a
+// password, and stays in params as the fallback for a secret that has none.
+func (p *CreateAgentParams) TakeVaultSecrets() map[string]string {
+	if strings.Trim(p.VaultPath, "/") == "" {
+		return nil
+	}
+
+	secrets := make(map[string]string)
+	if vault.ToStore(p.Password) {
+		secrets[VaultPasswordKey] = p.Password
+		if p.Username != "" {
+			secrets[VaultUsernameKey] = p.Username
+		}
+		p.Password = ""
+	}
+
+	for _, f := range tlsFields(&p.MySQLOptions, &p.MongoDBOptions, &p.PostgreSQLOptions, &p.ValkeyOptions) {
+		if vault.ToStore(*f.value) {
+			secrets[f.key] = *f.value
+			*f.value = VaultRef(p.VaultPath, f.key)
+		}
+	}
+
+	if len(secrets) == 0 {
+		return nil
+	}
+	return secrets
+}
+
+// changeTLSFields is tlsFields for a change, with the fields it leaves unchanged left out.
+func (p *ChangeAgentParams) changeTLSFields() []changeSecretField {
+	var res []changeSecretField
+	add := func(key string, value **string) {
+		if *value != nil {
+			res = append(res, changeSecretField{key: key, value: value})
+		}
+	}
+	if o := p.MySQLOptions; o != nil {
+		add(VaultTLSCaKey, &o.TLSCa)
+		add(VaultTLSCertKey, &o.TLSCert)
+		add(VaultTLSKeyKey, &o.TLSKey)
+	}
+	if o := p.MongoDBOptions; o != nil {
+		add(VaultTLSCaKey, &o.TLSCa)
+		add(VaultTLSCertificateKeyKey, &o.TLSCertificateKey)
+		add(VaultTLSCertificateKeyFilePasswordKey, &o.TLSCertificateKeyFilePassword)
+	}
+	if o := p.PostgreSQLOptions; o != nil {
+		add(VaultTLSCaKey, &o.SSLCa)
+		add(VaultTLSCertKey, &o.SSLCert)
+		add(VaultTLSKeyKey, &o.SSLKey)
+	}
+	if o := p.ValkeyOptions; o != nil {
+		add(VaultTLSCaKey, &o.SSLCa)
+		add(VaultTLSCertKey, &o.SSLCert)
+		add(VaultTLSKeyKey, &o.SSLKey)
+	}
+	return res
+}
+
+// changeSecretField is a secretField that a change sets.
+type changeSecretField struct {
+	key   string
+	value **string
+}
+
+// TakeVaultTLSSecrets is CreateAgentParams.TakeVaultSecrets for the TLS options of a change of an Agent
+// whose credentials are in the Vault secret at path: it adds them to secrets, and leaves references to
+// their keys in a copy of the options. The options of p are copied before, so that the caller's are kept.
+func (p *ChangeAgentParams) TakeVaultTLSSecrets(path string, secrets map[string]string) {
+	if strings.Trim(path, "/") == "" {
+		return
+	}
+
+	if p.MySQLOptions != nil {
+		p.MySQLOptions = new(*p.MySQLOptions)
+	}
+	if p.MongoDBOptions != nil {
+		p.MongoDBOptions = new(*p.MongoDBOptions)
+	}
+	if p.PostgreSQLOptions != nil {
+		p.PostgreSQLOptions = new(*p.PostgreSQLOptions)
+	}
+	if p.ValkeyOptions != nil {
+		p.ValkeyOptions = new(*p.ValkeyOptions)
+	}
+
+	for _, f := range p.changeTLSFields() {
+		if v := **f.value; vault.ToStore(v) {
+			secrets[f.key] = v
+			*f.value = new(VaultRef(path, f.key))
+		}
+	}
+}
+
+// setsVaultRefs reports whether the change sets a TLS option or the password to a Vault reference.
+func (p *ChangeAgentParams) setsVaultRefs() bool {
+	if p.Password != nil && vault.IsRef(*p.Password) {
+		return true
+	}
+	for _, f := range p.changeTLSFields() {
+		if vault.IsRef(**f.value) {
+			return true
+		}
+	}
+	return false
+}
+
+// validateVaultPath returns an error if vaultPath is set but invalid, or set together with password.
+func validateVaultPath(vaultPath, password string) error {
+	if vaultPath == "" {
+		return nil
+	}
+
+	err := vault.ValidatePath(vaultPath)
+	if err != nil {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+	if password != "" {
+		return status.Error(codes.InvalidArgument, "Password and Vault path are mutually exclusive: the password is read from Vault.")
+	}
+	return nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1262,8 +1419,11 @@ type ChangeAgentParams struct {
 	EnvironmentVariableNames *[]string
 
 	// Database connection fields
-	Username      *string
-	Password      *string
+	Username *string
+	// Password set to a non-empty value replaces the credentials stored in Vault, if any.
+	Password *string
+	// VaultPath set to a non-empty value replaces the stored password, and set to an empty one removes the Vault path.
+	VaultPath     *string
 	AgentPassword *string
 
 	// Structured change options
@@ -1291,7 +1451,7 @@ type ChangeAgentParams struct {
 // to the service (credentials, TLS options, endpoint), i.e. changes that should be
 // validated with a connection check before they are applied.
 func (p *ChangeAgentParams) AffectsConnection() bool {
-	if p.Username != nil || p.Password != nil || p.TLS != nil || p.TLSSkipVerify != nil || p.ListenPort != nil {
+	if p.Username != nil || p.Password != nil || p.VaultPath != nil || p.TLS != nil || p.TLSSkipVerify != nil || p.ListenPort != nil {
 		return true
 	}
 
@@ -1441,8 +1601,21 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 	if params.Username != nil {
 		row.Username = params.Username
 	}
+	err = validateVaultPath(pointer.GetString(params.VaultPath), pointer.GetString(params.Password))
+	if err != nil {
+		return nil, err
+	}
 	if params.Password != nil {
 		row.Password = params.Password
+		if *params.Password != "" {
+			row.VaultPath = nil
+		}
+	}
+	if params.VaultPath != nil {
+		row.VaultPath = pointer.ToStringOrNil(strings.Trim(*params.VaultPath, "/"))
+		if row.VaultPath != nil {
+			row.Password = nil
+		}
 	}
 	if params.AgentPassword != nil {
 		row.AgentPassword = params.AgentPassword
@@ -1633,6 +1806,17 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 	// updater, and unrelated changes (disable, log level, labels) must still work on it.
 	if params.AWSOptions != nil && pointer.GetString(params.AWSOptions.AWSRoleARN) != "" {
 		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
+	err = row.validateVaultRefs(q.Context())
+	if err != nil {
+		return nil, err
+	}
+	if row.UsesVault() && (pointer.GetString(params.VaultPath) != "" || params.setsVaultRefs()) {
+		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), VaultFunctionality, PMMAgentMinVersionForVault)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}

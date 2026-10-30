@@ -8,6 +8,7 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare POSTGRES_OLD_DATA_DIR="/srv/postgres14"
+# The postgres superuser password file of earlier versions, which postgres-migration removes.
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
 declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 
@@ -74,6 +75,37 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
     fi
     echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
+
+# Replace the PMM_*, GF_*, VM_* and VMAGENT_* variables given as vault:<path>#<key> references with the
+# secrets they point to, before anything reads them.
+if [ -n "$PMM_VAULT_ADDRESS" ]; then
+    declare VAULT_EXPORTS
+    if ! VAULT_EXPORTS=$(pmm-managed-init vault-env); then
+        echo "FATAL: failed to read the PMM Server secrets from Vault." >&2
+        exit 1
+    fi
+    eval "$VAULT_EXPORTS"
+    unset VAULT_EXPORTS
+fi
+
+# pmm-managed and the pmm-agent of PMM Server read from Vault while they run, so they get their credentials
+# of Vault too, in files rather than in the environment that every component of PMM Server inherits. The
+# directory is the same at every start: pmm-agent setup saves the paths to the configuration file.
+declare VAULT_CREDENTIALS_DIR=/tmp/pmm-vault-credentials VAULT_CREDENTIAL
+rm -rf "$VAULT_CREDENTIALS_DIR"
+install -d -m 700 "$VAULT_CREDENTIALS_DIR"
+for VAULT_CREDENTIAL in PMM_VAULT_TOKEN PMM_VAULT_SECRET_ID PMM_AGENT_VAULT_TOKEN PMM_AGENT_VAULT_SECRET_ID; do
+    if [ -n "${!VAULT_CREDENTIAL}" ] && [ -z "$(printenv "${VAULT_CREDENTIAL}_FILE")" ]; then
+        (umask 077 && printf '%s' "${!VAULT_CREDENTIAL}" > "$VAULT_CREDENTIALS_DIR/$VAULT_CREDENTIAL")
+        export "${VAULT_CREDENTIAL}_FILE=$VAULT_CREDENTIALS_DIR/$VAULT_CREDENTIAL"
+    fi
+    unset "$VAULT_CREDENTIAL"
+done
+unset VAULT_CREDENTIALS_DIR VAULT_CREDENTIAL
+
+# The values of the secrets rotated in Vault while PMM Server ran, which pmm-managed applies without a restart, see
+# secrets.RotatedEnvPath. Removed at every start: the variables have their values from Vault now.
+rm -rf /tmp/pmm-secrets
 
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
@@ -264,10 +296,40 @@ fi
 # removed on the start after PMM_ENABLE_EXTENSIONS is cleared.
 bash /opt/ansible/roles/extensions/files/extensions-secrets
 
-# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
-# every supervisord child inherits it, and anything sharing the container's PID namespace
-# can then read it out of /proc/<pid>/environ.
-unset PMM_EXTENSIONS_POSTGRES_PASSWORD
+# The last consumer has run, so drop the password and the key before exec'ing supervisord:
+# otherwise every supervisord child inherits them, and anything sharing the container's PID
+# namespace can then read them out of /proc/<pid>/environ.
+unset PMM_EXTENSIONS_POSTGRES_PASSWORD PMM_EXTENSIONS_SECRET_KEY
+
+# A certificate given in the environment, read from Vault as a rule, replaces the one nginx reads from
+# /srv/nginx at every start, so that PMM Server serves the one in Vault. The CA certificate is optional.
+# The marker lists the files installed so, which go once the variables do: a self-signed certificate and
+# the bundled CA certificates take their place, as on a new installation.
+declare TLS_FROM_ENV_MARKER=/srv/nginx/.tls-from-env
+if [ -n "$PMM_TLS_CERTIFICATE" ] || [ -n "$PMM_TLS_CERTIFICATE_KEY" ]; then
+    if [ -z "$PMM_TLS_CERTIFICATE" ] || [ -z "$PMM_TLS_CERTIFICATE_KEY" ]; then
+        echo "FATAL: PMM_TLS_CERTIFICATE and PMM_TLS_CERTIFICATE_KEY must be given together." >&2
+        exit 1
+    fi
+    echo "Installing the TLS certificate given by PMM_TLS_CERTIFICATE..."
+    mkdir -p /srv/nginx
+    (umask 077 && printf '%s\n' "$PMM_TLS_CERTIFICATE_KEY" > /srv/nginx/certificate.key)
+    printf '%s\n' "$PMM_TLS_CERTIFICATE" > /srv/nginx/certificate.crt
+    printf 'certificate.crt\ncertificate.key\n' > "$TLS_FROM_ENV_MARKER"
+    if [ -n "$PMM_TLS_CA_CERTIFICATE" ]; then
+        printf '%s\n' "$PMM_TLS_CA_CERTIFICATE" > /srv/nginx/ca-certs.pem
+        printf 'ca-certs.pem\n' >> "$TLS_FROM_ENV_MARKER"
+    fi
+elif [ -f "$TLS_FROM_ENV_MARKER" ]; then
+    echo "Removing the TLS certificate that PMM_TLS_CERTIFICATE installed..."
+    while read -r installed; do
+        case "$installed" in
+        certificate.crt | certificate.key | ca-certs.pem) rm -f "/srv/nginx/$installed" ;;
+        esac
+    done < "$TLS_FROM_ENV_MARKER"
+    rm -f "$TLS_FROM_ENV_MARKER"
+fi
+unset PMM_TLS_CERTIFICATE PMM_TLS_CERTIFICATE_KEY PMM_TLS_CA_CERTIFICATE TLS_FROM_ENV_MARKER
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1

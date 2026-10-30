@@ -42,25 +42,22 @@
       name: pmm-managed
       state: restore
       target: /srv/backup/pmm-managed.sql
-    environment:
-      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+      login_unix_socket: /run/postgresql
 
   - name: Restore grafana database
     postgresql_db:
       name: grafana
       state: restore
       target: /srv/backup/grafana.sql
+      login_unix_socket: /run/postgresql
     when: not is_ha
-    environment:
-      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Check pg_stat_statements extension
     postgresql_ext:
       db: postgres
       name: pg_stat_statements
       schema: public
-    environment:
-      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+      login_unix_socket: /run/postgresql
 
   - name: Stop Postgres database without supervisor
     command: /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18

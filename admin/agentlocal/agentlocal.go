@@ -32,10 +32,15 @@ import (
 	"github.com/percona/pmm/utils/apitransport"
 )
 
+// address is the address of the local pmm-agent API, see SetTransport.
+var address = fmt.Sprintf("%s:%d", Localhost, DefaultPMMAgentListenPort) //nolint:gochecknoglobals
+
 // SetTransport configures transport for accessing local pmm-agent API.
 func SetTransport(debug bool, port uint32) {
+	address = fmt.Sprintf("%s:%d", Localhost, port)
+
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
+	transport := httptransport.New(address, "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 

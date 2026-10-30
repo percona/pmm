@@ -17,14 +17,18 @@ package templates
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
+	"sync"
 	"text/template"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
@@ -37,9 +41,14 @@ type TemplateRenderer struct {
 	TemplateLeftDelim  string
 	TemplateRightDelim string
 	TempDir            string
+
+	m            sync.Mutex
+	secretValues []string
 }
 
-// RenderTemplate replaces placeholders with real values in text.
+// RenderTemplate replaces placeholders with real values in text, and then the Vault tokens in the result
+// with the secrets they stand for. Resolving after rendering keeps the secrets out of the template, where
+// they could clash with delimiters that pmm-managed chose without knowing them.
 func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map[string]any) ([]byte, error) {
 	t := template.New(name)
 	t.Delims(tr.TemplateLeftDelim, tr.TemplateRightDelim)
@@ -54,7 +63,25 @@ func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map
 	if err != nil {
 		return nil, err
 	}
-	return buf.Bytes(), nil
+
+	res, values, err := secrets.Resolve(context.Background(), buf.String())
+	if err != nil {
+		return nil, err
+	}
+
+	tr.m.Lock()
+	tr.secretValues = append(tr.secretValues, values...)
+	tr.m.Unlock()
+
+	return []byte(res), nil
+}
+
+// SecretValues returns the Vault secrets inserted by RenderTemplate so far, for redacting them from logs.
+func (tr *TemplateRenderer) SecretValues() []string {
+	tr.m.Lock()
+	defer tr.m.Unlock()
+
+	return slices.Clone(tr.secretValues)
 }
 
 // RenderFiles creates temporary files and returns paths to created files.
@@ -101,28 +128,29 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]any) (map[stri
 	return templateParams, nil
 }
 
-// RenderDSN creates temporary files and replaces placeholders with real paths.
+// RenderDSN creates temporary files, replaces placeholders with real paths, and Vault tokens with secrets.
 func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, error) {
-	if files != nil {
-		tr := &TemplateRenderer{
-			TextFiles:          files.Files,
-			TemplateLeftDelim:  files.TemplateLeftDelim,
-			TemplateRightDelim: files.TemplateRightDelim,
-			TempDir:            tempDir,
-		}
-
-		templateParams, err := tr.RenderFiles(make(map[string]any))
-		if err != nil {
-			return "", err
-		}
-
-		b, err := tr.RenderTemplate("dsn", dsn, templateParams)
-		if err != nil {
-			return "", err
-		}
-		dsn = string(b)
+	if files == nil {
+		return secrets.ResolveString(context.Background(), dsn)
 	}
-	return dsn, nil
+
+	tr := &TemplateRenderer{
+		TextFiles:          files.Files,
+		TemplateLeftDelim:  files.TemplateLeftDelim,
+		TemplateRightDelim: files.TemplateRightDelim,
+		TempDir:            tempDir,
+	}
+
+	templateParams, err := tr.RenderFiles(make(map[string]any))
+	if err != nil {
+		return "", err
+	}
+
+	b, err := tr.RenderTemplate("dsn", dsn, templateParams)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // CleanupTempDir removes the temporary directory.

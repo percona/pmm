@@ -692,6 +692,7 @@ func TestAgents(t *testing.T) {
 		_, err = as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
 			ServiceId:  "no-such-id",
+			Username:   "username",
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})

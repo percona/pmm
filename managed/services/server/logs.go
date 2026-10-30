@@ -40,6 +40,7 @@ import (
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/utils/vault"
 )
 
 const (
@@ -202,7 +203,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 	}, extensionsConfigFiles(extensionsNginxConfigDir))
 
 	for _, f := range configs {
-		b, m, err := readFile(f)
+		b, m, err := readConfig(f)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
 			Modified: m,
@@ -377,6 +378,17 @@ func readLogUnlimited(name string) ([]byte, time.Time, error) {
 }
 
 // readFile reads the whole file and returns content together with modification time.
+// Like readFile, readConfig reads a file, a configuration one, and masks the credentials of a YAML one. The
+// scrape configuration holds the passwords of the exporters, which may have been read from Vault. The
+// configuration of pmm-agent holds the credentials of PMM Server and of Vault.
+func readConfig(name string) ([]byte, time.Time, error) {
+	b, m, err := readFile(name)
+	if ext := filepath.Ext(name); ext == ".yml" || ext == ".yaml" {
+		b = vault.MaskConfigSecrets(b)
+	}
+	return b, m, err
+}
+
 func readFile(name string) ([]byte, time.Time, error) {
 	var m time.Time
 	b, err := os.ReadFile(name) //nolint:gosec

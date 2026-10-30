@@ -87,8 +87,12 @@ type AddValkeyServiceParams struct {
 	AgentPassword string `protobuf:"bytes,24,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,25,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath     string `protobuf:"bytes,26,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddValkeyServiceParams) Reset() {
@@ -296,6 +300,13 @@ func (x *AddValkeyServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddValkeyServiceParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ValkeyServiceResult struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Service        *v1.ValkeyService      `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -352,7 +363,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xe7\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x86\t\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -382,7 +393,9 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\btls_cert\x18\x16 \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\x17 \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
 	"\x0eagent_password\x18\x18 \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12R\n" +
-	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1a \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x01\n" +

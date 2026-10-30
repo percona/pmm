@@ -109,7 +109,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
 	query, changedToSelect := dmlToSelect(a.params.Query)
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
+	db, err := mysqlOpen(ctx, a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

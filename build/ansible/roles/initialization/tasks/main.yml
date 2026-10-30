@@ -64,12 +64,12 @@
       - name: Create grafana user in postgres
         postgresql_user:
           name: grafana
-          password: grafana
+          # The password Grafana connects with; postgres-migration applies a changed one at every start.
+          password: "{{ lookup('env', 'GF_DATABASE_PASSWORD') | default('grafana', true) }}"
           expires: infinity
           login_user: postgres
+          login_unix_socket: /run/postgresql
           state: present
-        environment:
-          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
       # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
       # database is what lets the user create tables in it.
@@ -78,9 +78,8 @@
           name: grafana
           owner: grafana
           login_user: postgres
+          login_unix_socket: /run/postgresql
           state: present
-        environment:
-          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
     when:
       - lookup('env','GF_DATABASE_URL') == ''
       - lookup('env','GF_DATABASE_HOST') == ''

@@ -2383,6 +2383,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2732,6 +2735,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3557,6 +3563,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3884,6 +3893,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4198,6 +4210,9 @@ type ListAgentsOKBodyQANMongodbMongologAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mongodb mongolog agent items0
@@ -4407,6 +4422,9 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mongodb profiler agent items0
@@ -4634,6 +4652,9 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql perfschema agent items0
@@ -4864,6 +4885,9 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql slowlog agent items0
@@ -5076,6 +5100,9 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN postgresql pgstatements agent items0
@@ -5291,6 +5318,9 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN postgresql pgstatmonitor agent items0
@@ -5819,6 +5849,9 @@ type ListAgentsOKBodyRtaMongodbAgentItems0 struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// rta options
 	RtaOptions *ListAgentsOKBodyRtaMongodbAgentItems0RtaOptions `json:"rta_options,omitempty"`
 }
@@ -6262,6 +6295,9 @@ type ListAgentsOKBodyValkeyExporterItems0 struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
