@@ -125,7 +125,7 @@ A ClickHouse query in a template must meet these requirements:
 
 - sets `datasource: clickhouse`
 - returns a `DateTime` time column and exactly one numeric value column
-- returns the label columns that you want on the alert, such as `service_name`, `node_name`, `environment`, and `cluster`
+- returns the label columns that you want to filter on, route by, or show on the alert, such as `service_name`, `node_name`, `region`, and `environment`
 - passes through a `reduce` expression before a `math` expression or the condition uses it, because alerts need one value for each series
 - uses only `float` parameters
 - reads the reduce expression, not the query, through `$values` in annotations and labels, for example `$values.B.Value`
@@ -180,7 +180,8 @@ Alerts on Query Analytics data have the following limitations:
 - PMM supports the ClickHouse time series format only.
 - Each evaluation reads the last 5 minutes of Query Analytics data. Query Analytics data arrives in one-minute buckets, about one to two minutes late. As a result, these alerts fire and resolve a few minutes later than metric alerts.
 - A single slow query keeps the alert active until the slow query leaves the 5-minute window.
-- Rule filters apply to the columns that the query returns. A filter on a label that the query doesn't return makes the rule fail to evaluate. Filters apply after any `LIMIT` in the query.
+- Rule filters apply to the columns that the query returns. As with metrics, a label that the query doesn't return counts as empty. A match filter on that label keeps every row. A mismatch filter on that label keeps every row, unless its regular expression matches an empty value. Filters apply after any `LIMIT` in the query.
+- Custom labels that you add to nodes and services aren't available to ClickHouse queries, so a filter on a custom label doesn't narrow Query Analytics alerts.
 - `[[` starts a template parameter, so it can't appear in the SQL, for example in nested array literals.
 - Each rule queries ClickHouse separately. To alert on many services, create one rule and route the alerts by the `service_name` label in your notification policies.
 - If ClickHouse is unavailable, rules with ClickHouse queries report a data source error in addition to the **PMM ClickHouse is down** alert.

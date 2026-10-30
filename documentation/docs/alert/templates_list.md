@@ -95,7 +95,7 @@ These templates alert on query performance data that Query Analytics collects. F
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
-| QAN | **QAN slow queries** | Alerts when the slowest query class on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the longest run for MySQL slow log and MongoDB, and the average run for PostgreSQL and MySQL Performance Schema. This template has a **Dynamic** badge, meaning that you can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
+| QAN | **QAN slow queries** | Alerts when the slowest query class on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the longest run for MySQL slow log and MongoDB, and the average run for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. This template has a **Dynamic** badge, meaning that you can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
