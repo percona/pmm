@@ -50,6 +50,7 @@ import { Unavailable } from './components/Unavailable';
 import {
   GroupBySelect,
   NO_GROUPING,
+  useSessionGrouping,
   type GroupByOption,
 } from './components/GroupBySelect';
 import { useOmTopology } from './topologyHooks';
@@ -436,7 +437,11 @@ function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
  * environment, by health or flat without the page changing shape (PMM-15712).
  */
 const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
-  const [grouping, setGrouping] = useState<ClusterGrouping>(DEFAULT_GROUPING);
+  const [grouping, setGrouping] = useSessionGrouping<ClusterGrouping>(
+    'om.fleet.clusters.grouping',
+    GROUP_BY_OPTIONS,
+    DEFAULT_GROUPING
+  );
   const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
   const columns = useColumns();
   const table = useMaterialReactTable({

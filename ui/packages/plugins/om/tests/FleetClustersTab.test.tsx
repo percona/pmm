@@ -442,4 +442,42 @@ describe('FleetClustersTab', () => {
       }
     });
   });
+
+  describe('Group by kept for the session (PMM-15767)', () => {
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: twoEnvironments(),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    it('reopens grouped as the reader left it, e.g. after a tab switch', () => {
+      const { unmount } = renderPage();
+      groupBy('Health');
+      unmount();
+
+      renderPage();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Health');
+      expect(
+        groupHeaders().map(
+          (header) =>
+            within(header).getByTestId('om-cluster-health').textContent
+        )
+      ).toEqual(['Down', 'Degraded', 'Healthy']);
+    });
+
+    it('opens by environment when the stored grouping is not an option', () => {
+      sessionStorage.setItem('om.fleet.clusters.grouping', 'cluster_id');
+
+      renderPage();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Environment');
+    });
+  });
 });
