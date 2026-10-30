@@ -11,41 +11,16 @@ import { useUser } from 'contexts/user';
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const settings = useSettings({
-    enabled: user?.isAnonymous === false && user?.isPMMAdmin,
+    enabled: !!user && user.isPMMAdmin,
   });
   const readonlySettings = useReadonlySettings({
-    enabled: user?.isAnonymous === false && !user?.isPMMAdmin,
+    enabled: !!user && !user.isPMMAdmin,
   });
   const frontendSettings = useFrontendSettings({
     refetchOnMount: false,
   });
 
   const combinedSettings = useMemo<CombinedSettings | null>(() => {
-    if (user?.isAnonymous && frontendSettings.data) {
-      return {
-        sshKey: '',
-        metricsResolutions: {
-          hr: '1m',
-          mr: '1m',
-          lr: '1m',
-        },
-        dataRetention: '30d',
-        pmmPublicAddress: '',
-        updatesEnabled: false,
-        telemetryEnabled: false,
-        advisorEnabled: false,
-        alertingEnabled: false,
-        backupManagementEnabled: false,
-        azurediscoverEnabled: false,
-        enableAccessControl: false,
-        extensionsEnabled: false,
-        omEnabled: false,
-        frontend: frontendSettings.data,
-        // check if pmm-compat-app plugin is enabled
-        newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
-      };
-    }
-
     if (!(settings.data || readonlySettings.data) || !frontendSettings.data) {
       return null;
     }
@@ -67,7 +42,6 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
   }, [
-    user?.isAnonymous,
     user?.isPMMAdmin,
     frontendSettings.data,
     settings.data,

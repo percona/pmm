@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
@@ -262,4 +263,58 @@ func TestParseNodeNamePrefixes(t *testing.T) {
 	} {
 		assert.Equal(t, tc.expected, parseNodeNamePrefixes(tc.value), tc.value)
 	}
+}
+
+func TestIsGrafanaAnonymousAccessEnabled(t *testing.T) {
+	const (
+		enabledConfig  = "[auth.anonymous]\nenabled = true\n"
+		disabledConfig = "[auth.anonymous]\nenabled = false\n"
+	)
+
+	for _, tt := range []struct {
+		name   string
+		env    string
+		config string
+		want   bool
+	}{
+		{"config enables", "", enabledConfig, true},
+		{"config disables", "", disabledConfig, false},
+		{"config without the section", "", "[auth]\ndisable_login_form = false\n", false},
+		{"env enables over config", "true", disabledConfig, true},
+		{"env disables over config", "false", enabledConfig, false},
+		{"env takes ini booleans", "on", disabledConfig, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("GF_AUTH_ANONYMOUS_ENABLED", tt.env)
+			path := filepath.Join(t.TempDir(), "grafana.ini")
+			require.NoError(t, os.WriteFile(path, []byte(tt.config), 0o600))
+
+			enabled, err := isGrafanaAnonymousAccessEnabled(path)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, enabled)
+		})
+	}
+
+	t.Run("env set, config not read", func(t *testing.T) {
+		t.Setenv("GF_AUTH_ANONYMOUS_ENABLED", "true")
+
+		enabled, err := isGrafanaAnonymousAccessEnabled(filepath.Join(t.TempDir(), "missing.ini"))
+		require.NoError(t, err)
+		assert.True(t, enabled)
+	})
+
+	t.Run("env unset, config missing", func(t *testing.T) {
+		t.Setenv("GF_AUTH_ANONYMOUS_ENABLED", "")
+
+		_, err := isGrafanaAnonymousAccessEnabled(filepath.Join(t.TempDir(), "missing.ini"))
+		require.Error(t, err)
+	})
+
+	t.Run("shipped config", func(t *testing.T) {
+		t.Setenv("GF_AUTH_ANONYMOUS_ENABLED", "")
+
+		enabled, err := isGrafanaAnonymousAccessEnabled("../../../build/ansible/roles/grafana/files/grafana.ini")
+		require.NoError(t, err)
+		assert.False(t, enabled)
+	})
 }

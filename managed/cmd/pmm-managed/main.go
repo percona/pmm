@@ -58,6 +58,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
+	"gopkg.in/ini.v1"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -144,6 +145,7 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+	grafanaConfigPath        = "/etc/grafana/grafana.ini"
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -392,9 +394,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs               *server.Logs
-	authServer         *grafana.AuthServer
-	currentUserHandler http.Handler
+	logs       *server.Logs
+	authServer *grafana.AuthServer
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -474,8 +475,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
-	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -561,6 +560,25 @@ func runDebugServer(ctx context.Context) {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
+}
+
+// isGrafanaAnonymousAccessEnabled reads [auth.anonymous] enabled the way Grafana does, with a non-empty GF_AUTH_ANONYMOUS_ENABLED overriding the config file.
+func isGrafanaAnonymousAccessEnabled(configPath string) (bool, error) {
+	value := os.Getenv("GF_AUTH_ANONYMOUS_ENABLED")
+	if value == "" {
+		cfg, err := ini.Load(configPath)
+		if err != nil {
+			return false, fmt.Errorf("failed to load Grafana configuration: %w", err)
+		}
+
+		return cfg.Section("auth.anonymous").Key("enabled").MustBool(false), nil
+	}
+
+	// Parse the override with Grafana's ini library, which also accepts values such as "on" and "yes".
+	key := ini.Empty().Section("auth.anonymous").Key("enabled")
+	key.SetValue(value)
+
+	return key.MustBool(false), nil
 }
 
 type setupDeps struct {
@@ -883,6 +901,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	logrus.Infof("Log level: %s.", logrus.GetLevel())
 
 	l := logrus.WithField("component", "main")
+
+	anonymousEnabled, err := isGrafanaAnonymousAccessEnabled(grafanaConfigPath)
+	if err != nil {
+		l.Warnf("Failed to check whether Grafana allows anonymous access: %s", err)
+	}
+	if anonymousEnabled {
+		l.Warn("Grafana anonymous mode is enabled, which PMM can't fully support due to security issues. " +
+			"Please be aware that support of anonymous mode will be deprecated in the future. " +
+			"Consider disabling it to ensure your infrastructure stays protected.")
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
@@ -901,7 +930,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	err := cfg.Load()
+	err = cfg.Load()
 	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
@@ -1353,9 +1382,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:               logs,
-			authServer:         authServer,
-			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			logs:       logs,
+			authServer: authServer,
 		})
 	})
 

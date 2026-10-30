@@ -12,7 +12,6 @@ export interface User {
   id: number;
   name: string;
   login: string;
-  isAnonymous: boolean;
   orgId: number;
   orgRole: OrgRole | '';
   isAuthorized: boolean;
@@ -32,7 +31,6 @@ export interface GetUserResponse {
   login: string;
   createdAt: string;
   orgId: number;
-  isAnonymous: boolean;
   isDisabled: boolean;
   isExternal: boolean;
   isExtarnallySynced: boolean;

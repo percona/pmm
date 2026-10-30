@@ -231,8 +231,11 @@ describe('AdvancedSettingsForm submit with data retention in HA', () => {
       );
 
       resolveStatus({ status: 'Enabled' });
-      await waitFor(() => expect(retentionInput()).toBeDisabled());
-      expect(retentionInput()).toHaveValue(30);
+      // The field locks on the render that brings the status, but the reset lands an effect later.
+      await waitFor(() => {
+        expect(retentionInput()).toBeDisabled();
+        expect(retentionInput()).toHaveValue(30);
+      });
       expectNoRetentionError();
 
       await submitAnotherSetting();

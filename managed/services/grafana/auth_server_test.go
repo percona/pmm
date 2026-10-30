@@ -562,6 +562,56 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	})
 }
 
+// With access control on, a filtered route needs a user to filter by. An anonymous visitor and a
+// service token have none, and must be refused for that rather than as an internal error.
+func TestAuthServerFilteredRouteWithoutUser(t *testing.T) {
+	t.Parallel()
+
+	grafana := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/api/auth/serviceaccount" && r.Header.Get("Authorization") == "Bearer glsa_valid":
+			_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Admin"}`)
+		case r.URL.Path == "/api/auth/serviceaccount":
+			w.WriteHeader(http.StatusInternalServerError)
+		default:
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+		}
+	}))
+	t.Cleanup(grafana.Close)
+
+	s := NewAuthServer(NewClient(strings.TrimPrefix(grafana.URL, "http://")), nil)
+	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now()}
+
+	for name, tc := range map[string]struct {
+		authorization string
+		wantStatus    int
+		wantMessage   string
+	}{
+		"anonymous visitor":            {"", http.StatusUnauthorized, "Unauthorized"},
+		"service account token":        {"Bearer glsa_valid", http.StatusForbidden, "Access denied"},
+		"Grafana fails to check token": {"Bearer glsa_broken", http.StatusUnauthorized, "Internal server error."},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/graph/api/ds/query")
+			req.Header.Set("X-Original-Method", http.MethodPost)
+			if tc.authorization != "" {
+				req.Header.Set("Authorization", tc.authorization)
+			}
+			rw := httptest.NewRecorder()
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, tc.wantStatus, rw.Code)
+			assert.Contains(t, rw.Body.String(), tc.wantMessage)
+			assert.Empty(t, rw.Header().Get(lbacHeaderName))
+		})
+	}
+}
+
 func TestDropsFilters(t *testing.T) {
 	t.Parallel()
 

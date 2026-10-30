@@ -279,6 +279,8 @@ PMM Server passes these variables to integrated components:
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
 
+PMM doesn't fully support Grafana anonymous access, and support for it will be deprecated. If `GF_AUTH_ANONYMOUS_ENABLED` is set to `true`, visitors who aren't signed in can view Grafana dashboards but not PMM features such as Query Analytics, and `/srv/logs/pmm-managed.log` shows a warning at startup.
+
 ## Preview variables
 
 PMM also includes preview variables, for example to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
