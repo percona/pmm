@@ -347,5 +347,22 @@ describe('FleetServicesTab', () => {
       groupBy('None');
       expect(screen.queryByText('(4)')).toBeNull();
     });
+
+    it('reopens grouped as the reader left it, every group open (PMM-15767)', () => {
+      const { unmount } = renderTab();
+      groupBy('Cluster');
+      unmount();
+
+      renderTab();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Cluster');
+      expect(
+        within(rowFor('orders')).getByRole('button', {
+          name: 'Collapse orders',
+        })
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
   });
 });

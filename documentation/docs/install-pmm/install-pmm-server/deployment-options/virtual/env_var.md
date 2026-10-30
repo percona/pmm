@@ -24,7 +24,7 @@ To set environment variables for PMM Server on virtual machine deployments:
 3. Add your desired environment variables in `KEY=VALUE` format:
 
     ```bash
-    PMM_DEBUG=true
+    PMM_METRICS_RESOLUTION_HR=10s
     PMM_ENABLE_ACCESS_CONTROL=true
     ```
 
@@ -54,8 +54,8 @@ These variables are particularly useful for AWS AMI deployments:
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
-| `PMM_DEBUG` | `true` | Enable verbose logging |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
 
 Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 
