@@ -30,7 +30,7 @@ RTA requires at least one MySQL service monitored by PMM. If you haven't set thi
 
 You need:
 
-- **PMM Client 3.10.0 or later** on the monitored host. Run `pmm-admin status` to check.
+- **PMM Client 3.11.0 or later** on the monitored host. Run `pmm-admin status` to check.
 - **`performance_schema` enabled** on the monitored server. RTA refuses to start without it.
 - **The standard PMM monitoring user**. RTA reuses your existing MySQL exporter credentials and needs nothing beyond the grants PMM already documents:
 
@@ -301,7 +301,7 @@ RTA displays what the server returns and exposes nothing beyond what `SHOW PROCE
 
 Check each requirement:
 
-- **PMM Client version**: 3.10.0 or later. Run `pmm-admin status` on the monitored host. A service monitored by an older PMM Client does not appear in the **Cluster/Service** drop-down, and adding the RTA agent with `pmm-admin inventory add agent rta-mysql-agent` or the inventory API is refused with an error that names the required version. If an RTA agent was added before its PMM Client reported a version, the sessions list shows the session as **Error** with the same explanation.
+- **PMM Client version**: 3.11.0 or later. Run `pmm-admin status` on the monitored host. A service monitored by an older PMM Client does not appear in the **Cluster/Service** drop-down, and adding the RTA agent with `pmm-admin inventory add agent rta-mysql-agent` or the inventory API is refused with an error that names the required version. If an RTA agent was added before its PMM Client reported a version, the sessions list shows the session as **Error** with the same explanation.
 - **`performance_schema`**: must be enabled. Run `SELECT @@performance_schema;` — it must return `1`. This is set at startup and cannot be changed at runtime.
 - **Grants**: the monitoring user needs `SELECT` and `PROCESS`. See [Service requirements](#service-requirements).
 - **Admin role**: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions.
