@@ -85,12 +85,23 @@ const AlertsPage = () => {
       sx={{
         flex: 1,
         gap: 2,
-        m: 2,
-        mb: 0,
+        p: 2,
+        minHeight: 0,
+        // The shell grows with its content, so cap the page at the viewport
+        // to keep the table as the only scroll area.
+        maxHeight: '100vh',
       }}
     >
       <Typography variant="h3">{Messages.title}</Typography>
-      <Stack flex="1" position="relative">
+      <Stack
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          position: 'relative',
+          // Clips the details pane, which Slide parks below this area while closed.
+          overflow: 'hidden',
+        }}
+      >
         {isLoading ? (
           <Skeleton
             aria-label={Messages.loading}
@@ -103,10 +114,11 @@ const AlertsPage = () => {
           <Stack
             sx={(theme) => ({
               flex: 1,
-              maxHeight: '92vh',
+              minHeight: 0,
 
               '& > *': {
                 flex: 1,
+                minHeight: 0,
                 display: 'flex',
                 flexDirection: 'column',
               },
