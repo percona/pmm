@@ -1,0 +1,69 @@
+---
+name: Docs Coverage
+
+# Advisory: review threads on documentation a PR leaves stale, never a red check,
+# because Merge Gatekeeper blocks on every check that is red.
+on:
+  pull_request:
+    # No `synchronize`: a full run per push spams the PR. Draft then ready for review re-runs it.
+    types: [opened, reopened, ready_for_review]
+    paths-ignore:
+      - "documentation/**"
+      - ".github/**"
+      - "api-tests/**"
+      - "**/*_test.go"
+      - "**/*.test.ts"
+      - "**/*.test.tsx"
+
+concurrency:
+  group: docs-coverage-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: Review documentation coverage
+    # Fork PRs get no secrets, and the action refuses bot actors.
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !endsWith(github.actor, '[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The head, not the merge commit: the review threads anchor on its line numbers.
+          ref: ${{ github.event.pull_request.head.sha }}
+          # The agent reads PR-controlled content; nothing here pushes.
+          persist-credentials: false
+
+      - name: Check out the pmm-ai marketplace
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: percona/pmm-ai
+          token: ${{ secrets.PMM_AI_READ_TOKEN }}
+          path: .pmm-ai
+          persist-credentials: false
+
+      - name: Run Claude Code
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@8041f1d17e0e7d2f2cfe35002962e9f26237c0bb # v1.0.263
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: ./.pmm-ai
+          plugins: pmm-docs@pmm-ai
+          prompt: '/pmm-docs:docs-coverage ${{ github.repository }}/pull/${{ github.event.pull_request.number }}, and post the threads'
+          # Each MCP server only starts when --allowedTools names one of its tools; every tool here reads, except the comment one.
+          claude_args: |
+            --model claude-opus-5-5
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,mcp__github__get_pull_request_review_comments,Bash(gh pr view:*),Bash(gh pr diff:*)"

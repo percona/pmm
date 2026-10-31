@@ -8,7 +8,7 @@ VictoriaMetrics metrics data can be both 'pushed' to the server and 'pulled' by 
 
 The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
 
-If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (You cannot update a service.)
+To change the metrics mode of an existing exporter, run `pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> --push-metrics` for push mode, or `--push-metrics=false` for pull mode. See [`pmm-admin inventory change agent`](../../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-change-agent).
 
 ## Remapped targets for direct Prometheus paths
 

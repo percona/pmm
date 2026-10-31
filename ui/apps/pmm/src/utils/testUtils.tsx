@@ -144,7 +144,7 @@ export const wrapWithSettings = (
 );
 
 export const wrapWithGrafana = (
-  children: ReactElement,
+  children: ReactNode,
   props: Partial<GrafanaContextProps> = {}
 ) => (
   <GrafanaContext.Provider
@@ -152,6 +152,7 @@ export const wrapWithGrafana = (
       isFrameLoaded: true,
       isFullScreen: false,
       isOnGrafanaPage: true,
+      grafanaReady: true,
       ...props,
     }}
   >
