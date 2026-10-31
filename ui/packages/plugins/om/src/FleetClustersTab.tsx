@@ -15,9 +15,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
+  Button,
+  InputAdornment,
   LinearProgress,
   Link,
   Stack,
@@ -26,9 +29,11 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { EmptyState } from './components/EmptyState';
 import {
   MRT_ExpandAllButton,
@@ -41,6 +46,8 @@ import {
   type MRT_TableInstance,
 } from 'material-react-table';
 import {
+  CLUSTER_HEALTH_LABEL,
+  CLUSTER_TYPE_LABEL,
   FLEET_NOT_COLLECTED,
   OPERATIONS_DOC_URL,
   PROCESS_ROLE_LABEL,
@@ -50,7 +57,12 @@ import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
 import { ServiceLink } from './components/ServiceLink';
-import { Duration } from './components/Metric';
+import { Duration, Percent } from './components/Metric';
+import { Age } from './components/Age';
+import {
+  MultiSelectFilter,
+  type FilterOption,
+} from './components/MultiSelectFilter';
 import { Unavailable } from './components/Unavailable';
 import {
   GroupBySelect,
@@ -61,7 +73,21 @@ import {
 import { useOmTopology } from './topologyHooks';
 import { useOmInventoryServices } from './inventoryHooks';
 import { pluralize } from './format';
-import { clusterHealthRank, downFirst, toClusterRows } from './topology';
+import {
+  clusterHealthRank,
+  compareVersions,
+  downFirst,
+  toClusterRows,
+} from './topology';
+import {
+  HEALTH_FILTER_VALUES,
+  TYPE_FILTER_VALUES,
+  filterClusterRows,
+  hasClusterFilters,
+  parseClusterFilters,
+  withClusterFilters,
+  type ClusterFilters,
+} from './clusterFilters';
 import type { OmClusterHealth, OmClusterRow, OmProcessRole } from './types';
 import { OmError } from './components/OmError';
 
@@ -128,11 +154,68 @@ const groupLabel = (row: OmClusterRow, grouping: GroupingColumn) =>
  *
  * Versions is a roll-up of the members, and a reader who wants it is asking about one
  * cluster - which is what unfolding the row answers.
+ *
+ * Type is a label beside the cluster's name, so its own column only earns a place for
+ * sorting on it; Last seen, CPU and Connections are a click away for the same width
+ * reason (Pedro, PMM-15806).
  */
 const HIDDEN_BY_DEFAULT = {
   total_services: false,
   roles: false,
   versions: false,
+  type: false,
+  last_seen_at: false,
+  max_cpu_percent: false,
+  min_connections_free_percent: false,
+};
+
+const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
+
+/** Element by element, oldest first, so a cluster still on an old build leads. */
+const compareVersionLists = (a: string[], b: string[]) => {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const order = compareVersions(a[i], b[i]);
+    if (order !== 0) {
+      return order;
+    }
+  }
+  return a.length - b.length;
+};
+
+const ClusterVersions = ({ cluster }: { cluster: OmClusterRow }) => {
+  if (!cluster.versions.length) {
+    return <Unavailable reason="service_not_observed" />;
+  }
+  if (cluster.version_drift) {
+    // A replica set running two versions is worth reading as a finding, not as a
+    // longer cell.
+    return (
+      <Tooltip
+        title={
+          <Box data-testid="om-version-sets">
+            {cluster.version_sets.map((set) => (
+              <div key={set.replication_set}>
+                {set.replication_set}: {set.versions.join(', ')}
+              </div>
+            ))}
+          </Box>
+        }
+      >
+        <Typography variant="body2" component="span" color="warning.main">
+          Mixed
+        </Typography>
+      </Tooltip>
+    );
+  }
+  if (cluster.versions.length === 1) {
+    return <>{cluster.versions[0]}</>;
+  }
+  // Shards or routers on different versions, each set consistent: not drift.
+  return (
+    <Tooltip title={cluster.versions.join(', ')}>
+      <span>{cluster.versions.length} versions</span>
+    </Tooltip>
+  );
 };
 
 function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
@@ -149,8 +232,34 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         accessorKey: 'cluster_name',
         header: 'Cluster',
         size: 200,
+        Cell: ({ row: { original } }) => (
+          <Stack
+            direction="row"
+            alignItems="baseline"
+            columnGap={1}
+            flexWrap="wrap"
+          >
+            {original.cluster_name ?? <Unavailable reason="not_applicable" />}
+            {typeLabel(original) && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                data-testid="om-cluster-type"
+              >
+                {typeLabel(original)}
+              </Typography>
+            )}
+          </Stack>
+        ),
+      },
+      {
+        accessorFn: (row) => typeLabel(row),
+        id: 'type',
+        header: 'Type',
+        size: 120,
+        sortUndefined: 'last',
         Cell: ({ row: { original } }) =>
-          original.cluster_name ?? <Unavailable reason="not_applicable" />,
+          typeLabel(original) ?? <Unavailable reason="not_applicable" />,
       },
       {
         accessorKey: 'health',
@@ -186,27 +295,15 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         size: 130,
       },
       {
-        accessorFn: (row) => row.versions.join(', '),
+        accessorFn: (row) => row.versions.join(', ') || undefined,
         id: 'versions',
         header: 'Versions',
         size: 130,
-        Cell: ({ row: { original } }) => {
-          if (!original.versions.length) {
-            return <Unavailable reason="service_not_observed" />;
-          }
-          if (original.versions.length === 1) {
-            return original.versions[0];
-          }
-          // More than one running version in one cluster is worth reading as a
-          // finding, not as a longer cell.
-          return (
-            <Tooltip title={original.versions.join(', ')}>
-              <Typography variant="body2" component="span" color="warning.main">
-                Mixed ({original.versions.length})
-              </Typography>
-            </Tooltip>
-          );
-        },
+        sortUndefined: 'last',
+        // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
+        sortingFn: (a, b) =>
+          compareVersionLists(a.original.versions, b.original.versions),
+        Cell: ({ row: { original } }) => <ClusterVersions cluster={original} />,
       },
       {
         accessorKey: 'max_replication_lag_seconds',
@@ -223,6 +320,56 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         Cell: ({ row: { original } }) => (
           <Duration value={original.min_oplog_window_seconds} />
         ),
+      },
+      {
+        accessorFn: (row) =>
+          row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
+        id: 'last_seen_at',
+        header: 'Last seen',
+        size: 120,
+        sortUndefined: 'last',
+        Header: () => (
+          <Tooltip title="When the least recently observed member was last observed">
+            <span>Last seen</span>
+          </Tooltip>
+        ),
+        Cell: ({ row: { original } }) =>
+          original.last_seen_at ? (
+            <Age value={original.last_seen_at} />
+          ) : (
+            <Unavailable reason="service_not_observed" />
+          ),
+      },
+      {
+        accessorFn: (row) => row.max_cpu_percent ?? undefined,
+        id: 'max_cpu_percent',
+        header: 'Max CPU',
+        size: 110,
+        sortUndefined: 'last',
+        Cell: ({ row: { original } }) =>
+          original.max_cpu_percent == null ? (
+            <Unavailable reason="metric_not_collected" />
+          ) : (
+            <Percent value={original.max_cpu_percent} />
+          ),
+      },
+      {
+        accessorFn: (row) => row.min_connections_free_percent ?? undefined,
+        id: 'min_connections_free_percent',
+        header: 'Min conn. free',
+        size: 140,
+        sortUndefined: 'last',
+        Header: () => (
+          <Tooltip title="The lowest percentage of free connections among the members">
+            <span>Min conn. free</span>
+          </Tooltip>
+        ),
+        Cell: ({ row: { original } }) =>
+          original.min_connections_free_percent == null ? (
+            <Unavailable reason="metric_not_collected" />
+          ) : (
+            <Percent value={original.min_connections_free_percent} />
+          ),
       },
     ],
     []
@@ -436,6 +583,155 @@ function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
   return { expanded, onExpandedChange };
 }
 
+const NO_FILTERS: ClusterFilters = {
+  q: '',
+  health: [],
+  type: [],
+  environment: [],
+};
+
+/**
+ * The search and filters, kept in the URL.
+ *
+ * Each change is a history entry, so Back undoes a filter - except while a search is
+ * being refined (`replace`), where one entry per keystroke would make Back retype it
+ * backwards.
+ */
+function useClusterFilters() {
+  const [params, setParams] = useSearchParams();
+  const filters = useMemo(() => parseClusterFilters(params), [params]);
+  const setFilters = (next: ClusterFilters, replace = false) => {
+    setParams((current) => withClusterFilters(current, next), { replace });
+  };
+  return [filters, setFilters] as const;
+}
+
+/**
+ * The search box, holding what is typed itself rather than reading the URL back: a
+ * navigation settles after its keystroke, so a box bound to the URL drops fast typing.
+ */
+const SearchField = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string, refining: boolean) => void;
+}) => {
+  const [draft, setDraft] = useState(value);
+  // What the box wrote that the URL may not show yet, oldest first.
+  const written = useRef<string[]>([]);
+  useEffect(() => {
+    const index = written.current.indexOf(value);
+    if (index >= 0) {
+      written.current = written.current.slice(index + 1);
+      return;
+    }
+    // Back, Forward or Clear filters.
+    written.current = [];
+    setDraft(value);
+  }, [value]);
+  return (
+    <TextField
+      size="small"
+      placeholder="Search clusters"
+      value={draft}
+      onChange={(event) => {
+        const next = event.target.value;
+        written.current.push(next);
+        setDraft(next);
+        onChange(next, !!draft.trim() && !!next.trim());
+      }}
+      slotProps={{
+        htmlInput: { 'aria-label': 'Search clusters' },
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+        },
+      }}
+      sx={{ width: 240 }}
+    />
+  );
+};
+
+const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map((value) => ({
+  value,
+  label: CLUSTER_HEALTH_LABEL[value],
+}));
+
+const TYPE_OPTIONS: FilterOption[] = Object.entries(TYPE_FILTER_VALUES).map(
+  ([value, type]) => ({ value, label: CLUSTER_TYPE_LABEL[type] ?? value })
+);
+
+/** Search and filters, above the table so they stay put when nothing matches. */
+const ClusterFilterBar = ({
+  rows,
+  shown,
+  filters,
+  onChange,
+}: {
+  rows: OmClusterRow[];
+  shown: number;
+  filters: ClusterFilters;
+  onChange: (filters: ClusterFilters, replace?: boolean) => void;
+}) => {
+  // From the fleet, not a fixed list, with the unnamed one under its label.
+  const environments = useMemo(
+    () =>
+      [...new Set(rows.map((row) => row.env_name ?? ''))]
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value || UNNAMED_ENVIRONMENT })),
+    [rows]
+  );
+  return (
+    <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+      <SearchField
+        value={filters.q}
+        onChange={(q, refining) => onChange({ ...filters, q }, refining)}
+      />
+      <MultiSelectFilter
+        label="Health"
+        options={HEALTH_OPTIONS}
+        value={filters.health}
+        onChange={(health) =>
+          onChange({ ...filters, health: health as ClusterFilters['health'] })
+        }
+      />
+      <MultiSelectFilter
+        label="Type"
+        options={TYPE_OPTIONS}
+        value={filters.type}
+        onChange={(type) => onChange({ ...filters, type })}
+      />
+      <MultiSelectFilter
+        label="Environment"
+        options={environments}
+        // One the fleet no longer has is ignored by the filter, so not shown as picked.
+        value={filters.environment.filter((name) =>
+          environments.some((option) => option.value === name)
+        )}
+        onChange={(environment) => onChange({ ...filters, environment })}
+      />
+      {hasClusterFilters(filters) && (
+        <>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            data-testid="om-cluster-match-count"
+          >
+            {shown} of {rows.length} {pluralize(rows.length, 'cluster')}
+          </Typography>
+          <Button size="small" onClick={() => onChange(NO_FILTERS)}>
+            Clear filters
+          </Button>
+        </>
+      )}
+    </Stack>
+  );
+};
+
 /**
  * Every cluster in one table, grouped by what the reader picks in the toolbar.
  *
@@ -448,11 +744,18 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     GROUP_BY_OPTIONS,
     DEFAULT_GROUPING
   );
+  const [filters, setFilters] = useClusterFilters();
+  const shown = useMemo(
+    () => filterClusterRows(rows, filters),
+    [rows, filters]
+  );
+  // The whole fleet, not the matches: a group folded away stays folded while a
+  // filter hides it and brings it back.
   const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
   const columns = useColumns();
   const table = useMaterialReactTable({
     columns,
-    data: rows,
+    data: shown,
     enablePagination: false,
     enableDensityToggle: false,
     enableExpanding: true,
@@ -473,7 +776,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // this table does not have.
     enableColumnActions: false,
     // The toolbar carries the Group by select and the column chooser; everything
-    // else it can hold is off.
+    // else it can hold is off. Search is the filter bar's, so it can live in the URL.
     enableGlobalFilter: false,
     enableFullScreenToggle: false,
     enableHiding: true,
@@ -484,6 +787,11 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // the row order shifted between polls.
     getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
+    renderEmptyRowsFallback: () => (
+      <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+        No cluster matches the search and filters.
+      </Typography>
+    ),
     // MRT labels every toggle "Expand" whatever its state; a group's says which
     // group and whether it is open.
     muiExpandButtonProps: ({ row }) =>
@@ -554,7 +862,17 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     },
   });
 
-  return <MaterialReactTable table={table} />;
+  return (
+    <Stack gap={1.5}>
+      <ClusterFilterBar
+        rows={rows}
+        shown={shown.length}
+        filters={filters}
+        onChange={setFilters}
+      />
+      <MaterialReactTable table={table} />
+    </Stack>
+  );
 };
 
 /** Fleet-level counts, so the headline numbers need no reading of rows. */
