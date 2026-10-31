@@ -1481,26 +1481,20 @@ The chart rejects even values with an error rather than deploying them. `clickho
 
 *Intended behaviour.* `replicas` cannot exceed `maxReplicas` (default `10`), because HAProxy renders only `maxReplicas` `server-template` slots and fills them from a headless-service DNS answer in arbitrary order. HAProxy also marks a backend UP only when that pod answers `/v1/server/leaderHealthCheck`. A pod left without a slot is therefore invisible to HAProxy, and if the Raft leader lands on it, **every backend is DOWN and PMM returns 503** — not merely one pod missing traffic. The chart rejects this combination.
 
-`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. Routing is DNS-based, so changing `replicas` alone needs no restart. Raise the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`. The annotation rolls the pods only when its value changes, and chart releases raise it too, so read the current value first:
+`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. Routing is DNS-based, so changing `replicas` alone needs no restart. When you raise `maxReplicas`, set a pod annotation of your own to the new value in the same upgrade, so HAProxy restarts and picks up the new `server-template`:
 
 ```sh
-kubectl get deployment pmm-ha-haproxy -n pmm \
-  -o jsonpath='{.spec.template.metadata.annotations.pmm\.percona\.com/config-version}'
-```
-
-Then set a higher value:
-
-```sh
-# replace <N> with a number higher than the value the previous command printed
 helm upgrade pmm-ha percona/pmm-ha --namespace pmm \
   --version <chart-version> \
   --reuse-values \
   --set maxReplicas=20 \
-  --set-string 'haproxy.podAnnotations.pmm\.percona\.com/config-version=<N>'
+  --set-string 'haproxy.podAnnotations.pmm\.percona\.com/max-replicas=20'
 ```
 
+Do not use `pmm.percona.com/config-version` for this. The chart raises that annotation itself when a release changes the HAProxy configuration. A value you set is kept by later upgrades with `--reset-then-reuse-values` or the same values file and overrides those raises, so HAProxy would no longer restart on later chart upgrades.
+
 !!! note "Why not `kubectl rollout restart`?"
-    It works — `helm upgrade` has already written the new ConfigMap, so any restart picks it up. Bumping `config-version` is preferable because it is part of the same declarative upgrade and reproducible from the chart alone, whereas a GitOps controller such as Argo CD or Flux strips the `restartedAt` annotation on its next sync and triggers a second, pointless rollout.
+    It works — `helm upgrade` has already written the new ConfigMap, so any restart picks it up. Setting the annotation is preferable because it is part of the same declarative upgrade and reproducible from your values, whereas a GitOps controller such as Argo CD or Flux strips the `restartedAt` annotation on its next sync and triggers a second, pointless rollout.
 
 #### VictoriaMetrics storage cannot be scaled down
 
