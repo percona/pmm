@@ -1649,9 +1649,10 @@ func TestAddRTAAgentPMMAgentVersion(t *testing.T) {
 		pmmAgentVersion string
 		wantErr         string
 	}{
-		{name: "MySQL on 3.9.1 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.9.1", wantErr: "3.10.0"},
-		{name: "MySQL on 3.8.0 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.8.0", wantErr: "3.10.0"},
-		{name: "MySQL on 3.10.0 is accepted", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.10.0"},
+		{name: "MySQL on 3.9.1 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.9.1", wantErr: "3.11.0"},
+		{name: "MySQL on 3.8.0 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.8.0", wantErr: "3.11.0"},
+		{name: "MySQL on 3.10.1 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.10.1", wantErr: "3.11.0"},
+		{name: "MySQL on 3.11.0 is accepted", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.11.0"},
 		{name: "MySQL on not yet connected pmm-agent is accepted", serviceType: models.MySQLServiceType},
 		{name: "MongoDB on 3.6.0 is refused", serviceType: models.MongoDBServiceType, pmmAgentVersion: "3.6.0", wantErr: "3.7.0"},
 		{name: "MongoDB on 3.8.0 is accepted", serviceType: models.MongoDBServiceType, pmmAgentVersion: "3.8.0"},

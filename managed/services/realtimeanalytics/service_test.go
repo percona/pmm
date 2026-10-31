@@ -202,7 +202,7 @@ func TestListServices(t *testing.T) {
 		require.NoError(t, err)
 		pmmAgent3, err := models.CreatePMMAgent(db.Querier, node3.NodeID, nil)
 		require.NoError(t, err)
-		pmmAgent3.Version = new("3.10.1")
+		pmmAgent3.Version = new("3.11.0")
 		err = db.Update(pmmAgent3)
 		require.NoError(t, err)
 
@@ -359,7 +359,7 @@ func TestListSessions(t *testing.T) {
 		require.Len(t, resp.Sessions, 1)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_ERROR, resp.Sessions[0].Status)
 		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
-			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
+			"pmm-agent 3.11.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
 	})
 }
 
@@ -630,7 +630,7 @@ func TestStartSession(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
 		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.8.0 not supporting Real-Time Analytics; "+
-			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), status.Convert(err).Message())
+			"pmm-agent 3.11.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), status.Convert(err).Message())
 
 		// The agent must remain disabled.
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
@@ -1083,8 +1083,7 @@ func TestPostgreSQLSession(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	// 3.10.0 was released without the PostgreSQL collector.
-	pmmAgent.Version = new("3.10.0")
+	pmmAgent.Version = new("3.10.1")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 
@@ -1120,7 +1119,7 @@ func TestPostgreSQLSession(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 	})
 
-	pmmAgent.Version = new("3.10.1")
+	pmmAgent.Version = new("3.11.0")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 
