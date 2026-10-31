@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Box,
@@ -594,24 +594,67 @@ const NO_FILTERS: ClusterFilters = {
  * The search and filters, kept in the URL.
  *
  * Each change is a history entry, so Back undoes a filter - except while a search is
- * being refined, where one entry per keystroke would make Back retype it backwards.
+ * being refined (`replace`), where one entry per keystroke would make Back retype it
+ * backwards.
  */
 function useClusterFilters() {
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseClusterFilters(params), [params]);
-  const setFilters = (next: ClusterFilters) => {
-    const refiningSearch =
-      !!filters.q.trim() &&
-      !!next.q.trim() &&
-      (['health', 'type', 'environment'] as const).every(
-        (key) => filters[key].join('\n') === next[key].join('\n')
-      );
-    setParams((current) => withClusterFilters(current, next), {
-      replace: refiningSearch,
-    });
+  const setFilters = (next: ClusterFilters, replace = false) => {
+    setParams((current) => withClusterFilters(current, next), { replace });
   };
   return [filters, setFilters] as const;
 }
+
+/**
+ * The search box, holding what is typed itself rather than reading the URL back: a
+ * navigation settles after its keystroke, so a box bound to the URL drops fast typing.
+ */
+const SearchField = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string, refining: boolean) => void;
+}) => {
+  const [draft, setDraft] = useState(value);
+  // What the box wrote that the URL may not show yet, oldest first.
+  const written = useRef<string[]>([]);
+  useEffect(() => {
+    const index = written.current.indexOf(value);
+    if (index >= 0) {
+      written.current = written.current.slice(index + 1);
+      return;
+    }
+    // Back, Forward or Clear filters.
+    written.current = [];
+    setDraft(value);
+  }, [value]);
+  return (
+    <TextField
+      size="small"
+      placeholder="Search clusters"
+      value={draft}
+      onChange={(event) => {
+        const next = event.target.value;
+        written.current.push(next);
+        setDraft(next);
+        onChange(next, !!draft.trim() && !!next.trim());
+      }}
+      slotProps={{
+        htmlInput: { 'aria-label': 'Search clusters' },
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+        },
+      }}
+      sx={{ width: 240 }}
+    />
+  );
+};
 
 const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map((value) => ({
   value,
@@ -632,7 +675,7 @@ const ClusterFilterBar = ({
   rows: OmClusterRow[];
   shown: number;
   filters: ClusterFilters;
-  onChange: (filters: ClusterFilters) => void;
+  onChange: (filters: ClusterFilters, replace?: boolean) => void;
 }) => {
   // From the fleet, not a fixed list, with the unnamed one under its label.
   const environments = useMemo(
@@ -644,22 +687,9 @@ const ClusterFilterBar = ({
   );
   return (
     <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
-      <TextField
-        size="small"
-        placeholder="Search clusters"
+      <SearchField
         value={filters.q}
-        onChange={(event) => onChange({ ...filters, q: event.target.value })}
-        slotProps={{
-          htmlInput: { 'aria-label': 'Search clusters' },
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ width: 240 }}
+        onChange={(q, refining) => onChange({ ...filters, q }, refining)}
       />
       <MultiSelectFilter
         label="Health"

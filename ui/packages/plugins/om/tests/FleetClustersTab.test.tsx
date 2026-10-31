@@ -15,7 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   MemoryRouter,
   RouterProvider,
@@ -684,6 +692,26 @@ describe('FleetClustersTab', () => {
       });
       expect(search()).toHaveValue('');
       expect(clusterNames()).toHaveLength(4);
+    });
+
+    it('keeps every character typed fast, while the URL catches up', async () => {
+      // A loader makes each navigation settle after the keystroke, as in PMM.
+      const router = createMemoryRouter(
+        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
+        { initialEntries: ['/fleet'] }
+      );
+      render(<RouterProvider router={router} />);
+      const user = userEvent.setup({ delay: null });
+
+      await user.type(
+        await screen.findByRole('textbox', { name: 'Search clusters' }),
+        'zul'
+      );
+
+      expect(search()).toHaveValue('zul');
+      await waitFor(() => expect(clusterNames()).toEqual(['zulu']));
+      expect(query(router).get('q')).toBe('zul');
+      expect(search()).toHaveValue('zul');
     });
 
     it('undoes a filter alone with Back while a search is active', async () => {
