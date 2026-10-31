@@ -70,7 +70,7 @@ Starting a session for a MySQL or PostgreSQL service returns the same shape with
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
 | `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
-| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL services by PMM Client 3.10.0 and later, and for PostgreSQL services by PMM Client 3.10.1 and later; omitted when there is nothing to report |
+| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL and PostgreSQL services by PMM Client 3.11.0 and later; omitted when there is nothing to report |
 
 ### Example
 ```bash
@@ -221,9 +221,9 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 ### Session won't start
 
-You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL, **< 3.10.1** for PostgreSQL), or the exporter is not configured. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is refused with `INVALID_ARGUMENT`.
+You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.11.0** for MySQL and PostgreSQL), or the exporter is not configured. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is refused with `INVALID_ARGUMENT`.
 
-When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.10.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
+When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.11.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
 
 For MySQL services, a session also fails to start when `performance_schema` is disabled on the monitored server, or when the PMM monitoring user lacks the `SELECT` and `PROCESS` privileges. The session error message names the check that failed.
 

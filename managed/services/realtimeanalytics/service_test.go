@@ -359,7 +359,7 @@ func TestListSessions(t *testing.T) {
 		require.Len(t, resp.Sessions, 1)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_ERROR, resp.Sessions[0].Status)
 		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
-			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
+			"pmm-agent 3.11.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
 	})
 }
 
@@ -630,7 +630,7 @@ func TestStartSession(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
 		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.8.0 not supporting Real-Time Analytics; "+
-			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), status.Convert(err).Message())
+			"pmm-agent 3.11.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), status.Convert(err).Message())
 
 		// The agent must remain disabled.
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
