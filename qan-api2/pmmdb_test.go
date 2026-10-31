@@ -16,10 +16,14 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"os"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -73,4 +77,64 @@ func TestIsLeader(t *testing.T) {
 
 	_, err = isLeader(t.Context(), srv.URL+"/wrong", "pmm-0")
 	require.Error(t, err)
+}
+
+// testNode is the ClickHouse that `make test-env-up` starts, with database db dropped now and after the test.
+func testNode(t *testing.T, db string) chNode {
+	t.Helper()
+	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
+	if !ok {
+		dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_test"
+	}
+	u, err := url.Parse(dsn)
+	require.NoError(t, err)
+	nodes, err := openNodes(dsn, u.Hostname())
+	require.NoError(t, err)
+	require.Len(t, nodes, 1)
+	node := nodes[0]
+
+	drop := func(ctx context.Context) error {
+		_, err := node.db.ExecContext(ctx, "DROP DATABASE IF EXISTS "+db+" SYNC")
+		return err
+	}
+	require.NoError(t, drop(t.Context()))
+	t.Cleanup(func() {
+		assert.NoError(t, drop(context.WithoutCancel(t.Context())))
+		assert.NoError(t, node.db.Close())
+	})
+	return node
+}
+
+func TestFixPmmChangesNothingWhenANodeDoesNotAnswer(t *testing.T) {
+	t.Parallel()
+
+	const db = "pmm_fixpmm_test"
+	node := testNode(t, db)
+	down, err := sqlx.Open("clickhouse", "clickhouse://default:clickhouse@127.0.0.1:1/default")
+	require.NoError(t, err)
+	t.Cleanup(func() { assert.NoError(t, down.Close()) })
+
+	// The answering node comes first, so it has been read before the pass meets the silent one.
+	err = fixPmm(t.Context(), []chNode{node, {host: "127.0.0.1:1", db: down}}, db, true)
+	require.ErrorContains(t, err, "127.0.0.1:1 does not answer, changing nothing")
+
+	c, err := readCopy(t.Context(), node, db)
+	require.NoError(t, err)
+	assert.Empty(t, c.uuid, "nothing may be created while a node does not answer")
+}
+
+func TestReadCopyDatabaseWithoutTables(t *testing.T) {
+	t.Parallel()
+
+	const db = "pmm_readcopy_test"
+	node := testNode(t, db)
+	_, err := node.db.ExecContext(t.Context(), "CREATE DATABASE "+db)
+	require.NoError(t, err)
+	var want string
+	err = node.db.GetContext(t.Context(), &want, "SELECT toString(uuid) FROM system.databases WHERE name = ?", db)
+	require.NoError(t, err)
+
+	c, err := readCopy(t.Context(), node, db)
+	require.NoError(t, err)
+	assert.Equal(t, pmmCopy{uuid: want, rows: 0}, c)
 }
