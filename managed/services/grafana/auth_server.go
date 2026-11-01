@@ -233,7 +233,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -736,7 +736,7 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)

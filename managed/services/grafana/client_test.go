@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
@@ -52,7 +51,7 @@ func TestGetAuthUserWithoutCredentials(t *testing.T) {
 	defer ts.Close()
 
 	c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
-	u, err := c.getAuthUser(t.Context(), http.Header{}, logrus.WithField("test", t.Name()))
+	u, err := c.getAuthUser(t.Context(), http.Header{})
 	require.Error(t, err)
 	assert.Equal(t, none, u.role)
 }
@@ -182,8 +181,6 @@ func TestGetServiceAccountIDFromName(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	l := logrus.WithField("test", t.Name())
-
 	ctx := t.Context()
 	c := NewClient("127.0.0.1:3000")
 
@@ -194,7 +191,7 @@ func TestClient(t *testing.T) {
 
 	t.Run("getRole", func(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
-			u, err := c.getAuthUser(ctx, authHeaders, l)
+			u, err := c.getAuthUser(ctx, authHeaders)
 			role := u.role
 			require.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
@@ -205,7 +202,7 @@ func TestClient(t *testing.T) {
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
 
-			u, err := c.getAuthUser(ctx, nil, l)
+			u, err := c.getAuthUser(ctx, nil)
 			role := u.role
 			clientError, _ := errors.AsType[*clientError](err)
 			require.NotNil(t, clientError, "got role %s", role)
@@ -239,7 +236,7 @@ func TestClient(t *testing.T) {
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
 
-			u, err := c.getAuthUser(ctx, userAuthHeaders, l)
+			u, err := c.getAuthUser(ctx, userAuthHeaders)
 			actualRole := u.role
 			require.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
@@ -264,7 +261,7 @@ func TestClient(t *testing.T) {
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
 
-				u, err := c.getAuthUser(ctx, userAuthHeaders, l)
+				u, err := c.getAuthUser(ctx, userAuthHeaders)
 				actualRole := u.role
 				require.NoError(t, err)
 				assert.Equal(t, role, actualRole)
@@ -293,7 +290,7 @@ func TestClient(t *testing.T) {
 
 				serviceTokenAuthHeaders := http.Header{}
 				serviceTokenAuthHeaders.Set("Authorization", "Bearer "+serviceToken)
-				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
+				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders)
 				require.NoError(t, err)
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)

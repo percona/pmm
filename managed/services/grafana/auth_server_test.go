@@ -702,7 +702,7 @@ type stubClient struct {
 	user authUser
 }
 
-func (s stubClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+func (s stubClient) getAuthUser(context.Context, http.Header) (authUser, error) {
 	return s.user, nil
 }
 

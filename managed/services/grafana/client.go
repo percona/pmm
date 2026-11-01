@@ -234,7 +234,7 @@ var emptyUser = authUser{
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
