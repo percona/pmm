@@ -333,7 +333,7 @@ describe('AuthProvider', () => {
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it('neither polls nor rotates on return to the tab without a session', async () => {
+  it('does not poll without a session', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     mocks.rotateToken.mockRejectedValue(unauthorized);
     enableAnonymousAccess();
@@ -341,10 +341,33 @@ describe('AuthProvider', () => {
     renderProvider('/graph');
     await screen.findByTestId('probe');
 
-    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
     await act(() => vi.advanceTimersByTimeAsync(3 * MIN_ROTATE_DELAY_MS));
 
     expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
+    expect(probeMounts).toBe(1);
+  });
+
+  it('picks up a sign-in from another tab on return to the tab', async () => {
+    mocks.rotateToken.mockRejectedValueOnce(unauthorized);
+    enableAnonymousAccess();
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      '/graph|false'
+    );
+
+    mocks.rotateToken.mockResolvedValueOnce({ token: 'ok' });
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+    });
+
+    await waitFor(() =>
+      expect(renderedLocations[renderedLocations.length - 1]).toBe(
+        '/graph|true'
+      )
+    );
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(2);
     expect(probeMounts).toBe(1);
   });
 

@@ -49,8 +49,9 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     refetchInterval: (query) =>
       query.state.data ? getRefetchInterval() : false,
     refetchIntervalInBackground: true,
+    // Without a session, returning to the tab checks for a sign-in made in another tab.
     refetchOnWindowFocus: (query) =>
-      query.state.data && isSessionExpired() ? 'always' : false,
+      !query.state.data || isSessionExpired() ? 'always' : false,
     retry: false,
   });
 

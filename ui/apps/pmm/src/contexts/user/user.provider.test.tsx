@@ -55,6 +55,24 @@ describe('UserProvider', () => {
     });
   });
 
+  it.each([true, false])(
+    'enables every user query only when logged in (isLoggedIn=%s)',
+    (isLoggedIn) => {
+      mockQueries();
+
+      renderUser(isLoggedIn);
+
+      for (const query of [
+        useCurrentUser,
+        useCurrentUserOrgs,
+        useUserInfo,
+        useUserPreferences,
+      ]) {
+        expect(query).toHaveBeenLastCalledWith({ enabled: isLoggedIn });
+      }
+    }
+  );
+
   it('builds no user while logged out, even from cached data', () => {
     mockQueries();
 

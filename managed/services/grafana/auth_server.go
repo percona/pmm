@@ -167,6 +167,8 @@ var lbacPrefixes = []string{
 	"/graph/api/ds/query",
 	"/prometheus/api/v1/",
 	"/v1/qan/",
+	// Query details sit beside the tree, at /v1/qan:<method>.
+	"/v1/qan:",
 	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
 	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
 	// tree instead of enumerating them: every shape left out is served unfiltered, and
