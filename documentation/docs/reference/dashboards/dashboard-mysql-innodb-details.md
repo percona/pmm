@@ -511,16 +511,17 @@ The size of buffer InnoDB uses for buffering writes to log files.
 
 ### InnoDB Log Buffer Usage
 
-Shows the log buffer size and **Max Log Space Used**, the most redo data waiting in the log buffer to be written to disk during each interval.
+Shows the log buffer size and **Max Log Space Used**, the peak amount of redo data generated but not yet flushed to disk during each interval.
 
-If **Max Log Space Used** regularly gets close to **Log Buffer Size**, transactions wait for free space in the log buffer. Increase `innodb_log_buffer_size`.
+**Max Log Space Used** is the current log sequence number (LSN) minus the LSN flushed to disk, so it covers redo still held in the log buffer plus redo already written to the log files but not yet durable. If it regularly gets close to **Log Buffer Size**, transactions are waiting for free space in the log buffer and a larger `innodb_log_buffer_size` helps. Check **InnoDB Logging Performance** first: when the value is driven by slow log writes rather than by the buffer filling up, a larger buffer only postpones the same wait.
 
-**Max Log Space Used** is the current log sequence number (LSN) minus the LSN flushed to disk. MySQL 8.0.30 and newer reports these as `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`. Percona Server and MariaDB report them as `Innodb_lsn_current` and `Innodb_lsn_flushed`. PMM Client 3.10.0 and later reads whichever pair the server exposes.
+MySQL 8.0.30 and newer reports the two LSNs as `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`. Percona Server, and MariaDB 10.5 and newer, report them as `Innodb_lsn_current` and `Innodb_lsn_flushed`. PMM Client 3.10.0 and later reads whichever pair the server exposes.
 
 **Max Log Space Used** is empty in these cases:
 
 - Oracle MySQL 8.0.30 and newer monitored by a PMM Client older than 3.10.0. Upgrade PMM Client to fix this.
 - Oracle MySQL 8.0.29 and older, which exposes neither pair.
+- MariaDB 10.2 to 10.4, which exposes neither pair. MariaDB dropped these variables when it replaced XtraDB in 10.2 and restored them in 10.5.
 
 ### At Transaction Commit
 
