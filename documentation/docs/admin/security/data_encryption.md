@@ -70,6 +70,8 @@ PMM uses the custom key to encrypt and decrypt all credentials it stores. If you
 - store the key securely and keep a backup of it outside PMM.
 - in containerized environments, set `PMM_ENCRYPTION_KEY_PATH` in the container configuration so it persists across restarts.
 - test key rotation in a staging environment before you rotate the key in production.
+- keep retired keys in the keyset, without `--prune`, until you have verified a rotation.
+- if PMM Server doesn't start because the key file is missing or was replaced, see [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 
 ## HA clusters: use the same key on every node
 
@@ -90,7 +92,7 @@ If you set up HA nodes yourself with the [HA variables](../../install-pmm/instal
 
 4. Start the nodes.
 
-If a node has a different key, it logs `encryption key does not match the database` and doesn't start. To fix it, copy the key file from a node that works to the same path on that node, then restart the node.
+If a node has a different key, it logs that the encryption key `cannot decrypt stored credentials` and doesn't start. To fix it, copy the key file from a node that works to the same path on that node, then restart the node.
 
 ## Upgrading from PMM 3.9.1 or earlier
 
@@ -107,7 +109,7 @@ During the first start, PMM Server:
 
 - Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
 - Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
-- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
+- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recover-from-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
 !!! caution alert alert-warning "Downgrading is not supported"
     After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
@@ -164,7 +166,7 @@ Skip this section if you use the default key path and default database settings.
 #### Custom key path
 
 - Make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool can decrypt existing data.
-- Make sure the `pmm` user (UID 1000) can write to the directory that contains the key file. Otherwise, the rotation fails with a `permission denied` error and leaves `pmm-managed` stopped. To fix this, see [Recover from a failed rotation](#recover-from-a-failed-rotation).
+- Make sure the `pmm` user (UID 1000) can write to the directory that contains the key file. Otherwise, the rotation fails with a `permission denied` error before it changes anything. Fix the permissions and run it again.
 
 #### Custom database credentials or SSL
 
@@ -183,7 +185,7 @@ To rotate the key:
     pmm-encryption-rotation
     ```
 
-    Add `--prune` to remove the retired keys from the keyset once the tool has verified that no stored data references them anymore. Migration backup files can hold values encrypted with retired keys, so keep a copy of the key file from before the rotation while you need those files.
+    Add `--prune` to remove the retired keys from the keyset once the tool has verified that no stored data references them anymore. Migration backup files are encrypted with keys that pruning removes. While such files exist, the tool refuses `--prune` unless you also add `--migration-backup-key-saved`. That option confirms that you keep a copy of the current key file elsewhere.
 
 3. If you installed PMM Server with the [Helm chart](../../install-pmm/install-pmm-server/deployment-options/helm/index.md#manage-the-encryption-key), restart the pod so the chart updates its backup copy of the key:
 
@@ -193,8 +195,6 @@ To rotate the key:
 
 4. Confirm that PMM is working: check that your services appear as connected in **Inventory > Services** and that metrics are visible in your dashboards.
 
-5. Delete `pmm-encryption_old.key` or move it to secure offline storage. This file contains the previous key in plain text.
-
 ### Rotate the key on HA nodes
 
 Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
@@ -202,9 +202,9 @@ Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the
 If you set up HA nodes yourself with the [HA variables](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#ha-variables), all nodes must switch to the new key together. Rotate it on one node, then copy it to the others:
 {.power-number}
 
-1. Stop PMM Server on every node except one. Any node left running keeps using the old key, which leaves the database encrypted with two different keys.
+1. Stop PMM Server on every node except one. A node left running can't read the values encrypted with the new key.
 
-2. On the remaining node, [rotate the encryption key](#rotate-the-encryption-key).
+2. On the remaining node, [rotate the encryption key](#rotate-the-encryption-key) and add `--ha-other-nodes-stopped` to the command. Without it, the tool refuses to run in HA mode.
 
 3. Copy the new key file from that node to every other node, using the same path.
 
@@ -213,7 +213,7 @@ If you set up HA nodes yourself with the [HA variables](../../install-pmm/instal
 
 ## Recover from a failed rotation
 
-If PMM Server stops while `pmm-encryption-rotation` is running, your data remains intact and encrypted with the previous key.
+If PMM Server stops while `pmm-encryption-rotation` is running, your data remains intact. The keyset still holds the previous key, so all stored values stay readable.
 
 To bring PMM back up and retry:
 {.power-number}
