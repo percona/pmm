@@ -16,7 +16,7 @@ export const Messages = {
     serviceId: 'Service ID',
   },
   addressInfo:
-    'The address pmm-agent uses to connect to this database, as seen from the host where that pmm-agent runs. 127.0.0.1 or localhost means the database runs on that same host, not necessarily on PMM Server.',
+    'The address PMM uses to connect to this database. 127.0.0.1 or localhost points to the host PMM connects from, which depends on how the service was added.',
   learnMore: 'Learn more',
   empty: 'No services available',
   nonClustered: 'Non-clustered services',
