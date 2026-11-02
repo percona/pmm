@@ -200,6 +200,60 @@ func TestPrepare(t *testing.T) {
 		assert.ErrorIs(t, err, os.ErrNotExist)
 	})
 
+	t.Run("leaves credentials mounted at the run directory alone", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		mounted := filepath.Join(opts.RunDir, string(AdminPassword))
+		require.NoError(t, os.MkdirAll(opts.RunDir, 0o700))
+		require.NoError(t, os.WriteFile(mounted, []byte("mounted"), 0o400))
+
+		for dir, msg := range map[string]string{
+			"":          opts.RunDir + " holds admin-password, which PMM Server didn't create",
+			opts.RunDir: "PMM_SECRETS_DIR (" + opts.RunDir + ") is inside " + opts.RunDir,
+		} {
+			opts.Getenv = func(k string) string {
+				if k == SecretsDirEnvVar {
+					return dir
+				}
+				return ""
+			}
+			_, err := Prepare(opts)
+			require.ErrorContains(t, err, msg)
+			v, err := readFile(mounted)
+			require.NoError(t, err)
+			assert.Equal(t, "mounted", v)
+		}
+	})
+
+	t.Run("refuses a Kubernetes Secret volume at the run directory", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		data := filepath.Join(opts.RunDir, "..data")
+		require.NoError(t, os.MkdirAll(data, 0o700))
+		require.NoError(t, os.WriteFile(filepath.Join(data, string(AdminPassword)), []byte("mounted"), 0o400))
+		require.NoError(t, os.Symlink(filepath.Join("..data", string(AdminPassword)), filepath.Join(opts.RunDir, string(AdminPassword))))
+
+		_, err := Prepare(opts)
+		require.ErrorContains(t, err, "holds ..data, which PMM Server didn't create")
+		assert.Equal(t, "mounted", linked(t, opts, AdminPassword))
+	})
+
+	t.Run("refuses a file inside the run directory", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "earlier", "GF_SECURITY_ADMIN_PASSWORD": "earlier"})
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+
+		key, admin := filepath.Join(opts.RunDir, string(GrafanaSecretKey)), filepath.Join(opts.RunDir, string(AdminPassword))
+		env := map[string]string{"PMM_GRAFANA_SECRET_KEY_FILE": key, "GF_SECURITY_ADMIN_PASSWORD": "$__file{" + admin + "}"}
+		opts.Getenv = func(k string) string { return env[k] }
+		_, err = Prepare(opts)
+		require.Error(t, err)
+		for _, s := range []string{
+			"grafana-secret-key: " + key + " is inside " + opts.RunDir,
+			"admin-password: " + admin + " is inside " + opts.RunDir,
+		} {
+			assert.Contains(t, err.Error(), s)
+		}
+	})
+
 	t.Run("reports every configuration error without the values", func(t *testing.T) {
 		dir := t.TempDir()
 		file := filepath.Join(dir, "custom")
@@ -292,6 +346,19 @@ func TestValue(t *testing.T) {
 		require.Error(t, err, name)
 		require.NotErrorIs(t, err, ErrNotResolved, name)
 		assert.Empty(t, v, name)
+	}
+}
+
+func TestInside(t *testing.T) {
+	for path, want := range map[string]bool{
+		"/run/pmm/secrets":                true,
+		"/run/pmm/secrets/admin-password": true,
+		"/run/pmm/other/../secrets/x":     true,
+		"/run/pmm":                        false,
+		"/run/pmm/secrets-old/x":          false,
+		"/etc/pmm/secrets":                false,
+	} {
+		assert.Equal(t, want, inside("/run/pmm/secrets", path), path)
 	}
 }
 

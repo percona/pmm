@@ -225,8 +225,13 @@ func OptionsFromEnv() Options {
 //
 // It returns all resolution problems at once, so a misconfigured installation is fixed in one round.
 func Prepare(opts Options) ([]Resolved, error) {
+	err := checkRunDir(opts)
+	if err != nil {
+		return nil, err
+	}
+
 	// Values written by an earlier start must not outlive the variables they came from.
-	err := os.RemoveAll(filepath.Join(opts.RunDir, envSubdir))
+	err = os.RemoveAll(filepath.Join(opts.RunDir, envSubdir))
 	if err != nil {
 		return nil, err
 	}
@@ -288,6 +293,10 @@ func resolve(opts Options, s spec) (Resolved, error) {
 	}
 
 	if file != "" {
+		// After a restart, the path would lead to the link from the earlier start, which becomes a link to itself.
+		if inside(opts.RunDir, file) {
+			return r, fmt.Errorf("%s is inside %s, where PMM Server links the credentials", file, opts.RunDir)
+		}
 		_, err = readFile(file)
 		if err != nil {
 			return r, err
@@ -405,6 +414,50 @@ func expand(getenv func(string) string, value string, providers []string) (strin
 		}
 	}
 	return value, nil
+}
+
+// checkRunDir returns an error when the run directory holds anything that Prepare doesn't create, such as credentials
+// mounted there, which Prepare would remove or replace by a link to itself, or when PMM_SECRETS_DIR points into it.
+func checkRunDir(opts Options) error {
+	if dir := opts.Getenv(SecretsDirEnvVar); dir != "" && inside(opts.RunDir, dir) {
+		return fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
+	}
+
+	entries, err := os.ReadDir(opts.RunDir)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	var foreign []string
+	for _, e := range entries {
+		switch {
+		case e.Name() == envSubdir && e.IsDir():
+		case e.Type()&fs.ModeSymlink != 0 && slices.ContainsFunc(catalog, func(s spec) bool { return string(s.name) == e.Name() }):
+		default:
+			foreign = append(foreign, e.Name())
+		}
+	}
+	if len(foreign) != 0 {
+		return fmt.Errorf("%s holds %s, which PMM Server didn't create; mount credentials in another directory",
+			opts.RunDir, strings.Join(foreign, ", "))
+	}
+	return nil
+}
+
+// inside reports whether path is dir or lies under it.
+func inside(dir, path string) bool {
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return false
+	}
+	path, err = filepath.Abs(path)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(dir, path)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
 // writeFile writes a credential atomically, readable by its owner only, without a trailing newline.
