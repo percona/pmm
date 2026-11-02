@@ -391,6 +391,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiTableProps: ({ table }) => {
       const consumer =
         typeof muiTableProps === 'function' ? muiTableProps({ table }) : muiTableProps;
+      const isFilterRowShown =
+        table.options.columnFilterDisplayMode === 'subheader' && table.getState().showColumnFilters;
       return {
         'data-testid': tableName,
         ...consumer,
@@ -435,10 +437,11 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
               transform: 'none',
               '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
             },
-            // An inline wrapper's line box would still make the indicator's label row taller
+            // An inline wrapper's line box would still make the indicator's label row taller.
+            // The filter row already shows the filter, so there the indicator only costs header width
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span:has(> .MuiIconButton-root)':
               {
-                display: 'flex',
+                display: isFilterRowShown ? 'none' : 'flex',
               },
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
               transform: 'none',

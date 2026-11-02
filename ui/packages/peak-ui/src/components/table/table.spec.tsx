@@ -64,3 +64,25 @@ describe('Table with every row filtered out', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('No servers match these filters');
   });
 });
+
+describe('Table header with an active column filter', () => {
+  const renderFiltered = (showColumnFilters: boolean) =>
+    renderEmptyTable({
+      data: [{ name: 'alpha' }],
+      initialState: { columnFilters: [{ id: 'name', value: 'al' }], showColumnFilters },
+    });
+  const filterIndicator = () =>
+    screen.getByRole('button', { name: /Filtering by Name/, hidden: true }).parentElement!;
+
+  it('hides the indicator while the filter row shows the filter', () => {
+    renderFiltered(true);
+
+    expect(getComputedStyle(filterIndicator()).display).toBe('none');
+  });
+
+  it('keeps the indicator while the filter row is hidden', () => {
+    renderFiltered(false);
+
+    expect(getComputedStyle(filterIndicator()).display).toBe('flex');
+  });
+});
