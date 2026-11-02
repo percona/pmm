@@ -18,6 +18,7 @@ package om
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -175,7 +176,12 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return status.Errorf(codes.Unavailable, "PMM Extensions is unreachable: %s", err)
+		// *url.Error leads with the verb and URL, which pushes the cause past the UI's 120-character snackbar.
+		cause := err
+		for next := errors.Unwrap(cause); next != nil; next = errors.Unwrap(cause) {
+			cause = next
+		}
+		return status.Errorf(codes.Unavailable, "PMM Extensions is unreachable: %s", cause)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 

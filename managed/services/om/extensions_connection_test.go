@@ -261,6 +261,6 @@ func TestCheckAvailable(t *testing.T) {
 
 		err := svc.CheckAvailable(t.Context())
 		assert.Equal(t, codes.Unavailable, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "PMM Extensions is unreachable: ")
+		assert.Equal(t, "PMM Extensions is unreachable: connection refused", status.Convert(err).Message())
 	})
 }
