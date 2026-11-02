@@ -39,7 +39,7 @@ const (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string, nodes []chNode) *sqlx.DB {
 	l := logrus.WithField("component", "db")
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
@@ -73,7 +73,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		l.Errorf("Error connecting to ClickHouse: %v", err)
 		exception, ok := errors.AsType[*clickhouse.Exception](err)
 		if ok && exception.Code == databaseNotExistErrorCode {
-			err = createDB(dsn, clusterName)
+			err = createDB(dsn, clusterName, nodes)
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
 			}
@@ -111,7 +111,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	return db
 }
 
-func createDB(dsn string, clusterName string) error {
+func createDB(dsn string, clusterName string, nodes []chNode) error {
 	l := logrus.WithField("component", "db")
 	l.Info("Creating database...")
 	clickhouseURL, err := url.Parse(dsn)
@@ -119,6 +119,10 @@ func createDB(dsn string, clusterName string) error {
 		return err
 	}
 	databaseName := strings.Replace(clickhouseURL.Path, "/", "", 1)
+	if len(nodes) > 0 {
+		// Reuse the UUID other nodes already have: a new one would split pmm, see PMM-15785.
+		return fixPmm(context.Background(), nodes, databaseName, false)
+	}
 	clickhouseURL.Path = "/default"
 
 	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())

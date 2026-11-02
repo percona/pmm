@@ -132,7 +132,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_created_db"
 		}
 
-		err := createDB(dsn, "")
+		err := createDB(dsn, "", nil)
 
 		require.NoError(t, err, "Check connection after we create database")
 	})

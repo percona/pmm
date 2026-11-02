@@ -94,6 +94,7 @@ CLI flags (parsed via `kingpin`):
 - `--clickhouse-addr`, `--clickhouse-database`, `--clickhouse-user`, `--clickhouse-password` — ClickHouse connection parameters
 - `--clickhouse-cluster` — enable cluster mode
 - `--clickhouse-cluster-name` — cluster name for ReplicatedMergeTree
+- `--clickhouse-nodes` (`PMM_CLICKHOUSE_NODES`) — PMM HA ClickHouse replicas; keeps one `pmm` database on all of them (`pmmdb.go`)
 - `--data-retention` — how long to keep data (default 30 days)
 - `--debug`, `--trace` — logging levels
 
