@@ -125,7 +125,7 @@ In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH`
 
 ### Recover from a lost encryption key
 
-If the original key is lost for good, you can start a standalone PMM Server without it. The credentials encrypted with the lost key can't be decrypted. PMM Server keeps them in a migration backup file, and you re-enter them afterwards. This recovery isn't available in high availability mode, because the other nodes still hold the key.
+If the original key is permanently lost, you can start a standalone PMM Server without it. The credentials encrypted with the lost key can't be decrypted. PMM Server keeps them in a migration backup file, and you re-enter them afterward. This recovery isn't available in high availability mode, because the other nodes still hold the key.
 
 To start PMM Server without the lost key:
 {.power-number}
