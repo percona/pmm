@@ -122,6 +122,8 @@ You can start RTA from the PMM UI or from the command line.
 
         ![Cluster/Service drop-down with services grouped under MongoDB and MySQL](../../images/RTA_MySQL_select_service.png)
 
+    4. If the sessions list opens, click the service name to open the live query table.
+
     The live query table appears and starts updating automatically.
 
     To watch several services at once, for example a primary and its replicas during the same incident, click **+ New session** and start a session for each one.
@@ -404,6 +406,7 @@ RTA limits how much of the lock graph it collects, because the number of lock re
 ## See also
 
 - [Real-time Query Analytics for MongoDB](QAN-realtime-analytics.md)
+- [Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md)
 - [Query Analytics overview](index.md)
 - [Connect MySQL to PMM](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md)
 - [Stored metrics for MySQL](mysql.md)

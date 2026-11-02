@@ -1,6 +1,6 @@
 # Real-time Query Analytics for MongoDB
 
-If you monitor MongoDB services with PMM, Real-time Query Analytics (RTA) shows you the operations running on them right now. For MySQL, Percona Server for MySQL or MariaDB services, [use Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md) instead.
+If you monitor MongoDB services with PMM, Real-time Query Analytics (RTA) shows you the operations running on them right now. For MySQL, Percona Server for MySQL or MariaDB services, [use Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md) instead. For PostgreSQL services, [use Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md).
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, RTA displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
@@ -33,8 +33,9 @@ To start monitoring a MongoDB service:
 1. Go to **Query Analytics** in the sidebar.
 2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
 3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
+4. If the sessions list opens, click the service name to open the live operations table.
 
-The live operations table appears and begins updating automatically:
+The live operations table updates automatically:
 
 ![RTA live table](../../images/RTA_live.png)
 
@@ -95,7 +96,7 @@ The Real-time view lists the operations that are running now. Use the toolbar to
 
 If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This enables you to monitor multiple replica set members at once or track several services during an incident.
 
-Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one database type at a time, so you can't combine MongoDB and MySQL services in one view.
+Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one database type at a time, so you can't combine MongoDB services with MySQL or PostgreSQL services in one view.
 
 ### Read the overview
 
@@ -196,7 +197,7 @@ When someone opens your link, they see live data with your filters applied, not 
 
 ### View all sessions
 
-Click **All sessions** to see and manage all running RTA sessions, for MongoDB and MySQL alike. From here you can stop one session with **Stop**, select several and click **Stop selected**, or click **Stop all**:
+Click **All sessions** to see and manage all running RTA sessions, for every technology. From here you can stop one session with **Stop**, select several and click **Stop selected**, or click **Stop all**:
 
 ![Stop RTA session](../../images/stop_RTA_session.png)
 
@@ -314,6 +315,8 @@ Check the following requirements:
 
 ## See also
 
+- [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md)
+- [Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md)
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
 - [MongoDB dashboards](../../reference/dashboards/dashboard-mongodb-instance-summary.md)

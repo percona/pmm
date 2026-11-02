@@ -27,7 +27,10 @@ export const Messages = {
     row: 'Row lock (InnoDB)',
     metadata: 'Metadata lock (MDL)',
   },
-  idleInTransaction: (age: string) => `Sleep · idle in transaction ${age}`,
+  idleInTransaction: (command: string, age: string) =>
+    command === 'Sleep'
+      ? `Sleep · idle in transaction ${age}`
+      : `${command} ${age}`,
   otherBlockers: (count: number) =>
     count === 1
       ? '1 more transaction ahead'
@@ -44,6 +47,9 @@ export const Messages = {
     `Resolving conn ${connId} — committing or rolling back its transaction — releases this statement. PMM reports the wait; what to do about it is yours to decide.`,
   resolveHintMetadata: (connId: number | string) =>
     `Conn ${connId} holds a metadata lock on this table; it is released when that statement or transaction ends. PMM reports the wait; what to do about it is yours to decide.`,
+  // A PostgreSQL session idle outside any transaction can only hold a session-level lock.
+  resolveHintSessionLock: (connId: number | string) =>
+    `Conn ${connId} is idle outside any transaction, so its lock is session-level, such as an advisory lock from pg_advisory_lock(): committing or rolling back does not release it. Calling pg_advisory_unlock() in that session, or ending the session, releases this statement. PMM reports the wait; what to do about it is yours to decide.`,
   resolveHintRoots: (count: number, queued: number) =>
     `${count} transactions are holding this statement up independently, so it stays blocked until all ${count} are resolved.${
       queued > 0

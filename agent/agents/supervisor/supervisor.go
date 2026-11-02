@@ -43,6 +43,7 @@ import (
 	"github.com/percona/pmm/agent/agents/noop"
 	"github.com/percona/pmm/agent/agents/postgres/pgstatmonitor"
 	"github.com/percona/pmm/agent/agents/postgres/pgstatstatements"
+	pgrta "github.com/percona/pmm/agent/agents/postgres/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
@@ -1028,6 +1029,15 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			TLSSkipVerify:   builtinAgent.TlsSkipVerify,
 		}
 		agent = mysqlrta.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_RTA_POSTGRESQL_AGENT:
+		params := &pgrta.Params{
+			DSN:             dsn,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
+			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
+		}
+		agent, err = pgrta.New(params, l)
 
 	case typeTestNoop:
 		agent = noop.New()
