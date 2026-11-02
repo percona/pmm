@@ -31,7 +31,17 @@ const FEATURES_OFF = {
   advisorEnabled: false,
   backupManagementEnabled: false,
   extensionsEnabled: false,
+  omEnabled: false,
 } as CombinedSettings;
+
+const OPERATIONS_PAGES = [
+  'Clusters',
+  'Services',
+  'Nodes',
+  'Installs',
+  'Scans',
+  'Operations settings',
+];
 
 describe('extraPages', () => {
   it('lists the curated pages for an admin with every feature on', () => {
@@ -45,9 +55,73 @@ describe('extraPages', () => {
       ['Scheduled backups', '/graph/backup/scheduled'],
       ['Restores', '/graph/backup/restore'],
       ['Storage locations', '/graph/backup/locations'],
+      ['MySQL backup schedule', '/extensions/mysql-backups/schedule'],
+      ['Clusters', '/operations?tab=clusters'],
+      ['Services', '/operations?tab=services'],
+      ['Nodes', '/operations/nodes'],
+      ['Installs', '/operations/automations?tab=installs'],
+      ['Scans', '/operations/automations?tab=scans'],
+      ['Operations settings', '/operations/settings'],
       ['Plugins', '/graph/plugins'],
       ['Data sources', '/graph/connections/datasources'],
     ]);
+  });
+
+  it.each([
+    ['an admin with Operations on', context(), OPERATIONS_PAGES],
+    ['an admin with Operations off', context({ settings: FEATURES_OFF }), []],
+    ['an admin before settings load', context({ settings: null }), []],
+    ['an editor with Operations on', context({ isAdmin: false }), []],
+  ])('lists the Operations pages for %s only', (_, ctx, expected) => {
+    expect(
+      labels(extraPages(ctx).filter((item) => item.id.startsWith('page:om-')))
+    ).toEqual(expected);
+  });
+
+  it('files the Operations pages under the app, and each tab under its page', () => {
+    const pages = extraPages(context());
+    const descriptionOf = (id: string) =>
+      pages.find((item) => item.id === id)?.description;
+
+    expect(descriptionOf('page:om-clusters')).toEqual([
+      'Apps',
+      'Operations for MongoDB',
+      'Fleet',
+    ]);
+    expect(descriptionOf('page:om-scans')).toEqual([
+      'Apps',
+      'Operations for MongoDB',
+      'Automations',
+    ]);
+    expect(descriptionOf('page:om-nodes')).toEqual([
+      'Apps',
+      'Operations for MongoDB',
+    ]);
+  });
+
+  it.each([
+    ['an admin with PMM Extensions on', context(), ['MySQL backup schedule']],
+    [
+      'an admin with PMM Extensions off',
+      context({ settings: FEATURES_OFF }),
+      [],
+    ],
+    ['an admin before settings load', context({ settings: null }), []],
+    ['an editor with PMM Extensions on', context({ isAdmin: false }), []],
+  ])('lists the MySQL backup schedule for %s only', (_, ctx, expected) => {
+    expect(
+      labels(extraPages(ctx).filter((item) => item.label.includes('MySQL')))
+    ).toEqual(expected);
+  });
+
+  it('keys a page addressed by its query apart from the page it opens on', () => {
+    const keyOf = (id: string) =>
+      extraPages(context()).find((item) => item.id === id)?.dedupeKey;
+
+    expect(keyOf('page:om-clusters')).toBe('page:om-clusters');
+    expect(keyOf('page:om-installs')).toBe('page:om-installs');
+    expect(keyOf('page:om-nodes')).toBe('/operations/nodes');
+    expect(keyOf('page:backup-inventory')).toBe('/graph/backup/inventory');
   });
 
   it('counts a feature as on unless the server turns it off', () => {
@@ -113,6 +187,20 @@ describe('actionItems', () => {
         'Create a dashboard',
         'Import a dashboard',
         'Create a backup',
+        'New MySQL backup',
+        'Install MongoDB',
+        'Create a PMM dump',
+      ],
+    ],
+    [
+      'an admin before settings load',
+      context({ settings: null }),
+      [
+        'Start the product tour',
+        'Create an alert rule',
+        'Create a dashboard',
+        'Import a dashboard',
+        'Create a backup',
         'Create a PMM dump',
       ],
     ],
@@ -144,6 +232,22 @@ describe('actionItems', () => {
     ],
   ])('offers %s only what they can do', (_, ctx, expected) => {
     expect(labels(actionItems(ctx))).toEqual(expected);
+  });
+
+  it('opens Nodes on the unmonitored ones and the MySQL backup form', () => {
+    const actions = actionItems(context());
+    const find = (id: string) => actions.find((item) => item.id === id);
+
+    expect(find('action:om-install-mongodb')).toMatchObject({
+      to: '/operations/nodes?filter=unmonitored',
+      dedupeKey: 'action:om-install-mongodb',
+      keywords: ['bootstrap', 'new replica set'],
+    });
+    expect(find('action:new-mysql-backup')).toMatchObject({
+      to: '/extensions/mysql-backups/new',
+      dedupeKey: '/extensions/mysql-backups/new',
+      keywords: ['backup', 'restore', 'pitr'],
+    });
   });
 
   it('starts the product tour', () => {
@@ -209,5 +313,25 @@ describe('search.keywords', () => {
     const ids = new Set(staticIndexFor().map((item) => item.id));
 
     expect(Object.keys(KEYWORDS).filter((id) => !ids.has(id))).toEqual([]);
+  });
+});
+
+describe('buildStaticIndex', () => {
+  it('keeps each Operations tab and filter its own result beside the app', () => {
+    const index = staticIndexFor();
+    const find = (id: string) => index.find((item) => item.id === id);
+    const app = find('page:app-operations-for-mongodb');
+
+    expect(app?.to).toBe('/operations');
+    expect(app?.keywords).not.toContain('Clusters');
+    expect(app?.keywords).not.toContain('Services');
+    expect(find('page:om-nodes')?.keywords).not.toContain('Install MongoDB');
+    [
+      'page:om-clusters',
+      'page:om-services',
+      'page:om-installs',
+      'page:om-scans',
+      'action:om-install-mongodb',
+    ].forEach((id) => expect(find(id)).toBeDefined());
   });
 });

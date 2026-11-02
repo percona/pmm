@@ -4,6 +4,7 @@ import { NavigationContext } from 'contexts/navigation';
 import { NavItem } from 'types/navigation.types';
 import { TestWrapper } from 'utils/testWrapper';
 import { PrototypePlaceholderPage } from './PrototypePlaceholderPage';
+import { Messages } from './PrototypePlaceholderPage.messages';
 
 const renderPage = (path: string, navTree: NavItem[] = []) =>
   render(
@@ -39,4 +40,27 @@ describe('PrototypePlaceholderPage', () => {
       screen.getByRole('heading', { name: 'Customize navigation' })
     ).toBeInTheDocument();
   });
+
+  it.each([
+    'data-archiving',
+    'postgresql-backups',
+    'replication-checksums',
+    'schema-changes',
+  ])('says %s is a PMM Extensions app this build leaves out', (slug) => {
+    renderPage(`/prototype/${slug}`);
+
+    expect(screen.getByText(Messages.notInThisBuild)).toBeInTheDocument();
+  });
+
+  it.each(['proxysql-manager', 'valkey-backups', 'all-apps'])(
+    'says nothing about the build for %s',
+    (slug) => {
+      renderPage(`/prototype/${slug}`);
+
+      expect(screen.getByText(Messages.description)).toBeInTheDocument();
+      expect(
+        screen.queryByText(Messages.notInThisBuild)
+      ).not.toBeInTheDocument();
+    }
+  );
 });

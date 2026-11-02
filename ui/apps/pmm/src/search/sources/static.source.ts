@@ -1,3 +1,4 @@
+import AppsRounded from '@mui/icons-material/AppsRounded';
 import TourOutlined from '@mui/icons-material/TourOutlined';
 import type { CombinedSettings } from 'contexts/settings';
 import type { TourName } from 'contexts/tour';
@@ -6,6 +7,8 @@ import {
   NAV_CONFIGURATION,
 } from 'contexts/navigation/navigation.constants';
 import {
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_UPDATES_PATH,
   PMM_NEW_NAV_PATH,
@@ -38,22 +41,30 @@ const SETTINGS_CRUMBS = [
 // A feature counts as on unless the server says it is off.
 const isFeatureOn = (flag?: boolean) => flag !== false;
 
+// Dedupe keys drop the query, so an address whose query picks a tab or filter keys on its own id.
+const ownKeyWithQuery = (id: string, to?: string) =>
+  to?.includes('?') ? id : undefined;
+
 const page = (
   slug: string,
   label: string,
   to: string,
   description: string[],
   navIcon?: SearchItem['navIcon']
-) =>
-  searchItem({
-    id: `page:${slug}`,
+) => {
+  const id = `page:${slug}`;
+
+  return searchItem({
+    id,
     kind: 'page',
     group: 'pages',
     label,
     description,
     navIcon,
     to,
+    dedupeKey: ownKeyWithQuery(id, to),
   });
+};
 
 export const extraPages = ({
   isAdmin,
@@ -109,6 +120,63 @@ export const extraPages = ({
           ExtensionIcon
         )
       )
+    );
+  }
+
+  if (isAdmin && settings?.extensionsEnabled === true) {
+    items.push(
+      page(
+        'mysql-backup-schedule',
+        labels.mysqlBackupSchedule,
+        `${EXTENSIONS_MYSQL_BACKUPS_PATH}/schedule`,
+        [crumbs.apps, crumbs.mysqlBackups],
+        ExtensionIcon
+      )
+    );
+  }
+
+  if (isAdmin && settings?.omEnabled === true) {
+    const operations = (
+      slug: string,
+      label: string,
+      path: string,
+      ...tabOf: string[]
+    ) =>
+      page(
+        slug,
+        label,
+        `${OM_PATH}${path}`,
+        [crumbs.apps, crumbs.operationsForMongodb, ...tabOf],
+        AppsRounded
+      );
+
+    items.push(
+      operations(
+        'om-clusters',
+        labels.omClusters,
+        '?tab=clusters',
+        crumbs.fleet
+      ),
+      operations(
+        'om-services',
+        labels.omServices,
+        '?tab=services',
+        crumbs.fleet
+      ),
+      operations('om-nodes', labels.omNodes, '/nodes'),
+      operations(
+        'om-installs',
+        labels.omInstalls,
+        '/automations?tab=installs',
+        crumbs.automations
+      ),
+      operations(
+        'om-scans',
+        labels.omScans,
+        '/automations?tab=scans',
+        crumbs.automations
+      ),
+      operations('om-settings', labels.omSettings, '/settings')
     );
   }
 
@@ -247,14 +315,18 @@ export const actionItems = ({
     fields: Partial<
       Pick<SearchItem, 'keywords' | 'navIcon' | 'perform' | 'to'>
     > = {}
-  ) =>
-    searchItem({
-      id: `action:${slug}`,
+  ) => {
+    const id = `action:${slug}`;
+
+    return searchItem({
+      id,
       kind: 'action',
       group: 'actions',
       label,
+      dedupeKey: ownKeyWithQuery(id, fields.to),
       ...fields,
     });
+  };
   const items = [
     action('start-tour', labels.startTour, {
       keywords: ['tips', 'tour', 'onboarding'],
@@ -281,6 +353,22 @@ export const actionItems = ({
     items.push(
       action('create-backup', labels.createBackup, {
         to: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`,
+      })
+    );
+  }
+
+  if (isAdmin && settings?.extensionsEnabled === true) {
+    items.push(
+      action('new-mysql-backup', labels.newMysqlBackup, {
+        to: `${EXTENSIONS_MYSQL_BACKUPS_PATH}/new`,
+      })
+    );
+  }
+
+  if (isAdmin && settings?.omEnabled === true) {
+    items.push(
+      action('om-install-mongodb', labels.installMongodb, {
+        to: `${OM_PATH}/nodes?filter=unmonitored`,
       })
     );
   }

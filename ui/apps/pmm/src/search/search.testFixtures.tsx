@@ -27,6 +27,7 @@ export const ALL_FEATURES_ON = {
   advisorEnabled: true,
   backupManagementEnabled: true,
   extensionsEnabled: true,
+  omEnabled: true,
 } as CombinedSettings;
 
 export const AMI_VERSION = {
