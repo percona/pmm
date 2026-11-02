@@ -45,12 +45,13 @@ import (
 const (
 	defaultInventoryRunLimit = 20
 	maxInventoryRunLimit     = 100
+
+	extensionsNotConfigured = "PMM Extensions is not configured, set PMM_ENABLE_EXTENSIONS=1 on PMM Server"
 )
 
 func (s *Service) inventoryProbe() (extensionsApp, error) {
 	if s.probe == nil {
-		return extensionsApp{}, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the inventory app")
+		return extensionsApp{}, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.probe.app, nil
 }
@@ -630,8 +631,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	nodeIDs := req.GetNodeIds()
 	if len(nodeIDs) != 1 && len(nodeIDs) != 3 {
@@ -901,8 +901,7 @@ func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string
 
 func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.bootstrap, nil
 }
