@@ -64,6 +64,7 @@ type AddAgentCommand struct {
 
 	RDSExporter     AddAgentRDSExporterCommand     `cmd:"" help:"Add rds_exporter to inventory"`
 	RTAMongoDBAgent AddAgentRTAMongoDBAgentCommand `cmd:"" name:"rta-mongodb-agent" help:"Add Real-Time Analytics MongoDB agent to inventory"`
+	RTAMySQLAgent   AddAgentRTAMySQLAgentCommand   `cmd:"" name:"rta-mysql-agent" help:"Add Real-Time Analytics MySQL agent to inventory"`
 }
 
 // AddNodeCommand is used by Kong for CLI flags and commands.
@@ -119,6 +120,7 @@ type ChangeAgentCommand struct {
 	QANPostgreSQLPgStatementsAgent  ChangeAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Change QAN PostgreSQL pgstatements agent configuration (only passed flags will be changed)"`
 	QANPostgreSQLPgStatMonitorAgent ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Change QAN PostgreSQL pgstatmonitor agent configuration (only passed flags will be changed)"`
 	RTAMongoDBAgent                 ChangeAgentRTAMongoDBAgentCommand                 `cmd:"" name:"rta-mongodb-agent" help:"Change Real-Time Analytics MongoDB agent configuration (only passed flags will be changed)"`
+	RTAMySQLAgent                   ChangeAgentRTAMySQLAgentCommand                   `cmd:"" name:"rta-mysql-agent" help:"Change Real-Time Analytics MySQL agent configuration (only passed flags will be changed)"`
 }
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.

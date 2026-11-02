@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
+import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -49,6 +51,20 @@ const CSV_COLUMN_ORDER = [
   'planSummary',
   'clientAppName',
   'operationStartTime',
+  'command',
+  'state',
+  'programName',
+  'rowsExamined',
+  'rowsSent',
+  'fullScan',
+  'lockTimeMs',
+  'blockedStatus',
+  'lockedTable',
+  'lockedIndex',
+  'blockingConnId',
+  'blockingQuery',
+  'blockingQueryTruncated',
+  'queryTextTruncated',
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
@@ -94,8 +110,39 @@ const flattenToCsvRow = (source: Record<string, unknown>): CsvRow => {
   return row;
 };
 
-export const mapQueryToCsvRow = (query: QueryData): CsvRow =>
-  flattenToCsvRow(query as unknown as Record<string, unknown>);
+export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
+  const row = flattenToCsvRow(query as unknown as Record<string, unknown>);
+
+  // Serialized, it would be one unfilterable JSON cell; only a sole blocker is written below,
+  // and blocked_status still finds a statement held up by several.
+  delete row[toCsvHeader('blockedBy')];
+
+  // A spreadsheet can sum milliseconds; it cannot sum "0.000003s".
+  delete row[toCsvHeader('lockTime')];
+  const lockTime = lockTimeMs(query.mySqlPayload?.lockTime);
+  if (lockTime !== undefined) {
+    row[toCsvHeader('lockTimeMs')] = lockTime;
+  }
+
+  // The API omits a false flag, and an empty cell would not say whether the text is complete.
+  if (query.mySqlPayload) {
+    row[toCsvHeader('queryTextTruncated')] = Boolean(
+      query.mySqlPayload.queryTextTruncated
+    );
+  }
+
+  const blocker = soleBlocker(query);
+  if (blocker) {
+    row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);
+    row[toCsvHeader('blockingQuery')] = toCsvValue(blocker.blockingQuery);
+    // Written out like query_text_truncated, for the same reason.
+    row[toCsvHeader('blockingQueryTruncated')] = Boolean(
+      blocker.blockingQueryTruncated
+    );
+  }
+
+  return row;
+};
 
 // Columns are collected across every row: export-to-csv derives headers from
 // the first row only, which would drop fields that are unset on it.
@@ -107,13 +154,26 @@ export const collectCsvColumns = (rows: CsvRow[]): string[] => {
   return columns.sort((a, b) => columnRank(a) - columnRank(b));
 };
 
-export const buildRtaExportFilename = (date = new Date()): string => {
-  const timestamp = format(date, 'yyyyMMdd_HHmmss');
-
-  return `mongodb_rta_export_${timestamp}`;
+// MongoDB keeps the mongodb_rta_export_ name it shipped with in 3.9.
+const EXPORT_FILENAME_PREFIX: Partial<Record<ServiceType, string>> = {
+  [ServiceType.mongodb]: 'mongodb_',
+  [ServiceType.mysql]: 'mysql_',
 };
 
-export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {
+export const buildRtaExportFilename = (
+  serviceType?: ServiceType,
+  date = new Date()
+): string => {
+  const timestamp = format(date, 'yyyyMMdd_HHmmss');
+  const prefix = (serviceType && EXPORT_FILENAME_PREFIX[serviceType]) ?? '';
+
+  return `${prefix}rta_export_${timestamp}`;
+};
+
+export const exportRtaQueriesToCsv = (
+  queries: QueryData[],
+  serviceType?: ServiceType
+): void => {
   if (queries.length === 0) {
     return;
   }
@@ -121,7 +181,7 @@ export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {
   const rows = queries.map(mapQueryToCsvRow);
   const csvConfig = mkConfig({
     columnHeaders: collectCsvColumns(rows),
-    filename: buildRtaExportFilename(),
+    filename: buildRtaExportFilename(serviceType),
   });
   const csv = generateCsv(csvConfig)(rows);
   download(csvConfig)(csv);

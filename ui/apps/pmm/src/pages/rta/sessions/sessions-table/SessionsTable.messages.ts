@@ -10,6 +10,7 @@ export const Messages = {
     columns: {
       sessionName: 'Session',
       status: 'Status',
+      technology: 'Technology',
     },
     runningFor: 'Running for',
   },

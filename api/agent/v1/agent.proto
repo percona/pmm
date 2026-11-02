@@ -45,6 +45,9 @@ message StateChangedRequest {
   uint32 listen_port = 3;
   string process_exec_path = 4;
   string version = 5;
+  // Human-readable reason for the status, such as why a built-in agent failed to initialize or what it
+  // cannot collect while running. Empty when there is nothing to report.
+  string status_message = 6;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
