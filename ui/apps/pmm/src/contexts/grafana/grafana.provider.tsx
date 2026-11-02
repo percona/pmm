@@ -22,6 +22,7 @@ import { useSettings, useFrontendSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
+import { STARRED_DASHBOARDS_QUERY_KEY } from 'hooks/api/useStarredDashboards';
 import { isGrafanaLoginPath } from 'contexts/auth/auth.clientSession';
 import { handleGrafanaUserLoggedOut } from 'contexts/auth/auth.grafanaLogout';
 
@@ -155,6 +156,16 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       type: 'TIMEZONE_CHANGED',
       onMessage: () => {
         queryClient.invalidateQueries({ queryKey: USER_PREFERENCES_QUERY_KEY });
+      },
+    });
+
+    // A dashboard starred or unstarred in Grafana joins or leaves Starred.
+    messenger.addListener({
+      type: 'DASHBOARD_STARS_CHANGED',
+      onMessage: () => {
+        queryClient.invalidateQueries({
+          queryKey: STARRED_DASHBOARDS_QUERY_KEY,
+        });
       },
     });
 

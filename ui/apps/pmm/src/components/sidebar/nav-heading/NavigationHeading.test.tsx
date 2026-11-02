@@ -26,6 +26,24 @@ describe('NavigationHeading', () => {
     expect(screen.queryByTestId('sidebar-open-button')).toBeInTheDocument();
   });
 
+  it('names its expand and collapse buttons', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Collapse sidebar' })
+    ).toBeInTheDocument();
+
+    rerender(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Expand sidebar' })
+    ).toBeInTheDocument();
+  });
+
   it('can close sidebar', () => {
     render(<NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />);
 

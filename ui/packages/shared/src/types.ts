@@ -15,7 +15,8 @@ export type MessageType =
   | 'SERVICE_ADDED'
   | 'SERVICE_DELETED'
   | 'TIMEZONE_CHANGED'
-  | 'OPEN_ALERT_THRESHOLDS_MODAL';
+  | 'OPEN_ALERT_THRESHOLDS_MODAL'
+  | 'DASHBOARD_STARS_CHANGED';
 
 export type LocationState = { fromGrafana?: boolean } | null;
 
@@ -68,6 +69,8 @@ export type FrontendSettingsChangedMessage =
   Message<'FRONTEND_SETTINGS_CHANGED'>;
 
 export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;
+
+export type DashboardStarsChangedMessage = Message<'DASHBOARD_STARS_CHANGED'>;
 
 export type OpenAlertThresholdsModalMessage = Message<
   'OPEN_ALERT_THRESHOLDS_MODAL',

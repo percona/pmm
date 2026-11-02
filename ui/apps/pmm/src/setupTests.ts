@@ -21,3 +21,17 @@ beforeEach(() => {
   mockClipboard.readText.mockClear();
   mockClipboard.writeText.mockClear();
 });
+
+// jsdom has no IntersectionObserver; tests that need one install their own.
+class IntersectionObserverStub {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+  takeRecords = vi.fn(() => []);
+}
+
+Object.defineProperty(window, 'IntersectionObserver', {
+  value: IntersectionObserverStub,
+  writable: true,
+  configurable: true,
+});
