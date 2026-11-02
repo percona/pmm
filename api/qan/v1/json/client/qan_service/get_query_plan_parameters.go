@@ -60,6 +60,12 @@ type GetQueryPlanParams struct {
 	// Queryid.
 	Queryid string
 
+	/* ServiceID.
+
+	   Service ID to scope the plan to; empty matches any service.
+	*/
+	ServiceID *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -124,6 +130,17 @@ func (o *GetQueryPlanParams) SetQueryid(queryid string) {
 	o.Queryid = queryid
 }
 
+// WithServiceID adds the serviceID to the get query plan params
+func (o *GetQueryPlanParams) WithServiceID(serviceID *string) *GetQueryPlanParams {
+	o.SetServiceID(serviceID)
+	return o
+}
+
+// SetServiceID adds the serviceId to the get query plan params
+func (o *GetQueryPlanParams) SetServiceID(serviceID *string) {
+	o.ServiceID = serviceID
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetQueryPlanParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -134,6 +151,22 @@ func (o *GetQueryPlanParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	// path param queryid
 	if err := r.SetPathParam("queryid", o.Queryid); err != nil {
 		return err
+	}
+
+	if o.ServiceID != nil {
+
+		// query param service_id
+		var qrServiceID string
+
+		if o.ServiceID != nil {
+			qrServiceID = *o.ServiceID
+		}
+		qServiceID := qrServiceID
+		if qServiceID != "" {
+			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {
