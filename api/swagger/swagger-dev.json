@@ -34854,6 +34854,12 @@
             "name": "queryid",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "Service ID to scope the plan to; empty matches any service.",
+            "name": "service_id",
+            "in": "query"
           }
         ],
         "responses": {
