@@ -449,9 +449,10 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 //
 // Both need the Agent actually gone, which one that outlived the stop budget is not known to be, so
 // it is waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on
-// it. Releasing a port a live exporter still listens on fails and keeps the reservation for good,
-// since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
-// the directory takes files out from under an Agent still reading it. Both are decided again once
+// it. Clearing the directory takes files out from under an Agent still reading it. The port is
+// dropped from the registry rather than released once the Agent is gone: nothing of the Agent's
+// listens on it any more, and Release would keep it reserved for good if something else did, as
+// nothing is left to retry it. Reserve checks a port is free before handing it out again. Both are decided again once
 // the Agent has stopped, because by then the ID may belong to a replacement whose directory that
 // now is. The directory holds rendered TLS certificates and keys, so leaving it to the next
 // pmm-agent start (cleanupTmp) is the last resort, not the plan. See PMM-15431.
@@ -461,7 +462,7 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
-		s.releasePort(agentID, port)
+		s.portsRegistry.Forget(port)
 		s.removeAgentTempDir(agentID, agentTmp)
 	default:
 		s.l.Warnf("Agent %s has not stopped yet, freeing what it owns once it does.", agentID)
@@ -470,7 +471,7 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 			case <-done:
 				// Off the lock: giving the port back needs no agreement about
 				// who owns the ID.
-				s.releasePort(agentID, port)
+				s.portsRegistry.Forget(port)
 
 				if agentTmp == "" {
 					return
@@ -512,18 +513,6 @@ func (s *Supervisor) isAgentTrackedLocked(agentID string) bool {
 	_, ok := s.builtinAgents[agentID]
 
 	return ok
-}
-
-// releasePort gives back a port reservation. A built-in Agent has no port, hence port 0.
-func (s *Supervisor) releasePort(agentID string, port uint16) {
-	if port == 0 {
-		return
-	}
-
-	err := s.portsRegistry.Release(port)
-	if err != nil {
-		s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
-	}
 }
 
 // removeAgentTempDir removes an Agent's temporary directory, and does nothing for an empty
@@ -788,7 +777,7 @@ func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.Set
 			s.portsRegistry.Forget(f.port)
 			f.port = 0
 		}
-		f.newPort = true
+		f.newPort = true // if none is free, that attempt fails, and the next goes back to the entry's
 		f.lastPort, f.portFailures = 0, 0
 	}
 	f.requestedState = proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert

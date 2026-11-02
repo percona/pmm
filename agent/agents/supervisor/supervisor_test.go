@@ -363,12 +363,10 @@ func TestReleaseAgentResources(t *testing.T) {
 		return s, port, agentTmp
 	}
 
-	// Only "the port is still reserved" is asserted below, never "it was given back": Release
-	// decides by binding the port (see portsRegistry.Release), so a foreign socket on it makes
-	// the release fail for reasons that have nothing to do with releaseAgentResources, and
-	// nothing retries it - asserting the reservation was gone failed intermittently for exactly
-	// that. TestStopKeepsPortOfRunningAgent covers the direction that matters, an Agent that has
-	// not stopped keeping its port. See PMM-15431.
+	// The port is given back with portsRegistry.Forget, which does not bind it, so a foreign
+	// socket on it does not keep it reserved; with Release that made asserting the reservation was
+	// gone fail intermittently. TestStopKeepsPortOfRunningAgent covers an Agent that has not
+	// stopped keeping its port. See PMM-15431.
 	reserved := func(s *Supervisor, port uint16) bool {
 		s.portsRegistry.m.Lock()
 		defer s.portsRegistry.m.Unlock()
@@ -384,8 +382,15 @@ func TestReleaseAgentResources(t *testing.T) {
 		done := make(chan struct{})
 		close(done)
 
+		// Something else listens on the port by now: nothing of the Agent's does.
+		var lc net.ListenConfig
+		l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = l.Close() })
+
 		s.releaseAgentResources("stopped", done, port, agentTmp)
 
+		assert.False(t, reserved(s, port), "port of a stopped Agent is still reserved")
 		assert.NoDirExists(t, agentTmp)
 	})
 
@@ -1173,11 +1178,10 @@ func isReserved(s *Supervisor, port uint16) bool {
 
 // TestFailedStartAndPorts covers what a failed start attempt does with its port.
 //
-// Unlike TestReleaseAgentResources this does assert that a port was given back, because the
-// reasons that made it flaky there do not apply: the Agent never started, so nothing of ours is
-// listening on the port, and on Linux the range is above net.ipv4.ip_local_port_range, so the kernel
-// does not hand one of these out to a foreign connection either. On macOS it does, so the assertions
-// use the ports that were handed out rather than the first ones of the range.
+// Ports are given back with portsRegistry.Forget, which does not bind them, so asserting that one was
+// given back does not depend on what else is on the host. The ranges are inside the ephemeral range
+// on macOS, so the assertions use the ports that were handed out rather than the first ones of a
+// range.
 func TestFailedStartAndPorts(t *testing.T) {
 	t.Parallel()
 
