@@ -38,7 +38,7 @@ PMM Server doesn't start when:
 - a credential is supplied both as a file and as an environment variable
 - two environment variables of the same credential, such as `PMM_ADMIN_PASSWORD` and `GF_SECURITY_ADMIN_PASSWORD`, have different values
 - an environment variable's value names a missing or unreadable file in `$__file{}`, or resolves to an empty value
-- `/run/pmm/secrets` holds anything that PMM Server didn't put there, or `PMM_SECRETS_DIR` or a file variable points into it: mount credentials in another directory, such as `/etc/pmm/secrets`
+- `/run/pmm/secrets` holds anything that PMM Server didn't put there or belongs to another user, or `PMM_SECRETS_DIR` or a file variable points into it: mount credentials in another directory, such as `/etc/pmm/secrets`
 
 The error names every affected credential, never its value. A credential without a file in `PMM_SECRETS_DIR` moves on to the next source.
 
