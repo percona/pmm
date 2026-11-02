@@ -105,6 +105,10 @@ func exitedBy(t *testing.T, cmd *exec.Cmd) syscall.Signal {
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
+		// Killed and waited for here: a second Wait, in startLeftover's Cleanup, while this one is
+		// still waiting would never return.
+		_ = cmd.Process.Kill()
+		<-done
 		t.Fatal("process is still running")
 	}
 
