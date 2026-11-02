@@ -149,3 +149,6 @@ Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connect
 
 If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, use a drop-in to update the data source user's grant, since the shipped grant names `pmm` explicitly.
 
+## Real-time Query Analytics (RTA) issues
+
+To fix problems with RTA sessions, such as a session that won't start or a table that stays empty, use the troubleshooting steps for your database: [MongoDB](../use/qan/QAN-realtime-analytics.md#troubleshooting), [MySQL](../use/qan/QAN-realtime-analytics-mysql.md#troubleshooting) or [PostgreSQL](../use/qan/QAN-realtime-analytics-postgresql.md#troubleshooting).
