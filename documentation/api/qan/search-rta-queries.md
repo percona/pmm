@@ -7,6 +7,8 @@ category:
   uri: rta-api
 ---
 
+To call this endpoint, include a [service account token](ref:authentication#bearer-authentication) in the `Authorization` header.
+
 ## Search queries
 
 `POST /v1/realtimeanalytics/queries:search`
@@ -31,7 +33,12 @@ At least one `service_id` must be specified. The `limit` parameter is optional.
 | `limit` | string (int64) | No | Maximum number of queries to return |
 
 ### Response
-```json
+
+The response lists the queries running in your active sessions. Each query has the same general fields, plus one payload for its database type: `mongo_db_payload` for MongoDB, or `my_sql_payload` for MySQL, Percona Server for MySQL and MariaDB.
+
+Select your database type to see an example. The MySQL example shows a statement waiting for an InnoDB row lock:
+
+```json MongoDB
 {
   "queries": [
     {
@@ -57,12 +64,7 @@ At least one `service_id` must be specified. The `limit` parameter is optional.
   ]
 }
 ```
-
-#### MySQL response
-
-Queries from a MySQL service carry `my_sql_payload` instead. This example shows a statement blocked on an InnoDB row lock:
-
-```json
+```json MySQL
 {
   "queries": [
     {
@@ -109,7 +111,13 @@ Queries from a MySQL service carry `my_sql_payload` instead. This example shows 
 }
 ```
 
-A statement queued behind a DDL reports a metadata lock instead. Metadata-lock waits carry no `wait_duration`, because the server records no timestamp for them, and no `locked_index`, because the lock is taken on the table as a whole. `blocked_by` lists every transaction ahead in the queue, with `root` marking the one that is not itself waiting:
+#### Metadata lock example
+
+A DDL statement that waits for an open transaction, such as an `ALTER TABLE`, reports a metadata lock. Compared with a row lock:
+
+- `wait_duration` is `null`, because MySQL doesn't record when a metadata lock wait started.
+- `locked_index` is empty, because the lock covers the whole table.
+- `blocked_by` lists every transaction ahead in the queue. `root` is `true` for the one that isn't waiting for a lock itself.
 
 ```json
 {
@@ -143,16 +151,6 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 }
 ```
 
-> 🚧 Important
-> 
-> `rows_examined`, `rows_sent` and `full_scan` are omitted from the payload when the server did not measure them, which is the default on MariaDB because the `events_statements_current` consumer ships disabled. Absent means unknown: treat it as "not measured" rather than as zero rows or no full scan. A server that did measure reports a real `0` or `false`, so the two are distinguishable.
-> 
-> `blocked_status` is `BLOCKED_STATUS_UNSPECIFIED` when RTA could not read one of its two lock sources, and therefore cannot say whether the statement is waiting. Treat it as "unknown", not as "not blocked". The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled, which is the default on MariaDB.
->
-> `blocked_status` is `BLOCKED_STATUS_UNATTRIBUTED` when the lock sources were read, but the connection was waiting for a lock on behalf of a later statement than the one reported: it moved on between the statement read and the lock read. Treat it as "unknown for this refresh"; the next collection reads both again. No configuration change is needed.
-> 
-> On MySQL and Percona Server, lock modes distinguish a record lock from a gap lock (`X,REC_NOT_GAP`, `X,GAP`). MariaDB reports plain `X` or `S`.
-
 ### Response schema
 
 | Field | Type | Description |
@@ -176,36 +174,63 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 | `queries[].mongo_db_payload.username` | string | MongoDB username |
 | `queries[].mongo_db_payload.plan_summary` | string | Query execution plan (COLLSCAN vs IXSCAN) |
 | `queries[].my_sql_payload` | object | MySQL-specific query information |
-| `queries[].my_sql_payload.db_instance_address` | string | MySQL instance address (host:port) |
-| `queries[].my_sql_payload.program_name` | string | Client program name |
-| `queries[].my_sql_payload.database_name` | string | Database name |
-| `queries[].my_sql_payload.command` | string | Process list command (Query, Execute, etc.) |
-| `queries[].my_sql_payload.state` | string | Process list state |
-| `queries[].my_sql_payload.username` | string | MySQL user (`user@host`) |
-| `queries[].my_sql_payload.rows_examined` | string (int64) | Rows read to produce the result. Absent when the server did not measure it |
-| `queries[].my_sql_payload.rows_sent` | string (int64) | Rows returned to the client. Absent when the server did not measure it |
-| `queries[].my_sql_payload.full_scan` | boolean | Whether the statement scanned without a usable index. Absent when the server did not measure it |
-| `queries[].my_sql_payload.lock_time` | string | Time the statement has waited for table locks (`LOCK_TIME` from `events_statements_current`). Absent when the server did not measure it |
-| `queries[].my_sql_payload.query_text_truncated` | boolean | `query_text` is not the whole statement. MySQL keeps 1024 bytes of a running statement in the process list, and up to `performance_schema_max_sql_text_length` bytes while the `events_statements_current` consumer is enabled; PMM sends at most 64 KiB. A statement exactly as long as the limit is reported as truncated too |
-| `queries[].my_sql_payload.blocked_status` | string | `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, `BLOCKED_STATUS_UNSPECIFIED` when a lock source could not be read, or `BLOCKED_STATUS_UNATTRIBUTED` when the wait found belonged to a later statement on the same connection |
-| `queries[].my_sql_payload.lock_type` | string | `LOCK_TYPE_ROW` or `LOCK_TYPE_METADATA` |
-| `queries[].my_sql_payload.locked_table` | string | Contended table (`schema.table`) |
-| `queries[].my_sql_payload.locked_index` | string | Contended index; empty for table- and metadata-level locks |
-| `queries[].my_sql_payload.requested_lock_mode` | string | Lock mode this statement is requesting |
-| `queries[].my_sql_payload.blocked_by` | array | Transactions blocking this statement |
-| `queries[].my_sql_payload.blocked_by[].blocking_conn_id` | string (int64) | Connection ID of the blocker |
-| `queries[].my_sql_payload.blocked_by[].blocking_query` | string | Statement the blocker is running, or its last statement |
-| `queries[].my_sql_payload.blocked_by[].blocking_query_truncated` | boolean | `blocking_query` is not the whole statement; see `query_text_truncated` |
-| `queries[].my_sql_payload.blocked_by[].blocking_command` | string | Blocker's process list command |
-| `queries[].my_sql_payload.blocked_by[].blocking_username` | string | Blocker's MySQL user |
-| `queries[].my_sql_payload.blocked_by[].blocking_lock_mode` | string | Lock mode the blocker holds |
-| `queries[].my_sql_payload.blocked_by[].wait_duration` | string | How long this statement has been waiting |
+| `queries[].my_sql_payload.db_instance_address` | string | MySQL instance address, as `host:port` |
+| `queries[].my_sql_payload.program_name` | string | Name of the client program |
+| `queries[].my_sql_payload.database_name` | string | Database the connection is using |
+| `queries[].my_sql_payload.command` | string | Command the connection is running, such as `Query` or `Execute` |
+| `queries[].my_sql_payload.state` | string | State of the connection, as shown in the process list |
+| `queries[].my_sql_payload.username` | string | MySQL user, as `user@host` |
+| `queries[].my_sql_payload.rows_examined` | string (int64) | Rows the statement has read so far. Missing when the server didn't measure it |
+| `queries[].my_sql_payload.rows_sent` | string (int64) | Rows the statement has sent to the client so far. Missing when the server didn't measure it |
+| `queries[].my_sql_payload.full_scan` | boolean | Whether the statement scanned a table without a usable index. Missing when the server didn't measure it |
+| `queries[].my_sql_payload.lock_time` | string | Time the statement has spent waiting for table locks, from `LOCK_TIME` in `events_statements_current`. Missing when the server didn't measure it |
+| `queries[].my_sql_payload.query_text_truncated` | boolean | Whether `query_text` might be cut short. MySQL keeps 1024 bytes of a running statement in the process list, or up to `performance_schema_max_sql_text_length` bytes when the `events_statements_current` consumer is on. PMM sends at most 64 KiB. A statement that's exactly as long as the limit is also reported as truncated |
+| `queries[].my_sql_payload.blocked_status` | string | Whether the statement is waiting for a lock: `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, `BLOCKED_STATUS_UNSPECIFIED` or `BLOCKED_STATUS_UNATTRIBUTED`. [Read what each value means](#read-my_sql_payload-fields) |
+| `queries[].my_sql_payload.lock_type` | string | Kind of lock the statement is waiting for: `LOCK_TYPE_ROW` or `LOCK_TYPE_METADATA` |
+| `queries[].my_sql_payload.locked_table` | string | Table the statement is waiting to lock, as `schema.table` |
+| `queries[].my_sql_payload.locked_index` | string | Index the statement is waiting to lock. Empty for table-level and metadata locks |
+| `queries[].my_sql_payload.requested_lock_mode` | string | Lock mode the statement is asking for |
+| `queries[].my_sql_payload.blocked_by` | array | Transactions that are blocking the statement. Empty unless `blocked_status` is `BLOCKED_STATUS_BLOCKED` |
+| `queries[].my_sql_payload.blocked_by[].blocking_conn_id` | string (int64) | Connection ID of the blocking connection |
+| `queries[].my_sql_payload.blocked_by[].blocking_query` | string | Statement the blocking connection is running, or the last one it ran |
+| `queries[].my_sql_payload.blocked_by[].blocking_query_truncated` | boolean | Whether `blocking_query` might be cut short, by the same limits as `query_text_truncated` |
+| `queries[].my_sql_payload.blocked_by[].blocking_command` | string | Command the blocking connection is running. `Sleep` means it's idle inside an open transaction |
+| `queries[].my_sql_payload.blocked_by[].blocking_username` | string | MySQL user of the blocking connection |
+| `queries[].my_sql_payload.blocked_by[].blocking_lock_mode` | string | Lock mode the blocking transaction holds |
+| `queries[].my_sql_payload.blocked_by[].wait_duration` | string | How long the statement has been waiting for this transaction. `null` for metadata locks |
 | `queries[].my_sql_payload.blocked_by[].blocker_transaction_duration` | string | How long the blocking transaction has been open |
-| `queries[].my_sql_payload.blocked_by[].root` | boolean | Blocker is not itself waiting — the head of the chain |
+| `queries[].my_sql_payload.blocked_by[].root` | boolean | Whether the blocking transaction isn't waiting for a lock itself, which puts it at the head of the chain |
 
-> 📘 Info
-> 
-> Each query carries exactly one payload, matching the service type: `mongo_db_payload` for MongoDB services and `my_sql_payload` for MySQL, Percona Server and MariaDB services.
+#### Read `my_sql_payload` fields
+
+If you search queries on MySQL, Percona Server for MySQL or MariaDB services, some `my_sql_payload` fields can be missing or report an unknown value, and some differ depending on the server. 
+
+Check these fields before you act on the data:
+
+- `rows_examined`, `rows_sent`, `full_scan` or `lock_time` is missing
+
+    The server didn't measure the value. Treat it as unknown, not as zero rows or no full scan. A server that measured these fields reports a real `0` or `false`. Whether they're measured depends on the `events_statements_current` consumer:
+
+    - MySQL and Percona Server for MySQL: the consumer is on by default.
+    - MariaDB: the consumer is off by default, so these fields are missing. To collect them, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mariadb-and-mysql-57).
+
+- `blocked_status` is `BLOCKED_STATUS_UNSPECIFIED`
+
+    RTA couldn't read one of its two lock sources, so it doesn't know whether the statement is waiting. Treat it as unknown, not as not blocked. This can happen when the PMM database user is missing a privilege, when the server doesn't support a lock source, or when the lock information is too large to read. The most common cause is that the `wait/lock/metadata/sql/mdl` instrument is off:
+
+    - MySQL and Percona Server for MySQL 8.0 and later: the instrument is on by default.
+    - MySQL and Percona Server for MySQL 5.7, and MariaDB: the instrument is off by default. To turn it on, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mariadb-and-mysql-57).
+
+- `blocked_status` is `BLOCKED_STATUS_UNATTRIBUTED`
+
+    RTA read both lock sources, but the connection moved on to a later statement between the two reads, so RTA can't tell whether the reported statement was waiting. Treat it as unknown for this refresh. The next collection reads both again, and you don't need to change any settings.
+
+- Lock modes in `blocking_lock_mode` and `requested_lock_mode`
+
+    The lock mode format depends on the server:
+
+    - MySQL and Percona Server for MySQL: tell a record lock apart from a gap lock, for example `X,REC_NOT_GAP` or `X,GAP`.
+    - MariaDB: reports only `X` or `S`.
 
 ### Examples
 
@@ -303,5 +328,3 @@ Query data is returned but the MongoDB-specific payload is empty. This typically
 1. Wait for the next data collection cycle
 2. Check PMM agent logs for collection errors
 3. Verify the MongoDB user has the required permissions for `$currentOp`. See [MongoDB currentOp Access Control](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control) for details.
-
-To get the authentication token, check [Authentication](ref:authentication).

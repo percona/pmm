@@ -7,13 +7,20 @@ category:
   uri: rta-api
 ---
 
+To call this endpoint, include a [service account token](ref:authentication#bearer-authentication) in the `Authorization` header.
+
 ## List services
 
 `GET /v1/realtimeanalytics/services`
 
 Returns a list of services that support Real-time Analytics. Use this endpoint to discover which services can be monitored with RTA before starting a session.
 
-This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.11.0 or later for MySQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM.
+This endpoint returns only services whose PMM Agent supports Real-time Analytics:
+
+- MongoDB services need PMM Agent 3.7.0 or later.
+- MySQL services need PMM Agent 3.11.0 or later.
+
+Services with an older PMM Agent don't appear in the results, even if they're registered in PMM. To include them, [upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on those hosts.
 
 ### Query parameters
 
@@ -22,23 +29,20 @@ This endpoint only returns services whose PMM Agent is new enough to run the RTA
 | `service_type` | string | No | Filter by service type. Default: `SERVICE_TYPE_UNSPECIFIED` (returns all supported types) |
 
 
-#### Supported service types
+#### Service type values
 
 | Value | Description |
 |-------|-------------|
-| `SERVICE_TYPE_UNSPECIFIED` | Returns all supported service types (default) |
+| `SERVICE_TYPE_UNSPECIFIED` | Returns all supported service types. This is the default. |
 | `SERVICE_TYPE_MONGODB_SERVICE` | MongoDB services |
 | `SERVICE_TYPE_MYSQL_SERVICE` | MySQL services, including Percona Server for MySQL and MariaDB |
-
-Other service types (PostgreSQL, Valkey, ProxySQL, HAProxy, External) return an error. Support for additional database types is planned for future releases.
-
-> 📘 Info
-> 
-> MariaDB and Percona Server for MySQL are registered as MySQL services and are returned under `SERVICE_TYPE_MYSQL_SERVICE`. There is no separate service type for either.
+| Any other value | Not supported. Real-time Analytics doesn't work with PostgreSQL, Valkey, ProxySQL, HAProxy or External services, so these values return HTTP status `400`. |
 
 ### Response
 
-The response contains one array per supported service type. An array is present but empty when no services of that type are RTA-compatible.
+The response always contains a `mongodb` array and a `mysql` array, one for each service type that Real-time Analytics supports. Each array lists the services you can monitor, with the fields described in the [response schema](#response-schema).
+
+An array is empty when none of your services of that type [meet the requirements](#list-services), or when you filter by the other service type.
 
 ```json
 {
@@ -142,7 +146,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/services?service_type=
 | `403` | Forbidden | Insufficient permissions |
 | `500` | Internal Server Error | Server error processing request |
 
-### Error response format
+#### Error response format
 ```json
 {
   "code": 16,
@@ -161,5 +165,3 @@ Requesting a service type that does not support RTA:
   "details": []
 }
 ```
-
-To get the authentication token, see [Authentication](ref:authentication).

@@ -1,9 +1,8 @@
 # Real-time Query Analytics for MongoDB
 
-!!! note alert alert-primary ""
-    This page covers RTA for MongoDB. For MySQL, Percona Server for MySQL and MariaDB, see [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md). Support for **PostgreSQL** is planned for a future release.
+If you monitor MongoDB services with PMM, Real-time Query Analytics (RTA) shows you the operations running on them right now. For MySQL, Percona Server for MySQL or MariaDB services, [use Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md) instead.
 
-While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
+While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, RTA displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
 RTA displays live query data, updated every 1-5 seconds. Data is held in memory only and refreshes with each update.
 
@@ -32,7 +31,7 @@ To start monitoring a MongoDB service:
 {.power-number}
 
 1. Go to **Query Analytics** in the sidebar.
-2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list: click **+ New session** there.
+2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
 3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
 
 The live operations table appears and begins updating automatically:
@@ -96,18 +95,16 @@ The Real-time view lists the operations that are running now. Use the toolbar to
 
 If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This enables you to monitor multiple replica set members at once or track several services during an incident.
 
-Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one technology at a time, so you can't combine MongoDB and MySQL services in one view.
+Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one database type at a time, so you can't combine MongoDB and MySQL services in one view.
 
 ### Read the overview
 
-Each row is one operation currently running. The table lists the longest-running operations first and has the following columns:
+Each row is one operation currently running. The table lists the longest-running operations first and has these columns:
 
-| Column | Meaning |
-| ------ | ------- |
-| **Query text** | The operation's command, reconstructed as a query |
-| **Host** | The service the operation is running on |
-| **Operation ID** | The operation ID — the value you pass to `db.killOp()` |
-| **Elapsed time** | How long the operation has been running, for example `1.500 s`. Below 10 seconds the value has three decimals; from 10 seconds on, it is in whole seconds |
+- **Query text**: the operation's command, reconstructed as a query.
+- **Host**: the service the operation is running on.
+- **Operation ID**: the value you pass to `db.killOp()` to stop the operation.
+- **Elapsed time**: how long the operation has been running, for example `1.500 s`. Under 10 seconds, the value has three decimals. From 10 seconds on, it's in whole seconds.
 
 **Elapsed time** stays pinned to the right edge so it remains visible while you scroll.
 
@@ -115,26 +112,33 @@ Each row is one operation currently running. The table lists the longest-running
 
 Use **Auto-refresh** to adjust how often the view updates, from 1 to 5 seconds. The default is 2 seconds. The refresh rate only controls how often your browser reads the data that PMM Server already holds in memory, so a faster refresh adds no load to your database.
 
-The database is polled by the PMM Client at its own collect interval, 2 seconds by default. To change it, run the following command on the monitored host:
+PMM Client reads operations from the database at its own collect interval, every 2 seconds by default. To change it:
+{.power-number}
 
-```sh
-pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
-```
+1. On the monitored host, run `pmm-admin list` and find the agent ID of the `rta_mongodb_agent`.
+2. Set the new interval:
 
-Run `pmm-admin list` to find the agent ID of the `rta_mongodb_agent`.
+    ```sh
+    pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
+    ```
 
 ### Pause the stream
 
 Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two icon buttons next to **Resume**:
 
 - :material-refresh: **Refresh** reads the latest data once, without resuming live updates.
-- :material-download: **Export to CSV** downloads the current view. See [Export RTA data](#export-rta-data).
+- :material-download: **Export to CSV** downloads the current view, so you can [export RTA data](#export-rta-data).
 
 Hover over an icon to see its name.
 
-Opening a row also pauses the view, and closing the **Details** pane resumes live updates if they were running when you opened it. The pane covers the toolbar, so it has its own :material-refresh: **Refresh** button next to the previous and next arrows. The pane shows the operation as it was when you opened it: **Refresh** checks whether the operation is still running and updates the list that the arrows move through. To see newer values, close the pane and open the row again.
+#### Check an operation in the Details pane
 
-If the operation you opened finishes and you refresh, the **Details** pane keeps showing it and marks it as no longer running. The previous and next arrows still work: they move to the operations above and below the position the finished operation was last seen at.
+When you open a row, the view pauses so the operation stays in place while you check it. The **Details** pane shows the operation as it was when you opened it. From the pane:
+
+- To check whether the operation is still running, click :material-refresh: **Refresh** next to the previous and next arrows. If the operation has finished, the pane marks it as no longer running.
+- To move to the operation above or below, click the previous or next arrow. This also works after the operation has finished.
+- To see newer values for the operation, close the pane and open the row again.
+- To go back to live updates, close the pane. Updates resume if they were running before you opened the row.
 
 ### Export RTA data
 
@@ -156,7 +160,7 @@ The export includes all records across all pages, respects active filters and so
 
 #### Exported fields
 
-The columns are generated from the query data that PMM returns, so the exact set depends on your PMM version. Most column names match the API field names; a few keep shorter established names (`operation_id`, `elapsed_exec_time_sec`, `service`, `user_name`, `data_capture_time` and `raw_query`).
+The columns are generated from the query data that PMM returns, so the exact set depends on your PMM version. Most column names match the API field names. A few keep shorter names: `operation_id`, `elapsed_exec_time_sec`, `service`, `user_name`, `data_capture_time` and `raw_query`.
 
 When a PMM version returns additional query data, the new columns are appended after the ones listed below. If you process the file automatically, match columns by header name rather than by position or column count.
 

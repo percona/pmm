@@ -3,10 +3,12 @@ title: Manage sessions
 slug: manage-rta-sessions
 
 content:
-  excerpt: Start, stop, and list Real-time Analytics sessions.
+  excerpt: Start, stop, and list Real-time Analytics (RTA) sessions.
 category:
   uri: rta-api
 ---
+
+To call these endpoints, include a [service account token](ref:authentication#bearer-authentication) in the `Authorization` header.
 
 ## Start session
 
@@ -28,7 +30,10 @@ Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL serv
 | `service_id` | string | Yes | Service identifier to start RTA session for |
 
 ### Response
-```json
+
+Select your database type to see an example response. Both have the same fields, and only the `service_type` value is different:
+
+```json MongoDB
 {
   "session": {
     "service_id": "7a3e9c44-12ab-4d3f-9e21-5c8d7b1a2e4f",
@@ -41,10 +46,7 @@ Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL serv
   }
 }
 ```
-
-Starting a session for a MySQL service returns the same shape with `service_type` set to `SERVICE_TYPE_MYSQL_SERVICE`:
-
-```json
+```json MySQL
 {
   "session": {
     "service_id": "89008765-c771-44a9-a9a5-e1c5ff51fc36",
@@ -70,7 +72,7 @@ Starting a session for a MySQL service returns the same shape with `service_type
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
 | `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
-| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL services by PMM Client 3.11.0 and later; omitted when there is nothing to report |
+| `session.status_message` | string | Explains what went wrong with the session. If `status` is `SESSION_STATUS_ERROR`, it tells you why the session didn't start. If `status` is `SESSION_STATUS_RUNNING`, it tells you which data the session can't collect. Empty when there's nothing to report. |
 
 ### Example
 ```bash
@@ -88,7 +90,7 @@ curl -X POST "https://your-pmm-server/v1/realtimeanalytics/sessions:start" \
 
 `POST /v1/realtimeanalytics/sessions:stop`
 
-Stops a RTA session for a specified service.
+Stops an RTA session for a specified service.
 
 ### Request body
 ```json
@@ -172,7 +174,7 @@ Returns the list of all currently running Real-time Analytics sessions with thei
 | `sessions[].collect_interval` | string | Query collection interval |
 | `sessions[].status` | string | Session status |
 | `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
-| `sessions[].status_message` | string | The agent's explanation of `status`; see `session.status_message` in [Start session](#start-session) |
+| `sessions[].status_message` | string | Explains what went wrong with the session, in the same way as `session.status_message` when you [start a session](#start-session). |
 
 ### Examples
 
@@ -221,37 +223,45 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 ### Session won't start
 
-You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.11.0** for MySQL), or the exporter is not configured.
+If PMM can't start a session, the request fails with an HTTP status and an error message. Match the message to its cause and fix it. PMM stops at the first check that fails, so after you fix one cause, you might get a different message:
 
-When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.11.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
+- HTTP `404`: `Service with ID "<ID>" not found.`
 
-For MySQL services, a session also fails to start when `performance_schema` is disabled on the monitored server, or when the PMM monitoring user lacks the `SELECT` and `PROCESS` privileges. The session error message names the check that failed.
+    Check the service ID, or [list the services you can monitor](ref:list-rta-services) to get the correct one.
 
-**Solutions:**
+- HTTP `400`: `Service <ID> of type <type> does not support Real-Time Analytics`
 
-1. List available services using `GET /v1/realtimeanalytics/services` to verify the service supports RTA
-2. Check PMM Client version: `pmm-admin status`
-3. Verify MongoDB exporter is running in PMM Inventory
+    RTA works only with MongoDB and MySQL services. To find a service you can use, [list the services you can monitor](ref:list-rta-services).
+
+- HTTP `400`: `Service <ID> of type <type> doesn't have agents to retrieve credentials and pmm-agent ID`
+
+    RTA reuses the credentials of the service's exporter or QAN agent, and this service has neither. In PMM, go to **Inventory > Services** and check that the service has an exporter or a QAN agent.
+
+- HTTP `400`: `Service <name> (id <ID>) has pmm-agent with version <version> not supporting Real-Time Analytics; pmm-agent <version> or later is required.`
+
+    PMM Client on the database host is too old. RTA needs PMM Client 3.7.0 or later for MongoDB, and 3.11.0 or later for MySQL. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on that host. Adding an RTA agent with `POST /v1/inventory/agents`, using `rta_mysql_agent` or `rta_mongodb_agent`, fails with the same error when that PMM Agent has reported an older version.
 
 ### Session shows ERROR status
 
-A session was started successfully but now shows ERROR status. This usually indicates that the PMM agent connection was lost or the database user has insufficient permissions.
+If a session started but its `status` is now `SESSION_STATUS_ERROR`, [list sessions](#list-sessions) to read its `status_message`. Then match the message to its cause and fix it:
 
-For MySQL services, `status_message` names the reason the agent reported, for example:
+- `Service <name> (id <ID>) has pmm-agent with version <version> not supporting Real-Time Analytics; pmm-agent <version> or later is required.`
 
-```json
-"status": "SESSION_STATUS_ERROR",
-"status_message": "Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics"
-```
+    The RTA agent runs on a PMM Agent that's too old. This can happen if you added the RTA agent through the inventory API before that PMM Agent first connected. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on the database host.
 
-A session whose RTA agent sits on a PMM Agent too old to run it, for example one added through the inventory API before that PMM Agent first connected, is listed with `SESSION_STATUS_ERROR` and a `status_message` naming the required version.
+- `Cannot connect to MySQL: <reason>`
 
-**Solutions:**
+    This message appears only for MySQL services. PMM Agent can't connect to the MySQL server. Check that the MySQL server is running and reachable from the database host, and that the PMM database user's credentials are correct.
 
-1. Verify PMM agent status: `pmm-admin status`
-2. Check PMM agent logs for errors
-3. Verify network connectivity between PMM agent and MongoDB
-4. Confirm MongoDB user has the required permissions for `$currentOp`. See [MongoDB currentOp Access Control](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control) for details.
-5. For MySQL services, confirm the monitoring user has `SELECT` and `PROCESS`, and that `performance_schema` is enabled. See [Real-time Analytics for MySQL](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html).
+- `Real-Time Analytics is not supported for this instance: <reason>`
 
-To get the authentication token, check [Authentication](ref:authentication).
+    This message appears only for MySQL services. PMM can't read `performance_schema` on the MySQL server. For example: `Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics`. Check that `performance_schema` is enabled and that the PMM database user has the `SELECT` privilege. If anything is missing, [set up the MySQL requirements for RTA](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#service-requirements).
+
+- No message, or a different message
+
+    MongoDB sessions don't report a `status_message`, so for MongoDB, start here. This usually means PMM Agent lost its connection, or the database user doesn't have the required permissions. On the database host, check these in order:
+
+    1. Run `pmm-admin status` to check that PMM Agent is connected to PMM Server.
+    2. Check the PMM Agent logs for errors.
+    3. Check that the host can reach the database.
+    4. (MongoDB only) Check that the PMM database user can run `$currentOp`. [Review the required MongoDB permissions](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control).
