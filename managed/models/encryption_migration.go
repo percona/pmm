@@ -386,10 +386,27 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 		logrus.Infof("Stored the pre-migration values of rewritten rows in %s", path)
 	}
 
+	err = reencryptRows(q, scans)
+	if err != nil {
+		return err
+	}
+
+	if writeCheck {
+		return writeKeyCheck(q, cipher)
+	}
+
+	return nil
+}
+
+// reencryptRows rewrites the rows the scans of secretTables found: reading a
+// row through the model decrypts any supported format, and writing its secret
+// columns back encrypts them with the primary key. Each row is locked, and
+// only its secret columns are written.
+func reencryptRows(q *reform.Querier, scans []*secretsScan) error {
 	for i, t := range secretTables {
 		for _, id := range scans[i].needs {
 			record := t.newRecord()
-			err = q.SelectOneTo(record, "WHERE "+t.idColumn+" = $1 FOR UPDATE", id)
+			err := q.SelectOneTo(record, "WHERE "+t.idColumn+" = $1 FOR UPDATE", id)
 			if errors.Is(err, reform.ErrNoRows) {
 				continue // removed in the meantime
 			}
@@ -400,10 +417,6 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 				return fmt.Errorf("failed to re-encrypt %s %s: %w", t.label, id, err)
 			}
 		}
-	}
-
-	if writeCheck {
-		return writeKeyCheck(q, cipher)
 	}
 
 	return nil

@@ -292,6 +292,7 @@ func insertLegacyTestData(t *testing.T, db *sql.DB, c *encryption.Cipher, tlsCa,
 		return err
 	}
 
+	//nolint:dupword
 	_, err = db.ExecContext(
 		ctx,
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
