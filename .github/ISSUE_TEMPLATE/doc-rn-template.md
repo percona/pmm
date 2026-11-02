@@ -39,7 +39,7 @@ Add more subsections for more release highlights.
 
     Example:
     
-    [PMM-XXXX](https://jira.percona.com/browse/PMM-XXXX) - Comprehensive description.
+    [PMM-XXXX](https://perconadev.atlassian.net/browse/PMM-XXXX) - Comprehensive description.
 
 
 
@@ -49,7 +49,7 @@ Add more subsections for more release highlights.
 
     Example:
 
-    [PMM-XXXX](https://jira.percona.com/browse/PMM-XXXX) - Comprehensive description.
+    [PMM-XXXX](https://perconadev.atlassian.net/browse/PMM-XXXX) - Comprehensive description.
  
 
 ## Bugs Fixed
@@ -58,7 +58,7 @@ Add more subsections for more release highlights.
 
     Example:
 
-    [PMM-XXXX](https://jira.percona.com/browse/PMM-XXXX) - Comprehensive description.
+    [PMM-XXXX](https://perconadev.atlassian.net/browse/PMM-XXXX) - Comprehensive description.
 
 
 
@@ -68,7 +68,7 @@ Add more subsections for more release highlights.
 
     Example:
 
-    [PMM-XXXX](https://jira.percona.com/browse/PMM-XXXX) - Comprehensive description.
+    [PMM-XXXX](https://perconadev.atlassian.net/browse/PMM-XXXX) - Comprehensive description.
 
 
     **Solution**
