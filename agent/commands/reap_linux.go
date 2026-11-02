@@ -56,24 +56,34 @@ type leftoverTimeouts struct {
 // holding the queue when pmm-agent starts was left by something else, and only one vmagent can use
 // the queue.
 func stopLeftoverVMAgents(ctx context.Context, vmagentPath, tempDir string, l *logrus.Entry) {
+	self, err := procfs.Self()
+	var stat procfs.ProcStat
+	if err == nil {
+		stat, err = self.Stat()
+	}
+	if err != nil {
+		l.Warnf("Not looking for leftover vmagents, as this pmm-agent's start time cannot be read: %s.", err)
+		return
+	}
+
 	timeouts := leftoverTimeouts{scan: leftoverScanTimeout, stop: leftoverStopTimeout, kill: leftoverKillTimeout}
-	stopLeftoversWithin(ctx, vmagentPath, tempDir, timeouts, unix.PidfdOpen, l)
+	stopLeftoversWithin(ctx, vmagentPath, tempDir, stat.Starttime, timeouts, unix.PidfdOpen, l)
 }
 
 // stopLeftoversWithin returns once stopLeftovers has, or once its timeouts have passed, or ctx is
 // done, whichever comes first: a vmagent stuck in the kernel must not keep the rest of pmm-agent
-// from starting. A stopLeftovers it has given up waiting for signals nothing more, and finishes in
-// the background; the returned channel is closed then.
+// from starting. A stopLeftovers it stops waiting for carries on in the background, and the returned
+// channel is closed once it has finished. That is safe because it stops only vmagents started before
+// this pmm-agent, never one this pmm-agent starts meanwhile, and useful because one it stops late frees
+// the queue for the next attempt to start this pmm-agent's own.
 func stopLeftoversWithin(
-	ctx context.Context, vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
+	ctx context.Context, vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts,
+	pidfdOpen func(int, int) (int, error), l *logrus.Entry,
 ) <-chan struct{} {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		stopLeftovers(ctx, vmagentPath, tempDir, timeouts, pidfdOpen, l)
+		stopLeftovers(vmagentPath, tempDir, startedBefore, timeouts, pidfdOpen, l)
 	}()
 
 	budget := timeouts.scan + timeouts.stop + timeouts.kill
@@ -82,16 +92,16 @@ func stopLeftoversWithin(
 	case <-ctx.Done():
 	case <-time.After(budget):
 		l.Warnf("Stopping leftover vmagents is taking longer than %s, starting without waiting for it; "+
-			"the vmagent this pmm-agent starts may fail on the queue lock.", budget)
+			"the vmagent this pmm-agent starts may fail on the queue lock until it is done.", budget)
 	}
 
 	return done
 }
 
-// stopLeftovers stops the vmagent processes holding the queue under tempDir, and signals nothing
-// once ctx is done.
+// stopLeftovers stops the vmagent processes holding the queue under tempDir that started before
+// startedBefore, a start time in clock ticks since boot, as /proc/<pid>/stat has it.
 func stopLeftovers(
-	ctx context.Context, vmagentPath, tempDir string, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
+	vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
 ) {
 	if vmagentPath == "" || tempDir == "" {
 		return
@@ -121,7 +131,12 @@ func stopLeftovers(
 			continue
 		}
 		// Any of these fails for a process that exited while we were listing, or that belongs
-		// to another user - neither is ours to stop.
+		// to another user - neither is ours to stop. The start time is read first, and openLeftover
+		// reads it again, so all that is read in between is known to be about one process.
+		stat, err := p.Stat()
+		if err != nil || stat.Starttime >= startedBefore {
+			continue
+		}
 		exe, err := p.Executable()
 		if err != nil || !isVMAgentExecutable(exe, vmagentPath) {
 			continue
@@ -136,23 +151,15 @@ func stopLeftovers(
 		if !ok || !holdsQueue(p.PID, path, queue) {
 			continue
 		}
-		stat, err := p.Stat()
-		if err != nil {
-			continue
-		}
 
 		lo, err := openLeftover(p.PID, stat.Starttime, pidfdOpen, l)
 		if err != nil {
 			continue // gone already
 		}
-		if ctx.Err() != nil {
-			lo.close()
-			break // given up on: pmm-agent may be starting its own vmagent by now
-		}
 		l.Warnf("Stopping vmagent (PID %d, parent PID %d) left running from before this pmm-agent started: "+
 			"it holds %s, so the vmagent this pmm-agent starts would exit on the queue lock.", p.PID, stat.PPID, queueDir)
 		warnLiveParent(stat.PPID, queueDir, l)
-		lo.signal(unix.SIGTERM)
+		lo.signal(unix.SIGTERM, l)
 		stopping = append(stopping, lo)
 	}
 
@@ -161,11 +168,11 @@ func stopLeftovers(
 	deadline := time.Now().Add(timeouts.stop)
 	var killed []*leftover
 	for _, lo := range stopping {
-		if lo.waitExit(time.Until(deadline)) || ctx.Err() != nil {
+		if lo.waitExit(time.Until(deadline)) {
 			continue
 		}
 		l.Warnf("vmagent PID %d did not exit within %s, killing it.", lo.pid, timeouts.stop)
-		lo.signal(unix.SIGKILL)
+		lo.signal(unix.SIGKILL, l)
 		killed = append(killed, lo)
 	}
 	deadline = time.Now().Add(timeouts.kill)
@@ -220,7 +227,8 @@ func warnLiveParent(ppid int, queueDir string, l *logrus.Entry) {
 type leftover struct {
 	pid       int
 	starttime uint64
-	fd        int // -1 without pidfd support
+	fd        int                                    // -1 without pidfd support
+	readStat  func(pid int) (procfs.ProcStat, error) // readProcStat but in tests
 }
 
 var errLeftoverGone = errors.New("process is gone")
@@ -239,10 +247,11 @@ func openLeftover(pid int, starttime uint64, pidfdOpen func(int, int) (int, erro
 		fd = -1
 	}
 
-	lo := &leftover{pid: pid, starttime: starttime, fd: fd}
+	lo := &leftover{pid: pid, starttime: starttime, fd: fd, readStat: readProcStat}
 	// The PID may have been reused between listing it and opening it: the pidfd refers to
-	// whichever process holds the PID now, so confirm that is still the one inspected.
-	if !lo.running() {
+	// whichever process holds the PID now, so confirm that is still the one inspected. One that
+	// cannot be confirmed is left alone.
+	if alive, _ := lo.state(); !alive {
 		lo.close()
 		return nil, errLeftoverGone
 	}
@@ -250,28 +259,44 @@ func openLeftover(pid int, starttime uint64, pidfdOpen func(int, int) (int, erro
 	return lo, nil
 }
 
-// running reports whether the inspected process is still alive. A zombie is not: it has released
-// its locks, and only its exit status is waiting for whoever reaps it.
-func (lo *leftover) running() bool {
-	p, err := procfs.NewProc(lo.pid)
+func readProcStat(pid int) (procfs.ProcStat, error) {
+	p, err := procfs.NewProc(pid)
 	if err != nil {
-		return false
-	}
-	stat, err := p.Stat()
-	if err != nil {
-		return false
+		return procfs.ProcStat{}, err
 	}
 
-	return stat.Starttime == lo.starttime && stat.State != "Z" && stat.State != "X"
+	return p.Stat()
 }
 
-func (lo *leftover) signal(sig unix.Signal) {
-	if lo.fd >= 0 {
-		_ = unix.PidfdSendSignal(lo.fd, sig, nil, 0) // ESRCH: it has exited already
-		return
+// state reports whether the inspected process is alive, or gone. It is neither when /proc cannot be
+// read for another reason, such as pmm-agent having run out of file descriptors. A zombie is gone:
+// it has released its locks, and only its exit status is waiting for whoever reaps it.
+func (lo *leftover) state() (bool, bool) {
+	stat, err := lo.readStat(lo.pid)
+	switch {
+	case errors.Is(err, os.ErrNotExist), errors.Is(err, unix.ESRCH):
+		return false, true
+	case err != nil:
+		return false, false
+	case stat.Starttime != lo.starttime: // the PID is another process's now
+		return false, true
+	case stat.State == "Z", stat.State == "X":
+		return false, true
+	default:
+		return true, false
 	}
-	if lo.running() {
-		_ = unix.Kill(lo.pid, sig)
+}
+
+func (lo *leftover) signal(sig unix.Signal, l *logrus.Entry) {
+	var err error
+	if lo.fd >= 0 {
+		err = unix.PidfdSendSignal(lo.fd, sig, nil, 0)
+	} else if alive, _ := lo.state(); alive {
+		err = unix.Kill(lo.pid, sig)
+	}
+	// ESRCH: it has exited already.
+	if err != nil && !errors.Is(err, unix.ESRCH) {
+		l.Warnf("Failed to send %s to vmagent PID %d: %s.", unix.SignalName(sig), lo.pid, err)
 	}
 }
 
@@ -290,14 +315,16 @@ func (lo *leftover) waitExit(timeout time.Duration) bool {
 		}
 	}
 
-	for lo.running() {
+	// Only a process known to be gone has exited: one that cannot be read may still hold the lock.
+	for {
+		if _, gone := lo.state(); gone {
+			return true
+		}
 		if time.Now().After(deadline) {
 			return false
 		}
 		time.Sleep(leftoverPollInterval)
 	}
-
-	return true
 }
 
 func (lo *leftover) close() {
