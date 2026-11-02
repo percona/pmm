@@ -239,6 +239,11 @@ func Prepare(opts Options) ([]Resolved, error) {
 	if err != nil {
 		return nil, err
 	}
+	// MkdirAll keeps the mode of a directory that already exists, such as a tmpfs mounted there.
+	err = os.Chmod(opts.RunDir, 0o700) //nolint:gosec,mnd // a directory, for its owner only
+	if err != nil {
+		return nil, fmt.Errorf("%s must belong to the PMM Server user: %w", opts.RunDir, err)
+	}
 
 	var errs []error
 	resolved := make([]Resolved, 0, len(catalog))

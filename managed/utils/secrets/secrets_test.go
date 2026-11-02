@@ -224,6 +224,19 @@ func TestPrepare(t *testing.T) {
 		}
 	})
 
+	t.Run("makes an existing run directory private", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		require.NoError(t, os.MkdirAll(opts.RunDir, 0o700))
+		// as a tmpfs mounted without a mode
+		require.NoError(t, os.Chmod(opts.RunDir, 0o1777))
+
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+		fi, err := os.Stat(opts.RunDir)
+		require.NoError(t, err)
+		assert.Equal(t, os.ModeDir|0o700, fi.Mode())
+	})
+
 	t.Run("refuses a Kubernetes Secret volume at the run directory", func(t *testing.T) {
 		opts := testOptions(t, nil)
 		data := filepath.Join(opts.RunDir, "..data")
