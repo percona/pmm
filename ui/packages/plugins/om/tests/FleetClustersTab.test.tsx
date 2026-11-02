@@ -728,6 +728,35 @@ describe('FleetClustersTab', () => {
       expect(clusterNames()).toEqual(['alpha', 'yankee', 'bravo']);
     });
 
+    it('keeps a search still settling in the URL when a filter is picked', async () => {
+      // A loader makes each navigation settle after its keystroke, as in the app.
+      const router = createMemoryRouter(
+        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
+        { initialEntries: ['/fleet'] }
+      );
+      render(<RouterProvider router={router} />);
+
+      fireEvent.change(
+        await screen.findByRole('textbox', { name: 'Search clusters' }),
+        { target: { value: 'a' } }
+      );
+      pick('Health', 'Healthy');
+
+      await waitFor(() =>
+        expect(query(router).toString()).toBe('q=a&health=healthy')
+      );
+      expect(search()).toHaveValue('a');
+    });
+
+    it('does not count an environment the fleet does not have as a filter', () => {
+      renderAt('/fleet?environment=staging');
+
+      expect(screen.queryByTestId('om-cluster-match-count')).toBeNull();
+      expect(
+        screen.queryByRole('button', { name: 'Clear filters' })
+      ).toBeNull();
+    });
+
     it('keeps the controls when nothing matches, and clears back to the fleet', () => {
       const router = renderAt('/fleet?tab=clusters&q=nothing');
 

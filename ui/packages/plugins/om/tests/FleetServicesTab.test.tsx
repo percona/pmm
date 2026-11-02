@@ -243,7 +243,30 @@ describe('FleetServicesTab', () => {
       await router.navigate(-1);
     });
     expect(router.state.location.search).toBe('?tab=services&failing=true');
+    expect(screen.getByTestId('om-empty-state')).toHaveTextContent(
+      'No service is failing a scan right now'
+    );
   });
+
+  it.each([
+    ['unavailable', { data: undefined, isPending: false, isError: true }],
+    ['pending', { data: undefined, isPending: true, isError: false }],
+  ])(
+    'shows every service on a failing link while scan status is %s',
+    (_, inventory) => {
+      serve(ordersEstate());
+      useOmInventoryServices.mockReturnValue(inventory);
+      render(
+        <MemoryRouter initialEntries={['/?failing=true']}>
+          <FleetServicesTab />
+        </MemoryRouter>
+      );
+
+      expect(screen.queryByTestId('om-empty-state')).toBeNull();
+      expect(rowFor('orders-1')).toBeDefined();
+      expect(rowFor('orders-2')).toBeDefined();
+    }
+  );
 
   it('ignores a failing value it does not know', () => {
     serve(ordersEstate());

@@ -126,14 +126,17 @@ export function toServiceRows(
 
 /**
  * Order two MongoDB versions numerically, build suffix included, so 7.0.9-1 comes
- * before 7.0.24-13. A part that is not a number compares as text.
+ * before 7.0.24-13. A part that is not a number compares as text, and a text suffix
+ * such as rc0 is a pre-release, so 8.0.0-rc0 comes before 8.0.0.
  */
 export function compareVersions(a: string, b: string): number {
   const left = a.split(/[.-]/);
   const right = b.split(/[.-]/);
   for (let i = 0; i < Math.max(left.length, right.length); i++) {
     if (left[i] === undefined || right[i] === undefined) {
-      return left[i] === undefined ? -1 : 1;
+      const shorter = left[i] === undefined ? -1 : 1;
+      const suffix = left[i] ?? right[i];
+      return Number.isNaN(Number(suffix)) ? -shorter : shorter;
     }
     const x = Number(left[i]);
     const y = Number(right[i]);

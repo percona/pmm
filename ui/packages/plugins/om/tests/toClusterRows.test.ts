@@ -521,6 +521,18 @@ describe('cluster roll-ups (PMM-15806)', () => {
         { replication_set: 'rs0', versions: ['7.0.9-1'] },
       ]);
     });
+
+    it('ignores a data-bearing member with no replication set', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({ version: '8.0.4-1', replication_set: null }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
   });
 });
 
@@ -531,6 +543,9 @@ describe('compareVersions', () => {
     ['7.0.9-1', '7.0.9-10', -1],
     ['7.0.9', '7.0.9-1', -1],
     ['8.0.4-1', '8.0.4-1', 0],
+    ['8.0.0-rc0', '8.0.0', -1],
+    ['8.0.0', '8.0.0-rc0', 1],
+    ['8.0.0-rc0', '8.0.0-rc1', -1],
   ])('orders %s against %s', (a, b, sign) => {
     expect(Math.sign(compareVersions(a, b))).toBe(sign);
   });

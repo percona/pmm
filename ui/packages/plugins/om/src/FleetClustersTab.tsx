@@ -607,16 +607,10 @@ function useClusterFilters() {
 }
 
 /**
- * The search box, holding what is typed itself rather than reading the URL back: a
+ * What is typed in the search box, held here rather than read back from the URL: a
  * navigation settles after its keystroke, so a box bound to the URL drops fast typing.
  */
-const SearchField = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string, refining: boolean) => void;
-}) => {
+function useSearchDraft(value: string) {
   const [draft, setDraft] = useState(value);
   // What the box wrote that the URL may not show yet, oldest first.
   const written = useRef<string[]>([]);
@@ -630,31 +624,38 @@ const SearchField = ({
     written.current = [];
     setDraft(value);
   }, [value]);
-  return (
-    <TextField
-      size="small"
-      placeholder="Search clusters"
-      value={draft}
-      onChange={(event) => {
-        const next = event.target.value;
-        written.current.push(next);
-        setDraft(next);
-        onChange(next, !!draft.trim() && !!next.trim());
-      }}
-      slotProps={{
-        htmlInput: { 'aria-label': 'Search clusters' },
-        input: {
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon fontSize="small" />
-            </InputAdornment>
-          ),
-        },
-      }}
-      sx={{ width: 240 }}
-    />
-  );
-};
+  const write = (next: string) => {
+    written.current.push(next);
+    setDraft(next);
+  };
+  return [draft, write] as const;
+}
+
+const SearchField = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => (
+  <TextField
+    size="small"
+    placeholder="Search clusters"
+    value={value}
+    onChange={(event) => onChange(event.target.value)}
+    slotProps={{
+      htmlInput: { 'aria-label': 'Search clusters' },
+      input: {
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon fontSize="small" />
+          </InputAdornment>
+        ),
+      },
+    }}
+    sx={{ width: 240 }}
+  />
+);
 
 const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map((value) => ({
   value,
@@ -685,36 +686,44 @@ const ClusterFilterBar = ({
         .map((value) => ({ value, label: value || UNNAMED_ENVIRONMENT })),
     [rows]
   );
+  const [q, setQ] = useSearchDraft(filters.q);
+  // The box's text rather than the URL's, so a filter picked while a search is still
+  // settling there keeps it.
+  const current = { ...filters, q };
+  // One the fleet no longer has is ignored by the filter, so not shown as picked.
+  const environment = filters.environment.filter((name) =>
+    environments.some((option) => option.value === name)
+  );
   return (
     <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
       <SearchField
-        value={filters.q}
-        onChange={(q, refining) => onChange({ ...filters, q }, refining)}
+        value={q}
+        onChange={(next) => {
+          setQ(next);
+          onChange({ ...current, q: next }, !!q.trim() && !!next.trim());
+        }}
       />
       <MultiSelectFilter
         label="Health"
         options={HEALTH_OPTIONS}
         value={filters.health}
         onChange={(health) =>
-          onChange({ ...filters, health: health as ClusterFilters['health'] })
+          onChange({ ...current, health: health as ClusterFilters['health'] })
         }
       />
       <MultiSelectFilter
         label="Type"
         options={TYPE_OPTIONS}
         value={filters.type}
-        onChange={(type) => onChange({ ...filters, type })}
+        onChange={(type) => onChange({ ...current, type })}
       />
       <MultiSelectFilter
         label="Environment"
         options={environments}
-        // One the fleet no longer has is ignored by the filter, so not shown as picked.
-        value={filters.environment.filter((name) =>
-          environments.some((option) => option.value === name)
-        )}
-        onChange={(environment) => onChange({ ...filters, environment })}
+        value={environment}
+        onChange={(picked) => onChange({ ...current, environment: picked })}
       />
-      {hasClusterFilters(filters) && (
+      {hasClusterFilters({ ...filters, environment }) && (
         <>
           <Typography
             variant="body2"

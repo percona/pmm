@@ -552,7 +552,9 @@ export const FleetServicesTab = () => {
   // In the URL, as the Clusters tab's filters are, so the failing view can be shared
   // and Back turns it off.
   const [params, setParams] = useSearchParams();
-  const failingOnly = params.get('failing') === 'true';
+  // Only on a ready estate: otherwise it would hide every row, and the chip that turns
+  // it off is not shown.
+  const failingOnly = params.get('failing') === 'true' && estate === 'ready';
   const toggleFailing = () =>
     setParams((current) => {
       const next = new URLSearchParams(current);

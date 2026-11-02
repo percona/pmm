@@ -150,6 +150,17 @@ describe('filterClusterRows', () => {
     ).toEqual(['billing', 'orders-legacy']);
   });
 
+  it('ANDs health and type', () => {
+    expect(
+      names(
+        filterClusterRows(
+          rows,
+          filters({ health: ['down', 'degraded'], type: ['sharded'] })
+        )
+      )
+    ).toEqual(['billing']);
+  });
+
   it('filters by environment, the unnamed one included', () => {
     expect(
       names(filterClusterRows(rows, filters({ environment: [''] })))
