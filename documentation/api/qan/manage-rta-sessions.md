@@ -272,7 +272,7 @@ If a session started but its `status` is now `SESSION_STATUS_ERROR`, [list sessi
 
 - `Real-Time Analytics is not supported for this instance: <reason>`
 
-    This message appears only for MySQL services. PMM can't read `performance_schema` on the MySQL server. For example: `Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics`. Check that `performance_schema` is enabled and that the PMM database user has the `SELECT` privilege. If anything is missing, [set up the MySQL requirements for RTA](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#service-requirements).
+    This message appears only for MySQL services. PMM can't read `performance_schema` on the MySQL server. For example: `Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics`. Check that `performance_schema` is enabled and that the PMM database user has the `SELECT` privilege. If anything is missing, [set up the MySQL requirements for RTA](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#check-the-service-requirements).
 
 - `Cannot connect to PostgreSQL: <reason>`
 
