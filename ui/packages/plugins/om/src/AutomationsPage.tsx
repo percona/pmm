@@ -1,0 +1,302 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { useMemo } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
+import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { RunTime } from '@pmm-extensions/framework';
+import { bootstrapRunDisplayStatus } from './api';
+import {
+  BOOTSTRAP_RUN_COLOR,
+  BOOTSTRAP_RUN_LABEL,
+  OM_ROUTE_NODES,
+} from './constants';
+import { OmHeader } from './components/OmHeader';
+import { EmptyState } from './components/EmptyState';
+import { RunProgress } from './components/RunProgress';
+import { AutomationsScansTab } from './AutomationsScansTab';
+import { formatRunElapsed, runDurationSeconds } from './format';
+import { useOmBootstrapRuns } from './inventoryHooks';
+import { tabPanelProps, tabProps } from './tabA11y';
+import { useOmBase } from './useOmBase';
+import { useNow } from './useNow';
+import type { OmGetBootstrapRunResponse } from './types';
+import { OmError } from './components/OmError';
+
+/**
+ * How many runs to ask for.
+ *
+ * Asked for explicitly because this page has no pagination: left unset, the
+ * server's own default of 20 would silently cut the history off, and 100 is the
+ * most it will serve (ListInventoryRunsRequest.limit is validated lte: 100, and
+ * pmm-managed's maxInventoryRunLimit caps it again).
+ */
+const RUN_HISTORY_LIMIT = 100;
+
+/**
+ * Whether a run is still going, as its status chip says - which outlasts
+ * `finished_at` while pmm-managed is still confirming monitoring.
+ */
+const isRunInFlight = (run: OmGetBootstrapRunResponse) =>
+  bootstrapRunDisplayStatus(run) === 'running';
+
+/**
+ * A run's duration, counting up until PMM Extensions finishes it.
+ *
+ * Stops at `finished_at` even while monitoring is still being confirmed: nothing
+ * on the wire says when that ends, so counting on would only jump back to
+ * `finished_at` once it did. The sort key stays null in flight: a column sorting
+ * on a number that moves every second would reshuffle rows under the reader.
+ */
+const RunDuration = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+  const now = useNow(isRunInFlight(run) && !run.finished_at);
+  return <>{formatRunElapsed(run.started_at, run.finished_at, now)}</>;
+};
+
+const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
+  {
+    accessorFn: (row) => bootstrapRunDisplayStatus(row),
+    id: 'status',
+    header: 'Status',
+    Cell: ({ row: { original } }) => {
+      const status = bootstrapRunDisplayStatus(original);
+      return (
+        <Chip
+          size="small"
+          label={BOOTSTRAP_RUN_LABEL[status] ?? status}
+          color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
+        />
+      );
+    },
+  },
+  {
+    accessorKey: 'replica_set_name',
+    header: 'Replica set',
+  },
+  {
+    accessorKey: 'mongodb_version',
+    header: 'MongoDB version',
+  },
+  {
+    accessorFn: (row) => row.environment || '—',
+    id: 'environment',
+    header: 'Environment',
+  },
+  {
+    accessorFn: (row) => row.cluster || '—',
+    id: 'cluster',
+    header: 'Cluster',
+  },
+  {
+    accessorFn: (row) => row.hosts.length,
+    id: 'hosts',
+    header: 'Nodes',
+  },
+  {
+    accessorKey: 'started_at',
+    header: 'Started',
+    // Room for the widest en-US date and time ("12/28/2025, 10:57:01 PM"): the cell
+    // does not wrap, and the table ellipsizes anything wider.
+    size: 230,
+    muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
+    Cell: ({ row: { original } }) => <RunTime value={original.started_at} />,
+  },
+  {
+    // Sorts on elapsed seconds, not the formatted string -- see AutomationsScansTab's own
+    // duration column for why.
+    accessorFn: (row) =>
+      isRunInFlight(row)
+        ? null
+        : runDurationSeconds(row.started_at, row.finished_at),
+    id: 'duration',
+    header: 'Duration',
+    Cell: ({ row: { original } }) => <RunDuration run={original} />,
+  },
+];
+
+/**
+ * Bootstrap run history: every run this PMM server has driven, newest first,
+ * each expandable in place to the same step-by-step progress {@link BootstrapPage}
+ * shows live.
+ *
+ * Exists so a run started from {@link BootstrapPage} is never lost by
+ * navigating away -- starting a run is one thing, and reading its progress
+ * back later is another that has to survive leaving the page it started on.
+ *
+ * `?expand=<run_id>` unfolds that run's row on landing -- BootstrapPage
+ * navigates here with it set the moment a run is accepted, so triggering a
+ * bootstrap goes straight to watching it live rather than to a page that
+ * still requires an extra click to find the run just started.
+ */
+const AutomationsInstallsTab = () => {
+  const omBase = useOmBase();
+  const {
+    data: runs,
+    isLoading,
+    error,
+  } = useOmBootstrapRuns(RUN_HISTORY_LIMIT);
+  const rows = useMemo(() => runs ?? [], [runs]);
+  const [params] = useSearchParams();
+  const expandRunId = params.get('expand');
+
+  if (isLoading && !runs) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Returns rather than rendering above the table: a failed load has no rows to
+  // show, and an empty table under the error reads as "there are no runs", which
+  // is a different thing from "we could not find out". Same shape as NodesPage's
+  // own isError branch.
+  if (error) {
+    return (
+      <OmError
+        placement="load"
+        title="Could not load installs"
+        messages={(error as Error).message}
+      />
+    );
+  }
+
+  return (
+    <Stack gap={2}>
+      {rows.length === 0 ? (
+        <EmptyState
+          title="No installs yet"
+          action={{ label: 'Go to Nodes', to: `${omBase}/${OM_ROUTE_NODES}` }}
+        >
+          Every MongoDB install Operations runs is recorded here, so you can
+          watch one happen and come back to what it did. Start one from a node.
+        </EmptyState>
+      ) : (
+        <Table
+          tableName="om-automations-runs"
+          columns={RUN_COLUMNS}
+          data={rows}
+          getRowId={(row) => row.run_id}
+          enableGlobalFilter={false}
+          enableColumnFilters={false}
+          enableHiding={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableExpanding
+          initialState={
+            expandRunId ? { expanded: { [expandRunId]: true } } : undefined
+          }
+          renderDetailPanel={({ row }) => <RunProgress run={row.original} />}
+        />
+      )}
+    </Stack>
+  );
+};
+
+/** The tabs, and the query-parameter values that address them. */
+const TABS = ['installs', 'scans'] as const;
+
+type TabId = (typeof TABS)[number];
+
+const SUBTITLE: Record<TabId, string> = {
+  installs:
+    'Every MongoDB install this server has driven, newest first. Expand one to watch it live or review what it did.',
+  scans: 'Every pass Operations made over your nodes, and what each one found.',
+};
+
+/**
+ * Everything Operations has run, in one place.
+ *
+ * Installs and scans were two pages, and the scan half was called "Inventory" -- a page
+ * that was not an inventory, sitting directly below PMM's own Inventory, which is the
+ * single worst naming collision the design review found. They are the same job at heart
+ * ("what has run, and did it work"), so they are tabs on one entry, and the entry is
+ * named for the job rather than for either half.
+ *
+ * The tab is in the query string so a link to a particular run's kind survives being
+ * pasted into a ticket, and so the legacy `inventory` route can redirect straight to
+ * the scans reading.
+ */
+export const AutomationsPage = () => {
+  const omBase = useOmBase();
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab');
+  const tab: TabId = TABS.includes(requested as TabId)
+    ? (requested as TabId)
+    : 'installs';
+
+  return (
+    <Box>
+      <OmHeader
+        title="Automations"
+        subtitle={
+          <Typography variant="body2" color="text.secondary">
+            {SUBTITLE[tab]}
+          </Typography>
+        }
+        actions={
+          // Installs start from a node, so this opens Nodes on the ones with nothing
+          // monitored on them yet.
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to={`${omBase}/${OM_ROUTE_NODES}?filter=unmonitored`}
+          >
+            Install MongoDB
+          </Button>
+        }
+      />
+      <Tabs
+        value={tab}
+        onChange={(_event, next: TabId) => {
+          const nextParams = new URLSearchParams(params);
+          nextParams.set('tab', next);
+          setParams(nextParams, { replace: true });
+        }}
+        sx={{ mb: 2 }}
+      >
+        <Tab
+          value="installs"
+          label="Installs"
+          {...tabProps('automations', 'installs')}
+        />
+        <Tab
+          value="scans"
+          label="Scans"
+          {...tabProps('automations', 'scans')}
+        />
+      </Tabs>
+      <Box {...tabPanelProps('automations', tab)}>
+        {tab === 'installs' ? (
+          <AutomationsInstallsTab />
+        ) : (
+          <AutomationsScansTab />
+        )}
+      </Box>
+    </Box>
+  );
+};

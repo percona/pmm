@@ -420,8 +420,8 @@ type GetReadOnlySettingsDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// get read only settings default body details items0
-	GetReadOnlySettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get read only settings default body details items0 additional properties
+	GetReadOnlySettingsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -483,7 +483,7 @@ func (o *GetReadOnlySettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 			}
 			result[k] = toadd
 		}
-		o.GetReadOnlySettingsDefaultBodyDetailsItems0 = result
+		o.GetReadOnlySettingsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -531,12 +531,12 @@ func (o GetReadOnlySettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, erro
 		return nil, err
 	}
 
-	if len(o.GetReadOnlySettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetReadOnlySettingsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetReadOnlySettingsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetReadOnlySettingsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -710,6 +710,9 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if PMM Extensions is enabled.
 	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings

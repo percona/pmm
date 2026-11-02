@@ -92,7 +92,7 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 
 	// Query VictoriaMetrics for all external exporter 'up' metrics
 	query := `up{agent_type="external-exporter"}`
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	result, _, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		s.l.Warnf("Failed to query VictoriaMetrics for external exporter status: %v", err)
 		return

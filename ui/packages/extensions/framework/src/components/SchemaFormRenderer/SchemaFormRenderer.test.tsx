@@ -38,7 +38,6 @@ import {
 import { INLINE_HELP_MAX_LENGTH } from './fieldHelp';
 import { evaluatePredicate, isPresent } from './utils/predicateEvaluator';
 import { resetSchemaWarnings } from './utils/schemaWarnings';
-import { toDatetimeLocalValue } from '../../utils/datetimeLocal';
 import type { FormSection, RenderFieldOverride } from './types';
 
 const useAlertConfigMock = vi.fn();
@@ -216,15 +215,16 @@ describe('coerceFormValues', () => {
     expect(out.empty).toBeUndefined();
   });
 
-  it('converts datetime-local wall-clock to UTC ISO and clears empties', () => {
-    const iso = '2024-06-15T12:00:00.000Z';
-    const local = toDatetimeLocalValue(iso);
-    const out = coerceFormValues({ when: local, empty: '', blank: '   ' }, [
-      { type: 'datetime', name: 'when', label: 'When' },
-      { type: 'datetime', name: 'empty', label: 'Empty' },
-      { type: 'datetime', name: 'blank', label: 'Blank' },
-    ]);
-    expect(out.when).toBe(iso);
+  it('submits the datetime wall-clock unchanged and clears empties', () => {
+    const out = coerceFormValues(
+      { when: ' 2026-10-08T10:30 ', empty: '', blank: '   ' },
+      [
+        { type: 'datetime', name: 'when', label: 'When' },
+        { type: 'datetime', name: 'empty', label: 'Empty' },
+        { type: 'datetime', name: 'blank', label: 'Blank' },
+      ]
+    );
+    expect(out.when).toBe('2026-10-08T10:30');
     expect(out.empty).toBeUndefined();
     expect(out.blank).toBeUndefined();
   });
@@ -426,6 +426,44 @@ describe('SchemaFormRenderer — field rendering', () => {
     ).toBeNull();
   });
 
+  it('hides what is typed into a sensitive string field, and only there', () => {
+    const credentialSections: FormSection[] = [
+      {
+        title: 'Parameters',
+        fields: [
+          {
+            type: 'string',
+            name: 'password',
+            label: 'Password',
+            sensitive: true,
+          },
+          {
+            type: 'string',
+            name: 'dest',
+            label: 'Destination',
+            sensitive: false,
+          },
+          { type: 'string', name: 'legacy', label: 'Legacy' },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={credentialSections} onSubmit={() => {}} />
+    );
+
+    const password = screen.getByLabelText(/Password/);
+    expect(password).toHaveAttribute('type', 'password');
+    expect(password).toHaveAttribute('autocomplete', 'new-password');
+    expect(screen.getByLabelText(/Destination/)).toHaveAttribute(
+      'type',
+      'text'
+    );
+    expect(screen.getByLabelText(/Destination/)).not.toHaveAttribute(
+      'autocomplete'
+    );
+    expect(screen.getByLabelText(/Legacy/)).toHaveAttribute('type', 'text');
+  });
+
   it('ghosts placeholders and seeds required numbers without inventing text values', () => {
     const sections: FormSection[] = [
       {
@@ -460,7 +498,7 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(minutes).toHaveValue(1);
   });
 
-  it('seeds an ISO datetime default into a datetime-local picker and submits UTC ISO', async () => {
+  it('seeds an ISO datetime default into the date-time picker and submits its UTC wall-clock', async () => {
     const iso = '2024-06-15T12:00:00.000Z';
     const onSubmit = vi.fn();
     const sections: FormSection[] = [
@@ -480,13 +518,16 @@ describe('SchemaFormRenderer — field rendering', () => {
       <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
     );
 
-    const input = screen.getByTestId('text-input-when') as HTMLInputElement;
-    expect(input).toHaveAttribute('type', 'datetime-local');
-    expect(input).toHaveValue(toDatetimeLocalValue(iso));
+    // Peak UI's picker, not a native `datetime-local` text box.
+    const input = screen.getByTestId(
+      'date-time-picker-when'
+    ) as HTMLInputElement;
+    expect(input).not.toHaveAttribute('type', 'datetime-local');
+    expect(input).toHaveValue('06/15/2024 12:00 PM');
 
     await userEvent.click(screen.getByRole('button', { name: /Run/ }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
-    expect(onSubmit.mock.calls[0][0]).toEqual({ when: iso });
+    expect(onSubmit.mock.calls[0][0]).toEqual({ when: '2024-06-15T12:00' });
   });
 
   it('does not render section.description prose', () => {
@@ -785,86 +826,103 @@ describe('SchemaFormRenderer — multi_choice required', () => {
   });
 });
 
-describe('SchemaFormRenderer — multi_choice empty-state placeholder', () => {
-  it('renders "Select…" placeholder when nothing is selected', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
+// A select used to show a "Select…" placeholder behind a label pinned into the
+// outline notch — two things no other control on the same form did. Both are
+// gone: the label sits in the empty field and floats on selection, exactly as
+// TextInput and AutoCompleteInput already behaved (PMM-15456).
+describe('SchemaFormRenderer — multi_choice empty state', () => {
+  const uploadSections: FormSection[] = [
+    {
+      title: 'Upload',
+      fields: [
+        {
+          type: 'multi_choice',
+          name: 'upload',
+          label: 'Upload providers',
+          choices: [
+            { label: 'S3', value: 'S3' },
+            { label: 'Rsync', value: 'RSYNC' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // MUI renders the label text in both <label> and the notched <legend>.
+  const labelOf = (text: string) =>
+    screen.getAllByText(text)[0].closest('label');
+
+  it('shows no placeholder and keeps the label on the outline when empty', () => {
     renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
+      <SchemaFormRenderer sections={uploadSections} onSubmit={vi.fn()} />
     );
-    expect(screen.getByText('Select…')).toBeVisible();
+
+    expect(screen.queryByText('Select…')).toBeNull();
+    const labelRoot = labelOf('Upload providers');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
   });
 
-  it('does NOT render placeholder when at least one value is selected', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
+  it('keeps the label on the outline and shows the selection once a value is chosen', () => {
     renderWithProviders(
       <SchemaFormRenderer
-        sections={sections}
+        sections={uploadSections}
         onSubmit={vi.fn()}
         defaultValues={{ upload: ['S3'] }}
       />
     );
-    expect(screen.queryByText('Select…')).toBeNull();
+
     expect(screen.getByText('S3')).toBeVisible();
+    const labelRoot = labelOf('Upload providers');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
   });
 });
 
-describe('SchemaFormRenderer — choice (select mode) empty-state placeholder', () => {
-  it('renders "Select…" when >3 choices and no value is chosen', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Main',
-        fields: [
-          {
-            type: 'choice',
-            name: 'region',
-            label: 'Region',
-            choices: [
-              { label: 'us-east-1', value: 'us-east-1' },
-              { label: 'us-west-2', value: 'us-west-2' },
-              { label: 'eu-west-1', value: 'eu-west-1' },
-              { label: 'ap-south-1', value: 'ap-south-1' },
-            ],
-          },
-        ],
-      },
-    ];
+describe('SchemaFormRenderer — choice (select mode) empty state', () => {
+  const regionSections: FormSection[] = [
+    {
+      title: 'Main',
+      fields: [
+        {
+          type: 'choice',
+          name: 'region',
+          label: 'Region',
+          choices: [
+            { label: 'us-east-1', value: 'us-east-1' },
+            { label: 'us-west-2', value: 'us-west-2' },
+            { label: 'eu-west-1', value: 'eu-west-1' },
+            { label: 'ap-south-1', value: 'ap-south-1' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  it('shows no placeholder and keeps the label on the outline when empty', () => {
     renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
+      <SchemaFormRenderer sections={regionSections} onSubmit={vi.fn()} />
     );
-    expect(screen.getByText('Select…')).toBeVisible();
+
+    expect(screen.queryByText('Select…')).toBeNull();
+    const labelRoot = screen.getAllByText('Region')[0].closest('label');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
   });
 
-  it('radio-mode branch (≤3 choices) does NOT add a placeholder', () => {
+  it('keeps the label on the outline once a value is chosen', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={regionSections}
+        onSubmit={vi.fn()}
+        defaultValues={{ region: 'eu-west-1' }}
+      />
+    );
+
+    const labelRoot = screen.getAllByText('Region')[0].closest('label');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+  });
+
+  it('radio-mode branch (≤3 choices) has no select at all', () => {
     const sections: FormSection[] = [
       {
         title: 'Main',
@@ -884,66 +942,8 @@ describe('SchemaFormRenderer — choice (select mode) empty-state placeholder', 
     renderWithProviders(
       <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
     );
-    expect(screen.queryByText('Select…')).toBeNull();
-  });
-});
 
-describe('SchemaFormRenderer — multi_choice empty-state label shrink', () => {
-  it('floats the label above when nothing is selected (no overlap with placeholder)', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
-    renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
-    );
-    // MUI renders the label text in both <label> and the notched <legend>; pick the <label>.
-    const labelRoot = screen
-      .getAllByText('Upload providers')[0]
-      .closest('label');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
-    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
-  });
-});
-
-describe('SchemaFormRenderer — choice (select mode) empty-state label shrink', () => {
-  it('floats the label above on empty >3-choice select', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Main',
-        fields: [
-          {
-            type: 'choice',
-            name: 'region',
-            label: 'Region',
-            choices: [
-              { label: 'us-east-1', value: 'us-east-1' },
-              { label: 'us-west-2', value: 'us-west-2' },
-              { label: 'eu-west-1', value: 'eu-west-1' },
-              { label: 'ap-south-1', value: 'ap-south-1' },
-            ],
-          },
-        ],
-      },
-    ];
-    renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
-    );
-    const labelRoot = screen.getAllByText('Region')[0].closest('label');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
-    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
+    expect(screen.queryByRole('combobox')).toBeNull();
   });
 });
 

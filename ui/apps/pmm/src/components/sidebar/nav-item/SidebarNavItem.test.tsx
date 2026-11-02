@@ -6,6 +6,7 @@ import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+import { PreviewChip } from 'components/preview-chip';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -28,6 +29,21 @@ const TEST_NAV_TREE: NavTreeItem = {
           url: '/0/1/2',
         },
       ],
+    },
+  ],
+};
+
+const TEST_ALWAYS_VISIBLE_BADGE_ITEM: NavTreeItem = {
+  id: 'always-badge',
+  icon: 'pmm-rounded',
+  text: 'always-badge',
+  badge: <PreviewChip level="tech" />,
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'always-badge-child',
+      text: 'always-badge-child',
+      url: '/always-badge/child',
     },
   ],
 };
@@ -168,6 +184,28 @@ describe('SidebarNavItem', () => {
     fireEvent.click(screen.getByTestId('navitem-with-badge-toggle'));
 
     expect(container.querySelector('.MuiBadge-dot')).toBeInTheDocument();
+  });
+
+  it('shows an always-visible badge on a collapsible item while the drawer is open', () => {
+    renderNavItem({ props: { item: TEST_ALWAYS_VISIBLE_BADGE_ITEM } });
+
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('navitem-always-badge-toggle'));
+
+    expect(screen.getByTestId('navitem-always-badge-collapse')).not.toHaveClass(
+      collapseClasses.hidden
+    );
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+  });
+
+  it('renders neither an always-visible badge nor a dot when the drawer is closed', () => {
+    const { container } = renderNavItem({
+      props: { item: TEST_ALWAYS_VISIBLE_BADGE_ITEM, drawerOpen: false },
+    });
+
+    expect(screen.queryByText('Preview')).not.toBeInTheDocument();
+    expect(container.querySelector('.MuiBadge-dot')).not.toBeInTheDocument();
   });
 
   it('renders divider if item has type "menu-divider"', () => {

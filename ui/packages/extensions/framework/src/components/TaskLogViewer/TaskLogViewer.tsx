@@ -616,6 +616,16 @@ export function TaskLogViewer({
           }),
         }}
       >
+        {/*
+          Above the stdout/stderr row: a step picks which output the stream
+          tabs switch between, so the outer choice comes first.
+        */}
+        <LogStepTabs
+          steps={stepOrder}
+          activeStep={activeStep}
+          unreadSteps={unreadSteps}
+          onSelect={handleStepSelect}
+        />
         <Stack
           direction="row"
           alignItems="center"
@@ -815,15 +825,6 @@ export function TaskLogViewer({
           </Box>
         )}
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
-          <LogStepTabs
-            steps={stepOrder}
-            activeStep={activeStep}
-            unreadSteps={unreadSteps}
-            onSelect={handleStepSelect}
-          />
-        </Box>
-
         <Box sx={{ flex: fullScreen ? 1 : 'none', minHeight: 0 }}>
           <LogOutputPane
             text={currentPaneText}
@@ -844,14 +845,12 @@ export function TaskLogViewer({
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
-              <LogStepTabs
-                steps={eventStepOrder}
-                activeStep={activeEventStep}
-                unreadSteps={NO_UNREAD_STEPS}
-                onSelect={setActiveEventStep}
-              />
-            </Box>
+            <LogStepTabs
+              steps={eventStepOrder}
+              activeStep={activeEventStep}
+              unreadSteps={NO_UNREAD_STEPS}
+              onSelect={setActiveEventStep}
+            />
             <ExecutionEventsPanel
               eventsByStep={eventsByStep}
               activeStep={activeEventStep}

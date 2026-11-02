@@ -15,7 +15,7 @@ interface Props {
 const FeatureCheck: FC<Props> = ({ feature, pageTitle }) => {
   const { user } = useUser();
   return (
-    <Page title={pageTitle}>
+    <Page title={pageTitle} surface="canvas">
       <Card
         dataTestId="empty-block"
         content={

@@ -109,7 +109,7 @@ func TestShowTableStatus(t *testing.T) {
 		require.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = db.QueryRowContext(t.Context(), "SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

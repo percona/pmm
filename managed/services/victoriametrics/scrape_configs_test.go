@@ -383,6 +383,11 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.tableiowaits",
 					"plugins",
 				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
+				}},
 			}}
 
 			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
@@ -537,6 +542,11 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.tableiowaits",
 					"plugins",
 				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
+				}},
 			}}
 
 			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
@@ -678,6 +688,11 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.memory_events",
 					"plugins",
 				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
+				}},
 			}}
 
 			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
@@ -711,6 +726,29 @@ func TestScrapeConfig(t *testing.T) {
 				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
+		})
+
+		t.Run("DisabledFileInstances", func(t *testing.T) {
+			agent := &models.Agent{
+				AgentID:    "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:  models.MySQLdExporterType,
+				ListenPort: new(uint16(12345)),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"perf_schema.file_instances"},
+				},
+			}
+
+			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              &models.Node{},
+				service:           &models.Service{},
+				agent:             agent,
+				metricsResolution: s,
+			})
+			require.NoError(t, err)
+			for _, cfg := range actual {
+				assert.Nil(t, cfg.MetricRelabelConfigs, cfg.JobName)
+			}
 		})
 	})
 

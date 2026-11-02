@@ -1,0 +1,22 @@
+---
+templates:
+  - name: pmm_ha_no_leader
+    version: 1
+    summary: PMM HA cluster has no active leader
+    # last_over_time bounds how long a departed leader's final sample can mask a leaderless
+    # cluster, narrowing the lookback to 2m. max by(node_id) collapses any duplicate series
+    # for one node, so a node is counted once no matter what labels the scrape adds.
+    expr: 'sum(max by(node_id) (last_over_time(pmm_ha_leader_status[2m]))) == bool 0'
+    for: 3m
+    severity: critical
+    annotations:
+      summary: PMM HA cluster has no active leader
+      description: |-
+        No node in the PMM High Availability cluster currently holds the Raft leader lease.
+        Leader-only background work such as advisor checks, backups, telemetry and scheduled tasks is not running.
+
+        Remediation steps:
+          1. Check that a majority of PMM Server nodes are running and reachable.
+          2. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).
+          3. Inspect the pmm-managed logs on each node for repeated election attempts or 'no known peers' messages.
+          4. If the cluster has lost a majority of its nodes, restore them. Raft cannot elect a leader without quorum.

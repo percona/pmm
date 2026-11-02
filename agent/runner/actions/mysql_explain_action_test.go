@@ -51,7 +51,7 @@ func TestMySQLExplain(t *testing.T) {
 	// Assertions for the tree format are only partial, more checks should be done. See: PMM-14426.
 	treeExplainOutput := !isMariaDB && mySQLVersion.Float() >= 9.5
 
-	const query = "SELECT * FROM city ORDER BY Population"
+	const query = "SELECT * FROM city ORDER BY Population" //nolint:unqueryvet
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
@@ -222,7 +222,7 @@ func TestMySQLExplain(t *testing.T) {
 		err = json.Unmarshal(resp, &er)
 		require.NoError(t, err)
 		assert.True(t, er.IsDMLQuery)
-		assert.Equal(t, `SELECT * FROM city  WHERE Name='Rosario'`, er.Query)
+		assert.Equal(t, `SELECT * FROM city  WHERE Name='Rosario'`, er.Query) //nolint:unqueryvet
 	})
 
 	t.Run("Query longer than max-query-length", func(t *testing.T) {

@@ -46,6 +46,23 @@ func TestEncryptionGenerateKey(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestNewWithoutKeyFile(t *testing.T) {
+	t.Setenv(CustomEncryptionKeyPathEnvVar, "")
+
+	e1 := New()
+	e2 := New()
+	assert.Empty(t, e1.Path)
+
+	cipherText, err := e1.Encrypt("secret")
+	require.NoError(t, err)
+	plainText, err := e2.Decrypt(cipherText)
+	require.NoError(t, err)
+	assert.Equal(t, "secret", plainText)
+
+	_, err = os.Stat("encryption.key")
+	assert.ErrorIs(t, err, os.ErrNotExist)
+}
+
 func TestEncryptionGenerateAndPersistKey(t *testing.T) {
 	// Create a temporary file path for testing
 	tempFile, err := os.CreateTemp(t.TempDir(), "encryption_test_*.key")
