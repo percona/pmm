@@ -1218,6 +1218,15 @@ func TestFailedStartAndPorts(t *testing.T) {
 
 		return s, dir
 	}
+	// squat listens on port, as another process would.
+	squat := func(t *testing.T, port uint16) {
+		t.Helper()
+
+		var lc net.ListenConfig
+		l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = l.Close() })
+	}
 	mark := func(t *testing.T, dir, name string) {
 		t.Helper()
 		require.NoError(t, os.WriteFile(filepath.Join(dir, name), nil, 0o600))
@@ -1307,10 +1316,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		assert.True(t, isReserved(s, port), "port kept for the next attempt was released")
 
 		// Not requested any more: nothing will use it, even though something else listens on it now.
-		var lc net.ListenConfig
-		squatter, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
-		require.NoError(t, err)
-		t.Cleanup(func() { _ = squatter.Close() })
+		squat(t, port)
 		setState(s, nil)
 		assert.False(t, isReserved(s, port), "port of a failed start that is not retried was not released")
 	})
@@ -1329,10 +1335,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		// registry's own check finds it busy.
 		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
 		markBusy(t, dir, kept)
-		var lc net.ListenConfig
-		squatter, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(kept))))
-		require.NoError(t, err)
-		t.Cleanup(func() { _ = squatter.Close() })
+		squat(t, kept)
 
 		retryNow(t, s)
 
@@ -1382,9 +1385,10 @@ func TestFailedStartAndPorts(t *testing.T) {
 		setState(s, exporter("a"))
 		old := waitRunning(t, s)
 
-		// Restarted with new parameters while its port is taken: the replacement moves on, and
-		// the old port has nothing left referring to it.
+		// Restarted with new parameters while another process listens on its port: the replacement
+		// moves on, and the old port has nothing left referring to it.
 		markBusy(t, dir, old)
+		squat(t, old)
 		setState(s, exporter("b"))
 		restarted := waitRunning(t, s)
 		assert.NotEqual(t, old, restarted)
@@ -1393,6 +1397,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 
 		// The same through RestartAgents.
 		markBusy(t, dir, restarted)
+		squat(t, restarted)
 		s.RestartAgents()
 		again := waitRunning(t, s)
 		assert.NotEqual(t, restarted, again)
@@ -1433,6 +1438,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		// SetState with the same parameters would not start the Agent again, its entry being there,
 		// so the start is retried like any other, on the port it took.
 		markBusy(t, dir, port)
+		squat(t, port)
 		mark(t, dir, "fail")
 		s.RestartAgents()
 		ports := startingPorts(t, s)
@@ -1447,6 +1453,33 @@ func TestFailedStartAndPorts(t *testing.T) {
 		assert.Equal(t, taken, waitRunning(t, s))
 		assert.True(t, isReserved(s, taken))
 		assert.False(t, isReserved(s, port), "port of the entry the retry replaced is still reserved")
+	})
+
+	t.Run("GivesUpTheEntrysPortThatKeepsFailing", func(t *testing.T) {
+		t.Parallel()
+
+		s, dir := setup(t, 64315, time.Hour)
+
+		setState(s, exporter("a"))
+		port := waitRunning(t, s)
+
+		// Restarted, and failing without saying that the port is the problem: every attempt is on
+		// the entry's port, which counts towards giving it up as a kept one does.
+		mark(t, dir, "fail")
+		setState(s, exporter("b"))
+		require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
+		for range failuresPerPort - 1 {
+			retryNow(t, s)
+			require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
+		}
+		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
+
+		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
+		retryNow(t, s)
+		started := waitRunning(t, s)
+		assert.NotEqual(t, port, started, "still on the entry's port after %d failed starts", failuresPerPort)
+		assert.True(t, isReserved(s, started))
+		assert.False(t, isReserved(s, port), "port of the entry the new start replaced is still reserved")
 	})
 
 	t.Run("GivesUpAPortThatKeepsFailing", func(t *testing.T) {

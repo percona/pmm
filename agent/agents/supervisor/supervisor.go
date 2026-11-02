@@ -142,6 +142,7 @@ type failedStart struct {
 	port           uint16 // reserved for the next attempt, or 0; see tryStartProcess
 	lastPort       uint16 // the port the last attempt failed on
 	portFailures   int    // consecutive failed starts on lastPort
+	newPort        bool   // the next attempt takes a new port, not the Agent entry's; see recordFailedStart
 }
 
 // agentProcessInfo describes Agent process.
@@ -691,21 +692,33 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 // Must be called with s.rw held for writing.
 func (s *Supervisor) startProcessOrBackOff(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, entryPort uint16) error {
 	port, owned := entryPort, false
-	if f := s.failedStarts[agentID]; f != nil && f.port != 0 {
-		port, owned = f.port, true
-		f.port = 0 // handed to tryStartProcess
+	if f := s.failedStarts[agentID]; f != nil {
+		switch {
+		case f.port != 0:
+			port, owned = f.port, true
+			f.port = 0 // handed to tryStartProcess
+		case f.newPort:
+			port = 0
+		}
 	}
 
 	kept, err := s.tryStartProcess(agentID, agentProcess, port, owned)
 	if err != nil {
-		s.recordFailedStart(agentID, agentProcess, kept)
+		tried := kept // the port the last attempts failed on
+		if tried == 0 {
+			tried = port
+		}
+		s.recordFailedStart(agentID, agentProcess, kept, tried)
 		return err
 	}
 	s.forgetFailedStart(agentID)
 
-	// Started on another port: the entry it replaced was the last to refer to that one.
+	// Started on another port: the entry it replaced was the last to refer to that one. Not Release,
+	// which keeps a port that something listens on reserved for good: the Agent moves off its port
+	// when something else listens on it, or when it keeps failing there, and nothing of the Agent's
+	// listens on it any more, as the entry's process has exited.
 	if agent := s.agentProcesses[agentID]; entryPort != 0 && agent != nil && agent.listenPort != entryPort {
-		s.releasePort(agentID, entryPort)
+		s.portsRegistry.Forget(entryPort)
 	}
 
 	return nil
@@ -750,28 +763,33 @@ func (s *Supervisor) updateFailedStarts(agentProcesses map[string]*agentv1.SetSt
 
 // recordFailedStart schedules the next attempt to start an Agent process whose start failed, with
 // a delay that grows with each consecutive failure. The port tryStartProcess kept for that attempt,
-// or 0, is now the failed start's.
+// or 0, is now the failed start's; tried is the port the last attempts failed on, kept or not.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) {
+func (s *Supervisor) recordFailedStart(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, kept, tried uint16) {
 	f := s.failedStarts[agentID]
 	if f == nil {
 		f = &failedStart{backoff: backoff.New(s.failedStartMinDelay, s.failedStartMaxDelay)}
 		s.failedStarts[agentID] = f
 	}
-	// startProcessOrBackOff hands the kept port to every attempt, so it comes back here, or another
-	// one, or none.
-	if port != 0 && port == f.lastPort {
+	// startProcessOrBackOff hands the kept port, or else the Agent entry's, to every attempt, so it
+	// comes back here as tried, or another one does.
+	if tried != 0 && tried == f.lastPort {
 		f.portFailures++
 	} else {
 		f.portFailures = 1
 	}
-	f.port, f.lastPort = port, port
+	f.port, f.lastPort, f.newPort = kept, tried, false
 	// Telling that the port is the problem relies on the process saying so. One that keeps failing
-	// on the same port is given another anyway, in case it did not.
-	if f.port != 0 && f.portFailures >= failuresPerPort {
-		s.l.Warnf("Agent %s failed to start on port %d %d times in a row, trying another port next.", agentID, f.port, f.portFailures)
-		s.portsRegistry.Forget(f.port)
-		f.port, f.lastPort, f.portFailures = 0, 0, 0
+	// on the same port is given another anyway, in case it did not: a kept one is dropped, and the
+	// entry's one stays the entry's until a new one is started.
+	if f.portFailures >= failuresPerPort {
+		s.l.Warnf("Agent %s failed to start on port %d %d times in a row, trying another port next.", agentID, tried, f.portFailures)
+		if f.port != 0 {
+			s.portsRegistry.Forget(f.port)
+			f.port = 0
+		}
+		f.newPort = true
+		f.lastPort, f.portFailures = 0, 0
 	}
 	f.requestedState = proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess) //nolint:forcetypeassert
 	if f.timer != nil {
