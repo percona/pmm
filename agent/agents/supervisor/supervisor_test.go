@@ -16,12 +16,14 @@ package supervisor
 
 import (
 	"context"
+	"errors"
 	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"syscall"
 	"testing"
 	"time"
 
@@ -383,10 +385,7 @@ func TestReleaseAgentResources(t *testing.T) {
 		close(done)
 
 		// Something else listens on the port by now: nothing of the Agent's does.
-		var lc net.ListenConfig
-		l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
-		require.NoError(t, err)
-		t.Cleanup(func() { _ = l.Close() })
+		holdPort(t, port)
 
 		s.releaseAgentResources("stopped", done, port, agentTmp)
 
@@ -398,9 +397,8 @@ func TestReleaseAgentResources(t *testing.T) {
 		t.Parallel()
 
 		// An Agent that outlived the stop budget still owns its port and its temporary
-		// directory. Releasing a port it may still be listening on fails and loses the
-		// reservation for good, as the Agent it belonged to is already forgotten, and
-		// clearing the directory takes files out from under an Agent still reading them.
+		// directory: its port is not handed to another Agent while it may still be listening,
+		// and clearing the directory takes files out from under an Agent still reading them.
 		//
 		// Both come back once it stops - the directory holds rendered TLS certificates and
 		// keys, so it is not left to the next pmm-agent start unless a replacement owns it
@@ -413,8 +411,13 @@ func TestReleaseAgentResources(t *testing.T) {
 		assert.True(t, reserved(s, port))
 		assert.DirExists(t, agentTmp)
 
+		// Something else listens on the port by the time the Agent stops.
+		holdPort(t, port)
 		close(done)
 
+		assert.Eventually(t, func() bool {
+			return !reserved(s, port)
+		}, time.Second, 10*time.Millisecond, "port of a stopped Agent is still reserved")
 		assert.Eventually(t, func() bool {
 			_, err := os.Stat(agentTmp)
 
@@ -1167,6 +1170,20 @@ plugin "raw_exec" {
 	})
 }
 
+// holdPort listens on port for the rest of the test, as another process would. If something else
+// on the host holds it already, that serves the test just as well.
+func holdPort(t *testing.T, port uint16) {
+	t.Helper()
+
+	var lc net.ListenConfig
+	l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
+	if errors.Is(err, syscall.EADDRINUSE) {
+		return
+	}
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = l.Close() })
+}
+
 // isReserved reports whether the Supervisor's ports registry holds port.
 func isReserved(s *Supervisor, port uint16) bool {
 	s.portsRegistry.m.Lock()
@@ -1221,15 +1238,6 @@ func TestFailedStartAndPorts(t *testing.T) {
 		go s.Run(t.Context())
 
 		return s, dir
-	}
-	// squat listens on port, as another process would.
-	squat := func(t *testing.T, port uint16) {
-		t.Helper()
-
-		var lc net.ListenConfig
-		l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
-		require.NoError(t, err)
-		t.Cleanup(func() { _ = l.Close() })
 	}
 	mark := func(t *testing.T, dir, name string) {
 		t.Helper()
@@ -1320,7 +1328,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		assert.True(t, isReserved(s, port), "port kept for the next attempt was released")
 
 		// Not requested any more: nothing will use it, even though something else listens on it now.
-		squat(t, port)
+		holdPort(t, port)
 		setState(s, nil)
 		assert.False(t, isReserved(s, port), "port of a failed start that is not retried was not released")
 	})
@@ -1339,7 +1347,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		// registry's own check finds it busy.
 		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
 		markBusy(t, dir, kept)
-		squat(t, kept)
+		holdPort(t, kept)
 
 		retryNow(t, s)
 
@@ -1392,7 +1400,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		// Restarted with new parameters while another process listens on its port: the replacement
 		// moves on, and the old port has nothing left referring to it.
 		markBusy(t, dir, old)
-		squat(t, old)
+		holdPort(t, old)
 		setState(s, exporter("b"))
 		restarted := waitRunning(t, s)
 		assert.NotEqual(t, old, restarted)
@@ -1401,7 +1409,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 
 		// The same through RestartAgents.
 		markBusy(t, dir, restarted)
-		squat(t, restarted)
+		holdPort(t, restarted)
 		s.RestartAgents()
 		again := waitRunning(t, s)
 		assert.NotEqual(t, restarted, again)
@@ -1442,7 +1450,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 		// SetState with the same parameters would not start the Agent again, its entry being there,
 		// so the start is retried like any other, on the port it took.
 		markBusy(t, dir, port)
-		squat(t, port)
+		holdPort(t, port)
 		mark(t, dir, "fail")
 		s.RestartAgents()
 		ports := startingPorts(t, s)
