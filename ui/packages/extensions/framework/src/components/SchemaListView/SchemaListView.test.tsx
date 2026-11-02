@@ -414,12 +414,10 @@ describe('SchemaListView — schedule-column glue', () => {
 });
 
 /**
- * Toolbar rows inside the table paper. MUI's `TablePagination` renders a
- * toolbar of its own inside the bottom row, so it has to be excluded or every
- * row counts twice.
+ * Toolbar rows inside the table paper. MaterialReactTable renders them as
+ * unclassed boxes, so they are the paper's children other than the table.
  */
-const TOOLBAR_ROW_SELECTOR =
-  '.MuiToolbar-root:not(.MuiTablePagination-toolbar)';
+const TOOLBAR_ROW_SELECTOR = ':scope > :not(.MuiTableContainer-root)';
 
 describe('SchemaListView — toolbar placement', () => {
   let slot: HTMLDivElement;
@@ -459,6 +457,16 @@ describe('SchemaListView — toolbar placement', () => {
     expect(paper).toContainElement(screen.getByLabelText('Show/Hide columns'));
     // Its own row, on top of the pagination one.
     expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(2);
+  });
+
+  it('renders no toolbar row while the slot is not committed yet', () => {
+    render(
+      <SchemaListView listView={listView} data={rows} toolbarSlot={null} />
+    );
+
+    const paper = document.querySelector(`.${EXTENSIONS_TABLE_CLASS}`);
+    expect(screen.queryByLabelText('Show/Hide columns')).toBeNull();
+    expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(1);
   });
 });
 

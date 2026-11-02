@@ -25,13 +25,11 @@ To deploy PMM Server using a host directory:
 
 2. Create and identify a directory on the host where to store PMM data. For example, `/home/user/srv`.
 
-3. Run the PMM Server with the host image mounted, making sure to replace `your_watchtower_token` with the token created during [Watchtower setup](../docker/index.md#installation-options): 
+3. Run PMM Server with the host directory mounted:
 
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=http://your_watchtower_host:8080 \
-    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume /home/user/srv:/srv \
     --network=pmm-network \
     --name pmm-server \

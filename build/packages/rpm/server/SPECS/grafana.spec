@@ -45,7 +45,8 @@ export GOPATH="$(pwd)/_build"
 make build-go
 
 make deps-js
-make build-js
+# Node's default heap scales with host RAM and can drop to 2 GB, too small for webpack.
+NODE_OPTIONS=--max-old-space-size=8192 make build-js
 
 %install
 install -d -p %{buildroot}%{_datadir}/grafana

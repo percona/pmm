@@ -648,9 +648,6 @@ func TestMongodbExporterConfig(t *testing.T) {
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
-			Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
-			TemplateLeftDelim:  "{{",
-			TemplateRightDelim: "}}",
 			Args: []string{
 				"--collect.collection",
 				"--collect.database",

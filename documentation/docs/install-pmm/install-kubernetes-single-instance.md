@@ -1,46 +1,16 @@
-# Install PMM with Kubernetes HA (Single-Instance)
+# Install PMM on a Kubernetes single instance
 
-Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution. This production-ready option combines simplicity with Kubernetes' built-in resilience for automatic recovery from failures.
+Install PMM Server as a single pod on Kubernetes using the `percona/pmm` Helm chart. Kubernetes restarts it automatically if it fails, and persistent volumes keep your data across restarts. 
 
-!!! success "Production-ready and recommended"
-    This is the **best choice for 90% of production deployments**. It provides automatic recovery with minimal operational complexity and has been production-tested for years.
-
-## What is Kubernetes HA Single-Instance?
-
-Kubernetes HA Single-Instance leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails. 
-
-Combined with persistent volumes and PMM Client caching, this approach prevents data loss and maintains monitoring continuity with minimal operational overhead.
-
-### Key benefits
-
-- **Automatic recovery**: Kubernetes reschedules failed pods to healthy nodes without manual intervention
-- **Persistent data**: All monitoring data, configurations, and dashboards survive pod restarts
-- **Health monitoring**: Liveness and readiness probes ensure only healthy instances receive traffic
-- **Zero data loss**: PMM Clients cache metrics locally during brief outages
-- **Production-tested**: Stable and battle-tested in production environments for years
-- **Simple operations**: Single PMM instance is easier to manage than distributed clusters
-
-### How it works
-
-Kubernetes watches your PMM deployment and fixes problems automatically. 
-
-If a pod crashes or a node fails, Kubernetes restarts it on a healthy node within a few minutes.
-
-Your persistent volume keeps all your data safe and it stays attached when the pod moves. Your PMM Clients cache metrics locally, so nothing gets lost during the restart. Once PMM comes back up, everything syncs automatically.
-
-### Limitations
-
-- **Brief monitoring gaps**: 2-5 minutes of downtime during pod rescheduling
-- **Single PMM instance**: No load distribution across multiple servers
-- **No zero-downtime**: Cannot maintain continuous monitoring during failures
-- **Node-level delays**: Pod rescheduling takes longer than container restarts
-
-This solution works well for production environments that can tolerate brief monitoring interruptions during automatic failover. The trade-off between operational simplicity and high availability makes it ideal for most production workloads.
+If 2–5 minutes of monitoring downtime during pod rescheduling is not acceptable, consider [PMM HA Cluster](install-HA-clustered.md) instead.
 
 ## Prerequisites
-Storage requirements scale with the number of monitored services and data retention period.
+
+Check that your environment meets the software and cluster resource requirements before installing:
 
 === "Required software"
+
+    Required tools and components:
 
     - **Kubernetes**: 1.21 or higher
     - **Helm**: 3.2.0 or higher
@@ -57,18 +27,24 @@ Storage requirements scale with the number of monitored services and data retent
 
 === "Recommended for production"
 
+    Recommended resources for production use:
+
     - **CPU**: 4+ cores
     - **Memory**: 8+ GB RAM
     - **Storage**: 100+ GB with fast SSD-backed persistent volumes
     - **Multiple nodes**: At least 2 worker nodes for automatic rescheduling
 
 
+### Supported platforms
+
+The `percona/pmm` chart runs on any Kubernetes 1.21 or later and is tested on Red Hat OpenShift 4.18 to 4.22, including ROSA with hosted control planes. Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't tested.
+
 ### Verify prerequisites
 
 Check your cluster meets the requirements:
 ```sh
 # Check Kubernetes version
-kubectl version --short
+kubectl version
 
 # Check available resources
 kubectl top nodes
@@ -80,7 +56,7 @@ kubectl get storageclass
 helm version --short
 ```
 
-## Installation
+## Install PMM Server
 
 Choose the installation method that fits your needs and install PMM Server on Kubernetes.
 
@@ -109,12 +85,17 @@ Choose the installation method that fits your needs and install PMM Server on Ku
 
     4. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         The external IP may take a minute to provision. Look for the `EXTERNAL-IP` column.
 
-    5. Open `https://<EXTERNAL-IP>` in your browser and log in with default credentials: `admin`/`admin` (change immediately after first login).
+    5. Get the admin password that the chart generated:
+      ```sh
+        kubectl get secret pmm-secret -n monitoring -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
+      ```
+
+    6. Open `https://<EXTERNAL-IP>` in your browser and log in as `admin` with that password.
 
 === "Recommended"
 
@@ -135,7 +116,7 @@ Choose the installation method that fits your needs and install PMM Server on Ku
           storageClassName: "fast-ssd"  # Use your fastest storage class
           size: 100Gi
 
-        resources:
+        pmmResources:
           requests:
             memory: 4Gi
             cpu: 2
@@ -143,16 +124,9 @@ Choose the installation method that fits your needs and install PMM Server on Ku
             memory: 8Gi
             cpu: 4
 
-        # Enable persistent volume
-        persistence:
-          enabled: true
-          storageClass: "fast-ssd"
-          size: 100Gi
-
         # Configure data retention (default: 30 days)
-        env:
-          - name: PMM_DATA_RETENTION
-            value: "720h"  # 30 days
+        pmmEnv:
+          PMM_DATA_RETENTION: "720h"  # 30 days
 
         # Configure security
         secret:
@@ -180,7 +154,7 @@ Choose the installation method that fits your needs and install PMM Server on Ku
 
     5. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `EXTERNAL-IP` column. The IP may take a minute to provision.
@@ -201,11 +175,11 @@ kubectl get pvc -n monitoring
 kubectl get svc -n monitoring
 
 # View pod logs
-kubectl logs -n monitoring -l app=pmm
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm
 
 # Wait for pod to be ready
 kubectl wait --for=condition=ready pod \
-  -l app=pmm \
+  -l app.kubernetes.io/name=pmm \
   -n monitoring \
   --timeout=300s
 ```
@@ -215,7 +189,9 @@ Expected output:
 pod/pmm-0   1/1   Running   0   2m
 ```
 
-## Configuration
+## Configure PMM Server
+
+After installation, set the admin password, expose the service externally, choose a storage class, adjust data retention, and set resource limits to match your environment.
 
 ### Change admin password
 
@@ -224,7 +200,7 @@ After first login, immediately change the default password:
 
 1. Log in to PMM UI.
 2. Go to **Account > Change password**.
-4. Enter current password and new secure password.
+3. Enter current password and new secure password.
 
 Or set password via Kubernetes secret before installation:
 ```sh
@@ -240,7 +216,7 @@ secret:
 
 ### Configure external access
 
-Choose the service type that fits your environment and apply the configuration.
+By default, PMM Server is only accessible inside the cluster. To reach it from a browser or from PMM Clients running outside the cluster, expose it using a Kubernetes Service. Choose the service type that fits your environment:
 
 === "LoadBalancer"
 
@@ -270,7 +246,7 @@ Choose the service type that fits your environment and apply the configuration.
 
     3. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `EXTERNAL-IP` column and connect via `https://<EXTERNAL-IP>`.
@@ -298,7 +274,7 @@ Choose the service type that fits your environment and apply the configuration.
 
     3. Get the assigned NodePort:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `PORT(S)` column showing the NodePort number.
@@ -312,9 +288,8 @@ Choose the service type that fits your environment and apply the configuration.
 
     **Best for**: Production environments with existing ingress controller
 
-    !!! note "Prerequisites"
-        Ensure you have an ingress controller (e.g., NGINX, Traefik) and cert-manager installed in your cluster.
-        
+    **Prerequisites**: An ingress controller (e.g., NGINX, Traefik) and cert-manager installed in your cluster.
+
     Use Ingress for advanced routing, SSL termination, and custom domain names:
     {.power-number}
 
@@ -357,58 +332,69 @@ Choose the service type that fits your environment and apply the configuration.
 
 ### Configure storage
 
-**Choose appropriate storage class**
-```yaml
-# values.yaml
-persistence:
-  storageClass: "fast-ssd"  # Use fastest available
-  size: 100Gi
-  
-  # Optional: Use existing PVC
-  # existingClaim: "pmm-data"
-  
-  # Optional: Storage selector
-  # selector:
-  #   matchLabels:
-  #     type: ssd
-```
+PMM Server stores metrics, query analytics data, and Grafana settings on a persistent volume. Use your fastest available storage class to avoid I/O bottlenecks as data grows:
+{.power-number}
 
-**Common storage classes by provider**
+1. Find the storage classes available in your cluster:
 
-- **AWS**: `gp3` (recommended), `gp2`, `io1`
-- **GCP**: `pd-ssd`, `pd-balanced`
-- **Azure**: `managed-premium`, `managed`
-- **On-premise**: Check with `kubectl get storageclass`
+    - **AWS**: `gp3` (recommended), `gp2`, `io1`
+    - **GCP**: `pd-ssd`, `pd-balanced`
+    - **Azure**: `managed-premium`, `managed`
+    - **On-premise**: `kubectl get storageclass`
+
+2. Set the storage class in your `values.yaml`:
+
+    ```yaml
+    # values.yaml
+    storage:
+      storageClassName: "fast-ssd"  # Use fastest available
+      size: 100Gi
+
+      # Optional: Storage selector
+      # selector:
+      #   matchLabels:
+      #     type: ssd
+    ```
+
+3. Install PMM Server with these values. Kubernetes doesn't apply storage changes to the volume of an existing installation, so set them before you install:
+
+    ```sh
+    helm install pmm percona/pmm \
+      --namespace monitoring \
+      --values values.yaml
+    ```
 
 ### Configure data retention
 
-Set how long PMM retains monitoring data:
-```yaml
-# values.yaml
-env:
-  - name: PMM_DATA_RETENTION
-    value: "720h"  # 30 days (recommended)
-```
+PMM retains monitoring data for 30 days by default. To change it, set `PMM_DATA_RETENTION` in your `values.yaml` and apply the change:
+{.power-number}
 
-Common retention periods:
+1. Set the retention period. Common values:
 
-- `168h`: 7 days (minimal storage)
-- `720h`: 30 days (recommended)
-- `2160h`: 90 days (compliance/audit)
+    - `168h`: 7 days (minimal storage)
+    - `720h`: 30 days (recommended)
+    - `2160h`: 90 days (compliance/audit)
 
-Apply changes:
-```sh
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
-```
+    ```yaml
+    # values.yaml
+    pmmEnv:
+      PMM_DATA_RETENTION: "720h"  # 30 days (recommended)
+    ```
+
+2. Apply the change:
+
+    ```sh
+    helm upgrade pmm percona/pmm \
+      --namespace monitoring \
+      --values values.yaml
+    ```
 
 ### Configure resource limits
 
 Adjust resources based on your monitoring scale:
 ```yaml
 # values.yaml
-resources:
+pmmResources:
   requests:
     memory: "4Gi"
     cpu: "2"
@@ -426,9 +412,10 @@ resources:
 | 51-100 | 16 GB | 8 cores | 200 GB |
 | 100+ | 32+ GB | 16+ cores | 500+ GB |
 
-## Operations
+## Manage PMM Server
 
 ### Connect monitoring clients
+
 To monitor your databases, install PMM Client on each database host and connect it to PMM Server:
 {.power-number}
 
@@ -437,11 +424,11 @@ To monitor your databases, install PMM Client on each database host and connect 
 2. Get the PMM Server address:
   ```sh
   # For hostname-based load balancers
-  export PMM_SERVER=$(kubectl get svc -n monitoring pmm-service \
+  export PMM_SERVER=$(kubectl get svc -n monitoring monitoring-service \
     -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
   # Or for IP-based load balancers, uncomment the following:
-  # export PMM_SERVER=$(kubectl get svc -n monitoring pmm-service \
+  # export PMM_SERVER=$(kubectl get svc -n monitoring monitoring-service \
   #   -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   ```
 
@@ -465,13 +452,13 @@ Verify Kubernetes automatically recovers PMM:
 **Test 1: Delete pod**
 ```sh
 # Delete the PMM pod
-kubectl delete pod -n monitoring -l app=pmm
+kubectl delete pod -n monitoring -l app.kubernetes.io/name=pmm
 
 # Watch Kubernetes recreate it
 kubectl get pods -n monitoring -w
 
 # Check pod is running on same or different node
-kubectl get pod -n monitoring -l app=pmm -o wide
+kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm -o wide
 ```
 
 Recovery should complete in 30-60 seconds on the same node.
@@ -479,7 +466,7 @@ Recovery should complete in 30-60 seconds on the same node.
 **Test 2: Drain node (simulate node failure)**
 ```sh
 # Get node running PMM
-export PMM_NODE=$(kubectl get pod -n monitoring -l app=pmm \
+export PMM_NODE=$(kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm \
   -o jsonpath='{.items[0].spec.nodeName}')
 
 # Drain the node
@@ -489,7 +476,7 @@ kubectl drain $PMM_NODE --ignore-daemonsets --delete-emptydir-data
 kubectl get pods -n monitoring -w
 
 # Check PMM is running on different node
-kubectl get pod -n monitoring -l app=pmm -o wide
+kubectl get pod -n monitoring -l app.kubernetes.io/name=pmm -o wide
 
 # Uncordon the node when done testing
 kubectl uncordon $PMM_NODE
@@ -502,19 +489,19 @@ Recovery should complete in 2-5 minutes with pod rescheduled to a healthy node.
 Check PMM status and resource usage:
 ```sh
 # Check pod status
-kubectl get pods -n monitoring -l app=pmm
+kubectl get pods -n monitoring -l app.kubernetes.io/name=pmm
 
 # View pod logs
-kubectl logs -n monitoring -l app=pmm --tail=100
+kubectl logs -n monitoring -l app.kubernetes.io/name=pmm --tail=100
 
 # Check resource usage
-kubectl top pod -n monitoring -l app=pmm
+kubectl top pod -n monitoring -l app.kubernetes.io/name=pmm
 
 # Check persistent volume
 kubectl get pvc -n monitoring
 
 # Describe pod for detailed status
-kubectl describe pod -n monitoring -l app=pmm
+kubectl describe pod -n monitoring -l app.kubernetes.io/name=pmm
 ```
 
 ### Access PMM pod directly
@@ -522,44 +509,60 @@ kubectl describe pod -n monitoring -l app=pmm
 For troubleshooting, access the PMM pod:
 ```sh
 # Execute commands in pod
-kubectl exec -it -n monitoring -l app=pmm -- bash
+kubectl exec -it -n monitoring pmm-0 -- bash
 
 # Check PMM Server status
-kubectl exec -n monitoring -l app=pmm -- pmm-admin status
+kubectl exec -n monitoring pmm-0 -- pmm-admin status
 
 # View available disk space
-kubectl exec -n monitoring -l app=pmm -- df -h /srv
+kubectl exec -n monitoring pmm-0 -- df -h /srv
 ```
 
 ### Backup and restore
 
+Back up the persistent volume using Kubernetes VolumeSnapshots. To restore, replace the PMM volume with one created from the snapshot. Both stop PMM Server while they run, so the volume is not written to during the snapshot or the restore.
+
 **Create backup**
 ```sh
+SNAPSHOT=pmm-backup-$(date +%Y%m%d)
+
+# Stop PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=0
+kubectl wait --for=delete pod/pmm-0 -n monitoring --timeout=120s
+
 # Create VolumeSnapshot (requires CSI driver with snapshot support)
 kubectl create -f - <<EOF
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
-  name: pmm-backup-$(date +%Y%m%d)
+  name: $SNAPSHOT
   namespace: monitoring
 spec:
   volumeSnapshotClassName: csi-snapclass
   source:
-    persistentVolumeClaimName: pmm-storage
+    persistentVolumeClaimName: pmm-storage-pmm-0
 EOF
 
-# Verify snapshot
-kubectl get volumesnapshot -n monitoring
+# Wait for the snapshot, then start PMM Server
+kubectl wait --for=jsonpath='{.status.readyToUse}'=true volumesnapshot/$SNAPSHOT -n monitoring --timeout=30m
+kubectl scale statefulset pmm -n monitoring --replicas=1
 ```
 
 **Restore from backup**
 ```sh
-# Create new PVC from snapshot
+# Stop PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=0
+kubectl wait --for=delete pod/pmm-0 -n monitoring --timeout=120s
+
+# Delete the current PMM volume. This permanently deletes the data on it.
+kubectl delete pvc pmm-storage-pmm-0 -n monitoring
+
+# Recreate the volume from the snapshot, under the name the PMM pod uses
 kubectl create -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pmm-storage-restored
+  name: pmm-storage-pmm-0
   namespace: monitoring
 spec:
   dataSource:
@@ -570,23 +573,17 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi
+      storage: 100Gi  # At least the size of the original volume
 EOF
 
-# Update Helm values to use restored PVC
-# values.yaml:
-# persistence:
-#   existingClaim: pmm-storage-restored
-
-# Upgrade deployment
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
+# Start PMM Server
+kubectl scale statefulset pmm -n monitoring --replicas=1
 ```
 
 ### Upgrade PMM
 
-Perform zero-downtime upgrades:
+The pod restarts during the upgrade, so expect a brief monitoring interruption (2-5 minutes) while Kubernetes reschedules it.
+
 ```sh
 # Update Helm repository
 helm repo update percona
@@ -599,17 +596,16 @@ helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml
 
-# Or upgrade to specific version
+# Or upgrade to a specific chart version
 helm upgrade pmm percona/pmm \
   --namespace monitoring \
   --values values.yaml \
-  --version 3.5.0
+  --version <chart-version>
 
 # Monitor upgrade progress
 kubectl rollout status statefulset -n monitoring pmm
 ```
 
-The StatefulSet ensures zero-downtime rolling updates with health checks.
 
 ### Rollback upgrade
 
@@ -625,169 +621,10 @@ helm rollback pmm -n monitoring
 helm rollback pmm 2 -n monitoring
 ```
 
-## Troubleshooting
-
-### Pod stuck in Pending state
-
-**Problem**: PMM pod remains in `Pending` state
-
-**Solution**: Check for resource or storage issues:
-```sh
-# Check why pod is pending
-kubectl describe pod -n monitoring -l app=pmm
-
-# Common causes:
-# - Insufficient CPU/memory on nodes
-# - PVC cannot be bound (no available PV or storage class issue)
-# - Node selector/affinity rules prevent scheduling
-
-# Check PVC status
-kubectl get pvc -n monitoring
-
-# Check available node resources
-kubectl top nodes
-```
-
-### Pod constantly restarting
-
-**Problem**: Pod enters CrashLoopBackOff state
-
-**Solution**: Check logs for errors:
-```sh
-# View recent logs
-kubectl logs -n monitoring -l app=pmm --tail=100
-
-# View previous container logs
-kubectl logs -n monitoring -l app=pmm --previous
-
-# Common causes:
-# - Corrupted data volume (check PV)
-# - Insufficient memory (increase limits)
-# - Configuration errors (check env vars)
-```
-
-### Cannot access PMM UI
-
-**Problem**: LoadBalancer external IP pending or connection refused
-
-**Solution**: Verify service configuration:
-```sh
-# Check service status
-kubectl get svc -n monitoring pmm-service
-
-# Check service endpoints
-kubectl get endpoints -n monitoring pmm-service
-
-# For LoadBalancer pending:
-# - Verify cloud provider supports LoadBalancer
-# - Check cloud provider quota limits
-# - Consider using NodePort or Ingress instead
-
-# Test connectivity from within cluster
-kubectl run -it --rm debug \
-  --image=curlimages/curl \
-  --restart=Never \
-  -- curl -k https://pmm-service.monitoring.svc.cluster.local
-```
-
-### High memory usage
-
-**Problem**: PMM consuming excessive memory
-
-**Solution**: Optimize configuration:
-```sh
-# Check current memory usage
-kubectl top pod -n monitoring -l app=pmm
-
-# Reduce data retention
-kubectl exec -n monitoring -l app=pmm -- \
-  pmm-admin config --data-retention=7d
-
-# Increase memory limits in values.yaml
-# resources:
-#   limits:
-#     memory: "16Gi"
-
-helm upgrade pmm percona/pmm \
-  --namespace monitoring \
-  --values values.yaml
-```
-
-### Data not persisting
-
-**Problem**: Data lost after pod restart
-
-**Solution**: Verify persistent volume configuration:
-```sh
-# Check PVC is bound
-kubectl get pvc -n monitoring
-
-# Check PV exists
-kubectl get pv
-
-# Verify pod is using PVC
-kubectl describe pod -n monitoring -l app=pmm | grep -A 5 Volumes
-
-# Ensure persistence is enabled in values.yaml
-# persistence:
-#   enabled: true
-```
-
-### Slow pod rescheduling
-
-**Problem**: Pod takes longer than 5 minutes to reschedule
-
-**Solution**: Check node health and volume attachment:
-```sh
-# Check node status
-kubectl get nodes
-
-# Check volume attachment (AWS example)
-aws ec2 describe-volumes --filters "Name=status,Values=in-use"
-
-# For cloud providers, volume detachment may take time
-# Consider using regional persistent disks for faster failover
-
-# Check pod events
-kubectl describe pod -n monitoring -l app=pmm
-```
-
-## Limitations and when to upgrade
-
-### When Kubernetes Single-Instance is sufficient
-
-- **Most production workloads** where 2-5 minutes of monitoring gap is acceptable
-- **Teams with Kubernetes expertise** who want automatic recovery
-- **Cloud-native architectures** already using Kubernetes
-- **Environments with maintenance windows** for planned upgrades
-
-### When to consider PMM High Availability Cluster
-
-!!! warning "HA Clustered is Tech Preview only"
-    PMM Kubernetes HA Cluster is currently NOT production-ready. Only consider it for testing and evaluation purposes.
-
-Consider upgrading to [Kubernetes HA Cluster](HA-clustered.md) when you:
-
-- require **zero-downtime monitoring** (< 30 second failover)
-- can tolerate **Tech Preview status** with known issues
-- have **expert Kubernetes skills** to manage complex deployments
-- need **multiple active PMM instances** for load distribution
-- are **testing for future production** HA requirements
-
-### When to stay with Docker HA
-
-Consider using [Docker HA](HA-docker.md) instead if:
-
-- don't have Kubernetes infrastructure
-- want the simplest possible setup
-- are in development or testing
-- can tolerate 1-3 minutes of downtime
-
-
 ## Get help
 
-- [PMM Community Forums](https://per.co.na/PMM3_forums) 
-- [Contact Percona Support](https://www.percona.com/services/support) 
+- [PMM Community Forums](https://per.co.na/PMM3_forums)
+- [Contact Percona Support](https://www.percona.com/services/support)
 - [Report bugs or technical issues](https://perconadev.atlassian.net/jira/software/c/projects/PMM/issues/)
 - [Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm)
 - [Kubernetes best practices for PMM](../install-pmm/install-pmm-server/deployment-options/helm/index.md)

@@ -205,6 +205,9 @@ export interface OmTopologyResponse {
 export interface OmServiceRow extends OmService {
   env_name?: string | null;
   cluster_name?: string | null;
+  /** The cluster's opaque, server-issued id -- see OmCluster.id. Group on this,
+   * not `cluster_name`, which two clusters can share or both lack. */
+  cluster_id: string;
 }
 
 /**
