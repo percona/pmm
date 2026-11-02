@@ -108,7 +108,7 @@ Before you upgrade:
 
 During the first start, PMM Server:
 
-- Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
+- Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one reuses that file.
 - Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recover-from-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
@@ -143,7 +143,7 @@ To start PMM Server without the lost key:
 
 3. Start PMM Server with that environment variable set to the value from the log. With Docker, re-create the container with the same data volume and add `-e PMM_ENCRYPTION_ACCEPT_KEY_LOSS=<ID from the log>`.
 
-    PMM Server starts, keeps the values that it can't decrypt in `pmm-encryption-migration-backup-<timestamp>.json`, and logs the affected agents.
+    PMM Server starts, keeps the values that it can't decrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, and logs the affected agents.
 
 4. Re-enter the credentials of the affected services, or remove and re-add the services.
 
