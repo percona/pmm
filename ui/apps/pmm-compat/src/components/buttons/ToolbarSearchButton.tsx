@@ -1,7 +1,7 @@
 import React from 'react';
 import { ToolbarButton } from '@grafana/ui';
 import { ThemeProvider } from 'contexts/theme';
-import { triggerShortcut } from 'lib/utils';
+import { openSearch } from 'compat/search';
 
 const ToolbarSearchButton = () => (
   <ThemeProvider>
@@ -9,7 +9,7 @@ const ToolbarSearchButton = () => (
       aria-label="Search"
       iconOnly
       icon="search"
-      onClick={() => triggerShortcut('search')}
+      onClick={() => openSearch()}
       data-testid="pmm-toolbar-search-button"
     />
   </ThemeProvider>

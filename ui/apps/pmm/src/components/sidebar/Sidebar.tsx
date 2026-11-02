@@ -22,6 +22,7 @@ import { useLocation } from 'react-router-dom';
 import { NavItem as NavItemType } from 'types/navigation.types';
 import { hiddenScrollbarMixin, scrollFadeMixin } from './drawer/Drawer.styles';
 import { StarredSection, splitStarred } from './starred-section';
+import { SidebarSearchEntry } from 'search';
 
 const edgeMarker = { height: '1px', listStyle: 'none' };
 
@@ -160,6 +161,7 @@ export const Sidebar: FC = () => {
           ]}
         >
           <Box component="li" ref={startRef} aria-hidden sx={edgeMarker} />
+          <SidebarSearchEntry drawerOpen={navOpen} />
           {starred ? (
             <>
               {starred.before.map(renderItem)}
