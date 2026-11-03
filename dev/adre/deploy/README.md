@@ -1,14 +1,12 @@
-# PMM + HolmesGPT (PMM Assistant) — one-command deployment
+# PMM Assistant prototype — install
 
-`install.sh` brings up PMM + HolmesGPT with HTTPS and wires them together. Nothing has to be prepared or
-edited first.
+Try the PMM Assistant prototype (AI chat over your PMM data, Investigations and the Logs page) on a Linux test
+machine with one script. It is a prototype build based on PMM 3.10, not a PMM release, so please use a test machine.
 
-## Prerequisites
+## Quick start
 
-A Linux host with **Docker + the Compose plugin** (`docker compose`), **`openssl`**, **`curl`** and **`bash`**,
-with port **443** free. If your user needs `sudo` for Docker, the script detects it.
-
-## Install
+You need Docker with the Compose plugin, `curl`, `openssl`, and port 443 free. If your user needs `sudo` for
+Docker, the script detects it.
 
 ```bash
 mkdir -p ~/pmm-assistant && cd ~/pmm-assistant
@@ -16,15 +14,75 @@ curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-
 bash install.sh
 ```
 
-It prints the PMM URL; the generated `admin` password is in `./.env` (`PMM_ADMIN_PASSWORD`). Then open
-**Configuration → Assistant → Deployment → Models & Keys**, add your model (name, LiteLLM model, API key) and **Save** —
-HolmesGPT picks it up without a restart.
+After a few minutes it prints the PMM address. Log in as `admin`; the password is in `~/pmm-assistant/.env`
+(`PMM_ADMIN_PASSWORD`). The browser warns about the self-signed certificate; that is expected.
 
-To add the model during install instead, pass it on the command line:
+Then add an AI model: **Configuration → Assistant → Deployment → Models & Keys → Add model** (a name, a LiteLLM model
+id such as `anthropic/claude-sonnet-5-5`, and your API key) → **Save models**. Open **Assistant** from the left menu
+and ask a question. Or add the model during install:
 
 ```bash
-MODEL_NAME=claude-opus LITELLM_MODEL=anthropic/claude-opus-5-5 LLM_API_KEY=sk-ant-... bash install.sh
+MODEL_NAME=claude-sonnet LITELLM_MODEL=anthropic/claude-sonnet-5-5 LLM_API_KEY=<your key> bash install.sh
 ```
+
+### Already running a PMM Server on that machine?
+
+The script can add only the AI parts (HolmesGPT and the Grafana image renderer) next to it:
+
+```bash
+mkdir -p ~/pmm-assistant/holmes-config && cd ~/pmm-assistant
+curl -fsSL --remote-name-all https://raw.githubusercontent.com/percona/pmm/tibi-holmes/dev/adre/deploy/{compose.yaml,install.sh}
+```
+
+Put the server's admin password in `~/pmm-assistant/.env` as a line `PMM_ADMIN_PASSWORD=<password>`, then run:
+
+```bash
+bash install.sh --existing-server        # or --existing-server=<name> if the container is not called pmm-server
+```
+
+The script never changes the admin password and checks the container before it changes anything. If the server
+runs stock PMM, or lacks settings Docker only applies when a container is created, it stops and prints a
+`docker run` command that recreates it with the prototype image, the same data volume and ports, and what is
+missing. Run that command, then run `bash install.sh --existing-server` again.
+
+Switching a stock PMM's data to the prototype image is one-way: going back to stock PMM or upgrading to a later
+official release is not supported. Use a test server, or back up its data volume first.
+
+### Monitor databases and collect their logs
+
+Install the PMM Client of the same build on each database host and register it with PMM as usual. `install.sh`
+prints that client's Docker image and tarball at the end; its tag is the tag of the server image
+(`perconalab/pmm-client-fb:PR-4259-<build>`).
+
+To collect a database's logs, run this on that host, with the log file path and its parser preset:
+
+```bash
+pmm-admin add otel logs --log-sources=/var/log/mysql/error.log:mysql_error
+```
+
+Several files go in one comma-separated list, for example
+`--log-sources=/var/log/mysql/error.log:mysql_error,/var/lib/pgsql/data/log/postgresql.log:postgres`. Presets for
+databases: `mysql_error`, `postgres`, `mongodb`, `syslog_mysql_systemd`, or `raw` for no parsing (all presets are under
+**Settings → OTEL**). The client must be able to read the file; with the Docker client, mount the log directory
+into the container. Within a minute the lines show on the **Logs** page (left menu), where you can filter them and
+group them into patterns. PMM Server's own logs are collected automatically.
+
+### Update to a newer build
+
+Download the two files again and re-run `bash install.sh` (it remembers `--existing-server`). A new install
+moves PMM Server to the build `compose.yaml` names and keeps its data. With `--existing-server`, the script says
+when a newer build exists; recreate the container from that image with the same options. A `PMM_IMAGE` line in
+`.env` pins the build; remove it to follow updates. A build that moves to a new PMM release (as the 3.9 to 3.10
+move did) needs a new server; its announcement says so.
+
+### Remove
+
+New install: run `docker compose down -v` in `~/pmm-assistant`, then delete that folder. This deletes PMM's data.
+
+With `--existing-server`: run `docker network disconnect pmm pmm-server`, then `docker compose down` in
+`~/pmm-assistant`. HolmesGPT and the renderer are removed; your PMM Server and its data stay.
+
+## How install.sh works
 
 `install.sh`, in order: generates a self-signed TLS cert for HolmesGPT; starts `pmm-server` and
 `grafana-image-renderer` and sets the admin password; picks the PMM URL HolmesGPT calls back on
@@ -36,18 +94,10 @@ PMM can reach it. Re-running it is safe: the cert, password and tokens are kept 
 > `docker compose up -d --force-recreate holmesgpt`): a plain `docker compose up -d` before provisioning
 > starts Holmes without the tokens.
 
-## Use a PMM Server that is already running
+## Existing-server mode in detail
 
-When a PMM Server with the Assistant (a `tibi-holmes` Feature Build) already runs on the host, `install.sh` can add
-only HolmesGPT and the image renderer next to it:
-
-```bash
-echo 'PMM_ADMIN_PASSWORD=<its admin password>' >> .env
-bash install.sh --existing-server                 # the container is named pmm-server
-bash install.sh --existing-server=my-pmm          # any other name
-```
-
-It first checks the container and changes nothing until the check passes. It never changes the admin password.
+`install.sh --existing-server[=CONTAINER]` first checks the container and changes nothing until the check passes.
+It never changes the admin password.
 
 - **Stops with an error** when the container is missing or stopped, the password is wrong, or a `holmesgpt`
   container installed from another directory exists.
@@ -75,7 +125,9 @@ to create a second `pmm-server`.
 Defaults are in [`.env.example`](.env.example); override them in `./.env` or on the command line.
 
 - **`PMM_IMAGE`** — a PMM Server image with the Assistant (a Feature Build of `tibi-holmes`); **the official
-  `percona/pmm-server:3` does not have it** (`/v1/adre/*` → 404).
+  `percona/pmm-server:3` does not have it** (`/v1/adre/*` → 404). The default is the image in `compose.yaml`, the
+  only place that names the build: after a new Feature Build passes, change it there and both files follow.
+  `install.sh` does not save the images in `.env`, so setting `PMM_IMAGE` there pins an install to a build.
 - **`HOLMES_IMAGE`** — `>= 0.36.0` (native HTTPS + `/api/admin/reload`); defaults to
   `robustadev/holmes:0.45.0` ([release](https://github.com/HolmesGPT/holmesgpt/releases/tag/0.45.0)). Pin a digest
   for prod. Since 0.43.0 Holmes turns TodoWrite planning off by default; PMM opts Investigation mode back in via
@@ -128,7 +180,8 @@ docker compose up -d --force-recreate holmesgpt
   opt-in config flag. Do not mount old copies of those files into a newer image.
 - **First PMM start can take a few minutes** (fresh `/srv` init); `install.sh` waits up to ~10 minutes.
 - **Updates are disabled** (`PMM_ENABLE_UPDATES=false`): the in-app updater would replace this build with a
-  stock PMM release, which has no Assistant. Move to a newer build by changing `PMM_IMAGE` and re-running `install.sh`.
+  stock PMM release, which has no Assistant. Move to a newer build as described in
+  [Update to a newer build](#update-to-a-newer-build).
 - **k8s toolset:** if you need it, add `- /path/to/kube_config:/root/.kube/config` to the `holmesgpt` volumes
   (omitted by default).
 - **Single-host lab bundle — not hardened for shared hosts.** The admin password is generated and stored in `./.env` (0600), and note that `install.sh` makes the shared config dir `0777` and that secrets (the minted PMM/Holmes tokens, the self-signed TLS key, and `model_list.yaml` with your LLM key) live in it. That's fine on a single-admin host; on a multi-user host, tighten those perms. `install.sh` sends secrets to the PMM API on stdin, never as command-line arguments.

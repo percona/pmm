@@ -12,6 +12,7 @@ services:
     image: ${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-19150b4}
     container_name: pmm-server
     restart: always
+    stop_grace_period: 2m                        # a recreate (new image) lets PMM's PostgreSQL shut down cleanly
     networks: [pmm]
     ports:
       - "443:8443"

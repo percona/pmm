@@ -45,8 +45,12 @@ PMM_CONTAINER="${EXISTING:-pmm-server}"
 if [ -n "$EXISTING" ] && [ -z "${PMM_ADMIN_PASSWORD:-}" ]; then
   echo "ERROR: --existing-server needs that server's admin password: set PMM_ADMIN_PASSWORD in ./.env or the environment."; exit 1
 fi
-export PMM_IMAGE="${PMM_IMAGE:-perconalab/pmm-server-fb:PR-4259-19150b4}"
-export HOLMES_IMAGE="${HOLMES_IMAGE:-robustadev/holmes:0.45.0}"
+# compose.yaml names the images this version installs, so a new build changes them in one place.
+compose_default() { sed -n "s/.*\${$1:-\([^}]*\)}.*/\1/p" compose.yaml | head -n1; }
+DEFAULT_PMM_IMAGE=$(compose_default PMM_IMAGE)
+[ -n "$DEFAULT_PMM_IMAGE" ] || { echo "ERROR: compose.yaml (with its PMM_IMAGE default) must be next to install.sh."; exit 1; }
+export PMM_IMAGE="${PMM_IMAGE:-$DEFAULT_PMM_IMAGE}"
+export HOLMES_IMAGE="${HOLMES_IMAGE:-$(compose_default HOLMES_IMAGE)}"
 export HOLMES_CONFIG_DIR="${HOLMES_CONFIG_DIR:-./holmes-config}"
 PMM_ADMIN_PASSWORD="${PMM_ADMIN_PASSWORD:-$(openssl rand -base64 18 | tr -d '/+=')}"
 export PMM_ADMIN_PASSWORD
@@ -139,7 +143,12 @@ check_existing_server() {
       *) echo "ERROR: $PMM_LOCAL does not answer like PMM Server; set PMM_LOCAL to its HTTPS URL."; exit 1 ;;
     esac
     case $(curl -ks -o /dev/null -w '%{http_code}' -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/adre/settings") in
-      200) ;;
+      200)
+        image=$($DOCKER inspect -f '{{.Config.Image}}' "$c")
+        if [ "$image" != "$PMM_IMAGE" ]; then
+          echo "         NOTE: '$c' runs $image; this script's build is $PMM_IMAGE. To move to it, recreate '$c'"
+          echo "         from that image with the same options (data in the volume is kept)."
+        fi ;;
       404)
         new_image=$PMM_IMAGE
         recreate+=("its image has no PMM Assistant (stock PMM); it has to run $new_image") ;;
@@ -238,14 +247,18 @@ else
     echo "ERROR: a pmm-server container from $where exists. To add HolmesGPT and the renderer next to it, run:"
     echo "       bash install.sh --existing-server"; exit 1
   fi
+  if [ "$PMM_IMAGE" != "$DEFAULT_PMM_IMAGE" ]; then
+    echo "NOTE: PMM_IMAGE is $PMM_IMAGE (from .env or the environment); this script's build is"
+    echo "      $DEFAULT_PMM_IMAGE. Remove PMM_IMAGE from .env and re-run to move to it."
+  fi
 fi
 
-# Persist what docker compose and later re-runs need; keep anything the user already put in .env.
+# Persist what docker compose and later re-runs need; keep anything the user already put in .env. The images are
+# not saved, so a newer compose.yaml and install.sh move the install to the build they name.
 umask 077
 touch .env
 keep() { grep -q "^$1=" .env || printf '%s=%s\n' "$1" "$2" >> .env; }
-if [ -n "$EXISTING" ]; then keep PMM_EXISTING_SERVER "$EXISTING"; else keep PMM_IMAGE "$PMM_IMAGE"; fi
-keep HOLMES_IMAGE "$HOLMES_IMAGE"
+[ -z "$EXISTING" ] || keep PMM_EXISTING_SERVER "$EXISTING"
 keep HOLMES_CONFIG_DIR "$HOLMES_CONFIG_DIR"
 keep PMM_ADMIN_PASSWORD "$PMM_ADMIN_PASSWORD"
 umask 022
@@ -357,6 +370,11 @@ esac
 
 echo
 echo "==> done.  PMM: ${PMM_CALLBACK_URL/$PMM_CONTAINER:8443/<this-host>}   login: admin, password in .env (PMM_ADMIN_PASSWORD)"
+server_image=$($DOCKER inspect -f '{{.Config.Image}}' "$PMM_CONTAINER")
+if [[ $server_image == perconalab/pmm-server-fb:* ]]; then
+  echo "    PMM Client for database hosts, same build: perconalab/pmm-client-fb:${server_image##*:} or"
+  echo "    https://s3.us-east-2.amazonaws.com/pmm-build-cache/PR-BUILDS/pmm-client/pmm-client-${server_image##*:}.tar.gz"
+fi
 if curl -ksf -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/adre/deployment" | grep -q '"models":\[\]'; then
   echo "    Next: add an LLM in PMM → Configuration → Assistant → Deployment → Models & Keys, then open Assistant."
 fi
