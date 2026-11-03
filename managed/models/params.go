@@ -26,6 +26,8 @@ type HAParams struct {
 	Nodes      []string
 	RaftPort   int
 	GossipPort int
+	// Namespace is the Kubernetes namespace this instance is running in, if known.
+	Namespace string
 }
 
 // Params defines parameters for supervisor.

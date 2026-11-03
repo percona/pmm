@@ -129,7 +129,7 @@ Use this to understand the workload mix. A spike in `repl_*` operations on a sec
 
 ### Top Hottest Collections by Read
 
-Shows the five collections with the highest read operation rate per second.
+Shows the five collections with the highest read operation rate per second using a stable rate window. Use this to identify your most frequently accessed collections and optimize their performance.
 
 Use this to identify which collections are driving the most read traffic. High-traffic collections are the first place to look when investigating read latency or indexing opportunities.
 
@@ -141,7 +141,7 @@ Rising read latency alongside normal write latency usually points to a query or 
 
 ### Top Hottest Collections by Write
 
-Shows the five collections with the highest write operation rate per second, combining inserts, updates, and deletes.
+Shows the five collections with the highest write operation rate per second using a stable rate window, combining inserts, updates, and deletes.
 
 Use this to identify which collections are driving the most write traffic and where write optimization would have the most impact.
 

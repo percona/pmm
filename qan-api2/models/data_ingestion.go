@@ -593,6 +593,8 @@ const insertSQL = `
 
 // MetricsBucketExtended extends proto MetricsBucket to store converted data into db.
 type MetricsBucketExtended struct {
+	*qanpb.MetricsBucket
+
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
@@ -603,7 +605,6 @@ type MetricsBucketExtended struct {
 	ErrorsCode       []uint64  `json:"errors_code"`
 	ErrorsCount      []uint64  `json:"errors_count"`
 	IsQueryTruncated uint8     `json:"is_query_truncated"` // uint32 -> uint8
-	*qanpb.MetricsBucket
 }
 
 // MetricsBucket implements models to store metrics bucket.
@@ -779,17 +780,17 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 			}
 
 			q := MetricsBucketExtended{
-				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
-				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
-				exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
-				lk,
-				lv,
-				wk,
-				wv,
-				ek,
-				ev,
-				truncated,
-				metricsBucket,
+				MetricsBucket:    metricsBucket,
+				PeriodStart:      time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
+				AgentType:        agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
+				ExampleType:      exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
+				LabelsKey:        lk,
+				LabelsValues:     lv,
+				WarningsCode:     wk,
+				WarningsCount:    wv,
+				ErrorsCode:       ek,
+				ErrorsCount:      ev,
+				IsQueryTruncated: truncated,
 			}
 
 			_, err = stmt.Exec(q)

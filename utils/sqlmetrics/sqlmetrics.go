@@ -92,7 +92,7 @@ func NewCollector(driver, dbName string, db *sql.DB) *Collector {
 	}
 }
 
-//nolint:revive
+// Describe sends the super-set of all possible descriptors of metrics collected by this Collector to the provided channel.
 func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxOpenConnections
 
@@ -106,7 +106,7 @@ func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxLifetimeClosed
 }
 
-//nolint:revive
+// Collect fetches the statistics from the database and delivers them as Prometheus metrics.
 func (c *Collector) Collect(ch chan<- prom.Metric) {
 	stats := c.db.Stats()
 

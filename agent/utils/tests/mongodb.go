@@ -24,7 +24,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/version"
 )
@@ -47,6 +47,16 @@ func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
 	return "mongodb://127.0.0.1:27020,127.0.0.1:27021/admin?replicaSet=rs0"
 }
 
+// GetTestMongoDBArbiterDSN returns DNS for the arbiter of the MongoDB test replica set with authentication.
+// An arbiter stores no users, so the DSN has no credentials.
+func GetTestMongoDBArbiterDSN(tb testing.TB) string {
+	tb.Helper()
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+	return "mongodb://127.0.0.1:27025/admin?directConnection=true"
+}
+
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
 func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()
@@ -58,10 +68,10 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv
 
 	dsn := "mongodb://localhost:27018/admin/?tls=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
-	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt")) //nolint:gosec
+	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt"))
 	require.NoError(tb, err)
 
-	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec
+	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem"))
 	require.NoError(tb, err)
 
 	return dsn, &agentv1.TextFiles{
@@ -105,7 +115,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 	tb.Helper()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		require.NoError(tb, err)
 	}

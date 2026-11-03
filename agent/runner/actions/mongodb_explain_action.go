@@ -26,7 +26,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -93,7 +93,7 @@ func (a *mongodbExplainAction) DSN() string {
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBExplainActionType))
 
-	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
+	opts, err := mongofix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -220,8 +220,8 @@ func reorderToCommandFirst(doc bson.D) (bson.D, bool) {
 }
 
 func (e explain) getDB() string {
-	s := strings.SplitN(e.Ns, ".", 2)
-	if len(s) == 2 {
+	s := strings.SplitN(e.Ns, ".", 2) //nolint:mnd
+	if len(s) == 2 {                  //nolint:mnd
 		return s[0]
 	}
 
@@ -229,8 +229,8 @@ func (e explain) getDB() string {
 }
 
 func (e explain) getCollection() string {
-	s := strings.SplitN(e.Ns, ".", 2)
-	if len(s) == 2 {
+	s := strings.SplitN(e.Ns, ".", 2) //nolint:mnd
+	if len(s) == 2 {                  //nolint:mnd
 		return s[1]
 	}
 

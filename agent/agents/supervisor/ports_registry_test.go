@@ -25,7 +25,7 @@ import (
 func TestRegistry(t *testing.T) {
 	// 65000 is marked as reserved, 65001 is busy, 65002 is free
 	r := newPortsRegistry(65000, 65002, []uint16{65000})
-	l1, err := net.Listen("tcp", "127.0.0.1:65001")
+	l1, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:65001")
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		_ = l1.Close()
@@ -37,7 +37,7 @@ func TestRegistry(t *testing.T) {
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
-	l2, err := net.Listen("tcp", "127.0.0.1:65002")
+	l2, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:65002")
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		_ = l2.Close()

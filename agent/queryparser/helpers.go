@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package queryparser provides functionality for queries parsing.
 package queryparser
 
 import (
@@ -75,7 +74,7 @@ func parseKeyValueFromComment(s string) map[string]string {
 	res := make(map[string]string)
 	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
-		if len(v) < 3 {
+		if len(v) < 3 { //nolint:mnd
 			continue
 		}
 		res[v[1]] = v[2]

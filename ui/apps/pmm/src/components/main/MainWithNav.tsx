@@ -5,17 +5,23 @@ import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
+import { useUser } from 'contexts/user';
 import { UpdateModal } from 'components/main/update-modal';
+import { ReloadPrompt } from 'components/main/reload-prompt';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
 import { isRenderingServer } from '@pmm/shared';
 import Header from './header/Header';
+import AlertThresholds from 'components/alert-thresholds';
 
 const useMainNavVisible = () => {
   const { isLoggedIn } = useAuth();
+  const { user } = useUser();
   const { isFullScreen } = useGrafana();
 
-  return isLoggedIn && !isFullScreen && !isRenderingServer();
+  return (
+    (isLoggedIn || user?.isAnonymous) && !isFullScreen && !isRenderingServer()
+  );
 };
 
 export const MainWithNav = () => {
@@ -48,6 +54,8 @@ export const MainWithNav = () => {
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
         <UpdateModal />
       </DelayedRender>
+      <AlertThresholds />
+      <ReloadPrompt />
     </Stack>
   );
 };

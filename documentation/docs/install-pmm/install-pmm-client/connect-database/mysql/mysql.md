@@ -119,6 +119,12 @@ While you can use both at the same time we recommend using only one--there is so
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
+#### QAN data sources
+
+QAN reads queries only from the slow query log written to a file
+(`log_output=FILE`) or from Performance Schema. It does not support the
+general query log or a slow query log written to a table (`log_output=TABLE`).
+
 #### Data source comparison
 
 Here are the benefits and drawbacks of Slow query log and Performance Schema metrics sources:
@@ -654,6 +660,10 @@ Once the service is confirmed as active, verify that metrics are being properly 
     1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER].
     2. Select your cluster service from the dropdown.
     3. Verify that cluster-specific metrics are being displayed.
+
+### Running custom queries
+
+To collect metrics beyond what PMM provides by default, you can define custom SQL queries for the MySQL exporter. See [Running custom queries in MySQL](custom_queries.md).
 
 ## Related topics
 

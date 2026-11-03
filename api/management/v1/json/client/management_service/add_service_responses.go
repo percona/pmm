@@ -818,8 +818,8 @@ type AddServiceDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// add service default body details items0
-	AddServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// add service default body details items0 additional properties
+	AddServiceDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -854,7 +854,7 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.AddServiceDefaultBodyDetailsItems0 = result
+		o.AddServiceDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -875,12 +875,12 @@ func (o AddServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.AddServiceDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.AddServiceDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.AddServiceDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.AddServiceDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -2793,6 +2793,9 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7620,7 +7623,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -7635,7 +7638,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
 }
 
@@ -8537,6 +8540,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -10130,6 +10136,9 @@ type AddServiceParamsBodyMongodb struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
@@ -11894,6 +11903,18 @@ type AddServiceParamsBodyRDS struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// List of collector names to disable in the MySQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
+	MysqlDisableCollectors []string `json:"mysql_disable_collectors"`
+
+	// List of collector names to disable in the PostgreSQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
+	PostgresqlDisableCollectors []string `json:"postgresql_disable_collectors"`
+
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this add service params body RDS

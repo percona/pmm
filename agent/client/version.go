@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client contains business logic of working with pmm-managed.
 package client
 
 import (

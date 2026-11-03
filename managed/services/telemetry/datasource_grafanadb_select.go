@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package telemetry provides telemetry functionality.
 package telemetry
 
 import (
@@ -50,7 +49,7 @@ func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource 
 	}
 }
 
-func (d *dsGrafanaDBSelect) Init(ctx context.Context) error { //nolint:revive
+func (d *dsGrafanaDBSelect) Init(context.Context) error {
 	db, err := openGrafanaDBConnection(d.config, d.l)
 	if err != nil {
 		return err
@@ -97,6 +96,6 @@ func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsGrafanaDBSelect) Dispose(ctx context.Context) error { //nolint:revive
+func (d *dsGrafanaDBSelect) Dispose(context.Context) error {
 	return d.db.Close()
 }

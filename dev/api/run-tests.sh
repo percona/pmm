@@ -37,11 +37,6 @@ pmm-api() {
 
   until curl -skf https://127.0.0.1/v1/server/readyz &>/dev/null; do echo "Waiting for pmm-server to come up..." && sleep 2; done
 
-  # Create a test database
-  pushd api-tests
-  docker compose up test_db # no daemon mode
-  popd
-
   # Run API tests in race mode
   docker run \
     --platform linux/amd64 \

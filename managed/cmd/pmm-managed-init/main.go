@@ -16,6 +16,9 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"strconv"
 
@@ -24,6 +27,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/clickhouse"
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/logger"
@@ -38,9 +42,17 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
+	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))
 	if err != nil {
 		errs = append(errs, err)
+	}
+	// An external ClickHouse leaves the built-in server unused, so its config files are irrelevant.
+	if err == nil && !disableInternalClickhouse {
+		linkErr := clickhouse.LinkClickHouseConfig(clickHouseConfig)
+		if linkErr != nil {
+			errs = append(errs, linkErr)
+		}
 	}
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s", warn)
@@ -60,18 +72,47 @@ func main() {
 
 	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
-	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	pmmConfigParams["DisableInternalClickhouse"] = disableInternalClickhouse
 	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
-	pmmConfigParams["ClickHouseConfig"] = clickHouseConfig
 
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
 	if isHAEnabled {
 		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
+
+		err = checkHAEncryptionKey()
+		if err != nil {
+			logrus.Errorf("Configuration error: %s", err)
+			os.Exit(1)
+		}
 	}
 
 	err = supervisord.SavePMMConfig(pmmConfigParams)
 	if err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
+	}
+}
+
+// checkHAEncryptionKey refuses to start an HA node that has no encryption key yet.
+//
+// All nodes of an HA cluster share one PostgreSQL database but keep their own key file, so
+// letting a node generate its own key leaves it unable to decrypt rows written by the others.
+func checkHAEncryptionKey() error {
+	path := encryption.KeyPath()
+
+	info, err := os.Stat(path)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return fmt.Errorf("encryption key %s not found. In HA mode all PMM Server nodes must share "+
+			"one encryption key, so it is never generated automatically. Generate it once with "+
+			"`pmm-encryption-rotation --generate-key`, place the output at %s on every node, then start them",
+			path, path)
+	case err != nil:
+		return fmt.Errorf("cannot read encryption key %s: %w", path, err)
+	case !info.Mode().IsRegular() || info.Size() == 0:
+		return fmt.Errorf("encryption key %s is empty or not a regular file. Place the key shared by "+
+			"all PMM Server nodes there, generated once with `pmm-encryption-rotation --generate-key`", path)
+	default:
+		return nil
 	}
 }

@@ -32,7 +32,7 @@ checks:
 
       def check_context(docs, context):
           # we first define some global variables
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
           in_result = check_binlog_row_image(docs[0],read_url)

@@ -5,7 +5,10 @@ import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/percona-ui';
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+import { PreviewChip } from 'components/preview-chip';
+import { NAV_INVENTORY } from 'contexts/navigation/navigation.constants';
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -28,6 +31,21 @@ const TEST_NAV_TREE: NavTreeItem = {
           url: '/0/1/2',
         },
       ],
+    },
+  ],
+};
+
+const TEST_ALWAYS_VISIBLE_BADGE_ITEM: NavTreeItem = {
+  id: 'always-badge',
+  icon: 'pmm-rounded',
+  text: 'always-badge',
+  badge: <PreviewChip level="tech" />,
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'always-badge-child',
+      text: 'always-badge-child',
+      url: '/always-badge/child',
     },
   ],
 };
@@ -136,6 +154,24 @@ describe('SidebarNavItem', () => {
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
   });
 
+  it('links a collapsible item to its first child by default', () => {
+    renderNavItem();
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute(
+      'href',
+      '/0/10'
+    );
+  });
+
+  it('links Inventory to the Services list', () => {
+    renderNavItem({ props: { item: NAV_INVENTORY } });
+
+    expect(screen.getByTestId('navitem-inventory')).toHaveAttribute(
+      'href',
+      `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`
+    );
+  });
+
   it('renders badge if item has badge', () => {
     renderNavItem({
       props: {
@@ -150,7 +186,7 @@ describe('SidebarNavItem', () => {
   it('shows dot on root if children has a badge and is hidden', async () => {
     const item: NavTreeItem = {
       id: 'with-badge',
-      icon: 'home',
+      icon: 'pmm-rounded',
       url: '/root',
       children: [
         {
@@ -168,6 +204,28 @@ describe('SidebarNavItem', () => {
     fireEvent.click(screen.getByTestId('navitem-with-badge-toggle'));
 
     expect(container.querySelector('.MuiBadge-dot')).toBeInTheDocument();
+  });
+
+  it('shows an always-visible badge on a collapsible item while the drawer is open', () => {
+    renderNavItem({ props: { item: TEST_ALWAYS_VISIBLE_BADGE_ITEM } });
+
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('navitem-always-badge-toggle'));
+
+    expect(screen.getByTestId('navitem-always-badge-collapse')).not.toHaveClass(
+      collapseClasses.hidden
+    );
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+  });
+
+  it('renders neither an always-visible badge nor a dot when the drawer is closed', () => {
+    const { container } = renderNavItem({
+      props: { item: TEST_ALWAYS_VISIBLE_BADGE_ITEM, drawerOpen: false },
+    });
+
+    expect(screen.queryByText('Preview')).not.toBeInTheDocument();
+    expect(container.querySelector('.MuiBadge-dot')).not.toBeInTheDocument();
   });
 
   it('renders divider if item has type "menu-divider"', () => {

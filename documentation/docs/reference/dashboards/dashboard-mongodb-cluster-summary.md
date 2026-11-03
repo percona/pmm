@@ -113,7 +113,7 @@ Shows operation rates per second broken down by type: query, insert, update, del
 
 ### Top Hottest Collections by Read
 
-Shows the five collections with the highest read rates, in operations per second. Use this to identify collections that may need index tuning or caching improvements.
+Shows the five collections with the highest read rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may need index tuning or caching improvements.
 
 ### Operations Latencies
 
@@ -121,7 +121,7 @@ Shows average operation latency in microseconds over time, broken down by reads,
 
 ### Top Hottest Collections by Write
 
-Shows the five collections with the highest write rates, in operations per second. Use this to identify collections that may be driving lock contention or replication lag.
+Shows the five collections with the highest write rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may be driving lock contention or replication lag.
 
 ### Operations Per Shard
 

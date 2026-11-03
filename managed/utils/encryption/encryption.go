@@ -18,7 +18,9 @@ package encryption
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -42,6 +44,8 @@ var (
 	// DefaultEncryption is the default implementation of encryption, lazily initialized.
 	defaultEncryption    *Encryption
 	defaultEncryptionMtx sync.Mutex
+	// In tests without a key file, all instances share this key.
+	inMemoryKey = sync.OnceValues((&Encryption{}).GenerateKey)
 )
 
 // CustomEncryptionKeyPathEnvVar is an environment variable to set custom encryption key path.
@@ -72,10 +76,15 @@ type Table struct {
 	Columns     []Column
 }
 
-// Column represents column name and column's custom handler (if needed).
+// Column represents column name and column's custom handlers (if needed).
+// CustomEncryptHandler and CustomDecryptHandler must be set as a matching pair:
+// EncryptItems uses the encrypt handler, DecryptItems uses the decrypt one. Reusing
+// a single handler for both directions adds another encryption layer during the
+// decrypt phase instead of removing one.
 type Column struct {
-	Name          string
-	CustomHandler func(e *Encryption, val any) (any, error)
+	Name                 string
+	CustomEncryptHandler func(e *Encryption, val any) (any, error)
+	CustomDecryptHandler func(e *Encryption, val any) (any, error)
 }
 
 // QueryValues represents query to update row after encrypt/decrypt.
@@ -97,29 +106,27 @@ func isTest() bool {
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
-	e := &Encryption{}
-	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
-	if customKeyPath != "" {
-		e.Path = customKeyPath
-	} else {
-		if isTest() {
-			e.Path = "./encryption.key"
-		} else {
-			e.Path = DefaultEncryptionKeyPath
-		}
-	}
+	e := &Encryption{Path: KeyPath()}
 
-	bytes, err := os.ReadFile(e.Path)
-	switch {
-	case os.IsNotExist(err):
-		err = e.generateAndPersistKey()
+	if e.Path == "" {
+		key, err := inMemoryKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
-	case err != nil:
-		logrus.Panicf("Encryption: %v", err)
-	default:
-		e.Key = string(bytes)
+		e.Key = key
+	} else {
+		bytes, err := os.ReadFile(e.Path)
+		switch {
+		case os.IsNotExist(err):
+			err = e.generateAndPersistKey()
+			if err != nil {
+				logrus.Panicf("Encryption: %v", err)
+			}
+		case err != nil:
+			logrus.Panicf("Encryption: %v", err)
+		default:
+			e.Key = string(bytes)
+		}
 	}
 
 	primitive, err := e.getPrimitive()
@@ -147,7 +154,7 @@ func RotateEncryptionKey() error {
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
-	err := os.Rename(strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key", encryptionKeyPath())
+	err := os.Rename(strings.TrimSuffix(KeyPath(), ".key")+"_old.key", KeyPath())
 	if err != nil {
 		return fmt.Errorf("could not restore old encryption key: %w", err)
 	}
@@ -156,7 +163,7 @@ func RestoreOldEncryptionKey() error {
 }
 
 func backupOldEncryptionKey() error {
-	err := os.Rename(encryptionKeyPath(), strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key")
+	err := os.Rename(KeyPath(), strings.TrimSuffix(KeyPath(), ".key")+"_old.key")
 	if err != nil {
 		return fmt.Errorf("failed to backup old encryption key: %w", err)
 	}
@@ -180,6 +187,29 @@ func (e *Encryption) GenerateKey() (string, error) {
 	return base64.StdEncoding.EncodeToString(buff.Bytes()), nil
 }
 
+// Fingerprint is a wrapper around DefaultEncryption.Fingerprint.
+func Fingerprint() (string, error) {
+	return getDefaultEncryption().Fingerprint()
+}
+
+// Fingerprint returns a stable identifier of the encryption key: a digest, so it cannot be used
+// to reconstruct the key. It is recorded next to the encrypted data so that a node can tell
+// whether it holds the right key without having an encrypted row to test against.
+func (e *Encryption) Fingerprint() (string, error) {
+	if e == nil || e.Key == "" {
+		return "", ErrEncryptionNotInitialized
+	}
+
+	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode keyset: %w", err)
+	}
+
+	sum := sha256.Sum256(serializedKeyset)
+
+	return hex.EncodeToString(sum[:]), nil
+}
+
 func (e *Encryption) generateAndPersistKey() error {
 	key, err := e.GenerateKey()
 	if err != nil {
@@ -190,7 +220,7 @@ func (e *Encryption) generateAndPersistKey() error {
 }
 
 func (e *Encryption) saveKeyToFile() error {
-	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec
+	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec,mnd
 }
 
 // Encrypt is a wrapper around DefaultEncryption.Encrypt.
@@ -199,16 +229,18 @@ func Encrypt(secret string) (string, error) {
 }
 
 // Encrypt returns input string encrypted.
+// On failure it returns an empty string rather than the plaintext, so that a caller which
+// ignores the error cannot persist an unencrypted secret.
 func (e *Encryption) Encrypt(secret string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return secret, ErrEncryptionNotInitialized
+		return "", ErrEncryptionNotInitialized
 	}
 	if secret == "" {
 		return secret, nil
 	}
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
-		return secret, fmt.Errorf("encryption: %w", err)
+		return "", fmt.Errorf("encryption: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(cipherText), nil
@@ -235,11 +267,10 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var encrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
-				case nil:
+				if handler := table.Columns[i].CustomEncryptHandler; handler != nil {
+					encrypted, err = handler(e, val)
+				} else {
 					encrypted, err = encryptColumnStringHandler(e, val)
-				default:
-					encrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
 
 				if err != nil {
@@ -265,20 +296,22 @@ func Decrypt(cipherText string) (string, error) {
 }
 
 // Decrypt returns input string decrypted.
+// On failure it returns an empty string rather than the input ciphertext, so that a caller which
+// ignores the error cannot pass ciphertext on as if it were the decrypted value.
 func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return cipherText, ErrEncryptionNotInitialized
+		return "", ErrEncryptionNotInitialized
 	}
 	if cipherText == "" {
 		return cipherText, nil
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, fmt.Errorf("decryption: %w, %s", err, cipherText)
+		return "", fmt.Errorf("decryption: %w", err)
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
-		return cipherText, fmt.Errorf("decryption: %w", err)
+		return "", fmt.Errorf("decryption: %w", err)
 	}
 
 	return string(secret), nil
@@ -305,11 +338,10 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var decrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
-				case nil:
+				if handler := table.Columns[i].CustomDecryptHandler; handler != nil {
+					decrypted, err = handler(e, val)
+				} else {
 					decrypted, err = decryptColumnStringHandler(e, val)
-				default:
-					decrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
 
 				if err != nil {

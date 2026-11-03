@@ -62,13 +62,13 @@ Use this to find collections under the heaviest write load. Collections with ver
 
 ### Top 5 Hottest Collections by Read (Rate)
 
-Shows the five most-read collections as a horizontal bar gauge, ranked by current read rate (reads per second) over the selected interval.
+Shows the five most-read collections as a horizontal bar gauge, ranked by current read rate (reads per second) using a stable rate window. Collection names are kept visible for long names.
 
 Unlike the Total panels above, this reflects recent activity rather than cumulative counts, so it's more useful for spotting what's hot right now. Use it during an incident or after a deployment to see which collections are suddenly receiving more traffic than usual.
 
 ### Top 5 Hottest Collections by Write (Rate)
 
-Shows the five most-written collections as a horizontal bar gauge, ranked by current write rate (inserts, updates, and deletes per second) over the selected interval.
+Shows the five most-written collections as a horizontal bar gauge, ranked by current write rate (inserts, updates, and deletes per second) using a stable rate window. Collection names are kept visible for long names.
 
 Use this alongside the Read Rate panel to get a full picture of which collections are under the most active load right now. A collection appearing in both the read and write rate charts is handling high traffic on both sides and is worth watching closely for performance issues.
 

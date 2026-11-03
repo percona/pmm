@@ -18,32 +18,32 @@ const GrafanaPageFrame: FC<PropsWithChildren> = ({ children }) => {
         />
       )}
       <Stack
-      sx={[
-        {
-          flex: 1,
-        },
-        headerVisible && {
-          p: 2,
-          pt: 0,
-        },
-      ]}
-    >
-      <Stack
         sx={[
           {
             flex: 1,
           },
           headerVisible && {
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: '5px',
-            overflow: 'hidden',
+            p: 2,
+            pt: 0,
           },
         ]}
       >
-        {children}
+        <Stack
+          sx={[
+            {
+              flex: 1,
+            },
+            headerVisible && {
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '5px',
+              overflow: 'hidden',
+            },
+          ]}
+        >
+          {children}
+        </Stack>
       </Stack>
-    </Stack>
     </>
   );
 };

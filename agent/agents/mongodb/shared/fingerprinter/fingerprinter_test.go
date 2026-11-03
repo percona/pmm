@@ -31,7 +31,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -65,7 +65,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -237,6 +237,21 @@ func TestProfilerFingerprinter(t *testing.T) {
 			},
 			want: fingerprinter.Fingerprint{
 				Fingerprint: `db.collection.find({"name":"?"}).sort({"_id":1}).limit(?).skip(?)`,
+				Namespace:   "test.collection",
+				Database:    "test",
+				Collection:  "collection",
+				Operation:   "query",
+			},
+		},
+		{
+			name: "find with invalid UTF-8",
+			doc: proto.SystemProfile{
+				Ns:      "test.collection",
+				Op:      "query",
+				Command: bson.D{{Key: "filter", Value: bson.D{{Key: "name_\xff", Value: "test"}}}},
+			},
+			want: fingerprinter.Fingerprint{
+				Fingerprint: `db.collection.find({"name_\ufffd":"?"})`,
 				Namespace:   "test.collection",
 				Database:    "test",
 				Collection:  "collection",

@@ -103,6 +103,8 @@ message AddMongoDBServiceParams {
   google.protobuf.Duration connection_timeout = 38 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 39;
 }
 
 message MongoDBServiceResult {

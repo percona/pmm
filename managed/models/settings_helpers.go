@@ -97,14 +97,17 @@ type ChangeSettingsParams struct {
 	// EnableInternalPgQAN enables Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool
 
+	// EnableOM enables OpenManager.
+	EnableOM *bool
+
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
 
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration time.Duration
+	// EncryptionKeyFingerprint identifies the key the data was encrypted with. Empty clears it.
+	EncryptionKeyFingerprint *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -147,10 +150,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableUpdates != nil {
 		settings.Updates.Enabled = params.EnableUpdates
-	}
-
-	if params.UpdateSnoozeDuration != 0 {
-		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {
@@ -242,12 +241,20 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.BackupManagement.Enabled = params.EnableBackupManagement
 	}
 
+	if params.EnableOM != nil {
+		settings.OM.Enabled = params.EnableOM
+	}
+
 	if params.DefaultRoleID != nil {
 		settings.DefaultRoleID = *params.DefaultRoleID
 	}
 
 	if params.EncryptedItems != nil {
 		settings.EncryptedItems = params.EncryptedItems
+	}
+
+	if params.EncryptionKeyFingerprint != nil {
+		settings.EncryptionKeyFingerprint = *params.EncryptionKeyFingerprint
 	}
 
 	err = SaveSettings(q, settings)

@@ -13,17 +13,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 package interceptors
 
 import (
 	"context"
+	"database/sql/driver"
+	"errors"
 	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
+	"syscall"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -69,7 +73,11 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
-			err = status.Error(codes.Internal, "Internal server error.")
+			if isUnavailable(err) {
+				err = status.Error(codes.Unavailable, "Service temporarily unavailable.")
+			} else {
+				err = status.Error(codes.Internal, "Internal server error.")
+			}
 		}
 	}()
 
@@ -77,12 +85,32 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	return err
 }
 
+// isUnavailable reports whether err means a backend, such as PostgreSQL during a failover,
+// is briefly unreachable, so the client may retry the request.
+func isUnavailable(err error) bool {
+	if errors.Is(err, driver.ErrBadConn) || errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
+		return true
+	}
+
+	pqErr, ok := errors.AsType[*pq.Error](err)
+	if !ok {
+		return false
+	}
+
+	switch pqErr.Code {
+	case pqerror.AdminShutdown, pqerror.CrashShutdown, pqerror.CannotConnectNow:
+		return true
+	default:
+		return false
+	}
+}
+
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error)
 
 var dropEndpointsRE = regexp.MustCompile(`^/server.v1.ServerService/(Readiness|LeaderHealthCheck)$`)
 
-// Unary adds context logger and Prometheus metrics to unary server RPC.
+// UnaryAdd adds context logger and Prometheus metrics to unary server RPC.
 func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// add pprof labels for more useful profiles

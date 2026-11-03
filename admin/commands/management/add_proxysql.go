@@ -43,6 +43,10 @@ func (res *addProxySQLResult) String() string {
 
 // AddProxySQLCommand is used by Kong for CLI flags and commands.
 type AddProxySQLCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
 	Address             string            `arg:"" optional:"" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
 	Socket              string            `help:"Path to ProxySQL socket"`
@@ -62,10 +66,6 @@ type AddProxySQLCommand struct {
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
 }
 
 // GetServiceName returns the service name for AddProxySQLCommand.

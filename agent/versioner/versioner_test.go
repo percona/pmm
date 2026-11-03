@@ -15,7 +15,6 @@
 package versioner
 
 import (
-	"errors"
 	"os/exec"
 	"testing"
 
@@ -40,7 +39,7 @@ func TestVersioner(t *testing.T) {
 		execMock.On("LookPath", mysqldBin).Return("", &exec.Error{Err: exec.ErrNotFound}).Once()
 
 		version, err := versioner.MySQLdVersion()
-		assert.True(t, errors.Is(err, ErrNotFound))
+		require.ErrorIs(t, err, ErrNotFound)
 		assert.Empty(t, version)
 	})
 

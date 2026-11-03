@@ -6,6 +6,12 @@
 
 **Data retention** specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
+### Set data retention via the API
+
+If you configure data retention using the [Change Settings API](https://percona-pmm.readme.io/reference/changesettings) (`PUT /v1/server/settings`), express the value in seconds. Hours and minutes formats are not supported and will return an error.
+
+For example, to set 30-day retention: `"data_retention": "2592000s"`
+
 ## Telemetry
 
 The **Telemetry** switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. 
@@ -87,3 +93,14 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
     This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
+
+## Operations for MongoDB
+
+!!! caution alert alert-warning "Caution"
+    This is a Developer Preview feature.
+
+Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **MongoDB > Operations** in the sidebar, where you can check the health of your MongoDB clusters and install Percona Server for MongoDB replica sets.
+
+This setting requires [PMM Extensions](../apps/deploy-pmm-extensions.md). If PMM can't reach PMM Extensions, the setting doesn't turn on.
+
+If PMM Server was started with `PMM_ENABLE_OM=1`, you can't change the setting in the UI: **Apply changes** returns an error.

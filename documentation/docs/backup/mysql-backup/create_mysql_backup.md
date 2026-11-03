@@ -1,12 +1,15 @@
 # Create a MySQL backup
 
+!!! warning "Deprecated"
+    This feature is deprecated and will be replaced by [MySQL Backups](../../apps/mysql-backup.md) under **Apps > MySQL Backups** when [PMM Extensions](../../apps/index.md) reaches GA. Both options are currently in Tech Preview and run alongside each other. Backups created in one are not visible in the other.
+
 Before creating a backup, make sure to check the [MySQL backup prerequisites](mysql_prerequisites.md).
 
 To create a backup:
 {.power-number}
 
-1. Go to  <i class="uil uil-history"></i> **Backup > All backups**.
-2. Click <i class="uil uil-plus-square"></i> **Create backup**.
+1. Go to  :material-history: **Backup > All backups**.
+2. Click :material-plus-box-outline: **Create backup**.
 3. Specify the type of backup that you want to create: **On Demand** or **Schedule Backup**.
 4. Enter a unique name for this backup.
 5. Choose the service to back up from the Service name drop-down menu. This automatically populates the **DB Technology** field and selects the **Physical** data model, as this is the only model available for MySQL backups.

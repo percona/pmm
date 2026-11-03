@@ -155,6 +155,21 @@ func TestHeadersToLbacFilter(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')", filter)
 	})
+
+	// Role filters are not validated on save, and an empty result means no filtering at all.
+	t.Run("unparsable selector fails closed", func(t *testing.T) {
+		ctx := setup(t, `["service_type=\"mysql\""]`)
+		filter, err := headersToLbacFilter(ctx)
+		require.Error(t, err)
+		require.Empty(t, filter)
+	})
+
+	t.Run("unparsable selector among valid ones fails closed", func(t *testing.T) {
+		ctx := setup(t, `["{service_type=\"mysql\"}", "service_type=\"postgresql\""]`)
+		filter, err := headersToLbacFilter(ctx)
+		require.Error(t, err)
+		require.Empty(t, filter)
+	})
 }
 
 func TestMatchersToSQL(t *testing.T) {
@@ -284,6 +299,29 @@ func TestMatchersToSQL(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "unsupported matcher type")
 	})
+}
+
+func TestSearchWhitespaceNormalization(t *testing.T) {
+	// Mirrors the normalization applied to the search term in Reporter.Select, which must match
+	// the replaceRegexpAll(..., '\\s+', ' ') applied to the fingerprint column in queryReportTmpl,
+	// so that a search phrase matches a fingerprint regardless of how the original query was formatted.
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"single space is preserved", "SELECT datid", "SELECT datid"},
+		{"newline and indentation collapse to one space", "SELECT\n    datid, datname", "SELECT datid, datname"},
+		{"tabs and repeated spaces collapse to one space", "SELECT\tdatid,   datname", "SELECT datid, datname"},
+		{"surrounding whitespace is trimmed", "  SELECT datid  ", "SELECT datid"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := searchWhitespaceRegexp.ReplaceAllString(strings.TrimSpace(tc.input), " ")
+			require.Equal(t, tc.expected, result)
+		})
+	}
 }
 
 func TestQueryDimensionTemplate(t *testing.T) {

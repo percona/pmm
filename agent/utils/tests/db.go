@@ -36,7 +36,7 @@ func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 		}
 
 		// Size on test dataset https://github.com/AlekSi/test_db/blob/4c673cc28648568fc23d35e86f280f411498620e/mysql/world/world.sql#L4125
-		if count == 4079 {
+		if count == 4079 { //nolint:mnd
 			return
 		}
 		time.Sleep(time.Second)
