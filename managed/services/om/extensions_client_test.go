@@ -62,10 +62,10 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 
 	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(redirecting.URL, "test-token")
 
-	err := svc.probe.app.triggerRun(t.Context())
+	err := svc.probe.app.triggerRun(asService(t.Context()))
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "unexpected status 307")
+	assert.Contains(t, err.Error(), "answered 307")
 	assert.Empty(t, elsewhere.calls, "the redirect target must never see the request, let alone the bearer")
 }
 
@@ -77,7 +77,7 @@ func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	svc := stub.service(t)
 	stub.server.Close()
 
-	err := svc.probe.app.triggerRun(t.Context())
+	err := svc.probe.app.triggerRun(asService(t.Context()))
 
 	require.Error(t, err)
 	assert.Equal(t, 1, strings.Count(err.Error(), stub.server.URL), "the URL belongs in the message once: %s", err)

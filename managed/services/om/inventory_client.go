@@ -168,7 +168,11 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	ctx, cancel := context.WithTimeout(ctx, inventoryRequestTimeout)
 	defer cancel()
 
-	req, err := a.request(ctx, c.method, c.path, c.query, c.body, c.sendEmptyBody)
+	cred, err := a.client.credential(ctx)
+	if err != nil {
+		return err
+	}
+	req, err := a.request(ctx, cred.bearer, c.method, c.path, c.query, c.body, c.sendEmptyBody)
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to build the request: %s", err)
 	}
@@ -179,8 +183,13 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode >= http.StatusBadRequest {
-		return extensionsStatusError(resp)
+	if resp.StatusCode >= http.StatusMultipleChoices {
+		// A refusal may come from a role the cached bearer predates, so the next call exchanges again.
+		refused := resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden
+		if refused && cred.session != "" {
+			a.client.forget(cred.session)
+		}
+		return extensionsStatusError(resp, cred.caller)
 	}
 	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
@@ -194,7 +203,7 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 
 // The gateway has no code it renders as 422, so a validation failure reaches the browser as 400;
 // the app's per-field detail is kept in the message.
-func extensionsStatusError(resp *http.Response) error {
+func extensionsStatusError(resp *http.Response, callers bool) error {
 	detail := extensionsErrorDetail(resp)
 	switch resp.StatusCode {
 	case http.StatusNotFound:
@@ -204,10 +213,15 @@ func extensionsStatusError(resp *http.Response) error {
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		return status.Error(codes.InvalidArgument, detail)
 	case http.StatusUnauthorized, http.StatusForbidden:
-		// Not passed through: a 401 would tell the browser to re-authenticate with PMM,
-		// when what failed is PMM's own credential for PMM Extensions.
-		return status.Errorf(codes.Internal,
-			"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
+		// A rejected shared token is PMM's own fault, so it must not tell the browser to sign in again.
+		if !callers {
+			return status.Errorf(codes.Internal,
+				"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
+		}
+		if resp.StatusCode == http.StatusUnauthorized {
+			return status.Error(codes.Unauthenticated, detail)
+		}
+		return status.Error(codes.PermissionDenied, detail)
 	default:
 		return status.Errorf(codes.Internal, "the inventory app answered %s: %s", resp.Status, detail)
 	}
