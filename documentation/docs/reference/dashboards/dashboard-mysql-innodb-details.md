@@ -521,7 +521,7 @@ To check whether the log buffer is large enough for your write load:
 
 1. Set the time range to your busiest write periods, and compare the peaks of **Max Log Space Used** with **Log Buffer Size**. Peaks that regularly reach **Log Buffer Size** can mean transactions are waiting for space in the log buffer.
 
-    **Max Log Space Used** also counts redo already written to the log files but not yet flushed, so it can rise above **Log Buffer Size** without the buffer being full. With the default `innodb_flush_log_at_trx_commit=1`, **Max Log Space Used** usually stays near 0, even when the buffer is too small.
+    **Max Log Space Used** also counts redo already written to the log files but not yet flushed, so it can rise above **Log Buffer Size** without the buffer being full. With the default `innodb_flush_log_at_trx_commit=1`, every commit flushes the log, so the value tracks the group commit backlog and stays well below **Log Buffer Size** on low-concurrency workloads. A low value on such a server doesn't prove the buffer is large enough.
 2. Check **InnoDB Log File Flush Latency**. If log flushes are slow, a larger log buffer only delays the same wait. Fix the disk latency instead.
 3. If flush latency is normal, increase `innodb_log_buffer_size`.
 
