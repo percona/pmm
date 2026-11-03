@@ -191,7 +191,7 @@ Shows the change in disk queue depth compared to the same time last week. Positi
 Shows disk queue depth from one week ago. Use this to confirm whether the current queue depth is unusual for these nodes.
 
 ### Top 20 Write Latency
-Shows average disk write latency for the 20 nodes with the highest write latency over the last hour. 
+Shows average disk write latency for the 20 disks with the highest write latency over the last hour. Each line is labelled with the node and the device.
 
 Latency above typical values on heavily loaded storage may indicate saturation or internal storage problems.
 
@@ -202,7 +202,7 @@ Shows the change in write latency compared to the same time last week. Positive 
 Shows write latency from one week ago, for baseline comparison.
 
 ### Top 20 Read Latency
-Shows average disk read latency for the 20 nodes with the highest read latency over the last hour.
+Shows average disk read latency for the 20 disks with the highest read latency over the last hour. Each line is labelled with the node and the device.
 
 ### Read Latency Anomaly
 Shows the change in read latency compared to the same time last week. Positive bars mean latency has increased. 
