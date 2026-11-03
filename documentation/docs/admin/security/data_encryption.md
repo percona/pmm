@@ -103,7 +103,7 @@ Before you upgrade:
 
 1. Back up the key file (`/srv/pmm-encryption.key` or the path in `PMM_ENCRYPTION_KEY_PATH`) together with your PMM data. A database backup cannot be read without it.
 
-2. If PMM runs in [high availability mode](../../install-pmm/HA-docker.md), stop all PMM Server nodes, upgrade them, then start them. Nodes that still run the previous version cannot read data re-encrypted by upgraded nodes.
+2. If PMM runs in [high availability mode](#ha-clusters-use-the-same-key-on-every-node), stop all PMM Server nodes, upgrade them, then start them. Nodes that still run the previous version cannot read data re-encrypted by upgraded nodes.
 
 During the first start, PMM Server:
 
@@ -121,7 +121,7 @@ PMM Server checks at every start that its encryption key is the key that the sto
 - The key file is missing, but the database contains data encrypted with the key. PMM Server doesn't generate a new key, because that would make the stored data unreadable.
 - The key file contains a different key. The error lists the affected agents. PMM Server also stores a known value encrypted with the key, so it detects a different key even before any credentials are stored.
 
-In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](../../install-pmm/HA-docker.md), copy the key file from a node that works.
+In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](#ha-clusters-use-the-same-key-on-every-node), copy the key file from a node that works.
 
 ### Recover from a lost encryption key
 
