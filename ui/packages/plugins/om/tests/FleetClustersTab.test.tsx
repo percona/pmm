@@ -765,6 +765,30 @@ describe('FleetClustersTab', () => {
       expect(clusterNames()).toEqual(['yankee']);
     });
 
+    it('follows Back to a filter the bar wrote more than once', async () => {
+      const router = createMemoryRouter(
+        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
+        { initialEntries: ['/fleet'] }
+      );
+      render(<RouterProvider router={router} />);
+      await screen.findByRole('textbox', { name: 'Search clusters' });
+
+      // On, off and on again before the URL settles: the bar wrote no filter once.
+      pick('Health', 'Down');
+      pick('Health', 'Down');
+      pick('Health', 'Down');
+      await waitFor(() => expect(query(router).toString()).toBe('health=down'));
+
+      await act(async () => {
+        await router.navigate(-1);
+      });
+      expect(query(router).toString()).toBe('');
+      expect(
+        screen.getByRole('combobox', { name: 'Health' })
+      ).toHaveTextContent('Any');
+      expect(clusterNames()).toHaveLength(4);
+    });
+
     it('empties the search box on Clear filters while its search is settling', async () => {
       const router = createMemoryRouter(
         [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],

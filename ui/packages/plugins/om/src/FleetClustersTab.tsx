@@ -16,7 +16,11 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigationType,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   Box,
   Button,
@@ -609,19 +613,22 @@ function useClusterFilters() {
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseClusterFilters(params), [params]);
   const key = filtersKey(filters);
+  const entry = useLocation().key;
+  const pop = useNavigationType() === 'POP';
   const [draft, setDraft] = useState(filters);
   // What the bar wrote that the URL may not show yet, oldest first.
   const written = useRef<string[]>([]);
   useEffect(() => {
     const index = written.current.indexOf(key);
-    if (index >= 0) {
+    // Back or Forward can land on a key the bar also wrote, so only its own
+    // navigations may keep the draft.
+    if (!pop && index >= 0) {
       written.current = written.current.slice(index + 1);
       return;
     }
-    // Back or Forward.
     written.current = [];
     setDraft(parseClusterFilters(new URLSearchParams(key)));
-  }, [key]);
+  }, [entry, key, pop]);
   const setFilters = (next: ClusterFilters, replace = false) => {
     written.current.push(filtersKey(next));
     setDraft(next);
