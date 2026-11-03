@@ -112,7 +112,7 @@ During the first start, PMM Server:
 - Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recover-from-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
-!!! caution alert alert-warning "Downgrading is not supported"
+!!! caution "Downgrading is not supported"
     After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
 
 ## When PMM Server refuses to start
