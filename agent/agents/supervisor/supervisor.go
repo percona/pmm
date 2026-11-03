@@ -1030,6 +1030,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
+	qanDeliveryRequests := make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize)
+	qanDeliveryDone := make(chan struct{})
+	go func() {
+		defer close(qanDeliveryDone)
+		s.deliverQANRequests(ctx, l, agentID, qanDeliveryRequests)
+	}()
+
 	instance := s.startInstance(agentID)
 	s.forwarders.Add(1)
 	go func() {
@@ -1039,13 +1046,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			s.retireInstance(agentID, instance)
 			s.forwarders.Add(-1)
 			close(done)
-		}()
-
-		qanDeliveryRequests := make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize)
-		qanDeliveryDone := make(chan struct{})
-		go func() {
-			defer close(qanDeliveryDone)
-			s.deliverQANRequests(ctx, l, agentID, qanDeliveryRequests)
 		}()
 		defer func() {
 			close(qanDeliveryRequests)
