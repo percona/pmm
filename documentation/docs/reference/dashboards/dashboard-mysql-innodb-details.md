@@ -487,7 +487,7 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ### Version compatibility
 
-Panels in this section show data on MySQL 5.7 through 9.x, Percona Server, and MariaDB. On MySQL 8.0.30 and newer, they read `Innodb_redo_log_capacity_resized`, which reports the redo log capacity actually in use. On older servers, they use `innodb_log_file_size` and `innodb_log_files_in_group`.
+Panels in this section show data on MySQL 5.7 through 9.x, Percona Server, and MariaDB. On MySQL 8.0.30 and newer, they read `Innodb_redo_log_capacity_resized`, which reports the redo log capacity actually in use. On older servers, they use `innodb_log_file_size` and `innodb_log_files_in_group`. The exception is the **Max Log Space Used** line on [**InnoDB Log Buffer Usage**](#innodb-log-buffer-usage), which isn't available on Oracle MySQL 8.0.29 and older or MariaDB 10.2 to 10.4.
 
 Before PMM 3.10.0, **Total Log Space**, **InnoDB Logging Performance**, **InnoDB Log File Usage Hourly**, **InnoDB Log File Size**, and **InnoDB Log Files** were always empty on MySQL 5.7, Percona Server 5.7, and MariaDB. Upgrading PMM to 3.10.0 or later fixes this with no exporter or server changes required.
 
@@ -511,17 +511,24 @@ The size of buffer InnoDB uses for buffering writes to log files.
 
 ### InnoDB Log Buffer Usage
 
-Shows the log buffer size and **Max Log Space Used**, the peak amount of redo data generated but not yet flushed to disk during each interval.
+Shows how much redo data InnoDB holds before flushing it to disk, compared with the size of the log buffer:
 
-**Max Log Space Used** is the current log sequence number (LSN) minus the LSN flushed to disk, so it covers redo still held in the log buffer plus redo already written to the log files but not yet durable. If it regularly gets close to **Log Buffer Size**, transactions are waiting for free space in the log buffer and a larger `innodb_log_buffer_size` helps. Check **InnoDB Logging Performance** first: when the value is driven by slow log writes rather than by the buffer filling up, a larger buffer only postpones the same wait.
+- **Log Buffer Size**: the size of the log buffer, set by `innodb_log_buffer_size`.
+- **Max Log Space Used**: the most redo data waiting to be flushed to disk that PMM measured in each interval. PMM takes a measurement every few seconds, so short peaks between measurements don't show. It's not the **Max Log Space Used** panel in the **InnoDB Checkpointing and Flushing** section, which shows checkpoint age.
 
-MySQL 8.0.30 and newer reports the two LSNs as `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`. Percona Server, and MariaDB 10.5 and newer, report them as `Innodb_lsn_current` and `Innodb_lsn_flushed`. PMM Client 3.10.0 and later reads whichever pair the server exposes.
+To check whether the log buffer is large enough for your write load:
+{.power-number}
 
-**Max Log Space Used** is empty in these cases:
+1. Set the time range to your busiest write periods, and compare the peaks of **Max Log Space Used** with **Log Buffer Size**. Peaks that regularly reach **Log Buffer Size** can mean transactions are waiting for space in the log buffer.
 
-- Oracle MySQL 8.0.30 and newer monitored by a PMM Client older than 3.10.0. Upgrade PMM Client to fix this.
-- Oracle MySQL 8.0.29 and older, which exposes neither pair.
-- MariaDB 10.2 to 10.4, which exposes neither pair. MariaDB dropped these variables when it replaced XtraDB in 10.2 and restored them in 10.5.
+    **Max Log Space Used** also counts redo already written to the log files but not yet flushed, so it can rise above **Log Buffer Size** without the buffer being full. With the default `innodb_flush_log_at_trx_commit=1`, **Max Log Space Used** usually stays near 0, even when the buffer is too small.
+2. Check **InnoDB Log File Flush Latency**. If log flushes are slow, a larger log buffer only delays the same wait. Fix the disk latency instead.
+3. If flush latency is normal, increase `innodb_log_buffer_size`.
+
+To troubleshoot a missing **Max Log Space Used** line, check which server you're monitoring:
+
+- On Oracle MySQL 8.0.30 and newer, upgrade PMM Server and PMM Client to 3.10.0 or later. Older PMM Clients don't read `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`, the status variables these servers use for redo log sequence numbers.
+- On Oracle MySQL 8.0.29 and older, and MariaDB 10.2 to 10.4, **Max Log Space Used** isn't available, because these servers don't report redo log sequence numbers.
 
 ### At Transaction Commit
 
