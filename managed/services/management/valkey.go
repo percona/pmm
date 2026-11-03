@@ -19,6 +19,8 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -30,6 +32,10 @@ import (
 
 // addValkey adds a new Valkey service and an accompanying "Valkey Exporter agent".
 func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.AddValkeyServiceParams) (*managementv1.AddServiceResponse, error) {
+	if req.Socket != "" && req.Tls {
+		return nil, status.Error(codes.InvalidArgument, "TLS is not supported for socket connections.")
+	}
+
 	valkey := &managementv1.ValkeyServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
