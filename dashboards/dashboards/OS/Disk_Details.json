@@ -178,7 +178,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Shows information about the disk space usage of the specified mountpoint.\n\n**Used** is the amount of space used.\n\n**Free** is the amount of space not in use.\n\n**Used+Free** is the total disk space allocated to the mountpoint.\n\n**Total** is that same capacity as reported by the filesystem itself. It is drawn as an unstacked reference line along the top of the *Used+Free* stack, not as another layer, because *Used+Free* already adds up to it.\n\nHaving *Free* close to 0 B is not good because of the risk to have a “disk full” error that can block one of the services or even cause a crash of the entire system.\n\nIn case Free is close to 0 B consider to remove unused files or to expand the space allocated to the mountpoint.",
+            "description": "Shows information about the disk space usage of the specified mountpoint.\n\n**Used** is the amount of space used.\n\n**Free** is the amount of space available to applications, the *Avail* column of `df`. It doesn't include space the filesystem reserves for the root user.\n\n**Total** is the capacity reported by the filesystem. It is drawn as an unstacked reference line, not as another layer. On filesystems that reserve space for the root user, such as ext4, the *Used+Free* stack ends below *Total*; the gap is the reserved space.\n\nHaving *Free* close to 0 B is not good because of the risk to have a “disk full” error that can block one of the services or even cause a crash of the entire system.\n\nIn case Free is close to 0 B consider to remove unused files or to expand the space allocated to the mountpoint.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
