@@ -12,12 +12,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
-import { TextInput, SwitchInput } from '@percona/percona-ui';
+import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
+import { useHAStatus } from 'hooks/api/useHA';
 import { Messages } from '../../Settings.messages';
 import {
   FEATURE_MANAGEMENT_SETTINGS,
@@ -25,13 +26,15 @@ import {
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
   STT_CHECK_INTERVALS,
+  DEVELOPER_PREVIEW_DOC_URL,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
+import { OM_PATH, PMM_BASE_PATH } from 'lib/constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
-  advancedSettingsSchema,
+  createAdvancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
@@ -44,38 +47,84 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
+  const { data: haStatus } = useHAStatus();
+
+  // In HA retention comes from the pmm-ha chart and the server refuses a change through the
+  // settings API, so the field is disabled rather than failing when the user presses Save.
+  const retentionLockedByHa = haStatus?.status === 'Enabled';
+
+  // Validation and the payload also key off the value loaded from the server, not only the HA
+  // lock, so they hold while the HA status is still loading or has failed to load.
+  const loadedRetention = toFormValues(settings).retention;
+  const resolver = useMemo(
+    () => zodResolver(createAdvancedSettingsSchema(loadedRetention)),
+    [loadedRetention]
+  );
 
   const methods = useForm<AdvancedSettingsFormValues>({
-    resolver: zodResolver(advancedSettingsSchema),
+    resolver,
     defaultValues: toFormValues(settings),
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, resetField, watch, setValue } = methods;
+
+  // Keyed on the saved value, not the draft: otherwise flipping it off would disable
+  // the switch before Apply and leave no way back.
+  const omSwitchBlocked = !settings.extensionsEnabled && !settings.omEnabled;
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
+  const m = Messages.advanced;
 
   useEffect(() => {
     reset(toFormValues(settings));
   }, [settings, reset]);
 
-  const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(toPayload(values), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.service.success, { variant: 'success' });
-        reset(values);
-      },
-      onError: (error) => {
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.unauthorized,
-          { variant: 'error' }
-        );
-      },
-    });
-  };
+  // The HA status can arrive after the user has typed into the field. Put the loaded value back
+  // so the disabled field shows what is in force rather than a value that is never sent.
+  useEffect(() => {
+    if (retentionLockedByHa) {
+      resetField('retention');
+    }
+  }, [retentionLockedByHa, resetField]);
 
-  const m = Messages.advanced;
+  const onSubmit = async (values: AdvancedSettingsFormValues) => {
+    const omJustEnabled = values.openManager && !settings.omEnabled;
+    await updateSettings(
+      toPayload(values, loadedRetention, retentionLockedByHa),
+      {
+        onSuccess: () => {
+          enqueueSnackbar(
+            omJustEnabled ? (
+              <>
+                {m.openManagerEnabled}{' '}
+                {/* Plain href: SnackbarProvider is mounted outside RouterProvider, so a
+                    routed link has no router context here. */}
+                <Link
+                  href={`${PMM_BASE_PATH}${OM_PATH}`}
+                  color="inherit"
+                  underline="always"
+                >
+                  {m.openManagerEnabledAction}
+                </Link>
+              </>
+            ) : (
+              Messages.service.success
+            ),
+            { variant: 'success' }
+          );
+          reset(values);
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
+  };
 
   return (
     <FormProvider {...methods}>
@@ -135,10 +184,16 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
+                disabled: retentionLockedByHa,
+                helperText: retentionLockedByHa
+                  ? m.retentionLockedByHa
+                  : undefined,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
-                    max: MAX_DAYS,
+                    // The browser's own range check would block submitting a loaded value above
+                    // the maximum, which the schema accepts; typed values are still held to it.
+                    max: Math.max(MAX_DAYS, Number(loadedRetention)),
                     step: 1,
                     'data-testid': 'retention-number-input',
                   },
@@ -406,6 +461,59 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
+          </Stack>
+        </Stack>
+
+        <Stack gap={2}>
+          <SettingsFieldLabel
+            data-testid="advanced-developer-preview"
+            label={
+              <>
+                <WarningIcon
+                  color="warning"
+                  sx={{ fontSize: 26, verticalAlign: '-6px' }}
+                />{' '}
+                {m.developerPreviewLegend}
+              </>
+            }
+            description={
+              <>
+                {m.developerPreviewDescription}
+                <strong>{m.developerPreviewWarning}</strong>
+                {m.developerPreviewDescriptionSuffix}{' '}
+              </>
+            }
+            readMoreLink={DEVELOPER_PREVIEW_DOC_URL}
+            readMoreText={m.developerPreviewLinkText}
+          />
+          <Stack
+            gap={0.5}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+            data-testid="advanced-open-manager"
+          >
+            {/* `labelCaption` keeps the help tied to the control for a screen reader. */}
+            <SwitchInput
+              name="openManager"
+              label={m.openManagerLabel}
+              labelCaption={m.openManagerTooltip}
+              switchFieldProps={{ disabled: omSwitchBlocked }}
+            />
+            {/* `validateEnableOm` refuses this server-side; stating it here turns a
+                failed save into a precondition the reader can act on. */}
+            {omSwitchBlocked && (
+              <Typography
+                variant="caption"
+                color="warning.main"
+                maxWidth={MAX_LABEL_WIDTH}
+                data-testid="advanced-open-manager-blocked"
+              >
+                {m.openManagerRequiresExtensions}
+              </Typography>
+            )}
           </Stack>
         </Stack>
 

@@ -28,7 +28,7 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(t.Context(), true, agentlocal.DefaultPMMAgentListenPort)
+	agentlocal.SetTransport(true, agentlocal.DefaultPMMAgentListenPort)
 
 	f, err := os.CreateTemp(t.TempDir(), "pmm-admin-test-summary-*.zip")
 	require.NoError(t, err)

@@ -17,7 +17,7 @@ package analytics
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
 
@@ -27,11 +27,11 @@ import (
 
 // Service implements gRPC service to communicate with QAN-APP.
 type Service struct {
+	qanpb.UnimplementedQANServiceServer
+
 	db *sqlx.DB
 	rm models.Reporter
 	mm models.Metrics
-
-	qanpb.UnimplementedQANServiceServer
 }
 
 // NewService create new insstance of Service.
@@ -43,9 +43,10 @@ func NewService(db *sqlx.DB, rm models.Reporter, mm models.Metrics) *Service {
 func (s *Service) HealthCheck(ctx context.Context, _ *qanpb.HealthCheckRequest) (*qanpb.HealthCheckResponse, error) {
 	// Use DB ping as readiness check
 	if s.db == nil {
-		return nil, fmt.Errorf("DB not initialized")
+		return nil, errors.New("DB not initialized")
 	}
-	if err := s.db.PingContext(ctx); err != nil {
+	err := s.db.PingContext(ctx)
+	if err != nil {
 		return nil, err
 	}
 

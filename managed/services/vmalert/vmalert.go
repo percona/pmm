@@ -98,7 +98,7 @@ func (svc *Service) Run(ctx context.Context) {
 	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
 	// That allows the caller to just call RequestConfigurationUpdate when it seems fit.
 	if cap(svc.reloadCh) != 1 {
-		panic("reloadCh should have capacity 1")
+		svc.l.Fatal("reloadCh should have capacity 1")
 	}
 
 	for {
@@ -117,7 +117,8 @@ func (svc *Service) Run(ctx context.Context) {
 			}
 
 			nCtx, cancel := context.WithTimeout(ctx, configurationUpdateTimeout)
-			if err := svc.updateConfiguration(nCtx); err != nil {
+			err := svc.updateConfiguration(nCtx)
+			if err != nil {
 				svc.l.Errorf("Failed to update configuration, will retry: %+v.", err)
 				svc.RequestConfigurationUpdate()
 			}
@@ -151,7 +152,8 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 		}
 	}()
 
-	if err := svc.reload(ctx); err != nil {
+	err := svc.reload(ctx)
+	if err != nil {
 		return err
 	}
 	svc.l.Infof("Configuration reloaded.")

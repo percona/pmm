@@ -36,7 +36,7 @@ const (
 func TestRenderDSN(t *testing.T) {
 	t.Parallel()
 
-	dir := filepath.Join(os.TempDir(), fmt.Sprintf("pg_action_%05d", rand.Int63n(99999))) //nolint:gosec
+	dir := filepath.Join(os.TempDir(), fmt.Sprintf("pg_action_%05d", rand.Int63n(99999)))
 	err := os.MkdirAll(dir, 0o750)
 	require.NoError(t, err)
 
@@ -79,10 +79,8 @@ func TestRenderDSN(t *testing.T) {
 }
 
 func fileExist(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	}
-	return false
+	_, err := os.Stat(file)
+	return err == nil
 }
 
 func fileContentMatch(file, content string) bool {

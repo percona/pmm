@@ -25,9 +25,9 @@ import (
 )
 
 type nodesServer struct {
-	svc *inventory.NodesService
-
 	inventoryv1.UnimplementedNodesServiceServer
+
+	svc *inventory.NodesService
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
@@ -111,9 +111,10 @@ func (s *nodesServer) AddNode(ctx context.Context, req *inventoryv1.AddNodeReque
 
 // RemoveNode removes Node.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventoryv1.RemoveNodeRequest) (*inventoryv1.RemoveNodeResponse, error) {
-	if err := s.svc.Remove(ctx, req.NodeId, req.Force); err != nil {
+	warning, err := s.svc.Remove(ctx, req.NodeId, req.Force)
+	if err != nil {
 		return nil, err
 	}
 
-	return &inventoryv1.RemoveNodeResponse{}, nil
+	return &inventoryv1.RemoveNodeResponse{Warning: warning}, nil
 }

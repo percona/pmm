@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client contains business logic of working with pmm-managed.
 package client
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+	"fmt"
 
 	"github.com/percona/pmm/agent/versioner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -41,7 +41,7 @@ func (c *Client) handleVersionsRequest(r *agentv1.GetVersionsRequest) []*agentv1
 		case *agentv1.GetVersionsRequest_Software_Pbm:
 			version, err = c.softwareVersioner.PBMVersion()
 		default:
-			err = errors.Errorf("unknown software type %T", s.Software)
+			err = fmt.Errorf("unknown software type %T", s.Software)
 		}
 
 		if err != nil && !errors.Is(err, versioner.ErrNotFound) {

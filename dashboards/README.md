@@ -15,6 +15,7 @@ The list of featured dashboards:
 - MongoDB Instances Overview
 - MongoDB MMAPv1 Details
 - MongoDB ReplSet Summary
+- MongoDB Unused Indexes
 - MongoDB WiredTiger Details
 - MySQL Amazon Aurora Details
 - MySQL Command Handler Counters Compare

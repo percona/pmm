@@ -61,7 +61,7 @@ install-race:                   ## Install pmm-admin binary with race detector
 # TEST_PARALLEL_PACKAGES ?= foo bar
 # go test $(TEST_FLAGS) $(TEST_PARALLEL_PACKAGES) - without `-p 1`
 
-TEST_FLAGS ?= -timeout=60s
+TEST_FLAGS ?= -timeout=80s
 
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -p 1 -race ./...
@@ -92,7 +92,7 @@ bench:                          ## Run benchmarks
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm/agent/agents/postgres/parser | tee postgres_parser_new.bench
 	go tool benchstat postgres_parser_old.bench postgres_parser_new.bench
 
-RUN_FLAGS = --config-file=pmm-agent-dev.yaml
+RUN_FLAGS = --config-file=pmm-agent.yaml
 
 run: install _run               ## Run pmm-agent
 
@@ -119,7 +119,7 @@ env-up:                         ## Start development environment
 	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
 
-	docker compose up $(ENV_UP_FLAGS)
+	docker compose up $(ENV_UP_FLAGS) -d
 
 env-down:                       ## Stop development environment
 	docker compose down --volumes --remove-orphans

@@ -92,6 +92,9 @@ type ChangeAgentPostgresExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentPostgresExporterCommand and returns the result.
@@ -148,6 +151,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		MaxExporterConnections: cmd.MaxExporterConnections,
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 		ConnectionTimeout:      commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck:    cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

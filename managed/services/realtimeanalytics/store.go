@@ -25,13 +25,12 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-//nolint:godot
 const (
-	// defaultTTL is the time-to-live for query data buckets in the store.
+	// The time-to-live for query data buckets in the store.
 	defaultTTL = 30 * time.Second
-	// cleanupInterval is how often to run TTL cleanup.
+	// How often to run TTL cleanup.
 	cleanupInterval = 5 * time.Second
-	// numShards is the number of shards for the store.
+	// Number of shards for the store.
 	// We use 256 shards to minimize lock contention in high-throughput scenarios.
 	//
 	// Performance characteristics:
@@ -46,7 +45,7 @@ const (
 	// Trade-offs:
 	// - Memory: +256 shard structures (~few KB overhead, negligible)
 	// - Complexity: Slightly more complex than single lock, but well worth it
-	// - CPU: Hash calculation per operation (negligible cost)
+	// - CPU: Hash calculation per operation (negligible cost).
 	numShards = 256
 )
 

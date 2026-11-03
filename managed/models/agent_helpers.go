@@ -16,19 +16,21 @@
 package models
 
 import (
+	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -37,8 +39,22 @@ const (
 	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
 
+// environmentVariableNamesError maps a SetEnvironmentVariableNames failure onto a gRPC status. Only
+// a name the caller actually sent is the caller's fault; anything else is a server-side failure and
+// must not be returned as InvalidArgument, which would have the caller retry different names
+// forever without ever succeeding. The wrapped error is preserved in that case so errors.Is and
+// errors.As keep matching upstream.
+func environmentVariableNamesError(err error) error {
+	_, ok := errors.AsType[*envvars.InvalidNameError](err)
+	if ok {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return err
+}
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface { //nolint:iface
+type MySQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -68,7 +84,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface { //nolint:iface
+type PostgreSQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -115,6 +131,17 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	return res
 }
 
+// Validate rejects a half TLS client key pair. The exporter calls log.Fatal when given one
+// half without the other, and the connection check cannot use one either, so the service
+// would otherwise be registered only to monitor with weaker authentication than was asked for.
+func (c ValkeyOptions) Validate() error {
+	if c.clientKeyPairIncomplete() {
+		return status.Error(codes.InvalidArgument, "TLS certificate and key must both be provided.")
+	}
+
+	return nil
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -129,6 +156,7 @@ type MongoDBExtendedOptionsParams interface {
 	GetStatsCollections() []string
 	GetCollectionsLimit() int32
 	GetEnableAllCollectors() bool
+	GetEnableDiagnosticDataHistograms() bool
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -148,6 +176,7 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
+			mdbOptions.EnableDiagnosticDataHistograms = extendedOptions.GetEnableDiagnosticDataHistograms()
 		}
 	}
 
@@ -205,7 +234,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Agent with ID %s already exists.", id)
@@ -215,86 +244,183 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 type AgentFilters struct {
 	// Return only Agents started by this pmm-agent.
 	PMMAgentID string
+	// Return only Agents started by any of these pmm-agents. An empty slice is not a filter.
+	PMMAgentIDs []string
 	// Return only Agents that provide insights for that Node.
 	NodeID string
+	// Return only Agents attached to or running on that Node: node-level exporters, the pmm-agents
+	// themselves, and external exporters in pull mode.
+	OnNodeID string
 	// Return only Agents that provide insights for that Service.
 	ServiceID string
 	// Return Agents with provided type.
 	AgentType *AgentType
-	// Return only Agents that provide insights for that AWSAccessKey.
-	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
 	// Disabled indicates whether to filter by disabled status.
 	Disabled *bool
 }
 
+// decryptAgents decrypts Agent rows as returned by reform.
+func decryptAgents(structs []reform.Struct) []*Agent {
+	agents := make([]*Agent, len(structs))
+	for i, s := range structs {
+		agents[i] = new(DecryptAgent(*s.(*Agent))) //nolint:forcetypeassert
+	}
+
+	return agents
+}
+
+// insertAgent encrypts the Agent, inserts it and returns it decrypted again.
+func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
+	encryptedAgent, err := EncryptAgent(agent)
+	if err != nil {
+		return nil, err
+	}
+
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(DecryptAgent(encryptedAgent)), nil
+}
+
 // FindAgents returns Agents by filters.
+//
+// An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an
+// unknown ID in PMMAgentIDs returns an empty result.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.PMMAgentID != "" {
-		if _, err := FindAgentByID(q, filters.PMMAgentID); err != nil {
+		_, err := FindAgentByID(q, filters.PMMAgentID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(idx))
 		args = append(args, filters.PMMAgentID)
 		idx++
 	}
+	if len(filters.PMMAgentIDs) != 0 {
+		p := strings.Join(q.Placeholders(idx, len(filters.PMMAgentIDs)), ", ")
+		conditions = append(conditions, "pmm_agent_id IN ("+p+")")
+		for _, id := range filters.PMMAgentIDs {
+			args = append(args, id)
+		}
+		idx += len(filters.PMMAgentIDs)
+	}
 	if filters.NodeID != "" {
-		if _, err := FindNodeByID(q, filters.NodeID); err != nil {
+		_, err := FindNodeByID(q, filters.NodeID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
 	}
+	if filters.OnNodeID != "" {
+		// No existence check: the callers tolerate a Node that another actor has just removed.
+		conditions = append(conditions, fmt.Sprintf("(runs_on_node_id = %s OR node_id = %s)", q.Placeholder(idx), q.Placeholder(idx+1)))
+		args = append(args, filters.OnNodeID, filters.OnNodeID)
+		idx += 2
+	}
 	if filters.ServiceID != "" {
-		if _, err := FindServiceByID(q, filters.ServiceID); err != nil {
+		_, err := FindServiceByID(q, filters.ServiceID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
 	if filters.AgentType != nil {
-		conditions = append(conditions, fmt.Sprintf("agent_type = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type = "+q.Placeholder(idx))
 		args = append(args, *filters.AgentType)
 		idx++
 	}
-	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
-		args = append(args, filters.AWSAccessKey)
-		idx++
-	}
 	if filters.IgnoreNomad {
-		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type != "+q.Placeholder(idx))
 		args = append(args, NomadAgentType)
 		idx++
 	}
 
 	if filters.Disabled != nil {
-		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "disabled = "+q.Placeholder(idx))
 		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("%s ORDER BY agent_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	agents := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		agents[i] = &decryptedAgent
+	// Decryption is not free; skip it when the caller has already gone away.
+	err = q.Context().Err()
+	if err != nil {
+		return nil, err
 	}
 
-	return agents, nil
+	return decryptAgents(structs), nil
+}
+
+// IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
+// Service.
+//
+// Keyed on the Service alone, not the pmm-agent: Service names are unique, so the name already
+// excludes a remote instance's QAN Agent (RDS/Azure discovery attaches those to PMM Server's own
+// pmm-agent too). Adding pmm_agent_id == PMMServerAgentID would also be wrong, because
+// PMMServerAgentID is a mutable process global, reassigned in HA setup and from the pmm-agent
+// config file.
+func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType {
+		return false, nil
+	}
+
+	serviceID := pointer.GetString(agent.ServiceID)
+	if serviceID == "" {
+		return false, nil
+	}
+
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return false, err
+	}
+
+	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.
+//
+// It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
+// where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
+func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
+	// One statement: the Service is matched by name in a subquery rather than fetched first, so
+	// this costs the same single round trip as the pmm_agent_id lookup it replaced. A subquery
+	// rather than a JOIN because reform selects unqualified columns, and service_id and node_id
+	// exist on both tables.
+	row := &Agent{}
+	tail := "WHERE agent_type = $1 AND service_id = (SELECT service_id FROM services WHERE service_name = $2) " +
+		"ORDER BY agent_id LIMIT 1"
+
+	err := q.SelectOneTo(row, tail, QANPostgreSQLPgStatementsAgentType, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			// Also the HA case, where PMM Server runs against an external PostgreSQL and the
+			// fixtures never create this Service.
+			return nil, status.Errorf(codes.NotFound, "QAN Agent for the '%s' Service not found.", PMMServerPostgreSQLServiceName)
+		}
+		return nil, err
+	}
+
+	agent := DecryptAgent(*row)
+
+	return &agent, nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -306,12 +432,41 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	agent := &Agent{AgentID: id}
 	err := q.Reload(agent)
 	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
-		}
-		return nil, errors.WithStack(err)
+		return nil, agentLookupError(err, id)
 	}
 	return new(DecryptAgent(*agent)), nil
+}
+
+// FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
+// duration of the caller's transaction. Use this instead of FindAgentByID when the caller reads
+// the row to decide whether a subsequent write in the same transaction is allowed: without the
+// lock, a concurrent transaction could commit a conflicting write in between, so the decision
+// would be based on data that is no longer current by the time it is acted on.
+//
+// It cannot reuse FindAgentByID's q.Reload: Reload builds the whole statement itself and leaves
+// nowhere to append FOR UPDATE, so the locking read needs its own SelectOneFrom.
+func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
+	}
+
+	row, err := q.SelectOneFrom(AgentTable, "WHERE agent_id = $1 FOR UPDATE", id)
+	if err != nil {
+		return nil, agentLookupError(err, id)
+	}
+
+	agent := row.(*Agent) //nolint:forcetypeassert
+	return new(DecryptAgent(*agent)), nil
+}
+
+// agentLookupError maps a failed single-agent lookup to the error both finders above return, so
+// the not-found status stays defined in one place.
+func agentLookupError(err error, id string) error {
+	if errors.Is(err, reform.ErrNoRows) {
+		return status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
+	}
+
+	return err
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -322,21 +477,16 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(structs), nil
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
@@ -373,7 +523,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ") //nolint:mnd
 	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
 
-	args := make([]interface{}, len(agentTypes)+1)
+	args := make([]any, len(agentTypes)+1)
 	args[0] = serviceID
 	for i, agentType := range agentTypes {
 		args[i+1] = agentType
@@ -381,14 +531,10 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
+	res := decryptAgents(structs)
 
 	if len(res) == 0 {
 		return nil, status.Error(codes.FailedPrecondition, "No agents available.")
@@ -412,13 +558,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
 
-	res := make([]*Agent, 0, len(structs))
-	for _, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(structs), nil
 }
 
 // FindPMMAgentsForService gets pmm-agents for service.
@@ -433,7 +573,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
-	pmmAgentIDs := make([]interface{}, len(allAgents))
+	pmmAgentIDs := make([]any, len(allAgents))
 	for _, str := range allAgents {
 		row := str.(*Agent) //nolint:forcetypeassert
 		if row.PMMAgentID != nil {
@@ -457,20 +597,14 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
 	}
-	res := make([]*Agent, 0, len(pmmAgentRecords))
-	for _, str := range pmmAgentRecords {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(pmmAgentRecords), nil
 }
 
 // FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
 func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 	structs, err := q.FindAllFrom(ServiceTable, "node_id", nodeID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Service IDs")
+		return nil, fmt.Errorf("failed to select Service IDs: %w", err)
 	}
 
 	allAgents := make([]*Agent, 0, len(structs))
@@ -478,7 +612,7 @@ func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent,
 		serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
 		agents, err := FindPMMAgentsForService(q, serviceID)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 
 		allAgents = append(allAgents, agents...)
@@ -518,11 +652,11 @@ func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentV
 // FindAgentsForScrapeConfig returns Agents for scrape config generation by pmm_agent_id and push_metrics value.
 func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetrics bool) ([]*Agent, error) {
 	var (
-		args       []interface{}
+		args       []any
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(1))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
@@ -536,15 +670,10 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	whereClause := fmt.Sprintf("WHERE %s ORDER BY agent_type, agent_id ", strings.Join(conditions, " AND "))
 	allAgents, err := q.SelectAllFrom(AgentTable, whereClause, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	res := make([]*Agent, len(allAgents))
-	for i, s := range allAgents {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(allAgents), nil
 }
 
 // FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
@@ -586,7 +715,12 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	err := q.Update(new(EncryptAgent(*agent)))
+	encryptedAgent, err := EncryptAgent(*agent)
+	if err != nil {
+		return err
+	}
+
+	err = q.Update(new(encryptedAgent))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -596,10 +730,7 @@ func UpdateAgent(q *reform.Querier, agent *Agent) error {
 
 // ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
 func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
-	pmmAgentID, err := ExtractPmmAgentID(agent)
-	if err != nil {
-		return nil
-	}
+	pmmAgentID := ExtractPmmAgentID(agent)
 	pmmAgent, err := FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return nil
@@ -613,22 +744,24 @@ func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.P
 }
 
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
-func ExtractPmmAgentID(agent *Agent) (string, error) {
+func ExtractPmmAgentID(agent *Agent) string {
 	switch agent.AgentType {
 	case PMMAgentType:
-		return agent.AgentID, nil
+		return agent.AgentID
 	default:
-		return pointer.GetString(agent.PMMAgentID), nil
+		return pointer.GetString(agent.PMMAgentID)
 	}
 }
 
 // createPMMAgentWithID creates PMMAgent with given ID.
 func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if _, err := FindNodeByID(q, runsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, runsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -640,12 +773,14 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
 	}
-	if err := agent.SetCustomLabels(customLabels); err != nil {
+	err = agent.SetCustomLabels(customLabels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := q.Insert(agent); err != nil {
-		return nil, errors.WithStack(err)
+	err = q.Insert(agent)
+	if err != nil {
+		return nil, err
 	}
 
 	return agent, nil
@@ -658,6 +793,8 @@ func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[str
 }
 
 // CreateNodeExporter creates NodeExporter.
+//
+//nolint:unparam
 func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,
@@ -670,7 +807,8 @@ func CreateNodeExporter(q *reform.Querier,
 	// TODO merge into CreateAgent
 
 	id := uuid.New().String()
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
@@ -691,15 +829,12 @@ func CreateNodeExporter(q *reform.Querier,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
-	if err := row.SetCustomLabels(customLabels); err != nil {
+	err = row.SetCustomLabels(customLabels)
+	if err != nil {
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	if err := q.Insert(&encryptedAgent); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -718,37 +853,40 @@ type CreateExternalExporterParams struct {
 
 // CreateExternalExporter creates ExternalExporter.
 func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterParams) (*Agent, error) {
-	if !(params.ListenPort > 0 && params.ListenPort < 65536) {
+	if params.ListenPort <= 0 || params.ListenPort >= 65536 {
 		return nil, status.Errorf(codes.InvalidArgument, "Listen port should be between 1 and 65535.")
 	}
 	var pmmAgentID *string
 	runsOnNodeID := new(params.RunsOnNodeID)
 	id := uuid.New().String()
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 	// with push metrics we have to detect pmm_agent_id for external exporter.
 	if params.PushMetrics {
 		agentIDs, err := FindPMMAgentsRunningOnNode(q, params.RunsOnNodeID)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot find pmm_agent for external exporter with push_metrics")
+			return nil, fmt.Errorf("cannot find pmm_agent for external exporter with push_metrics: %w", err)
 		}
 		switch len(agentIDs) {
 		case 0:
 			return nil, status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
 		case 1:
 		default:
-			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
+			return nil, fmt.Errorf("exactly one pmm_agent expected for external exporter, but "+
 				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
 		pmmAgentID = new(agentIDs[0].AgentID)
 		runsOnNodeID = nil
 	}
 
-	if _, err := FindNodeByID(q, params.RunsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, params.RunsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
-	if _, err := FindServiceByID(q, params.ServiceID); err != nil {
+	_, err = FindServiceByID(q, params.ServiceID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -776,15 +914,12 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	if err := q.Insert(&encryptedAgent); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateAgentParams params for add common exporter.
@@ -810,9 +945,18 @@ type CreateAgentParams struct {
 	MySQLOptions             MySQLOptions
 	PostgreSQLOptions        PostgreSQLOptions
 	ValkeyOptions            ValkeyOptions
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute.
+	SkipConnectionCheck bool
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
+	// rds_exporter scrapes CloudWatch for the Node's region and DB instance identifier,
+	// so it only makes sense on a remote RDS Node, whatever else the Node type allows.
+	if agentType == RDSExporterType {
+		return nodeType == RemoteRDSNodeType
+	}
+
 	const allowAll = "allow_all"
 	allow := map[NodeType]AgentType{
 		GenericNodeType:             allowAll,
@@ -890,23 +1034,18 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		return false
 	}
 
-	for _, svcType := range allowed {
-		if svcType == serviceType {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(allowed, serviceType)
 }
 
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := uuid.New().String()
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	_, err := FindAgentByID(q, params.PMMAgentID)
+	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -920,6 +1059,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		if !compatibleNodeAndAgent(node.NodeType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of node type %s and agent type %s", node.NodeType, agentType)
 		}
+
+		// An rds_exporter uses the Node's DB instance identifier as the CloudWatch
+		// DBInstanceIdentifier dimension. Without it the exporter starts, reports RUNNING
+		// and silently scrapes nothing, so refuse rather than create a dead agent.
+		if agentType == RDSExporterType && node.InstanceID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"node %s has no DB instance identifier; rds_exporter would have nothing to scrape", node.NodeID)
+		}
 	}
 
 	if params.ServiceID != "" {
@@ -931,6 +1078,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		if !compatibleServiceAndAgent(svc.ServiceType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of service type %s and agent type %s", svc.ServiceType, agentType)
 		}
+	}
+
+	err = params.ValkeyOptions.Validate()
+	if err != nil {
+		return nil, err
 	}
 
 	exporterOptions := params.ExporterOptions
@@ -961,11 +1113,13 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		Disabled:          params.Disabled,
 	}
 
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
-	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
-		return nil, err
+	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
+	if err != nil {
+		return nil, environmentVariableNamesError(err)
 	}
 
 	switch agentType {
@@ -981,11 +1135,23 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
-	if err := q.Insert(&encryptedAgent); err != nil {
-		return nil, errors.WithStack(err)
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		// Refuse unless the pmm-agent is known to be new enough, including when it has not
+		// reported a version yet. An older agent would accept the config, report RUNNING and
+		// scrape nothing. The state updater withholds a role-based exporter from such an agent,
+		// but refusing here tells the user up front instead of storing an exporter that never starts.
+		err = IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
+	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1036,6 +1202,7 @@ type ChangeQANOptions struct {
 type ChangeAWSOptions struct {
 	AWSAccessKey               *string
 	AWSSecretKey               *string
+	AWSRoleARN                 *string
 	RDSBasicMetricsDisabled    *bool
 	RDSEnhancedMetricsDisabled *bool
 }
@@ -1051,14 +1218,15 @@ type ChangeAzureOptions struct {
 
 // ChangeMongoDBOptions contains MongoDBOptions fields that can be changed.
 type ChangeMongoDBOptions struct {
-	TLSCertificateKey             *string
-	TLSCertificateKeyFilePassword *string
-	TLSCa                         *string
-	AuthenticationMechanism       *string
-	AuthenticationDatabase        *string
-	StatsCollections              []string // nil = no change, empty = clear, populated = set
-	CollectionsLimit              *int32
-	EnableAllCollectors           *bool
+	TLSCertificateKey              *string
+	TLSCertificateKeyFilePassword  *string
+	TLSCa                          *string
+	AuthenticationMechanism        *string
+	AuthenticationDatabase         *string
+	StatsCollections               []string // nil = no change, empty = clear, populated = set
+	CollectionsLimit               *int32
+	EnableAllCollectors            *bool
+	EnableDiagnosticDataHistograms *bool
 }
 
 // ChangeMySQLOptions contains MySQLOptions fields that can be changed.
@@ -1090,6 +1258,8 @@ type ChangeAgentParams struct {
 	// Common fields for all agents
 	Enabled      *bool              // true - enable, false - disable, nil - no change
 	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	// empty slice - remove all environment variable names, non-empty - change, nil - no change
+	EnvironmentVariableNames *[]string
 
 	// Database connection fields
 	Username      *string
@@ -1112,14 +1282,81 @@ type ChangeAgentParams struct {
 	TLS           *bool
 	TLSSkipVerify *bool
 	ListenPort    *uint32 // for external exporter
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute
+	SkipConnectionCheck bool
 }
 
-// ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
-	row, err := FindAgentByID(q, agentID)
-	if err != nil {
-		return nil, err
+// AffectsConnection returns true if the change modifies parameters used to connect
+// to the service (credentials, TLS options, endpoint), i.e. changes that should be
+// validated with a connection check before they are applied.
+func (p *ChangeAgentParams) AffectsConnection() bool {
+	if p.Username != nil || p.Password != nil || p.TLS != nil || p.TLSSkipVerify != nil || p.ListenPort != nil {
+		return true
 	}
+
+	if o := p.MySQLOptions; o != nil {
+		if o.TLSCa != nil || o.TLSCert != nil || o.TLSKey != nil {
+			return true
+		}
+	}
+
+	if o := p.PostgreSQLOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.MongoDBOptions; o != nil {
+		if o.TLSCertificateKey != nil || o.TLSCertificateKeyFilePassword != nil || o.TLSCa != nil ||
+			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil {
+			return true
+		}
+	}
+
+	if o := p.ValkeyOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.ExporterOptions; o != nil {
+		// Scheme and path define the external exporter's metrics endpoint.
+		if o.MetricsScheme != nil || o.MetricsPath != nil {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ApplyAgentChange changes agent parameters on an already-loaded Agent row, based on agent type.
+//
+// Callers that already had to load the row to inspect it before changing it (e.g. to check its
+// type or a precondition) pass it here directly, so the row is not fetched twice.
+//
+// The row must be decrypted, i.e. loaded through FindAgentByID, FindAgents or another helper that
+// runs DecryptAgent -- not read straight out of AgentTable. This function encrypts before writing,
+// so a still-encrypted row would have its credentials encrypted twice, and agentEncryption only
+// logs a failure rather than returning one.
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
+	// Applied to a copy: the caller's row must not end up carrying the requested values when the
+	// change does not become durable, e.g. when a connection check later in the same transaction
+	// fails and rolls it back.
+	//
+	// The *Options fields are value structs, so copying the Agent copies them too, and the
+	// reference-typed fields inside them (DisabledCollectors, StatsCollections,
+	// ConnectionTimeout) are replaced wholesale rather than written into. MetricsResolutions is
+	// the exception: it is a pointer, and the block below assigns to its HR/MR/LR fields, so it
+	// needs a copy of its own or those writes would reach the caller's row.
+	rowCopy := *row
+	row = &rowCopy
+	if row.ExporterOptions.MetricsResolutions != nil {
+		resolutions := *row.ExporterOptions.MetricsResolutions
+		row.ExporterOptions.MetricsResolutions = &resolutions
+	}
+
+	var err error
 
 	// Handle common fields first
 	if params.Enabled != nil {
@@ -1128,13 +1365,23 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	if params.CustomLabels != nil {
 		if len(*params.CustomLabels) == 0 {
-			if err = row.SetCustomLabels(nil); err != nil {
+			err = row.SetCustomLabels(nil)
+			if err != nil {
 				return nil, err
 			}
 		} else {
-			if err = row.SetCustomLabels(*params.CustomLabels); err != nil {
+			err = row.SetCustomLabels(*params.CustomLabels)
+			if err != nil {
 				return nil, err
 			}
+		}
+	}
+
+	// An empty slice removes all environment variable names, SetEnvironmentVariableNames treats it the same as nil.
+	if params.EnvironmentVariableNames != nil {
+		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
+		if err != nil {
+			return nil, environmentVariableNamesError(err)
 		}
 	}
 
@@ -1166,7 +1413,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			if row.AgentType == ExternalExporterType {
 				err := updateExternalExporterParams(q, row)
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
+					return nil, fmt.Errorf("failed to update External exporterParams for PushMetrics: %w", err)
 				}
 			}
 		}
@@ -1213,6 +1460,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.ValkeyOptions.SSLKey != nil {
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
 		}
+
+		// Only the change that touches the key pair is validated: rows stored before this
+		// validation existed may already hold half a pair, and validating the merged row on
+		// every call would make them permanently un-editable, including back into a valid shape.
+		if params.ValkeyOptions.SSLCert != nil || params.ValkeyOptions.SSLKey != nil {
+			err = row.ValkeyOptions.Validate()
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	// Update QANOptions fields
@@ -1239,6 +1496,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.AWSOptions.AWSSecretKey != nil {
 			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
+		}
+		if params.AWSOptions.AWSRoleARN != nil {
+			row.AWSOptions.AWSRoleARN = *params.AWSOptions.AWSRoleARN
 		}
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
@@ -1336,6 +1596,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.MongoDBOptions.EnableAllCollectors != nil {
 			row.MongoDBOptions.EnableAllCollectors = *params.MongoDBOptions.EnableAllCollectors
 		}
+		if params.MongoDBOptions.EnableDiagnosticDataHistograms != nil {
+			row.MongoDBOptions.EnableDiagnosticDataHistograms = *params.MongoDBOptions.EnableDiagnosticDataHistograms
+		}
 	}
 
 	// Update TLS fields
@@ -1360,10 +1623,31 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	// Same gate as in CreateAgent, but only when this request sets a role ARN. An exporter saved
+	// with a role before its pmm-agent was downgraded is withheld from the agent by the state
+	// updater, and unrelated changes (disable, log level, labels) must still work on it.
+	if params.AWSOptions != nil && pointer.GetString(params.AWSOptions.AWSRoleARN) != "" {
+		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
 	// need to encrypt Agent's sensitive data before update
-	row = new(EncryptAgent(*row))
-	if err = q.Update(row); err != nil {
-		return nil, errors.WithStack(err)
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	row = new(encryptedAgent)
+	err = q.Update(row)
+	if err != nil {
+		return nil, err
 	}
 
 	return new(DecryptAgent(*row)), nil
@@ -1382,7 +1666,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 
 	structs, err := q.SelectAllFrom(AgentTable, "WHERE pmm_agent_id = $1", id)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
+		return nil, fmt.Errorf("failed to select Agents: %w", err)
 	}
 	if len(structs) != 0 {
 		switch mode {
@@ -1391,7 +1675,8 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				if _, err = RemoveAgent(q, agentID, RemoveRestrict); err != nil {
+				_, err = RemoveAgent(q, agentID, RemoveRestrict)
+				if err != nil {
 					return nil, err
 				}
 			}
@@ -1400,8 +1685,9 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 		}
 	}
 
-	if err = q.Delete(a); err != nil {
-		return nil, errors.Wrap(err, "failed to delete Agent")
+	err = q.Delete(a)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete Agent: %w", err)
 	}
 
 	return a, nil
@@ -1421,7 +1707,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 			return status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
 		case 1:
 		default:
-			return errors.Errorf("exactly one pmm agent expected, but (%d) found", len(pmmAgent))
+			return fmt.Errorf("exactly one pmm agent expected, but (%d) found", len(pmmAgent))
 		}
 
 		row.RunsOnNodeID = nil
@@ -1437,9 +1723,4 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.PMMAgentID = nil
 	}
 	return nil
-}
-
-// IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
-func IsPushMetricsSupported(pmmAgentVersion *string) bool {
-	return true
 }

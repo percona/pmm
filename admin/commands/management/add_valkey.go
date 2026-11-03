@@ -15,6 +15,7 @@
 package management
 
 import (
+	"errors"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -45,6 +46,10 @@ func (res *addValkeyResult) String() string {
 
 // AddValkeyCommand is used by Kong for CLI flags and commands.
 type AddValkeyCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelNoFatalFlags
+
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-valkey" help:"Service name (autodetected default: ${hostname}-valkey)"`
 	Address             string            `arg:"" optional:"" help:"Valkey address and port (default: 127.0.0.1:6379)"`
 	Socket              string            `help:"Path to Valkey socket"`
@@ -66,10 +71,6 @@ type AddValkeyCommand struct {
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddValkeyCommand.
@@ -101,6 +102,12 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 		tlsCa, tlsCert, tlsKey string
 	)
 	if cmd.TLS {
+		// The exporter refuses to start on half a client key pair, so catch it here rather
+		// than registering a service that silently falls back to server authentication.
+		if (cmd.TLSCertFile == "") != (cmd.TLSKeyFile == "") {
+			return nil, errors.New("--tls-cert and --tls-key must be specified together")
+		}
+
 		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
 		if err != nil {
 			return nil, err
@@ -160,7 +167,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				TLSCa:             tlsCa,
 				TLSCert:           tlsCert,
 				TLSKey:            tlsKey,
-				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:       cmd.MetricsMode.EnumValue(),
 				LogLevel:          cmd.LogLevel.EnumValue(),
 				ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 			},

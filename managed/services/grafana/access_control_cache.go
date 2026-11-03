@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -48,7 +47,7 @@ func (a *accessControl) isEnabled() bool {
 	a.mu.RUnlock()
 	enabled, err := a.reload()
 	if err != nil {
-		logrus.Error(errors.WithStack(err))
+		logrus.Error(err)
 		return a.enabled
 	}
 

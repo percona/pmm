@@ -1,6 +1,8 @@
 import { isUserAgentApple } from './navigator';
 
-export const triggerShortcut = (shortcut: 'view-shortcuts' | 'toggle-theme' | 'search') => {
+export const triggerShortcut = (
+  shortcut: 'view-shortcuts' | 'toggle-theme' | 'search'
+) => {
   if (shortcut === 'search') {
     triggerKeypress({
       key: 'k',

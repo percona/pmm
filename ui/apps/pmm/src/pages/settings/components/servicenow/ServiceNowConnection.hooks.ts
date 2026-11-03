@@ -1,0 +1,36 @@
+import { useMemo } from 'react';
+import { useSettingsList } from '@pmm-extensions/api';
+import {
+  connectionStatus,
+  declaredSecretNames,
+  storedDeliveryInputs,
+} from './ServiceNowConnection.utils';
+
+/**
+ * What the side-car currently holds for ServiceNow delivery, read once and derived.
+ *
+ * The side-car holds `GET /extensions/admin/settings` to administrators, reads included, so
+ * every caller must already be admin-only.
+ */
+export const useServiceNowConnection = () => {
+  const {
+    data: groups,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useSettingsList();
+
+  const declaredNames = useMemo(() => declaredSecretNames(groups), [groups]);
+  const stored = useMemo(() => storedDeliveryInputs(groups), [groups]);
+
+  return {
+    declaredNames,
+    stored,
+    status: connectionStatus(declaredNames, stored),
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  };
+};

@@ -15,15 +15,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/packages"
 )
+
+const dotFile = "packages.dot"
+
+var updateF = flag.Bool("update", false, "update "+dotFile)
 
 /*
 Commenting out these tests because not always we have a proper executable in the path.
@@ -49,7 +56,7 @@ These tests should be moved to QA testing framework.
         	Test:       	TestVersionPlain
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-agent", "-h") //nolint:gosec
+	cmd := exec.Command("pmm-agent", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -104,7 +111,8 @@ func TestImports(t *testing.T) {
 
 	// agents code should be independent
 	for _, a := range []string{
-		"github.com/percona/pmm/agent/agents/mongodb",
+		// mongodb has no package of its own, only subpackages
+		"github.com/percona/pmm/agent/agents/mongodb/...",
 		"github.com/percona/pmm/agent/agents/mysql/perfschema",
 		"github.com/percona/pmm/agent/agents/mysql/slowlog",
 		"github.com/percona/pmm/agent/agents/noop",
@@ -177,13 +185,16 @@ func TestImports(t *testing.T) {
 	for path, c := range constraints {
 		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
+		require.NotEmpty(t, pkgs, "pattern %s matched no packages", path)
+		require.Zero(t, packages.PrintErrors(pkgs), "failed to load %s", path)
 		allPkgs = append(allPkgs, pkgs...)
 
+		own := strings.TrimSuffix(path, "/...")
 		for _, p := range pkgs {
 			for _, d := range c.denyPrefixes {
 				for i := range p.Imports {
 					// allow own subpackages
-					if strings.HasPrefix(i, path) {
+					if strings.HasPrefix(i, own) {
 						continue
 					}
 
@@ -208,10 +219,6 @@ func TestImports(t *testing.T) {
 		}
 	}
 
-	f, err := os.Create("packages.dot")
-	require.NoError(t, err)
-	defer func() { require.NoError(t, f.Close()) }()
-
 	var lines []string
 	for _, p := range allPkgs {
 		pName := formatPkgName(t, p.PkgPath)
@@ -229,16 +236,25 @@ func TestImports(t *testing.T) {
 		}
 	}
 	sort.Strings(lines)
+	lines = slices.Compact(lines)
 
-	fmt.Fprintf(f, "digraph packages {\n")
-	duplicate := make(map[string]struct{})
+	var graph strings.Builder
+	graph.WriteString("digraph packages {\n")
 	for _, line := range lines {
-		if _, ok := duplicate[line]; !ok {
-			duplicate[line] = struct{}{}
-			fmt.Fprint(f, line) //nolint:errcheck
-		}
+		graph.WriteString(line)
 	}
-	fmt.Fprintf(f, "}\n")
+	graph.WriteString("}\n")
+
+	if *updateF {
+		require.NoError(t, os.WriteFile(dotFile, []byte(graph.String()), 0o644))
+		t.Logf("%s updated.", dotFile)
+		return
+	}
+
+	expected, err := os.ReadFile(dotFile)
+	require.NoError(t, err)
+	assert.Equal(t, string(expected), graph.String(),
+		"%s is stale; regenerate it with 'go test ./agent -run TestImports -update'.", dotFile)
 }
 
 func formatPkgName(t *testing.T, name string) string {

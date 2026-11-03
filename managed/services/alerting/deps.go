@@ -18,13 +18,36 @@ package alerting
 import (
 	"context"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/models"
 
 	"github.com/percona/pmm/managed/services"
 )
 
 type grafanaClient interface {
 	CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error
-	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
-	GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error)
+	ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error)
+	GetDatasourceUIDByName(ctx context.Context, name string) (string, error)
+	GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error)
+}
+
+// grafanaProvisioningClient is the part of the Grafana client the rule provisioner needs. It is
+// kept apart from grafanaClient because the two are used by unrelated code paths: one serves user
+// requests, this one runs in the background and has no credentials, which is why readiness is all
+// it can ask for.
+type grafanaProvisioningClient interface {
+	IsReady(ctx context.Context) error
+}
+
+// supervisordService is a subset of methods of supervisord.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type supervisordService interface {
+	StartSupervisedService(serviceName string) error
+	RestartSupervisedService(ctx context.Context, serviceName string) error
+	ProgramState(ctx context.Context, program string) *bool
+}
+
+// leaderService reports whether this node may act on behalf of the cluster. It reports true on a
+// standalone server, where every node is trivially the leader.
+type leaderService interface {
+	IsLeader() bool
 }

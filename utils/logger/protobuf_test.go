@@ -1,17 +1,16 @@
 // Copyright (C) 2023 Percona LLC
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package logger
 
@@ -85,7 +84,6 @@ func getRtaQueryDataMessage(t *testing.T) []proto.Message {
 	return []proto.Message{&dataOrig, &dataRedacted}
 }
 
-//nolint:gosec
 func getSetStateRequestMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
@@ -316,7 +314,6 @@ func getStartActionRequestPTMySQLSummaryParams(t *testing.T) []proto.Message {
 	return []proto.Message{startActionOrig, startActionRedacted}
 }
 
-//nolint:gosec
 func getServerMessageMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
@@ -432,7 +429,6 @@ func Test_maskString(t *testing.T) {
 	}
 }
 
-//nolint:gosec
 func Test_maskDSN(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -440,6 +436,56 @@ func Test_maskDSN(t *testing.T) {
 		input string
 		want  string
 	}{
+		{
+			name:  "environment entry whose key names a password",
+			input: "VMAGENT_remoteWrite_basicAuth_password=vm-password",
+			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
+		},
+		{
+			name:  "environment entry whose secret value contains an at sign",
+			input: "VMAGENT_remoteWrite_basicAuth_password=p@ss",
+			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
+		},
+		{
+			name:  "environment entry whose secret value spans lines",
+			input: "VMAGENT_remoteWrite_basicAuth_password=line1\nli@ne2",
+			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
+		},
+		{
+			name:  "environment entry whose key names a token",
+			input: "VMAGENT_remoteWrite_bearerToken=abc.def",
+			want:  "VMAGENT_remoteWrite_bearerToken=***REDACTED***",
+		},
+		{
+			name:  "inherited environment entry with a dash in its key",
+			input: "my-token=abc",
+			want:  "my-token=***REDACTED***",
+		},
+		{
+			name:  "inherited environment entry with an npm-style key",
+			input: "npm_config_//registry.npmjs.org/:_authToken=abc",
+			want:  "npm_config_//registry.npmjs.org/:_authToken=***REDACTED***",
+		},
+		{
+			name:  "MySQL DSN whose database is called tokens is not read as a key",
+			input: "pmm:pass@tcp(127.0.0.1:3306)/tokens?timeout=1s",
+			want:  "***REDACTED***:***REDACTED***@tcp(127.0.0.1:3306)/tokens?timeout=1s",
+		},
+		{
+			name:  "PostgreSQL DSN whose database is called secrets is not read as a key",
+			input: "postgres://pmm:pass@db:5432/secrets?sslmode=disable",
+			want:  "postgres://***REDACTED***:***REDACTED***@db:5432/secrets?sslmode=disable",
+		},
+		{
+			name:  "environment entry without a secret in its key",
+			input: "VMAGENT_loggerLevel=INFO",
+			want:  "VMAGENT_loggerLevel=INFO",
+		},
+		{
+			name:  "environment entry holding a URL with userinfo",
+			input: "VMAGENT_remoteWrite_url=http://user:password@vm:8428/api/v1/write",
+			want:  "VMAGENT_remoteWrite_url=http://***REDACTED***:***REDACTED***@vm:8428/api/v1/write",
+		},
 		{
 			name:  "PostgreSQL DSN",
 			input: "postgres://user:password@localhost:5432/dbname?param=value",

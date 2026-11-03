@@ -21,3 +21,10 @@ Shows the number of samples Per second stored for a given interval in the time s
 This dashboard supports metrics related to NUMA. The names of all these metrics start with `node_memory_numa`.
 
 ![!image](../../images/metrics-monitor.advanced-data-exploration.node-memory-numa.png)
+
+## Metric Data Table
+
+A table showing the raw metric values for the selected metric and node over time. Rows are sorted by Time descending so the most recent data appears first. Use this to pinpoint the exact moment a metric changed, or to confirm a value you saw in a graph panel.
+
+- **Time**: When the data point was recorded. Use this to correlate a spike or drop with a specific event, such as a deployment, a batch job, or a restart.
+- **Value**: The raw metric value at that timestamp. What this number means depends on the metric selected — check the metric name and unit in the dashboard variable selectors above.

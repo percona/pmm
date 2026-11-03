@@ -53,7 +53,7 @@ RemoveNodeOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type RemoveNodeOK struct {
-	Payload any
+	Payload *RemoveNodeOKBody
 }
 
 // IsSuccess returns true when this remove node Ok response has a 2xx status code
@@ -96,13 +96,15 @@ func (o *RemoveNodeOK) String() string {
 	return fmt.Sprintf("[DELETE /v1/inventory/nodes/{node_id}][%d] removeNodeOk %s", 200, payload)
 }
 
-func (o *RemoveNodeOK) GetPayload() any {
+func (o *RemoveNodeOK) GetPayload() *RemoveNodeOKBody {
 	return o.Payload
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(RemoveNodeOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -307,8 +309,8 @@ type RemoveNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// remove node default body details items0
-	RemoveNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// remove node default body details items0 additional properties
+	RemoveNodeDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -343,7 +345,7 @@ func (o *RemoveNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.RemoveNodeDefaultBodyDetailsItems0 = result
+		o.RemoveNodeDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -364,12 +366,12 @@ func (o RemoveNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.RemoveNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.RemoveNodeDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.RemoveNodeDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.RemoveNodeDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -403,6 +405,43 @@ func (o *RemoveNodeDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RemoveNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res RemoveNodeDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+RemoveNodeOKBody remove node OK body
+swagger:model RemoveNodeOKBody
+*/
+type RemoveNodeOKBody struct {
+	// Warning message if there are more service tokens attached to service account.
+	Warning string `json:"warning,omitempty"`
+}
+
+// Validate validates this remove node OK body
+func (o *RemoveNodeOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this remove node OK body based on context it is used
+func (o *RemoveNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveNodeOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveNodeOKBody) UnmarshalBinary(b []byte) error {
+	var res RemoveNodeOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

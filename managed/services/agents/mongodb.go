@@ -39,7 +39,21 @@ var (
 	v2_42_0                    = version.MustParse("2.42.0-0")
 	v2_43_0                    = version.MustParse("2.43.0-0")
 	v2_43_2                    = version.MustParse("2.43.2-0")
+	v3_10_0                    = version.MustParse("3.10.0-0")
 )
+
+// mongoDBURIEnvVar is the environment variable mongodbExporterConfig below sets on the exporter
+// process itself, from the service's DSN.
+const mongoDBURIEnvVar = "MONGODB_URI"
+
+// MongoDBExporterReservedEnvVars are the environment variable names mongodbExporterConfig sets for
+// mongodb_exporter itself. This is the authoritative set: pmm-agent's supervisor skips a
+// user-selected name that collides with one of these, to avoid overriding the computed value, so
+// the API rejects such a name up front instead. Anything added to the env slice below belongs here
+// too, which is why both are declared together rather than restated in the validating package.
+var MongoDBExporterReservedEnvVars = map[string]struct{}{
+	mongoDBURIEnvVar: {},
+}
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -65,7 +79,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion)),
+		mongoDBURIEnvVar + "=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion),
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -82,7 +96,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false); err != nil {
+	err = ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false)
+	if err != nil {
 		return nil, err
 	}
 
@@ -119,6 +134,9 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_43_2) { // >= 2.43.2, enable pbm collector by default
 			args = append(args, "--collector.pbm")
+		}
+		if !pmmAgentVersion.Less(v3_10_0) && exporter.MongoDBOptions.EnableDiagnosticDataHistograms {
+			args = append(args, "--collector.diagnosticdata-histograms")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)

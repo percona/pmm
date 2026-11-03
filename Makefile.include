@@ -11,7 +11,7 @@ help:                 ## Display this help message
 init:                ## Install tools
 	rm -rf bin/*
 	# Install golangci-lint
-	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(CURDIR)/bin v2.12.2 # Version should match specified in CI
+	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(CURDIR)/bin v2.14.0 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
@@ -48,7 +48,7 @@ api-test:             ## Run API tests on dev env.
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
 	go tool buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
@@ -57,14 +57,13 @@ check-license:        ## Run license header checks against source files
 check-all: check-license check    ## Run linter and license checks
 
 check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
 FILES = $(shell find . -type f -name '*.go')
 
 format:               ## Format source code
 	make -C api format
 	go tool gofumpt -l -w $(FILES)
-	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 serve:                ## Serve API documentation with nginx

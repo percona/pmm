@@ -17,9 +17,10 @@ package telemetry
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 )
 
 type itemsType []map[string]any
@@ -30,15 +31,15 @@ func transformToJSON(config *Config, metrics []*telemetryv1.GenericReport_Metric
 	}
 
 	if config.Transform == nil {
-		return nil, errors.Errorf("no transformation config is set")
+		return nil, errors.New("no transformation config is set")
 	}
 
 	if config.Transform.Type != JSONTransform {
-		return nil, errors.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
+		return nil, fmt.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
 	}
 
 	if len(config.Data) == 0 || config.Data[0].MetricName == "" {
-		return nil, errors.Errorf("invalid metrics config")
+		return nil, errors.New("invalid metrics config")
 	}
 
 	// consider first metric is the beginning of the object window
@@ -57,7 +58,7 @@ func transformToJSON(config *Config, metrics []*telemetryv1.GenericReport_Metric
 			next = make(map[string]any)
 		}
 		if _, alreadyHasItem := next[metric.Key]; alreadyHasItem {
-			return nil, errors.Errorf("invalid metrics sequence")
+			return nil, errors.New("invalid metrics sequence")
 		}
 
 		next[metric.Key] = metric.Value
@@ -92,11 +93,11 @@ func transformExportValues(config *Config, metrics []*telemetryv1.GenericReport_
 	}
 
 	if config.Transform.Type != StripValuesTransform {
-		return nil, errors.Errorf("unspported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
+		return nil, fmt.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
 	}
 
 	if config.Source != string(dsEnvVars) {
-		return nil, errors.Errorf("this transform can only be used for %s data source", dsEnvVars)
+		return nil, fmt.Errorf("this transform can only be used for %s data source", dsEnvVars)
 	}
 
 	for _, metric := range metrics {

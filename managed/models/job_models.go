@@ -59,7 +59,7 @@ type JobResult struct {
 func (r JobResult) Value() (driver.Value, error) { return jsonValue(r) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (r *JobResult) Scan(src interface{}) error { return jsonScan(r, src) }
+func (r *JobResult) Scan(src any) error { return jsonScan(r, src) }
 
 // MySQLBackupJobData stores MySQL job specific result data.
 type MySQLBackupJobData struct {
@@ -100,7 +100,7 @@ type JobData struct {
 func (c JobData) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *JobData) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *JobData) Scan(src any) error { return jsonScan(c, src) }
 
 // Job describes a job result which is storing in persistent storage.
 //

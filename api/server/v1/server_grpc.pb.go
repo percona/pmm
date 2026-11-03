@@ -25,7 +25,6 @@ const (
 	ServerService_LeaderHealthCheck_FullMethodName   = "/server.v1.ServerService/LeaderHealthCheck"
 	ServerService_CheckUpdates_FullMethodName        = "/server.v1.ServerService/CheckUpdates"
 	ServerService_ListChangeLogs_FullMethodName      = "/server.v1.ServerService/ListChangeLogs"
-	ServerService_StartUpdate_FullMethodName         = "/server.v1.ServerService/StartUpdate"
 	ServerService_UpdateStatus_FullMethodName        = "/server.v1.ServerService/UpdateStatus"
 	ServerService_GetSettings_FullMethodName         = "/server.v1.ServerService/GetSettings"
 	ServerService_GetReadOnlySettings_FullMethodName = "/server.v1.ServerService/GetReadOnlySettings"
@@ -49,9 +48,10 @@ type ServerServiceClient interface {
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
 	// ListChangeLogs delivers the changelog.
 	ListChangeLogs(ctx context.Context, in *ListChangeLogsRequest, opts ...grpc.CallOption) (*ListChangeLogsResponse, error)
-	// StartUpdate starts PMM Server update.
-	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
-	// UpdateStatus returns PMM Server update status.
+	// UpdateStatus returns PMM Server initialization status.
+	//
+	// It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
+	// freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
@@ -119,16 +119,6 @@ func (c *serverServiceClient) ListChangeLogs(ctx context.Context, in *ListChange
 	return out, nil
 }
 
-func (c *serverServiceClient) StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StartUpdateResponse)
-	err := c.cc.Invoke(ctx, ServerService_StartUpdate_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *serverServiceClient) UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateStatusResponse)
@@ -186,9 +176,10 @@ type ServerServiceServer interface {
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
 	// ListChangeLogs delivers the changelog.
 	ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error)
-	// StartUpdate starts PMM Server update.
-	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
-	// UpdateStatus returns PMM Server update status.
+	// UpdateStatus returns PMM Server initialization status.
+	//
+	// It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
+	// freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
@@ -224,10 +215,6 @@ func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpda
 
 func (UnimplementedServerServiceServer) ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListChangeLogs not implemented")
-}
-
-func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method StartUpdate not implemented")
 }
 
 func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
@@ -356,24 +343,6 @@ func _ServerService_ListChangeLogs_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServerService_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartUpdateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServerServiceServer).StartUpdate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServerService_StartUpdate_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).StartUpdate(ctx, req.(*StartUpdateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ServerService_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateStatusRequest)
 	if err := dec(in); err != nil {
@@ -472,10 +441,6 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListChangeLogs",
 			Handler:    _ServerService_ListChangeLogs_Handler,
-		},
-		{
-			MethodName: "StartUpdate",
-			Handler:    _ServerService_StartUpdate_Handler,
 		},
 		{
 			MethodName: "UpdateStatus",
