@@ -162,7 +162,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name,mountpoint) (1 - (max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m])) / \n(max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or\nmax_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m])))",
+                    "expr": "avg by (node_name,mountpoint) (1 - (max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])) / ((max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])) - (max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])) + (max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m]))))",
                     "interval": "$interval",
                     "legendFormat": "{{mountpoint}}",
                     "refId": "A"
@@ -292,7 +292,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "avg by (node_name,device,fstype,mountpoint) ((max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m])) - (max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m])))",
+                    "expr": "avg by (node_name,device,fstype,mountpoint) ((max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])) - (max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])))",
                     "hide": false,
                     "interval": "$interval",
                     "legendFormat": "Used (device {{ device }}, {{ fstype }})",
@@ -301,7 +301,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "avg by (node_name,device,fstype,mountpoint) (max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", mountpoint=\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or max_over_time(node_filesystem_free_bytes{node_name=~\"$node_name\", mountpoint=\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m]) or (storage_limit_bytes_average{node_name=~\"$node_name\"} - azure_storage_used_bytes_average{node_name=~\"$node_name\"}))",
+                    "expr": "avg by (node_name,device,fstype,mountpoint) (max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_avail_bytes{node_name=~\"$node_name\", mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m]) or (storage_limit_bytes_average{node_name=~\"$node_name\"} - azure_storage_used_bytes_average{node_name=~\"$node_name\"}))",
                     "hide": false,
                     "interval": "$interval",
                     "legendFormat": "Free (device {{ device }}, {{ fstype }})",
@@ -310,7 +310,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "avg by (node_name,device,fstype,mountpoint) ((max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[$interval]) or max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[5m])))",
+                    "expr": "avg by (node_name,device,fstype,mountpoint) ((max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[$interval]) or max_over_time(node_filesystem_size_bytes{node_name=~\"$node_name\",mountpoint=~\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[5m])))",
                     "hide": false,
                     "interval": "$interval",
                     "legendFormat": "Total (device {{ device }}, {{ fstype }})",
@@ -3150,7 +3150,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
+                "definition": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}, mountpoint)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Mountpoint",
@@ -3158,7 +3158,7 @@
                 "name": "mountpoint",
                 "options": [],
                 "query": {
-                    "query": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
+                    "query": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}, mountpoint)",
                     "refId": "Metrics-mountpoint-Variable-Query"
                 },
                 "refresh": 2,

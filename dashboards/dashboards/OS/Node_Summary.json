@@ -473,7 +473,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name) (min(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"})*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
+                    "expr": "avg by (node_name) (min(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / (node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} + node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}))*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -554,7 +554,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "min(sum(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"})/clamp_min(sum(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"} - predict_linear(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"}[1h], 1 * 3600)),0))",
+                    "expr": "min(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} / clamp_min(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} - predict_linear(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"}[1h], 1 * 3600), 0))",
                     "refId": "A"
                 }
             ],

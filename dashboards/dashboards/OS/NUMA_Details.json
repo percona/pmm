@@ -3339,7 +3339,7 @@
                 "name": "mountpoint",
                 "options": [],
                 "query": {
-                    "query": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
+                    "query": "label_values(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}, mountpoint)",
                     "refId": "Metrics-mountpoint-Variable-Query"
                 },
                 "refresh": 2,

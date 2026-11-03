@@ -24,6 +24,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 
+- [PMM-15850](https://perconadev.atlassian.net/browse/PMM-15850): Disk space panels now match `df`. Space the filesystem reserves for the root user counts as used, so an ext4 filesystem that is full for applications shows 100% used instead of about 95%. This applies to **Mountpoint Usage** in [Disk Details](../reference/dashboards/dashboard-disk-details.md) and [Nodes Compare](../reference/dashboards/dashboard-nodes-compare.md), **Min Free Space Available** in [Nodes Overview](../reference/dashboards/dashboard-nodes-overview.md), and **Min Space Available** in the **Node Summary** rows of the database dashboards. **Time before run out of space** in [Node Summary](../reference/dashboards/dashboard-node-summary.md) now shows the mountpoint that will fill up first, instead of combining all mountpoints.
+
 - [PMM-7](https://perconadev.atlassian.net/browse/PMM-7): Updated the Grafana ClickHouse data source plugin to v4.23.4, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
 
 ## 🔶 Known issues
