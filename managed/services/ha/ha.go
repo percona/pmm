@@ -55,11 +55,11 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1.ListNodesRequest) (*hav1
 	expectedNodes := s.service.expectedNodes()
 
 	s.service.rw.RLock()
-	memberlist := s.service.memberlist
+	ml := s.service.memberlist
 	raftNode := s.service.raftNode
 	s.service.rw.RUnlock()
 
-	if memberlist == nil {
+	if ml == nil {
 		return &hav1.ListNodesResponse{
 			Nodes:         []*hav1.HANode{},
 			ExpectedNodes: int32(expectedNodes), //nolint:gosec
@@ -67,22 +67,46 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1.ListNodesRequest) (*hav1
 	}
 
 	_, leaderID := raftNode.LeaderWithID()
-	members := memberlist.Members()
-	nodes := []*hav1.HANode{}
-
-	for _, member := range members {
-		role := hav1.NodeRole_NODE_ROLE_FOLLOWER
-		if member.Name == string(leaderID) {
-			role = hav1.NodeRole_NODE_ROLE_LEADER
+	role := func(name string) hav1.NodeRole {
+		if name == string(leaderID) {
+			return hav1.NodeRole_NODE_ROLE_LEADER
 		}
+		return hav1.NodeRole_NODE_ROLE_FOLLOWER
+	}
 
-		status := memberlistStateToString(member.State)
-
+	members := ml.Members()
+	nodes := []*hav1.HANode{}
+	listed := make(map[string]struct{}, len(members))
+	for _, member := range members {
 		nodes = append(nodes, &hav1.HANode{
 			NodeName: member.Name,
-			Role:     role,
-			Status:   status,
+			Role:     role(member.Name),
+			Status:   memberlistStateToString(member.State),
 		})
+		listed[member.Name] = struct{}{}
+	}
+
+	// memberlist drops dead and departed nodes from Members(), while Raft keeps a failed voter, see PMM-15787.
+	configFuture := raftNode.GetConfiguration()
+	err := configFuture.Error()
+	if err != nil {
+		s.service.l.Warnf("Couldn't get the Raft configuration: %s", err)
+	} else {
+		for _, server := range configFuture.Configuration().Servers {
+			name := string(server.ID)
+			if _, ok := listed[name]; ok {
+				continue
+			}
+			state := memberlist.StateDead
+			if s.service.hasLeft(name) {
+				state = memberlist.StateLeft
+			}
+			nodes = append(nodes, &hav1.HANode{
+				NodeName: name,
+				Role:     role(name),
+				Status:   memberlistStateToString(state),
+			})
+		}
 	}
 
 	return &hav1.ListNodesResponse{
