@@ -18,14 +18,18 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FLEET_NOT_COLLECTED } from '../src/constants';
+import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../src/constants';
 import { FleetClustersTab } from '../src/FleetClustersTab';
 import { cluster, mixedEstate, service, topology } from './fixtures';
 
-const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
+const { useOmTopology, useOmInventoryServices } = vi.hoisted(() => ({
+  useOmTopology: vi.fn(),
+  useOmInventoryServices: vi.fn(),
+}));
 
 vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
 vi.mock('../src/inventoryHooks', () => ({
+  useOmInventoryServices,
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
 
@@ -118,6 +122,51 @@ describe('FleetClustersTab', () => {
       isPending: false,
       isError: false,
     });
+    useOmInventoryServices.mockReturnValue({
+      data: [],
+      isPending: false,
+      isError: false,
+      error: null,
+    });
+  });
+
+  it('warns, with the server error, when the scan results cannot be read', () => {
+    useOmInventoryServices.mockReturnValue({
+      data: undefined,
+      isPending: false,
+      isError: true,
+      error: new Error('upstream connect error: PMM Extensions unavailable'),
+    });
+    renderPage();
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Could not read scan results');
+    expect(alert).toHaveTextContent(
+      'upstream connect error: PMM Extensions unavailable'
+    );
+    // The fleet itself is PMM's own data and still renders.
+    expect(clusterRows().length).toBeGreaterThan(0);
+  });
+
+  it('shows no scan warning while the scan results read fine', () => {
+    renderPage();
+
+    expect(screen.queryByText('Could not read scan results')).toBeNull();
+  });
+
+  it('links an empty fleet to the Operations for MongoDB guide', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    expect(
+      within(screen.getByTestId('om-empty-state')).getByRole('link', {
+        name: 'Read about Operations for MongoDB',
+      })
+    ).toHaveAttribute('href', OPERATIONS_DOC_URL);
   });
 
   it('names each cluster state and leads with the degraded one', () => {
@@ -440,6 +489,44 @@ describe('FleetClustersTab', () => {
           within(header).queryByRole('button', { name: /move/i })
         ).toBeNull();
       }
+    });
+  });
+
+  describe('Group by kept for the session (PMM-15767)', () => {
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: twoEnvironments(),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    it('reopens grouped as the reader left it, e.g. after a tab switch', () => {
+      const { unmount } = renderPage();
+      groupBy('Health');
+      unmount();
+
+      renderPage();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Health');
+      expect(
+        groupHeaders().map(
+          (header) =>
+            within(header).getByTestId('om-cluster-health').textContent
+        )
+      ).toEqual(['Down', 'Degraded', 'Healthy']);
+    });
+
+    it('opens by environment when the stored grouping is not an option', () => {
+      sessionStorage.setItem('om.fleet.clusters.grouping', 'cluster_id');
+
+      renderPage();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Environment');
     });
   });
 });

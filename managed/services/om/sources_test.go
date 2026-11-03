@@ -35,27 +35,27 @@ type stubVM struct {
 	values map[string]model.Vector
 }
 
-func (s stubVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, error) {
+func (s stubVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	for metric, vector := range s.lag {
 		if strings.HasPrefix(query, "lag("+metric+"{") {
-			return vector, nil, nil
+			return vector, nil, nil, nil
 		}
 	}
 	for metric, vector := range s.values {
 		if strings.HasPrefix(query, "last_over_time("+metric+"{") {
-			return vector, nil, nil
+			return vector, nil, nil, nil
 		}
 	}
-	return model.Vector{}, nil, nil
+	return model.Vector{}, nil, nil, nil
 }
 
 type recordingVM struct {
 	queries []string
 }
 
-func (r *recordingVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, error) {
+func (r *recordingVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	r.queries = append(r.queries, query)
-	return model.Vector{}, nil, nil
+	return model.Vector{}, nil, nil, nil
 }
 
 const testServiceID = "svc-1"
@@ -198,11 +198,11 @@ type lastUpVM struct {
 	seconds float64
 }
 
-func (v lastUpVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, error) {
+func (v lastUpVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	if !strings.Contains(query, "tmax_over_time("+metricUp+"{") {
-		return model.Vector{}, nil, nil
+		return model.Vector{}, nil, nil, nil
 	}
-	return model.Vector{{Metric: seriesLabels(), Value: model.SampleValue(v.seconds)}}, nil, nil
+	return model.Vector{{Metric: seriesLabels(), Value: model.SampleValue(v.seconds)}}, nil, nil, nil
 }
 
 // Dating the last-up fact by the run would make a row that has been down for hours look freshly observed.
