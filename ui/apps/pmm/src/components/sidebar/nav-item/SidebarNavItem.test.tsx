@@ -7,6 +7,8 @@ import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { PreviewChip } from 'components/preview-chip';
+import { NAV_INVENTORY } from 'contexts/navigation/navigation.constants';
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -150,6 +152,24 @@ describe('SidebarNavItem', () => {
 
     expect(level0Collapse).not.toHaveClass(collapseClasses.hidden);
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
+  });
+
+  it('links a collapsible item to its first child by default', () => {
+    renderNavItem();
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute(
+      'href',
+      '/0/10'
+    );
+  });
+
+  it('links Inventory to the Services list', () => {
+    renderNavItem({ props: { item: NAV_INVENTORY } });
+
+    expect(screen.getByTestId('navitem-inventory')).toHaveAttribute(
+      'href',
+      `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`
+    );
   });
 
   it('renders badge if item has badge', () => {
