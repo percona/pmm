@@ -1,45 +1,39 @@
-name: PR preview — Storybook
+name: Storybook PR preview build
 
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize, ready_for_review, closed]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
-  group: pr-preview-${{ github.event.pull_request.number }}
+  group: pr-preview-build-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    if: github.event.action != 'closed' && github.event.pull_request.draft == false
+  build:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d #v6
         with:
           version: 9.4.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e #v6
+        with:
+          node-version: 24
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build Storybook
         run: pnpm storybook:build
-      - name: Deploy PR preview
-        uses: rossjrw/pr-preview-action@v1
+      - name: Upload Storybook
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
         with:
-          action: deploy
-          source-dir: ./storybook-static
-
-  remove:
-    if: github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Remove PR preview
-        uses: rossjrw/pr-preview-action@v1
-        with:
-          action: remove
+          name: storybook-preview
+          path: storybook-static
+          retention-days: 1
