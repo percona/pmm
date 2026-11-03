@@ -1200,7 +1200,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id)  (sum by (node_id) (rate(node_disk_io_time_seconds_total[$interval])) or (sum by (node_id) (irate(node_disk_io_time_seconds_total[5m]))))",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id) (max by (node_id) (rate(node_disk_io_time_seconds_total{device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_io_time_seconds_total{device!~\"dm-.+|md.+\"}[5m])))",
                     "interval": "$interval",
                     "legendFormat": "{{ node_name }}",
                     "range": true,
@@ -1340,7 +1340,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id) (avg by (node_id) (sum by (node_id)(\n(rate(node_disk_reads_completed_total[$interval]) or \nirate(node_disk_reads_completed_total[5s]))\n)))",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id) (sum by (node_id) (rate(node_disk_reads_completed_total{device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_reads_completed_total{device!~\"dm-.+|md.+\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1356,7 +1356,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id) (avg by (node_id) (sum by(node_id)(\n(rate(node_disk_writes_completed_total[$interval]) or \nirate(node_disk_writes_completed_total[5s])) \n)))",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}[1m]*0 + on(node_id) group_left(node_id) (sum by (node_id) (rate(node_disk_writes_completed_total{device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_writes_completed_total{device!~\"dm-.+|md.+\"}[5m])))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
