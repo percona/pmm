@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "PTSummary",
+  "id": "pmm-pt-summary-datasource",
+  "metrics": true,
+  "info": {
+    "author": {
+      "name": "Percona"
+    }
+  }
+}

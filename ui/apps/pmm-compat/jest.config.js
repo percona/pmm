@@ -5,4 +5,7 @@ process.env.TZ = 'UTC';
 module.exports = {
   // Jest configuration provided by Grafana scaffolding
   ...require('./.config/jest.config'),
+  // @grafana/ui pulls in ESM-only packages through pnpm's nested
+  // node_modules, which the scaffold's allow-list doesn't match
+  transformIgnorePatterns: [],
 };
