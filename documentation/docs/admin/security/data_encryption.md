@@ -22,6 +22,7 @@ PMM encrypts these fields of its internal database (`pmm-managed`):
 | PostgreSQL TLS client certificate and key | `agents.postgresql_options` | `ssl_cert`, `ssl_key` |
 | Valkey TLS client certificate and key | `agents.valkey_options` | `ssl_cert`, `ssl_key` |
 | Backup location S3 credentials | `backup_locations.s3_config` | `access_key`, `secret_key` |
+| MongoDB users and keyfile of replica sets that [Operations for MongoDB](../../use/mongodb-operations.md) installs | `om_bootstrap_secrets` | `mongodb_username`, `mongodb_password`, `key_file`, `admin_username`, `admin_password` |
 
 Not encrypted, because they are not secret:
 
