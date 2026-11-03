@@ -5,9 +5,11 @@
 #
 # Environment:
 #   GIT_BRANCH  pmm-submodules branch to build (default: v3)
-#   WORKSPACE   directory to clone pmm-submodules into and build in (default: ./pmm-build-workspace).
+#   WORKSPACE   directory to clone pmm-submodules into and build in (default: ./pmm-workspace).
 #               On re-runs, the existing clone is updated to the latest commit of GIT_BRANCH.
 #   DOCKER_TAG  resulting image tag (default: pmm-server:local)
+#
+# The output of each run is also written to ${WORKSPACE}/build.log.
 
 set -euo pipefail
 
@@ -22,22 +24,29 @@ case "$(uname -m)" in
     *)       echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
 esac
 
-GIT_BRANCH="${GIT_BRANCH:-v3}"
-WORKSPACE="${WORKSPACE:-$(pwd)/pmm-build-workspace}"
-SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
+declare WORKSPACE="${WORKSPACE:-$(pwd)/pmm-workspace}"
+mkdir -p "${WORKSPACE}"
+
+echo -n > "${WORKSPACE}/build.log"
+exec >  >(tee -a "${WORKSPACE}/build.log")
+exec 2> >(tee -a "${WORKSPACE}/build.log" >&2)
+
+declare GIT_BRANCH="${GIT_BRANCH:-v3}"
+declare SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
 export DOCKER_TAG="${DOCKER_TAG:-pmm-server:local}"
 export DOCKERFILE="Dockerfile.el9"
 export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
 export FORCE_REBUILD=1          # build every server component from source, skip the S3 build cache
 
+# git clone refuses a non-empty directory, and the workspace already holds build.log
 if [ ! -d "${WORKSPACE}/.git" ]; then
-    echo "Cloning pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
-    git clone --branch "${GIT_BRANCH}" https://github.com/Percona-Lab/pmm-submodules "${WORKSPACE}"
-else
-    echo "Updating pmm-submodules (${GIT_BRANCH}) in ${WORKSPACE}"
-    git -C "${WORKSPACE}" fetch origin "${GIT_BRANCH}"
-    git -C "${WORKSPACE}" checkout -B "${GIT_BRANCH}" FETCH_HEAD
+    git -C "${WORKSPACE}" init -q -b "${GIT_BRANCH}"
+    git -C "${WORKSPACE}" remote add origin https://github.com/Percona-Lab/pmm-submodules
 fi
+
+echo "Fetching pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
+git -C "${WORKSPACE}" fetch origin "${GIT_BRANCH}"
+git -C "${WORKSPACE}" checkout -B "${GIT_BRANCH}" FETCH_HEAD
 
 cd "${WORKSPACE}"
 
