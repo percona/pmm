@@ -407,7 +407,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
                 duration: theme.transitions.duration.shortest,
               }),
             },
+            // Centres select-all and expand-all on the column names: their 20px label line, or the 40px column actions button
             '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
+              {
+                paddingTop: '8px',
+              },
+            '& .MuiTableHead-root:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root) :is(.MuiTableCell-head:has(.MuiCheckbox-root), .MuiTableCell-head:has([aria-label="Expand all"]))':
               {
                 paddingTop: '18px',
               },
