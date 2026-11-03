@@ -18,6 +18,7 @@ package secrets
 import (
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -245,7 +246,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.Symlink(filepath.Join("..data", string(AdminPassword)), filepath.Join(opts.RunDir, string(AdminPassword))))
 
 		_, err := Prepare(opts)
-		require.ErrorContains(t, err, "holds ..data, which PMM Server didn't create")
+		require.ErrorContains(t, err, "holds ..data, admin-password, which PMM Server didn't create")
 		assert.Equal(t, "mounted", linked(t, opts, AdminPassword))
 	})
 
@@ -264,6 +265,73 @@ func TestPrepare(t *testing.T) {
 			"admin-password: " + admin + " is inside " + opts.RunDir,
 		} {
 			assert.Contains(t, err.Error(), s)
+		}
+	})
+
+	t.Run("refuses credential links it didn't create", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		file := filepath.Join(t.TempDir(), "admin")
+		require.NoError(t, os.WriteFile(file, []byte("mounted"), 0o400))
+		require.NoError(t, os.MkdirAll(opts.RunDir, 0o700))
+		require.NoError(t, os.Symlink(file, filepath.Join(opts.RunDir, string(AdminPassword))))
+
+		_, err := Prepare(opts)
+		require.ErrorContains(t, err, opts.RunDir+" holds admin-password, which PMM Server didn't create")
+		assert.Equal(t, "mounted", linked(t, opts, AdminPassword))
+	})
+
+	t.Run("refuses anything else in the directory of its own values", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		env := filepath.Join(opts.RunDir, envSubdir)
+		require.NoError(t, os.MkdirAll(filepath.Join(env, "keep"), 0o700))
+		require.NoError(t, os.WriteFile(filepath.Join(env, "notes"), []byte("mounted"), 0o600))
+		require.NoError(t, os.Symlink(filepath.Join(env, "notes"), filepath.Join(env, string(AdminPassword))))
+
+		_, err := Prepare(opts)
+		require.Error(t, err)
+		for _, s := range []string{".env/admin-password", ".env/keep", ".env/notes", "which PMM Server didn't create"} {
+			assert.Contains(t, err.Error(), s)
+		}
+		assert.DirExists(t, filepath.Join(env, "keep"))
+		assert.FileExists(t, filepath.Join(env, "notes"))
+	})
+
+	t.Run("removes a temporary file that an interrupted start left", func(t *testing.T) {
+		opts := testOptions(t, nil)
+		tmp := filepath.Join(opts.RunDir, envSubdir, "."+string(PostgresPassword)+".tmp123")
+		require.NoError(t, os.MkdirAll(filepath.Dir(tmp), 0o700))
+		require.NoError(t, os.WriteFile(tmp, []byte("pmm-man"), 0o600))
+
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+		assert.NoFileExists(t, tmp)
+		assert.Equal(t, "pmm-managed", linked(t, opts, PostgresPassword))
+	})
+
+	t.Run("refuses a source that leads back through its link", func(t *testing.T) {
+		dir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(dir, string(GrafanaDBPassword)), []byte("from-dir"), 0o440))
+		opts := testOptions(t, map[string]string{SecretsDirEnvVar: dir})
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+
+		alias, dirAlias := filepath.Join(t.TempDir(), "alias"), filepath.Join(t.TempDir(), "secrets")
+		require.NoError(t, os.Symlink(filepath.Join(opts.RunDir, string(GrafanaDBPassword)), alias))
+		require.NoError(t, os.Symlink(opts.RunDir, dirAlias))
+		for _, env := range []map[string]string{
+			{"PMM_GRAFANA_DB_PASSWORD_FILE": alias},
+			{SecretsDirEnvVar: dirAlias},
+		} {
+			opts.Getenv = func(k string) string { return env[k] }
+			_, err = Prepare(opts)
+			require.ErrorIs(t, err, syscall.ELOOP)
+			require.ErrorContains(t, err, "grafana-db-password: ")
+
+			// a fixed configuration replaces the loop
+			opts.Getenv = func(k string) string { return map[string]string{SecretsDirEnvVar: dir}[k] }
+			_, err = Prepare(opts)
+			require.NoError(t, err)
+			assert.Equal(t, "from-dir", linked(t, opts, GrafanaDBPassword))
 		}
 	})
 

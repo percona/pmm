@@ -235,15 +235,15 @@ func Prepare(opts Options) ([]Resolved, error) {
 		return nil, err
 	}
 
-	// Values written by an earlier start must not outlive the variables they came from.
-	err = os.RemoveAll(filepath.Join(opts.RunDir, envSubdir))
-	if err != nil {
-		return nil, err
-	}
 	// Also makes a directory that already exists private, such as a tmpfs mounted there.
 	err = dir.CreateDataDir(opts.RunDir, dirPerm)
 	if err != nil {
 		return nil, fmt.Errorf("%s must belong to the PMM Server user: %w", opts.RunDir, err)
+	}
+	// Values written by an earlier start must not outlive the variables they came from.
+	err = os.RemoveAll(filepath.Join(opts.RunDir, envSubdir))
+	if err != nil {
+		return nil, err
 	}
 	err = dir.CreateDataDir(filepath.Join(opts.RunDir, envSubdir), dirPerm)
 	if err != nil {
@@ -279,6 +279,17 @@ func Prepare(opts Options) ([]Resolved, error) {
 			}
 		}
 		resolved = append(resolved, r)
+	}
+
+	// A source that leads back through the links would make a loop that only the readers notice.
+	for _, r := range resolved {
+		if r.Path == "" {
+			continue
+		}
+		_, err = readFile(filepath.Join(opts.RunDir, string(r.Name)))
+		if err != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", r.Name, err))
+		}
 	}
 
 	return resolved, errors.Join(errs...)
@@ -427,7 +438,7 @@ func expand(getenv func(string) string, value string, providers []string) (strin
 }
 
 // checkRunDir returns an error when the run directory holds anything that Prepare doesn't create, such as credentials
-// mounted there, which Prepare would remove or replace by a link to itself, or when PMM_SECRETS_DIR points into it.
+// mounted there, which Prepare would remove or replace, or when PMM_SECRETS_DIR points into it.
 func checkRunDir(opts Options) error {
 	if dir := opts.Getenv(SecretsDirEnvVar); dir != "" && inside(opts.RunDir, dir) {
 		return fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
@@ -440,14 +451,33 @@ func checkRunDir(opts Options) error {
 	if err != nil {
 		return err
 	}
-	var foreign []string
+	var foreign, links []string
+	var env bool
 	for _, e := range entries {
 		switch {
 		case e.Name() == envSubdir && e.IsDir():
+			env = true
+			files, err := os.ReadDir(filepath.Join(opts.RunDir, envSubdir))
+			if err != nil {
+				return err
+			}
+			for _, f := range files {
+				// dir.WriteFileAtomic leaves .<name>.tmp<n> behind only when it is killed.
+				if !f.Type().IsRegular() || !slices.ContainsFunc(catalog, func(s spec) bool {
+					return f.Name() == string(s.name) || strings.HasPrefix(f.Name(), "."+string(s.name)+".tmp")
+				}) {
+					foreign = append(foreign, filepath.Join(envSubdir, f.Name()))
+				}
+			}
 		case e.Type()&fs.ModeSymlink != 0 && slices.ContainsFunc(catalog, func(s spec) bool { return string(s.name) == e.Name() }):
+			links = append(links, e.Name())
 		default:
 			foreign = append(foreign, e.Name())
 		}
+	}
+	// Prepare creates .env at every start, so links without it are someone else's.
+	if !env {
+		foreign = append(foreign, links...)
 	}
 	if len(foreign) != 0 {
 		return fmt.Errorf("%s holds %s, which PMM Server didn't create; mount credentials in another directory",
