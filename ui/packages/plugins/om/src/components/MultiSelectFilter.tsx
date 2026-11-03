@@ -53,8 +53,8 @@ export const MultiSelectFilter = ({
       value={value}
       onChange={(event) => {
         const selected = (event as SelectChangeEvent<string[]>).target.value;
-        // Browser autofill hands a multiple select a comma-joined string.
-        onChange(typeof selected === 'string' ? selected.split(',') : selected);
+        // Browser autofill hands a multiple select the one option it matched, as a string.
+        onChange(typeof selected === 'string' ? [selected] : selected);
       }}
       slotProps={{
         inputLabel: { shrink: true },

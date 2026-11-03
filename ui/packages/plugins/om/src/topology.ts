@@ -126,8 +126,8 @@ export function toServiceRows(
 
 /**
  * Order two MongoDB versions numerically, build suffix included, so 7.0.9-1 comes
- * before 7.0.24-13. A part that is not a number compares as text, and a text suffix
- * such as rc0 is a pre-release, so 8.0.0-rc0 comes before 8.0.0.
+ * before 7.0.24-13. A text part such as rc0 is a pre-release: it comes before a number
+ * or no part at all, so 8.0.0-rc0 < 8.0.0 < 8.0.0-1, and rc2 comes before rc10.
  */
 export function compareVersions(a: string, b: string): number {
   const left = a.split(/[.-]/);
@@ -141,9 +141,13 @@ export function compareVersions(a: string, b: string): number {
     const x = Number(left[i]);
     const y = Number(right[i]);
     const order =
-      Number.isNaN(x) || Number.isNaN(y)
-        ? left[i].localeCompare(right[i])
-        : x - y;
+      Number.isNaN(x) && Number.isNaN(y)
+        ? left[i].localeCompare(right[i], undefined, { numeric: true })
+        : Number.isNaN(x)
+          ? -1
+          : Number.isNaN(y)
+            ? 1
+            : x - y;
     if (order !== 0) {
       return order;
     }

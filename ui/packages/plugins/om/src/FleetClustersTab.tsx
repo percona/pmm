@@ -590,45 +590,44 @@ const NO_FILTERS: ClusterFilters = {
   environment: [],
 };
 
+/** The filters as their URL parameters alone, to tell two sets apart. */
+const filtersKey = (filters: ClusterFilters) =>
+  withClusterFilters(new URLSearchParams(), filters).toString();
+
 /**
- * The search and filters, kept in the URL.
+ * The search and filters, kept in the URL, and what the bar shows.
  *
  * Each change is a history entry, so Back undoes a filter - except while a search is
  * being refined (`replace`), where one entry per keystroke would make Back retype it
  * backwards.
+ *
+ * A navigation settles after the change that made it, so the bar shows and builds on
+ * what it last wrote, not the URL: bound to the URL, it drops fast typing and a filter
+ * picked before the previous one lands.
  */
 function useClusterFilters() {
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseClusterFilters(params), [params]);
-  const setFilters = (next: ClusterFilters, replace = false) => {
-    setParams((current) => withClusterFilters(current, next), { replace });
-  };
-  return [filters, setFilters] as const;
-}
-
-/**
- * What is typed in the search box, held here rather than read back from the URL: a
- * navigation settles after its keystroke, so a box bound to the URL drops fast typing.
- */
-function useSearchDraft(value: string) {
-  const [draft, setDraft] = useState(value);
-  // What the box wrote that the URL may not show yet, oldest first.
+  const key = filtersKey(filters);
+  const [draft, setDraft] = useState(filters);
+  // What the bar wrote that the URL may not show yet, oldest first.
   const written = useRef<string[]>([]);
   useEffect(() => {
-    const index = written.current.indexOf(value);
+    const index = written.current.indexOf(key);
     if (index >= 0) {
       written.current = written.current.slice(index + 1);
       return;
     }
-    // Back, Forward or Clear filters.
+    // Back or Forward.
     written.current = [];
-    setDraft(value);
-  }, [value]);
-  const write = (next: string) => {
-    written.current.push(next);
+    setDraft(parseClusterFilters(new URLSearchParams(key)));
+  }, [key]);
+  const setFilters = (next: ClusterFilters, replace = false) => {
+    written.current.push(filtersKey(next));
     setDraft(next);
+    setParams((current) => withClusterFilters(current, next), { replace });
   };
-  return [draft, write] as const;
+  return [filters, draft, setFilters] as const;
 }
 
 const SearchField = ({
@@ -670,11 +669,14 @@ const TYPE_OPTIONS: FilterOption[] = Object.entries(TYPE_FILTER_VALUES).map(
 const ClusterFilterBar = ({
   rows,
   shown,
+  applied,
   filters,
   onChange,
 }: {
   rows: OmClusterRow[];
   shown: number;
+  /** The filters the table shows, which `filters` can be ahead of. */
+  applied: ClusterFilters;
   filters: ClusterFilters;
   onChange: (filters: ClusterFilters, replace?: boolean) => void;
 }) => {
@@ -686,44 +688,43 @@ const ClusterFilterBar = ({
         .map((value) => ({ value, label: value || UNNAMED_ENVIRONMENT })),
     [rows]
   );
-  const [q, setQ] = useSearchDraft(filters.q);
-  // The box's text rather than the URL's, so a filter picked while a search is still
-  // settling there keeps it.
-  const current = { ...filters, q };
   // One the fleet no longer has is ignored by the filter, so not shown as picked.
-  const environment = filters.environment.filter((name) =>
-    environments.some((option) => option.value === name)
-  );
+  const present = (names: string[]) =>
+    names.filter((name) =>
+      environments.some((option) => option.value === name)
+    );
   return (
     <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
       <SearchField
-        value={q}
-        onChange={(next) => {
-          setQ(next);
-          onChange({ ...current, q: next }, !!q.trim() && !!next.trim());
-        }}
+        value={filters.q}
+        onChange={(q) =>
+          onChange({ ...filters, q }, !!filters.q.trim() && !!q.trim())
+        }
       />
       <MultiSelectFilter
         label="Health"
         options={HEALTH_OPTIONS}
         value={filters.health}
         onChange={(health) =>
-          onChange({ ...current, health: health as ClusterFilters['health'] })
+          onChange({ ...filters, health: health as ClusterFilters['health'] })
         }
       />
       <MultiSelectFilter
         label="Type"
         options={TYPE_OPTIONS}
         value={filters.type}
-        onChange={(type) => onChange({ ...current, type })}
+        onChange={(type) => onChange({ ...filters, type })}
       />
       <MultiSelectFilter
         label="Environment"
         options={environments}
-        value={environment}
-        onChange={(picked) => onChange({ ...current, environment: picked })}
+        value={present(filters.environment)}
+        onChange={(environment) => onChange({ ...filters, environment })}
       />
-      {hasClusterFilters({ ...filters, environment }) && (
+      {hasClusterFilters({
+        ...applied,
+        environment: present(applied.environment),
+      }) && (
         <>
           <Typography
             variant="body2"
@@ -753,7 +754,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     GROUP_BY_OPTIONS,
     DEFAULT_GROUPING
   );
-  const [filters, setFilters] = useClusterFilters();
+  const [filters, draft, setFilters] = useClusterFilters();
   const shown = useMemo(
     () => filterClusterRows(rows, filters),
     [rows, filters]
@@ -876,7 +877,8 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       <ClusterFilterBar
         rows={rows}
         shown={shown.length}
-        filters={filters}
+        applied={filters}
+        filters={draft}
         onChange={setFilters}
       />
       <MaterialReactTable table={table} />

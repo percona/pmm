@@ -546,7 +546,22 @@ describe('compareVersions', () => {
     ['8.0.0-rc0', '8.0.0', -1],
     ['8.0.0', '8.0.0-rc0', 1],
     ['8.0.0-rc0', '8.0.0-rc1', -1],
+    ['8.0.0-rc0', '8.0.0-1', -1],
+    ['8.0.0-1', '8.0.0-rc0', 1],
+    ['7.0.0-rc2', '7.0.0-rc10', -1],
   ])('orders %s against %s', (a, b, sign) => {
     expect(Math.sign(compareVersions(a, b))).toBe(sign);
+  });
+
+  it.each([
+    [['8.0.0-1', '8.0.0', '8.0.0-rc0']],
+    [['8.0.0', '8.0.0-1', '8.0.0-rc0']],
+    [['8.0.0-rc0', '8.0.0-1', '8.0.0']],
+  ])('sorts %j the same whatever the input order', (versions) => {
+    expect([...versions].sort(compareVersions)).toEqual([
+      '8.0.0-rc0',
+      '8.0.0',
+      '8.0.0-1',
+    ]);
   });
 });

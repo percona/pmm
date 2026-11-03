@@ -222,7 +222,7 @@ To view fleet health:
 1. Go to **MongoDB > Operations > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
 3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
-4. Clusters are grouped by environment. For each cluster, check the following columns:
+4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
@@ -230,7 +230,7 @@ To view fleet health:
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version. **N versions** means that each shard runs one version, but the shards run different versions.
+    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
 
 5. Expand a cluster's row to find the member that causes poor health or high replication lag.
 6. Select the **Services** tab to check whether a specific service is up or down.

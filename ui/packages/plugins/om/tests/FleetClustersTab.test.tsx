@@ -748,6 +748,40 @@ describe('FleetClustersTab', () => {
       expect(search()).toHaveValue('a');
     });
 
+    it('keeps a filter still settling in the URL when the next one is picked', async () => {
+      const router = createMemoryRouter(
+        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
+        { initialEntries: ['/fleet'] }
+      );
+      render(<RouterProvider router={router} />);
+      await screen.findByRole('textbox', { name: 'Search clusters' });
+
+      pick('Health', 'Down');
+      pick('Type', 'Replica set');
+
+      await waitFor(() =>
+        expect(query(router).toString()).toBe('health=down&type=replica-set')
+      );
+      expect(clusterNames()).toEqual(['yankee']);
+    });
+
+    it('empties the search box on Clear filters while its search is settling', async () => {
+      const router = createMemoryRouter(
+        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
+        { initialEntries: ['/fleet?health=healthy'] }
+      );
+      render(<RouterProvider router={router} />);
+
+      fireEvent.change(
+        await screen.findByRole('textbox', { name: 'Search clusters' }),
+        { target: { value: 'a' } }
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+      await waitFor(() => expect(query(router).toString()).toBe(''));
+      expect(search()).toHaveValue('');
+    });
+
     it('does not count an environment the fleet does not have as a filter', () => {
       renderAt('/fleet?environment=staging');
 
@@ -768,6 +802,7 @@ describe('FleetClustersTab', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
 
       expect(clusterNames()).toHaveLength(4);
+      expect(search()).toHaveValue('');
       expect(query(router).toString()).toBe('tab=clusters');
     });
 
@@ -860,9 +895,21 @@ describe('FleetClustersTab', () => {
         ).toBeNull();
       }
 
+      showColumn('Type');
       showColumn('Last seen');
       showColumn('Max CPU');
       showColumn('Min conn. free');
+
+      // The cell, not the label beside the name, which says the same.
+      const typeColumn = screen
+        .getAllByRole('columnheader')
+        .findIndex((header) => header.textContent?.startsWith('Type'));
+      expect(
+        within(rowOf('orders')).getAllByRole('cell')[typeColumn]
+      ).toHaveTextContent(/^Sharded$/);
+      expect(
+        within(rowOf('quiet')).getAllByRole('cell')[typeColumn]
+      ).toHaveTextContent(/^Replica set$/);
 
       const orders = rowOf('orders');
       // A slow runner can tick past the minute between fixture and render.
