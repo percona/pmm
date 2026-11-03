@@ -20,18 +20,19 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// setupFakePmmAgent puts a fake pmm-agent on PATH that logs each start and exits 0 on SIGTERM.
-func setupFakePmmAgent(t *testing.T) string {
+// setupFakePmmAgent puts a fake pmm-agent on PATH that logs each start, then runs body.
+func setupFakePmmAgent(t *testing.T, body string) string {
 	t.Helper()
 	dir := t.TempDir()
 	startsFile := filepath.Join(dir, "starts")
-	script := fmt.Sprintf("#!/bin/sh\necho \"$@\" >> %s\ntrap 'exit 0' TERM\nwhile :; do sleep 0.1; done\n", startsFile)
+	script := fmt.Sprintf("#!/bin/sh\necho \"$@\" >> %s\n%s\n", startsFile, body)
 	err := os.WriteFile(filepath.Join(dir, "pmm-agent"), []byte(script), 0o755)
 	require.NoError(t, err)
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
@@ -53,11 +54,14 @@ func countLines(t *testing.T, path string) int {
 	return len(strings.Split(strings.TrimSpace(string(b)), "\n"))
 }
 
+// runsUntilSIGTERM keeps the fake pmm-agent running until it gets SIGTERM, then exits 0.
+const runsUntilSIGTERM = "trap 'exit 0' TERM\nwhile :; do sleep 0.1; done"
+
 func TestRunPrerun(t *testing.T) {
 	l := logrus.WithField("test", t.Name())
 
 	t.Run("SidecarRetriesUntilSuccess", func(t *testing.T) {
-		startsFile := setupFakePmmAgent(t)
+		startsFile := setupFakePmmAgent(t, runsUntilSIGTERM)
 		script, attemptsFile := failingPrerun(t, 2)
 
 		status := runPrerun(t.Context(), l, "", script, true, 0)
@@ -68,7 +72,7 @@ func TestRunPrerun(t *testing.T) {
 	})
 
 	t.Run("NoRetryReturnsFailure", func(t *testing.T) {
-		setupFakePmmAgent(t)
+		setupFakePmmAgent(t, runsUntilSIGTERM)
 		script, attemptsFile := failingPrerun(t, 2)
 
 		status := runPrerun(t.Context(), l, "", script, false, 0)
@@ -78,7 +82,7 @@ func TestRunPrerun(t *testing.T) {
 	})
 
 	t.Run("PrerunFile", func(t *testing.T) {
-		setupFakePmmAgent(t)
+		setupFakePmmAgent(t, runsUntilSIGTERM)
 		script, attemptsFile := failingPrerun(t, 1)
 		prerunFile := filepath.Join(t.TempDir(), "prerun.sh")
 		err := os.WriteFile(prerunFile, []byte("#!/bin/sh\n"+script+"\n"), 0o755)
@@ -88,5 +92,15 @@ func TestRunPrerun(t *testing.T) {
 
 		assert.Equal(t, 0, status)
 		assert.Equal(t, 2, countLines(t, attemptsFile))
+	})
+
+	t.Run("StopsRetryingWhenPmmAgentExits", func(t *testing.T) {
+		setupFakePmmAgent(t, "sleep 0.3; exit 2")
+		script, attemptsFile := failingPrerun(t, 1000)
+
+		status := runPrerun(t.Context(), l, "", script, true, 100*time.Millisecond)
+
+		assert.Equal(t, 2, status)
+		assert.Less(t, countLines(t, attemptsFile), 10)
 	})
 }
