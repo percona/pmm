@@ -164,8 +164,9 @@ func TestSetupDBCreatesMissingKey(t *testing.T) {
 func TestSetupDBMigrationLockWaitEnds(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
-	// the other node holds the migration lock
-	other, err := sqlDB.BeginTx(t.Context(), nil)
+	// the other node holds the migration lock; t.Context() would be canceled
+	// before the cleanup, and database/sql would roll back the transaction itself
+	other, err := sqlDB.BeginTx(context.WithoutCancel(t.Context()), nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { assert.NoError(t, other.Rollback()) })
 	_, err = other.ExecContext(t.Context(), "SELECT pg_advisory_xact_lock($1)", 0x504d4d45)
