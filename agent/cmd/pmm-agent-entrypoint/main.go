@@ -129,7 +129,80 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 	})
 }
 
-func main() { //nolint:gocognit
+// runPrerun runs the prerun file or script with 'pmm-agent run' in the background and returns the exit status.
+// With retry set, a failed prerun is retried every retrySleep while pmm-agent keeps running, see PMM-15794.
+func runPrerun(ctx context.Context, l *logrus.Entry, prerunFile, prerunScript string, retry bool, retrySleep time.Duration) int {
+	l.Info("Starting pmm-agent for prerun...")
+	agent := commandPmmAgent([]string{"run"})
+	err := agent.Start()
+	if err != nil {
+		l.Errorf("Failed to run pmm-agent run command: %s", err)
+		return 1
+	}
+
+	var status int
+	for {
+		status = runPrerunOnce(ctx, l, prerunFile, prerunScript)
+		if status == 0 || !retry || ctx.Err() != nil {
+			break
+		}
+		l.Warnf("Prerun failed with %d, retrying in %s because PMM_AGENT_SIDECAR is enabled...", status, retrySleep)
+		select {
+		case <-ctx.Done():
+		case <-time.After(retrySleep):
+		}
+	}
+
+	l.Info("Stopping pmm-agent...")
+	err = agent.Process.Signal(syscall.SIGTERM)
+	if err != nil {
+		l.Infof("Failed to term pmm-agent: %s", err)
+	}
+
+	// kill pmm-agent process in 10 seconds if SIGTERM doesn't work
+	preSIGKILLtimeout := 10
+	timer := sendSIGKILLwithTimeout(agent.Process, preSIGKILLtimeout, l)
+
+	err = agent.Wait()
+	if err != nil {
+		exitErr, ok := errors.AsType[*exec.ExitError](err)
+		if ok {
+			status = exitErr.ExitCode()
+			l.Infof("Prerun pmm-agent exited with %d", status)
+		} else {
+			l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
+		}
+	}
+	timer.Stop()
+	return status
+}
+
+// runPrerunOnce runs the prerun file or shell script once and returns its exit status.
+func runPrerunOnce(ctx context.Context, l *logrus.Entry, prerunFile, prerunScript string) int {
+	var cmd *exec.Cmd
+	if prerunFile != "" {
+		l.Infof("Running prerun file %s...", prerunFile)
+		cmd = exec.CommandContext(ctx, prerunFile)
+	} else {
+		l.Infof("Running prerun shell script %s...", prerunScript)
+		cmd = exec.CommandContext(ctx, "/bin/sh", "-c", prerunScript) //nolint:gosec
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err == nil {
+		return 0
+	}
+	exitErr, ok := errors.AsType[*exec.ExitError](err)
+	if !ok {
+		l.Errorf("Can't run prerun: %s", err)
+		return 1
+	}
+	l.Infof("Prerun exited with %d", exitErr.ExitCode())
+	return exitErr.ExitCode()
+}
+
+func main() {
 	config := reaper.MakeConfig()
 	config.Debug = false
 	reaper.RunForked(config)
@@ -208,67 +281,9 @@ func main() { //nolint:gocognit
 		}
 	}
 
-	status = 0
-	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
-		l.Info("Starting pmm-agent for prerun...")
-		agent := commandPmmAgent([]string{"run"})
-		err := agent.Start()
-		if err != nil {
-			l.Errorf("Failed to run pmm-agent run command: %s", err)
-		}
-
-		if *pmmAgentPrerunFile != "" {
-			l.Infof("Running prerun file %s...", *pmmAgentPrerunFile)
-			cmd := exec.CommandContext(ctx, *pmmAgentPrerunFile) //nolint:gosec
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			err = cmd.Run()
-			if err != nil {
-				exitErr, ok := errors.AsType[*exec.ExitError](err)
-				if ok {
-					status = exitErr.ExitCode()
-					l.Infof("Prerun file exited with %d", status)
-				}
-			}
-		}
-
-		if *pmmAgentPrerunScript != "" {
-			l.Infof("Running prerun shell script %s...", *pmmAgentPrerunScript)
-			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript) //nolint:gosec
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			err = cmd.Run()
-			if err != nil {
-				exitErr, ok := errors.AsType[*exec.ExitError](err)
-				if ok {
-					status = exitErr.ExitCode()
-					l.Infof("Prerun shell script exited with %d", status)
-				}
-			}
-		}
-
-		l.Info("Stopping pmm-agent...")
-		err = agent.Process.Signal(syscall.SIGTERM)
-		if err != nil {
-			l.Infof("Failed to term pmm-agent: %s", err)
-		}
-
-		// kill pmm-agent process in 10 seconds if SIGTERM doesn't work
-		preSIGKILLtimeout := 10
-		timer := sendSIGKILLwithTimeout(agent.Process, preSIGKILLtimeout, l)
-
-		err = agent.Wait()
-		if err != nil {
-			exitErr, ok := errors.AsType[*exec.ExitError](err)
-			if ok {
-				status = exitErr.ExitCode()
-				l.Infof("Prerun pmm-agent exited with %d", status)
-			} else {
-				l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
-			}
-		}
-		timer.Stop()
-
+	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" {
+		sleep := time.Duration(*pmmAgentSidecarSleep) * time.Second
+		status = runPrerun(ctx, l, *pmmAgentPrerunFile, *pmmAgentPrerunScript, *pmmAgentSidecar, sleep)
 		if status != 0 && !*pmmAgentSidecar {
 			os.Exit(status)
 		}
