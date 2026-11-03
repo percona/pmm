@@ -80,6 +80,12 @@ const (
 	logsDir   = "/srv/logs"
 )
 
+// recordingRuleWriteHeader marks a remote write from Grafana's recording rules, and vmproxy
+// forwards such a write only when it is told the name. The same name is set under
+// [recording_rules.custom_headers] in build/ansible/roles/grafana/files/grafana.ini, so the two
+// have to change together.
+const recordingRuleWriteHeader = "X-Proxy-Write"
+
 // removedPrograms were configured by older pmm-managed versions. A new image starts without their
 // config, but a pmm-managed swapped into a running container (dev container, CI) finds it still
 // there, with the program running, and their logs stay on /srv after any upgrade.
@@ -298,6 +304,9 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
+{{- if .RecordingRuleWriteHeader }}
+      --write-header-name={{ .RecordingRuleWriteHeader }}
+{{- end }}
 autorestart = true
 autostart = true
 startretries = 10
@@ -427,6 +436,18 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
+// recordingRuleWriteHeaderFor returns the header name vmproxy accepts recording rule writes
+// under, and an empty string to refuse them. A scheduled evaluation reaches vmproxy with no
+// filters of its own, so under access control a rule would store series its author cannot read
+// (see PMM-15844).
+func recordingRuleWriteHeaderFor(settings *models.Settings) string {
+	if settings.IsAccessControlEnabled() {
+		return ""
+	}
+
+	return recordingRuleWriteHeader
+}
+
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
@@ -472,6 +493,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
 		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"PMMServerHost":                "",
+		"RecordingRuleWriteHeader":     recordingRuleWriteHeaderFor(settings),
 	}
 
 	s.addPostgresParams(templateParams)
