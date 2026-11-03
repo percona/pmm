@@ -509,9 +509,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
-// credentialFile returns the path of a resolved credential, or an empty string. Without one, a program keeps what it
-// was given before PMM-15168: no credential at all, or the value. That happens only in an image whose entrypoint
-// predates the secrets step, as in the development container, or when the credential is left unset.
+// credentialFile returns the path of a resolved credential, or "" for one left unset or not resolved by the entrypoint
+// (the development container), in which case the program gets the value or nothing.
 func (s *Service) credentialFile(name secrets.Name) string {
 	if !s.secretExists(name) {
 		return ""

@@ -173,8 +173,8 @@ func exists(path string) bool {
 	return !errors.Is(err, fs.ErrNotExist)
 }
 
-// Value returns value when set, otherwise the credential from its file. For a credential that was not resolved, it
-// returns defaultValue and ErrNotResolved; any other error means that a resolved credential can't be read.
+// Value returns value when set, otherwise the credential from its file, or defaultValue and ErrNotResolved for a
+// credential that was not resolved.
 func Value(value string, name Name, defaultValue string) (string, error) {
 	return valueIn(Dir, value, name, defaultValue)
 }
@@ -202,7 +202,7 @@ func readFile(path string) (string, error) {
 	return v, nil
 }
 
-// Resolved is the outcome for one credential. Path is empty when the credential is unset.
+// Resolved is the outcome for one credential; Path is empty when the credential is unset.
 type Resolved struct {
 	Name   Name
 	Source Source
@@ -228,9 +228,7 @@ func OptionsFromEnv() Options {
 	}
 }
 
-// Prepare resolves every credential to a file and links it at its canonical path.
-//
-// It returns all resolution problems at once, so a misconfigured installation is fixed in one round.
+// Prepare resolves every credential to a file and links it at its canonical path, reporting all problems at once.
 func Prepare(opts Options) ([]Resolved, error) {
 	err := checkRunDir(opts)
 	if err != nil {

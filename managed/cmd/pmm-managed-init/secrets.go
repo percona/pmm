@@ -21,9 +21,7 @@ import (
 	"github.com/percona/pmm/managed/utils/secrets"
 )
 
-// runSecrets resolves every credential to a file under secrets.Dir.
-//
-// It runs from the entrypoint before supervisord starts, so every program finds its credentials there.
+// runSecrets resolves every credential to a file under secrets.Dir before supervisord starts the programs.
 func runSecrets() error {
 	resolved, err := secrets.Prepare(secrets.OptionsFromEnv())
 	if err != nil {

@@ -728,8 +728,8 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-// readCredential returns secrets.Value. It warns when the credential was not resolved and the default applies, and
-// stops when a resolved credential can't be read: with the default, pmm-managed would reset its database password.
+// readCredential returns secrets.Value, warning when the default applies and exiting when a resolved credential can't
+// be read, because with the default pmm-managed would reset its database password.
 func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultValue string) string {
 	v, err := secrets.Value(value, name, defaultValue)
 	switch {
