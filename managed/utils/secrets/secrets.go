@@ -25,6 +25,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/percona/pmm/managed/utils/dir"
 )
 
 // Dir is the canonical directory every PMM Server component reads its credentials from.
@@ -37,6 +39,11 @@ const (
 
 	// Subdirectory of the values PMM writes itself: legacy environment variables and defaults.
 	envSubdir = ".env"
+)
+
+const (
+	dirPerm  = os.FileMode(0o700)
+	filePerm = os.FileMode(0o600)
 )
 
 // Name identifies a credential; it is also its file name in Dir.
@@ -235,14 +242,14 @@ func Prepare(opts Options) ([]Resolved, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = os.MkdirAll(opts.RunDir, 0o700) //nolint:mnd
-	if err != nil {
-		return nil, err
-	}
-	// MkdirAll keeps the mode of a directory that already exists, such as a tmpfs mounted there.
-	err = os.Chmod(opts.RunDir, 0o700) //nolint:gosec,mnd // a directory, for its owner only
+	// Also makes a directory that already exists private, such as a tmpfs mounted there.
+	err = dir.CreateDataDir(opts.RunDir, dirPerm)
 	if err != nil {
 		return nil, fmt.Errorf("%s must belong to the PMM Server user: %w", opts.RunDir, err)
+	}
+	err = dir.CreateDataDir(filepath.Join(opts.RunDir, envSubdir), dirPerm)
+	if err != nil {
+		return nil, err
 	}
 
 	var errs []error
@@ -336,7 +343,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		return r, nil
 	}
 	r.Path = filepath.Join(opts.RunDir, envSubdir, string(s.name))
-	return r, writeFile(r.Path, value)
+	return r, dir.WriteFileAtomic(r.Path, []byte(value), filePerm)
 }
 
 // dirSource returns the credential's file in PMM_SECRETS_DIR, or "" when there is none.
@@ -463,29 +470,4 @@ func inside(dir, path string) bool {
 	}
 	rel, err := filepath.Rel(dir, path)
 	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
-}
-
-// writeFile writes a credential atomically, readable by its owner only, without a trailing newline.
-func writeFile(path, value string) error {
-	dir := filepath.Dir(path)
-	err := os.MkdirAll(dir, 0o700) //nolint:mnd
-	if err != nil {
-		return err
-	}
-	f, err := os.CreateTemp(dir, ".tmp-*")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(f.Name()) //nolint:errcheck
-
-	_, err = f.WriteString(value)
-	if err != nil {
-		_ = f.Close()
-		return err
-	}
-	err = f.Close()
-	if err != nil {
-		return err
-	}
-	return os.Rename(f.Name(), path)
 }
