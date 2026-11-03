@@ -762,7 +762,7 @@ describe('FleetClustersTab', () => {
       await waitFor(() =>
         expect(query(router).toString()).toBe('health=down&type=replica-set')
       );
-      expect(clusterNames()).toEqual(['yankee']);
+      await waitFor(() => expect(clusterNames()).toEqual(['yankee']));
     });
 
     it('follows Back to a filter the bar wrote more than once', async () => {
