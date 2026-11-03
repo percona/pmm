@@ -91,5 +91,6 @@ func DialValkey(ctx context.Context, dsn string, options ...redis.DialOption) (r
 		options = append(options, redis.DialPassword(username))
 	}
 
+	options = append(options, redis.DialUseTLS(false))
 	return redis.DialContext(ctx, "unix", u.Path, options...)
 }
