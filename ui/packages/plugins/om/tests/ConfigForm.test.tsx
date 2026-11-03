@@ -136,4 +136,22 @@ describe('ConfigForm', () => {
     expect(within(saveRow).getByText('Scan every')).toBeInTheDocument();
     expect(screen.queryByText('SCHEDULE__every')).toBeNull();
   });
+
+  it.each(['general', 'scanning', 'advanced'] as const)(
+    'does not offer ENABLED, which PMM owns, on the %s tab',
+    (group) => {
+      useOmInventoryConfig.mockReturnValue({
+        data: [
+          ...SETTINGS,
+          setting({ key: 'ENABLED', type: 'bool', value: true }),
+        ],
+        isPending: false,
+        isError: false,
+      });
+      render(<ConfigForm group={group} />);
+
+      expect(screen.queryByText('ENABLED')).toBeNull();
+      expect(screen.queryByText('Automatic node scans')).toBeNull();
+    }
+  );
 });
