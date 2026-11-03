@@ -496,7 +496,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "max(count by(database)(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\"}))",
+                    "expr": "count(count by(database)(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", database!~\"admin|config|local\"})) or vector(0)",
                     "interval": "5m",
                     "intervalFactor": 1,
                     "legendFormat": "Shards",
@@ -2100,7 +2100,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[$interval])) /\nsum(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval]))\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[5m])) /\nsum(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])))",
+                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[$interval])) /\n(sum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval])) > 0)\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned_objects\"}[5m])) /\n(sum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])) > 0))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2112,7 +2112,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[$interval])) /\nsum(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval]))\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[5m])) /\nsum(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])))",
+                    "expr": "(sum by (service_name)(rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[$interval])) /\n(sum by (service_name)(rate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[$interval])) > 0)\nor\nsum by (service_name)(irate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\", state=\"scanned\"}[5m])) /\n(sum by (service_name)(irate(mongodb_mongod_metrics_document_total{service_name=~\"$service_name\", state=\"returned\"}[5m])) > 0))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2605,7 +2605,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (environment,cluster,rs_nm,database,service_name) (mongodb_mongod_db_collections_total{environment=~\"$environment\",cluster=~\"$cluster\",rs_nm=~\"$rs_nm\",db!~\"admin|config\",service_name=~\"$service_name\"})",
+                    "expr": "max by (environment,cluster,rs_nm,database,service_name) (mongodb_mongod_db_collections_total{environment=~\"$environment\",cluster=~\"$cluster\",rs_nm=~\"$rs_nm\",database!~\"admin|config\",service_name=~\"$service_name\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2754,7 +2754,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", db !~\"admin|config\"})",
+                    "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", database!~\"admin|config\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2911,7 +2911,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_freeStorageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", db !~\"admin|config\"} /\nmongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", db !~\"admin|config\"}\n)",
+                    "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_freeStorageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", database!~\"admin|config\"} /\nmongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", database!~\"admin|config\"}\n)",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -3092,7 +3092,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(environment, cluster, rs_nm, collection, database, service_name) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", db!~\"admin|config|local\", rs_nm=~\"$rs_nm\", service_name=~\"$service_name\"})",
+                    "expr": "max by(environment, cluster, rs_nm, collection, database, service_name) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", database!~\"admin|config|local\", rs_nm=~\"$rs_nm\", service_name=~\"$service_name\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,

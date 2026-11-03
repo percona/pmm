@@ -1536,7 +1536,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by(shard) (mongodb_collstats_storageStats_totalSize{environment=~\"$environment\", cluster=~\"$cluster\", db!~\"admin|config|local\", rs_state=\"1\"})",
+                    "expr": "sum by(shard) (mongodb_collstats_storageStats_totalSize{environment=~\"$environment\", cluster=~\"$cluster\", database!~\"admin|config|local\", rs_state=\"1\"})",
                     "hide": false,
                     "instant": false,
                     "legendFormat": "__auto",
@@ -2107,7 +2107,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (service_name,mongodb) ((mongodb_mongos_sharding_shards_total) * on (service_name) group_left (mongodb) (mongodb_version_info))",
+                    "expr": "min by (service_name,mongodb) ((mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\"}) * on (service_name) group_left (mongodb) (mongodb_version_info))",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
@@ -2119,7 +2119,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (member_idx,mongodb) ((mongodb_rs_members_configVersion) * on (service_name) group_left (mongodb) (mongodb_version_info))",
+                    "expr": "min by (member_idx,mongodb) ((mongodb_rs_members_configVersion{environment=~\"$environment\",cluster=~\"$cluster\"}) * on (service_name) group_left (mongodb) (mongodb_version_info))",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
@@ -2795,7 +2795,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\", db!~\"admin|config|local\", rs_nm=~\"$shard\"})",
+                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\", database!~\"admin|config|local\", rs_nm=~\"$shard\"})",
                             "format": "table",
                             "hide": true,
                             "instant": true,
@@ -2807,7 +2807,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\", db!~\"admin|config|local\", rs_nm=~\"$set\"})",
+                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\", database!~\"admin|config|local\", rs_nm=~\"$set\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -2993,7 +2993,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_freeStorageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$shard\", service_name=~\"$service_name\", db !~\"admin|config\"} /\nmongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$shard\", service_name=~\"$service_name\", db !~\"admin|config\"}\n)",
+                            "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_freeStorageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$shard\", service_name=~\"$service_name\", database!~\"admin|config\"} /\nmongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$shard\", service_name=~\"$service_name\", database!~\"admin|config\"}\n)",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -3148,7 +3148,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", db!~\"admin|config|local\", rs_nm=~\"$shard\"})",
+                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", database!~\"admin|config|local\", rs_nm=~\"$shard\"})",
                             "format": "table",
                             "hide": true,
                             "instant": true,
@@ -3160,7 +3160,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", db!~\"admin|config|local\", rs_nm=~\"$set\"})",
+                            "expr": "max by(rs_nm, collection, database) (mongodb_collstats_storageStats_count{cluster=~\"$cluster\", database!~\"admin|config|local\", rs_nm=~\"$set\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -3313,7 +3313,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[1m])) / sum(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"})",
+                            "expr": "max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[10m])) / on() group_left() sum(max by (shard) (last_over_time(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[10m])))",
                             "format": "time_series",
                             "hide": false,
                             "instant": true,
@@ -3397,7 +3397,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "avg by (shard) (mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\",db!~\"admin|config\"})",
+                            "expr": "avg by (shard) (mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -3519,7 +3519,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "avg by (shard) (rate(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[$interval]) or irate(mongodb_mongos_sharding_shard_chunks_total{cluster=\"$cluster\"}[5m]))",
+                            "expr": "avg by (shard) (deriv(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[$interval]) or deriv(mongodb_mongos_sharding_shard_chunks_total{environment=~\"$environment\", cluster=\"$cluster\"}[5m]))",
                             "interval": "$interval",
                             "legendFormat": "{{shard}}",
                             "refId": "A"
@@ -3616,7 +3616,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "avg by (event) (rate(mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*moveChunk.*\"}[$interval]) or\nirate(mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*moveChunk.*\"}[5m]))",
+                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{environment=~\"$environment\", cluster=\"$cluster\", event=~\".*moveChunk.*\"})",
                             "interval": "$interval",
                             "legendFormat": "{{event}}",
                             "refId": "A"
@@ -3713,7 +3713,7 @@
                     "targets": [
                         {
                             "exemplar": true,
-                            "expr": "avg by (event) (rate(mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*split.*\"}[$interval]) or\nirate(mongodb_mongos_sharding_changelog_10min_total{cluster=\"$cluster\", event=~\".*split.*\"}[5m]))",
+                            "expr": "max by (event) (mongodb_mongos_sharding_changelog_10min_total{environment=~\"$environment\", cluster=\"$cluster\", event=~\".*split.*\"})",
                             "interval": "$interval",
                             "legendFormat": "{{event}}",
                             "refId": "A"
