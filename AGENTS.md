@@ -260,7 +260,7 @@ This is a **monorepository** containing multiple PMM components, APIs, documenta
 Exporters (node, mysqld, mongodb, postgres, proxysql, valkey, rds, azure)
   → VMAgent (scrapes exporters)
     → VictoriaMetrics (time-series storage on PMM Server)
-      → Grafana (visualization and alerting; recording rules write back through vmproxy)
+      → Grafana (visualization and alerting)
 ```
 
 ### Query Analytics (QAN) Pipeline
