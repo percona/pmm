@@ -1,4 +1,4 @@
-import { NodeType, type UniversalNode } from 'types/nodes.types';
+import { NodeType } from 'types/nodes.types';
 import { MetricsMode } from 'types/services.types';
 import {
   LOCAL_ADDRESSES,
@@ -6,8 +6,12 @@ import {
 } from './ServiceForm.constants';
 import { Messages } from './ServiceForm.messages';
 import type {
+  CommonOptionsFormValues,
   ConnectionFormValues,
+  DatabaseServiceFormValues,
   LabelsFormValues,
+  ServiceNode,
+  TlsCertificatesFormValues,
 } from './ServiceForm.types';
 
 const LABEL_KEY_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
@@ -111,15 +115,84 @@ export const toLabels = ({
 export const toPlacement = (
   address: string,
   serviceName: string,
-  node?: Pick<UniversalNode, 'nodeId'>
+  node?: Pick<ServiceNode, 'nodeId'>
 ) =>
   LOCAL_ADDRESSES.includes(address.trim()) && node
     ? { nodeId: node.nodeId }
     : { addNode: { nodeName: serviceName, nodeType: NodeType.remote } };
 
-export const getMetricsMode = (node?: Pick<UniversalNode, 'isPmmServerNode'>) =>
+export const getMetricsMode = (node?: Pick<ServiceNode, 'isPmmServerNode'>) =>
   node?.isPmmServerNode ? MetricsMode.pull : MetricsMode.push;
 
 // Certificates stay in the form when TLS is turned off, so they are only sent with TLS on.
 export const whenTls = <T extends object>(tls: boolean, certificates: T) =>
   tls ? certificates : {};
+
+export const toTlsCertificates = ({
+  tls,
+  tlsCa,
+  tlsCert,
+  tlsKey,
+}: Pick<DatabaseServiceFormValues, 'tls'> & TlsCertificatesFormValues) =>
+  whenTls(tls, { tlsCa, tlsCert, tlsKey });
+
+// A limit chosen by radio: the typed value for the editable option, a preset for the others.
+export const toLimit = <T extends string>(
+  option: T,
+  editableOption: T,
+  limit: string,
+  presets: Partial<Record<T, number>>
+) => (option === editableOption ? Number(limit) : presets[option]);
+
+export const toRadioOptions = <T extends string>(
+  values: T[],
+  labels: Record<T, string>
+) => values.map((value) => ({ value, label: labels[value] }));
+
+// Fields every database service (MySQL, PostgreSQL, MongoDB, ProxySQL, Valkey) is added with.
+export const toDatabaseService = (
+  values: DatabaseServiceFormValues,
+  nodes: ServiceNode[]
+) => {
+  const serviceName = getServiceName(values);
+  const node = nodes.find(({ nodeId }) => nodeId === values.nodeId);
+
+  return {
+    serviceName,
+    address: values.address.trim(),
+    port: Number(values.port),
+    pmmAgentId: values.pmmAgentId,
+    username: values.username,
+    password: values.password,
+    connectionTimeout: toOptionalString(values.connectionTimeout),
+    skipConnectionCheck: values.skipConnectionCheck,
+    tls: values.tls,
+    tlsSkipVerify: values.tlsSkipVerify,
+    metricsMode: getMetricsMode(node),
+    ...toLabels(values),
+    ...toPlacement(values.address, serviceName, node),
+  };
+};
+
+// Fields every exporter PMM scrapes over HTTP (HAProxy, External) is added with.
+export const toScrapedService = (
+  values: Pick<ConnectionFormValues, 'serviceName'> &
+    LabelsFormValues &
+    CommonOptionsFormValues,
+  address: string
+) => {
+  const serviceName = getServiceName({
+    serviceName: values.serviceName,
+    address,
+  });
+
+  return {
+    serviceName,
+    address,
+    ...toLabels(values),
+    addNode: { nodeName: serviceName, nodeType: NodeType.remote },
+    metricsMode: MetricsMode.pull,
+    skipConnectionCheck: values.skipConnectionCheck,
+    tlsSkipVerify: values.tlsSkipVerify,
+  };
+};

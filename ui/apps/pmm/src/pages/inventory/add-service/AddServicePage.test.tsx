@@ -1,9 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { wrapWithSettings } from 'utils/testUtils';
+import { wrapWithQueryProvider, wrapWithSettings } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 import { TEST_USER_VIEWER } from 'utils/testStubs';
 import { AddServicePage } from './AddServicePage';
+import { mockNodes } from './service-form/ServiceForm.testUtils';
+
+vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
 
 const LocationProbe = () => (
   <span data-testid="location-probe">{useLocation().pathname}</span>
@@ -22,14 +25,16 @@ const renderPage = (
       routerProps={{ initialEntries: [path] }}
       {...(user && { userContext: { isLoading: false, user } })}
     >
-      {wrapWithSettings(
-        <>
-          <LocationProbe />
-          <Routes>
-            <Route path="/add-instance/:type?" element={<AddServicePage />} />
-          </Routes>
-        </>,
-        { isLoading, settings: { azurediscoverEnabled } }
+      {wrapWithQueryProvider(
+        wrapWithSettings(
+          <>
+            <LocationProbe />
+            <Routes>
+              <Route path="/add-instance/:type?" element={<AddServicePage />} />
+            </Routes>
+          </>,
+          { isLoading, settings: { azurediscoverEnabled } }
+        )
       )}
     </TestWrapper>
   );
@@ -40,6 +45,10 @@ const cardIds = () =>
     .map((card) => card.getAttribute('data-testid'));
 
 describe('AddServicePage', () => {
+  beforeEach(() => {
+    mockNodes();
+  });
+
   it('lists the service types in the original order', () => {
     renderPage('/add-instance');
 
@@ -83,16 +92,22 @@ describe('AddServicePage', () => {
 
   it.each([
     ['mysql', 'Configuring MySQL service'],
+    ['mongodb', 'Configuring MongoDB service'],
+    ['postgresql', 'Configuring PostgreSQL service'],
+    ['proxysql', 'Configuring ProxySQL service'],
+    ['haproxy', 'Configuring HAProxy service'],
     ['valkey', 'Configuring Valkey service'],
     ['external', 'Add external service'],
-    ['rds', 'Amazon RDS'],
-  ])('opens /add-instance/%s directly', (type, title) => {
+  ])('opens the /add-instance/%s form directly', (type, title) => {
     renderPage(`/add-instance/${type}`);
 
     expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
+    expect(screen.getByTestId('add-service-form')).toBeInTheDocument();
     expect(screen.queryByTestId('mysql-instance')).not.toBeInTheDocument();
-    // each form step renders its own actions
-    expect(screen.queryByTestId('add-service-cancel')).not.toBeInTheDocument();
+    expect(screen.getByTestId('add-service-cancel')).toHaveAttribute(
+      'href',
+      '/add-instance'
+    );
   });
 
   it('redirects an unknown service type to the selection', () => {

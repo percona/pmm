@@ -41,6 +41,10 @@ export const optionalIntegerText = (min: number) =>
     }
   });
 
+export const maxQueryLengthSchema = z.object({
+  maxQueryLength: optionalIntegerText(-1),
+});
+
 export const connectionSchema = z.object({
   serviceName: z.string(),
   address: requiredText,
@@ -76,6 +80,15 @@ export const commonOptionsSchema = z.object({
 
 export const tlsSchema = z.object({
   tls: z.boolean(),
+});
+
+// The base of every database service form (MySQL, PostgreSQL, MongoDB, ProxySQL, Valkey).
+export const databaseServiceSchema = z.object({
+  ...connectionSchema.shape,
+  ...nodeSchema.shape,
+  ...labelsSchema.shape,
+  ...commonOptionsSchema.shape,
+  ...tlsSchema.shape,
 });
 
 export const tlsCertificatesSchema = z.object({
@@ -120,3 +133,19 @@ export const requireCredentialsWithoutTls = (
     }
   }
 };
+
+// Requires `field` once the form's own choice makes it relevant, e.g. a custom limit.
+export const requireWhen =
+  <T extends Record<string, unknown>>(
+    isRequired: (values: T) => boolean,
+    field: keyof T & string
+  ) =>
+  (values: T, ctx: z.RefinementCtx) => {
+    if (isRequired(values) && !String(values[field] ?? '').trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        message: validation.required,
+        path: [field],
+      });
+    }
+  };

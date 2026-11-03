@@ -1,0 +1,34 @@
+export const Messages = {
+  title: 'External service connection details',
+  labels: {
+    group: 'Group',
+    metricsParameters: 'External service connection parameters',
+    url: 'External service endpoint',
+    scheme: 'Schema',
+    address: 'External service hostname',
+    metricsPath: 'Metrics path',
+    port: 'External service port',
+    username: 'Username',
+    password: 'Password',
+  },
+  placeholders: {
+    url: 'http://example.com:3333/path/to/metrics',
+    metricsPath: '/path/to/metrics',
+  },
+  tooltips: {
+    group: 'Group to which your service belongs',
+    url: 'Your external service endpoint',
+    scheme: 'Used version of protocol',
+    metricsPath: 'Path to your metrics',
+    port: 'Port your external service is listening on',
+    username: 'Your external service username',
+    password: 'Your external service password',
+  },
+  options: {
+    manually: 'Set manually',
+    parsed: 'Parse from URL string',
+    https: 'HTTPS',
+    http: 'HTTP',
+  },
+  invalidUrl: 'Invalid URL string',
+};

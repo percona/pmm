@@ -1,7 +1,9 @@
 import type {
   CommonOptionsFormValues,
+  DatabaseServiceFormValues,
   DisableCollectorsFormValues,
   LabelsFormValues,
+  MaxQueryLengthFormValues,
   MongodbTlsCertificatesFormValues,
   NodeFormValues,
   QueryAnalyticsOptionsFormValues,
@@ -54,4 +56,23 @@ export const QUERY_ANALYTICS_OPTIONS_DEFAULTS: QueryAnalyticsOptionsFormValues =
 
 export const DISABLE_COLLECTORS_DEFAULTS: DisableCollectorsFormValues = {
   disableCollectors: '',
+};
+
+export const MAX_QUERY_LENGTH_DEFAULTS: MaxQueryLengthFormValues = {
+  maxQueryLength: '',
+};
+
+export const DATABASE_SERVICE_DEFAULTS: Omit<
+  DatabaseServiceFormValues,
+  'port'
+> = {
+  serviceName: '',
+  address: '',
+  username: '',
+  password: '',
+  connectionTimeout: '',
+  ...NODE_DEFAULTS,
+  ...LABELS_DEFAULTS,
+  ...COMMON_OPTIONS_DEFAULTS,
+  ...TLS_DEFAULTS,
 };

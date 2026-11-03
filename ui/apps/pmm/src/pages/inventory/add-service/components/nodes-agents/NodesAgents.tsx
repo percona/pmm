@@ -1,7 +1,6 @@
 import MenuItem from '@mui/material/MenuItem';
 import { SelectInput } from '@percona/peak-ui';
-import { useNodes } from 'hooks/api/useNodes';
-import { type FC, useCallback, useEffect, useMemo } from 'react';
+import { type FC, useCallback, useEffect } from 'react';
 import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import type {
   ConnectionFormValues,
@@ -10,15 +9,15 @@ import type {
 import { FieldGrid } from '../field-grid';
 import { Messages } from './NodesAgents.messages';
 import type { NodeOption } from './NodesAgents.types';
-import { getPreselectedNode, toNodeOptions } from './NodesAgents.utils';
+import { useNodeOptions } from './NodesAgents.hooks';
+import { getPreselectedNode } from './NodesAgents.utils';
 
 type Values = NodeFormValues & Pick<ConnectionFormValues, 'address'>;
 
 export const NodesAgents: FC = () => {
   const { control, getValues, setValue } = useFormContext<Values>();
   const { errors } = useFormState({ control, name: ['nodeId', 'pmmAgentId'] });
-  const { data, isLoading } = useNodes();
-  const nodes = useMemo(() => toNodeOptions(data?.nodes ?? []), [data]);
+  const { nodes, isLoading } = useNodeOptions();
   const nodeId = useWatch({ control, name: 'nodeId' });
   const selectedNode = nodes.find((node) => node.nodeId === nodeId);
 
