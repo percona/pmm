@@ -18,23 +18,25 @@ export const keyValuesText = z
   .string()
   .refine(isValidKeyValues, validation.keyValue);
 
+export const getIntegerError = (value: string, min: number) => {
+  const number = Number(value);
+
+  if (!Number.isInteger(number)) {
+    return validation.integer;
+  }
+  if (number < min) {
+    return validation.min(min);
+  }
+  if (number > MAX_INT32) {
+    return validation.max(MAX_INT32);
+  }
+  return undefined;
+};
+
 // An optional int32, at least `min`; numbers stay text in the form like the other fields.
 export const optionalIntegerText = (min: number) =>
   z.string().superRefine((value, ctx) => {
-    if (value.trim() === '') {
-      return;
-    }
-
-    const number = Number(value);
-    let message: string | undefined;
-
-    if (!Number.isInteger(number)) {
-      message = validation.integer;
-    } else if (number < min) {
-      message = validation.min(min);
-    } else if (number > MAX_INT32) {
-      message = validation.max(MAX_INT32);
-    }
+    const message = value.trim() && getIntegerError(value, min);
 
     if (message) {
       ctx.addIssue({ code: 'custom', message });
@@ -62,6 +64,8 @@ export const connectionSchema = z.object({
 export const nodeSchema = z.object({
   nodeId: requiredText,
   pmmAgentId: requiredText,
+  // Set by the node picker; a service on the PMM Server node is pulled, any other pushes.
+  isPmmServerNode: z.boolean(),
 });
 
 export const labelsSchema = z.object({
@@ -134,18 +138,22 @@ export const requireCredentialsWithoutTls = (
   }
 };
 
-// Requires `field` once the form's own choice makes it relevant, e.g. a custom limit.
+// A field the form only shows, and so only checks, for some choice (e.g. a custom limit).
 export const requireWhen =
   <T extends Record<string, unknown>>(
-    isRequired: (values: T) => boolean,
-    field: keyof T & string
+    isShown: (values: T) => boolean,
+    field: keyof T & string,
+    check?: (value: string) => string | undefined
   ) =>
   (values: T, ctx: z.RefinementCtx) => {
-    if (isRequired(values) && !String(values[field] ?? '').trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        message: validation.required,
-        path: [field],
-      });
+    if (!isShown(values)) {
+      return;
+    }
+
+    const value = String(values[field] ?? '').trim();
+    const message = value ? check?.(value) : validation.required;
+
+    if (message) {
+      ctx.addIssue({ code: 'custom', message, path: [field] });
     }
   };

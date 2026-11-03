@@ -1,5 +1,8 @@
 import type { AxiosError } from 'axios';
 
+const DEFAULT_ERROR_MESSAGE = 'Something went wrong';
+const MAX_ERROR_MESSAGE_LENGTH = 120;
+
 // The case middleware only rewrites keys of plain objects, so a class instance passes through untouched.
 class VerbatimKeys {}
 
@@ -24,16 +27,14 @@ export const withVerbatimKeys = <T>(data: T, mapFields: string[]): T => {
   ) as T;
 };
 
-// Whether the api error notifier shows this error, so callers can report the rest themselves.
-export const isNotifiedError = (error: AxiosError) => {
-  if (!error.response || error.response.status < 400) {
-    return false;
-  }
+// The server's message for a failed request, trimmed to fit a snackbar.
+export const getApiErrorMessage = (
+  error: AxiosError<{ message?: string }>,
+  fallback = DEFAULT_ERROR_MESSAGE
+) => {
+  const message = (error.response?.data?.message || fallback).trim();
 
-  const notificationsDisabled =
-    error.config?.disableNotifications ?? error.response.status === 429;
-
-  return typeof notificationsDisabled === 'function'
-    ? !notificationsDisabled(error)
-    : !notificationsDisabled;
+  return message.length > MAX_ERROR_MESSAGE_LENGTH
+    ? `${message.substring(0, MAX_ERROR_MESSAGE_LENGTH)}...`
+    : message;
 };

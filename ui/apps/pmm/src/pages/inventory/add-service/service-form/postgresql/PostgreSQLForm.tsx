@@ -8,7 +8,6 @@ import { DisableCollectorsField } from '../../components/disable-collectors';
 import { TextField } from '../../components/fields';
 import { Labels } from '../../components/labels';
 import { MaxQueryLengthField } from '../../components/max-query-length';
-import { useNodeOptions } from '../../components/nodes-agents';
 import { OptionWithLimit } from '../../components/option-with-limit';
 import { QueryAnalyticsOptions } from '../../components/query-analytics-options';
 import { TlsCertificates } from '../../components/tls-certificates';
@@ -31,14 +30,13 @@ import { toPostgreSQLPayload } from './PostgreSQLForm.utils';
 
 export const PostgreSQLForm: FC = () => {
   const form = useServiceForm(postgresqlSchema, POSTGRESQL_DEFAULTS);
-  const { nodes } = useNodeOptions();
   const { mutateAsync: addService } = useAddService();
 
   return (
     <ServiceForm
       form={form}
       serviceTypeLabel={PageMessages.serviceTypes.postgresql}
-      onSubmit={(values) => addService(toPostgreSQLPayload(values, nodes))}
+      onSubmit={(values) => addService(toPostgreSQLPayload(values))}
     >
       <ConnectionDetails withNodes>
         <TextField

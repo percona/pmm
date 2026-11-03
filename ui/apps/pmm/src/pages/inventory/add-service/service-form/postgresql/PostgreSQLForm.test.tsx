@@ -9,11 +9,12 @@ import {
   sentPayload,
   submit,
   type,
+  waitForNodePreselect,
 } from '../ServiceForm.testUtils';
 import { PostgreSQLForm } from './PostgreSQLForm';
 
 vi.mock('api/services', () => ({ addService: vi.fn() }));
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }));
 
 const fillRequired = () => {
@@ -30,6 +31,7 @@ describe('PostgreSQLForm', () => {
 
   it('adds a remote PostgreSQL service with the default options', async () => {
     renderServiceForm(PostgreSQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     submit();
@@ -65,6 +67,7 @@ describe('PostgreSQLForm', () => {
 
   it('sends the chosen tracking and limits', async () => {
     renderServiceForm(PostgreSQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     type('text-input-database', 'app');
@@ -88,6 +91,7 @@ describe('PostgreSQLForm', () => {
 
   it('turns auto-discovery off with the disabled limit', async () => {
     renderServiceForm(PostgreSQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     fireEvent.click(screen.getAllByLabelText('Disabled')[0]);

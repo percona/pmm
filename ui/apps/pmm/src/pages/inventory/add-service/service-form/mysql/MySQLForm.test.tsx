@@ -10,11 +10,12 @@ import {
   sentPayload,
   submit,
   type,
+  waitForNodePreselect,
 } from '../ServiceForm.testUtils';
 import { MySQLForm } from './MySQLForm';
 
 vi.mock('api/services', () => ({ addService: vi.fn() }));
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }));
 
 const fillRequired = () => {
@@ -31,6 +32,7 @@ describe('MySQLForm', () => {
 
   it('adds a remote MySQL service with the default options', async () => {
     renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     submit();
@@ -64,6 +66,7 @@ describe('MySQLForm', () => {
 
   it('sends the typed options', async () => {
     renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     type('text-input-max-query-length', '2048');
@@ -87,6 +90,7 @@ describe('MySQLForm', () => {
 
   it('sends the certificates only while TLS is on', async () => {
     renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'mysql.example.com');
     clickLabel('Use TLS for database connections');
@@ -104,6 +108,7 @@ describe('MySQLForm', () => {
 
   it('requires a limit for custom table statistics', async () => {
     renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
 
     fillRequired();
     clickLabel('Custom');
@@ -116,5 +121,20 @@ describe('MySQLForm', () => {
       ).toHaveAttribute('aria-invalid', 'true')
     );
     expect(addService).not.toHaveBeenCalled();
+  });
+
+  it('ignores a custom limit once a preset is chosen again', async () => {
+    renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
+
+    fillRequired();
+    clickLabel('Custom');
+    type('text-input-tablestats-group-table-limit', '1.5');
+    clickLabel('Default');
+    submit();
+
+    expect(await sentPayload('mysql')).toEqual(
+      expect.objectContaining({ tablestatsGroupTableLimit: 1000 })
+    );
   });
 });

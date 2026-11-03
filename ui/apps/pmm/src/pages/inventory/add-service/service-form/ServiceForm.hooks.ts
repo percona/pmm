@@ -8,7 +8,6 @@ export const useServiceForm = <T extends FieldValues>(
 ) =>
   useForm<T>({
     resolver: zodResolver(schema),
-    // Errors show once a field is left, as in the old form.
     mode: 'onTouched',
     defaultValues,
   });

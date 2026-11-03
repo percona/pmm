@@ -6,9 +6,8 @@ import {
   requireWhen,
 } from '../ServiceForm.schema';
 import { isValidPort } from '../ServiceForm.utils';
-import { Messages } from './ExternalForm.messages';
 import { MetricsParameters, Scheme } from './ExternalForm.types';
-import { isValidExternalUrl } from './ExternalForm.utils';
+import { getExternalUrlError } from './ExternalForm.utils';
 
 const isParsed = (values: { metricsParameters: MetricsParameters }) =>
   values.metricsParameters === MetricsParameters.parsed;
@@ -29,18 +28,12 @@ export const externalSchema = z
     ...labelsSchema.shape,
     ...commonOptionsSchema.shape,
   })
-  .superRefine(requireWhen((values) => isParsed(values), 'url'))
+  .superRefine(
+    requireWhen((values) => isParsed(values), 'url', getExternalUrlError)
+  )
   .superRefine(requireWhen((values) => !isParsed(values), 'address'))
   .superRefine((values, ctx) => {
-    if (isParsed(values)) {
-      if (values.url.trim() && !isValidExternalUrl(values.url)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: Messages.invalidUrl,
-          path: ['url'],
-        });
-      }
-    } else if (!isValidPort(values.port)) {
+    if (!isParsed(values) && !isValidPort(values.port)) {
       ctx.addIssue({
         code: 'custom',
         message: FormMessages.validation.port,

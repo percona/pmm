@@ -1,5 +1,4 @@
 import Stack from '@mui/material/Stack';
-import { isNotifiedError } from 'api/api.utils';
 import { isAxiosError } from 'axios';
 import { PMM_ADD_SERVICE_PATH, PMM_INVENTORY_URL } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
@@ -11,7 +10,7 @@ import type {
   ConnectionFormValues,
   ServiceFormProps,
 } from './ServiceForm.types';
-import { getServiceName } from './ServiceForm.utils';
+import { getErrorMessage, getServiceName } from './ServiceForm.utils';
 
 export const ServiceForm = <
   T extends FieldValues & Pick<ConnectionFormValues, 'serviceName' | 'address'>,
@@ -27,12 +26,9 @@ export const ServiceForm = <
     try {
       await onSubmit(values);
     } catch (error) {
-      // Keep the form for a retry; most failed responses are already reported by the API layer.
-      if (!isAxiosError(error) || !isNotifiedError(error)) {
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.unknownError,
-          { variant: 'error' }
-        );
+      // Keep the form for a retry; the API layer has usually reported the failure already.
+      if (!isAxiosError(error) || !error.notified) {
+        enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
       }
       return;
     }

@@ -1,14 +1,12 @@
 import type { AddServicePayload } from 'types/services.types';
-import type { ServiceNode } from '../ServiceForm.types';
 import { toCollectors, toDatabaseService } from '../ServiceForm.utils';
 import type { ProxySQLFormValues } from './ProxySQLForm.types';
 
 export const toProxySQLPayload = (
-  values: ProxySQLFormValues,
-  nodes: ServiceNode[]
+  values: ProxySQLFormValues
 ): AddServicePayload => ({
   proxysql: {
-    ...toDatabaseService(values, nodes),
+    ...toDatabaseService(values),
     disableCollectors: toCollectors(values.disableCollectors),
   },
 });

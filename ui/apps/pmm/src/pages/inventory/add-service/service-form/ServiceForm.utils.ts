@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios';
+import { getApiErrorMessage } from 'api/api.utils';
 import { NodeType } from 'types/nodes.types';
 import { MetricsMode } from 'types/services.types';
 import {
@@ -10,7 +12,6 @@ import type {
   ConnectionFormValues,
   DatabaseServiceFormValues,
   LabelsFormValues,
-  ServiceNode,
   TlsCertificatesFormValues,
 } from './ServiceForm.types';
 
@@ -115,14 +116,14 @@ export const toLabels = ({
 export const toPlacement = (
   address: string,
   serviceName: string,
-  node?: Pick<ServiceNode, 'nodeId'>
+  nodeId?: string
 ) =>
-  LOCAL_ADDRESSES.includes(address.trim()) && node
-    ? { nodeId: node.nodeId }
+  LOCAL_ADDRESSES.includes(address.trim()) && nodeId
+    ? { nodeId }
     : { addNode: { nodeName: serviceName, nodeType: NodeType.remote } };
 
-export const getMetricsMode = (node?: Pick<ServiceNode, 'isPmmServerNode'>) =>
-  node?.isPmmServerNode ? MetricsMode.pull : MetricsMode.push;
+export const getMetricsMode = (isPmmServerNode: boolean) =>
+  isPmmServerNode ? MetricsMode.pull : MetricsMode.push;
 
 // Certificates stay in the form when TLS is turned off, so they are only sent with TLS on.
 export const whenTls = <T extends object>(tls: boolean, certificates: T) =>
@@ -150,12 +151,8 @@ export const toRadioOptions = <T extends string>(
 ) => values.map((value) => ({ value, label: labels[value] }));
 
 // Fields every database service (MySQL, PostgreSQL, MongoDB, ProxySQL, Valkey) is added with.
-export const toDatabaseService = (
-  values: DatabaseServiceFormValues,
-  nodes: ServiceNode[]
-) => {
+export const toDatabaseService = (values: DatabaseServiceFormValues) => {
   const serviceName = getServiceName(values);
-  const node = nodes.find(({ nodeId }) => nodeId === values.nodeId);
 
   return {
     serviceName,
@@ -168,9 +165,9 @@ export const toDatabaseService = (
     skipConnectionCheck: values.skipConnectionCheck,
     tls: values.tls,
     tlsSkipVerify: values.tlsSkipVerify,
-    metricsMode: getMetricsMode(node),
+    metricsMode: getMetricsMode(values.isPmmServerNode),
     ...toLabels(values),
-    ...toPlacement(values.address, serviceName, node),
+    ...toPlacement(values.address, serviceName, values.nodeId),
   };
 };
 
@@ -195,4 +192,12 @@ export const toScrapedService = (
     skipConnectionCheck: values.skipConnectionCheck,
     tlsSkipVerify: values.tlsSkipVerify,
   };
+};
+
+export const getErrorMessage = (error: unknown) => {
+  if (isAxiosError(error)) {
+    return getApiErrorMessage(error, error.message);
+  }
+
+  return error instanceof Error ? error.message : Messages.unknownError;
 };

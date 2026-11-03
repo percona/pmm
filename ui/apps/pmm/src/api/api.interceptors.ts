@@ -3,11 +3,8 @@ import { enqueueSnackbar } from 'notistack';
 import { isClientSessionEstablished } from 'contexts/auth/auth.clientSession';
 import { redirectToLogin } from 'contexts/auth/auth.utils';
 import { api, grafanaApi } from './api';
-import { isNotifiedError } from './api.utils';
+import { getApiErrorMessage } from './api.utils';
 import { ROTATE_TOKEN_URL, rotateToken } from './auth';
-
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong';
-const MAX_ERROR_MESSAGE_LENGTH = 120;
 
 const recoverFromUnauthorized =
   (instance: AxiosInstance) => async (error: AxiosError) => {
@@ -48,18 +45,21 @@ const recoverFromUnauthorized =
   };
 
 const notifyError = (error: AxiosError<{ message?: string }>) => {
-  if (isNotifiedError(error)) {
-    let message = (
-      error.response?.data?.message ?? DEFAULT_ERROR_MESSAGE
-    ).trim();
-    if (message.length > MAX_ERROR_MESSAGE_LENGTH) {
-      message = `${message.substring(0, MAX_ERROR_MESSAGE_LENGTH)}...`;
+  if (error.response && error.response.status >= 400) {
+    let notificationsDisabled =
+      error.config?.disableNotifications ?? error.response.status === 429;
+
+    if (typeof notificationsDisabled === 'function') {
+      notificationsDisabled = notificationsDisabled(error);
     }
 
-    enqueueSnackbar(message, {
-      variant: 'error',
-      preventDuplicate: true,
-    });
+    if (!notificationsDisabled) {
+      enqueueSnackbar(getApiErrorMessage(error), {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+      error.notified = true;
+    }
   }
 
   return Promise.reject(error);

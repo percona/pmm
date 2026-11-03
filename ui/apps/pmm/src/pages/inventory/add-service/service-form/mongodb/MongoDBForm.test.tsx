@@ -8,11 +8,12 @@ import {
   sentPayload,
   submit,
   type,
+  waitForNodePreselect,
 } from '../ServiceForm.testUtils';
 import { MongoDBForm } from './MongoDBForm';
 
 vi.mock('api/services', () => ({ addService: vi.fn() }));
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }));
 
 describe('MongoDBForm', () => {
@@ -23,6 +24,7 @@ describe('MongoDBForm', () => {
 
   it('adds a MongoDB service with credentials', async () => {
     renderServiceForm(MongoDBForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'mongo.example.com');
     type('text-input-username', 'pmm');
@@ -44,6 +46,7 @@ describe('MongoDBForm', () => {
 
   it('authenticates with the client certificate under TLS', async () => {
     renderServiceForm(MongoDBForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'mongo.example.com');
     clickLabel('Use TLS for database connections');
@@ -66,6 +69,7 @@ describe('MongoDBForm', () => {
 
   it('requires credentials without TLS', async () => {
     renderServiceForm(MongoDBForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'mongo.example.com');
     submit();
@@ -77,5 +81,22 @@ describe('MongoDBForm', () => {
       )
     );
     expect(addService).not.toHaveBeenCalled();
+  });
+
+  it('keeps password authentication over TLS when a username is given', async () => {
+    renderServiceForm(MongoDBForm);
+    await waitForNodePreselect();
+
+    type('text-input-address', 'mongo.example.com');
+    type('text-input-username', 'pmm');
+    type('text-input-password', 'secret');
+    clickLabel('Use TLS for database connections');
+    submit();
+
+    const mongodb = await sentPayload('mongodb');
+    expect(mongodb).toEqual(
+      expect.objectContaining({ tls: true, username: 'pmm' })
+    );
+    expect(mongodb).not.toHaveProperty('authenticationMechanism');
   });
 });

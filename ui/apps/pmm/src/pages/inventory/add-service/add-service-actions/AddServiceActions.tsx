@@ -10,7 +10,7 @@ export const AddServiceActions: FC<AddServiceActionsProps> = ({
   submitLabel,
   isSubmitting,
 }) => (
-  <Stack direction="row" justifyContent="flex-end" gap={1} sx={{ mt: 3 }}>
+  <Stack direction="row" justifyContent="flex-end" gap={1}>
     <Button
       variant="outlined"
       component={Link}

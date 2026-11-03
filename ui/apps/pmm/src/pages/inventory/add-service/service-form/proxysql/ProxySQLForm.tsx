@@ -5,7 +5,6 @@ import { AdditionalOptions } from '../../components/additional-options';
 import { ConnectionDetails } from '../../components/connection-details';
 import { DisableCollectorsField } from '../../components/disable-collectors';
 import { Labels } from '../../components/labels';
-import { useNodeOptions } from '../../components/nodes-agents';
 import { TlsOptions } from '../../components/tls-options';
 import { ServiceForm } from '../ServiceForm';
 import { useServiceForm } from '../ServiceForm.hooks';
@@ -15,14 +14,13 @@ import { toProxySQLPayload } from './ProxySQLForm.utils';
 
 export const ProxySQLForm: FC = () => {
   const form = useServiceForm(proxysqlSchema, PROXYSQL_DEFAULTS);
-  const { nodes } = useNodeOptions();
   const { mutateAsync: addService } = useAddService();
 
   return (
     <ServiceForm
       form={form}
       serviceTypeLabel={PageMessages.serviceTypes.proxysql}
-      onSubmit={(values) => addService(toProxySQLPayload(values, nodes))}
+      onSubmit={(values) => addService(toProxySQLPayload(values))}
     >
       <ConnectionDetails withNodes />
       <Labels />

@@ -4,7 +4,6 @@ import { Messages as PageMessages } from '../../AddServicePage.messages';
 import { AdditionalOptions } from '../../components/additional-options';
 import { ConnectionDetails } from '../../components/connection-details';
 import { Labels } from '../../components/labels';
-import { useNodeOptions } from '../../components/nodes-agents';
 import { TlsCertificates } from '../../components/tls-certificates';
 import { TlsOptions } from '../../components/tls-options';
 import { ServiceForm } from '../ServiceForm';
@@ -15,14 +14,13 @@ import { toValkeyPayload } from './ValkeyForm.utils';
 
 export const ValkeyForm: FC = () => {
   const form = useServiceForm(valkeySchema, VALKEY_DEFAULTS);
-  const { nodes } = useNodeOptions();
   const { mutateAsync: addService } = useAddService();
 
   return (
     <ServiceForm
       form={form}
       serviceTypeLabel={PageMessages.serviceTypes.valkey}
-      onSubmit={(values) => addService(toValkeyPayload(values, nodes))}
+      onSubmit={(values) => addService(toValkeyPayload(values))}
     >
       <ConnectionDetails withNodes />
       <Labels />

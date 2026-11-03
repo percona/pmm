@@ -1,5 +1,4 @@
 import type { AddServicePayload } from 'types/services.types';
-import type { ServiceNode } from '../ServiceForm.types';
 import {
   toCollectors,
   toDatabaseService,
@@ -17,11 +16,10 @@ import {
 } from './PostgreSQLForm.types';
 
 export const toPostgreSQLPayload = (
-  values: PostgreSQLFormValues,
-  nodes: ServiceNode[]
+  values: PostgreSQLFormValues
 ): AddServicePayload => ({
   postgresql: {
-    ...toDatabaseService(values, nodes),
+    ...toDatabaseService(values),
     ...toTlsCertificates(values),
     database: toOptionalString(values.database),
     qanPostgresqlPgstatementsAgent:

@@ -6,11 +6,12 @@ import {
   sentPayload,
   submit,
   type,
+  waitForNodePreselect,
 } from '../ServiceForm.testUtils';
 import { ProxySQLForm } from './ProxySQLForm';
 
 vi.mock('api/services', () => ({ addService: vi.fn() }));
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }));
 
 describe('ProxySQLForm', () => {
@@ -21,6 +22,7 @@ describe('ProxySQLForm', () => {
 
   it('adds a ProxySQL service', async () => {
     renderServiceForm(ProxySQLForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'proxysql.example.com');
     type('text-input-username', 'admin');

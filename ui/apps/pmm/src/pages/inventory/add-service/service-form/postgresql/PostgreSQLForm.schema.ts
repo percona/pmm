@@ -2,8 +2,8 @@ import { z } from 'zod';
 import {
   databaseServiceSchema,
   disableCollectorsSchema,
+  getIntegerError,
   maxQueryLengthSchema,
-  optionalIntegerText,
   queryAnalyticsOptionsSchema,
   requireCredentialsWithoutTls,
   requireWhen,
@@ -25,20 +25,22 @@ export const postgresqlSchema = z
     database: z.string(),
     tracking: z.enum(TrackingOption),
     autoDiscoveryOptions: z.enum(AutoDiscoveryOption),
-    autoDiscoveryLimit: optionalIntegerText(-1),
+    autoDiscoveryLimit: z.string(),
     maxConnectionsOptions: z.enum(MaxConnectionsOption),
-    maxExporterConnections: optionalIntegerText(0),
+    maxExporterConnections: z.string(),
   })
   .superRefine(requireCredentialsWithoutTls)
   .superRefine(
     requireWhen(
       (values) => values.autoDiscoveryOptions === AutoDiscoveryOption.custom,
-      'autoDiscoveryLimit'
+      'autoDiscoveryLimit',
+      (value) => getIntegerError(value, -1)
     )
   )
   .superRefine(
     requireWhen(
       (values) => values.maxConnectionsOptions === MaxConnectionsOption.enabled,
-      'maxExporterConnections'
+      'maxExporterConnections',
+      (value) => getIntegerError(value, 0)
     )
   );

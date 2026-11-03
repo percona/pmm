@@ -1,15 +1,26 @@
-import { isValidExternalUrl, parseExternalUrl } from './ExternalForm.utils';
+import { getExternalUrlError, parseExternalUrl } from './ExternalForm.utils';
 import { Scheme } from './ExternalForm.types';
 
 describe('ExternalForm.utils', () => {
   it.each([
-    ['http://redis-exporter:9121/metrics', true],
-    ['https://example.com', true],
-    ['ftp://example.com', false],
-    ['example.com:9121', false],
-    ['', false],
-  ])('validates %j', (url, valid) => {
-    expect(isValidExternalUrl(url)).toBe(valid);
+    ['http://redis-exporter:9121/metrics', undefined],
+    ['https://example.com', undefined],
+    ['http://[fd00::5]:9121/metrics', undefined],
+    ['ftp://example.com', 'Invalid URL string'],
+    ['example.com:9121', 'Invalid URL string'],
+    ['', 'Invalid URL string'],
+    [
+      'http://exporter:9121/metrics?target=redis',
+      'Query parameters are not supported in the endpoint',
+    ],
+  ])('validates %j', (url, error) => {
+    expect(getExternalUrlError(url)).toBe(error);
+  });
+
+  it('sends an IPv6 host without its URL brackets', () => {
+    expect(parseExternalUrl('http://[fd00::5]:9121/metrics').address).toBe(
+      'fd00::5'
+    );
   });
 
   it('reads the endpoint from the URL', () => {

@@ -6,7 +6,7 @@ import { TEST_USER_VIEWER } from 'utils/testStubs';
 import { AddServicePage } from './AddServicePage';
 import { mockNodes } from './service-form/ServiceForm.testUtils';
 
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 
 const LocationProbe = () => (
   <span data-testid="location-probe">{useLocation().pathname}</span>
@@ -132,6 +132,19 @@ describe('AddServicePage', () => {
     expect(screen.getByTestId('location-probe')).toHaveTextContent(
       '/add-instance/azure'
     );
+  });
+
+  it.each([
+    ['rds', 'Amazon RDS', {}],
+    [
+      'azure',
+      'Microsoft Azure MySQL or PostgreSQL',
+      { azurediscoverEnabled: true },
+    ],
+  ])('titles the /add-instance/%s discovery page', (type, title, options) => {
+    renderPage(`/add-instance/${type}`, options);
+
+    expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
   });
 
   it('opens Azure when Azure discovery is enabled', () => {

@@ -1,5 +1,4 @@
 import type { AddServicePayload } from 'types/services.types';
-import type { ServiceNode } from '../ServiceForm.types';
 import {
   toCollectors,
   toDatabaseService,
@@ -11,12 +10,9 @@ import {
 import { TABLESTAT_LIMITS } from './MySQLForm.constants';
 import { type MySQLFormValues, TablestatOption } from './MySQLForm.types';
 
-export const toMySQLPayload = (
-  values: MySQLFormValues,
-  nodes: ServiceNode[]
-): AddServicePayload => ({
+export const toMySQLPayload = (values: MySQLFormValues): AddServicePayload => ({
   mysql: {
-    ...toDatabaseService(values, nodes),
+    ...toDatabaseService(values),
     ...toTlsCertificates(values),
     qanMysqlPerfschema: values.qanMysqlPerfschema,
     disableQueryExamples: values.disableQueryExamples,

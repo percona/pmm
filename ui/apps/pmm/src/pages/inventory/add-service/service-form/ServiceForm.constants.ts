@@ -17,7 +17,11 @@ export const MAX_INT32 = 2 ** 31 - 1;
 
 export const LOCAL_ADDRESSES = ['127.0.0.1', 'localhost'];
 
-export const NODE_DEFAULTS: NodeFormValues = { nodeId: '', pmmAgentId: '' };
+export const NODE_DEFAULTS: NodeFormValues = {
+  nodeId: '',
+  pmmAgentId: '',
+  isPmmServerNode: false,
+};
 
 export const LABELS_DEFAULTS: LabelsFormValues = {
   environment: '',

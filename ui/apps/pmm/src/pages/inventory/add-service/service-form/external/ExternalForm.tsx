@@ -2,7 +2,6 @@ import { RadioGroup } from '@percona/peak-ui';
 import { useAddService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { useWatch } from 'react-hook-form';
-import { Messages as PageMessages } from '../../AddServicePage.messages';
 import { AdditionalOptions } from '../../components/additional-options';
 import { Messages as ConnectionMessages } from '../../components/connection-details/ConnectionDetails.messages';
 import { FieldGrid } from '../../components/field-grid';
@@ -35,7 +34,7 @@ export const ExternalForm: FC = () => {
   return (
     <ServiceForm
       form={form}
-      serviceTypeLabel={PageMessages.serviceTypes.external}
+      serviceTypeLabel={Messages.serviceType}
       onSubmit={(values) => addService(toExternalPayload(values))}
     >
       <FormSection title={Messages.title}>

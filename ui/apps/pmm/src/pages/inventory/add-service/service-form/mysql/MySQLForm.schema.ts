@@ -2,9 +2,9 @@ import { z } from 'zod';
 import {
   databaseServiceSchema,
   disableCollectorsSchema,
+  getIntegerError,
   keyValuesText,
   maxQueryLengthSchema,
-  optionalIntegerText,
   queryAnalyticsOptionsSchema,
   requireCredentialsWithoutTls,
   requireWhen,
@@ -22,12 +22,13 @@ export const mysqlSchema = z
     qanMysqlPerfschema: z.boolean(),
     extraDsnParams: keyValuesText,
     tablestatOptions: z.enum(TablestatOption),
-    tablestatsGroupTableLimit: optionalIntegerText(-1),
+    tablestatsGroupTableLimit: z.string(),
   })
   .superRefine(requireCredentialsWithoutTls)
   .superRefine(
     requireWhen(
       (values) => values.tablestatOptions === TablestatOption.custom,
-      'tablestatsGroupTableLimit'
+      'tablestatsGroupTableLimit',
+      (value) => getIntegerError(value, -1)
     )
   );

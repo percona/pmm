@@ -8,7 +8,6 @@ import { DisableCollectorsField } from '../../components/disable-collectors';
 import { TextField } from '../../components/fields';
 import { Labels } from '../../components/labels';
 import { MaxQueryLengthField } from '../../components/max-query-length';
-import { useNodeOptions } from '../../components/nodes-agents';
 import { OptionWithLimit } from '../../components/option-with-limit';
 import { QueryAnalyticsOptions } from '../../components/query-analytics-options';
 import { TlsCertificates } from '../../components/tls-certificates';
@@ -23,14 +22,13 @@ import { toMySQLPayload } from './MySQLForm.utils';
 
 export const MySQLForm: FC = () => {
   const form = useServiceForm(mysqlSchema, MYSQL_DEFAULTS);
-  const { nodes } = useNodeOptions();
   const { mutateAsync: addService } = useAddService();
 
   return (
     <ServiceForm
       form={form}
       serviceTypeLabel={PageMessages.serviceTypes.mysql}
-      onSubmit={(values) => addService(toMySQLPayload(values, nodes))}
+      onSubmit={(values) => addService(toMySQLPayload(values))}
     >
       <ConnectionDetails withNodes>
         <MaxQueryLengthField />

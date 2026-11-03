@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
-import type { UniversalNode } from 'types/nodes.types';
 import type { z } from 'zod';
 import type {
   commonOptionsSchema,
@@ -35,9 +34,6 @@ export type DisableCollectorsFormValues = z.infer<
 export type MaxQueryLengthFormValues = z.infer<typeof maxQueryLengthSchema>;
 
 export type DatabaseServiceFormValues = z.infer<typeof databaseServiceSchema>;
-
-// What adding a service needs to know about the node it runs on.
-export type ServiceNode = Pick<UniversalNode, 'nodeId' | 'isPmmServerNode'>;
 
 export interface ServiceFormProps<
   T extends FieldValues & Pick<ConnectionFormValues, 'serviceName' | 'address'>,

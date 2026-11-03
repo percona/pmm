@@ -1,14 +1,12 @@
 import type { AddServicePayload } from 'types/services.types';
-import type { ServiceNode } from '../ServiceForm.types';
 import { toDatabaseService, toTlsCertificates } from '../ServiceForm.utils';
 import type { ValkeyFormValues } from './ValkeyForm.types';
 
 export const toValkeyPayload = (
-  values: ValkeyFormValues,
-  nodes: ServiceNode[]
+  values: ValkeyFormValues
 ): AddServicePayload => ({
   valkey: {
-    ...toDatabaseService(values, nodes),
+    ...toDatabaseService(values),
     ...toTlsCertificates(values),
   },
 });

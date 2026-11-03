@@ -1,5 +1,4 @@
 import type { AddServicePayload } from 'types/services.types';
-import type { ServiceNode } from '../ServiceForm.types';
 import {
   toCollectors,
   toDatabaseService,
@@ -10,17 +9,20 @@ import { X509_AUTHENTICATION } from './MongoDBForm.constants';
 import type { MongoDBFormValues } from './MongoDBForm.types';
 
 export const toMongoDBPayload = (
-  values: MongoDBFormValues,
-  nodes: ServiceNode[]
+  values: MongoDBFormValues
 ): AddServicePayload => ({
   mongodb: {
-    ...toDatabaseService(values, nodes),
+    ...toDatabaseService(values),
     ...whenTls(values.tls, {
       tlsCertificateKeyFilePassword: values.tlsCertificateKeyFilePassword,
       tlsCertificateKey: values.tlsCertificateKey,
       tlsCa: values.tlsCa,
-      authenticationMechanism: X509_AUTHENTICATION,
     }),
+    // Without a username, the client certificate is what authenticates.
+    ...(values.tls &&
+      !values.username.trim() && {
+        authenticationMechanism: X509_AUTHENTICATION,
+      }),
     qanMongodbProfiler: values.qanMongodbProfiler,
     maxQueryLength: toOptionalNumber(values.maxQueryLength),
     disableCollectors: toCollectors(values.disableCollectors),

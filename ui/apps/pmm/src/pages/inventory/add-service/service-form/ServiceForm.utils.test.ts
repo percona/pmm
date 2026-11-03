@@ -118,21 +118,21 @@ describe('ServiceForm.utils', () => {
   it.each(['localhost', '127.0.0.1'])(
     'places a service on %s on the selected node',
     (address) => {
-      expect(toPlacement(address, 'mysql-1', { nodeId: 'node-1' })).toEqual({
+      expect(toPlacement(address, 'mysql-1', 'node-1')).toEqual({
         nodeId: 'node-1',
       });
     }
   );
 
   it('creates a remote node for any other address', () => {
-    expect(toPlacement('db.example.com', 'mysql-1', { nodeId: 'n' })).toEqual({
+    expect(toPlacement('db.example.com', 'mysql-1', 'n')).toEqual({
       addNode: { nodeName: 'mysql-1', nodeType: NodeType.remote },
     });
   });
 
   it('pulls metrics on the PMM Server node and pushes them elsewhere', () => {
-    expect(getMetricsMode({ isPmmServerNode: true })).toBe(MetricsMode.pull);
-    expect(getMetricsMode({ isPmmServerNode: false })).toBe(MetricsMode.push);
+    expect(getMetricsMode(true)).toBe(MetricsMode.pull);
+    expect(getMetricsMode(false)).toBe(MetricsMode.push);
   });
 
   it('sends TLS certificates only with TLS on', () => {

@@ -1,5 +1,6 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
+import { enqueueSnackbar } from 'notistack';
 import { MetricsMode } from 'types/services.types';
 import { NodeType } from 'types/nodes.types';
 import {
@@ -77,5 +78,20 @@ describe('ExternalForm', () => {
     expect(await screen.findByText('Invalid URL string')).toBeInTheDocument();
     expect(screen.queryByText('Required field')).not.toBeInTheDocument();
     expect(addService).not.toHaveBeenCalled();
+  });
+
+  it('reports the added exporter as an external service', async () => {
+    renderServiceForm(ExternalForm);
+
+    type('text-input-address', 'redis-exporter');
+    type('text-input-port', '9121');
+    submit();
+
+    await waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Service “redis-exporter” added to your inventory. Your external service instance is now ready to be monitored.',
+        { variant: 'success' }
+      )
+    );
   });
 });

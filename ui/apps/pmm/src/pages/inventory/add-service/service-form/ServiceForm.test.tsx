@@ -246,6 +246,7 @@ describe('ServiceForm', () => {
   it('stays on the form when the server rejects the service', async () => {
     const error = new AxiosError('failed');
     error.response = { status: 400 } as AxiosError['response'];
+    error.notified = true;
     const onSubmit = renderForm(vi.fn().mockRejectedValue(error));
 
     fillRequired();
@@ -289,6 +290,25 @@ describe('ServiceForm', () => {
     await waitFor(() =>
       expect(enqueueSnackbar).toHaveBeenCalledWith(
         'Request failed with status code 429',
+        { variant: 'error' }
+      )
+    );
+  });
+
+  it('prefers the server message for a failure the API layer kept quiet about', async () => {
+    const error = new AxiosError('Request failed with status code 429');
+    error.response = {
+      status: 429,
+      data: { message: 'Too many requests, retry in 30s' },
+    } as AxiosError['response'];
+    renderForm(vi.fn().mockRejectedValue(error));
+
+    fillRequired();
+    fireEvent.click(screen.getByTestId('add-service-submit'));
+
+    await waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Too many requests, retry in 30s',
         { variant: 'error' }
       )
     );

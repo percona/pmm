@@ -1,6 +1,7 @@
 import type { AddServicePayload } from 'types/services.types';
 import { toOptionalString, toScrapedService } from '../ServiceForm.utils';
 import { DEFAULT_PORTS } from './ExternalForm.constants';
+import { Messages } from './ExternalForm.messages';
 import {
   type ExporterEndpoint,
   type ExternalFormValues,
@@ -21,9 +22,17 @@ const toUrl = (text: string) => {
   }
 };
 
-export const isValidExternalUrl = (text: string) => {
+export const getExternalUrlError = (text: string) => {
   const url = toUrl(text);
-  return !!url && isScheme(toScheme(url.protocol)) && !!url.hostname;
+
+  if (!url || !isScheme(toScheme(url.protocol)) || !url.hostname) {
+    return Messages.invalidUrl;
+  }
+  // Query parameters would be dropped from the metrics path.
+  if (url.search) {
+    return Messages.urlWithQuery;
+  }
+  return undefined;
 };
 
 // An endpoint without a path keeps the server's default metrics path.
@@ -33,7 +42,7 @@ export const parseExternalUrl = (text: string): ExporterEndpoint => {
 
   return {
     scheme,
-    address: url.hostname,
+    address: url.hostname.replace(/^\[(.*)\]$/, '$1'),
     listenPort: Number(url.port) || DEFAULT_PORTS[scheme],
     metricsPath: url.pathname === '/' ? undefined : url.pathname,
     username: decodeURIComponent(url.username),

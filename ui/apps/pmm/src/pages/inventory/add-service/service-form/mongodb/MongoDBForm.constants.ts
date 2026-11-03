@@ -6,7 +6,6 @@ import {
 } from '../ServiceForm.constants';
 import type { MongoDBFormValues } from './MongoDBForm.types';
 
-// Client certificate authentication, used when TLS is on.
 export const X509_AUTHENTICATION = 'MONGODB-X509';
 
 export const MONGODB_DEFAULTS: MongoDBFormValues = {

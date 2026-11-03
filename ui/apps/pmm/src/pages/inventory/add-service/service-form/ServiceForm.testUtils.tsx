@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
-import { useNodes } from 'hooks/api/useNodes';
+import { listNodes } from 'api/nodes';
 import type { FC } from 'react';
 import { AgentStatus, ManagedAgentType } from 'types/agent.types';
 import { ManagedNodeType, type UniversalNode } from 'types/nodes.types';
@@ -27,14 +27,16 @@ const pmmAgentNode = (
   ],
 });
 
-// Requires `vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }))` in the test file.
+// Requires `vi.mock('api/nodes', () => ({ listNodes: vi.fn() }))` in the test file.
 export const mockNodes = () =>
-  vi.mocked(useNodes).mockReturnValue({
-    data: {
-      nodes: [pmmAgentNode('pmm-server', true), pmmAgentNode('client', false)],
-    },
-    isLoading: false,
-  } as ReturnType<typeof useNodes>);
+  vi.mocked(listNodes).mockResolvedValue({
+    nodes: [pmmAgentNode('pmm-server', true), pmmAgentNode('client', false)],
+  });
+
+export const waitForNodePreselect = () =>
+  waitFor(() =>
+    expect(screen.getByTestId('select-input-node-id')).toHaveValue('pmm-server')
+  );
 
 export const renderServiceForm = (Form: FC) =>
   render(

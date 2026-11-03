@@ -36,6 +36,7 @@ export const NodesAgents: FC = () => {
   const selectNode = useCallback(
     (node: NodeOption) => {
       setValue('nodeId', node.nodeId, { shouldValidate: true });
+      setValue('isPmmServerNode', node.isPmmServerNode);
       selectAgent(node, node.agentIds.length === 1 ? node.agentIds[0] : '');
     },
     [selectAgent, setValue]

@@ -8,7 +8,6 @@ import { DisableCollectorsField } from '../../components/disable-collectors';
 import { Labels } from '../../components/labels';
 import { MaxQueryLengthField } from '../../components/max-query-length';
 import { MongodbTlsCertificates } from '../../components/mongodb-tls-certificates';
-import { useNodeOptions } from '../../components/nodes-agents';
 import { TlsOptions } from '../../components/tls-options';
 import { ServiceForm } from '../ServiceForm';
 import { useServiceForm } from '../ServiceForm.hooks';
@@ -19,14 +18,13 @@ import { toMongoDBPayload } from './MongoDBForm.utils';
 
 export const MongoDBForm: FC = () => {
   const form = useServiceForm(mongodbSchema, MONGODB_DEFAULTS);
-  const { nodes } = useNodeOptions();
   const { mutateAsync: addService } = useAddService();
 
   return (
     <ServiceForm
       form={form}
       serviceTypeLabel={PageMessages.serviceTypes.mongodb}
-      onSubmit={(values) => addService(toMongoDBPayload(values, nodes))}
+      onSubmit={(values) => addService(toMongoDBPayload(values))}
     >
       <ConnectionDetails withNodes>
         <MaxQueryLengthField />

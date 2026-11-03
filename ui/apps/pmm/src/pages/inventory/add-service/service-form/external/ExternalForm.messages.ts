@@ -30,5 +30,7 @@ export const Messages = {
     https: 'HTTPS',
     http: 'HTTP',
   },
+  serviceType: 'external',
   invalidUrl: 'Invalid URL string',
+  urlWithQuery: 'Query parameters are not supported in the endpoint',
 };

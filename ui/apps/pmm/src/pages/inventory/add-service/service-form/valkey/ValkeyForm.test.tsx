@@ -5,11 +5,12 @@ import {
   sentPayload,
   submit,
   type,
+  waitForNodePreselect,
 } from '../ServiceForm.testUtils';
 import { ValkeyForm } from './ValkeyForm';
 
 vi.mock('api/services', () => ({ addService: vi.fn() }));
-vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
+vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }));
 
 describe('ValkeyForm', () => {
@@ -20,6 +21,7 @@ describe('ValkeyForm', () => {
 
   it('adds a Valkey service without credentials', async () => {
     renderServiceForm(ValkeyForm);
+    await waitForNodePreselect();
 
     type('text-input-address', 'valkey.example.com');
     submit();
