@@ -614,8 +614,9 @@ export const NAV_INVENTORY: NavItem = {
     {
       id: 'inventory-services',
       text: 'Services',
+      isDefault: true,
       url: PMM_INVENTORY_SERVICES_PATH,
-      matches: ['*'],
+      matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
     },
     {
       id: 'inventory-nodes',

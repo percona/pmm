@@ -12,6 +12,7 @@ import {
 } from '../Inventory.constants';
 import { Messages as InventoryMessages } from '../Inventory.messages';
 import { getFilteredTabUrl } from '../Inventory.utils';
+import { AddressHeader } from './address-header';
 import { Messages } from './Services.messages';
 import type { ServiceRow, ServicesTableRow } from './Services.types';
 import { isClusterRow } from './Services.utils';
@@ -97,6 +98,7 @@ export const SERVICES_COLUMNS: MRT_ColumnDef<ServicesTableRow>[] = [
     id: 'address',
     size: 140,
     header: InventoryMessages.columns.address,
+    Header: () => <AddressHeader />,
     accessorFn: serviceValue('address'),
     filterFn: 'contains',
   },
