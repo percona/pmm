@@ -137,6 +137,27 @@ describe('ConfigForm', () => {
     expect(screen.queryByText('SCHEDULE__every')).toBeNull();
   });
 
+  it('never sends ENABLED on Save', () => {
+    const mutate = vi.fn();
+    useUpdateOmInventoryConfig.mockReturnValue({ ...idle, mutate });
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        ...SETTINGS,
+        setting({ key: 'ENABLED', type: 'bool', value: true }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="general" />);
+
+    fireEvent.change(screen.getByLabelText(/^Scan every/), {
+      target: { value: '60' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(mutate.mock.calls[0][0]).toEqual({ SCHEDULE__every: 60 });
+  });
+
   it.each(['general', 'scanning', 'advanced'] as const)(
     'does not offer ENABLED, which PMM owns, on the %s tab',
     (group) => {

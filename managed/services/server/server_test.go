@@ -279,6 +279,11 @@ func TestServer(t *testing.T) {
 			EnableOm: new(false),
 		}))
 
+		s.envSettings.EnableOM = new(true)
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableOm: new(false),
+		}))
+
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAdvisor: new(false),
 		}))
