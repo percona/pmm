@@ -156,9 +156,9 @@ type serverNode struct {
 var registrationCheckTimeout = 30 * time.Second
 
 // serverNodeOfAgent returns the Node which PMM Server has the Agent registered on.
-// The errors errAgentNotFound and errCredentialsRejected mean that the Node has to be registered again. Any other
-// error means that PMM Server could not be asked, so that the caller can tell "the registration is gone"
-// apart from "the answer is unknown".
+// The error errAgentNotFound means that the Node has to be registered again, and errCredentialsRejected that PMM
+// Server does not accept the credentials of the lookup. Any other error means that PMM Server could not be asked,
+// so that the caller can tell "the registration is gone" apart from "the answer is unknown".
 //
 // This method is not thread-safe.
 func serverNodeOfAgent(ctx context.Context, agentID string) (serverNode, error) {
@@ -220,7 +220,8 @@ func serverStatus(err error) int {
 // serverRefused reports whether PMM Server did not accept the credentials of the lookup. It answers 401
 // for a failure of its own as much as for a credential it rejected, and only the credentials it names
 // invalid carry codes.Unauthenticated, which lookupError has already taken. What is left is grounds for
-// asking again with other credentials, and for nothing else: it says nothing about the registration.
+// asking again with other credentials, as a rejected token is, and for nothing else: it says nothing about
+// the registration.
 func serverRefused(err error) bool {
 	return serverStatus(err) == http.StatusUnauthorized
 }

@@ -64,3 +64,6 @@ CLAUDE.local.md
 # Machine-specific agent settings — paths only, never secrets; see AGENTS.md
 AGENTS.local.md
 .pnpm-store/
+# Turbo's build cache, written at the repo root when a task runs from here rather
+# than from ui/, which ui/.gitignore covers and this did not.
+.turbo/

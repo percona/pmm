@@ -1,9 +1,9 @@
-.PHONY: dev ci format format-check lint test setup build release clean
+.PHONY: dev ci format format-check lint check-types test setup build release clean
 
 dev:
 	pnpm dev
 
-ci: setup format-check lint test build
+ci: setup format-check lint check-types test build
 
 format: setup
 	pnpm format
@@ -13,6 +13,9 @@ format-check: setup
 
 lint: setup
 	pnpm lint
+
+check-types: setup
+	pnpm check-types
 
 test: setup
 	pnpm test

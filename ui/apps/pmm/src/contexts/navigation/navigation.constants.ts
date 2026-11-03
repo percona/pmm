@@ -612,6 +612,7 @@ export const NAV_INVENTORY: NavItem = {
       text: 'Services',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
       matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
+      isDefault: true,
     },
     {
       id: 'inventory-nodes',
@@ -862,7 +863,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 };
 
 //
-// Management
+// Apps
 //
 // Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
 // item takes its link from its first child, so the header opens whichever app
@@ -870,7 +871,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 export const NAV_MANAGEMENT: NavItem = {
   id: 'management',
   icon: AppsRounded,
-  text: 'Management',
+  text: 'Apps',
 };
 
 export const NAV_EXTENSIONS_ATW: NavItem = {
