@@ -68,6 +68,12 @@ const (
 	queuedRunPollInterval = time.Minute
 	// A scheduled run that starts later than this after falling due reports the run it waited for.
 	lateRunThreshold = time.Minute
+	// Recording a run's completion is retried this many times, the delay doubling each time.
+	completeRunAttempts   = 5
+	completeRunRetryDelay = time.Second
+	// The leader closes a running run it does not execute after this long without an insight;
+	// a live run records one at least once per check.
+	abandonedRunTimeout = 2 * checkExecutionTimeout
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
@@ -329,15 +335,18 @@ func (s *Service) nextRun(ctx context.Context, waiting []scheduledRun) (*models.
 		return nil, waiting
 	}
 
-	if active != nil {
-		// a running run here is not ours, e.g. a former leader is finishing it
-		if active.Status != models.AdvisorRunStatusQueued {
-			if len(waiting) != 0 {
-				s.l.Warnf("Scheduled Advisor checks are deferred until run %s finishes.", active.ID)
-			}
-			return nil, waiting
+	// a running run here is not ours: a former leader may be finishing it, or recording its completion failed
+	if active != nil && active.Status != models.AdvisorRunStatusQueued {
+		if s.closeAbandonedRun(ctx, active) {
+			return s.nextRun(ctx, waiting)
 		}
+		if len(waiting) != 0 {
+			s.l.Warnf("Scheduled Advisor checks are deferred until run %s finishes.", active.ID)
+		}
+		return nil, waiting
+	}
 
+	if active != nil {
 		ok, err := models.StartQueuedAdvisorRun(ctx, s.db.Querier, active.ID, models.Now())
 		if err != nil {
 			s.l.Error(err)
@@ -1562,14 +1571,31 @@ func newInsightRecord(
 
 // finishRun closes a run with the given status and stores the totals derived
 // from the insights it recorded; the checks it did not execute are marked not run.
+// A failure is retried until ctx is cancelled; a run left open is closed by the
+// next start of Run, or by nextRun once it is abandoned.
 func (s *Service) finishRun(ctx context.Context, runID string, status models.AdvisorRunStatus) {
 	// The run is over either way, so record it even when the service context is
 	// already cancelled by a shutdown.
-	ctx = context.WithoutCancel(ctx)
+	saveCtx := context.WithoutCancel(ctx)
+	finishedAt := models.Now()
 
-	err := s.completeRun(ctx, runID, status, models.Now())
-	if err != nil {
-		s.l.Warnf("Failed to record the completion of Advisor run %s: %+v", runID, err)
+	delay := completeRunRetryDelay
+	for attempt := 1; ; attempt++ {
+		err := s.completeRun(saveCtx, runID, status, finishedAt)
+		if err == nil {
+			return
+		}
+		if attempt == completeRunAttempts || ctx.Err() != nil {
+			s.l.Errorf("Failed to record the completion of Advisor run %s: %+v", runID, err)
+			return
+		}
+
+		s.l.Warnf("Failed to record the completion of Advisor run %s, retrying in %s: %+v", runID, delay, err)
+		select {
+		case <-ctx.Done():
+		case <-time.After(delay):
+		}
+		delay *= 2
 	}
 }
 
@@ -1601,13 +1627,10 @@ func (s *Service) finalizeInterruptedRuns(ctx context.Context) {
 	}
 
 	for _, run := range runs {
-		finishedAt, ok, err := models.LastInsightTimeForRun(ctx, s.db.Querier, run.ID)
+		finishedAt, err := s.lastRunActivity(ctx, run)
 		if err != nil {
 			s.l.Warnf("Failed to read the last insight of interrupted Advisor run %s: %+v", run.ID, err)
 			continue
-		}
-		if !ok {
-			finishedAt = run.StartedAt
 		}
 
 		err = s.completeRun(ctx, run.ID, models.AdvisorRunStatusInterrupted, finishedAt)
@@ -1617,6 +1640,39 @@ func (s *Service) finalizeInterruptedRuns(ctx context.Context) {
 		}
 		s.l.Infof("Closed out Advisor run %s, which was interrupted by a restart.", run.ID)
 	}
+}
+
+// closeAbandonedRun closes the running run as interrupted, at its last insight,
+// once it has recorded none for abandonedRunTimeout. It reports whether it did.
+func (s *Service) closeAbandonedRun(ctx context.Context, run *models.AdvisorRun) bool {
+	lastActive, err := s.lastRunActivity(ctx, run)
+	if err != nil {
+		s.l.Warnf("Failed to read the last insight of Advisor run %s: %+v", run.ID, err)
+		return false
+	}
+	if models.Now().Sub(lastActive) < abandonedRunTimeout {
+		return false
+	}
+
+	err = s.completeRun(ctx, run.ID, models.AdvisorRunStatusInterrupted, lastActive)
+	if err != nil {
+		s.l.Warnf("Failed to close out abandoned Advisor run %s: %+v", run.ID, err)
+		return false
+	}
+	s.l.Warnf("Closed out Advisor run %s as interrupted: it recorded nothing since %s.", run.ID, lastActive.Format(time.RFC3339))
+	return true
+}
+
+// lastRunActivity returns when the run recorded its last insight, or its start if it recorded none.
+func (s *Service) lastRunActivity(ctx context.Context, run *models.AdvisorRun) (time.Time, error) {
+	last, ok, err := models.LastInsightTimeForRun(ctx, s.db.Querier, run.ID)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if !ok {
+		return run.StartedAt, nil
+	}
+	return last, nil
 }
 
 // executeCheck runs a single check against a single target. When scriptOutput is

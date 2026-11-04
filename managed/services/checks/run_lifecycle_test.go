@@ -250,3 +250,63 @@ func TestRunWithNothingToCheck(t *testing.T) {
 		assert.NotNil(t, run.FinishedAt)
 	})
 }
+
+func TestFinishRunRetry(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	s := New(db, nil, nil, nil)
+
+	// fails the next update of a run; the sequence counting the updates, unlike a row, survives the rollback
+	failNextRunUpdate := func(t *testing.T) {
+		t.Helper()
+		table := models.AdvisorRunTable.Name()
+		_, err := sqlDB.ExecContext(t.Context(), `
+			DROP TRIGGER IF EXISTS fail_next_update ON `+table+`;
+			DROP SEQUENCE IF EXISTS run_updates;
+			CREATE SEQUENCE run_updates;
+			CREATE OR REPLACE FUNCTION fail_next_update() RETURNS trigger AS $$
+			BEGIN
+				IF nextval('run_updates') = 1 THEN
+					RAISE EXCEPTION 'injected failure';
+				END IF;
+				RETURN NEW;
+			END $$ LANGUAGE plpgsql;
+			CREATE TRIGGER fail_next_update BEFORE UPDATE ON `+table+`
+				FOR EACH ROW EXECUTE FUNCTION fail_next_update()`)
+		require.NoError(t, err)
+	}
+
+	start := func(t *testing.T, id string) *models.AdvisorRun {
+		t.Helper()
+		run := &models.AdvisorRun{ID: id, TriggeredBy: models.CheckTriggeredByUser, Status: models.AdvisorRunStatusRunning}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, run))
+		return run
+	}
+
+	t.Run("a failed completion is retried", func(t *testing.T) {
+		run := start(t, "run-retry-transient")
+		failNextRunUpdate(t)
+
+		s.finishRun(t.Context(), run.ID, models.AdvisorRunStatusCompleted)
+
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.NotNil(t, run.FinishedAt)
+	})
+
+	t.Run("a shutdown stops the retries", func(t *testing.T) {
+		run := start(t, "run-retry-shutdown")
+		failNextRunUpdate(t)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+		s.finishRun(ctx, run.ID, models.AdvisorRunStatusInterrupted)
+
+		// left for the next start of Run, or nextRun, to close out
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusRunning, run.Status)
+	})
+}

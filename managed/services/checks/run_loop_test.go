@@ -32,6 +32,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -265,6 +266,52 @@ func TestNextRun(t *testing.T) {
 		require.NotNil(t, run)
 		assert.Equal(t, "Alpha", run.ScheduleName)
 		assert.Empty(t, waiting)
+		finish(t, run.ID)
+	})
+
+	t.Run("a long run that still records insights defers the schedules", func(t *testing.T) {
+		long := &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
+			StartedAt:   models.Now().Add(-time.Hour),
+		}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, long))
+		checkedAt := models.Now().Add(-time.Minute)
+		require.NoError(t, models.CreateInsight(t.Context(), db.Querier, &models.Insight{
+			RunID:       long.ID,
+			CheckName:   "check_a",
+			ServiceID:   "svc-1",
+			ServiceType: models.MySQLServiceType,
+			Status:      models.CheckResultOK,
+			Severity:    new(models.Severity(common.Info)),
+			CheckedAt:   &checkedAt,
+		}))
+
+		run, waiting := s.nextRun(t.Context(), waitingFor(alpha))
+		assert.Nil(t, run)
+		assert.Equal(t, waitingFor(alpha), waiting)
+		assert.Equal(t, models.AdvisorRunStatusRunning, reload(t, long.ID).Status)
+		finish(t, long.ID)
+	})
+
+	t.Run("an abandoned run is closed out, and the schedules start", func(t *testing.T) {
+		abandoned := &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
+			StartedAt:   models.Now().Add(-abandonedRunTimeout - time.Minute),
+		}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, abandoned))
+
+		run, waiting := s.nextRun(t.Context(), waitingFor(alpha))
+		require.NotNil(t, run)
+		assert.Equal(t, "Alpha", run.ScheduleName)
+		assert.Empty(t, waiting)
+
+		closed := reload(t, abandoned.ID)
+		assert.Equal(t, models.AdvisorRunStatusInterrupted, closed.Status)
+		require.NotNil(t, closed.FinishedAt)
+		// it recorded no insight, so it is closed at its start
+		assert.Equal(t, closed.StartedAt, *closed.FinishedAt)
 		finish(t, run.ID)
 	})
 
