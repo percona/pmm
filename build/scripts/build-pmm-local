@@ -38,7 +38,8 @@ declare SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scrip
 export DOCKER_TAG="${DOCKER_TAG:-pmm-server:local}"
 export DOCKERFILE="Dockerfile.el9"
 export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
-export NO_S3_CACHE=1            # build every server component locally, no S3 download or upload
+export FORCE_REBUILD=1          # build every server component from source, also with build scripts older than NO_S3_CACHE
+export NO_S3_CACHE=1            # don't download from or upload to the S3 build cache
 
 # git clone refuses a non-empty directory, and the workspace already holds build.log
 if [ ! -d "${WORKSPACE}/.git" ]; then
