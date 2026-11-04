@@ -12,6 +12,8 @@ declare HBA_RULE="host    all         all     all     trust"
 
 # Installs required and useful RPM packages.
 install_packages() {
+    # The server image ships microdnf only; ansible-lint comes from EPEL.
+    microdnf install -y dnf epel-release
     dnf install -y --enablerepo=ol9_codeready_builder \
         gcc git make pkgconfig \
         vim \
