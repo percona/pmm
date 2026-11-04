@@ -25,15 +25,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// The markers this package computes are only trustworthy because nginx overwrites them on every
-// route a client can reach Grafana or vmproxy by. A location that declares a proxy_set_header of
-// its own drops the server-level ones, so a new location is one forgotten line away from
-// forwarding a client's value. Nothing else checks that file, so this does.
+// The markers hold only because nginx overwrites them on every route to Grafana or vmproxy, and
+// a location declaring its own proxy_set_header drops the server-level ones.
 const nginxConfigPath = "../../../build/ansible/roles/nginx/files/conf.d/pmm.conf"
 
-// markedUpstreams are the proxy_pass targets whose requests reach a marker reader: vmproxy itself,
-// and Grafana, which forwards a client's headers on to its data sources. Ports are matched too, in
-// case a location names one instead of the upstream.
+// markedUpstreams are the proxy_pass targets that reach a marker reader, by name or by port.
 var markedUpstreams = []string{"grafana", "vmproxy", ":8430", ":3000"}
 
 var (
@@ -43,10 +39,8 @@ var (
 	proxyMarkerNames = []string{lbacHeaderName, adminHeaderName, writeMarkerHeaderName}
 )
 
-// writeMarkerHeaderName is set by Grafana on a recording rule write and read by vmproxy. Unlike
-// the other two it is never set from the auth_request response, so nginx clears it instead. The
-// name is repeated rather than imported because the other two copies are unexported, in
-// managed/services/supervisord/supervisord.go and in grafana.ini.
+// writeMarkerHeaderName is set by Grafana on a recording rule write, so nginx clears it rather
+// than setting it from auth_request. The other copies of the name are unexported.
 const writeMarkerHeaderName = "X-Proxy-Write"
 
 type nginxLocation struct {
@@ -67,8 +61,7 @@ func (l nginxLocation) reachesMarkerReader() bool {
 	return false
 }
 
-// parseNginxLocations returns every location block, plus the proxy_set_header directives declared
-// at server level, outside any location.
+// parseNginxLocations returns every location block, plus the server-level proxy_set_header lines.
 func parseNginxLocations(t *testing.T, path string) ([]nginxLocation, map[string]string) {
 	t.Helper()
 
@@ -138,16 +131,14 @@ func TestNginxOwnsTheProxyMarkers(t *testing.T) {
 		checked := 0
 
 		for _, loc := range locations {
-			// A location with no proxy_set_header of its own inherits the server-level
-			// ones, so only those that declare any have to repeat them.
+			// A location declaring none of its own inherits the server-level headers.
 			if loc.proxyPass == "" || len(loc.headers) == 0 || !loc.reachesMarkerReader() {
 				continue
 			}
 
 			checked++
 
-			// X-Proxy-Filter is deliberately absent from /graph/api/live/, which predates
-			// this test, so only the two markers vmproxy acts on are required here.
+			// /graph/api/live/ omits X-Proxy-Filter and predates this test.
 			for _, name := range []string{adminHeaderName, writeMarkerHeaderName} {
 				assert.Containsf(t, loc.headers, name,
 					"location %s (%s:%d) proxies to %s and declares its own proxy_set_header, so it inherits none: it must set %s",
@@ -161,8 +152,7 @@ func TestNginxOwnsTheProxyMarkers(t *testing.T) {
 	t.Run("the write marker is only ever cleared", func(t *testing.T) {
 		t.Parallel()
 
-		// Nothing in PMM produces a value for it, so any value but the empty one would be
-		// a client's own or a stale variable.
+		// Nothing produces a value for it, so anything but empty is a client's or stale.
 		if value, ok := serverLevel[writeMarkerHeaderName]; ok {
 			assert.Equalf(t, `""`, value, "%s must be cleared, not set to %s", writeMarkerHeaderName, value)
 		}

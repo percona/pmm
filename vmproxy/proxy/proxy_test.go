@@ -401,8 +401,7 @@ func TestProxy(t *testing.T) {
 	t.Run("shall forward a recording rule write as the remote write path", func(t *testing.T) {
 		t.Parallel()
 
-		// Grafana addresses /api/v1/push, which single-node VictoriaMetrics accepts and the
-		// HA vmauth route map does not, so both shapes have to leave here as /api/v1/write.
+		// Grafana asks for /api/v1/push, which HA's vmauth does not route.
 		for _, requested := range []string{"/api/v1/push", "/api/v1/write"} {
 			t.Run(requested, func(t *testing.T) {
 				t.Parallel()
@@ -442,9 +441,7 @@ func TestProxy(t *testing.T) {
 	t.Run("shall refuse a write that does not carry the marker", func(t *testing.T) {
 		t.Parallel()
 
-		// What a user reaches this proxy with. Grafana forwards a client's own headers to
-		// the data source, so the marker is kept off those requests by nginx rather than
-		// here, and a write arriving without it is refused.
+		// What a user reaches this proxy with: nginx keeps the marker off their request.
 		proxied := false
 		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 			proxied = true

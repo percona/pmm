@@ -130,8 +130,7 @@ func TestConfigRecordingRuleWrites(t *testing.T) {
 	tmpl := templates.Lookup("vmproxy")
 	require.NotNil(t, tmpl)
 
-	// A scheduled evaluation carries no filters, so under access control vmproxy is given no
-	// header name and refuses the write instead of storing series the rule author cannot read.
+	// Under access control vmproxy gets no header name, so it refuses the write.
 	for _, tc := range []struct {
 		name          string
 		accessControl bool

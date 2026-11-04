@@ -65,17 +65,14 @@ var readOnlyPaths = map[string]struct{}{
 // adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
 const adminHeaderValue = "1"
 
-// writeHeaderValue is the only value the recording-rule write marker is honoured with. Grafana
-// sets it from [recording_rules.custom_headers] in grafana.ini.
+// writeHeaderValue is the only value the write marker is honoured with; grafana.ini sets it.
 const writeHeaderValue = "1"
 
-// remoteWritePath is the one shape a write is forwarded in. Grafana derives the write URL from
-// the data source URL and lands on /api/v1/push, which single-node VictoriaMetrics accepts but
-// the HA vmauth route map does not: that one carries /api/v1/write alone.
+// remoteWritePath is the one shape a write is forwarded in. Grafana asks for /api/v1/push, which
+// single-node VictoriaMetrics accepts but the HA vmauth route map does not.
 const remoteWritePath = "/api/v1/write"
 
-// remoteWritePaths are the endpoints Grafana's recording rule writer addresses, which differ with
-// how it reads the data source URL.
+// remoteWritePaths are the endpoints Grafana's recording rule writer can address.
 var remoteWritePaths = map[string]struct{}{
 	remoteWritePath: {},
 	"/api/v1/push":  {},
@@ -91,8 +88,7 @@ type Config struct {
 	TargetURL *url.URL
 	// Name of the header marking a request as coming from an admin. Case insensitive.
 	AdminHeaderName string
-	// Name of the header marking a recording rule remote write. Case insensitive. Empty
-	// refuses every write.
+	// Name of the header marking a recording rule write. Case insensitive. Empty refuses writes.
 	WriteHeaderName string
 }
 
@@ -206,11 +202,7 @@ func isPathAllowed(cleanedPath string, isAdmin bool) bool {
 }
 
 // isRecordingRuleWrite reports whether this is a remote write from Grafana's recording rules.
-// The marker comes from [recording_rules.custom_headers] in grafana.ini, which Grafana sets on
-// those writes and nothing else. It is not a credential: Grafana forwards a client's own headers
-// to the data source, so nginx clears this one on every location reaching Grafana or this proxy,
-// as it does the admin marker. An empty name refuses the write, which is what pmm-managed passes
-// while access control is on, because a scheduled evaluation carries no filters (see PMM-15844).
+// The marker is not a credential: nginx clears it so a client cannot supply one. See PMM-15844.
 func isRecordingRuleWrite(req *http.Request, cleanedPath, headerName string) bool {
 	if headerName == "" || req.Method != http.MethodPost {
 		return false

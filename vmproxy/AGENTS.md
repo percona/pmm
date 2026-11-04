@@ -36,16 +36,13 @@ Client (Grafana / API)
   credential: nginx overwrites the header on every location that can reach the proxy, so a client
   cannot supply one, and the proxy listens on loopback only. Grafana's data source is never
   marked — `/graph` requires no role, so pmm-managed never authenticates it.
-- **Recording rule write marker** — Grafana's recording rules write their result back through the
-  Metrics data source. A `POST` to `/api/v1/write` or `/api/v1/push` carrying `X-Proxy-Write: 1` is
-  forwarded, as `/api/v1/write`, because single-node VictoriaMetrics accepts both but the HA vmauth
-  route map carries only the first. Grafana sets that header from `[recording_rules.custom_headers]`
-  in `grafana.ini`, on recording rule writes and nothing else. It is not a credential: Grafana
-  forwards a client's own headers to the data source, so nginx clears it on every location that
-  reaches Grafana or this proxy, exactly as it does the admin marker. pmm-managed leaves
-  `--write-header-name` empty while access control is enabled, which refuses every write — a
-  scheduled evaluation carries no `X-Proxy-Filter`, so a rule would store series its author cannot
-  read (PMM-15844).
+- **Recording rule write marker** — a `POST` to `/api/v1/write` or `/api/v1/push` carrying
+  `X-Proxy-Write: 1` is forwarded, as `/api/v1/write`, which both single-node VictoriaMetrics and
+  the HA vmauth route map accept. Grafana sets the header from `[recording_rules.custom_headers]`
+  in `grafana.ini`, on recording rule writes alone. It is not a credential: Grafana forwards a
+  client's own headers to the data source, so nginx clears it wherever it clears the admin marker.
+  pmm-managed leaves `--write-header-name` empty under access control, refusing every write,
+  because a scheduled evaluation carries no `X-Proxy-Filter` (PMM-15844).
 - Invalid headers (bad base64 or JSON) return `412 Precondition Failed`
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty
