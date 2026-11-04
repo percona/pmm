@@ -17,6 +17,7 @@
 
 import { Button } from '@mui/material';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { ADMIN_REQUIRED, AdminAction } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
@@ -49,5 +50,17 @@ describe('AdminAction', () => {
     expect(button).toHaveAccessibleDescription(
       `Runs on every node ${ADMIN_REQUIRED}`
     );
+  });
+
+  it('lets a keyboard user reach the reason a disabled action gives', async () => {
+    asReadOnlyReader();
+    renderWithHint();
+
+    await userEvent.tab();
+
+    const wrapper = screen.getByRole('button', { name: 'Scan all' })
+      .parentElement as HTMLElement;
+    expect(wrapper).toHaveFocus();
+    expect(wrapper).toHaveAccessibleName(ADMIN_REQUIRED);
   });
 });
