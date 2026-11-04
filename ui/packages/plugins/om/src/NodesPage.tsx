@@ -637,8 +637,9 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
             Running but not registered ({row.unregistered_mongods.length})
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-            Found by a scan with no PMM service to match. Usually an arbiter
-            that was not added to PMM: add it without a username and password.
+            Found by a scan with no PMM service to match, usually an arbiter
+            that was not added to PMM. Add an arbiter without a username and
+            password, and any other mongod with the credentials it needs.
           </Typography>
           <Stack spacing={0.5}>
             {row.unregistered_mongods.map((mongod, index) => (
