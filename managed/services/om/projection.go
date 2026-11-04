@@ -100,6 +100,11 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 
 	up := pointer.GetFloat64(fields.f64(fieldExporterUp)) == 1
 	role := processRole(fields)
+	state := fields.str(fieldState)
+	// An arbiter reports no state of its own, and its role outlives the process.
+	if state == "" && up && role == omv1.ProcessRole_PROCESS_ROLE_ARBITER {
+		state = "ARBITER"
+	}
 
 	return &omv1.TopologyService{
 		ServiceName:            service.ServiceName,
@@ -111,7 +116,7 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		Vendor:                 optional(fields.str(fieldVendor)),
 		Edition:                optional(fields.str(fieldEdition)),
 		ReplicationSet:         optional(fields.str(fieldReplicationSet)),
-		State:                  optional(memberState(fields, up, role)),
+		State:                  optional(state),
 		Status:                 serviceStatus(up),
 		CpuUsagePercent:        gauge(fields.f64(fieldCPUUsage), up),
 		ConnectionsFreePercent: gauge(fields.f64(fieldConnectionsFree), up),
@@ -190,15 +195,6 @@ func processRole(fields fieldSet) omv1.ProcessRole {
 		return role
 	}
 	return omv1.ProcessRole_PROCESS_ROLE_MONGOD
-}
-
-// memberState derives an arbiter's state only while it is up, since its role outlives the process.
-func memberState(fields fieldSet, up bool, role omv1.ProcessRole) string {
-	state := fields.str(fieldState)
-	if state == "" && up && role == omv1.ProcessRole_PROCESS_ROLE_ARBITER {
-		return "ARBITER"
-	}
-	return state
 }
 
 // gauge reports a down service as unmeasured even if a reading survives in the query window,

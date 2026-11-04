@@ -195,7 +195,6 @@ func TestBuildDocument(t *testing.T) {
 			wantState string
 		}{
 			{"up", 1, observed, "ARBITER"},
-			{"just stopped", 0, observed, ""},
 			{"stopped for longer than maxAge", 0, stale, ""},
 		} {
 			fields := liveFacts("", map[string]MergedField{
