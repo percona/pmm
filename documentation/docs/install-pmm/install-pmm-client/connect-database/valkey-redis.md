@@ -43,7 +43,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     To add the service from the user interface:
     {.power-number}
 
-    1. Go to **Inventory > Services > Add Service**.
+    1. Go to **Inventory > Add service**.
 
     2. Select **Valkey/Redis** service type.
 

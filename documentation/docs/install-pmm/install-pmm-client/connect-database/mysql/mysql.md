@@ -518,7 +518,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **Inventory > Add Service**.
+    1. Go to **Inventory > Add service**.
     
     2. Select **MySQL** service type.
     
@@ -627,7 +627,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     4. Check that the **Status** column shows **Up**.
     5. Click the status in the **Monitoring** column to confirm that:
         - the correct agents are running
-        - the agent for your selected query source is listed: **QAN MySQL Slow Query Log agent** or **QAN MySQL Performance Schema agent**
+        - the agent for your query source is listed: **QAN MySQL Slow Query Log agent** if you use the slow query log, or **QAN MySQL Performance Schema agent** if you use Performance Schema
 
 #### Verify data collection
 
