@@ -651,8 +651,14 @@ function SchemaFormBody({
   const isGuarded = useUnsavedChangesGuard(submitError);
   const inDataRouter = Boolean(useContext(UNSAFE_DataRouterContext));
   const allFields = useMemo(() => flattenFields(sections), [sections]);
-  const allFieldNames = useMemo(
-    () => new Set(allFields.map((field) => field.name)),
+  // A script preview registers no input, so it has no error to show.
+  const errorTargetNames = useMemo(
+    () =>
+      new Set(
+        allFields
+          .filter((field) => field.type !== 'script_preview')
+          .map((field) => field.name)
+      ),
     [allFields]
   );
   // Evaluated once for every section, so a group shell can know whether all of
@@ -713,44 +719,50 @@ function SchemaFormBody({
   ]);
   const rootViolations = useRootFailRules(
     failRules,
+    allFields,
     unsubmittedNames,
     fixedValues
   );
 
-  // A root rule belongs to no section, so it shows on whichever of its
-  // error_fields are on screen, or above the form when none is.
-  const { inlineRootViolations, formLevelRootViolations } = useMemo(() => {
-    const inline: FailViolation[] = [];
-    const formLevel: FailViolation[] = [];
-    for (const violation of rootViolations) {
-      const rendered = violation.error_fields.filter(
-        (name) => allFieldNames.has(name) && !unsubmittedNames.has(name)
-      );
-      if (rendered.length > 0) {
-        inline.push({ ...violation, error_fields: rendered });
-      } else {
-        formLevel.push(violation);
-      }
-    }
-    return {
-      inlineRootViolations: inline,
-      formLevelRootViolations: formLevel,
-    };
-  }, [rootViolations, allFieldNames, unsubmittedNames]);
-
-  const failFieldMessages = useMemo(() => {
-    const messages = new Map<string, string>();
-    for (const violations of [...failViolations, inlineRootViolations]) {
-      for (const { error_fields, message } of violations) {
-        for (const path of error_fields) {
-          if (!messages.has(path)) {
-            messages.set(path, message);
+  // A field shows one rule message. A root rule belongs to no section, so it
+  // shows on whichever of its error_fields is on screen and not already taken,
+  // or above the form when none is.
+  const { failFieldMessages, inlineRootViolations, formLevelRootViolations } =
+    useMemo(() => {
+      const messages = new Map<string, string>();
+      for (const violations of failViolations) {
+        for (const { error_fields, message } of violations) {
+          for (const path of error_fields) {
+            if (!messages.has(path)) {
+              messages.set(path, message);
+            }
           }
         }
       }
-    }
-    return messages;
-  }, [failViolations, inlineRootViolations]);
+      const inline: FailViolation[] = [];
+      const formLevel: FailViolation[] = [];
+      for (const violation of rootViolations) {
+        const shown = violation.error_fields.filter(
+          (name) =>
+            errorTargetNames.has(name) &&
+            !unsubmittedNames.has(name) &&
+            !messages.has(name)
+        );
+        if (shown.length > 0) {
+          for (const name of shown) {
+            messages.set(name, violation.message);
+          }
+          inline.push({ ...violation, error_fields: shown });
+        } else {
+          formLevel.push(violation);
+        }
+      }
+      return {
+        failFieldMessages: messages,
+        inlineRootViolations: inline,
+        formLevelRootViolations: formLevel,
+      };
+    }, [failViolations, rootViolations, errorTargetNames, unsubmittedNames]);
 
   const hasFailRules = useMemo(
     () =>

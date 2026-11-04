@@ -23,6 +23,12 @@ import type { ReactNode } from 'react';
 import { SchemaFormRenderer } from './SchemaFormRenderer';
 import type { FailRule, FormSection } from './types';
 
+// A script preview fetches on mount; keep it loading.
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
+  apiClient: { get: vi.fn(() => new Promise(() => {})) },
+}));
+
 function renderWithProviders(ui: ReactNode) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -332,6 +338,104 @@ describe('SchemaFormRenderer — root fail_when rules', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0]).not.toHaveProperty(['source', 'b']);
   });
+
+  it('falls back to the form-level area when the only error field is a script preview', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          ...SECTIONS,
+          {
+            title: 'Preview',
+            fields: [
+              {
+                type: 'script_preview',
+                name: 'preview',
+                label: 'Preview',
+                endpoint_url: '/preview',
+                depends_on: [],
+              },
+            ],
+          },
+        ]}
+        failRules={[{ ...GPG_RULE, error_fields: ['preview'] }]}
+        onSubmit={onSubmit}
+      />
+    );
+
+    await user.click(screen.getByLabelText('GPG format'));
+
+    expect(screen.getByTestId('form-rule-violation')).toHaveTextContent(
+      GPG_MESSAGE
+    );
+    await user.click(screen.getByRole('button', { name: 'Run' }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('shows a root rule above the form when a section rule holds its field', async () => {
+    const user = userEvent.setup();
+    const sectionMessage = 'Encrypt backup is not allowed with GPG.';
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          SECTIONS[0],
+          {
+            ...SECTIONS[1],
+            fail_when: [
+              {
+                fail_when: { truthy: 'gpg' },
+                error_fields: ['encrypt', 'post_run_encrypt'],
+                message: sectionMessage,
+              },
+            ],
+          },
+        ]}
+        failRules={[GPG_RULE]}
+        onSubmit={() => {}}
+      />
+    );
+
+    await user.click(screen.getByLabelText('GPG format'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('form-rule-violation')).toHaveTextContent(
+        GPG_MESSAGE
+      )
+    );
+    expect(screen.getAllByText(sectionMessage).length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['a zero', '0', { truthy: 'count' }],
+    ['a blank', '   ', { present: 'count' }],
+  ])(
+    'reads %s typed in a numeric field as submit coerces it',
+    async (_, typed, predicate) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={[
+            {
+              title: 'General',
+              fields: [{ type: 'integer', name: 'count', label: 'Count' }],
+            },
+          ]}
+          failRules={[
+            { fail_when: predicate, error_fields: [], message: 'Bad count.' },
+          ]}
+          onSubmit={onSubmit}
+        />
+      );
+
+      await user.type(screen.getByLabelText('Count'), typed);
+
+      expect(screen.queryByTestId('form-rule-violation')).toBeNull();
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    }
+  );
 
   it('reads fixed values the caller adds to the payload as submitted', () => {
     renderWithProviders(
