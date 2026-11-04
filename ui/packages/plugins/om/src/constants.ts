@@ -39,7 +39,7 @@ import type {
  * with PMM's own.
  */
 export const OM_ROUTE_FLEET = '';
-/** The machines, and the only page carrying actions that change one. */
+/** The machines, and where a scan or an install of one starts. */
 export const OM_ROUTE_NODES = 'nodes';
 /** The install wizard, given a node selection made on {@link OM_ROUTE_NODES}. */
 export const OM_ROUTE_INSTALL = 'nodes/install';

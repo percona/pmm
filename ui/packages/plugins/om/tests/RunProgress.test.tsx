@@ -22,6 +22,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { RunProgress } from '../src/components/RunProgress';
+import { ADMIN_REQUIRED } from '../src/components/AdminAction';
+import { asReadOnlyReader } from './auth';
 
 const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar }));
@@ -528,5 +530,18 @@ describe('RunProgress', () => {
     expect(
       screen.queryByRole('button', { name: 'Abort' })
     ).not.toBeInTheDocument();
+  });
+
+  it('disables Abort for a reader who may not act, and says why', async () => {
+    asReadOnlyReader();
+    renderWithClient(<RunProgress run={run({ status: 'running' })} />);
+
+    const abort = screen.getByRole('button', { name: 'Abort' });
+    expect(abort).toBeDisabled();
+    expect(abort).toHaveAccessibleDescription(ADMIN_REQUIRED);
+    fireEvent.mouseOver(abort.parentElement as HTMLElement);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      ADMIN_REQUIRED
+    );
   });
 });

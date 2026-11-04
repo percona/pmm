@@ -28,6 +28,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { OmApiError } from '../src/api';
 import { NodesPage } from '../src/NodesPage';
+import { ADMIN_REQUIRED } from '../src/components/AdminAction';
+import { asReadOnlyReader } from './auth';
 import type { OmInventoryHost } from '../src/types';
 
 const {
@@ -1043,6 +1045,52 @@ describe('NodesPage', () => {
       expect(
         within(row).getByRole('button', { name: 'Install MongoDB' })
       ).toHaveClass('MuiButton-outlined');
+    });
+  });
+
+  describe('for a reader who may look but not act', () => {
+    beforeEach(() => {
+      asReadOnlyReader();
+    });
+
+    it('disables every action, and says why to pointer and keyboard alike', async () => {
+      renderPage();
+
+      const row = rowFor('node00');
+      const scan = within(row).getByRole('button', { name: 'Scan' });
+      for (const button of [
+        scan,
+        screen.getByRole('button', { name: 'Scan all' }),
+        ...screen.getAllByRole('button', { name: 'Install MongoDB' }),
+      ]) {
+        expect(button).toBeDisabled();
+        expect(button).toHaveAccessibleDescription(ADMIN_REQUIRED);
+      }
+      const wrapper = scan.parentElement as HTMLElement;
+      expect(wrapper).toHaveAttribute('tabindex', '0');
+      fireEvent.mouseOver(wrapper);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        ADMIN_REQUIRED
+      );
+    });
+
+    it('offers no selection and no row menu', () => {
+      renderPage();
+
+      const row = rowFor('node00');
+      expect(within(row).queryByRole('checkbox')).toBeNull();
+      expect(
+        within(row).queryByRole('button', { name: /More actions/ })
+      ).toBeNull();
+    });
+
+    it('does not tell the reader to press a button they cannot', () => {
+      renderPage([]);
+
+      expect(
+        screen.getByText(/There are no scan results yet\.$/)
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/press Scan all/)).toBeNull();
     });
   });
 });

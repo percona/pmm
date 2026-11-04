@@ -65,6 +65,7 @@ import { useCancelBootstrapRun, useOmInventoryHosts } from '../inventoryHooks';
 import { runHasFailure, runSummaryLine } from '../runSummary';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../types';
 import { useOmBase } from '../useOmBase';
+import { AdminAction } from './AdminAction';
 import { useNow } from '../useNow';
 import { SecurityPosture } from './SecurityPosture';
 import { OmError } from './OmError';
@@ -326,14 +327,16 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   }
   return (
     <>
-      <Button
-        color="error"
-        size="small"
-        variant="outlined"
-        onClick={() => setConfirming(true)}
-      >
-        Abort
-      </Button>
+      <AdminAction>
+        <Button
+          color="error"
+          size="small"
+          variant="outlined"
+          onClick={() => setConfirming(true)}
+        >
+          Abort
+        </Button>
+      </AdminAction>
       <Dialog
         open={confirming}
         onClose={() => setConfirming(false)}

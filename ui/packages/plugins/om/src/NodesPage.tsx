@@ -39,6 +39,7 @@ import {
   Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { useAuth } from '@pmm-extensions/api';
 import {
   MaterialReactTable,
   MRT_SelectCheckbox,
@@ -77,6 +78,7 @@ import {
 } from './inventoryHooks';
 import { isBootstrapRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
+import { AdminAction } from './components/AdminAction';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 import { OmError } from './components/OmError';
@@ -834,6 +836,7 @@ export const NodesPage = () => {
   const { conflict: scanConflict, runningScan } = useScanConflict(refresh);
   const navigate = useNavigate();
   const omBase = useOmBase();
+  const { canMutate } = useAuth();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
   const { enqueueSnackbar } = useSnackbar();
   // In the URL rather than in state, so another page can link straight to a filtered
@@ -940,10 +943,12 @@ export const NodesPage = () => {
     enableDensityToggle: false,
     enableExpanding: true,
     enableRowActions: true,
-    // A host already part of an in-flight bootstrap run cannot be selected
-    // for another one -- see `busyExecutorHosts`'s own comment.
-    enableRowSelection: (row) =>
-      selectionBlockedTitle(row.original, isHostBusy(row.original)) === null,
+    // Only an admin selects, and never a host already in an in-flight install;
+    // see `busyExecutorHosts`.
+    enableRowSelection: canMutate
+      ? (row) =>
+          selectionBlockedTitle(row.original, isHostBusy(row.original)) === null
+      : false,
     // See FleetClustersTab: without these MRT sizes every column to its header's
     // chrome rather than its content, and the table overflows the ~980px the page
     // gets at 1440 with the nav open. The per-column menu's only verb beyond sorting
@@ -1005,21 +1010,16 @@ export const NodesPage = () => {
     renderDetailPanel: ({ row }) => <HostDetail row={row.original} />,
     renderRowActions: ({ row }) => (
       <Stack direction="row" spacing={1}>
-        {/* The span is load-bearing: MUI disables pointer events on a disabled
-            ButtonBase, so a Tooltip wrapping the button directly never opens while
-            a refresh is pending -- which is exactly when a reader wants to know why. */}
-        <Tooltip title="Scan this node now. Starts a job and takes tens of seconds; the row updates when it lands.">
-          <Box component="span">
-            <Button
-              size="small"
-              disabled={refresh.isPending || refreshing}
-              onClick={() => refresh.refreshHosts([row.original.node_id])}
-            >
-              Scan
-            </Button>
-          </Box>
-        </Tooltip>
-        <Tooltip
+        <AdminAction title="Scan this node now. Starts a job and takes tens of seconds; the row updates when it lands.">
+          <Button
+            size="small"
+            disabled={refresh.isPending || refreshing}
+            onClick={() => refresh.refreshHosts([row.original.node_id])}
+          >
+            Scan
+          </Button>
+        </AdminAction>
+        <AdminAction
           title={
             isHostBusy(row.original)
               ? BUSY_TITLE
@@ -1030,23 +1030,21 @@ export const NodesPage = () => {
                   )
           }
         >
-          <Box component="span">
-            <Button
-              size="small"
-              variant="outlined"
-              disabled={
-                !row.original.automation_eligible || isHostBusy(row.original)
-              }
-              onClick={() =>
-                navigate(
-                  `${omBase}/${OM_ROUTE_INSTALL}?nodes=${row.original.node_id}`
-                )
-              }
-            >
-              Install MongoDB
-            </Button>
-          </Box>
-        </Tooltip>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={
+              !row.original.automation_eligible || isHostBusy(row.original)
+            }
+            onClick={() =>
+              navigate(
+                `${omBase}/${OM_ROUTE_INSTALL}?nodes=${row.original.node_id}`
+              )
+            }
+          >
+            Install MongoDB
+          </Button>
+        </AdminAction>
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
             and it belongs behind a menu on its own account too, named for what
@@ -1055,12 +1053,12 @@ export const NodesPage = () => {
             record of the machine PMM runs on, the next scan would put it straight
             back, and in between the fleet would be wrong - so the menu has nothing
             to show and is not rendered. */}
-        {!row.original.is_pmm_server_node && (
+        {canMutate && !row.original.is_pmm_server_node && (
           <RowOverflowMenu label={`More actions for ${row.original.name}`}>
             {(close) => [
               /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
                  events, so the Tooltip would never open on the one state it exists
-                 to explain - the same reason the Install button above has one. An
+                 to explain - the reason AdminAction wraps the buttons. An
                  empty title renders no tooltip, so an idle node is unaffected. */
               <Tooltip
                 key="forget"
@@ -1132,34 +1130,30 @@ export const NodesPage = () => {
           <Stack direction="row" alignItems="center" gap={2}>
             <HostFilterChips value={hostFilter} onChange={setHostFilter} />
             <ScanProgress />
-            <Tooltip title="Scan every node. Starts one job per node and takes tens of seconds.">
-              <Box component="span">
-                <Button
-                  variant="contained"
-                  startIcon={<PlayArrowIcon />}
-                  disabled={refresh.isPending || refreshing}
-                  onClick={() => refresh.refreshAll()}
-                >
-                  {refreshing ? 'Scanning…' : 'Scan all'}
-                </Button>
-              </Box>
-            </Tooltip>
-            <Tooltip
+            <AdminAction title="Scan every node. Starts one job per node and takes tens of seconds.">
+              <Button
+                variant="contained"
+                startIcon={<PlayArrowIcon />}
+                disabled={refresh.isPending || refreshing}
+                onClick={() => refresh.refreshAll()}
+              >
+                {refreshing ? 'Scanning…' : 'Scan all'}
+              </Button>
+            </AdminAction>
+            <AdminAction
               title={
                 bulkInstallBlocked ??
                 'Install MongoDB on the selected nodes and initialize them as one replica set.'
               }
             >
-              <Box component="span">
-                <Button
-                  variant="contained"
-                  disabled={bulkInstallBlocked !== null}
-                  onClick={() => navigate(bulkInstallPath)}
-                >
-                  Install MongoDB
-                </Button>
-              </Box>
-            </Tooltip>
+              <Button
+                variant="contained"
+                disabled={bulkInstallBlocked !== null}
+                onClick={() => navigate(bulkInstallPath)}
+              >
+                Install MongoDB
+              </Button>
+            </AdminAction>
           </Stack>
         }
       />
@@ -1277,9 +1271,17 @@ export const NodesPage = () => {
               : undefined
           }
         >
-          {rows.length === 0
-            ? 'This page lists every node Operations has scanned, including the ones with no database on them - which is where an install can go. There are no scan results yet: press Scan all, or check Scans if one is already running.'
-            : 'Every node is filtered out by the filter above. Clear it to see them.'}
+          {rows.length === 0 ? (
+            <>
+              This page lists every node Operations has scanned, including the
+              ones with no database on them - which is where an install can go.
+              There are no scan results yet.
+              {canMutate &&
+                ' Press Scan all, or check Scans if one is already running.'}
+            </>
+          ) : (
+            'Every node is filtered out by the filter above. Clear it to see them.'
+          )}
         </EmptyState>
       ) : (
         <MaterialReactTable table={table} />
