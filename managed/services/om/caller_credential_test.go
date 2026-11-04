@@ -20,10 +20,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"net/http"
+	"net/http/httptest"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -214,6 +217,45 @@ func TestSessionExchange(t *testing.T) {
 
 		assert.Len(t, stub.exchanges, 1)
 		assert.Len(t, stub.calls, 5)
+	})
+
+	t.Run("a caller that gives up does not cancel the exchange for the others", func(t *testing.T) {
+		t.Parallel()
+
+		release := make(chan struct{})
+		var exchanges atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			if r.URL.Path == stubExchangePath {
+				exchanges.Add(1)
+				<-release
+				_, _ = w.Write([]byte(`{"access_token": "minted", "expires_in": 300}`))
+				return
+			}
+			_, _ = w.Write([]byte(emptyHostsPage))
+		}))
+		t.Cleanup(server.Close)
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(server.URL, "test-token")
+		ctx := callerContext(t, "grpcgateway-cookie", "pmm_session=session-1")
+
+		quitting, quit := context.WithCancel(ctx)
+		gaveUp := make(chan error, 1)
+		go func() {
+			_, err := svc.ListInventoryHosts(quitting, &omv1.ListInventoryHostsRequest{})
+			gaveUp <- err
+		}()
+		require.Eventually(t, func() bool { return exchanges.Load() == 1 }, 5*time.Second, 10*time.Millisecond)
+		staying := make(chan error, 1)
+		go func() {
+			_, err := svc.ListInventoryHosts(ctx, &omv1.ListInventoryHostsRequest{})
+			staying <- err
+		}()
+
+		quit()
+		assert.Equal(t, codes.Canceled, status.Code(<-gaveUp))
+		close(release)
+		require.NoError(t, <-staying)
+		assert.Equal(t, int32(1), exchanges.Load())
 	})
 
 	t.Run("the probe and bootstrap apps share exchanged bearers", func(t *testing.T) {

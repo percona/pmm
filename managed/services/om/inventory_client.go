@@ -183,7 +183,7 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode >= http.StatusMultipleChoices {
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		// A refusal may come from a role the cached bearer predates, so the next call exchanges again.
 		refused := resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden
 		if refused && cred.session != "" {
