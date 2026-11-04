@@ -285,7 +285,7 @@ Before you start, make sure that:
 ## Build and preview
 
 ```shell
-# Live reload at http://127.0.0.1:8000/ (Docker; amd64 image)
+# Live reload at http://127.0.0.1:8000/ (Docker; builds the pmm-doc-build image on first run)
 make doc-build-preview
 
 # One-off build, as CI runs it
