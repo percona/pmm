@@ -52,7 +52,9 @@ export const AdminAction = ({
       <Box component="span" tabIndex={0}>
         {cloneElement(children, {
           disabled: true,
-          'aria-describedby': reasonId,
+          'aria-describedby': [children.props['aria-describedby'], reasonId]
+            .filter(Boolean)
+            .join(' '),
         })}
         <span id={reasonId} hidden>
           {ADMIN_REQUIRED}
