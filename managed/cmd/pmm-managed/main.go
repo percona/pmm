@@ -58,7 +58,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"gopkg.in/ini.v1"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -145,7 +144,6 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
-	grafanaConfigPath        = "/etc/grafana/grafana.ini"
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -562,25 +560,6 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
-// isGrafanaAnonymousAccessEnabled reads [auth.anonymous] enabled the way Grafana does, with a non-empty GF_AUTH_ANONYMOUS_ENABLED overriding the config file.
-func isGrafanaAnonymousAccessEnabled(configPath string) (bool, error) {
-	value := os.Getenv("GF_AUTH_ANONYMOUS_ENABLED")
-	if value == "" {
-		cfg, err := ini.Load(configPath)
-		if err != nil {
-			return false, fmt.Errorf("failed to load Grafana configuration: %w", err)
-		}
-
-		return cfg.Section("auth.anonymous").Key("enabled").MustBool(false), nil
-	}
-
-	// Parse the override with Grafana's ini library, which also accepts values such as "on" and "yes".
-	key := ini.Empty().Section("auth.anonymous").Key("enabled")
-	key.SetValue(value)
-
-	return key.MustBool(false), nil
-}
-
 type setupDeps struct {
 	sqlDB       *sql.DB
 	ha          *ha.Service
@@ -901,17 +880,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	logrus.Infof("Log level: %s.", logrus.GetLevel())
 
 	l := logrus.WithField("component", "main")
-
-	anonymousEnabled, err := isGrafanaAnonymousAccessEnabled(grafanaConfigPath)
-	if err != nil {
-		l.Warnf("Failed to check whether Grafana allows anonymous access: %s", err)
-	}
-	if anonymousEnabled {
-		l.Warn("Grafana anonymous mode is enabled, which PMM can't fully support due to security issues. " +
-			"Please be aware that support of anonymous mode will be deprecated in the future. " +
-			"Consider disabling it to ensure your infrastructure stays protected.")
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
@@ -930,7 +898,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	err = cfg.Load()
+	err := cfg.Load()
 	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
