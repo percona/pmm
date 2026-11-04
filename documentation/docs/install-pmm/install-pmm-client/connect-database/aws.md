@@ -218,6 +218,10 @@ instances.
 
 6. Finally press the **Add service** button to start monitoring your instance.
 
+### Aurora clusters
+
+PMM groups Aurora instances by AWS cluster automatically after you upgrade pmm-client. You don't need to change any IAM permissions. Until you upgrade, the instances appear under *AWS cluster unknown* on the [Amazon Aurora Overview](../../../reference/dashboards/dashboard-amazon-aurora-overview.md) dashboard.
+
 ### Adding an RDS instance via command line
 
 You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool.

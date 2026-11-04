@@ -2,6 +2,10 @@
 
 ![!image](../../images/PMM_MySQL_Amazon_Aurora_Details_full.jpg)
 
+This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** and **Node Name** lists contain only Aurora MySQL services. To compare the instances of a cluster first, start from the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
+
+Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect an Amazon RDS or Aurora instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
+
 ## Amazon Aurora Transaction Commits
 
 This graph shows the number of Commits which Amazon Aurora engine performed as well as average commit latency. Graph Latency does not always correlate with the number of performed commits and can be quite high in certain situations.
@@ -28,11 +32,11 @@ An *active session* is a connection that has submitted work to the database engi
 
 ## Aurora Memory Used
 
-This graph shows how much memory is used by Amazon Aurora lock manager as well as amount of memory used by Amazon Aurora to store Data Dictionary.
+This graph shows how much memory the Amazon Aurora lock manager uses, and how much RAM Aurora allocates to in-memory temporary tables.
 
 * **Aurora Lock Manager Memory**: the amount of memory used by the Lock Manager, the module responsible for handling row lock requests for concurrent transactions.
 
-* **Aurora Dictionary Memory**: the amount of memory used by the Dictionary, the space that contains metadata used to keep track of database objects, such as tables and indexes.
+* **Temp table RAM**: the amount of memory currently allocated to in-memory temporary tables.
 
 ## Amazon Aurora Statement Latency
 
@@ -48,6 +52,8 @@ This graph shows average latency for the most important types of statements. Lat
 
 * **INSERT Latency**: Average time to execute INSERT queries
 
+A statement type that the instance didn't run during an interval shows a latency of 0.
+
 ## Amazon Aurora Special Command Counters
 
 Amazon Aurora MySQL allows a number of commands which are not available in standard MySQL. This graph shows usage of such commands.  Regular `unit_test` calls can be seen in default Amazon Aurora install, the rest will depend on your workload.
@@ -60,6 +66,44 @@ Amazon Aurora MySQL allows a number of commands which are not available in stand
 
 ## Amazon Aurora Problems
 
-This graph shows different kinds of Internal Amazon Aurora MySQL Problems which general should be zero in normal operation.
+This graph shows internal Amazon Aurora MySQL problems, which should be zero in normal operation. Anything non-zero is worth examining in greater depth.
 
-Anything non-zero is worth examining in greater depth.
+* **Deadlocks (CloudWatch)** and **Blocked transactions (CloudWatch)**: the average counts that Amazon CloudWatch reports for the instance.
+
+* **Reserved Mem Exceeded Incidents**: the rate of incidents where the reserved memory was exceeded.
+
+## Cache and local storage
+
+This row is expanded by default.
+
+* **Buffer Cache Hit Ratio**: the percentage of requests that the Aurora buffer cache served (CloudWatch `BufferCacheHitRatio`).
+
+* **Free Local Storage**: the local storage available to the instance for temporary files and logs (CloudWatch `FreeLocalStorage`).
+
+## Replication (needs a reader)
+
+This row is collapsed by default. It shows data only when the cluster has a reader instance.
+
+* **Aurora Replica Lag**: the replication lag of an Aurora reader behind the writer (CloudWatch `AuroraReplicaLag`). Only readers report it.
+
+* **Aurora Binlog Replica Lag**: the lag of the binlog replication thread behind its source (CloudWatch `AuroraBinlogReplicaLag`).
+
+## Write forwarding
+
+This row is collapsed by default. Its graphs are empty unless the instance uses write forwarding.
+
+* **Forwarded Write Statements**: the statements that a reader forwards to the writer, split into DML and SELECT.
+
+* **Forwarding Open Sessions**: the number of forwarded sessions currently open on the writer.
+
+## Parallel query
+
+This row is collapsed by default. Its graph is empty unless the instance uses parallel query.
+
+* **Parallel Query Requests**: the parallel query requests by outcome: attempted, executed and not chosen.
+
+## Serverless capacity (Serverless only)
+
+This row is collapsed by default. Its graph is empty unless the instance is an Aurora Serverless v2 instance.
+
+* **Serverless Capacity**: the current, minimum and maximum Aurora Capacity Units (ACUs) of the instance.

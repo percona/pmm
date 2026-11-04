@@ -553,6 +553,7 @@ nav:
               - reference/dashboards/dashboard-prometheus-exporter-status.md
               - reference/dashboards/dashboard-prometheus-exporters-overview.md
           - MySQL dashboards:
+              - reference/dashboards/dashboard-amazon-aurora-overview.md
               - reference/dashboards/dashboard-mysql-amazon-aurora-details.md
               - reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
               - reference/dashboards/dashboard-mysql-innodb-compression-details.md
