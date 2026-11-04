@@ -1,22 +1,36 @@
-import type { FC } from 'react';
+import { type FC, useEffect } from 'react';
 import { FieldGrid } from '../../../components/field-grid';
 import { PasswordField, TextField } from '../../../components/fields';
 import { useServiceForm } from '../../../service-form/ServiceForm.hooks';
 import { toOptionalString } from '../../../service-form/ServiceForm.utils';
 import { DiscoveryCredentials } from '../../components/discovery-credentials';
-import { RDS_CREDENTIALS_DEFAULTS } from './RdsCredentials.constants';
 import { Messages } from './RdsCredentials.messages';
 import { rdsCredentialsSchema } from './RdsCredentials.schema';
 import type {
   RdsCredentialsFormValues,
   RdsCredentialsProps,
 } from './RdsCredentials.types';
+import { toRdsCredentialsValues } from './RdsCredentials.utils';
 
 export const RdsCredentials: FC<RdsCredentialsProps> = ({
+  credentials,
   onDiscover,
   isDiscovering,
 }) => {
-  const form = useServiceForm(rdsCredentialsSchema, RDS_CREDENTIALS_DEFAULTS);
+  const form = useServiceForm(
+    rdsCredentialsSchema,
+    toRdsCredentialsValues(credentials)
+  );
+
+  // The rules span fields, so after a submit every change checks them all again.
+  useEffect(() => {
+    const { unsubscribe } = form.watch((_, { type }) => {
+      if (type === 'change' && form.formState.isSubmitted) {
+        form.trigger();
+      }
+    });
+    return unsubscribe;
+  }, [form]);
 
   const discover = (values: RdsCredentialsFormValues) =>
     onDiscover({

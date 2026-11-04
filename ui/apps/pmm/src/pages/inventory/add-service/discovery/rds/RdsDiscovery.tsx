@@ -38,7 +38,11 @@ export const RdsDiscovery: FC = () => {
 
   return (
     <Stack gap={4}>
-      <RdsCredentials onDiscover={discover} isDiscovering={isPending} />
+      <RdsCredentials
+        credentials={variables}
+        onDiscover={discover}
+        isDiscovering={isPending}
+      />
       <DiscoveryDocs links={RDS_DOC_LINKS} />
       <DiscoveredInstances
         tableName="rds-instances"

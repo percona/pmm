@@ -1,3 +1,4 @@
+import { DOCS_URLS } from 'lib/constants';
 import type { MRT_ColumnDef } from 'material-react-table';
 import {
   DiscoverAzureDatabaseType,
@@ -8,7 +9,7 @@ import { Messages as InstancesMessages } from '../components/discovered-instance
 import { Messages } from './AzureDiscovery.messages';
 
 export const AZURE_DOC_LINKS = [
-  { label: Messages.docs.credentials, url: 'https://per.co.na/QcYQRx' },
+  { label: Messages.docs.credentials, url: DOCS_URLS.azureCredentials },
 ];
 
 const AZURE_ENGINE_LABELS: Record<DiscoverAzureDatabaseType, string> = {

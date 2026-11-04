@@ -103,4 +103,22 @@ describe('AzureDiscovery', () => {
       })
     );
   });
+
+  it('shows the discovery credentials again after cancelling', async () => {
+    renderServiceForm(AzureDiscovery);
+    discover();
+    fireEvent.click(
+      await screen.findByTestId(`start-monitoring-${MYSQL.instanceId}`)
+    );
+    await waitForNodePreselect();
+
+    fireEvent.click(screen.getByTestId('add-service-cancel'));
+
+    expect(await screen.findByTestId('text-input-azure-client-id')).toHaveValue(
+      CREDENTIALS.azureClientId
+    );
+    expect(screen.getByTestId('text-input-azure-subscription-id')).toHaveValue(
+      CREDENTIALS.azureSubscriptionId
+    );
+  });
 });

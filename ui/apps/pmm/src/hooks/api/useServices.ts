@@ -107,7 +107,7 @@ export const useServerRDSInstances = (
   options?: Partial<UseQueryOptions<DiscoverRDSResponse>>
 ) =>
   useQuery({
-    queryKey: ['services:discover-rds'],
+    queryKey: ['services:discover-rds-server'],
     queryFn: ({ signal }) => discoverRDS({}, signal),
     ...options,
   });

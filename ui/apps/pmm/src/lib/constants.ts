@@ -79,6 +79,9 @@ export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
+  rdsCredentials: 'https://per.co.na/iam_user_with_permission',
+  rdsIamRole: 'https://per.co.na/iam_role',
+  azureCredentials: 'https://per.co.na/QcYQRx',
 };
 
 export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';

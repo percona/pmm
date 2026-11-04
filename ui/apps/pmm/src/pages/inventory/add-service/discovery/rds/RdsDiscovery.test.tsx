@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { AxiosError, type AxiosResponse } from 'axios';
 import { discoverRDS } from 'api/services';
@@ -124,6 +125,62 @@ describe('RdsDiscovery', () => {
     expect(discoverRDS).toHaveBeenCalledTimes(1);
   });
 
+  it('needs the access key and the secret key together', async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+    const bothKeys = 'Enter both the access key and the secret key';
+
+    type('text-input-aws-access-key', 'AKIAIOSFODNN7EXAMPLE');
+    submit();
+    expect(await screen.findByText(bothKeys)).toBeInTheDocument();
+
+    type('text-input-aws-access-key', '');
+    await waitFor(() =>
+      expect(screen.queryByText(bothKeys)).not.toBeInTheDocument()
+    );
+
+    type('text-input-aws-secret-key', 'secret');
+    submit();
+    expect(await screen.findByText(bothKeys)).toBeInTheDocument();
+    expect(discoverRDS).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks the filled key when it is combined with a role ARN', async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+
+    type('text-input-aws-secret-key', 'secret');
+    type('text-input-aws-role-arn', ROLE_ARN);
+    submit();
+
+    await waitFor(() =>
+      expect(screen.getByTestId('text-input-aws-secret-key')).toHaveAttribute(
+        'aria-invalid',
+        'true'
+      )
+    );
+    expect(screen.getByTestId('text-input-aws-access-key')).toHaveAttribute(
+      'aria-invalid',
+      'false'
+    );
+  });
+
+  it("keeps loading while PMM Server's own discovery runs again after failing", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    vi.mocked(discoverRDS).mockRejectedValueOnce(new Error('Gateway Timeout'));
+    const { unmount } = renderServiceForm(RdsDiscovery, queryClient);
+    expect(await screen.findByText('No instances found')).toBeInTheDocument();
+    unmount();
+
+    vi.mocked(discoverRDS).mockReturnValueOnce(new Promise(() => {}));
+    renderServiceForm(RdsDiscovery, queryClient);
+
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    expect(screen.queryByText('No instances found')).not.toBeInTheDocument();
+  });
+
   it('explains a discovery without any credentials', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
@@ -212,5 +269,20 @@ describe('RdsDiscovery', () => {
 
     expect(await screen.findByText('rds-pg')).toBeInTheDocument();
     expect(discoverRDS).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the discovery credentials again after cancelling', async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+    type('text-input-aws-role-arn', ROLE_ARN);
+    submit();
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    await startMonitoring('rds-mysql');
+
+    fireEvent.click(screen.getByTestId('add-service-cancel'));
+
+    expect(await screen.findByTestId('text-input-aws-role-arn')).toHaveValue(
+      ROLE_ARN
+    );
   });
 });

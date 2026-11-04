@@ -9,12 +9,13 @@ import { azureCredentialsSchema } from './AzureCredentials.schema';
 import type { AzureCredentialsProps } from './AzureCredentials.types';
 
 export const AzureCredentials: FC<AzureCredentialsProps> = ({
+  credentials,
   onDiscover,
   isDiscovering,
 }) => {
   const form = useServiceForm(
     azureCredentialsSchema,
-    AZURE_CREDENTIALS_DEFAULTS
+    credentials ?? AZURE_CREDENTIALS_DEFAULTS
   );
 
   return (

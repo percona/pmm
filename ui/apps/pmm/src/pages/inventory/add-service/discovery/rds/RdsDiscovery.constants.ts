@@ -1,3 +1,4 @@
+import { DOCS_URLS } from 'lib/constants';
 import type { MRT_ColumnDef } from 'material-react-table';
 import {
   DiscoverRDSEngine,
@@ -8,11 +9,8 @@ import { Messages as InstancesMessages } from '../components/discovered-instance
 import { Messages } from './RdsDiscovery.messages';
 
 export const RDS_DOC_LINKS = [
-  {
-    label: Messages.docs.credentials,
-    url: 'https://per.co.na/iam_user_with_permission',
-  },
-  { label: Messages.docs.iamRole, url: 'https://per.co.na/iam_role' },
+  { label: Messages.docs.credentials, url: DOCS_URLS.rdsCredentials },
+  { label: Messages.docs.iamRole, url: DOCS_URLS.rdsIamRole },
 ];
 
 // How the AWS SDK reports that neither keys nor an IAM role give PMM Server credentials.

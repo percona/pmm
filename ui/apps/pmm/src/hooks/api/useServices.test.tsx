@@ -1,16 +1,21 @@
 import { QueryClient } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { NodeType } from 'types/nodes.types';
 import { DiscoverAzureDatabaseType } from 'types/services.types';
 import { wrapWithQueryProvider } from 'utils/testUtils';
-import { useAddAzureService, useAddService } from './useServices';
+import {
+  useAddAzureService,
+  useAddService,
+  useServerRDSInstances,
+} from './useServices';
 
-const { addService, addAzureService } = vi.hoisted(() => ({
+const { addService, addAzureService, discoverRDS } = vi.hoisted(() => ({
   addService: vi.fn(),
   addAzureService: vi.fn(),
+  discoverRDS: vi.fn(),
 }));
 
-vi.mock('api/services', () => ({ addService, addAzureService }));
+vi.mock('api/services', () => ({ addService, addAzureService, discoverRDS }));
 
 const INVENTORY_KEYS = [
   ['services:getTypes'],
@@ -101,5 +106,25 @@ describe('useAddAzureService', () => {
     expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey)).toEqual(
       INVENTORY_KEYS
     );
+  });
+});
+
+describe('useServerRDSInstances', () => {
+  it('cancels the discovery when nothing uses it any more', async () => {
+    discoverRDS.mockReturnValue(new Promise(() => {}));
+    const { unmount } = renderHook(() => useServerRDSInstances(), {
+      wrapper: ({ children }) => wrapWithQueryProvider(children),
+    });
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(1));
+    const [payload, signal] = discoverRDS.mock.calls[0] as [
+      object,
+      AbortSignal,
+    ];
+    expect(payload).toEqual({});
+    expect(signal.aborted).toBe(false);
+
+    unmount();
+
+    expect(signal.aborted).toBe(true);
   });
 });

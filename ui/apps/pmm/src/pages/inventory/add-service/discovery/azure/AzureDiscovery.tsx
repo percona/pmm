@@ -28,6 +28,7 @@ export const AzureDiscovery: FC = () => {
   return (
     <Stack gap={4}>
       <AzureCredentials
+        credentials={variables}
         onDiscover={(payload) => discover(payload)}
         isDiscovering={isPending}
       />

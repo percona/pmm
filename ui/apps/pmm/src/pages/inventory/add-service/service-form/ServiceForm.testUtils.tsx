@@ -1,3 +1,4 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
 import { listNodes } from 'api/nodes';
@@ -38,10 +39,11 @@ export const waitForNodePreselect = () =>
     expect(screen.getByTestId('select-input-node-id')).toHaveValue('pmm-server')
   );
 
-export const renderServiceForm = (Form: FC) =>
+// Pass a queryClient to keep the query cache across renders.
+export const renderServiceForm = (Form: FC, queryClient?: QueryClient) =>
   render(
     <TestWrapper routerProps={{ initialEntries: ['/add-instance'] }}>
-      {wrapWithQueryProvider(<Form />)}
+      {wrapWithQueryProvider(<Form />, queryClient)}
     </TestWrapper>
   );
 

@@ -9,6 +9,7 @@ export const Messages = {
   },
   invalidRoleArn:
     'Enter an IAM role ARN, for example arn:aws:iam::123456789012:role/RoleName',
+  bothKeys: 'Enter both the access key and the secret key',
   keysOrRole:
     'Use either an access key and secret key, or an IAM role ARN, not both',
 };
