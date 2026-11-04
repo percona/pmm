@@ -637,8 +637,7 @@ func (e UpdateMongoDBServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateMongoDBServiceParamsValidationError{}

@@ -620,8 +620,7 @@ func (e UpdateMySQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateMySQLServiceParamsValidationError{}
