@@ -248,6 +248,43 @@ describe('Nodes', () => {
     );
   });
 
+  it('deletes only the selected nodes the filters leave visible', async () => {
+    renderNodes();
+
+    await screen.findByText('node-1');
+    for (const name of ['node-1', 'node-2']) {
+      const row = screen
+        .getAllByRole('row')
+        .find((r) => within(r).queryByText(name));
+      fireEvent.click(
+        within(row as HTMLElement).getByRole('checkbox', {
+          name: 'Toggle select row',
+        })
+      );
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+    fireEvent.change(screen.getByPlaceholderText('Search'), {
+      target: { value: 'node-2' },
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByText('node-1')).not.toBeInTheDocument()
+    );
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('delete-nodes-button'));
+    fireEvent.click(
+      await screen.findByTestId('inventory-delete-modal-confirm')
+    );
+
+    await waitFor(() =>
+      expect(removeNode).toHaveBeenCalledWith({
+        nodeId: 'node-2',
+        force: false,
+      })
+    );
+    expect(removeNode).toHaveBeenCalledTimes(1);
+  });
+
   it("shows what a node's removal left behind", async () => {
     vi.mocked(removeNode).mockResolvedValue(
       'Service account of node node-1 still has 2 tokens'

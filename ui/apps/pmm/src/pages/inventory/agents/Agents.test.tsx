@@ -168,4 +168,36 @@ describe('Agents', () => {
     );
     expect(removeAgent).toHaveBeenCalledTimes(1);
   });
+
+  it('deletes only the selected agents the filters leave visible', async () => {
+    renderAgents('/inventory/services/service-1/agents');
+
+    await screen.findByText('agent-2');
+    for (const checkbox of screen.getAllByRole('checkbox', {
+      name: 'Toggle select row',
+    })) {
+      fireEvent.click(checkbox);
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+    fireEvent.change(screen.getByPlaceholderText('Search'), {
+      target: { value: 'agent-2' },
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByText('agent-1')).not.toBeInTheDocument()
+    );
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('delete-agents-button'));
+    fireEvent.click(
+      await screen.findByTestId('inventory-delete-modal-confirm')
+    );
+
+    await waitFor(() =>
+      expect(removeAgent).toHaveBeenCalledWith({
+        agentId: 'agent-2',
+        force: false,
+      })
+    );
+    expect(removeAgent).toHaveBeenCalledTimes(1);
+  });
 });

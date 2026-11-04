@@ -44,7 +44,6 @@ export const Agents: FC = () => {
   const { mutateAsync: removeAgents } = useRemoveAgents();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [agentsToDelete, setAgentsToDelete] = useState<ManagedAgent[]>([]);
-  const selectedAgents = agents.filter(({ agentId }) => rowSelection[agentId]);
   const { tableProps } = useTableUrlState({
     ...getUrlStateOptions('agents'),
     additionalState: { rowSelection },
@@ -111,24 +110,31 @@ export const Agents: FC = () => {
               </Grid>
             ) : null
           }
-          renderTopToolbarCustomActions={() => (
-            <Stack direction="row" alignItems="center" gap={2}>
-              <Button
-                color="error"
-                startIcon={<DeleteOutlineIcon />}
-                disabled={!selectedAgents.length}
-                onClick={() => setAgentsToDelete(selectedAgents)}
-                data-testid="delete-agents-button"
-              >
-                {InventoryMessages.actions.delete}
-              </Button>
-              {!!selectedAgents.length && (
-                <Typography variant="body2">
-                  {InventoryMessages.selected(selectedAgents.length)}
-                </Typography>
-              )}
-            </Stack>
-          )}
+          renderTopToolbarCustomActions={({ table }) => {
+            // Filters hide selected agents without unselecting them
+            const selectedAgents = table
+              .getFilteredSelectedRowModel()
+              .rows.map(({ original }) => original);
+
+            return (
+              <Stack direction="row" alignItems="center" gap={2}>
+                <Button
+                  color="error"
+                  startIcon={<DeleteOutlineIcon />}
+                  disabled={!selectedAgents.length}
+                  onClick={() => setAgentsToDelete(selectedAgents)}
+                  data-testid="delete-agents-button"
+                >
+                  {InventoryMessages.actions.delete}
+                </Button>
+                {!!selectedAgents.length && (
+                  <Typography variant="body2">
+                    {InventoryMessages.selected(selectedAgents.length)}
+                  </Typography>
+                )}
+              </Stack>
+            );
+          }}
         />
       </Stack>
       <DeleteModal

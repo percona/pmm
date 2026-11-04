@@ -66,6 +66,13 @@ const renderServices = (path = '/inventory/services') =>
     </TestWrapper>
   );
 
+const search = (text: string) => {
+  fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+  fireEvent.change(screen.getByPlaceholderText('Search'), {
+    target: { value: text },
+  });
+};
+
 const confirmDeletion = async () => {
   const modal = await screen.findByTestId('inventory-delete-modal');
   fireEvent.click(within(modal).getByTestId('inventory-delete-modal-confirm'));
@@ -183,6 +190,74 @@ describe('Services', () => {
       serviceId: 'service-2',
       force: false,
     });
+  });
+
+  it('deletes only the selected services the filters leave visible', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const [firstRow, , thirdRow] = screen.getAllByRole('checkbox', {
+      name: 'Toggle select row',
+    });
+    fireEvent.click(firstRow);
+    fireEvent.click(thirdRow);
+    search('mysql');
+
+    await waitFor(() =>
+      expect(screen.queryByText('pg-1')).not.toBeInTheDocument()
+    );
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('delete-services-button'));
+
+    expect(
+      await screen.findByTestId('inventory-delete-modal-message')
+    ).toHaveTextContent('By deleting service “mysql-1”');
+  });
+
+  it('keeps a selection the filters hide, without acting on it', async () => {
+    renderServices();
+
+    await screen.findByText('mysql-1');
+    const [firstRow, secondRow] = screen.getAllByRole('checkbox', {
+      name: 'Toggle select row',
+    });
+    fireEvent.click(firstRow);
+    fireEvent.click(secondRow);
+    search('no-such-service');
+
+    await waitFor(() =>
+      expect(screen.queryByText('mysql-1')).not.toBeInTheDocument()
+    );
+    expect(screen.queryByText(/selected/)).not.toBeInTheDocument();
+    expect(screen.getByTestId('delete-services-button')).toBeDisabled();
+
+    fireEvent.change(screen.getByPlaceholderText('Search'), {
+      target: { value: '' },
+    });
+
+    expect(await screen.findByText('2 selected')).toBeInTheDocument();
+  });
+
+  it('searches and selects the services of the clusters', async () => {
+    localStorage.setItem(CLUSTERS_SWITCH_KEY, 'true');
+    renderServices('/inventory/services?services.q=mysql-2');
+
+    expect(await screen.findByText('mysql-2')).toBeInTheDocument();
+    expect(screen.queryByText('mysql-1')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Non-clustered services')
+    ).not.toBeInTheDocument();
+
+    const serviceRow = screen
+      .getAllByRole('row')
+      .find((row) => within(row).queryByText('mysql-2'));
+    fireEvent.click(
+      within(serviceRow as HTMLElement).getByRole('checkbox', {
+        name: 'Toggle select row',
+      })
+    );
+
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
   });
 
   it('organizes the services by clusters', async () => {
