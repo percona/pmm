@@ -1949,7 +1949,7 @@
                     "calculatedInterval": "2s",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "avg by (node_name) ((avg_over_time(node_procs_running{node_name=~\"$node_name\"}[$interval])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})) or (avg_over_time(node_procs_running{node_name=~\"$node_name\"}[5m])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})))",
+                    "expr": "avg by (node_name) ((avg_over_time(node_procs_running{node_name=~\"$node_name\"}[$interval])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})) or (avg_over_time(node_procs_running{node_name=~\"$node_name\"}[5m])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}))) or\navg by (node_name) (clamp_min(avg_over_time(node_procs_running{node_name=~\"$node_name\",node_type=\"remote_rds\"}[$interval]), 0) / on (node_name) group_left max by (node_name) (rdsosmetrics_General_numVCPUs{node_name=~\"$node_name\"}))",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -1981,6 +1981,20 @@
                     "interval": "$interval",
                     "legendFormat": "CPU Credits Usage",
                     "refId": "C"
+                },
+                {
+                    "calculatedInterval": "2s",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "expr": "avg by (node_name) (node_cpu_average{node_name=~\"$node_name\",node_type=\"remote_rds\",cpu=\"All\",mode=\"total\"}) / 100",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "CPU Utilization (all cores, RDS)",
+                    "metric": "",
+                    "refId": "D",
+                    "step": 300,
+                    "target": ""
                 }
             ],
             "title": "CPU Saturation and Max Core Usage",

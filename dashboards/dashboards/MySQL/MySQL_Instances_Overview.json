@@ -2455,6 +2455,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2523,6 +2524,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2591,6 +2593,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -3316,6 +3319,7 @@
                         },
                         "overrides": []
                     },
+                    "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "gridPos": {
                         "h": 8,
                         "w": 12,
@@ -3568,6 +3572,7 @@
                         },
                         "overrides": []
                     },
+                    "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "gridPos": {
                         "h": 8,
                         "w": 12,
@@ -3827,6 +3832,7 @@
                         },
                         "overrides": []
                     },
+                    "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "gridPos": {
                         "h": 8,
                         "w": 12,
