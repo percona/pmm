@@ -2,7 +2,7 @@
 
 ![!image](../../images/PMM_MySQL_Amazon_Aurora_Details_full.jpg)
 
-This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** and **Node Name** lists contain only Aurora MySQL services. To compare the instances of a cluster first, start from the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
+This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** and **Node Name** lists contain only Aurora MySQL services. To see all the instances of a cluster first, open the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
 
 Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect an Amazon RDS or Aurora instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
 

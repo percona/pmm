@@ -49,6 +49,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
+    | [Amazon Aurora Overview]                                                                 | Aurora clusters and instances, writer and reader roles, storage
     | [MySQL Amazon Aurora Details]                                                            | Aurora-specific metrics and replication
     | [MySQL Command/Handler Counters Compare]                                                 | Compare command execution patterns across instances
     | [MySQL InnoDB Compression Details]                                                       | InnoDB compression efficiency and performance
@@ -140,6 +141,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [Processes Details]: ../../reference/dashboards/dashboard-processes-details.md
 [Prometheus Exporter Status]: ../../reference/dashboards/dashboard-prometheus-exporter-status.md
 [Prometheus Exporters Overview]: ../../reference/dashboards/dashboard-prometheus-exporters-overview.md
+[Amazon Aurora Overview]: ../../reference/dashboards/dashboard-amazon-aurora-overview.md
 [MySQL Amazon Aurora Details]: ../../reference/dashboards/dashboard-mysql-amazon-aurora-details.md
 [MySQL Command/Handler Counters Compare]: ../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
 [MySQL InnoDB Compression Details]: ../../reference/dashboards/dashboard-mysql-innodb-compression-details.md
