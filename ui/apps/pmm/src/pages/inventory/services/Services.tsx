@@ -65,9 +65,6 @@ export const Services: FC = () => {
   const [servicesToDelete, setServicesToDelete] = useState<ServiceRow[]>([]);
   const services = useMemo(() => toServiceRows(data?.services ?? []), [data]);
   const clusters = useMemo(() => toClusterRows(services), [services]);
-  const selectedServices = services.filter(
-    (service) => rowSelection[service.serviceId]
-  );
   const { tableProps } = useTableUrlState({
     ...getUrlStateOptions('services'),
     additionalState: { rowSelection, expanded },
@@ -126,6 +123,9 @@ export const Services: FC = () => {
         enableExpanding
         getSubRows={(row) => (isClusterRow(row) ? row.services : undefined)}
         filterFromLeafRows
+        // The default searches the columns the first row has values in, and
+        // cluster rows hold none
+        getColumnCanGlobalFilter={() => true}
         noDataMessage={Messages.empty}
         enableRowSelection
         onRowSelectionChange={setRowSelection}
@@ -188,10 +188,16 @@ export const Services: FC = () => {
           ];
         }}
         renderTopToolbarCustomActions={({ table }) => {
+          const filteredServices = getFilteredServices(table);
+          // Filters hide selected services without unselecting them, so the
+          // actions take only the selected services left visible
+          const selectedServices = filteredServices.filter(
+            ({ serviceId }) => rowSelection[serviceId]
+          );
           // A selection narrows the export, as it does the delete
           const exportedServices = selectedServices.length
             ? selectedServices
-            : getFilteredServices(table);
+            : filteredServices;
 
           return (
             <Stack

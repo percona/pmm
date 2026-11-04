@@ -47,7 +47,6 @@ export const Nodes: FC = () => {
     () => toNodeRows(data ?? [], ha.nodes),
     [data, ha.nodes]
   );
-  const selectedNodes = nodes.filter(({ nodeId }) => rowSelection[nodeId]);
   const { tableProps } = useTableUrlState({
     ...getUrlStateOptions('nodes'),
     additionalState: { rowSelection },
@@ -142,43 +141,50 @@ export const Nodes: FC = () => {
               ]
             : []),
         ]}
-        renderTopToolbarCustomActions={() => (
-          <Stack
-            direction="row"
-            alignItems="center"
-            flexWrap="wrap"
-            columnGap={2}
-            rowGap={1}
-          >
-            <Button
-              color="error"
-              startIcon={<DeleteOutlineIcon />}
-              disabled={!selectedNodes.length}
-              onClick={() => setNodesToDelete(selectedNodes)}
-              data-testid="delete-nodes-button"
+        renderTopToolbarCustomActions={({ table }) => {
+          // Filters hide selected nodes without unselecting them
+          const selectedNodes = table
+            .getFilteredSelectedRowModel()
+            .rows.map(({ original }) => original);
+
+          return (
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              columnGap={2}
+              rowGap={1}
             >
-              {InventoryMessages.actions.delete}
-            </Button>
-            {!!selectedNodes.length && (
-              <Typography variant="body2">
-                {InventoryMessages.selected(selectedNodes.length)}
-              </Typography>
-            )}
-            {(ha.enabled || pmmServerOnly) && (
-              <FormControlLabel
-                label={Messages.pmmServerOnly}
-                control={
-                  <Switch
-                    size="small"
-                    checked={pmmServerOnly}
-                    onChange={togglePmmServerOnly}
-                    data-testid="pmm-server-only-switch"
-                  />
-                }
-              />
-            )}
-          </Stack>
-        )}
+              <Button
+                color="error"
+                startIcon={<DeleteOutlineIcon />}
+                disabled={!selectedNodes.length}
+                onClick={() => setNodesToDelete(selectedNodes)}
+                data-testid="delete-nodes-button"
+              >
+                {InventoryMessages.actions.delete}
+              </Button>
+              {!!selectedNodes.length && (
+                <Typography variant="body2">
+                  {InventoryMessages.selected(selectedNodes.length)}
+                </Typography>
+              )}
+              {(ha.enabled || pmmServerOnly) && (
+                <FormControlLabel
+                  label={Messages.pmmServerOnly}
+                  control={
+                    <Switch
+                      size="small"
+                      checked={pmmServerOnly}
+                      onChange={togglePmmServerOnly}
+                      data-testid="pmm-server-only-switch"
+                    />
+                  }
+                />
+              )}
+            </Stack>
+          );
+        }}
       />
       <AlertThresholds
         node={thresholdsNode}
