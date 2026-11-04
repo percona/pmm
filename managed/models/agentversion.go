@@ -26,6 +26,11 @@ import (
 // PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent.
 var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.41.0-0"))
 
+// PMMAgentMinVersionForAWSRoleARN is the minimum pmm-agent version whose bundled rds_exporter
+// assumes an IAM role using ambient credentials. Older exporters build empty static credentials
+// instead and never sign sts:AssumeRole. The -0 suffix admits prereleases of 3.4.0.
+var PMMAgentMinVersionForAWSRoleARN = version.Must(version.NewVersion("3.4.0-0"))
+
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
 type AgentNotSupportedError struct {
 	Functionality   string

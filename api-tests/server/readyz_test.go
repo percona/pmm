@@ -54,7 +54,7 @@ func TestReadyz(t *testing.T) {
 				if err != nil {
 					return false
 				}
-				resp, err := http.DefaultClient.Do(req)
+				resp, err := pmmapitests.HTTPClient.Do(req)
 				if err != nil {
 					return false
 				}

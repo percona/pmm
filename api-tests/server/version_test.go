@@ -46,7 +46,7 @@ func TestVersion(t *testing.T) {
 
 			t.Logf("URI: %s", uri)
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-			resp, err := http.DefaultClient.Do(req)
+			resp, err := pmmapitests.HTTPClient.Do(req)
 			require.NoError(t, err)
 			t.Cleanup(func() {
 				assert.NoError(t, resp.Body.Close())

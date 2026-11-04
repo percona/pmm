@@ -7,6 +7,7 @@ import { Page } from 'components/page';
 import { useSettings } from 'contexts/settings';
 import { ExtensionsAuthGate } from './ExtensionsAuthGate';
 import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
+import { ExtensionsVersionMismatchAlert } from './ExtensionsVersionMismatchAlert';
 
 /**
  * Shared container for PMM Extensions apps mounted as native PMM routes.
@@ -16,12 +17,6 @@ import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
  * pages/settings/Settings.tsx), so PMM Extensions content gets the standard PMM
  * padding, width, auth gate, and footer. No `title` is passed: the PMM Extensions
  * plugins already render their own headings.
- *
- * `surface="paper"` on every branch: PMM Extensions pages are form- and list-shaped like
- * Settings, not widget-heavy like the dashboards the lighter stage surface a
- * `Page` shows when it passes no `surface` is meant for. It has to be repeated
- * in the loading and not-enabled branches too, or the page background shifts
- * as settings resolve.
  *
  * No `roles` restriction: every signed-in PMM user may open a PMM Extensions page, and
  * what they can do there is decided per control rather than per route. The side-car's
@@ -47,7 +42,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (isLoading || !settings) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="extensions-settings-loading" />
         </Stack>
@@ -57,7 +52,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (!settings.extensionsEnabled) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Alert severity="info">
           This feature is not enabled. Contact your administrator.
         </Alert>
@@ -66,18 +61,21 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <Page maxWidth="full" surface="paper">
+    <Page maxWidth="full">
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>
-            {/*
-              A flex column that grows, not a plain block: it carries the height
-              handed down from Page so a plugin can centre itself in the page
-              rather than in its own content box.
-            */}
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {children}
-            </Box>
+            <Stack gap={3} sx={{ flex: 1 }}>
+              <ExtensionsVersionMismatchAlert />
+              {/*
+                A flex column that grows, not a plain block: it carries the height
+                handed down from Page so a plugin can centre itself in the page
+                rather than in its own content box.
+              */}
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {children}
+              </Box>
+            </Stack>
           </ExtensionsAuthGate>
         </ExtensionsAuthProvider>
       </Stack>

@@ -115,6 +115,7 @@ export const wrapWithSettings = (
         azurediscoverEnabled: false,
         enableAccessControl: false,
         extensionsEnabled: false,
+        omEnabled: false,
         ...props?.settings,
         frontend: {
           anonymousEnabled: false,
@@ -143,7 +144,7 @@ export const wrapWithSettings = (
 );
 
 export const wrapWithGrafana = (
-  children: ReactElement,
+  children: ReactNode,
   props: Partial<GrafanaContextProps> = {}
 ) => (
   <GrafanaContext.Provider
@@ -151,6 +152,7 @@ export const wrapWithGrafana = (
       isFrameLoaded: true,
       isFullScreen: false,
       isOnGrafanaPage: true,
+      grafanaReady: true,
       ...props,
     }}
   >
@@ -180,7 +182,7 @@ export const measureSurface = (renderState: () => { unmount: () => void }) => {
 
 // The colour a bare `Page` paints for each surface, so a test can name the two
 // without hardcoding theme values.
-export const measurePageSurface = (surface: 'default' | 'paper') =>
+export const measurePageSurface = (surface: 'canvas' | 'paper') =>
   measureSurface(() =>
     render(
       <Page maxWidth="full" surface={surface}>

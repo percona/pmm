@@ -21,7 +21,10 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { SchemaFormRenderer } from './SchemaFormRenderer';
-import { EMPTY_SECTION_SUMMARY } from './utils/sectionValueSummary';
+import {
+  EMPTY_SECTION_SUMMARY,
+  SENSITIVE_VALUE_SUMMARY,
+} from './utils/sectionValueSummary';
 import type { FormSection } from './types';
 
 function renderWithProviders(ui: ReactNode) {
@@ -123,6 +126,41 @@ describe('SchemaFormRenderer collapsed-section summary', () => {
     await userEvent.click(header);
 
     expect(within(sectionHeader()).getByText('Minutes: 90')).toBeVisible();
+  });
+
+  it('keeps a typed credential out of the collapsed header', async () => {
+    const credential: FormSection[] = [
+      {
+        title: 'Collect slow log',
+        collapsible: true,
+        collapsed_by_default: true,
+        fields: [
+          {
+            type: 'string',
+            name: 'password',
+            label: 'Password',
+            sensitive: true,
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={credential}
+        onSubmit={() => {}}
+        sectionValueSummary
+      />
+    );
+
+    const header = sectionHeader();
+    await userEvent.click(header);
+    await userEvent.type(screen.getByLabelText(/Password/), 's3cret');
+    await userEvent.click(header);
+
+    expect(
+      within(sectionHeader()).getByText(`Password: ${SENSITIVE_VALUE_SUMMARY}`)
+    ).toBeVisible();
+    expect(screen.queryByText(/s3cret/)).toBeNull();
   });
 
   it('is opt-in — an unflagged form leaves the header to the title alone', () => {

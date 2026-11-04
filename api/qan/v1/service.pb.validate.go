@@ -124,8 +124,7 @@ func (e GetMetricsNamesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetMetricsNamesRequestValidationError{}
@@ -229,8 +228,7 @@ func (e GetMetricsNamesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetMetricsNamesResponseValidationError{}
@@ -332,8 +330,7 @@ func (e HealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = HealthCheckRequestValidationError{}
@@ -435,8 +432,7 @@ func (e HealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = HealthCheckResponseValidationError{}

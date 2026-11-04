@@ -1340,8 +1340,8 @@ type ChangeAgentDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// change agent default body details items0
-	ChangeAgentDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// change agent default body details items0 additional properties
+	ChangeAgentDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -1376,7 +1376,7 @@ func (o *ChangeAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.ChangeAgentDefaultBodyDetailsItems0 = result
+		o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -1397,12 +1397,12 @@ func (o ChangeAgentDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ChangeAgentDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ChangeAgentDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -6164,6 +6164,9 @@ type ChangeAgentOKBodyRDSExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -11551,6 +11554,10 @@ type ChangeAgentParamsBodyRDSExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn *string `json:"aws_role_arn,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRDSExporterCustomLabels `json:"custom_labels,omitempty"`
