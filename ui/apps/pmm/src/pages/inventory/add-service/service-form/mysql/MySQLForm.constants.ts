@@ -7,7 +7,13 @@ import {
 } from '../ServiceForm.constants';
 import { toRadioOptions } from '../ServiceForm.utils';
 import { Messages } from './MySQLForm.messages';
-import { type MySQLFormValues, TablestatOption } from './MySQLForm.types';
+import {
+  type MySQLFormValues,
+  type MySQLOptionsFormValues,
+  TablestatOption,
+} from './MySQLForm.types';
+
+export const MYSQL_PORT = '3306';
 
 export const TABLESTAT_OPTIONS = toRadioOptions(
   Object.values(TablestatOption),
@@ -19,9 +25,7 @@ export const TABLESTAT_LIMITS = {
   [TablestatOption.default]: 1000,
 };
 
-export const MYSQL_DEFAULTS: MySQLFormValues = {
-  ...DATABASE_SERVICE_DEFAULTS,
-  port: '3306',
+export const MYSQL_OPTIONS_DEFAULTS: MySQLOptionsFormValues = {
   ...TLS_CERTIFICATES_DEFAULTS,
   ...QUERY_ANALYTICS_OPTIONS_DEFAULTS,
   disableCommentsParsing: true,
@@ -31,4 +35,10 @@ export const MYSQL_DEFAULTS: MySQLFormValues = {
   extraDsnParams: '',
   tablestatOptions: TablestatOption.disabled,
   tablestatsGroupTableLimit: '1000',
+};
+
+export const MYSQL_DEFAULTS: MySQLFormValues = {
+  ...DATABASE_SERVICE_DEFAULTS,
+  port: MYSQL_PORT,
+  ...MYSQL_OPTIONS_DEFAULTS,
 };

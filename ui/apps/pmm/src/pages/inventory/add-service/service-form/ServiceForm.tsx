@@ -18,6 +18,7 @@ export const ServiceForm = <
   form,
   serviceTypeLabel,
   onSubmit,
+  onCancel,
   children,
 }: ServiceFormProps<T>) => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export const ServiceForm = <
       >
         {children}
         <AddServiceActions
-          cancelTo={PMM_ADD_SERVICE_PATH}
+          {...(onCancel ? { onCancel } : { cancelTo: PMM_ADD_SERVICE_PATH })}
           submitLabel={Messages.addService}
           isSubmitting={form.formState.isSubmitting}
         />

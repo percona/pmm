@@ -12,8 +12,25 @@ import {
   AutoDiscoveryOption,
   MaxConnectionsOption,
   type PostgreSQLFormValues,
+  type PostgreSQLOptionsFormValues,
   TrackingOption,
 } from './PostgreSQLForm.types';
+
+export const toAutoDiscoveryLimit = (values: PostgreSQLOptionsFormValues) =>
+  toLimit(
+    values.autoDiscoveryOptions,
+    AutoDiscoveryOption.custom,
+    values.autoDiscoveryLimit,
+    AUTO_DISCOVERY_LIMITS
+  );
+
+export const toMaxExporterConnections = (values: PostgreSQLOptionsFormValues) =>
+  toLimit(
+    values.maxConnectionsOptions,
+    MaxConnectionsOption.enabled,
+    values.maxExporterConnections,
+    {}
+  );
 
 export const toPostgreSQLPayload = (
   values: PostgreSQLFormValues
@@ -30,17 +47,7 @@ export const toPostgreSQLPayload = (
     disableCommentsParsing: values.disableCommentsParsing,
     maxQueryLength: toOptionalNumber(values.maxQueryLength),
     disableCollectors: toCollectors(values.disableCollectors),
-    autoDiscoveryLimit: toLimit(
-      values.autoDiscoveryOptions,
-      AutoDiscoveryOption.custom,
-      values.autoDiscoveryLimit,
-      AUTO_DISCOVERY_LIMITS
-    ),
-    maxExporterConnections: toLimit(
-      values.maxConnectionsOptions,
-      MaxConnectionsOption.enabled,
-      values.maxExporterConnections,
-      {}
-    ),
+    autoDiscoveryLimit: toAutoDiscoveryLimit(values),
+    maxExporterConnections: toMaxExporterConnections(values),
   },
 });

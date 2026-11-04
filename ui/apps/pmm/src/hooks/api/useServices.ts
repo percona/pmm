@@ -102,6 +102,16 @@ export const useAddAzureService = (
   });
 };
 
+// Discovery with PMM Server's own AWS identity; aborted when the page is left.
+export const useServerRDSInstances = (
+  options?: Partial<UseQueryOptions<DiscoverRDSResponse>>
+) =>
+  useQuery({
+    queryKey: ['services:discover-rds'],
+    queryFn: ({ signal }) => discoverRDS({}, signal),
+    ...options,
+  });
+
 export const useDiscoverRDS = (
   options?: Partial<
     UseMutationOptions<DiscoverRDSResponse, Error, DiscoverRDSPayload>
@@ -109,7 +119,7 @@ export const useDiscoverRDS = (
 ) =>
   useMutation({
     mutationKey: ['services:discover-rds'],
-    mutationFn: discoverRDS,
+    mutationFn: (payload) => discoverRDS(payload),
     ...options,
   });
 

@@ -11,6 +11,7 @@ import {
   AutoDiscoveryOption,
   MaxConnectionsOption,
   type PostgreSQLFormValues,
+  type PostgreSQLOptionsFormValues,
   TrackingOption,
 } from './PostgreSQLForm.types';
 
@@ -34,9 +35,14 @@ export const MAX_CONNECTIONS_OPTIONS = toRadioOptions(
   Messages.maxConnections.options
 );
 
-export const POSTGRESQL_DEFAULTS: PostgreSQLFormValues = {
-  ...DATABASE_SERVICE_DEFAULTS,
-  port: '5432',
+export const POSTGRESQL_PORT = '5432';
+
+// RDS and Azure collect query analytics through pg_stat_statements only.
+export const DISCOVERED_TRACKING_OPTIONS = TRACKING_OPTIONS.filter(
+  ({ value }) => value !== TrackingOption.pgMonitor
+);
+
+export const POSTGRESQL_OPTIONS_DEFAULTS: PostgreSQLOptionsFormValues = {
   ...TLS_CERTIFICATES_DEFAULTS,
   ...QUERY_ANALYTICS_OPTIONS_DEFAULTS,
   disableCommentsParsing: true,
@@ -48,4 +54,10 @@ export const POSTGRESQL_DEFAULTS: PostgreSQLFormValues = {
   autoDiscoveryLimit: '10',
   maxConnectionsOptions: MaxConnectionsOption.disabled,
   maxExporterConnections: '5',
+};
+
+export const POSTGRESQL_DEFAULTS: PostgreSQLFormValues = {
+  ...DATABASE_SERVICE_DEFAULTS,
+  port: POSTGRESQL_PORT,
+  ...POSTGRESQL_OPTIONS_DEFAULTS,
 };

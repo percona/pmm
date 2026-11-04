@@ -49,12 +49,13 @@ export const addAzureService = async (
 
 // The RDS discovery page reports errors itself, rewording the missing-credentials one.
 export const discoverRDS = async (
-  payload: DiscoverRDSPayload
+  payload: DiscoverRDSPayload,
+  signal?: AbortSignal
 ): Promise<DiscoverRDSResponse> => {
   const res = await api.post<DiscoverRDSResponse>(
     '/management/services:discoverRDS',
     payload,
-    { disableNotifications: true }
+    { disableNotifications: true, signal }
   );
   return res.data;
 };

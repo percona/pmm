@@ -7,15 +7,17 @@ import type { AddServiceActionsProps } from './AddServiceActions.types';
 
 export const AddServiceActions: FC<AddServiceActionsProps> = ({
   cancelTo,
+  onCancel,
   submitLabel,
   isSubmitting,
 }) => (
   <Stack direction="row" justifyContent="flex-end" gap={1}>
     <Button
       variant="outlined"
-      component={Link}
-      to={cancelTo}
       data-testid="add-service-cancel"
+      {...(onCancel
+        ? { onClick: onCancel }
+        : { component: Link, to: cancelTo })}
     >
       {Messages.cancel}
     </Button>

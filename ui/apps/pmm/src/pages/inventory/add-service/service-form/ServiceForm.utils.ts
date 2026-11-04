@@ -150,24 +150,29 @@ export const toRadioOptions = <T extends string>(
   labels: Record<T, string>
 ) => values.map((value) => ({ value, label: labels[value] }));
 
+// How PMM reaches a database, wherever it runs (remote, RDS or Azure).
+export const toConnection = (values: DatabaseServiceFormValues) => ({
+  serviceName: getServiceName(values),
+  address: values.address.trim(),
+  port: Number(values.port),
+  pmmAgentId: values.pmmAgentId,
+  username: values.username,
+  password: values.password,
+  connectionTimeout: toOptionalString(values.connectionTimeout),
+  skipConnectionCheck: values.skipConnectionCheck,
+  tls: values.tls,
+  tlsSkipVerify: values.tlsSkipVerify,
+});
+
 // Fields every database service (MySQL, PostgreSQL, MongoDB, ProxySQL, Valkey) is added with.
 export const toDatabaseService = (values: DatabaseServiceFormValues) => {
-  const serviceName = getServiceName(values);
+  const connection = toConnection(values);
 
   return {
-    serviceName,
-    address: values.address.trim(),
-    port: Number(values.port),
-    pmmAgentId: values.pmmAgentId,
-    username: values.username,
-    password: values.password,
-    connectionTimeout: toOptionalString(values.connectionTimeout),
-    skipConnectionCheck: values.skipConnectionCheck,
-    tls: values.tls,
-    tlsSkipVerify: values.tlsSkipVerify,
+    ...connection,
     metricsMode: getMetricsMode(values.isPmmServerNode),
     ...toLabels(values),
-    ...toPlacement(values.address, serviceName, values.nodeId),
+    ...toPlacement(values.address, connection.serviceName, values.nodeId),
   };
 };
 

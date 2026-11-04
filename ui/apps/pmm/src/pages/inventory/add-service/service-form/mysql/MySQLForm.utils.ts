@@ -8,7 +8,19 @@ import {
   toTlsCertificates,
 } from '../ServiceForm.utils';
 import { TABLESTAT_LIMITS } from './MySQLForm.constants';
-import { type MySQLFormValues, TablestatOption } from './MySQLForm.types';
+import {
+  type MySQLFormValues,
+  type MySQLOptionsFormValues,
+  TablestatOption,
+} from './MySQLForm.types';
+
+export const toTablestatsLimit = (values: MySQLOptionsFormValues) =>
+  toLimit(
+    values.tablestatOptions,
+    TablestatOption.custom,
+    values.tablestatsGroupTableLimit,
+    TABLESTAT_LIMITS
+  );
 
 export const toMySQLPayload = (values: MySQLFormValues): AddServicePayload => ({
   mysql: {
@@ -20,11 +32,6 @@ export const toMySQLPayload = (values: MySQLFormValues): AddServicePayload => ({
     maxQueryLength: toOptionalNumber(values.maxQueryLength),
     extraDsnParams: toKeyValueMap(values.extraDsnParams),
     disableCollectors: toCollectors(values.disableCollectors),
-    tablestatsGroupTableLimit: toLimit(
-      values.tablestatOptions,
-      TablestatOption.custom,
-      values.tablestatsGroupTableLimit,
-      TABLESTAT_LIMITS
-    ),
+    tablestatsGroupTableLimit: toTablestatsLimit(values),
   },
 });

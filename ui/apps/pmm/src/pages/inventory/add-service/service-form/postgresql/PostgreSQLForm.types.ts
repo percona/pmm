@@ -1,5 +1,8 @@
 import type { z } from 'zod';
-import type { postgresqlSchema } from './PostgreSQLForm.schema';
+import type {
+  postgresqlOptionsSchema,
+  postgresqlSchema,
+} from './PostgreSQLForm.schema';
 
 export enum TrackingOption {
   none = 'none',
@@ -18,4 +21,7 @@ export enum MaxConnectionsOption {
   disabled = 'disabled',
 }
 
+export type PostgreSQLOptionsFormValues = z.infer<
+  typeof postgresqlOptionsSchema
+>;
 export type PostgreSQLFormValues = z.infer<typeof postgresqlSchema>;

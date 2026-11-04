@@ -245,6 +245,7 @@ export interface AddRDSServiceParams extends ServiceLabels {
   password?: string;
   awsAccessKey?: string;
   awsSecretKey?: string;
+  awsRoleArn?: string;
   rdsExporter?: boolean;
   qanMysqlPerfschema?: boolean;
   qanPostgresqlPgstatements?: boolean;
@@ -305,9 +306,11 @@ export interface AddAzureDatabasePayload {
   pmmAgentId?: string;
 }
 
+// Either an access key and secret key, or an IAM role ARN; none discovers with PMM Server's own identity.
 export interface DiscoverRDSPayload {
   awsAccessKey?: string;
   awsSecretKey?: string;
+  awsRoleArn?: string;
 }
 
 export interface DiscoverRDSInstance {

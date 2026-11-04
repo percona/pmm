@@ -7,6 +7,12 @@ import { AddServicePage } from './AddServicePage';
 import { mockNodes } from './service-form/ServiceForm.testUtils';
 
 vi.mock('api/nodes', () => ({ listNodes: vi.fn() }));
+vi.mock('api/services', () => ({
+  addService: vi.fn(),
+  addAzureService: vi.fn(),
+  discoverRDS: vi.fn().mockResolvedValue({ rdsInstances: [] }),
+  discoverAzure: vi.fn(),
+}));
 
 const LocationProbe = () => (
   <span data-testid="location-probe">{useLocation().pathname}</span>

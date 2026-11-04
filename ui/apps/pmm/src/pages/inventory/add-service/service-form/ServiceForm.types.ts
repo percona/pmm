@@ -42,5 +42,7 @@ export interface ServiceFormProps<
   // Shown in the success message, e.g. "MySQL".
   serviceTypeLabel: string;
   onSubmit: (values: T) => Promise<void>;
+  // Cancel goes back to the service type selection unless this handles it.
+  onCancel?: () => void;
   children: ReactNode;
 }

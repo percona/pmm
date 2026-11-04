@@ -1,0 +1,56 @@
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import { Table } from '@percona/peak-ui';
+import type { MRT_ColumnDef } from 'material-react-table';
+import { useMemo } from 'react';
+import { Messages } from './DiscoveredInstances.messages';
+import type {
+  DiscoveredInstance,
+  DiscoveredInstancesProps,
+} from './DiscoveredInstances.types';
+
+export const DiscoveredInstances = <T extends DiscoveredInstance>({
+  tableName,
+  columns,
+  instances,
+  isLoading,
+  onSelect,
+}: DiscoveredInstancesProps<T>) => {
+  const columnsWithAction = useMemo<MRT_ColumnDef<T>[]>(
+    () => [
+      ...columns,
+      {
+        id: 'action',
+        header: Messages.action,
+        Cell: ({ row }) => (
+          <Button
+            size="small"
+            variant="outlined"
+            data-testid={`start-monitoring-${row.original.instanceId}`}
+            onClick={() => onSelect(row.original)}
+          >
+            {Messages.startMonitoring}
+          </Button>
+        ),
+      },
+    ],
+    [columns, onSelect]
+  );
+
+  return (
+    <Box data-testid="discovered-instances">
+      <Table
+        tableName={tableName}
+        noDataMessage={Messages.noData}
+        columns={columnsWithAction}
+        data={instances}
+        state={{ isLoading }}
+        enableFilters={false}
+        enableColumnActions={false}
+        enableColumnOrdering={false}
+        enableTopToolbar={false}
+        enableColumnDragging={false}
+      />
+    </Box>
+  );
+};

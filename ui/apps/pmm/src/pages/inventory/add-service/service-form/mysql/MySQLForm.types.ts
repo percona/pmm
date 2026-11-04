@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { mysqlSchema } from './MySQLForm.schema';
+import type { mysqlOptionsSchema, mysqlSchema } from './MySQLForm.schema';
 
 export enum TablestatOption {
   disabled = 'disabled',
@@ -7,4 +7,5 @@ export enum TablestatOption {
   custom = 'custom',
 }
 
+export type MySQLOptionsFormValues = z.infer<typeof mysqlOptionsSchema>;
 export type MySQLFormValues = z.infer<typeof mysqlSchema>;
