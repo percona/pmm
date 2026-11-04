@@ -20,6 +20,7 @@ import {
   Box,
   Chip,
   LinearProgress,
+  Link,
   Stack,
   Tooltip,
   Typography,
@@ -34,7 +35,11 @@ import {
   type MRT_ColumnDef,
   type MRT_Row,
 } from 'material-react-table';
-import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
+import {
+  FLEET_NOT_COLLECTED,
+  OPERATIONS_DOC_URL,
+  PROCESS_ROLE_LABEL,
+} from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
@@ -46,9 +51,11 @@ import { serviceStatusRank, toServiceRows } from './topology';
 import { useOmInventoryServices } from './inventoryHooks';
 import {
   ageSeconds,
+  describeServiceScanFailure,
   isFailing,
   joinServiceInventory,
   missingRowReason,
+  notRunningScanAt,
   type OmEstateStatus,
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
@@ -57,6 +64,7 @@ import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
 import {
   GroupBySelect,
   NO_GROUPING,
+  useSessionGrouping,
   type GroupByOption,
 } from './components/GroupBySelect';
 import type {
@@ -117,6 +125,21 @@ const GROUP_BY_OPTIONS: GroupByOption[] = [
   { value: 'cluster_id', label: 'Cluster' },
   { value: NO_GROUPING, label: 'None' },
 ];
+
+/**
+ * Widths while grouped, which adds the expand column the flat table does not have.
+ *
+ * The default columns add up to 1039px: the ~1056px the page gets at 1440 with the
+ * nav open, less the 17px a classic (non-overlay) scrollbar takes. The expand column
+ * holds only the 28px toggle (a group's header runs across the row), and Member
+ * state's values (PRIMARY, RECOVERING) need far less than 185px, so it gives up the
+ * toggle's 44px and grouped stays at 1039. With `layoutMode: 'grid'` a size is a
+ * minimum, so the columns still fill the row where the scrollbar overlays (PMM-15767).
+ */
+const GROUPED_COLUMN_SIZING = {
+  'mrt-row-expand': 44,
+  state: 141,
+};
 
 /** What a group header calls a group whose services carry no name for it. */
 const UNNAMED_GROUP: Record<string, string> = {
@@ -198,6 +221,7 @@ function useColumns(
           <StatusBadge
             status={original.status}
             lastUpAt={original.last_up_at}
+            notRunningAt={notRunningScanAt(original.inventory)}
           />
         ),
       },
@@ -252,8 +276,8 @@ function useColumns(
       },
       {
         id: 'last_success_at',
-        // 130, not 140: the six default columns then fit the ~1056px the page gets
-        // at 1440 with the nav open, rather than overflowing it by 4px.
+        // With Repl. lag, sized so the default columns add up to 1039px; see
+        // GROUPED_COLUMN_SIZING.
         size: 130,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
@@ -266,10 +290,32 @@ function useColumns(
             return <Unavailable reason={missingRowReason(estate)} />;
           }
           const collected = original.inventory.freshness.last_success_at;
-          return ageSeconds(collected) == null ? (
-            <Unavailable reason="probe_never_succeeded" />
-          ) : (
-            <Age value={collected} />
+          const never = ageSeconds(collected) == null;
+          // The failure goes here, under the age it makes stale, rather than in a
+          // column of its own: the default columns already fill the table
+          // (PMM-15712), and a last success read without it looks healthy.
+          const failure = describeServiceScanFailure(
+            original.inventory.freshness
+          );
+          if (!failure) {
+            return never ? (
+              <Unavailable reason="probe_never_succeeded" />
+            ) : (
+              <Age value={collected} />
+            );
+          }
+          return (
+            <Stack spacing={0.25} data-testid="om-scan-failure-reason">
+              <Box
+                component="span"
+                sx={{ color: 'error.main', whiteSpace: 'normal' }}
+              >
+                {failure.shortReason}
+              </Box>
+              <Typography variant="caption" color="text.secondary">
+                {never ? 'never collected' : <Age value={collected} />}
+              </Typography>
+            </Stack>
           );
         },
       },
@@ -301,7 +347,8 @@ function useColumns(
       },
       {
         accessorKey: 'replication_lag_seconds',
-        size: 145,
+        // With Collected, sized so the default columns add up to 1039px.
+        size: 134,
         header: 'Repl. lag',
         Cell: ({ row: { original } }) => (
           <Duration value={original.replication_lag_seconds} />
@@ -447,14 +494,14 @@ const Counts = ({
  */
 const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
   const since = ageSeconds(inventory.freshness.failing_since);
-  if (since == null) {
+  const failure = describeServiceScanFailure(inventory.freshness);
+  if (since == null || !failure) {
     return <>{inventory.probe_status ?? 'ok'}</>;
   }
   return (
     <Tooltip
       title={
-        inventory.freshness.last_error ??
-        'The last scan of this service failed.'
+        failure.error ? `${failure.label}: ${failure.error}` : failure.label
       }
     >
       <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
@@ -502,7 +549,11 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
-  const [grouping, setGrouping] = useState(NO_GROUPING);
+  const [grouping, setGrouping] = useSessionGrouping<string>(
+    'om.fleet.services.grouping',
+    GROUP_BY_OPTIONS,
+    NO_GROUPING
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
@@ -646,6 +697,7 @@ export const FleetServicesTab = () => {
     }),
     state: {
       grouping: grouping === NO_GROUPING ? [] : [grouping],
+      columnSizing: grouping === NO_GROUPING ? {} : GROUPED_COLUMN_SIZING,
     },
     initialState: {
       density: 'compact',
@@ -715,7 +767,10 @@ export const FleetServicesTab = () => {
           The same fleet as the Clusters tab, one row per MongoDB service.{' '}
           {data.snapshot.generated_at
             ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
-            : FLEET_NOT_COLLECTED}
+            : FLEET_NOT_COLLECTED}{' '}
+          <Link href={OPERATIONS_DOC_URL} target="_blank" rel="noopener">
+            Read about Operations for MongoDB
+          </Link>
         </EmptyState>
       )}
       <ServiceDetailDrawer
