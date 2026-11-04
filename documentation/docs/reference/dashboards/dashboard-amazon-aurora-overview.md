@@ -1,14 +1,16 @@
 # Amazon Aurora Overview
 
+![!image](../../images/PMM_Amazon_Aurora_Overview.png)
+
 This dashboard lists the Amazon Aurora MySQL clusters and instances that PMM monitors, so you can see which instances belong to which cluster and whether they are up. Open it from **MySQL > Amazon Aurora**.
 
 Use the **Region** list to limit both tables to one or more AWS regions.
 
 ## Aurora clusters
 
-This table has one row per Aurora MySQL cluster, identified by AWS region, AWS account and cluster ID.
+This table has one row per Aurora MySQL cluster, identified by AWS region, AWS account and cluster ID. The columns are:
 
-* **Cluster**: the DB cluster identifier, which `rds_exporter` reads from AWS when it starts. A cluster shown as *AWS cluster unknown* groups the instances whose `rds_exporter` doesn't report a cluster, for example because their pmm-client is older than PMM Server. Upgrade pmm-client on the node that runs them, and the instances move to their cluster.
+* **Cluster**: the DB cluster identifier, which `rds_exporter` reads from AWS when it starts. A cluster shown as *AWS cluster unknown* groups the instances that have no `rds_exporter`, so PMM can't tell their cluster. This happens for instances added with `pmm-admin add mysql`, and for instances discovered through a pmm-agent older than PMM Server. If you added the instances through **Inventory > Add service > Amazon RDS**, upgrade PMM Server. For instances attached to another pmm-agent, upgrade that pmm-client. Instances also show here for a few seconds when `rds_exporter` restarts, for example when an RDS instance is added or removed on the same agent. The row can lump instances of several clusters, so **Writers** there reads **changing**.
 
 * **Monitored instances**: the number of Aurora MySQL services that PMM monitors in the cluster. A service whose exporter stopped reporting is still counted for one hour.
 
@@ -18,11 +20,11 @@ This table has one row per Aurora MySQL cluster, identified by AWS region, AWS a
 
 * **Queries/s**: the queries per second across the instances of the cluster.
 
-* **Storage used**: the cluster volume in use, from CloudWatch `VolumeBytesUsed`, counted once per cluster. AWS publishes this value irregularly, so it can be up to about 3 hours old.
+* **Storage used**: the cluster volume in use, from CloudWatch `VolumeBytesUsed`, counted once per cluster. AWS publishes this value irregularly, so it can be up to about 3 hours old. It shows **-** when CloudWatch has no value for the cluster in the last 3 hours, or when the instance has no `rds_exporter` or cluster.
 
 ## Aurora instances
 
-This table has one row per Aurora MySQL service. Click a service name to open [MySQL Amazon Aurora Details](dashboard-mysql-amazon-aurora-details.md) for it.
+This table has one row per Aurora MySQL service. Click a service name to open [MySQL Amazon Aurora Details](dashboard-mysql-amazon-aurora-details.md) for it. The columns are:
 
 * **Service**: the service name.
 

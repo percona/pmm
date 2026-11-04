@@ -1,8 +1,8 @@
 # MySQL Amazon Aurora Details
 
-![!image](../../images/PMM_MySQL_Amazon_Aurora_Details_full.jpg)
+![!image](../../images/PMM_MySQL_Amazon_Aurora_Details.png)
 
-This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** and **Node Name** lists contain only Aurora MySQL services. To see all the instances of a cluster first, open the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
+This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** list contains only Aurora MySQL services. To see all the instances of a cluster first, open the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
 
 Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect an Amazon RDS or Aurora instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
 
@@ -66,7 +66,7 @@ Amazon Aurora MySQL allows a number of commands which are not available in stand
 
 ## Amazon Aurora Problems
 
-This graph shows internal Amazon Aurora MySQL problems, which should be zero in normal operation. Anything non-zero is worth examining in greater depth.
+This graph shows internal Amazon Aurora MySQL problems, which should be zero in normal operation. Anything non-zero is worth examining in greater depth. The graph shows:
 
 * **Deadlocks (CloudWatch)** and **Blocked transactions (CloudWatch)**: the average counts that Amazon CloudWatch reports for the instance.
 
@@ -74,7 +74,7 @@ This graph shows internal Amazon Aurora MySQL problems, which should be zero in 
 
 ## Cache and local storage
 
-This row is expanded by default.
+This row is expanded by default. It has these graphs:
 
 * **Buffer Cache Hit Ratio**: the percentage of requests that the Aurora buffer cache served (CloudWatch `BufferCacheHitRatio`).
 
@@ -82,7 +82,7 @@ This row is expanded by default.
 
 ## Replication (needs a reader)
 
-This row is collapsed by default. It shows data only when the cluster has a reader instance.
+This row is collapsed by default. It shows data only when the cluster has a reader instance. It has these graphs:
 
 * **Aurora Replica Lag**: the replication lag of an Aurora reader behind the writer (CloudWatch `AuroraReplicaLag`). Only readers report it.
 
@@ -90,7 +90,7 @@ This row is collapsed by default. It shows data only when the cluster has a read
 
 ## Write forwarding
 
-This row is collapsed by default. Its graphs are empty unless the instance uses write forwarding.
+This row is collapsed by default. Its graphs are empty unless the instance uses write forwarding. It has these graphs:
 
 * **Forwarded Write Statements**: the statements that a reader forwards to the writer, split into DML and SELECT.
 
@@ -98,12 +98,8 @@ This row is collapsed by default. Its graphs are empty unless the instance uses 
 
 ## Parallel query
 
-This row is collapsed by default. Its graph is empty unless the instance uses parallel query.
-
-* **Parallel Query Requests**: the parallel query requests by outcome: attempted, executed and not chosen.
+This row is collapsed by default. Its graph is empty unless the instance uses parallel query. The **Parallel Query Requests** graph shows the parallel query requests by outcome: attempted, executed and not chosen.
 
 ## Serverless capacity (Serverless only)
 
-This row is collapsed by default. Its graph is empty unless the instance is an Aurora Serverless v2 instance.
-
-* **Serverless Capacity**: the current, minimum and maximum Aurora Capacity Units (ACUs) of the instance.
+This row is collapsed by default. Its graph is empty unless the instance is an Aurora Serverless v2 instance. The **Serverless Capacity** graph shows the current, minimum and maximum Aurora Capacity Units (ACUs) of the instance.

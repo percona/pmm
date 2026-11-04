@@ -220,7 +220,7 @@ instances.
 
 ### Aurora clusters
 
-PMM groups Aurora instances by AWS cluster automatically after you upgrade pmm-client. You don't need to change any IAM permissions. Until you upgrade, the instances appear under *AWS cluster unknown* on the [Amazon Aurora Overview](../../../reference/dashboards/dashboard-amazon-aurora-overview.md) dashboard.
+PMM groups Aurora instances by AWS cluster on the [Amazon Aurora Overview](../../../reference/dashboards/dashboard-amazon-aurora-overview.md) dashboard. You don't need to change any IAM permissions. Instances added through **Inventory > Add service > Amazon RDS** are grouped once PMM Server is upgraded. Instances added with `pmm-admin add mysql` have no `rds_exporter` and stay under *AWS cluster unknown*. If you attached instances to another pmm-agent, upgrade that pmm-client.
 
 ### Adding an RDS instance via command line
 
