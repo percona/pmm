@@ -60,7 +60,7 @@ This graph allows you to see which operations occur and the number of rows affec
 
 ### InnoDB Transactions Information (RW)
 
-The InnoDB Transactions Information graph shows details about the recent transactions.  Transaction IDs Assigned represents the total number of transactions initiated by InnoDB.  RW Transaction Commits are the number of transactions not read-only. Insert-Update Transactions Commits are transactions on the Undo entries.  Non Locking RO Transaction Commits are transactions commit from select statement in auto-commit mode or transactions explicitly started with "start transaction read only".
+The InnoDB Transactions Information graph shows details about the recent transactions. Transaction IDs Assigned represents the total number of transactions initiated by InnoDB.  RW Transaction Commits are the number of transactions not read-only. Insert-Update Transactions Commits are transactions on the Undo entries.  Non Locking RO Transaction Commits are transactions commit from select statement in auto-commit mode or transactions explicitly started with "start transaction read only".
 
 ### Misc InnoDB Transactions Information
 
@@ -522,10 +522,11 @@ To check whether the log buffer is large enough for your write load:
 1. Set the time range to your busiest write periods, and compare the peaks of **Max Log Space Used** with **Log Buffer Size**. Peaks that regularly reach **Log Buffer Size** may indicate that transactions are waiting for space in the log buffer.
 
     **Max Log Space Used** also counts redo that has already been written to the log files but not yet flushed, so it can exceed **Log Buffer Size** even if the buffer isn't full. With the default `innodb_flush_log_at_trx_commit=1`, every commit flushes the log, so the value only shows redo from commits still waiting to be flushed. On low-concurrency workloads, it stays well below **Log Buffer Size**, so a low value doesn't prove the buffer is large enough.
+
 2. Check **InnoDB Log File Flush Latency**. If log flushes are slow, a larger log buffer only delays the same wait. Fix the disk latency instead.
+
 3. If flush latency is normal, increase `innodb_log_buffer_size`.
 
-To troubleshoot a missing **Max Log Space Used** line, check which server you're monitoring:
 To troubleshoot a missing **Max Log Space Used** line, check which server you're monitoring:
 
 - On Oracle MySQL 8.0.30 and newer, upgrade PMM Server and PMM Client to 3.10.0 or later. Older PMM Clients don't read `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`, the status variables these servers use for redo log sequence numbers.
