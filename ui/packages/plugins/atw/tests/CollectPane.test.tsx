@@ -61,6 +61,20 @@ describe('CollectPane', () => {
     mockedApi.get.mockResolvedValue({ data: { shared: [], per_snippet: [] } });
   });
 
+  it('gives its instructions as the picker helper text, not as an info alert', async () => {
+    renderPane(
+      <CollectPane incidentId="11111111-1111-4111-8111-111111111111" />
+    );
+
+    const picker = await screen.findByRole('combobox', {
+      name: 'Search scripts',
+    });
+    expect(picker).toHaveAccessibleDescription(
+      /Search by name or description, or filter by category/
+    );
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
   it('replaces the picker and its instructions with one line when the incident is closed', async () => {
     renderPane(
       <CollectPane incidentId="11111111-1111-4111-8111-111111111111" isClosed />

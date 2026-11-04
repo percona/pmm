@@ -35,7 +35,7 @@ func FilterOutCollectors(prefix string, args, disabledCollectors []string) []str
 	}
 	enabledArgs := []string{}
 	for _, arg := range args {
-		flagName := strings.Split(arg, "=")[0]
+		flagName, _, _ := strings.Cut(arg, "=")
 		if _, ok := disabledCollectorsMap[flagName]; !ok {
 			enabledArgs = append(enabledArgs, arg)
 		}

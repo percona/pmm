@@ -158,7 +158,11 @@ export type AlertSeverity =
   | 'warning'
   | 'notice'
   | 'info'
+  | 'informational'
   | 'debug';
+
+// PMM collapses the eight RFC5424 levels into four display bands, see PMM-15239.
+export type AlertSeverityBand = 'critical' | 'error' | 'warning' | 'info';
 
 export type GrafanaRulerLabels = Record<string, string>;
 export type GrafanaRulerAnnotations = Record<string, string>;
@@ -227,4 +231,47 @@ export interface GrafanaRulerRuleDTO {
   keep_firing_for?: string;
   annotations?: GrafanaRulerAnnotations;
   labels?: GrafanaRulerLabels;
+}
+
+// Dynamic per-target alert thresholds (PMM backend /v1/alerting/thresholds API).
+// Field names are camelCase because the shared `api` client applies
+// axios-case-converter to the snake_case wire format.
+export type ThresholdScope =
+  | 'THRESHOLD_SCOPE_UNSPECIFIED'
+  | 'THRESHOLD_SCOPE_NODE'
+  | 'THRESHOLD_SCOPE_SERVICE'
+  | 'THRESHOLD_SCOPE_CLUSTER';
+
+// One overridable parameter of one rule, as it applies to one target.
+export interface Threshold {
+  ruleId: string;
+  paramName: string;
+  summary?: string;
+  // ParamUnit enum string, e.g. "PARAM_UNIT_PERCENTAGE".
+  unit?: string;
+  defaultValue?: number;
+  // Effective value for the target: the winning override, otherwise the default.
+  effectiveValue?: number;
+  isOverridden?: boolean;
+  // Scope and target the winning override was set at; unspecified and empty when not overridden.
+  scope?: ThresholdScope;
+  target?: string;
+}
+
+export interface ListThresholdsResponse {
+  thresholds?: Threshold[];
+}
+
+// One set-or-clear operation. Omitting `value` clears the override instead of
+// setting it, returning the target to the rule default or to a broader override.
+export interface ThresholdUpdate {
+  scope: ThresholdScope;
+  target: string;
+  ruleId: string;
+  paramName: string;
+  value?: number;
+}
+
+export interface BatchUpdateThresholdsResponse {
+  thresholds?: Threshold[];
 }

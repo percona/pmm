@@ -16,36 +16,28 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  fromDatetimeLocalValue,
-  localInputToUtcIso,
-  toDatetimeLocalValue,
-  utcIsoToLocalInput,
-} from './datetimeLocal';
+import { toDatetimeLocalValue, utcIsoToUtcInput } from './datetimeLocal';
 
-describe('utcIsoToLocalInput / localInputToUtcIso', () => {
-  it('round-trips a whole-minute UTC instant through the browser zone', () => {
-    const iso = '2024-06-15T12:00:00.000Z';
-    const local = utcIsoToLocalInput(iso);
-    expect(local).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-    expect(localInputToUtcIso(local)).toBe(iso);
+describe('utcIsoToUtcInput', () => {
+  it('formats a zoned instant as its UTC wall-clock', () => {
+    expect(utcIsoToUtcInput('2024-06-15T12:00:00.000Z')).toBe(
+      '2024-06-15T12:00'
+    );
+    expect(utcIsoToUtcInput('2024-06-15T09:00:00-03:00')).toBe(
+      '2024-06-15T12:00'
+    );
   });
 
   it('returns empty for invalid ISO', () => {
-    expect(utcIsoToLocalInput('not-a-date')).toBe('');
-  });
-
-  it('returns undefined for empty or invalid local input', () => {
-    expect(localInputToUtcIso('')).toBeUndefined();
-    expect(localInputToUtcIso('   ')).toBeUndefined();
-    expect(localInputToUtcIso('not-a-date')).toBeUndefined();
+    expect(utcIsoToUtcInput('not-a-date')).toBe('');
   });
 });
 
-describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
-  it('converts ISO defaults to datetime-local', () => {
-    const iso = '2024-06-15T12:00:00.000Z';
-    expect(toDatetimeLocalValue(iso)).toBe(utcIsoToLocalInput(iso));
+describe('toDatetimeLocalValue', () => {
+  it('converts zoned ISO defaults to their UTC wall-clock', () => {
+    expect(toDatetimeLocalValue('2024-06-15T12:00:00.000Z')).toBe(
+      '2024-06-15T12:00'
+    );
   });
 
   it('keeps bare local wall-clock strings at minute precision', () => {
@@ -59,10 +51,5 @@ describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
     expect(toDatetimeLocalValue('')).toBe('');
     expect(toDatetimeLocalValue(null)).toBe('');
     expect(toDatetimeLocalValue(42)).toBe('');
-  });
-
-  it('round-trips through fromDatetimeLocalValue', () => {
-    const iso = '2024-01-01T00:00:00.000Z';
-    expect(fromDatetimeLocalValue(toDatetimeLocalValue(iso))).toBe(iso);
   });
 });

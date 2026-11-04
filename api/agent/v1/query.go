@@ -28,6 +28,10 @@ import (
 
 //go-sumtype:decl isQueryActionValue_Kind
 
+// MongoDBArbiterUnauthorized starts the error of a MongoDB query Action that an arbiter rejected as unauthenticated.
+// An arbiter stores no users, so no connection to it is authenticated, and the query can't succeed there.
+const MongoDBArbiterUnauthorized = "not available on MongoDB arbiter"
+
 func makeValue(value any) (*QueryActionValue, error) { //nolint:cyclop
 	// In the future, we may decide to:
 	// * dereference pointers;

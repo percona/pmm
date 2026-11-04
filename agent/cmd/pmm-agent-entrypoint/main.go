@@ -91,8 +91,8 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 			pmmAgentProcessID = cmd.Process.Pid
 			err := cmd.Wait()
 			if err != nil {
-				var exitErr *exec.ExitError
-				if !errors.As(err, &exitErr) {
+				exitErr, ok := errors.AsType[*exec.ExitError](err)
+				if !ok {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
 					exitCode = -1
 				} else {
@@ -224,8 +224,8 @@ func main() { //nolint:gocognit
 			cmd.Stderr = os.Stderr
 			err = cmd.Run()
 			if err != nil {
-				var exitErr *exec.ExitError
-				if errors.As(err, &exitErr) {
+				exitErr, ok := errors.AsType[*exec.ExitError](err)
+				if ok {
 					status = exitErr.ExitCode()
 					l.Infof("Prerun file exited with %d", status)
 				}
@@ -239,8 +239,8 @@ func main() { //nolint:gocognit
 			cmd.Stderr = os.Stderr
 			err = cmd.Run()
 			if err != nil {
-				var exitErr *exec.ExitError
-				if errors.As(err, &exitErr) {
+				exitErr, ok := errors.AsType[*exec.ExitError](err)
+				if ok {
 					status = exitErr.ExitCode()
 					l.Infof("Prerun shell script exited with %d", status)
 				}
@@ -259,8 +259,8 @@ func main() { //nolint:gocognit
 
 		err = agent.Wait()
 		if err != nil {
-			var exitErr *exec.ExitError
-			if errors.As(err, &exitErr) {
+			exitErr, ok := errors.AsType[*exec.ExitError](err)
+			if ok {
 				status = exitErr.ExitCode()
 				l.Infof("Prerun pmm-agent exited with %d", status)
 			} else {

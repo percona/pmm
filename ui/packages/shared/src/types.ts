@@ -14,7 +14,8 @@ export type MessageType =
   | 'FRONTEND_SETTINGS_CHANGED'
   | 'SERVICE_ADDED'
   | 'SERVICE_DELETED'
-  | 'TIMEZONE_CHANGED';
+  | 'TIMEZONE_CHANGED'
+  | 'OPEN_ALERT_THRESHOLDS_MODAL';
 
 export type LocationState = { fromGrafana?: boolean } | null;
 
@@ -67,3 +68,8 @@ export type FrontendSettingsChangedMessage =
   Message<'FRONTEND_SETTINGS_CHANGED'>;
 
 export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;
+
+export type OpenAlertThresholdsModalMessage = Message<
+  'OPEN_ALERT_THRESHOLDS_MODAL',
+  { nodeId: string; nodeName: string }
+>;

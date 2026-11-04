@@ -41,10 +41,8 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
-	agent_version "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	"github.com/percona/pmm/version"
 )
 
 // configGetter allows for getting a config.
@@ -167,7 +165,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 }
 
 func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
-	const helloCommandVersion = "4.2.10"
+	const commandNotFoundCode = 59
 
 	var res agentv1.CheckConnectionResponse
 	var err error
@@ -203,24 +201,19 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
-	if err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
-		res.Error = err.Error()
-		return &res
-	}
-
 	serverInfo := struct {
 		ArbiterOnly bool `bson:"arbiterOnly"`
 	}{}
 
-	// use hello command for newer MongoDB versions
+	// Don't read the version from buildInfo to pick the command: since MongoDB 8.1 buildInfo
+	// requires authentication, which arbiters can't provide. Servers older than 4.2.10 lack hello.
 	command := "hello"
-	if mongoVersion.Less(version.MustParse(helloCommandVersion)) {
-		command = "isMaster"
-	}
-
 	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	cmdErr, ok := errors.AsType[mongo.CommandError](err)
+	if ok && cmdErr.HasErrorCode(commandNotFoundCode) {
+		command = "isMaster"
+		err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	}
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to runCommand %s: %s", command, err)
 		res.Error = err.Error()
