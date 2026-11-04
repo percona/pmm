@@ -1048,6 +1048,31 @@ describe('NodesPage', () => {
     });
   });
 
+  it('drops the bulk actions when the admin role goes away mid-selection', () => {
+    const { rerender } = renderPage();
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('checkbox', { name: /select row/i })
+    );
+    expect(
+      screen.getByRole('button', { name: 'Scan selected' })
+    ).toBeInTheDocument();
+
+    asReadOnlyReader();
+    rerender(
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={['/']}>
+          <NodesPage />
+          <LocationProbe />
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(screen.queryByRole('button', { name: 'Scan selected' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Remove duplicate entries' })
+    ).toBeNull();
+  });
+
   describe('for a reader who may look but not act', () => {
     beforeEach(() => {
       asReadOnlyReader();

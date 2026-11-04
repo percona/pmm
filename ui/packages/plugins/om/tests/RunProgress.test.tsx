@@ -532,6 +532,25 @@ describe('RunProgress', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('closes the Abort confirmation when the admin role goes away', async () => {
+    const { rerender } = renderWithClient(
+      <RunProgress run={run({ status: 'running' })} />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Abort' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    asReadOnlyReader();
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/om/automations']}>
+          <RunProgress run={run({ status: 'running' })} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
   it('disables Abort for a reader who may not act, and says why', async () => {
     asReadOnlyReader();
     renderWithClient(<RunProgress run={run({ status: 'running' })} />);

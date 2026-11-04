@@ -894,8 +894,9 @@ export const NodesPage = () => {
   // Only the selected rows that are currently visible: a selection made under one
   // filter should not let a bulk action reach into rows the reader cannot see.
   const selectedRows = useMemo(
-    () => filteredRows.filter((row) => rowSelection[row.node_id]),
-    [filteredRows, rowSelection]
+    () =>
+      canMutate ? filteredRows.filter((row) => rowSelection[row.node_id]) : [],
+    [canMutate, filteredRows, rowSelection]
   );
   const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
   const bulkInstallPath = useMemo(

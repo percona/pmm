@@ -16,8 +16,14 @@
  */
 
 import { Button } from '@mui/material';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {
+  Link as RouterLink,
+  MemoryRouter,
+  Route,
+  Routes,
+} from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { ADMIN_REQUIRED, AdminAction } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
@@ -50,6 +56,31 @@ describe('AdminAction', () => {
     expect(button).toHaveAccessibleDescription(
       `Runs on every node ${ADMIN_REQUIRED}`
     );
+  });
+
+  it('keeps a disabled link from navigating when something clicks it anyway', () => {
+    asReadOnlyReader();
+    render(
+      <MemoryRouter initialEntries={['/automations']}>
+        <Routes>
+          <Route
+            path="/automations"
+            element={
+              <AdminAction>
+                <Button component={RouterLink} to="/nodes">
+                  Install MongoDB
+                </Button>
+              </AdminAction>
+            }
+          />
+          <Route path="/nodes" element={<p>Nodes page</p>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Install MongoDB' }));
+
+    expect(screen.queryByText('Nodes page')).toBeNull();
   });
 
   it('lets a keyboard user reach the reason a disabled action gives', async () => {

@@ -15,7 +15,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { cloneElement, useId, type ReactElement, type ReactNode } from 'react';
+import {
+  cloneElement,
+  useId,
+  type MouseEvent,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { Box, Tooltip } from '@mui/material';
 import { useAuth } from '@pmm-extensions/api';
 
@@ -31,7 +37,11 @@ export const AdminAction = ({
   children,
 }: {
   title?: ReactNode;
-  children: ReactElement<{ disabled?: boolean; 'aria-describedby'?: string }>;
+  children: ReactElement<{
+    disabled?: boolean;
+    'aria-describedby'?: string;
+    onClick?: (event: MouseEvent) => void;
+  }>;
 }) => {
   const { canMutate } = useAuth();
   const reasonId = useId();
@@ -55,6 +65,8 @@ export const AdminAction = ({
           'aria-describedby': [children.props['aria-describedby'], reasonId]
             .filter(Boolean)
             .join(' '),
+          // A disabled link keeps its href, and assistive technology can still click it.
+          onClick: (event: MouseEvent) => event.preventDefault(),
         })}
         <span id={reasonId} hidden>
           {ADMIN_REQUIRED}

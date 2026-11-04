@@ -47,6 +47,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useAuth } from '@pmm-extensions/api';
 import {
   BOOTSTRAP_RUN_COLOR,
   BOOTSTRAP_RUN_LABEL,
@@ -322,6 +323,7 @@ function isStarting(run: OmGetBootstrapRunResponse): boolean {
 const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   const [confirming, setConfirming] = useState(false);
   const cancelRun = useCancelBootstrapRun();
+  const { canMutate } = useAuth();
   if (!canCancelBootstrapRun(run)) {
     return null;
   }
@@ -338,7 +340,7 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         </Button>
       </AdminAction>
       <Dialog
-        open={confirming}
+        open={confirming && canMutate}
         onClose={() => setConfirming(false)}
         maxWidth="sm"
       >
