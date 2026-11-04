@@ -17,7 +17,11 @@ import {
   OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect, SettingsRedirect } from 'components/redirect';
+import {
+  AddServiceRedirect,
+  Redirect,
+  SettingsRedirect,
+} from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
@@ -161,6 +165,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/add-instance/:type?',
+              element: <AddServiceRedirect />,
             },
             {
               path: 'graph/alerting/alerts',

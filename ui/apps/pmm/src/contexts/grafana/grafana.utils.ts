@@ -9,4 +9,8 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
-export const isMigratedPage = (src: string) => src.includes('/graph/settings');
+// Grafana pages that now have a native page; the router redirects them.
+const MIGRATED_PAGES = ['/graph/settings', '/graph/add-instance'];
+
+export const isMigratedPage = (src: string) =>
+  MIGRATED_PAGES.some((page) => src.includes(page));
