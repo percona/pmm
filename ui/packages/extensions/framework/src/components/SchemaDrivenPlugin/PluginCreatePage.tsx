@@ -85,7 +85,7 @@ export function PluginCreatePage({
   const itemName = resolveItemDisplayName(recordSchema);
   const sections = multi ? entitySchema!.forms : schema.forms!;
   const capabilities = multi ? undefined : schema.capabilities;
-  const failRules = multi ? undefined : schema.fail_when;
+  const failRules = multi ? entitySchema!.fail_when : schema.fail_when;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
     useState<SubmitErrorState>(EMPTY_SUBMIT_ERROR);

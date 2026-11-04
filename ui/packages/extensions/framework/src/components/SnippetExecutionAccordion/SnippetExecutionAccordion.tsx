@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -184,6 +184,12 @@ export function SnippetExecutionAccordion({
     ),
   }));
 
+  // A hoisted host is not a form field, but it is what the run sends.
+  const fixedValues = useMemo(
+    () => (executorHost ? { executor_host: executorHost } : undefined),
+    [executorHost]
+  );
+
   const handleSubmit = (values: Record<string, unknown>) => {
     const args: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(values)) {
@@ -261,6 +267,7 @@ export function SnippetExecutionAccordion({
           <SchemaFormRenderer
             sections={filteredSections}
             failRules={schemaQuery.data.fail_when}
+            fixedValues={fixedValues}
             onSubmit={handleSubmit}
             submitLabel="Execute"
             loading={executionMutation.isPending}

@@ -553,6 +553,11 @@ export interface SchemaFormRendererProps {
    * form-level error area when none is rendered, and blocks submit.
    */
   failRules?: FailRule[];
+  /**
+   * Values the caller adds to the payload outside the form, such as a pinned
+   * `task_name`; {@link failRules} read them as submitted.
+   */
+  fixedValues?: Record<string, unknown>;
 }
 
 /**
@@ -613,6 +618,7 @@ function SchemaFormBody({
   stickySubmitOffset = 0,
   sectionValueSummary = false,
   failRules,
+  fixedValues,
 }: SchemaFormRendererProps) {
   const { handleSubmit, formState, setError, clearErrors, getFieldState } =
     useFormContext<Record<string, unknown>>();
@@ -705,7 +711,11 @@ function SchemaFormBody({
     ...hiddenFieldNames,
     ...inactiveBranchNames,
   ]);
-  const rootViolations = useRootFailRules(failRules, unsubmittedNames);
+  const rootViolations = useRootFailRules(
+    failRules,
+    unsubmittedNames,
+    fixedValues
+  );
 
   // A root rule belongs to no section, so it shows on whichever of its
   // error_fields are on screen, or above the form when none is.

@@ -52,6 +52,8 @@ export interface PluginFormSlotProps {
   capabilities?: PluginCapabilities;
   /** The plugin schema's root fail_when rules; pass to the composed renderer. */
   failRules?: FailRule[];
+  /** Values the framework adds to the payload outside the form; pass to the composed renderer. */
+  fixedValues?: Record<string, unknown>;
   /** Per-field override threaded through, so a composed renderer can honour it. */
   renderField?: RenderFieldOverride;
   /**

@@ -630,6 +630,27 @@ describe('PluginTaskEditPage — schema-wide fail rules', () => {
     expect(mockUpdateTaskMutate).not.toHaveBeenCalled();
   });
 
+  it('reads the pinned task_name, which is not a form field, as submitted', async () => {
+    const user = userEvent.setup();
+    mockUsePluginTask.mockReturnValue({ data: STORED_TASK, isLoading: false });
+    renderAt({
+      schema: {
+        ...schema,
+        fail_when: [
+          {
+            fail_when: { falsy: 'task_name' },
+            error_fields: [],
+            message: 'A task needs a name.',
+          },
+        ],
+      } as unknown as PluginSchema,
+    });
+
+    expect(screen.queryByText('A task needs a name.')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Save checksum' }));
+    await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
+  });
+
   it('hands the root rules to a custom form slot', () => {
     mockUsePluginTask.mockReturnValue({ data: STORED_TASK, isLoading: false });
     const renderEditForm = vi.fn<RenderFormSlot>(() => null);

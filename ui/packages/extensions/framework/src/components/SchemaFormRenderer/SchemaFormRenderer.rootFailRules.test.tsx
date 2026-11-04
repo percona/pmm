@@ -333,6 +333,25 @@ describe('SchemaFormRenderer — root fail_when rules', () => {
     expect(onSubmit.mock.calls[0][0]).not.toHaveProperty(['source', 'b']);
   });
 
+  it('reads fixed values the caller adds to the payload as submitted', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={SECTIONS}
+        failRules={[
+          {
+            fail_when: { falsy: 'executor_host' },
+            error_fields: [],
+            message: 'A host is required.',
+          },
+        ]}
+        fixedValues={{ executor_host: 'db-1' }}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.queryByTestId('form-rule-violation')).toBeNull();
+  });
+
   it('leaves a schema without root rules to its section rules', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();

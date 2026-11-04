@@ -42,7 +42,8 @@ function defaultFailMessage(): string {
  */
 function useFailRuleLists(
   ruleLists: FailRule[][],
-  unsubmitted?: ReadonlySet<string>
+  unsubmitted?: ReadonlySet<string>,
+  fixedValues?: Record<string, unknown>
 ): FailViolation[][] {
   const { control } = useFormContext();
 
@@ -72,6 +73,11 @@ function useFailRuleLists(
         map[name] = undefined;
       }
     }
+    for (const [name, value] of Object.entries(fixedValues ?? {})) {
+      if (Object.prototype.hasOwnProperty.call(map, name)) {
+        map[name] = value;
+      }
+    }
     return ruleLists.map((rules) => {
       const violations: FailViolation[] = [];
       for (const rule of rules) {
@@ -84,7 +90,7 @@ function useFailRuleLists(
       }
       return violations;
     });
-  }, [rawValues, ruleLists, watchedNames, unsubmitted]);
+  }, [rawValues, ruleLists, watchedNames, unsubmitted, fixedValues]);
 }
 
 /**
@@ -111,12 +117,14 @@ export function useFailRules(sections: FormSection[]): FailViolation[][] {
  *
  * A root rule may name fields in any section, so a field the payload will not
  * carry — gated out, or in an inactive one-of branch — reads as absent, the way
- * the backend sees the same payload.
+ * the backend sees the same payload. `fixedValues` are what the caller adds to
+ * the payload outside the form, and are read as submitted.
  */
 export function useRootFailRules(
   rules: FailRule[] | undefined,
-  unsubmitted: ReadonlySet<string>
+  unsubmitted: ReadonlySet<string>,
+  fixedValues?: Record<string, unknown>
 ): FailViolation[] {
   const ruleLists = useMemo(() => [rules ?? []], [rules]);
-  return useFailRuleLists(ruleLists, unsubmitted)[0];
+  return useFailRuleLists(ruleLists, unsubmitted, fixedValues)[0];
 }
