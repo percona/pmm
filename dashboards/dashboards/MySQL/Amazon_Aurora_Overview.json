@@ -1,0 +1,725 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "Amazon Aurora MySQL clusters and instances monitored by PMM",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "bolt",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Alerting",
+            "tooltip": "Alert rules and firing alerts",
+            "type": "link",
+            "url": "/graph/alerting/list"
+        },
+        {
+            "asDropdown": false,
+            "icon": "info",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Advisors",
+            "tooltip": "Advisor insights for your services",
+            "type": "link",
+            "url": "/graph/advisors/insights"
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": "Metrics",
+            "description": "One row per Aurora MySQL cluster (AWS region, account and cluster ID), built from each instance's MySQL exporter.\n\n- **Cluster**: DB cluster identifier, read by rds_exporter from AWS when it starts. *AWS cluster unknown*: the instance's rds_exporter does not report its cluster, for example because its pmm-client is older than PMM Server.\n- **Monitored instances**: Aurora MySQL services PMM monitors in the cluster (`mysql_up`), including those whose exporter stopped reporting within the last hour. Live.\n- **Exporters connected**: how many of the monitored instances have their MySQL exporter connected to the database (`mysql_up` = 1), out of Monitored instances. Live.\n- **Writers**: instances with `innodb_read_only` = 0. Sampled every minute, so it shows *changing* instead of *1 writer* during a failover or when no instance reports its role.\n- **Queries/s**: queries per second over the cluster's instances (MySQL `Queries` status counter). Live.\n- **Storage used**: cluster volume in use, from CloudWatch `VolumeBytesUsed` per cluster, counted once per cluster. AWS publishes it irregularly, so it can be up to about 3 hours old.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "minWidth": 110
+                    },
+                    "mappings": [],
+                    "noValue": "-",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "region"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Region"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "aws_account_id"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "AWS account"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "aws_cluster_id"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Cluster"
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #A"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Monitored instances"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #B"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Exporters connected"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #C"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Writers"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "1 writer"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": null,
+                                            "result": {
+                                                "color": "orange",
+                                                "index": 1,
+                                                "text": "changing"
+                                            },
+                                            "to": null
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null",
+                                            "result": {
+                                                "color": "orange",
+                                                "index": 2,
+                                                "text": "changing"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #D"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Queries/s"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "qps"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #E"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Storage used"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Cluster"
+                    }
+                ]
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count by (region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count by (region, aws_account_id, aws_cluster_id) (\n(max by (node_id) (mysql_global_variables_innodb_read_only{region=~\"$region\"}) == 0)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (region, aws_account_id, aws_cluster_id) (\nrate(mysql_global_status_queries{region=~\"$region\"}[$__rate_interval])\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (region, aws_account_id, aws_cluster_id) (aws_rds_volume_bytes_used_average{region=~\"$region\"})\nand on (region, aws_account_id, aws_cluster_id)\n(\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                }
+            ],
+            "title": "Aurora clusters",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {
+                            "Time": 0,
+                            "Value #A": 4,
+                            "Value #B": 5,
+                            "Value #C": 6,
+                            "Value #D": 7,
+                            "Value #E": 8,
+                            "aws_account_id": 2,
+                            "aws_cluster_id": 3,
+                            "region": 1
+                        },
+                        "renameByName": {}
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "One row per Aurora MySQL service. Click a service to open MySQL Amazon Aurora Details for it.\n\n- **Role**: from `innodb_read_only`: 0 writer, 1 reader, unknown when the exporter does not report it. Sampled every minute.\n- **Status**: Up when the MySQL exporter is connected to the database (`mysql_up` = 1); Down when it is not, or when the exporter stopped reporting within the last hour. Live.\n- **Queries/s**: queries per second on the instance (MySQL `Queries` status counter). Live.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "minWidth": 110
+                    },
+                    "mappings": [],
+                    "noValue": "-",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "service_name"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Service"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MySQL Amazon Aurora Details",
+                                        "url": "/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=${__data.fields.service_name}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 280
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "region"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Region"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "aws_cluster_id"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Cluster"
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #A"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Status"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "Down"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "Up"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #B"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Role"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "index": 0,
+                                                "text": "writer"
+                                            },
+                                            "1": {
+                                                "index": 1,
+                                                "text": "reader"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null",
+                                            "result": {
+                                                "index": 2,
+                                                "text": "unknown"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "noValue",
+                                "value": "unknown"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #C"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Queries/s"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "qps"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 8
+            },
+            "id": 2,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Cluster"
+                    }
+                ]
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\nmax by (node_id, service_name) (mysql_global_variables_innodb_read_only{region=~\"$region\"})\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (service_name, region, aws_account_id, aws_cluster_id) (\nrate(mysql_global_status_queries{region=~\"$region\"}[$__rate_interval])\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                }
+            ],
+            "title": "Aurora instances",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "aws_account_id": true
+                        },
+                        "indexByName": {
+                            "Time": 0,
+                            "Value #A": 6,
+                            "Value #B": 5,
+                            "Value #C": 7,
+                            "aws_account_id": 3,
+                            "aws_cluster_id": 4,
+                            "region": 2,
+                            "service_name": 1
+                        },
+                        "renameByName": {}
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "Percona",
+        "MySQL"
+    ],
+    "templating": {
+        "list": [
+            {
+                "allValue": ".*",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_up, region)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Region",
+                "multi": true,
+                "name": "region",
+                "options": [],
+                "query": {
+                    "query": "label_values(mysql_up, region)",
+                    "refId": "Metrics-region-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Amazon Aurora Overview",
+    "uid": "aurora-overview",
+    "weekStart": ""
+}

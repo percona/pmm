@@ -92,6 +92,12 @@ export const NAV_MYSQL: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,
     },
     {
+      id: 'mysql-aurora',
+      icon: DashboardOutlined,
+      text: 'Amazon Aurora',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/aurora-overview/amazon-aurora-overview`,
+    },
+    {
       id: 'mysql-high-availability',
       icon: Graph5Icon,
       text: 'High availability',
