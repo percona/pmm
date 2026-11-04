@@ -83,6 +83,10 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 		return nil, err
 	}
 
+	if (req.AwsAccessKey == "") != (req.AwsSecretKey == "") {
+		return nil, status.Error(codes.InvalidArgument, "aws_access_key and aws_secret_key must be set together")
+	}
+
 	// Use given credentials, or default credential chain.
 	var creds aws.CredentialsProvider
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
@@ -160,10 +164,7 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 						continue
 					}
 
-					az := ""
-					if len(ng.NodeGroupMembers) > 0 {
-						az = pointer.GetString(ng.NodeGroupMembers[0].PreferredAvailabilityZone)
-					}
+					az := nodeGroupAZ(ng)
 
 					instances <- &managementv1.DiscoverElastiCacheInstance{
 						Region:                   region,
@@ -337,4 +338,17 @@ func (s *ManagementService) addElastiCache(ctx context.Context, req *managementv
 			Elasticache: ec,
 		},
 	}, nil
+}
+
+// nodeGroupAZ returns the primary member's AZ, falling back to the first member when no role is reported.
+func nodeGroupAZ(ng ectypes.NodeGroup) string {
+	for _, m := range ng.NodeGroupMembers {
+		if pointer.GetString(m.CurrentRole) == "primary" {
+			return pointer.GetString(m.PreferredAvailabilityZone)
+		}
+	}
+	if len(ng.NodeGroupMembers) > 0 {
+		return pointer.GetString(ng.NodeGroupMembers[0].PreferredAvailabilityZone)
+	}
+	return ""
 }

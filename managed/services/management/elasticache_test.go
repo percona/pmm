@@ -18,6 +18,8 @@ package management
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
+	ectypes "github.com/aws/aws-sdk-go-v2/service/elasticache/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -73,4 +75,18 @@ func TestElastiCacheEngineMap(t *testing.T) {
 		_, ok := elasticacheEngines["memcached"]
 		assert.False(t, ok)
 	})
+}
+
+func TestNodeGroupAZ(t *testing.T) {
+	member := func(az, role string) ectypes.NodeGroupMember {
+		return ectypes.NodeGroupMember{PreferredAvailabilityZone: pointer.ToString(az), CurrentRole: pointer.ToStringOrNil(role)}
+	}
+
+	assert.Equal(t, "us-east-1b", nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
+		member("us-east-1a", "replica"), member("us-east-1b", "primary"),
+	}}))
+	assert.Equal(t, "us-east-1a", nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
+		member("us-east-1a", ""), member("us-east-1b", ""),
+	}}))
+	assert.Empty(t, nodeGroupAZ(ectypes.NodeGroup{}))
 }

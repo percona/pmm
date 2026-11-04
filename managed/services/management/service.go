@@ -191,6 +191,8 @@ func addServiceTarget(req *managementv1.AddServiceRequest) (string, string) {
 		return req.GetValkey().GetPmmAgentId(), req.GetValkey().GetAddress()
 	case *managementv1.AddServiceRequest_Rds:
 		return req.GetRds().GetPmmAgentId(), req.GetRds().GetAddress()
+	case *managementv1.AddServiceRequest_Elasticache:
+		return req.GetElasticache().GetPmmAgentId(), req.GetElasticache().GetAddress()
 	default:
 		// External and HAProxy Services are scraped on the Node their exporter runs on,
 		// so they cannot offload work onto it.

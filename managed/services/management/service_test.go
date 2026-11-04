@@ -533,7 +533,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()

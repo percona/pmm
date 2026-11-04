@@ -358,10 +358,7 @@ func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws
 
 			// Cluster Mode Disabled: add primary (writer) and reader endpoints per shard.
 			for _, ng := range rg.NodeGroups {
-				az := ""
-				if len(ng.NodeGroupMembers) > 0 {
-					az = pointer.GetString(ng.NodeGroupMembers[0].PreferredAvailabilityZone)
-				}
+				az := nodeGroupAZ(ng)
 
 				if ng.PrimaryEndpoint != nil {
 					instances = append(instances, discoveredInstance{
