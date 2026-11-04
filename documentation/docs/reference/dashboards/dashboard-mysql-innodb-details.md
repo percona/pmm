@@ -392,11 +392,11 @@ Pages Flushed Per Adaptive Batch.
 
 ### Neighbor Flushing
 
-To optimize IO for rotational Media InnoDB may flush neighbor pages. It can cause significant wasted IO for flash storage.    Generally for flash you should run with `innodb_flush_neighbors=0` but otherwise this shows how much IO you're wasting.
+To optimize IO for rotational Media InnoDB may flush neighbor pages. It can cause significant wasted IO for flash storage. Generally, for flash you should run with `innodb_flush_neighbors=0` but otherwise this shows how much IO you're wasting.
 
 ### Pages Flushed (LRU)
 
-Flushing from the tail of the LRU list is needed to keep readily-available free pages for new data to be read when data does not fit in the buffer pool.
+Flushing from the tail of the LRU list is needed to keep readily available free pages for new data to be read when data does not fit in the buffer pool.
 
 ### LRU Flush Batches Executed
 
@@ -519,12 +519,13 @@ Shows how much redo data InnoDB holds before flushing it to disk, compared with 
 To check whether the log buffer is large enough for your write load:
 {.power-number}
 
-1. Set the time range to your busiest write periods, and compare the peaks of **Max Log Space Used** with **Log Buffer Size**. Peaks that regularly reach **Log Buffer Size** can mean transactions are waiting for space in the log buffer.
+1. Set the time range to your busiest write periods, and compare the peaks of **Max Log Space Used** with **Log Buffer Size**. Peaks that regularly reach **Log Buffer Size** may indicate that transactions are waiting for space in the log buffer.
 
-    **Max Log Space Used** also counts redo already written to the log files but not yet flushed, so it can rise above **Log Buffer Size** without the buffer being full. With the default `innodb_flush_log_at_trx_commit=1`, every commit flushes the log, so the value tracks the group commit backlog and stays well below **Log Buffer Size** on low-concurrency workloads. A low value on such a server doesn't prove the buffer is large enough.
+    **Max Log Space Used** also counts redo that has already been written to the log files but not yet flushed, so it can exceed **Log Buffer Size** even if the buffer isn't full. With the default `innodb_flush_log_at_trx_commit=1`, every commit flushes the log, so the value only shows redo from commits still waiting to be flushed. On low-concurrency workloads, it stays well below **Log Buffer Size**, so a low value doesn't prove the buffer is large enough.
 2. Check **InnoDB Log File Flush Latency**. If log flushes are slow, a larger log buffer only delays the same wait. Fix the disk latency instead.
 3. If flush latency is normal, increase `innodb_log_buffer_size`.
 
+To troubleshoot a missing **Max Log Space Used** line, check which server you're monitoring:
 To troubleshoot a missing **Max Log Space Used** line, check which server you're monitoring:
 
 - On Oracle MySQL 8.0.30 and newer, upgrade PMM Server and PMM Client to 3.10.0 or later. Older PMM Clients don't read `Innodb_redo_log_current_lsn` and `Innodb_redo_log_flushed_to_disk_lsn`, the status variables these servers use for redo log sequence numbers.
