@@ -99,6 +99,7 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 	}
 
 	up := pointer.GetFloat64(fields.f64(fieldExporterUp)) == 1
+	role := processRole(fields)
 
 	return &omv1.TopologyService{
 		ServiceName:            service.ServiceName,
@@ -110,11 +111,11 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		Vendor:                 optional(fields.str(fieldVendor)),
 		Edition:                optional(fields.str(fieldEdition)),
 		ReplicationSet:         optional(fields.str(fieldReplicationSet)),
-		State:                  optional(fields.str(fieldState)),
+		State:                  optional(memberState(fields, up, role)),
 		Status:                 serviceStatus(up),
 		CpuUsagePercent:        gauge(fields.f64(fieldCPUUsage), up),
 		ConnectionsFreePercent: gauge(fields.f64(fieldConnectionsFree), up),
-		ProcessRole:            processRole(fields),
+		ProcessRole:            role,
 		ReplicationLagSeconds:  optionalDouble(fields.f64(fieldReplicationLag)),
 		OplogWindowSeconds:     optionalDouble(oplogWindow(fields)),
 
@@ -182,10 +183,22 @@ func processRole(fields fieldSet) omv1.ProcessRole {
 	if fields.truthy(fieldIsMongos) {
 		return omv1.ProcessRole_PROCESS_ROLE_MONGOS
 	}
+	if fields.str(fieldNodeType) == nodeTypeArbiter {
+		return omv1.ProcessRole_PROCESS_ROLE_ARBITER
+	}
 	if role, ok := clusterRoles[fields.str(fieldClusterRole)]; ok {
 		return role
 	}
 	return omv1.ProcessRole_PROCESS_ROLE_MONGOD
+}
+
+// memberState derives an arbiter's state only while it is up, since its role outlives the process.
+func memberState(fields fieldSet, up bool, role omv1.ProcessRole) string {
+	state := fields.str(fieldState)
+	if state == "" && up && role == omv1.ProcessRole_PROCESS_ROLE_ARBITER {
+		return "ARBITER"
+	}
+	return state
 }
 
 // gauge reports a down service as unmeasured even if a reading survives in the query window,

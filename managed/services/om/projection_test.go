@@ -171,12 +171,41 @@ func TestBuildDocument(t *testing.T) {
 			}, omv1.ProcessRole_PROCESS_ROLE_CONFIGSVR},
 			{"shard server", map[string]MergedField{
 				fieldClusterRole: {Value: "shardsvr", Source: sourceMetrics, ObservedAt: &observed},
+				fieldNodeType:    {Value: "mongod", Source: sourceMetrics, ObservedAt: &observed},
 			}, omv1.ProcessRole_PROCESS_ROLE_SHARDSVR},
 		} {
 			doc := buildDocument(services,
 				map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", tc.extra)},
 				projectionNow, projectionMaxAge)
 			assert.Equal(t, tc.want, onlyService(t, doc).ProcessRole, tc.name)
+		}
+	})
+
+	t.Run("an arbiter keeps its role when down, and reads ARBITER only while up", func(t *testing.T) {
+		t.Parallel()
+
+		observed := projectionNow.Add(-5 * time.Second)
+		stale := projectionNow.Add(-10 * time.Minute)
+		services := []*models.Service{mongoService("s1", "arbiter-1", "c1", "rs0", "prod")}
+
+		for _, tc := range []struct {
+			name      string
+			up        float64
+			seenAt    time.Time
+			wantState string
+		}{
+			{"up", 1, observed, "ARBITER"},
+			{"just stopped", 0, observed, ""},
+			{"stopped for longer than maxAge", 0, stale, ""},
+		} {
+			fields := liveFacts("", map[string]MergedField{
+				fieldExporterUp: {Value: tc.up, Source: sourceMetrics, ObservedAt: &observed},
+				fieldNodeType:   {Value: nodeTypeArbiter, Source: sourceMetrics, ObservedAt: &tc.seenAt},
+			})
+
+			svc := onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge))
+			assert.Equal(t, tc.wantState, svc.GetState(), tc.name)
+			assert.Equal(t, omv1.ProcessRole_PROCESS_ROLE_ARBITER, svc.ProcessRole, tc.name)
 		}
 	})
 

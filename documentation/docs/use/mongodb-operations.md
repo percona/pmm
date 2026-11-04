@@ -225,7 +225,7 @@ To view fleet health:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
-    - **Process**: the member types in the cluster, for example routers and shards.
+    - **Process**: the member types in the cluster, for example routers, shards and arbiters.
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
