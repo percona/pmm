@@ -13,12 +13,23 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Inventory page now in native PMM UI
+
+PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revamped-user-interface) instead of Grafana's menus since 3.6.0, and its pages are gradually moving from Grafana to native PMM UI. [**Inventory**](../use/dashboard-inventory.md) now joins [**Updates**](3.0.0.md#new-upgrade-ui), **Help**, [**Real-Time Analytics**](3.7.0.md#real-time-query-analytics-rta-for-mongodb), [**Settings**](3.8.0.md#settings-page-now-in-native-pmm-ui) and [**Alerts > Status**](3.9.0.md#alert-status-page-view-alerts-by-node-or-service), which already run there.
+
+You get the same services, nodes and agents, now with:
+
+- filtered views that you can bookmark and share, while your existing bookmarks keep working
+- a simpler layout, with the details and actions of each service and node right in its row:
+
+    ![Inventory page in native PMM UI](../images/PMM_Inventory_Services.png)
+
 ## 🔒 Security updates
 
 ## 📈 Improvements
 
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
-- [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** pages now open in the PMM UI. The **Services** and **Nodes** tables look different, but they work the same way, and existing Inventory links and bookmarks redirect to the new pages. For details, see [About PMM Inventory](../use/dashboard-inventory.md).
+- [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** page now runs in [native PMM UI](#inventory-page-now-in-native-pmm-ui), so it looks and works like the rest of the PMM interface. You can also bookmark and share filtered views of your services and nodes, and your existing Inventory bookmarks keep working.
 
 ## ✅ Fixed issues
 
