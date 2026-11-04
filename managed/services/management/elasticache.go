@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"math"
 	"net/http"
 	"sort"
 
@@ -229,6 +230,10 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 
 // addElastiCache adds an ElastiCache instance as a Valkey service.
 func (s *ManagementService) addElastiCache(ctx context.Context, req *managementv1.AddElastiCacheServiceParams) (*managementv1.AddServiceResponse, error) {
+	if req.Port > math.MaxUint16 {
+		return nil, status.Errorf(codes.InvalidArgument, "port must be between 1 and %d", math.MaxUint16)
+	}
+
 	ec := &managementv1.ElastiCacheServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
@@ -291,6 +296,7 @@ func (s *ManagementService) addElastiCache(ctx context.Context, req *managementv
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			AgentPassword: req.AgentPassword,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{

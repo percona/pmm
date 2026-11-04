@@ -370,6 +370,7 @@ func TestAddNode(t *testing.T) {
 					CustomLabels: map[string]string{
 						"env": "production",
 					},
+					InstanceId: "my-replication-group",
 				},
 			},
 		})
@@ -385,6 +386,7 @@ func TestAddNode(t *testing.T) {
 			CustomLabels: map[string]string{
 				"env": "production",
 			},
+			InstanceId: "my-replication-group",
 		}
 		assert.Equal(t, expectedNode, addNodeResponse.GetRemoteElasticache())
 

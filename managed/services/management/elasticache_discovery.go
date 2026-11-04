@@ -184,6 +184,10 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 			d.l.Warnf("Failed to find node for %s (%s): %v", svc.ServiceName, addr, err)
 			continue
 		}
+		// managed_by is a user-editable label; also require a discovery-style node.
+		if node.NodeType != models.RemoteElastiCacheNodeType {
+			continue
+		}
 		if _, ok := cleanRegions[pointer.GetString(node.Region)]; !ok {
 			removeSkipped++
 			continue
@@ -407,7 +411,7 @@ type tagResult struct {
 // unknown (not as "not tagged") to avoid false stale-removals.
 func (d *ElastiCacheDiscovery) checkTags(ctx context.Context, client *elasticache.Client, rg ectypes.ReplicationGroup) (tagResult, error) {
 	if rg.ARN == nil {
-		return tagResult{}, nil
+		return tagResult{}, fmt.Errorf("%s has no ARN, tag state unknown", pointer.GetString(rg.ReplicationGroupId))
 	}
 
 	resp, err := client.ListTagsForResource(ctx, &elasticache.ListTagsForResourceInput{
@@ -456,15 +460,16 @@ func (d *ElastiCacheDiscovery) findManagedServices() ([]*models.Service, error) 
 
 // addInstance creates a RemoteElastiCacheNode + ValkeyService + ValkeyExporter for a discovered instance.
 func (d *ElastiCacheDiscovery) addInstance(ctx context.Context, inst discoveredInstance) error {
-	serviceName := fmt.Sprintf("elasticache-%s", inst.ClusterID)
+	// Replication group IDs are only unique per region; node and service names are global.
+	serviceName := fmt.Sprintf("elasticache-%s-%s", inst.ClusterID, inst.Region)
 	if inst.Role == "reader" {
-		serviceName = fmt.Sprintf("elasticache-%s-reader", inst.ClusterID)
+		serviceName += "-reader"
 	}
 	d.l.Infof("ADD %s [%s] %s:%d (env=%s)", serviceName, inst.Role, inst.Address, inst.Port, inst.Environment)
 
 	pmmAgentID := models.PMMServerAgentID
 
-	return d.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	err := d.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err := models.CreateNode(tx.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
 			NodeName:   serviceName,
 			NodeModel:  inst.NodeType,
@@ -511,17 +516,22 @@ func (d *ElastiCacheDiscovery) addInstance(ctx context.Context, inst discoveredI
 		if err != nil {
 			return fmt.Errorf("create agent: %w", err)
 		}
-
-		d.state.RequestStateUpdate(ctx, pmmAgentID)
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	d.state.RequestStateUpdate(ctx, pmmAgentID)
+	return nil
 }
 
 // removeService removes a service, its agents, and its node.
 func (d *ElastiCacheDiscovery) removeService(ctx context.Context, svc *models.Service) error {
 	d.l.Infof("DEL %s (%s)", svc.ServiceName, pointer.GetString(svc.Address))
 
-	return d.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	pmmAgentIDs := make(map[string]struct{})
+	err := d.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{ServiceID: svc.ServiceID})
 		if err != nil {
 			return err
@@ -531,7 +541,7 @@ func (d *ElastiCacheDiscovery) removeService(ctx context.Context, svc *models.Se
 				return err
 			}
 			if agent.PMMAgentID != nil {
-				d.state.RequestStateUpdate(ctx, pointer.GetString(agent.PMMAgentID))
+				pmmAgentIDs[pointer.GetString(agent.PMMAgentID)] = struct{}{}
 			}
 		}
 
@@ -545,12 +555,25 @@ func (d *ElastiCacheDiscovery) removeService(ctx context.Context, svc *models.Se
 		if err != nil {
 			return err
 		}
-		if node.NodeType == models.RemoteElastiCacheNodeType {
-			if err := models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
-				return err
-			}
+		if node.NodeType != models.RemoteElastiCacheNodeType {
+			return nil
 		}
-
-		return nil
+		// RemoveNode cascades to every service on the node, so keep it while other services use it.
+		remaining, err := models.FindServices(tx.Querier, models.ServiceFilters{NodeID: node.NodeID})
+		if err != nil {
+			return err
+		}
+		if len(remaining) > 0 {
+			return nil
+		}
+		return models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 	})
+	if err != nil {
+		return err
+	}
+
+	for id := range pmmAgentIDs {
+		d.state.RequestStateUpdate(ctx, id)
+	}
+	return nil
 }

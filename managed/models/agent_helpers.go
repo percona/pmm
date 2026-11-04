@@ -820,7 +820,7 @@ func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
 		RemoteNodeType:              ExternalExporterType,
 		RemoteRDSNodeType:           RDSExporterType,
 		RemoteAzureDatabaseNodeType: AzureDatabaseExporterType,
-		RemoteElastiCacheNodeType:   allowAll,
+		RemoteElastiCacheNodeType:   ValkeyExporterType,
 	}
 
 	allowed, ok := allow[nodeType]

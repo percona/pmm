@@ -310,19 +310,26 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			return err
 		}
 
-		node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+		node, err := models.FindNodeByID(tx.Querier, service.NodeID)
+		if err != nil {
+			return err
+		}
+
+		// RemoveNode cascades to every service on the node, so keep it while other services use it.
+		remaining, err := models.FindServices(tx.Querier, models.ServiceFilters{NodeID: node.NodeID})
 		if err != nil {
 			return err
 		}
 
 		// For RDS, Azure and ElastiCache we also want to remove the node.
-		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType || node.NodeType == models.RemoteElastiCacheNodeType {
+		if len(remaining) == 0 &&
+			(node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType || node.NodeType == models.RemoteElastiCacheNodeType) {
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 			if err != nil {
 				return err
 			}
 			for _, a := range agents {
-				_, err := models.RemoveAgent(s.db.Querier, a.AgentID, models.RemoveRestrict)
+				_, err := models.RemoveAgent(tx.Querier, a.AgentID, models.RemoveRestrict)
 				if err != nil {
 					return err
 				}

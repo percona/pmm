@@ -316,6 +316,7 @@ func (s *NodesService) AddRemoteElastiCacheNode(ctx context.Context, req *invent
 		Region:       pointer.ToStringOrNil(req.Region),
 		AZ:           req.Az,
 		CustomLabels: req.CustomLabels,
+		InstanceID:   req.InstanceId,
 	}
 
 	node := &models.Node{}

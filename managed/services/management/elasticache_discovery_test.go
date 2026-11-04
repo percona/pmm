@@ -141,7 +141,7 @@ func TestElastiCacheDiscovery(t *testing.T) {
 		managed, err := d.findManagedServices()
 		require.NoError(t, err)
 		require.Len(t, managed, 1)
-		assert.Equal(t, "elasticache-my-cluster", managed[0].ServiceName)
+		assert.Equal(t, "elasticache-my-cluster-us-east-1", managed[0].ServiceName)
 		assert.Equal(t, "my-cluster.abc123.use1.cache.amazonaws.com", pointer.GetString(managed[0].Address))
 
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: managed[0].ServiceID})
@@ -189,6 +189,53 @@ func TestElastiCacheDiscovery(t *testing.T) {
 		managed, err := d.findManagedServices()
 		require.NoError(t, err)
 		require.Len(t, managed, 1)
-		assert.Equal(t, "elasticache-my-cluster-reader", managed[0].ServiceName)
+		assert.Equal(t, "elasticache-my-cluster-us-east-1-reader", managed[0].ServiceName)
+	})
+
+	t.Run("RemoveKeepsNodeWithOtherServices", func(t *testing.T) {
+		ctx := logger.Set(t.Context(), t.Name())
+		uuid.SetRand(&tests.IDReader{})
+		t.Cleanup(func() { uuid.SetRand(nil) })
+
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		state := &mockAgentsStateUpdater{}
+		state.Test(t)
+		t.Cleanup(func() { state.AssertExpectations(t) })
+
+		d := NewElastiCacheDiscovery(db, state)
+
+		state.On("RequestStateUpdate", ctx, models.PMMServerAgentID)
+		err := d.addInstance(ctx, discoveredInstance{
+			Region:    "us-east-1",
+			ClusterID: "my-cluster",
+			Address:   "my-cluster.abc123.use1.cache.amazonaws.com",
+			Port:      6379,
+			Engine:    "valkey",
+			Role:      "primary",
+		})
+		require.NoError(t, err)
+
+		managed, err := d.findManagedServices()
+		require.NoError(t, err)
+		require.Len(t, managed, 1)
+
+		other, err := models.AddNewService(db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "manual-valkey",
+			NodeID:      managed[0].NodeID,
+			Address:     pointer.ToString("manual.cache.amazonaws.com"), //nolint:modernize
+			Port:        pointer.ToUint16(6380),
+		})
+		require.NoError(t, err)
+
+		err = d.removeService(ctx, managed[0])
+		require.NoError(t, err)
+
+		_, err = models.FindServiceByID(db.Querier, other.ServiceID)
+		require.NoError(t, err)
+		_, err = models.FindNodeByID(db.Querier, managed[0].NodeID)
+		require.NoError(t, err)
 	})
 }
