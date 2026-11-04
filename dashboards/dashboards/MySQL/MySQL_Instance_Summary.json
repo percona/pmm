@@ -4757,6 +4757,10 @@
                             "pointradius": 1,
                             "points": true,
                             "yaxis": 2
+                        },
+                        {
+                            "alias": "CPU Utilization (all cores, RDS)",
+                            "yaxis": 2
                         }
                     ],
                     "spaceLength": 10,

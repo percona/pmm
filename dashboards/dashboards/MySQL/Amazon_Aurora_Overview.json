@@ -56,7 +56,7 @@
     "panels": [
         {
             "datasource": "Metrics",
-            "description": "One row per Aurora MySQL cluster (AWS region, account and cluster ID), built from each instance's MySQL exporter.\n\n- **Cluster**: DB cluster identifier, read by rds_exporter from AWS when it starts. *AWS cluster unknown*: the instance's rds_exporter does not report its cluster, for example because its pmm-client is older than PMM Server.\n- **Monitored instances**: Aurora MySQL services PMM monitors in the cluster (`mysql_up`), including those whose exporter stopped reporting within the last hour. Live.\n- **Exporters connected**: how many of the monitored instances have their MySQL exporter connected to the database (`mysql_up` = 1), out of Monitored instances. Live.\n- **Writers**: instances with `innodb_read_only` = 0. Sampled every minute, so it shows *changing* instead of *1 writer* during a failover or when no instance reports its role.\n- **Queries/s**: queries per second over the cluster's instances (MySQL `Queries` status counter). Live.\n- **Storage used**: cluster volume in use, from CloudWatch `VolumeBytesUsed` per cluster, counted once per cluster. AWS publishes it irregularly, so it can be up to about 3 hours old.",
+            "description": "One row per Aurora MySQL cluster (AWS region, account and cluster ID), built from each instance's MySQL exporter.\n\n- **Cluster**: DB cluster identifier, read by rds_exporter from AWS when it starts. *AWS cluster unknown*: the instance has no rds_exporter (added with `pmm-admin add mysql`, or discovered on a pmm-agent older than PMM Server), so its cluster is not known. This row can lump instances of several clusters, so Writers there reads *changing*.\n- **Monitored instances**: Aurora MySQL services PMM monitors in the cluster (`mysql_up`), including those whose exporter stopped reporting within the last hour. Live.\n- **Exporters connected**: how many of the monitored instances have their MySQL exporter connected to the database (`mysql_up` = 1), out of Monitored instances. Live.\n- **Writers**: instances with `innodb_read_only` = 0. Sampled every minute, so it shows *changing* instead of *1 writer* during a failover or when no instance reports its role.\n- **Queries/s**: queries per second over the cluster's instances (MySQL `Queries` status counter). Live.\n- **Storage used**: cluster volume in use, from CloudWatch `VolumeBytesUsed` per cluster, counted once per cluster. AWS publishes it irregularly, so it can be up to about 3 hours old.",
             "fieldConfig": {
                 "defaults": {
                     "custom": {
@@ -429,7 +429,7 @@
                                 "value": [
                                     {
                                         "title": "MySQL Amazon Aurora Details",
-                                        "url": "/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=${__data.fields.service_name}"
+                                        "url": "/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=${__data.fields.service_name}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -694,7 +694,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up, region)",
+                "definition": "label_values(mysql_global_status_auroradb_commits, region)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Region",
@@ -702,7 +702,7 @@
                 "name": "region",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up, region)",
+                    "query": "label_values(mysql_global_status_auroradb_commits, region)",
                     "refId": "Metrics-region-Variable-Query"
                 },
                 "refresh": 2,

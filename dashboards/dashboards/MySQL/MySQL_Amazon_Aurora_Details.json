@@ -127,15 +127,7 @@
                             {
                                 "id": "custom.axisPlacement",
                                 "value": "right"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Amazon Aurora Commit avg Latency"
-                        },
-                        "properties": [
+                            },
                             {
                                 "id": "color",
                                 "value": {
@@ -148,7 +140,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Number of Amazon Aurora Commits "
+                            "options": "Number of Amazon Aurora Commits"
                         },
                         "properties": [
                             {
@@ -199,7 +191,7 @@
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Number of Amazon Aurora Commits ",
+                    "legendFormat": "Number of Amazon Aurora Commits",
                     "range": true,
                     "refId": "A"
                 },
@@ -327,7 +319,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "SELECT load "
+                            "options": "SELECT load"
                         },
                         "properties": [
                             {
@@ -432,7 +424,7 @@
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "SELECT load ",
+                    "legendFormat": "SELECT load",
                     "range": true,
                     "refId": "C"
                 },
