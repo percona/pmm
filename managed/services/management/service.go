@@ -512,7 +512,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 				}
 			}
 
-			if len(pmmAgentIDs) <= 1 {
+			// Discovery re-creates ElastiCache nodes by name, so a leftover node would block it.
+			if len(pmmAgentIDs) <= 1 || node.NodeType == models.RemoteElastiCacheNodeType {
 				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 				if err != nil {
 					return err
