@@ -26,6 +26,8 @@ esac
 
 declare WORKSPACE="${WORKSPACE:-$(pwd)/pmm-workspace}"
 mkdir -p "${WORKSPACE}"
+# Make WORKSPACE absolute: the build scripts run from inside it
+WORKSPACE="$(cd "${WORKSPACE}" && pwd)"
 
 echo -n > "${WORKSPACE}/build.log"
 exec >  >(tee -a "${WORKSPACE}/build.log")
@@ -54,6 +56,10 @@ echo "Initializing submodules"
 git submodule update --init --jobs 10
 
 # Output of a previous run may come from other commits, which the build scripts don't expect
+if [ -d "${WORKSPACE}/tmp" ]; then
+    # Go makes its module cache in tmp/go/pkg/mod read-only, which rm can't delete
+    chmod -R u+w "${WORKSPACE}/tmp"
+fi
 rm -rf "${WORKSPACE}/tmp" "${WORKSPACE}/results"
 
 echo "[1/4] Building pmm-client source tarball"
