@@ -21,6 +21,7 @@ import type {
   FieldValidationError,
 } from '@pmm-extensions/api';
 import type {
+  FailRule,
   FormSection,
   RenderFieldOverride,
 } from '../SchemaFormRenderer/types';
@@ -49,6 +50,8 @@ export interface PluginFormSlotProps {
   defaultValues?: Record<string, unknown>;
   /** Plugin capabilities (e.g. `alert_on_fail`) for the composed renderer. */
   capabilities?: PluginCapabilities;
+  /** The plugin schema's root fail_when rules; pass to the composed renderer. */
+  failRules?: FailRule[];
   /** Per-field override threaded through, so a composed renderer can honour it. */
   renderField?: RenderFieldOverride;
   /**

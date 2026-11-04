@@ -95,7 +95,7 @@ const STORED_TASK = {
 };
 
 function renderAt(
-  extra?: { renderEditForm?: RenderFormSlot },
+  extra?: { renderEditForm?: RenderFormSlot; schema?: PluginSchema },
   path = '/apps/checksums/task/check1/edit'
 ) {
   return render(
@@ -599,5 +599,44 @@ describe('PluginTaskEditPage — write access', () => {
     expect(
       screen.queryByRole('button', { name: 'Save checksum' })
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PluginTaskEditPage — schema-wide fail rules', () => {
+  const ruleSchema = {
+    ...schema,
+    fail_when: [
+      {
+        fail_when: { equals: { title: 'bad' } },
+        error_fields: ['title'],
+        message: 'Title must not be bad.',
+      },
+    ],
+  } as unknown as PluginSchema;
+
+  it('reports a violated root rule inline and does not send the update', async () => {
+    const user = userEvent.setup();
+    mockUsePluginTask.mockReturnValue({ data: STORED_TASK, isLoading: false });
+    renderAt({ schema: ruleSchema });
+
+    const title = screen.getByLabelText('Title');
+    await user.clear(title);
+    await user.type(title, 'bad');
+    await waitFor(() =>
+      expect(title).toHaveAccessibleDescription('Title must not be bad.')
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save checksum' }));
+    expect(mockUpdateTaskMutate).not.toHaveBeenCalled();
+  });
+
+  it('hands the root rules to a custom form slot', () => {
+    mockUsePluginTask.mockReturnValue({ data: STORED_TASK, isLoading: false });
+    const renderEditForm = vi.fn<RenderFormSlot>(() => null);
+    renderAt({ schema: ruleSchema, renderEditForm });
+
+    expect(renderEditForm).toHaveBeenCalledWith(
+      expect.objectContaining({ failRules: ruleSchema.fail_when })
+    );
   });
 });

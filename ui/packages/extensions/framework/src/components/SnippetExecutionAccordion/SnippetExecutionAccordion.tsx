@@ -260,6 +260,7 @@ export function SnippetExecutionAccordion({
         {canMutate && schemaQuery.data && (
           <SchemaFormRenderer
             sections={filteredSections}
+            failRules={schemaQuery.data.fail_when}
             onSubmit={handleSubmit}
             submitLabel="Execute"
             loading={executionMutation.isPending}

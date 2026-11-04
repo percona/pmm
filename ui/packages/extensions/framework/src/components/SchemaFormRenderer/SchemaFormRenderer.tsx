@@ -70,7 +70,15 @@ import {
   useUnregisterHiddenSections,
 } from './hooks/useConditionalSection';
 import { useCardinalityRules } from './hooks/useCardinalityRules';
-import { useFailRules } from './hooks/useFailRules';
+import {
+  useFailRules,
+  useRootFailRules,
+  type FailViolation,
+} from './hooks/useFailRules';
+import {
+  useOneOfPayloadCleanup,
+  useUnsubmittedFieldNames,
+} from './hooks/useUnsubmittedFieldNames';
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 import { coerceFormValues } from './utils/validationMapper';
 import { summariseSection } from './utils/sectionValueSummary';
@@ -81,7 +89,12 @@ import {
   flattenSectionFields,
   isOneOfGroup,
 } from './utils/flattenSectionFields';
-import type { FormSection, PluginField, RenderFieldOverride } from './types';
+import type {
+  FailRule,
+  FormSection,
+  PluginField,
+  RenderFieldOverride,
+} from './types';
 import { toDatetimeLocalValue } from '../../utils/datetimeLocal';
 
 function flattenFields(sections: FormSection[]): PluginField[] {
@@ -287,6 +300,8 @@ interface SectionRendererProps {
    * reader can still collapse it afterwards unless a section violation is active.
    */
   forceExpanded?: boolean;
+  /** Hold the section open, as its own violations do, while this is set. */
+  keepExpanded?: boolean;
   /** Name the section's current values on one line while it is collapsed. */
   showValueSummary?: boolean;
 }
@@ -327,6 +342,7 @@ const SectionRenderer = memo(function SectionRenderer({
   violations,
   renderField,
   forceExpanded = false,
+  keepExpanded = false,
   showValueSummary = false,
 }: SectionRendererProps) {
   const [expanded, setExpanded] = useState(
@@ -402,9 +418,9 @@ const SectionRenderer = memo(function SectionRenderer({
       {showDivider && <Divider sx={{ mb: 2 }} />}
       {section.collapsible ? (
         <Accordion
-          expanded={expanded || violations.length > 0}
+          expanded={expanded || violations.length > 0 || keepExpanded}
           onChange={(_, isExpanded) =>
-            setExpanded(isExpanded || violations.length > 0)
+            setExpanded(isExpanded || violations.length > 0 || keepExpanded)
           }
           disableGutters
           slotProps={{ transition: { unmountOnExit: true } }}
@@ -531,6 +547,12 @@ export interface SchemaFormRendererProps {
    * it holds, so a form can open collapsed without hiding what it will send.
    */
   sectionValueSummary?: boolean;
+  /**
+   * The plugin schema's root `fail_when` rules (`PluginSchema.fail_when`).
+   * Each violation shows inline on its rendered `error_fields`, or in the
+   * form-level error area when none is rendered, and blocks submit.
+   */
+  failRules?: FailRule[];
 }
 
 /**
@@ -590,6 +612,7 @@ function SchemaFormBody({
   submitPlacement = 'inline',
   stickySubmitOffset = 0,
   sectionValueSummary = false,
+  failRules,
 }: SchemaFormRendererProps) {
   const { handleSubmit, formState, setError, clearErrors, getFieldState } =
     useFormContext<Record<string, unknown>>();
@@ -622,6 +645,10 @@ function SchemaFormBody({
   const isGuarded = useUnsavedChangesGuard(submitError);
   const inDataRouter = Boolean(useContext(UNSAFE_DataRouterContext));
   const allFields = useMemo(() => flattenFields(sections), [sections]);
+  const allFieldNames = useMemo(
+    () => new Set(allFields.map((field) => field.name)),
+    [allFields]
+  );
   // Evaluated once for every section, so a group shell can know whether all of
   // its members are gated out before it renders.
   const hiddenSections = useConditionalSections(sections);
@@ -629,7 +656,8 @@ function SchemaFormBody({
   // collapsed shell never mounts, so it cannot drop its own values when it is
   // gated out, and `buildFormDefaults` has already seeded them.
   useUnregisterHiddenSections(sections, hiddenSections);
-  useFieldPayloadCleanup(allFields);
+  const hiddenFieldNames = useFieldPayloadCleanup(allFields);
+  const inactiveBranchNames = useOneOfPayloadCleanup(sections);
   const { standardEntries, advancedEntries, afterSubmitEntries } =
     useMemo(() => {
       const entries = sections.map((section, index) => ({ section, index }));
@@ -673,10 +701,36 @@ function SchemaFormBody({
   );
   const cardinalityViolations = useCardinalityRules(sections);
   const failViolations = useFailRules(sections);
+  const unsubmittedNames = useUnsubmittedFieldNames(sections, hiddenSections, [
+    ...hiddenFieldNames,
+    ...inactiveBranchNames,
+  ]);
+  const rootViolations = useRootFailRules(failRules, unsubmittedNames);
+
+  // A root rule belongs to no section, so it shows on whichever of its
+  // error_fields are on screen, or above the form when none is.
+  const { inlineRootViolations, formLevelRootViolations } = useMemo(() => {
+    const inline: FailViolation[] = [];
+    const formLevel: FailViolation[] = [];
+    for (const violation of rootViolations) {
+      const rendered = violation.error_fields.filter(
+        (name) => allFieldNames.has(name) && !unsubmittedNames.has(name)
+      );
+      if (rendered.length > 0) {
+        inline.push({ ...violation, error_fields: rendered });
+      } else {
+        formLevel.push(violation);
+      }
+    }
+    return {
+      inlineRootViolations: inline,
+      formLevelRootViolations: formLevel,
+    };
+  }, [rootViolations, allFieldNames, unsubmittedNames]);
 
   const failFieldMessages = useMemo(() => {
     const messages = new Map<string, string>();
-    for (const violations of failViolations) {
+    for (const violations of [...failViolations, inlineRootViolations]) {
       for (const { error_fields, message } of violations) {
         for (const path of error_fields) {
           if (!messages.has(path)) {
@@ -686,11 +740,13 @@ function SchemaFormBody({
       }
     }
     return messages;
-  }, [failViolations]);
+  }, [failViolations, inlineRootViolations]);
 
   const hasFailRules = useMemo(
-    () => sections.some((section) => section.fail_when?.length),
-    [sections]
+    () =>
+      Boolean(failRules?.length) ||
+      sections.some((section) => section.fail_when?.length),
+    [sections, failRules]
   );
   const renderFieldWithFailError: RenderFieldOverride = useCallback(
     (props) => (
@@ -733,6 +789,18 @@ function SchemaFormBody({
     return set;
   }, [sections, failFieldMessages]);
 
+  // Collapsing one of these would unmount the only place a root rule shows.
+  const sectionsWithRootTargets = useMemo(() => {
+    const targets = new Set(
+      inlineRootViolations.flatMap(({ error_fields }) => error_fields)
+    );
+    return new Set(
+      sections.filter((section) =>
+        flattenSectionFields([section]).some((field) => targets.has(field.name))
+      )
+    );
+  }, [sections, inlineRootViolations]);
+
   const sectionNeedsReveal = (section: FormSection) =>
     (violationsBySection.get(section)?.length ?? 0) > 0 ||
     sectionsWithFailTargets.has(section);
@@ -750,9 +818,11 @@ function SchemaFormBody({
     }
   }, [showAdvanced]);
 
-  const hasSectionViolations = useMemo(
-    () => [...violationsBySection.values()].some((vs) => vs.length > 0),
-    [violationsBySection]
+  const hasRuleViolations = useMemo(
+    () =>
+      rootViolations.length > 0 ||
+      [...violationsBySection.values()].some((vs) => vs.length > 0),
+    [violationsBySection, rootViolations]
   );
   const hasInlineErrors = Object.keys(formState.errors).length > 0;
 
@@ -773,6 +843,7 @@ function SchemaFormBody({
         erroredAdvanced.has(entry.index) ||
         sectionNeedsReveal(entry.section)
       }
+      keepExpanded={sectionsWithRootTargets.has(entry.section)}
       showValueSummary={sectionValueSummary}
     />
   );
@@ -790,8 +861,8 @@ function SchemaFormBody({
   // inline (not memoized) so it always sees the current cardinality /
   // fail_when violation state and the latest handleFormSubmit.
   const handleSubmitEvent = (event: FormEvent<HTMLFormElement>) => {
-    if (hasSectionViolations) {
-      // Section-level rules render their own inline Alerts. Stop before
+    if (hasRuleViolations) {
+      // Fail and cardinality rules render their own messages. Stop before
       // react-hook-form runs, so it never flags the submit as successful —
       // that would disarm `useUnsavedChangesGuard` (isDirty && !isSubmitSuccessful)
       // for good on this path, since no submitError ever arrives to re-arm it.
@@ -882,6 +953,16 @@ function SchemaFormBody({
             {submitError}
           </Alert>
         )}
+        {formLevelRootViolations.map((violation, i) => (
+          <Alert
+            key={i}
+            severity="error"
+            sx={{ mb: 2 }}
+            data-testid="form-rule-violation"
+          >
+            {violation.message}
+          </Alert>
+        ))}
         {hasInlineErrors && formState.isSubmitted && !submitError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             Fix the highlighted fields before submitting.

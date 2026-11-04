@@ -268,6 +268,7 @@ export function PluginTaskEditPage({
         loading: updateTask.isPending,
         defaultValues: normalizedDefaults,
         capabilities: schema.capabilities,
+        failRules: schema.fail_when,
         renderField,
         submitError,
         fieldErrors,
@@ -281,6 +282,7 @@ export function PluginTaskEditPage({
           fieldErrors={fieldErrors}
           defaultValues={normalizedDefaults}
           capabilities={schema.capabilities}
+          failRules={schema.fail_when}
           itemName={itemName}
           renderField={renderField}
         />

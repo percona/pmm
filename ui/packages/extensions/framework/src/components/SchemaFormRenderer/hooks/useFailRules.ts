@@ -17,7 +17,7 @@
 
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import type { FormSection } from '../types';
+import type { FailRule, FormSection } from '../types';
 import {
   evaluatePredicate,
   getGateFieldNames,
@@ -35,26 +35,20 @@ function defaultFailMessage(): string {
 }
 
 /**
- * Evaluates fail_when rules for all sections against current form values.
+ * Evaluate several lists of fail_when rules under one `useWatch` subscription,
+ * returning the violations of each list positionally.
  *
- * A fail_when rule fires when its predicate evaluates to true — the inverse of
- * cardinality_rules (which fire when a count constraint is violated). Mirrors
- * the BE ConditionalRulesModel.apply_conditional_rules fail_when evaluation.
- *
- * Returns a parallel array of violations per section — index i corresponds to
- * sections[i]. Uses a single useWatch subscription over all referenced fields.
+ * A name in `unsubmitted` reads as absent, since the payload will not carry it.
  */
-export function useFailRules(sections: FormSection[]): FailViolation[][] {
+function useFailRuleLists(
+  ruleLists: FailRule[][],
+  unsubmitted?: ReadonlySet<string>
+): FailViolation[][] {
   const { control } = useFormContext();
-
-  const allRules = useMemo(
-    () => sections.map((s) => s.fail_when ?? []),
-    [sections]
-  );
 
   const watchedNames = useMemo(() => {
     const names = new Set<string>();
-    for (const rules of allRules) {
+    for (const rules of ruleLists) {
       for (const rule of rules) {
         // Watch all fields referenced in the predicate expression.
         for (const f of getGateFieldNames([{ when: rule.fail_when }])) {
@@ -63,7 +57,7 @@ export function useFailRules(sections: FormSection[]): FailViolation[][] {
       }
     }
     return [...names];
-  }, [allRules]);
+  }, [ruleLists]);
 
   const rawValues = useWatch({
     control,
@@ -73,7 +67,12 @@ export function useFailRules(sections: FormSection[]): FailViolation[][] {
 
   return useMemo(() => {
     const map = watchValuesByName(watchedNames, rawValues);
-    return allRules.map((rules) => {
+    for (const name of unsubmitted ?? []) {
+      if (Object.prototype.hasOwnProperty.call(map, name)) {
+        map[name] = undefined;
+      }
+    }
+    return ruleLists.map((rules) => {
       const violations: FailViolation[] = [];
       for (const rule of rules) {
         if (evaluatePredicate(rule.fail_when, map)) {
@@ -85,5 +84,39 @@ export function useFailRules(sections: FormSection[]): FailViolation[][] {
       }
       return violations;
     });
-  }, [rawValues, allRules, watchedNames]);
+  }, [rawValues, ruleLists, watchedNames, unsubmitted]);
+}
+
+/**
+ * Evaluates fail_when rules for all sections against current form values.
+ *
+ * A fail_when rule fires when its predicate evaluates to true — the inverse of
+ * cardinality_rules (which fire when a count constraint is violated). Mirrors
+ * the BE ConditionalRulesModel.apply_conditional_rules fail_when evaluation.
+ *
+ * Returns a parallel array of violations per section — index i corresponds to
+ * sections[i]. Uses a single useWatch subscription over all referenced fields.
+ */
+export function useFailRules(sections: FormSection[]): FailViolation[][] {
+  const ruleLists = useMemo(
+    () => sections.map((s) => s.fail_when ?? []),
+    [sections]
+  );
+  return useFailRuleLists(ruleLists);
+}
+
+/**
+ * Evaluates the plugin schema's root fail_when rules against the values the
+ * form would submit.
+ *
+ * A root rule may name fields in any section, so a field the payload will not
+ * carry — gated out, or in an inactive one-of branch — reads as absent, the way
+ * the backend sees the same payload.
+ */
+export function useRootFailRules(
+  rules: FailRule[] | undefined,
+  unsubmitted: ReadonlySet<string>
+): FailViolation[] {
+  const ruleLists = useMemo(() => [rules ?? []], [rules]);
+  return useFailRuleLists(ruleLists, unsubmitted)[0];
 }
