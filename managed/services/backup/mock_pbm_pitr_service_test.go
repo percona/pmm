@@ -17,23 +17,23 @@ type mockPbmPITRService struct {
 }
 
 // GetPITRFiles provides a mock function with given fields: ctx, locationClient, location, artifact, until
-func (_m *mockPbmPITRService) GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
+func (_m *mockPbmPITRService) GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*OplogChunk, error) {
 	ret := _m.Called(ctx, locationClient, location, artifact, until)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPITRFiles")
 	}
 
-	var r0 []*oplogChunk
+	var r0 []*OplogChunk
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, Storage, *models.BackupLocation, *models.Artifact, *time.Time) ([]*oplogChunk, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Storage, *models.BackupLocation, *models.Artifact, *time.Time) ([]*OplogChunk, error)); ok {
 		return rf(ctx, locationClient, location, artifact, until)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, Storage, *models.BackupLocation, *models.Artifact, *time.Time) []*oplogChunk); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Storage, *models.BackupLocation, *models.Artifact, *time.Time) []*OplogChunk); ok {
 		r0 = rf(ctx, locationClient, location, artifact, until)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*oplogChunk)
+			r0 = ret.Get(0).([]*OplogChunk)
 		}
 	}
 

@@ -1,68 +1,70 @@
-import { FC, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import type { FC } from 'react';
 import {
   Navigate,
   Link as RouterLink,
   useSearchParams,
 } from 'react-router-dom';
+import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
-import { QueryData } from 'types/rta.types';
-import { Icon } from 'components/icon';
+import type { QueryData } from 'types/rta.types';
+import DynamicFeed from '@mui/icons-material/DynamicFeed';
+import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
+import Pause from '@mui/icons-material/Pause';
+import PlayArrow from '@mui/icons-material/PlayArrow';
+import Refresh from '@mui/icons-material/Refresh';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
+import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
+
+const EMPTY_QUERIES: QueryData[] = [];
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
-  const { data: queries = [], refetch } = useRealtimeQueries(
+  const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
       enabled: fetching,
       refetchInterval: refreshInterval,
     }
   );
-  const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
+  const tableQueries = queries ?? EMPTY_QUERIES;
+  // Synced from the table after filters; details-pane arrows use this list, not the full API result.
+  const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
 
-  const handleQueryChange = (query: QueryData, index: number) => {
+  const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
-    setSelectedQueryIndex(index);
     previousFetchingState.current = fetching;
     setFetching(false);
   };
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
-    setSelectedQueryIndex(undefined);
     setFetching(previousFetchingState.current);
   };
 
-  const handleNextQuery = () => {
-    const idx = (selectedQueryIndex || 0) + 1;
-    if (idx >= queries.length) {
-      return;
-    }
-    handleQueryChange(queries[idx], idx);
-  };
-
-  const handlePreviousQuery = () => {
-    const idx = (selectedQueryIndex || 0) - 1;
-    if (idx < 0) {
-      return;
-    }
-    handleQueryChange(queries[idx], idx);
-  };
+  const { isFirst, isLast, next, previous } =
+    useDetailsPaneNavigation<QueryData>({
+      rows: navigableQueries,
+      selected: selectedQuery,
+      getRowId: (query) => query.queryId,
+      onSelect: handleQuerySelected,
+    });
 
   const handleServiceIdsChange = (newServiceIds: string[]) => {
     // start fetching if previous state was empty
@@ -79,7 +81,12 @@ const RealtimeOverviewPage: FC = () => {
       });
     }
 
-    setSearchParams({ serviceIds: newServiceIds });
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('serviceIds');
+      newServiceIds.forEach((id) => next.append('serviceIds', id));
+      return next;
+    });
   };
 
   if (isLoading) {
@@ -93,30 +100,48 @@ const RealtimeOverviewPage: FC = () => {
   return (
     <RealtimePage>
       <OverviewTable
-        queries={queries || []}
-        onQuerySelected={handleQueryChange}
-        actions={() => (
+        queries={tableQueries}
+        onQuerySelected={handleQuerySelected}
+        onNavigableQueriesChange={setNavigableQueries}
+        actions={({ table }) => (
           <Stack
+            flex={1}
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
+            flexWrap="wrap"
+            alignItems="flex-start"
+            alignContent="flex-start"
+            rowGap={0}
+            columnGap={1}
             sx={{
-              pl: 2,
-              flex: 1,
+              width: '100%',
+              minWidth: 0,
             }}
           >
-            <Stack gap={2} direction="row" alignItems="center">
-              <Stack sx={{ minWidth: 360 }}>
-                <ServicesAutocompleteInput
-                  data-testid="overview-table-services-autocomplete-input"
-                  sessions={sessions}
-                  serviceIds={serviceIds}
-                  onServiceIdsChange={handleServiceIdsChange}
-                  inputProps={{
-                    size: 'small',
-                  }}
-                />
-              </Stack>
+            <Box
+              sx={{
+                flex: '1 1 320px',
+                minWidth: 200,
+                maxWidth: { xs: '100%', md: 320 },
+                pr: { md: 1 },
+              }}
+            >
+              <ServicesAutocompleteInput
+                data-testid="overview-table-services-autocomplete-input"
+                sessions={sessions}
+                serviceIds={serviceIds}
+                onServiceIdsChange={handleServiceIdsChange}
+                inputProps={{
+                  size: 'small',
+                }}
+              />
+            </Box>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              alignItems="center"
+              gap={1}
+              sx={{ mt: 1 }}
+            >
               <AutoRefreshSelect
                 isFetching={fetching}
                 refreshInterval={refreshInterval}
@@ -128,28 +153,50 @@ const RealtimeOverviewPage: FC = () => {
                     ? 'overview-table-pause-button'
                     : 'overview-table-resume-button'
                 }
-                size="small"
-                startIcon={
-                  fetching ? <Icon name="pause" /> : <Icon name="play-arrow" />
-                }
+                size="medium"
+                startIcon={fetching ? <Pause /> : <PlayArrow />}
                 disabled={serviceIds.length === 0}
-                color={fetching ? 'inherit' : undefined}
-                variant={fetching ? 'text' : 'contained'}
+                color="inherit"
+                variant="text"
                 onClick={() => setFetching(!fetching)}
                 disableElevation
-                sx={{
-                  width: 100,
-                  height: 32,
-                }}
+                sx={
+                  !fetching && serviceIds.length > 0
+                    ? { backgroundColor: 'action.selected' }
+                    : undefined
+                }
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
               {!fetching && serviceIds.length !== 0 && (
                 <Button
                   data-testid="overview-table-refresh-button"
-                  size="small"
-                  startIcon={<Icon name="refresh" />}
+                  size="medium"
+                  startIcon={<Refresh />}
                   onClick={() => refetch()}
+                  color="inherit"
+                  disableElevation
+                >
+                  {Messages.refresh}
+                </Button>
+              )}
+              {!fetching && (
+                <Button
+                  data-testid="overview-table-export-button"
+                  size="small"
+                  variant="text"
+                  startIcon={<FileDownloadOutlined />}
+                  disabled={
+                    serviceIds.length === 0 ||
+                    table.getPrePaginationRowModel().rows.length === 0
+                  }
+                  onClick={() =>
+                    exportRtaQueriesToCsv(
+                      table
+                        .getPrePaginationRowModel()
+                        .rows.map((row) => row.original)
+                    )
+                  }
                   color="inherit"
                   disableElevation
                   sx={{
@@ -157,29 +204,32 @@ const RealtimeOverviewPage: FC = () => {
                     height: 36,
                   }}
                 >
-                  {Messages.refresh}
+                  {Messages.export}
                 </Button>
               )}
             </Stack>
-            <Button
-              color="inherit"
-              data-testid="overview-table-all-sessions-button"
-              startIcon={<Icon name="dynamic-feed" />}
-              component={RouterLink}
-              to={createRealtimeSessionsUrl(serviceIds)}
-            >
-              {Messages.allSessions}
-            </Button>
+            <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>
+              <Button
+                color="inherit"
+                data-testid="overview-table-all-sessions-button"
+                startIcon={<DynamicFeed />}
+                component={RouterLink}
+                size="medium"
+                to={createRealtimeSessionsUrl(serviceIds)}
+              >
+                {Messages.allSessions}
+              </Button>
+            </Box>
           </Stack>
         )}
       />
       <DetailsPane
         query={selectedQuery}
         onClose={handleCloseDetails}
-        isFirstQuery={selectedQueryIndex === 0}
-        isLastQuery={selectedQueryIndex === queries.length - 1}
-        onNext={handleNextQuery}
-        onPrevious={handlePreviousQuery}
+        isFirstQuery={isFirst}
+        isLastQuery={isLast}
+        onNext={next}
+        onPrevious={previous}
       />
     </RealtimePage>
   );

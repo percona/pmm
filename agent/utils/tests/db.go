@@ -30,12 +30,13 @@ func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 	var count int
 	var err error
 	for range 30 {
-		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count); err == nil {
+		err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count) //nolint:noctx
+		if err == nil {
 			return
 		}
 
 		// Size on test dataset https://github.com/AlekSi/test_db/blob/4c673cc28648568fc23d35e86f280f411498620e/mysql/world/world.sql#L4125
-		if count == 4079 {
+		if count == 4079 { //nolint:mnd
 			return
 		}
 		time.Sleep(time.Second)

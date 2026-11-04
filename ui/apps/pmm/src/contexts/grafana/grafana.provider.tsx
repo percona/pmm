@@ -14,6 +14,7 @@ import type {
 } from '@pmm/shared';
 import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
+import { useAuth } from 'contexts/auth';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl, isMigratedPage } from './grafana.utils';
 import messenger from 'lib/messenger';
@@ -21,6 +22,8 @@ import { useSettings, useFrontendSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
+import { isGrafanaLoginPath } from 'contexts/auth/auth.clientSession';
+import { handleGrafanaUserLoggedOut } from 'contexts/auth/auth.grafanaLogout';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -36,16 +39,16 @@ const isBrowser = () =>
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
-  const isGrafanaPageRef = useRef<boolean>();
+  const isGrafanaPageRef = useRef<boolean | undefined>(undefined);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuth();
 
   const { refetch: refetchSettings } = useSettings({
     enabled: false,
   });
-  const { refetch: refetchFrontendSettings } = useFrontendSettings({
-    enabled: false,
-  });
+  const { data: frontendSettings, refetch: refetchFrontendSettings } =
+    useFrontendSettings({ retry: false });
   const { refetch: refetchServiceTypes } = useServiceTypes({
     enabled: false,
   });
@@ -56,6 +59,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [grafanaReady, setGrafanaReady] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const kioskMode = useKioskMode();
 
@@ -63,17 +67,17 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { colorMode, setFromGrafana } = useColorMode();
 
   useEffect(() => {
-    if (isGrafanaPage) setIsLoaded(true);
-  }, [isGrafanaPage]);
+    const canLoadGrafanaIframe =
+      isLoggedIn || Boolean(frontendSettings?.anonymousEnabled);
+    setIsLoaded(isGrafanaPage && canLoadGrafanaIframe);
+  }, [isGrafanaPage, isLoggedIn, frontendSettings?.anonymousEnabled]);
 
   // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
     if (!isLoaded || !isBrowser()) return;
 
-    const target = frameRef.current?.contentWindow;
-    if (target) {
-      messenger.setTargetWindow(target, '#grafana-iframe');
-    }
+    // Look the iframe up on each send so the iframe is looked up each time a message is sent
+    messenger.setTargetWindow(undefined, '#grafana-iframe');
     messenger.register();
 
     // -------- INCOMING FROM GRAFANA --------
@@ -91,6 +95,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
+    messenger.addListener({
+      type: 'GRAFANA_READY',
+      onMessage: () => setGrafanaReady(true),
+    });
+
     // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
     messenger.addListener({
       type: 'LOCATION_CHANGE',
@@ -103,6 +112,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
 
+        if (isGrafanaLoginPath(location.pathname)) {
+          handleGrafanaUserLoggedOut(queryClient);
+          return;
+        }
         navigate(getLocationUrl(location), {
           state: { fromGrafana: true },
           replace: true,
@@ -148,10 +161,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     // Cleanup once provider unmounts
     return () => {
       messenger.unregister();
+      // The iframe unmounts with isLoaded, so the next one has to announce GRAFANA_READY again
+      setGrafanaReady(false);
     };
 
+    // setFromGrafana changes every render; as a dep, unregister() would drop every pending listener
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, setFromGrafana, navigate]);
+  }, [isLoaded, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
 
@@ -191,6 +207,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     <GrafanaContext.Provider
       value={{
         frameRef,
+        grafanaReady,
         isFrameLoaded: isLoaded,
         isOnGrafanaPage: isGrafanaPage,
         isFullScreen: kioskMode.active,

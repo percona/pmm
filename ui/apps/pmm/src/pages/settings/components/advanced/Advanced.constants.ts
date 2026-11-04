@@ -28,6 +28,11 @@ export const STT_CHECK_INTERVALS = [
 
 export const TECHNICAL_PREVIEW_DOC_URL = 'https://per.co.na/pmm-feature-status';
 
+// The same feature-status page as the technical-preview link: one page documents every
+// stage. Named separately so a developer-preview-specific page can replace it without
+// touching the technical-preview section.
+export const DEVELOPER_PREVIEW_DOC_URL = 'https://per.co.na/pmm-feature-status';
+
 export const FEATURE_MANAGEMENT_SETTINGS = [
   {
     name: 'updates' as const,

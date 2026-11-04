@@ -144,7 +144,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -248,7 +248,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -401,7 +401,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -494,7 +494,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -563,7 +563,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -680,7 +680,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -693,6 +693,7 @@
   },
   "tags": [
     {
+      "description": "AdvisorService service provides public Management API methods for Advisor Service.",
       "name": "AdvisorService"
     }
   ]

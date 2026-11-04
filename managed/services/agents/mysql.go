@@ -32,9 +32,13 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const cloudDialTimeout = 5 * time.Second
+
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
+// The node argument is the pmm-agent's Node, serviceNode is the monitored Service's Node.
 func mysqldExporterConfig(
 	node *models.Node,
+	serviceNode *models.Node,
 	service *models.Service,
 	exporter *models.Agent,
 	redactMode redactMode,
@@ -52,6 +56,7 @@ func mysqldExporterConfig(
 		"--collect.info_schema.clientstats",
 		"--collect.info_schema.userstats",
 		"--collect.perf_schema.eventsstatements",
+		"--collect.perf_schema.memory_events",
 		"--collect.custom_query.lr",
 
 		// MR
@@ -118,19 +123,20 @@ func mysqldExporterConfig(
 	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		for k := range textFiles {
 			switch k {
-			case "tlsCa":
-				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			case models.TLSCaFileName:
+				args = append(args, "--mysql.ssl-ca-file="+textFileRef(tdp, models.TLSCaFileName))
+			case models.TLSCertFileName:
+				args = append(args, "--mysql.ssl-cert-file="+textFileRef(tdp, models.TLSCertFileName))
+			case models.TLSKeyFileName:
+				args = append(args, "--mysql.ssl-key-file="+textFileRef(tdp, models.TLSKeyFileName))
 			default:
 				continue
 			}
 		}
 	}
 
-	if exporter.TLSSkipVerify {
+	// Only pass the skip-verify flag when TLS is actually enabled.
+	if exporter.TLS && exporter.TLSSkipVerify {
 		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 			args = append(args, "--tls.insecure-skip-verify")
 		} else {
@@ -150,7 +156,7 @@ func mysqldExporterConfig(
 		TextFiles:          textFiles,
 	}
 
-	connectionTimeout := mysqlExporterDialTimeout(exporter)
+	connectionTimeout := dbExporterDialTimeout(serviceNode, exporter)
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
@@ -165,13 +171,14 @@ func mysqldExporterConfig(
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true); err != nil {
+		err = ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true)
+		if err != nil {
 			return nil, err
 		}
 	} else {
 		env := []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
+			"DATA_SOURCE_NAME=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion),
+			"HTTP_AUTH=pmm:" + exporter.GetAgentPassword(),
 		}
 		res.Env = env
 	}
@@ -182,8 +189,18 @@ func mysqldExporterConfig(
 	return res, nil
 }
 
-func mysqlExporterDialTimeout(exporter *models.Agent) time.Duration {
-	return roundUpToSecond(exporter.EffectiveDialTimeout())
+// dbExporterDialTimeout returns the dial timeout of mysqld_exporter and postgres_exporter, used by both the
+// exporter process and its connection check. An explicit timeout wins; otherwise Services on RDS and Azure Nodes
+// get cloudDialTimeout, and all others (or a nil serviceNode) the regular default. The result is rounded up to
+// whole seconds.
+func dbExporterDialTimeout(serviceNode *models.Node, exporter *models.Agent) time.Duration {
+	timeout := exporter.EffectiveDialTimeout()
+	if exporter.ExporterOptions.ConnectionTimeout == nil && serviceNode != nil &&
+		(serviceNode.NodeType == models.RemoteRDSNodeType || serviceNode.NodeType == models.RemoteAzureDatabaseNodeType) {
+		timeout = cloudDialTimeout
+	}
+
+	return roundUpToSecond(timeout)
 }
 
 func roundUpToSecond(timeout time.Duration) time.Duration {
@@ -273,14 +290,14 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		ConnectTimeout: max(1, int(connectTimeout.Seconds())),
 	}
 
-	if files["tlsCa"] != "" {
-		myCnfParams.CaFile = tdp.Left + " .TextFiles.tlsCa " + tdp.Right
+	if files[models.TLSCaFileName] != "" {
+		myCnfParams.CaFile = textFileRef(tdp, models.TLSCaFileName)
 	}
-	if files["tlsCert"] != "" {
-		myCnfParams.CertFile = tdp.Left + " .TextFiles.tlsCert " + tdp.Right
+	if files[models.TLSCertFileName] != "" {
+		myCnfParams.CertFile = textFileRef(tdp, models.TLSCertFileName)
 	}
-	if files["tlsKey"] != "" {
-		myCnfParams.KeyFile = tdp.Left + " .TextFiles.tlsKey " + tdp.Right
+	if files[models.TLSKeyFileName] != "" {
+		myCnfParams.KeyFile = textFileRef(tdp, models.TLSKeyFileName)
 	}
 
 	if service.Socket != nil {
@@ -292,7 +309,8 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 			myCnfParams.EnableClearTextPassword = true
 		}
 	}
-	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
+	err = tmpl.Execute(&configBuffer, myCnfParams)
+	if err != nil {
 		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 

@@ -18,7 +18,6 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -40,7 +39,7 @@ func TestVersioner(t *testing.T) {
 		execMock.On("LookPath", mysqldBin).Return("", &exec.Error{Err: exec.ErrNotFound}).Once()
 
 		version, err := versioner.MySQLdVersion()
-		assert.True(t, errors.Is(err, ErrNotFound))
+		require.ErrorIs(t, err, ErrNotFound)
 		assert.Empty(t, version)
 	})
 

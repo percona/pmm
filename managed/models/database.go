@@ -13,17 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:lll
 package models
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -31,7 +32,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
@@ -47,6 +47,9 @@ const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// The embedded cluster moves to PostgreSQL 18, but the client stays compatible with older
+	// servers, so the floor stays at 14: raising it would make PMM refuse to start against an
+	// external PostgreSQL 14 that its owner has not been able to migrate yet.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
@@ -74,16 +77,29 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "username"},
 			{Name: "password"},
 			{Name: "agent_password"},
-			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+			{Name: "aws_options", CustomEncryptHandler: EncryptAWSOptionsHandler, CustomDecryptHandler: DecryptAWSOptionsHandler},
+			{Name: "azure_options", CustomEncryptHandler: EncryptAzureOptionsHandler, CustomDecryptHandler: DecryptAzureOptionsHandler},
+			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
+			{Name: "admin_username"},
+			{Name: "admin_password"},
 		},
 	},
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
+//
+//nolint:lll
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
@@ -1184,6 +1200,112 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// Before environment variable names were restricted to agents pmm-agent starts as a separate
+		// process, addMongoDB copied the requested names onto the QAN and RTA agents it created
+		// alongside mongodb_exporter. Nothing ever read them there: only mongodbExporterConfig calls
+		// GetEnvironmentVariableNames, and no API type exposes the field for those agent types, so
+		// the rows have no way to be cleared through the API and would keep the dead value forever.
+		`UPDATE agents SET environment_variables = NULL
+			WHERE environment_variables IS NOT NULL
+			AND agent_type <> 'mongodb_exporter'`,
+	},
+	120: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+	},
+	122: {
+		`CREATE TABLE om_topology_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
+
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	123: {
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	124: {
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
+		)`,
+	},
+	125: {
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1218,12 +1340,18 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
+		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)  //nolint:mnd
-	db.SetMaxOpenConns(10) //nolint:mnd
+	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
+	// on the demoted primary (now a read-only replica) moves to the new primary.
+	db.SetConnMaxLifetime(5 * time.Minute) //nolint:mnd
+	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
+	// Sized to give DB-bound auth/role/settings paths enough headroom during
+	// a reconnect storm from a fleet of agents, while staying well within
+	// Postgres max_connections (set to 2000 by PMM Server).
+	db.SetMaxIdleConns(50) //nolint:mnd
+	db.SetMaxOpenConns(50) //nolint:mnd
 
 	return db, nil
 }
@@ -1276,7 +1404,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		if err := initWithRoot(params); err != nil {
+		err := initWithRoot(ctx, params)
+		if err != nil {
 			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
@@ -1286,9 +1415,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	err := migrateDB(db, params)
+	if err != nil {
 		return nil, err
 	}
+
+	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
 
 	return db, nil
 }
@@ -1344,18 +1476,39 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" && settings.EncryptionKeyFingerprint != fingerprint {
+		return keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
+	}
+
 	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
 
 	encryptedItems := []string{}
+	for _, item := range settings.EncryptedItems {
+		if !slices.Contains(prepared, item) {
+			encryptedItems = append(encryptedItems, item)
+		}
+	}
 	if expectedState {
-		encryptedItems = prepared
+		encryptedItems = append(encryptedItems, prepared...)
+	}
+
+	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
+	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
+	// own key against.
+	if len(encryptedItems) == 0 {
+		fingerprint = ""
 	}
 
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems:           encryptedItems,
+		EncryptionKeyFingerprint: &fingerprint,
 	})
 	if err != nil {
 		return err
@@ -1378,7 +1531,7 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create the user and the database.
-func initWithRoot(params SetupDBParams) error {
+func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
@@ -1397,45 +1550,48 @@ func initWithRoot(params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
-	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	var roleCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
-	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
-		if err != nil {
-			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
-		}
-	}
+	// CREATE USER, ALTER USER and CREATE DATABASE accept no bind parameters, so the name and
+	// the password are quoted instead. Interpolating them raw lets either one close its quote
+	// and append further statements, which run as the postgres superuser.
+	quotedUser := pq.QuoteIdentifier(params.Username)
 
-	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
-	if err != nil {
-		return fmt.Errorf("failed to select records from the database: %w", err)
-	}
-
-	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+	if roleCount == 0 {
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
-		}
-
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
-		if err != nil {
-			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	} else {
 		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
+
+	var dbCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&dbCount)
+	if err != nil {
+		return fmt.Errorf("failed to select records from the database: %w", err)
+	}
+
+	if dbCount == 0 {
+		// The role owns the database: since PostgreSQL 15 the public schema belongs to
+		// pg_database_owner, so ownership is what lets the role create tables in it.
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE %s OWNER %s`, pq.QuoteIdentifier(params.Name), quotedUser))
+		if err != nil {
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
+		}
+	}
+
 	return nil
 }
 
@@ -1444,11 +1600,12 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
-		return errors.WithStack(errDB)
+		return errDB
 	}
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
@@ -1470,8 +1627,9 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
 				q = strings.TrimSpace(q)
-				if _, err := tx.Exec(q); err != nil {
-					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
+				_, err := tx.Exec(q)
+				if err != nil {
+					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
 				}
 			}
 		}
@@ -1480,7 +1638,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+		err := encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1490,7 +1648,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
@@ -1505,6 +1664,80 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
+// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
+// database untouched.
+func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
+	err := VerifyEncryptionKey(tx)
+	switch {
+	case err == nil:
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
+		// A standalone server keeps booting and reports the mismatch once started. Columns not
+		// encrypted yet are left for the first start with a matching or adopted key.
+		adopted, err := adoptEncryptionKey(tx)
+		if err != nil || !adopted {
+			return err
+		}
+
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	default:
+		return err
+	}
+}
+
+// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// cosmetic, so failures are only logged and never returned: tidying them up must not take a replica
+// with it.
+//
+// It runs at startup on every replica, deliberately not on the elected leader. PMM_HA_PEERS is
+// fixed into a process's environment when the pod starts and cannot be re-read, so only at startup
+// is it guaranteed to describe the current cluster - the pod was just created from the current
+// StatefulSet template. Leadership can be acquired much later: a rolling update recreates the
+// leader, forcing an election that a not-yet-updated pod can win, and that pod would then sweep
+// with a peer list older than the cluster. On a scale-up that deletes the new replica's Node and
+// Agents, which was reproduced on a 2 -> 3 scale-up. It also has to work without a leader at all,
+// since a replica scaled down to one cannot reach quorum.
+//
+// Replicas racing each other is harmless: each Node is removed in a transaction of its own, and one
+// that another replica already took is tolerated.
+//
+// The localHANodeID argument is the calling replica's own PMM_HA_NODE_ID; see FindStaleHANodes.
+func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+	if localHANodeID == "" {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	nodes, err := FindStaleHANodes(db.WithContext(ctx), localHANodeID, haPeers)
+	if err != nil {
+		l.WithError(err).Warn("Failed to look for stale HA nodes.")
+		return
+	}
+
+	for _, node := range nodes {
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
+		// A transaction per Node: a failure rolls that Node back whole instead of leaving it
+		// half-removed, and leaves the Nodes this sweep hasn't reached yet alone.
+		err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			return RemoveStaleHANode(tx.Querier, node.NodeID)
+		})
+		switch {
+		case err == nil:
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
+		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+			nodeL.WithError(err).Info("Startup was cancelled, stopping the removal of stale HA nodes.")
+			return
+		default:
+			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
+		}
+	}
 }
 
 type agentConfig struct {
@@ -1567,9 +1800,9 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		"environment": "pmm",
 	}
 
-	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, nodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        params.HANodeID,
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		CustomLabels:    labels,
 		IsPMMServerNode: true,
 	})
@@ -1583,7 +1816,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 
@@ -1598,9 +1832,9 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
-	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, PMMServerNodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        "pmm-server",
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		IsPMMServerNode: true,
 	})
 	if err != nil {
@@ -1611,10 +1845,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 

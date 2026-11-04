@@ -106,7 +106,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 			name:      "pitr fails for physical backups",
 			pitr:      true,
 			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
-			errMsg:    "PITR is only supported for logical backups",
+			errMsg:    "pitr is only supported for logical backups",
 		},
 	}
 

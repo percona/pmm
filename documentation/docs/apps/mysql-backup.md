@@ -1,0 +1,261 @@
+# Back up and restore MySQL databases
+
+!!! warning "Tech Preview"
+    This feature is not production-ready. Use it for testing and feedback only.
+
+Use MySQL Backups to protect your MySQL databases directly from PMM. Schedule recurring backups, restore from any saved backup, and monitor job progress. Find it under **Apps > MySQL Backups** in the sidebar. It is part of PMM's growing set of [database management apps](index.md).
+
+This app runs alongside the MySQL backup feature in **Backups > All backups**. Backups made in one won't appear in the other. Once this app reaches GA, it will replace the MySQL backup part of that feature.
+
+## Supported databases
+
+You can back up and restore MySQL Community Edition, Percona Server, Percona XtraDB Cluster, and MariaDB. Your databases appear as MySQL-type services in PMM inventory, and backup and restore treat them identically.
+
+Match your backup binary to your server version before you start. See [Backup tools](#backup-tools).
+
+## Supported backup types
+
+| Type | Tool | Best for |
+|---|---|---|
+| **XtraBackup** | `xtrabackup` (PXB 8.x); `innobackupex` (PXB 2.4 only); `mariadb-backup` (MariaDB) | Physical hot backups of large datasets with minimal locking. Supports full and incremental backups. Must run directly on the database host. Supports MariaDB via `mariadb-backup`. |
+| **Mydumper** | `mydumper` | Logical SQL dumps with selective database and table restores. Can run from a remote execution host. |
+| **Binlog** | `mysqlbinlog` | Continuous binary log capture. Combine with a base XtraBackup or Mydumper backup for point-in-time recovery. Not a standalone backup. |
+
+## Backup tools
+
+Not every compression algorithm works with every backup binary. If you manage multiple MySQL versions, your compression options will differ across hosts, and a backup compressed on one host may not be readable on another.
+
+Use the following table to find your binary and the compression algorithms you can select when configuring a backup:
+
+| Binary | Version | Compression | Default | Notes |
+|---|---|---|---|---|
+| xtrabackup (PXB 8.4) | 8.4.0-6 | lz4, zstd | zstd | |
+| xtrabackup (PXB 8.0) | 8.0.35-36 | lz4, zstd | zstd | |
+| xtrabackup / innobackupex (PXB 2.4) | 2.4.29 | quicklz only | quicklz | `innobackupex` absent from PXB 8.x |
+| mariadb-backup | MariaDB 12.3.3 | quicklz only | — | quicklz deprecated since MariaDB 10.1.31 / 10.2.13 |
+| mydumper | — | gzip, zstd | — | Logical backup; connects over the network, no datadir access or binary version constraints |
+
+## Prerequisites
+
+Complete the following steps before creating your first backup:
+{.power-number}
+
+1. Deploy PMM Extensions alongside PMM Server. See [Set up Apps: Deploy PMM Extensions with Docker](deploy-pmm-extensions.md).
+
+2. Make sure PMM Client 3.10.0 or later is installed on the execution host, registered with this PMM Server, and deployed with Nomad enabled. PMM Client ships the Nomad client, so no separate installation is needed. If PMM Client is not yet installed, see [Install PMM Client](../install-pmm/install-pmm-client/index.md).
+
+3. Install the tool for your backup type and make sure it is available on `$PATH`:
+
+    === "XtraBackup"
+
+        Install [Percona XtraBackup](https://docs.percona.com/percona-xtrabackup/latest/installation.html), [`mariadb-backup`](https://mariadb.com/docs/server/server-usage/backup-and-restore/mariadb-backup/mariadb-backup-overview), or `innobackupex` (bundled with PXB 2.4 only), matching your database.
+
+        Use the database host itself as the execution host. You need root access on it. XtraBackup can't run from a separate host. The task always connects to `localhost`, so a different host has no way to reach the database.
+
+        Install a PXB version that matches your MySQL version, as shown in the following table. A version mismatch makes the backup fail:
+
+        | MySQL version | Required PXB version |
+        |---|---|
+        | 5.5, 5.6, 5.7 | PXB 2.4.x |
+        | 8.0.0–8.0.33 | PXB 8.0.x, same version or newer |
+        | 8.0.34+ | PXB 8.0.34+ |
+        | 8.1.x, 8.2.x, 8.3.x | Matching PXB version |
+        | 8.4.x | PXB 8.4.x. PXB 8.4.x does not support MySQL 8.0 or 9.x |
+
+    === "Mydumper"
+
+        Install [`mydumper`](https://github.com/mydumper/mydumper).
+
+        No root access needed. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
+
+    === "Binlog"
+
+        Install [`mysqlbinlog`](https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html); it ships with the MySQL server and client packages.
+
+        No root access needed. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
+
+4. Create two MySQL credential files on the execution host so that PMM and the backup binary can each authenticate to MySQL. PMM reads from these files and will not prompt for a password:
+
+    - **PMM's own connection**: `~/.my.cnf`. This file must exist and be readable before you run a backup.
+    - **The backup binary's connection**: a separate file passed as `--defaults-file`. This file is not merged with the system configuration, so it must be self-contained and include everything the binary needs to connect.
+
+    For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
+
+5. Create a backup directory on the execution host and confirm it is writable. Set the path per task in the **Backup directory** field.
+
+6. If your MySQL service does not appear in the backup form, ask a PMM administrator to sync the inventory through the API: `POST /extensions/api/apps/inventory/sync/`.
+
+## Run a backup
+
+To run a MySQL backup:
+{.power-number}
+
+1. Go to **Apps > MySQL Backups** in the sidebar.
+2. Click **New backup**.
+3. Enter a task name and select the **database host**, **execution host**, and **backup type**. For XtraBackup, the execution host must be the host running the MySQL service.
+4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
+5. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
+6. (Optional) Check **Alert on failure** to receive an alert if the backup task fails.
+7. Click **Create backup** to save the task.
+8. Click the task's row to open its detail page.
+9. (Optional) Click **Edit** to change the task's configuration before running it, for example, to switch the execution host, turn on compression or encryption, or add upload destinations.
+10. Click **Execute** to run the task immediately. To run it on a recurring schedule instead, see [Schedule a backup](#schedule-a-backup).
+11. Click **Execution History** to see past runs. XtraBackup and Mydumper runs that completed successfully appear there with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
+
+### Schedule a backup
+
+Scheduling is a two-step process: first create the backup task, then attach a recurrence to it.
+{.power-number}
+
+1. [Create a backup task](#run-a-backup) to save the task without running it.
+
+2. Click the task's row to open its detail page, then click **Schedule**. Alternatively, from the **MySQL Backups** list, click **Schedules**, then **Add new**, and select the task from the **Task** drop-down menu.
+
+3. Choose a recurrence type:
+    - **Interval** (default): set **Every** to a number and **Period** to `minutes`, `hours`, or `days`, plus an optional **Start time**.
+    - **Cron**: click **change to cron mode**, then enter a cron expression.
+
+4. (Optional) Use **Chain tasks after execution** to run another task automatically once this one finishes.
+
+5. Leave **Enabled** on so the schedule takes effect immediately, or turn it off to save the schedule without activating it.
+
+6. Click **Create**.
+
+Scheduled tasks appear in the **Scheduled MySQL Backups** list, and on the task's own detail page under **Schedule**.
+
+## Restore from a backup
+
+To restore from a backup:
+{.power-number}
+
+1. Go to **Apps > MySQL Backups** and select the **Restores** tab.
+2. Click **New restore**.
+3. Enter a task name and select the **execution host** and **backup type**. For XtraBackup and Binlog, the execution host is the server PMM restores into.
+4. Select the **Destination Database Service**. Mydumper restores require it and load into this service. For every backup type, it fills the **Backup source** list with that service's recorded backups. To use a different source, enter a path directly:
+
+    - Local: `/backups/mydumper/20240101`
+    - Remote: `db01:/path/to/backup`
+    - S3: `s3://bucket/path`
+    - GCS: `gs://bucket/path`
+
+    Add `/latest` to any path to use the most recent backup.
+
+5. Under **Backup location**, select where the backup is stored: **Local path**, **Remote host over SSH**, **S3-compatible object storage**, or **Google Cloud Storage**. PMM shows only the credential fields that the selected location needs.
+6. Under **Backup encryption**, select the encryption the backup was written with. GPG formats show the **GPG password file** field, and AES-256 formats show the required **AES-256 key file** field.
+7. Configure [Restore options by backup type](#restore-options-by-backup-type). PMM doesn't check version compatibility, so make sure your backup binary version matches the target server. With a mismatch, the restore fails in the backup tool.
+8. (Optional) Check **Alert on failure** to receive an alert if the restore task fails.
+9. Click **Create restore**.
+
+### Restore options by backup type
+
+=== "Mydumper"
+
+    The destination must be a MySQL service in inventory. Optionally scope the restore with **Include databases** or **Skip databases**, or pick a **Target database** from the list to restore into a single schema.
+
+    To restore to a different host, the destination must be a MySQL service in inventory — you cannot restore Mydumper backups to a host outside of PMM inventory.
+
+=== "XtraBackup"
+
+    XtraBackup restores go into MySQL running on the execution host. The task stops MySQL, replaces the data directory, and restarts MySQL on that host. To restore to a different server, pick that server as the execution host. Key options:
+
+    - **XtraBackup binary**: the binary used to prepare the backup. Pick the one that matches the binary that ran the backup.
+    - **Skip incrementals**: applies the full backup only, skipping incremental layers.
+    - **XtraBackup parallel**: number of files to decrypt and decompress in parallel (default: 4).
+    - **XtraBackup prepare memory**: memory the prepare step may use, such as `2G` (default: 100M).
+    - **Data directory**: path to write the restored MySQL data files into. Required. The directory must already exist. All existing files in it are deleted before the restore starts, so make sure you are pointing to the right location.
+    - **Restore my.cnf**: restores the `my.cnf` configuration file as part of the restore.
+    - **Keyring file data**: keyring file required if the backup has encrypted tablespaces.
+
+    If the backup is stored on another host, set **Backup location** to **Remote host over SSH** and fill in **SSH user** and **SSH port**. PMM authenticates with the SSH user's own `id_rsa` key. These fields control where PMM fetches the backup from, not where it restores to.
+
+=== "Binlog"
+
+    Binlog restores replay log files into MySQL running on the execution host.
+
+    Set start and stop positions to control how far to replay logs:
+
+    - **Start file / Start position**: where to begin replaying.
+    - **Stop file / Stop position**: where to stop. Leave empty to replay all available logs.
+
+    If the binlog files are stored on another host, set **Backup location** to **Remote host over SSH** and fill in **SSH user** and **SSH port**. PMM authenticates with the SSH user's own `id_rsa` key. To restore to a different server, pick that server as the execution host.
+
+### Pre- and post-scripts
+
+Mydumper restores support **Pre-script** and **Post-script**: the path on the execution host to a script that runs before or after the data is loaded. A `.sql` file runs against the destination MySQL. Any other file runs as a command.
+
+## Configure backup options
+
+The following options are configured per task when creating a backup.
+
+### Store backups off-host
+
+By default, backups stay on the execution host. To store them off-host, go to **Apps > MySQL Backups**, click **New backup**, and select one or more providers under **Upload**:
+
+- S3-compatible storage: S3 bucket
+- Google Cloud Storage: GCS bucket
+- Rsync: Rsync destination path
+
+You can select multiple providers at the same time. To upload to S3 or Google Cloud Storage, install the corresponding client on the execution host first.
+
+### Limit how many backups to keep
+
+Each backup type has a default retention limit: XtraBackup keeps 2 copies, Mydumper keeps 7 daily and 4 weekly backups, and Binlog purges files after 30 days. To change it, set these fields in each backup type's section when creating a backup in **Apps > MySQL Backups**:
+
+- Mydumper: daily purge (days), weekly purge (weeks)
+- XtraBackup: number of copies to keep
+- Binlog: purge after (days)
+
+### Compress backups
+
+When creating a backup in **Apps > MySQL Backups**, enable **Compress backup data** and pick an algorithm.
+
+The algorithms shown after enabling **Compress backup data** depend on your backup tool and, for XtraBackup, which PXB version is installed on the host. See [Backup tools](#backup-tools) for a full breakdown.
+
+- XtraBackup on PXB 8.x: `zstd`, `lz4`
+- XtraBackup on PXB 2.4: `quicklz`
+- Mydumper: `gzip`, `zstd`
+- `mariadb-backup`: `quicklz`
+- Binlog: always compresses completed binlog files with `gzip`, whatever this setting says
+
+If you manage databases across multiple MySQL versions, make sure the algorithm you pick is supported on the host you plan to restore on. A backup compressed with `quicklz` on a MySQL 5.7 host can't be read by a PXB 8.x binary.
+
+### Encrypt backups
+
+When creating a backup in **Apps > MySQL Backups**, configure encryption in the **Encryption** section. Start by selecting an **Encryption format**:
+
+- **No encryption**: no encryption is applied.
+- **GPG**: GPG-based encryption. Enables the GPG timing options below.
+- **AES-256**: AES-256 keyfile encryption. Requires an **AES-256 key file path**.
+- **AES-256 + GPG**: currently applies AES-256 encryption only, and the GPG step is skipped. Requires an **AES-256 key file path**.
+
+**GPG timing options** (available when format includes GPG):
+
+- **Encrypt backup**: GPG-encrypts the backup as part of the upload, so it requires at least one upload provider. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
+- **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Cannot be combined with **Encrypt using tmpdir**.
+
+Both GPG options require an **Encryption recipient** (GPG key or recipient ID). You can enable both GPG timing options at the same time.
+
+For Binlog backups, AES-256 formats require at least one upload provider, because AES-256 runs during upload for Binlog.
+
+## Monitor backups
+
+Task status and execution history are visible in the **Apps > MySQL Backups** list. Use the **Status** filter to narrow results.
+
+### Find and manage task logs
+
+Each backup and restore run captures `stdout` and `stderr` as task logs.
+
+#### Find logs
+Check the `taskhistory_log` table in PMM's embedded PostgreSQL database (`pmm_extensions`). Logs are not written to disk or Docker container logs.
+
+#### Configure retention
+To override the default 90-day log retention, set `TASKS__LOG_RETENTION_DAYS` on the `pmm-extensions` container, or change `LOG_RETENTION_DAYS` through the PMM Extensions settings API. The maximum is 365 days.
+
+A daily purge job removes log bodies for finished tasks older than the configured threshold. Task history records (who ran what, when, and final status) are never purged.
+
+#### Handle large runs
+PMM caps each log stream at 100 MiB. If a run exceeds this limit, PMM drops the oldest log chunks. To retain all logs, keep each run's log output under 100 MiB.
+
+#### Execution host logs
+Nomad allocation files on the execution host follow Nomad's own garbage collection, independent of `TASKS__LOG_RETENTION_DAYS`.
+                                                                      

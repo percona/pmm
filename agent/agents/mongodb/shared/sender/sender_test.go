@@ -20,7 +20,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -47,8 +46,7 @@ func TestSender(t *testing.T) {
 	repChan := make(chan *report.Report)
 	tw := &testWriter{t: t, expectedReport: expected}
 	snd := New(repChan, tw, logrus.WithField("component", "test-sender"))
-	err := snd.Start()
-	require.NoError(t, err)
+	snd.Start()
 
 	repChan <- expected
 	snd.Stop()

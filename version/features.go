@@ -15,24 +15,20 @@
 
 package version
 
-// Versions list.
-var (
-	V2_36_0 = MustParse("2.36.0-0") //nolint:revive,stylecheck
-	V3_0_0  = MustParse("3.0.0-0")  //nolint:revive,stylecheck
-	V3_2_0  = MustParse("3.2.0-0")  //nolint:revive,stylecheck
-	V3_7_0  = MustParse("3.7.0-0")  //nolint:revive,stylecheck
-)
-
 // FeatureVersion represents a minimum version feature being supported.
 type FeatureVersion *Parsed
 
 // Features list.
 var (
-	NodeExporterNewTLSConfig      FeatureVersion = V3_0_0
-	MysqlExporterV0_17_2          FeatureVersion = V3_2_0
-	MysqlExporterPluginCollector  FeatureVersion = V2_36_0
-	NomadAgentSupportVersion      FeatureVersion = V3_2_0
-	MongoDBRtaAgentSupportVersion FeatureVersion = V3_7_0
+	NodeExporterNewTLSConfig      FeatureVersion = MustParse("3.0.0-0")
+	MysqlExporterV0_17_2          FeatureVersion = MustParse("3.2.0-0")
+	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
+	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
+	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
+	// NodeExporterV1_8 is the first pmm-agent shipping node_exporter 1.8, the oldest build that knows
+	// every collector we may have to disable explicitly. In pmm-agent 2.x, which ships 1.4.0, flags
+	// such as "--no-collector.watchdog" do not exist and would make the exporter exit.
+	NodeExporterV1_8 FeatureVersion = MustParse("3.0.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

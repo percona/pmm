@@ -103,7 +103,7 @@ type pbmPITRService interface {
 	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
 	ListPITRTimeranges(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error)
 	// GetPITRFiles returns list of PITR chunks. If 'until' specified, returns only chunks created before that date, otherwise returns all artifact chunks.
-	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error)
+	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*OplogChunk, error)
 }
 
 // Storage represents the interface for interacting with storage.

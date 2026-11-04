@@ -32,7 +32,9 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	t.Run("With Schema Name", func(t *testing.T) {
 		t.Parallel()
@@ -153,11 +155,11 @@ Foreign-key constraints:
 		defer cancel()
 
 		_, err = a.Run(ctx)
-		expected := "Table not found: sql: no rows in result set"
+		expected := "table not found: sql: no rows in result set"
 		require.EqualError(t, err, expected)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = db.QueryRowContext(t.Context(), "SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

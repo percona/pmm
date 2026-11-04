@@ -420,8 +420,8 @@ type GetSettingsDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// get settings default body details items0
-	GetSettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get settings default body details items0 additional properties
+	GetSettingsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -483,7 +483,7 @@ func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.GetSettingsDefaultBodyDetailsItems0 = result
+		o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -531,12 +531,12 @@ func (o GetSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetSettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetSettingsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -732,8 +732,12 @@ type GetSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

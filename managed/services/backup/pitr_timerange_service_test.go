@@ -16,13 +16,13 @@
 package backup
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -36,12 +36,12 @@ func TestPitrMetaFromFileName(t *testing.T) {
 	tests := []struct {
 		name     string
 		filename string
-		expected *oplogChunk
+		expected *OplogChunk
 	}{
 		{
 			name:     "correctly formatted file name",
 			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-			expected: &oplogChunk{
+			expected: &OplogChunk{
 				RS:          "rs0",
 				FName:       "test_artifact_name/pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 				Compression: compressionTypeS2,
@@ -62,7 +62,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 		{
 			name:     "without specified compression",
 			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog",
-			expected: &oplogChunk{
+			expected: &OplogChunk{
 				RS:          "rs0",
 				FName:       "test_artifact_name/pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog",
 				Compression: compressionTypeNone,

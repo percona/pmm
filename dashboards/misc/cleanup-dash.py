@@ -44,6 +44,36 @@ def set_time(dashboard):
     dashboard['time']['to'] = "now"
     return dashboard
 
+def walk_titles(node, callback):
+    """Apply callback to every 'title' value in the dashboard tree."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == 'title' and isinstance(value, str):
+                node[key] = callback(value)
+            else:
+                walk_titles(value, callback)
+    elif isinstance(node, list):
+        for item in node:
+            walk_titles(item, callback)
+
+    return node
+
+def trim_titles(dashboard):
+    """Strip leading/trailing whitespace from every title."""
+
+    return walk_titles(dashboard, str.strip)
+
+def collect_titles(dashboard):
+    """Return every title in the dashboard, in traversal order."""
+    titles = []
+
+    def record(title):
+        titles.append(title)
+        return title
+
+    walk_titles(dashboard, record)
+    return titles
+
 def main():
     parser = argparse.ArgumentParser(description='Dashboard cleaner')
     parser.add_argument('dashboard_file', type=str, help='dashboard file to cleanup')
@@ -54,7 +84,7 @@ def main():
         dashboard = json.loads(dashboard_file.read())
         raw_dashboard = copy.deepcopy(dashboard)
 
-    CLEANUPERS = [set_editable, set_time, set_timezone, set_refresh, set_dashboard_id_to_null]
+    CLEANUPERS = [set_editable, set_time, set_timezone, set_refresh, set_dashboard_id_to_null, trim_titles]
 
     for func in CLEANUPERS:
         dashboard = func(dashboard)
@@ -88,6 +118,9 @@ def main():
                 issues.append(f"  time.to: {jv(raw_dashboard.get('time', {}).get('to'))} -> {jv(dashboard.get('time', {}).get('to'))}")
             if raw_dashboard.get('id') != dashboard.get('id'):
                 issues.append(f"  id: {jv(raw_dashboard.get('id'))} -> {jv(dashboard.get('id'))}")
+            for raw_title, title in zip(collect_titles(raw_dashboard), collect_titles(dashboard)):
+                if raw_title != title:
+                    issues.append(f"  title: {jv(raw_title)} -> {jv(title)}")
             print(f'Dashboard: {args.dashboard_file}')
             for issue in issues:
                 print(issue)

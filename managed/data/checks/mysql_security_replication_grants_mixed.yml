@@ -16,7 +16,7 @@ checks:
     script: |
       def check_context(docs, context):
           # we first define some global variables
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
           whois = "This instance is a SOURCE"
           results = []

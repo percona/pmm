@@ -41,7 +41,7 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName, clusterName string) *models.Agent { //nolint:unparam
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
@@ -56,7 +56,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	var service *models.Service
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
-		Cluster:     clusterName,
+		Cluster:     "cluster",
 		NodeID:      node.NodeID,
 		Address:     new("127.0.0.1"),
 		Port:        new(uint16(60000)),
@@ -84,7 +84,7 @@ func TestStartBackup(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
 
 		for _, tc := range []struct {
 			testName    string
@@ -137,19 +137,17 @@ func TestStartBackup(t *testing.T) {
 	t.Run("mongodb", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
 
 		locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name:        "Test location snapshots",
 			Description: "Test description",
-			BackupLocationConfig: models.BackupLocationConfig{
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		})
 		require.NoError(t, err)
@@ -259,14 +257,12 @@ func TestScheduledBackups(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -277,7 +273,7 @@ func TestScheduledBackups(t *testing.T) {
 		schedulerService := scheduler.New(db, backupService)
 		backupSvc := NewBackupsService(db, backupService, nil, schedulerService, nil, mockedPbmPITRService)
 
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
 
 		t.Run("schedule/change", func(t *testing.T) {
 			req := &backupv1.ScheduleBackupRequest{
@@ -345,7 +341,7 @@ func TestScheduledBackups(t *testing.T) {
 			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 				CronExpression: "* * * * *",
 				Type:           models.ScheduledMySQLBackupTask,
-				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{CommonBackupTaskData: models.CommonBackupTaskData{Name: t.Name()}}},
+				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{Name: t.Name()}},
 			})
 			require.NoError(t, err)
 
@@ -382,7 +378,7 @@ func TestScheduledBackups(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
 
 		t.Run("PITR unsupported for physical model", func(t *testing.T) {
 			ctx := t.Context()
@@ -534,13 +530,13 @@ func TestListPitrTimeranges(t *testing.T) {
 	params := models.CreateBackupLocationParams{
 		Name:        gofakeit.Name(),
 		Description: "",
-	}
-	params.S3Config = &models.S3LocationConfig{
-		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-		AccessKey:    "access_key",
-		SecretKey:    "secret_key",
-		BucketName:   "example_bucket",
-		BucketRegion: "us-east-1",
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		},
 	}
 	loc, err := models.CreateBackupLocation(db.Querier, params)
 	require.NoError(t, err)
@@ -611,13 +607,13 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 	params := models.CreateBackupLocationParams{
 		Name:        gofakeit.Name(),
 		Description: "",
-	}
-	params.S3Config = &models.S3LocationConfig{
-		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-		AccessKey:    "access_key",
-		SecretKey:    "secret_key",
-		BucketName:   "example_bucket",
-		BucketRegion: "us-east-1",
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		},
 	}
 	loc, err := models.CreateBackupLocation(db.Querier, params)
 	require.NoError(t, err)

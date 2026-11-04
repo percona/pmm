@@ -1,5 +1,6 @@
 export interface GetHAStatusResponse {
   status: HAStatus;
+  namespace?: string;
 }
 
 export type HAStatus = 'Enabled' | 'Disabled';
@@ -14,6 +15,7 @@ export type NodeStatus = 'alive' | 'suspect' | 'dead' | 'left' | 'unknown';
 
 export interface GetHANodesResponse {
   nodes: GetHANodeResponse[];
+  expectedNodes: number;
 }
 
 export interface GetHANodeResponse {
@@ -27,6 +29,12 @@ export interface HAInfo {
   health: HAHealth;
   leader?: GetHANodeResponse;
   nodes: GetHANodeResponse[];
+  namespace?: string;
 }
 
-export type HAHealth = 'healthy' | 'degraded' | 'critical' | 'down';
+export type HAHealth =
+  | 'healthy'
+  | 'degraded'
+  | 'critical'
+  | 'unreachable'
+  | 'unknown';

@@ -1,0 +1,40 @@
+---
+# This GitHub Action sets up the Go environment for a workflow.
+# It automatically determines the Go version from the go.mod file, and configures
+# caching for Go build artifacts and modules to optimize subsequent workflow runs.
+# Finally, it downloads all necessary Go modules.
+name: Setup Go
+description: Set up Go, restore Go caches, and download modules.
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Go
+      id: setup-go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: ${{ github.workspace }}/go.mod
+        cache: false
+
+    - name: Enable Go build cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/go-build
+        key: ${{ runner.os }}-${{ runner.arch }}-go-build-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('go.mod', 'go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-go-build-${{ steps.setup-go.outputs.go-version }}-
+          ${{ runner.os }}-${{ runner.arch }}-go-build-
+
+    - name: Enable Go modules cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-${{ runner.arch }}-go-modules-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('go.mod', 'go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-go-modules-${{ steps.setup-go.outputs.go-version }}-
+          ${{ runner.os }}-${{ runner.arch }}-go-modules-
+
+    - name: Download Go modules
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        go mod download -x

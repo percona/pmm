@@ -9,4 +9,4 @@ To assign access roles to users:
 4. From the **Roles** drop-down select the appropriate roles.
 5. Verify the assigned roles appear in the **Access Role** column.
 
-![PMM Access Control - Assign role](../../../images/lbac/PMM_access_control_select_role.png)
+    ![PMM Access Control - Assign role](../../../images/lbac/PMM_access_control_select_role.png)

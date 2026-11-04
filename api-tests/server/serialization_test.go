@@ -48,14 +48,16 @@ func TestSerialization(t *testing.T) {
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := pmmapitests.HTTPClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, resp.Body.Close())
+	})
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = json.Unmarshal(b, &data)
 	require.NoError(t, err)
 

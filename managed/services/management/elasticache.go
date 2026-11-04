@@ -17,6 +17,8 @@ package management
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"sort"
@@ -28,7 +30,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/elasticache"
 	ectypes "github.com/aws/aws-sdk-go-v2/service/elasticache/types"
 	"github.com/aws/smithy-go"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -98,7 +99,7 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 
 	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to load ElastiCache default config: %w", err)
 	}
 
 	// Default to standard AWS partition if none configured.

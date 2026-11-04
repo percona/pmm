@@ -2,7 +2,7 @@
 
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 
-The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI, OVA).
+The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI).
 
 ## Architecture
 
@@ -12,20 +12,28 @@ The `/build` directory contains everything needed to build, package, and distrib
 |----------|--------|--------|
 | PMM Server Docker image | Docker (EL9) | `docker/server/Dockerfile.el9` |
 | PMM Client Docker image | Docker (EL9) | `docker/client/Dockerfile.el9` |
-| PMM Server RPMs | RPM (EL9) | `packages/rpm/server/SPECS/` |
+| PMM Server binaries | Plain binaries/assets | `scripts/build-server-binaries` |
 | PMM Client RPM | RPM (EL9) | `packages/rpm/client/pmm-client.spec` |
 | PMM Client DEB | DEB | `packages/deb/` |
 | PMM Server AMI | AWS AMI | `packer/pmm.json` |
-| PMM Server OVA | VirtualBox OVF | `packer/pmm.json` |
 
 ### Build Pipeline
 
+PMM Server components are built as plain binaries and static assets — they are
+not packaged as RPMs because they are only ever shipped inside the server
+Docker image (PMM-14804). PMM Client components keep RPM/DEB packaging for
+distribution to client hosts.
+
 ```
-Source code (Go, TypeScript)
-  → Binary compilation (make release)
+Server: Source code (Go, TypeScript)
+  → Binary compilation (scripts/build-server-binaries)
+    → Docker image build (docker/server/)
+      → Machine image build (packer/)
+
+Client: Source code (Go)
+  → Binary compilation (scripts/build-client-binary → tarball)
     → RPM/DEB packaging (packages/)
-      → Docker image build (docker/)
-        → Machine image build (packer/)
+    → Docker image build (docker/client/)
 ```
 
 ## Ansible Roles
@@ -38,6 +46,7 @@ Source code (Go, TypeScript)
 | `grafana` | Install Grafana, provision datasources and dashboards |
 | `nginx` | Configure Nginx as reverse proxy (SSL termination, routing) |
 | `postgres` | Install and configure PostgreSQL for pmm-managed |
+| `extensions` | PMM Extensions side-car integration helpers copied into the image and invoked from the entrypoint (no `tasks/`); publishes the side-car's secrets when `PMM_ENABLE_EXTENSIONS` is set |
 | `supervisord` | Configure Supervisord for process management |
 | `dashboards` | Provision PMM Grafana dashboards |
 | `initialization` | PMM Server first-run setup |
@@ -50,21 +59,19 @@ Source code (Go, TypeScript)
 | `cloud-node` | Cloud VM preparation |
 | `lvm-init` | LVM storage setup for persistent data |
 | `init-admin-password-ami` | Set admin password from EC2 instance ID |
-| `ami-ovf` | AMI/OVF-specific customization |
+| `ami` | AMI-specific customization |
 
 ## Packer Templates
 
 ### PMM Server Images (`packer/pmm.json`)
 
-Builds machine images for multiple platforms:
+Builds machine images:
 - **amazon-ebs** — AWS AMI
-- **virtualbox-ovf** — OVA for on-premises
 
 ### Make Targets
 
 ```bash
 make pmm-ami              # Build AWS AMI
-make pmm-ovf              # Build VirtualBox OVA
 make rpmbuild-el9         # Build RPM build environment image
 ```
 
@@ -74,14 +81,15 @@ make rpmbuild-el9         # Build RPM build environment image
 - Use Ansible roles for server provisioning — they're the single source of truth for PMM Server setup
 - Keep Dockerfiles minimal — delegate to Ansible for complex provisioning
 - Use multi-stage Docker builds where appropriate
-- Keep RPM/DEB specs in sync with actual binary and config file paths
+- Keep client RPM/DEB specs in sync with actual binary and config file paths
 - Test image builds in CI before merging
 
 ### Don't
 - Don't hardcode versions in Dockerfiles — use build args
 - Don't modify Ansible roles without testing the full image build
 - Don't add secrets or credentials to build scripts or Dockerfiles
-- Don't skip the RPM build step when modifying server components
+- Don't change install paths in `scripts/server/*` — supervisord, nginx and the entrypoint expect them at runtime
+- Keep a server component's version pins in its own `scripts/server/<component>` recipe — they are part of its build cache key
 
 ## Key Files to Reference
 
@@ -89,6 +97,7 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/docker/server/entrypoint.sh` — Server container entrypoint
 - `build/ansible/pmm-docker/main.yml` — Docker provisioning playbook
 - `build/ansible/roles/` — All Ansible roles for server components
-- `build/packages/rpm/server/SPECS/` — RPM spec files for server components
+- `build/scripts/build-server-binaries` — Server component binary builds (driver: container, S3 cache)
+- `build/scripts/server/` — One build recipe per server component
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types

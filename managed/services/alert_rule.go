@@ -15,7 +15,14 @@
 
 package services
 
+import "encoding/json"
+
 // This file contains grafana alerting API DTOs.
+
+// PMMRuleIDLabel is the label carrying PMM's own identity for a rule whose thresholds can
+// be overridden. It lives on the rule rather than being its Grafana UID, so the rule can
+// be matched back to its overrides after being copied or renamed in Grafana.
+const PMMRuleIDLabel = "pmm_rule_id"
 
 // Rule represents grafana alerting rule.
 type Rule struct {
@@ -31,20 +38,13 @@ type RelativeTimeRange struct {
 	To   int `json:"to"`
 }
 
-// Model represents grafana query model.
-type Model struct {
-	RefID   string `json:"refId"`
-	Expr    string `json:"expr"`
-	Instant bool   `json:"instant"`
-}
-
 // Data represents grafana API alert rule data.
 type Data struct {
 	RefID             string            `json:"refId"`
 	DatasourceUID     string            `json:"datasourceUid"`
-	QueryType         string            `json:"queryType"`
-	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange,omitempty"`
-	Model             Model             `json:"model,omitempty"`
+	QueryType         string            `json:"queryType,omitempty"`
+	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange"`
+	Model             json.RawMessage   `json:"model"`
 }
 
 // GrafanaAlert represent grafana alerting rule.

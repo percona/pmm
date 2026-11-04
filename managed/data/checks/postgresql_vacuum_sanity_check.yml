@@ -11,7 +11,7 @@ checks:
       - type: POSTGRESQL_SELECT
         query: "current_setting('autovacuum') AS autovacuum, current_setting('autovacuum_max_workers') AS autovacuum_max_workers, current_setting('autovacuum_vacuum_scale_factor') AS autovacuum_vacuum_scale_factor, current_setting('vacuum_cost_page_hit') AS vacuum_cost_page_hit, current_setting('vacuum_cost_delay') AS vacuum_cost_delay, current_setting('vacuum_cost_page_dirty') AS vacuum_cost_page_dirty , current_setting('vacuum_cost_page_miss') AS vacuum_cost_page_miss "
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(rows, context):
            results = []

@@ -52,7 +52,7 @@ export interface RawQueryData {
   mongoDbPayload: QueryMongoDBData;
 }
 
-export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
+export type QueryData = Omit<RawQueryData, 'queryExecutionDuration'> & {
   queryExecutionDurationMs?: number | null;
 };
 

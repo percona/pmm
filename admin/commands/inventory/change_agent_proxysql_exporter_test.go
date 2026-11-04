@@ -47,10 +47,8 @@ func TestProxySQLExporterChangeAgent(t *testing.T) {
 				DisableCollectors: []string{"connection_pool", "stats_mysql_global"},
 				ExposeExporter:    new(true),
 				PushMetrics:       new(true),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "staging", "service": "proxysql"},
+				LogLevel:          new(flags.LogLevel("debug")),
+				CustomLabels:      &map[string]string{"environment": "staging", "service": "proxysql"},
 			}
 
 			result, err := cmd.RunCmd()

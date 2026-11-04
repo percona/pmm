@@ -17,11 +17,12 @@ package agents
 
 import (
 	"context"
+	"fmt"
+	"math/rand/v2"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
@@ -37,7 +38,28 @@ const (
 	updateBatchDelay                = time.Second
 	stateChangeTimeout              = 5 * time.Second
 	loggerComponentNameStateUpdater = "state-updater"
+
+	// Constants for the failure retry backoff.
+	retryBaseDelay  = time.Second
+	retryMaxDelay   = 30 * time.Second
+	retryMaxShift   = 5
+	retryJitterFrac = 2
 )
+
+// retryDelay returns an exponentially increasing, jittered delay for the given number of
+// consecutive sendSetStateRequest failures.
+//
+// The jitter matters as much as the backoff: a fleet that failed together would otherwise
+// retry together, rebuilding the same thundering herd on every interval (PMM-15228).
+func retryDelay(failures int) time.Duration {
+	if failures < 1 {
+		failures = 1
+	}
+	d := min(retryBaseDelay<<min(failures-1, retryMaxShift), retryMaxDelay)
+	// Spread over [d/2, d) so agents that failed together pick different moments.
+	half := int64(d) / retryJitterFrac
+	return time.Duration(half + rand.Int64N(half)) //nolint:gosec // retry spacing, not security-sensitive
+}
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
@@ -80,7 +102,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
+		return fmt.Errorf("cannot find pmmAgentsIDs for AgentsState update: %w", err)
 	}
 	var wg sync.WaitGroup
 	limiter := make(chan struct{}, 10) //nolint:mnd
@@ -113,6 +135,8 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 		panic("stateChangeChan should have capacity 1")
 	}
 
+	var failures int
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -133,12 +157,43 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 
 			nCtx, cancel := context.WithTimeout(ctx, stateChangeTimeout)
 			err := u.sendSetStateRequest(nCtx, agent)
-			if err != nil {
-				l.Error(err)
-				u.RequestStateUpdate(ctx, agent.id)
-			}
 			cancel()
+			if err == nil {
+				failures = 0
+				continue
+			}
+
+			// Now that the channel honours nCtx, a request loop busy for longer than
+			// stateChangeTimeout lands here, so say what timed out.
+			failures++
+			l.WithError(err).WithField("attempt", failures).Error("Failed to send SetState request")
+
+			// Wait before re-requesting. Without this every failure re-queues immediately,
+			// so a fleet reconnecting at once keeps the server saturated with retries and
+			// never lets it recover (PMM-15228).
+			delay := retryDelay(failures)
+			timer := time.NewTimer(delay)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return
+			case <-agent.kickChan:
+				timer.Stop()
+				return
+			case <-timer.C:
+			}
+			u.RequestStateUpdate(ctx, agent.id)
 		}
+	}
+}
+
+// vmAgentDeployment describes what selects the remote-write path of the vmagent run by the given
+// pmm-agent: whether this PMM Server is clustered, and whether the pmm-agent is this PMM Server
+// instance's built-in agent (each HA pod has one).
+func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
+	return vmAgentDeployment{
+		haEnabled:     u.r.haService.Params().Enabled,
+		isServerAgent: pmmAgentID == models.PMMServerAgentID,
 	}
 }
 
@@ -153,16 +208,16 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}()
 	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
 	if err != nil {
-		return errors.Wrap(err, "failed to get PMM Agent")
+		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
+		return fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
 	}
 
 	settings, err := models.GetSettings(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "failed to get settings")
+		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
 	filters := models.AgentFilters{
@@ -173,12 +228,41 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
-		return errors.Wrap(err, "failed to collect agents")
+		return fmt.Errorf("failed to collect agents: %w", err)
 	}
 
 	redactMode := redactSecrets
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		redactMode = exposeSecrets
+	}
+
+	// Agent rows belonging to one pmm-agent share the same node, and several of them
+	// share the same service, so the per-row lookups below repeated the same queries.
+	// Under a fleet-wide reconnect that repetition dominates the cost (PMM-15228).
+	nodeCache := make(map[string]*models.Node, len(agents))
+	serviceCache := make(map[string]*models.Service, len(agents))
+
+	getNode := func(id string) (*models.Node, error) {
+		if n, ok := nodeCache[id]; ok {
+			return n, nil
+		}
+		n, err := models.FindNodeByID(u.db.Querier, id)
+		if err != nil {
+			return nil, err
+		}
+		nodeCache[id] = n
+		return n, nil
+	}
+	getService := func(id string) (*models.Service, error) {
+		if s, ok := serviceCache[id]; ok {
+			return s, nil
+		}
+		s, err := models.FindServiceByID(u.db.Querier, id)
+		if err != nil {
+			return nil, err
+		}
+		serviceCache[id] = s
+		return s, nil
 	}
 
 	rdsExporters := make(map[*models.Node]*models.Agent)
@@ -191,11 +275,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.VMAgentType:
 			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
+				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
-			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
+			agentProcesses[row.AgentID] = vmAgentConfig(l.WithField("agent_id", agent.id), string(scrapeCfg), u.vmParams, u.vmAgentDeployment(agent.id))
 		case models.NomadAgentType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -206,7 +290,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -218,7 +302,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			err := checkRDSExporterSupported(pmmAgent, row)
+			if err != nil {
+				l.Warnf("Leaving rds_exporter %s out of the state of pmm-agent %s: %s.", row.AgentID, agent.id, err)
+				continue
+			}
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -228,7 +317,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			// ignore
 
 		case models.AzureDatabaseExporterType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -244,14 +333,18 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
 			models.RTAMongoDBAgentType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
-			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
+			node, _ := getNode(pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				serviceNode, err := getNode(service.NodeID)
+				if err != nil {
+					return err
+				}
+				cfg, err := mysqldExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
@@ -263,7 +356,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				serviceNode, err := getNode(service.NodeID)
+				if err != nil {
+					return err
+				}
+				cfg, err := postgresExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
@@ -289,29 +386,15 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 
 		default:
-			return errors.Errorf("cannot send request for unknown agent type %s", row.AgentType)
+			return fmt.Errorf("cannot send request for unknown agent type %s", row.AgentType)
 		}
 	}
 
-	// we do start rds exporter per AWS account.
+	// we do start rds exporter per AWS credential identity.
 	if len(rdsExporters) != 0 {
-		// Create a new map to hold the groups of RDS exporters
-		groupedRdsExporters := make(map[string]map[*models.Node]*models.Agent)
-
-		// Iterate over the rdsExporters map
-		for node, exporter := range rdsExporters {
-			awsAccessKey := exporter.AWSOptions.AWSAccessKey
-
-			if _, ok := groupedRdsExporters[awsAccessKey]; !ok {
-				groupedRdsExporters[awsAccessKey] = make(map[*models.Node]*models.Agent)
-			}
-
-			groupedRdsExporters[awsAccessKey][node] = exporter
-		}
-
-		for awsAccessKey, exporters := range groupedRdsExporters {
+		for credentialsKey, exporters := range groupRDSExporters(rdsExporters) {
 			// TODO: split by 50 exporters per group
-			groupID := u.r.roster.add(agent.id, rdsPrefix+awsAccessKey, exporters)
+			groupID := u.r.roster.add(agent.id, rdsPrefix+credentialsKey, exporters)
 			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err
@@ -331,10 +414,25 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := agent.channel.SendAndWaitResponse(ctx, state)
 	if err != nil {
 		return err
 	}
 	l.Infof("SetState response: %+v.", resp)
 	return nil
+}
+
+// groupRDSExporters groups RDS exporters by the AWS credential identity they resolve to, so
+// each identity gets its own rds_exporter process and single-identity config file.
+func groupRDSExporters(rdsExporters map[*models.Node]*models.Agent) map[string]map[*models.Node]*models.Agent {
+	grouped := make(map[string]map[*models.Node]*models.Agent, len(rdsExporters))
+	for node, exporter := range rdsExporters {
+		key := exporter.AWSOptions.CredentialsKey()
+		if _, ok := grouped[key]; !ok {
+			grouped[key] = make(map[*models.Node]*models.Agent)
+		}
+		grouped[key][node] = exporter
+	}
+
+	return grouped
 }
