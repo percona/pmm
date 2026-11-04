@@ -74,6 +74,8 @@ interface AdvisorCheckDetailsPaneProps {
   onClone?: () => void;
   // edit the current check; only user-authored checks can be modified
   onEdit?: () => void;
+  // show the dry-run Test controls
+  canTest?: boolean;
 }
 
 export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
@@ -81,6 +83,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   onClose,
   onClone,
   onEdit,
+  canTest = false,
 }) => {
   const [maximized, setMaximized] = useState(true);
   const { navOpen } = useNavigation();
@@ -99,7 +102,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
 
   const test = useCheckTest({
     technology: check?.technology,
-    enabled: open,
+    enabled: open && canTest,
     resetKey: check?.checkName ?? null,
   });
 
@@ -331,30 +334,34 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
               )}
             </Stack>
           </Box>
-          <CheckTestResults test={test} sx={{ mt: 2 }} />
-          <Stack
-            direction="row"
-            alignItems="center"
-            gap={1}
-            // full-bleed toolbar: cancel the drawer padding so the darker
-            // strip visually closes the pane at the bottom edge
-            sx={{
-              mt: 2,
-              mx: -2,
-              mb: -2,
-              px: 2,
-              py: 1.5,
-              borderTop: 1,
-              borderColor: 'divider',
-              bgcolor: 'background.default',
-            }}
-          >
-            <CheckTestControls
-              test={test}
-              onTest={handleTest}
-              disabled={!fullCheck}
-            />
-          </Stack>
+          {canTest && (
+            <>
+              <CheckTestResults test={test} sx={{ mt: 2 }} />
+              <Stack
+                direction="row"
+                alignItems="center"
+                gap={1}
+                // full-bleed toolbar: cancel the drawer padding so the darker
+                // strip visually closes the pane at the bottom edge
+                sx={{
+                  mt: 2,
+                  mx: -2,
+                  mb: -2,
+                  px: 2,
+                  py: 1.5,
+                  borderTop: 1,
+                  borderColor: 'divider',
+                  bgcolor: 'background.default',
+                }}
+              >
+                <CheckTestControls
+                  test={test}
+                  onTest={handleTest}
+                  disabled={!fullCheck}
+                />
+              </Stack>
+            </>
+          )}
         </>
       )}
     </Drawer>

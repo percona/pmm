@@ -55,7 +55,7 @@ Use the matrix below to check which permissions users have based on their assign
     Add, edit, delete alert templates | ✗ | ✓ | ✓
     View Advisor checks, insights and run history | ✗ | ✓ | ✓
     Run Advisor checks | ✗ | ✓ | ✓
-    Create, edit, clone, test, delete custom Advisor checks | ✗ | ✓ | ✓
+    Create, edit, clone, test, delete custom Advisor checks | ✗ | ✗ | ✓
     Enable or disable Advisor checks, for all or specific services | ✗ | ✓ | ✓
     View, create, edit, enable, disable, delete and run Advisor schedules | ✗ | ✓ | ✓
     Send a test Advisor email from a schedule | ✗ | ✓ | ✓
@@ -87,7 +87,9 @@ Use the matrix below to check which permissions users have based on their assign
     :--- | :--- | :---
     `/v1/alerting` | Viewer | Access alert information
     `/v1/advisors` | Editor | Access advisor functionality
-    `/v1/advisors/checks:` | Editor | Run and test Advisor checks
+    `/v1/advisors/checks:` | Editor | Run, enable and disable Advisor checks
+    `/v1/advisors/checks` (`POST`), `/v1/advisors/checks/{name}` (`PUT`, `DELETE`) | Admin | Create, edit and delete custom Advisor checks
+    `/v1/advisors/checks:test` | Admin | Test Advisor checks
     `/v1/actions/` | Viewer | View and execute actions
     `/v1/backups` | Admin | Manage backups
     `/v1/inventory/` | Admin | Manage inventory items

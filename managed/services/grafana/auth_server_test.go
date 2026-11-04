@@ -207,11 +207,22 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
-		// Advisors: editors run and author checks and schedules, and send test emails to schedule recipients.
+		// Advisors: editors run checks and schedules, and send test emails to schedule recipients.
 		{http.MethodPost, "/v1/advisors/checks:start", editor},
-		{http.MethodPost, "/v1/advisors/checks", editor},
-		{http.MethodPut, "/v1/advisors/checks/custom_check", editor},
-		{http.MethodDelete, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodPost, "/v1/advisors/checks:batchChange", editor},
+		{http.MethodGet, "/v1/advisors/checks", editor},
+		{http.MethodGet, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodGet, "/v1/advisors/checks:testTargets", editor},
+		// Only admins author and test checks, whose queries run with the monitoring user's privileges.
+		{http.MethodPost, "/v1/advisors/checks", admin},
+		{http.MethodPut, "/v1/advisors/checks/custom_check", admin},
+		{http.MethodDelete, "/v1/advisors/checks/custom_check", admin},
+		{http.MethodPost, "/v1/advisors/checks:test", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/CreateAdvisorCheck", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/UpdateAdvisorCheck", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/DeleteAdvisorCheck", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/TestAdvisorCheck", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/ListAdvisorCheckTestTargets", editor},
 		{http.MethodGet, "/v1/advisors/schedules", editor},
 		{http.MethodPost, "/v1/advisors/schedules", editor},
 		{http.MethodPut, "/v1/advisors/schedules/schedule-1", editor},

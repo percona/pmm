@@ -16,7 +16,9 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
+import { TEST_USER_EDITOR } from 'utils/testStubs';
 import { type AdvisorCheck, AdvisorTechnology } from 'types/advisors.types';
+import type { User } from 'types/user.types';
 
 vi.mock('api/advisors');
 vi.mock('api/services');
@@ -59,12 +61,13 @@ const FULL_CHECK: AdvisorCheck = {
   script: 'print("hi")',
 };
 
-const renderComponent = (initialEntry = '/advisors') =>
+const renderComponent = (initialEntry = '/advisors', user?: User) =>
   render(
     wrapWithQueryProvider(
       wrapWithSnackbarProvider(
         wrapWithUserProvider(
-          wrapWithRouter(<AdvisorsList />, { initialEntries: [initialEntry] })
+          wrapWithRouter(<AdvisorsList />, { initialEntries: [initialEntry] }),
+          user ? { user } : {}
         )
       )
     )
@@ -569,6 +572,31 @@ describe('AdvisorsList', () => {
     expect(
       screen.queryByTestId('check-mysql_version_check-edit')
     ).not.toBeInTheDocument();
+  });
+
+  it('hides check authoring and testing from editors', async () => {
+    renderComponent('/advisors', TEST_USER_EDITOR);
+
+    await waitForRows();
+
+    expect(screen.queryByTestId('add-advisor')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('check-postgresql_super_role-edit')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('check-postgresql_super_role-delete')
+    ).not.toBeInTheDocument();
+
+    fireEvent.dblClick(screen.getByTestId('advisor-row-postgresql_super_role'));
+    const pane = await screen.findByTestId('check-details-pane');
+    // the script stays viewable; editing, cloning and testing are admin-only
+    await within(pane).findByTestId('check-code');
+    expect(within(pane).queryByTestId('check-edit')).not.toBeInTheDocument();
+    expect(within(pane).queryByTestId('check-clone')).not.toBeInTheDocument();
+    expect(
+      within(pane).queryByTestId('advisor-check-form-test')
+    ).not.toBeInTheDocument();
+    expect(advisorsApi.listAdvisorCheckTestTargets).not.toHaveBeenCalled();
   });
 
   it('deletes a user-defined check after confirmation', async () => {

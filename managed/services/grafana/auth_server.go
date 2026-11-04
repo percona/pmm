@@ -78,11 +78,18 @@ var rules = map[string]role{
 	"/om.v1.OmService/TriggerHostBootstrap":          admin,
 	"/om.v1.OmService/CancelBootstrapRun":            admin,
 
+	// Advisor check authoring and testing; see methodRules.
+	"/advisors.v1.AdvisorService/CreateAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/UpdateAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/DeleteAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/TestAdvisorCheck":   admin,
+
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
 	"/v1/alerting/thresholds":         admin,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
+	"/v1/advisors/checks:test":        admin,
 	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
@@ -151,6 +158,13 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// Advisor check writes share the editor-readable list (POST) or sit under it (PUT/DELETE).
+	// A check's queries run with the monitoring user's privileges, so only admins author and
+	// test checks; the test endpoint and the gRPC methods are in rules.
+	http.MethodPost + " /v1/advisors/checks":    admin,
+	http.MethodPut + " /v1/advisors/checks/":    admin,
+	http.MethodDelete + " /v1/advisors/checks/": admin,
 
 	// OM inventory writes.
 	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,

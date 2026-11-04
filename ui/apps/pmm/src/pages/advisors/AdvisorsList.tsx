@@ -23,6 +23,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
+import { useUser } from 'contexts/user';
 import {
   useAdvisorChecks,
   useChangeAdvisorChecks,
@@ -98,6 +99,9 @@ const FilterSelect: FC<FilterSelectProps> = ({
 
 const AdvisorsList: FC = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  // a check's queries run with the monitoring user's privileges, so only admins author and test checks
+  const canAuthor = !!user?.isPMMAdmin;
   const { data: checks = [], isLoading, refetch } = useAdvisorChecks();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
@@ -440,15 +444,17 @@ const AdvisorsList: FC = () => {
               </IconButton>
             </Box>
           </Tooltip>
-          <Tooltip title={Messages.addAdvisor} arrow>
-            <IconButton
-              aria-label={Messages.addAdvisor}
-              onClick={() => setCheckForm({ mode: 'create' })}
-              data-testid="add-advisor"
-            >
-              <AddOutlinedIcon />
-            </IconButton>
-          </Tooltip>
+          {canAuthor && (
+            <Tooltip title={Messages.addAdvisor} arrow>
+              <IconButton
+                aria-label={Messages.addAdvisor}
+                onClick={() => setCheckForm({ mode: 'create' })}
+                data-testid="add-advisor"
+              >
+                <AddOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
         <Table
           tableName="advisors-list-table"
@@ -569,7 +575,7 @@ const AdvisorsList: FC = () => {
                   </Badge>
                 </IconButton>
               </Tooltip>
-              {row.original.userDefined && (
+              {canAuthor && row.original.userDefined && (
                 <>
                   <Tooltip title={Messages.edit} arrow>
                     <IconButton
@@ -619,24 +625,37 @@ const AdvisorsList: FC = () => {
           onClose={() =>
             patchParams((p) => p.delete('details'), { resetPage: false })
           }
-          onClone={() => {
-            if (detailsCheck) {
-              setCheckForm({
-                mode: 'clone',
-                checkName: detailsCheck.checkName,
-              });
-              patchParams((p) => p.delete('details'), { resetPage: false });
-            }
-          }}
-          onEdit={() => {
-            if (detailsCheck) {
-              setCheckForm({
-                mode: 'edit',
-                checkName: detailsCheck.checkName,
-              });
-              patchParams((p) => p.delete('details'), { resetPage: false });
-            }
-          }}
+          canTest={canAuthor}
+          onClone={
+            canAuthor
+              ? () => {
+                  if (detailsCheck) {
+                    setCheckForm({
+                      mode: 'clone',
+                      checkName: detailsCheck.checkName,
+                    });
+                    patchParams((p) => p.delete('details'), {
+                      resetPage: false,
+                    });
+                  }
+                }
+              : undefined
+          }
+          onEdit={
+            canAuthor
+              ? () => {
+                  if (detailsCheck) {
+                    setCheckForm({
+                      mode: 'edit',
+                      checkName: detailsCheck.checkName,
+                    });
+                    patchParams((p) => p.delete('details'), {
+                      resetPage: false,
+                    });
+                  }
+                }
+              : undefined
+          }
         />
         <AdvisorCheckForm
           open={!!checkForm}

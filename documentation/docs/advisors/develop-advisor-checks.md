@@ -37,12 +37,15 @@ The **Advisors > Catalog** page lists both kinds of checks. The **Source** colum
 
 To change what a built-in check does, clone it and edit the copy.
 
+Only users with the **Admin** role can create, edit, clone, test and delete checks. A check's queries run on your databases with the privileges of the PMM monitoring user, and a test returns their results. Users with the **Editor** role can view, run, enable and disable checks. For the permissions of every role, see [Standard role permissions](../admin/roles/index.md).
+
 ## Create a check
 
 ### Prerequisites
 
 Before you start, make sure that:
 
+- You have the **Admin** role.
 - The **Advisors** option is enabled under **Configuration > Settings > Advisors**.
 - PMM monitors at least one service of the technology that the check targets, so that you can test the check.
 
