@@ -694,6 +694,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_POSTGRES_SSL_CERT_PATH").
 		String()
 
+	elasticacheDiscoveryEnabled := kingpin.Flag("elasticache-discovery-enable", "Enable ElastiCache auto-discovery of pmm_enable=true tagged clusters").
+		Envar("PMM_ELASTICACHE_DISCOVERY_ENABLE").
+		Bool()
+
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
 		Bool()
@@ -1161,10 +1165,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	haService.AddLeaderService(ha.NewContextService("elasticacheDiscovery", func(ctx context.Context) error {
-		elasticacheDiscovery.Run(ctx)
-		return nil
-	}))
+	if *elasticacheDiscoveryEnabled {
+		haService.AddLeaderService(ha.NewContextService("elasticacheDiscovery", func(ctx context.Context) error {
+			elasticacheDiscovery.Run(ctx)
+			return nil
+		}))
+	}
 
 	wg.Go(func() {
 		runGRPCServer(ctx,

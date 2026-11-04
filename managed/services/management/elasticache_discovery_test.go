@@ -144,6 +144,11 @@ func TestElastiCacheDiscovery(t *testing.T) {
 		assert.Equal(t, "elasticache-my-cluster", managed[0].ServiceName)
 		assert.Equal(t, "my-cluster.abc123.use1.cache.amazonaws.com", pointer.GetString(managed[0].Address))
 
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: managed[0].ServiceID})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		assert.False(t, agents[0].ExporterOptions.PushMetrics)
+
 		// Remove the service.
 		err = d.removeService(ctx, managed[0])
 		require.NoError(t, err)

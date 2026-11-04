@@ -17,10 +17,11 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -48,6 +49,8 @@ const (
 	// Label used to identify services managed by auto-discovery.
 	elasticacheManagedByLabel = "elasticache-autodiscovery"
 )
+
+var errNoAWSCredentials = errors.New("no AWS credentials available")
 
 // ElastiCacheDiscovery is a background service that periodically discovers
 // ElastiCache replication groups tagged with pmm_enable=true and reconciles
@@ -108,7 +111,7 @@ func (d *ElastiCacheDiscovery) Run(ctx context.Context) {
 
 // reconcile runs a single discovery + sync cycle.
 func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
-	d.l.Info("Running reconciliation...")
+	d.l.Debug("Running reconciliation...")
 
 	settings, err := models.GetSettings(d.db.Querier)
 	if err != nil {
@@ -123,7 +126,11 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 	}
 
 	regions := listElastiCacheRegions(partitions)
-	discovered, scanComplete, err := d.discoverTaggedInstances(ctx, regions)
+	discovered, cleanRegions, err := d.discoverTaggedInstances(ctx, regions)
+	if errors.Is(err, errNoAWSCredentials) {
+		d.l.Debugf("Skipping discovery: %v", err)
+		return
+	}
 	if err != nil {
 		d.l.Warnf("Discovery failed: %v", err)
 		return
@@ -165,60 +172,68 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 		added++
 	}
 
-	// Remove stale — only when the AWS scan completed cleanly across every
-	// region and tag lookup. A partial scan would make legitimate services look
-	// "missing" (e.g. throttled ListTagsForResource → cluster appears untagged)
-	// and trigger false removals.
-	var removed int
-	if !scanComplete {
-		d.l.Warnf("Discovery scan was incomplete; skipping stale-removal this cycle")
-	} else {
-		for addr, svc := range managedByAddr {
-			if _, exists := expectedByAddr[addr]; exists {
-				continue
-			}
-			if err := d.removeService(ctx, svc); err != nil {
-				d.l.Warnf("Failed to remove %s (%s): %v", svc.ServiceName, addr, err)
-				continue
-			}
-			removed++
+	// Remove stale only in regions that scanned cleanly: a failed or partial
+	// region scan would make its services look missing.
+	var removed, removeSkipped int
+	for addr, svc := range managedByAddr {
+		if _, exists := expectedByAddr[addr]; exists {
+			continue
 		}
+		node, err := models.FindNodeByID(d.db.Querier, svc.NodeID)
+		if err != nil {
+			d.l.Warnf("Failed to find node for %s (%s): %v", svc.ServiceName, addr, err)
+			continue
+		}
+		if _, ok := cleanRegions[pointer.GetString(node.Region)]; !ok {
+			removeSkipped++
+			continue
+		}
+		if err := d.removeService(ctx, svc); err != nil {
+			d.l.Warnf("Failed to remove %s (%s): %v", svc.ServiceName, addr, err)
+			continue
+		}
+		removed++
 	}
 
 	unchanged := len(expectedByAddr) - added - addFailed
-	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged, %d failed (scan complete: %t)",
-		added, removed, unchanged, addFailed, scanComplete)
+	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged, %d failed, %d removal(s) deferred (%d/%d region(s) scanned cleanly)",
+		added, removed, unchanged, addFailed, removeSkipped, len(cleanRegions), len(regions))
 }
 
 // discoverTaggedInstances discovers ElastiCache replication groups across regions
 // and filters to those tagged with pmm_enable=true.
 //
-// Returns (instances, scanComplete, error). The scanComplete flag is false
-// when any region scan or per-cluster tag lookup failed; callers must not use
-// the result to drive destructive operations (e.g. stale-removal) in that case.
-func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, bool, error) {
+// Returns the instances and the set of regions whose scan completed cleanly;
+// only those regions are safe to drive stale-removal.
+func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, map[string]struct{}, error) {
+	ctx, cancel := context.WithTimeout(ctx, elasticacheDiscoveryTimeout)
+	defer cancel()
+
 	cfg, err := config.LoadDefaultConfig(
 		ctx,
 		config.WithHTTPClient(&http.Client{}),
 	)
 	if err != nil {
-		return nil, false, fmt.Errorf("failed to load AWS config: %w", err)
+		return nil, nil, fmt.Errorf("failed to load AWS config: %w", err)
+	}
+	if _, err := cfg.Credentials.Retrieve(ctx); err != nil {
+		return nil, nil, fmt.Errorf("%w: %w", errNoAWSCredentials, err)
 	}
 
 	d.l.Debugf("Scanning %d region(s)", len(regions))
 
-	ctx, cancel := context.WithTimeout(ctx, elasticacheDiscoveryTimeout)
-	defer cancel()
-
 	var wg errgroup.Group
 	results := make(chan discoveredInstance)
-	var scanFailed atomic.Bool
+	var mu sync.Mutex
+	cleanRegions := make(map[string]struct{}, len(regions))
 
 	for _, region := range regions {
 		wg.Go(func() error {
 			instances, complete := d.discoverRegionTagged(ctx, cfg, region)
-			if !complete {
-				scanFailed.Store(true)
+			if complete {
+				mu.Lock()
+				cleanRegions[region] = struct{}{}
+				mu.Unlock()
 			}
 			if len(instances) > 0 {
 				d.l.Debugf("Region %s: found %d tagged endpoint(s)", region, len(instances))
@@ -247,7 +262,7 @@ func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regi
 		return discovered[i].Address < discovered[j].Address
 	})
 
-	return discovered, !scanFailed.Load(), nil
+	return discovered, cleanRegions, nil
 }
 
 // discoverRegionTagged returns ElastiCache replication groups in a region that are tagged pmm_enable=true.
@@ -268,12 +283,15 @@ func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
-			d.l.Warnf("Region %s: DescribeReplicationGroups failed: %v", region, err)
+			d.l.Debugf("Region %s: DescribeReplicationGroups failed: %v", region, err)
 			return instances, false
 		}
 
 		for _, rg := range page.ReplicationGroups {
+			// Transitional states (modifying, snapshotting, ...) aren't "gone":
+			// mark the region incomplete so stale-removal doesn't delete them.
 			if rg.Status == nil || *rg.Status != "available" {
+				complete = false
 				continue
 			}
 
@@ -301,7 +319,7 @@ func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws
 			// legitimately-managed service.
 			tags, err := d.checkTags(ctx, client, rg)
 			if err != nil {
-				d.l.Warnf("Region %s cluster %s: ListTagsForResource failed: %v", region, clusterName, err)
+				d.l.Debugf("Region %s cluster %s: ListTagsForResource failed: %v", region, clusterName, err)
 				complete = false
 				continue
 			}
@@ -486,7 +504,8 @@ func (d *ElastiCacheDiscovery) addInstance(ctx context.Context, inst discoveredI
 			ServiceID:  service.ServiceID,
 			TLS:        inst.TLS,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics: true,
+				// exporters on pmm-server are scraped in pull mode, see supportedMetricsMode
+				PushMetrics: false,
 			},
 		})
 		if err != nil {
