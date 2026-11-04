@@ -372,7 +372,7 @@ describe('Services', () => {
     expect(await screen.findByText('2 selected')).toBeInTheDocument();
   });
 
-  it('searches the services of the clusters', async () => {
+  it('searches and selects the services of the clusters', async () => {
     localStorage.setItem(CLUSTERS_SWITCH_KEY, 'true');
     renderServices('/inventory/services?services.q=mysql-2');
 
@@ -384,6 +384,17 @@ describe('Services', () => {
     fireEvent.click(screen.getByTestId('export-services-button'));
 
     expect(exportedServiceIds()).toEqual(['service-2']);
+
+    const serviceRow = screen
+      .getAllByRole('row')
+      .find((row) => within(row).queryByText('mysql-2'));
+    fireEvent.click(
+      within(serviceRow as HTMLElement).getByRole('checkbox', {
+        name: 'Toggle select row',
+      })
+    );
+
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
   });
 
   it('exports the services of every page', async () => {
