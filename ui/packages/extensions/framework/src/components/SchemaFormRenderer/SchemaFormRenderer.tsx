@@ -724,11 +724,23 @@ function SchemaFormBody({
     fixedValues
   );
 
+  // A server or validation error on a field wins over a rule message
+  // (FailRuleFieldError never replaces it). Joined into a key because RHF
+  // mutates its errors object in place, so a memo cannot depend on it.
+  const otherErrorKey = rootViolations
+    .flatMap(({ error_fields }) => error_fields)
+    .filter((name) => {
+      const type = get(formState.errors, name)?.type;
+      return type !== undefined && type !== 'failRule';
+    })
+    .join('\n');
+
   // A field shows one rule message. A root rule belongs to no section, so it
-  // shows on whichever of its error_fields is on screen and not already taken,
-  // or above the form when none is.
+  // shows on whichever of its error_fields is on screen and free to show it, or
+  // above the form when none is.
   const { failFieldMessages, inlineRootViolations, formLevelRootViolations } =
     useMemo(() => {
+      const withOtherError = new Set(otherErrorKey.split('\n'));
       const messages = new Map<string, string>();
       for (const violations of failViolations) {
         for (const { error_fields, message } of violations) {
@@ -746,6 +758,7 @@ function SchemaFormBody({
           (name) =>
             errorTargetNames.has(name) &&
             !unsubmittedNames.has(name) &&
+            !withOtherError.has(name) &&
             !messages.has(name)
         );
         if (shown.length > 0) {
@@ -762,7 +775,13 @@ function SchemaFormBody({
         inlineRootViolations: inline,
         formLevelRootViolations: formLevel,
       };
-    }, [failViolations, rootViolations, errorTargetNames, unsubmittedNames]);
+    }, [
+      failViolations,
+      rootViolations,
+      errorTargetNames,
+      unsubmittedNames,
+      otherErrorKey,
+    ]);
 
   const hasFailRules = useMemo(
     () =>

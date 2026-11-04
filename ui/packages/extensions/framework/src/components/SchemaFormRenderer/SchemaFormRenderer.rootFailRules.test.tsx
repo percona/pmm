@@ -25,7 +25,7 @@ import type { FailRule, FormSection } from './types';
 
 // A script preview fetches on mount; keep it loading.
 vi.mock('@pmm-extensions/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
+  ...(await importOriginal<Record<string, unknown>>()),
   apiClient: { get: vi.fn(() => new Promise(() => {})) },
 }));
 
@@ -404,6 +404,30 @@ describe('SchemaFormRenderer — root fail_when rules', () => {
       )
     );
     expect(screen.getAllByText(sectionMessage).length).toBeGreaterThan(0);
+  });
+
+  it('shows a root rule above the form when a server error holds its fields', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={SECTIONS}
+        failRules={[GPG_RULE]}
+        fieldErrors={[
+          { path: 'encrypt', message: 'Server rejected encrypt.' },
+          { path: 'post_run_encrypt', message: 'Server rejected post run.' },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    await user.click(screen.getByLabelText('GPG format'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('form-rule-violation')).toHaveTextContent(
+        GPG_MESSAGE
+      )
+    );
+    expect(screen.getByText('Server rejected encrypt.')).toBeInTheDocument();
   });
 
   it.each([
