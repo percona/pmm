@@ -45,6 +45,9 @@ export NO_S3_CACHE=1            # don't download from or upload to the S3 build 
 if [ ! -d "${WORKSPACE}/.git" ]; then
     git -C "${WORKSPACE}" init -q -b "${GIT_BRANCH}"
     git -C "${WORKSPACE}" remote add origin https://github.com/Percona-Lab/pmm-submodules
+elif [[ "$(git -C "${WORKSPACE}" config --get remote.origin.url)" != *pmm-submodules* ]]; then
+    echo "${WORKSPACE} is not a pmm-submodules clone, use a new directory for WORKSPACE" >&2
+    exit 1
 fi
 
 echo "Fetching pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
@@ -57,7 +60,7 @@ echo "Initializing submodules"
 git submodule update --init --jobs 10
 
 # Output of a previous run may come from other commits, which the build scripts don't expect
-if [ -d "${WORKSPACE}/tmp" ]; then
+if [ -d "${WORKSPACE}/tmp" ] && [ ! -L "${WORKSPACE}/tmp" ]; then
     # Go makes its module cache in tmp/go/pkg/mod read-only, which rm can't delete
     chmod -R u+w "${WORKSPACE}/tmp"
 fi
