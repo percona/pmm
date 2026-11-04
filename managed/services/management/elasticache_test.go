@@ -85,8 +85,11 @@ func TestNodeGroupAZ(t *testing.T) {
 	assert.Equal(t, "us-east-1b", nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
 		member("us-east-1a", "replica"), member("us-east-1b", "primary"),
 	}}))
-	assert.Equal(t, "us-east-1a", nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
+	assert.Empty(t, nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
 		member("us-east-1a", ""), member("us-east-1b", ""),
+	}}))
+	assert.Equal(t, "us-east-1a", nodeGroupAZ(ectypes.NodeGroup{NodeGroupMembers: []ectypes.NodeGroupMember{
+		member("us-east-1a", ""),
 	}}))
 	assert.Empty(t, nodeGroupAZ(ectypes.NodeGroup{}))
 }

@@ -340,14 +340,14 @@ func (s *ManagementService) addElastiCache(ctx context.Context, req *managementv
 	}, nil
 }
 
-// nodeGroupAZ returns the primary member's AZ, falling back to the first member when no role is reported.
+// nodeGroupAZ returns the primary member's AZ; a lone member is the primary even without a reported role.
 func nodeGroupAZ(ng ectypes.NodeGroup) string {
 	for _, m := range ng.NodeGroupMembers {
 		if pointer.GetString(m.CurrentRole) == "primary" {
 			return pointer.GetString(m.PreferredAvailabilityZone)
 		}
 	}
-	if len(ng.NodeGroupMembers) > 0 {
+	if len(ng.NodeGroupMembers) == 1 {
 		return pointer.GetString(ng.NodeGroupMembers[0].PreferredAvailabilityZone)
 	}
 	return ""
