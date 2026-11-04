@@ -40,6 +40,9 @@ export DOCKERFILE="Dockerfile.el9"
 export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
 export FORCE_REBUILD=1          # build every server component from source, also with build scripts older than NO_S3_CACHE
 export NO_S3_CACHE=1            # don't download from or upload to the S3 build cache
+# Build scripts older than NO_S3_CACHE still upload to S3, so run the build without AWS credentials
+unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE
+export AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true
 
 # git clone refuses a non-empty directory, and the workspace already holds build.log
 if [ ! -d "${WORKSPACE}/.git" ]; then
