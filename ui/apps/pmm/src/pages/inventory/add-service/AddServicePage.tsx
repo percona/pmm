@@ -24,7 +24,11 @@ export const AddServicePage: FC = () => {
   const isAzureEnabled = !!settings?.azurediscoverEnabled;
   const isUnavailable =
     (type !== undefined && !serviceType) ||
-    (serviceType === AddServiceType.azure && !isLoading && !isAzureEnabled);
+    // Settings stay null until they load, even when nothing reports loading yet.
+    (serviceType === AddServiceType.azure &&
+      !isLoading &&
+      !!settings &&
+      !isAzureEnabled);
 
   if (isUnavailable) {
     return <Navigate to={PMM_ADD_SERVICE_PATH} replace />;

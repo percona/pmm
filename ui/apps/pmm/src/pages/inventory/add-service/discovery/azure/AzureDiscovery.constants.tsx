@@ -33,11 +33,11 @@ export const AZURE_INSTANCE_COLUMNS: MRT_ColumnDef<DiscoverAzureInstance>[] = [
     header: Messages.columns.resourceGroup,
     size: 130,
   },
-  { accessorKey: 'serviceName', header: Messages.columns.name, size: 110 },
+  { accessorKey: 'serviceName', header: Messages.columns.name, size: 90 },
   {
     id: 'engine',
     header: Messages.columns.engine,
-    size: 90,
+    size: 110,
     grow: false,
     accessorFn: ({ type }) => AZURE_ENGINE_LABELS[type],
   },

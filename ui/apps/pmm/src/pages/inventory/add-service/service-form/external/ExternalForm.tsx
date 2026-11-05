@@ -1,6 +1,6 @@
 import { RadioGroup } from '@percona/peak-ui';
 import { useAddService } from 'hooks/api/useServices';
-import { type FC, useEffect } from 'react';
+import { type FC, useEffect, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 import { AdditionalOptions } from '../../components/additional-options';
 import { Messages as ConnectionMessages } from '../../components/connection-details/ConnectionDetails.messages';
@@ -22,6 +22,7 @@ import { MetricsParameters, Scheme } from './ExternalForm.types';
 import {
   getEndpointScheme,
   toExternalPayload,
+  toManualFields,
   toSchemePort,
 } from './ExternalForm.utils';
 
@@ -42,6 +43,25 @@ export const ExternalForm: FC = () => {
       shouldValidate: form.formState.isSubmitted,
     });
   }, [form, scheme]);
+
+  const previousParameters = useRef(metricsParameters);
+  useEffect(() => {
+    const fields =
+      previousParameters.current === MetricsParameters.parsed &&
+      metricsParameters === MetricsParameters.manually &&
+      toManualFields(form.getValues('url'));
+    previousParameters.current = metricsParameters;
+
+    if (fields) {
+      const { setValue } = form;
+      setValue('scheme', fields.scheme);
+      setValue('address', fields.address);
+      setValue('port', fields.port);
+      setValue('metricsPath', fields.metricsPath);
+      setValue('username', fields.username);
+      setValue('password', fields.password);
+    }
+  }, [form, metricsParameters]);
   const { mutateAsync: addService } = useAddService();
 
   return (

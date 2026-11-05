@@ -14,6 +14,7 @@ export const ConnectionDetails: FC<ConnectionDetailsProps> = ({
   withNodes,
   isAddressDisabled,
   requiresCredentials,
+  defaultTimeout = '2s',
   children,
 }) => {
   const { control } = useFormContext<TlsFormValues>();
@@ -60,8 +61,8 @@ export const ConnectionDetails: FC<ConnectionDetailsProps> = ({
         <TextField
           name="connectionTimeout"
           label={labels.timeout}
-          tooltip={tooltips.timeout}
-          placeholder={placeholders.timeout}
+          tooltip={tooltips.timeout(defaultTimeout)}
+          placeholder={placeholders.timeout(defaultTimeout)}
         />
         {children}
       </FieldGrid>

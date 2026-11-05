@@ -21,7 +21,7 @@ describe('ExternalForm', () => {
     mockAddService();
   });
 
-  it('adds an exporter entered field by field, over HTTPS by default', async () => {
+  it('adds an exporter entered field by field, over HTTP by default', async () => {
     renderServiceForm(ExternalForm);
 
     type('text-input-group', 'redis');
@@ -41,7 +41,7 @@ describe('ExternalForm', () => {
       metricsMode: MetricsMode.pull,
       skipConnectionCheck: false,
       tlsSkipVerify: false,
-      scheme: 'https',
+      scheme: 'http',
       listenPort: 9121,
       metricsPath: '/metrics',
       username: '',
@@ -100,6 +100,8 @@ describe('ExternalForm', () => {
     const skipVerify = () =>
       screen.queryByTestId('switch-input-tls-skip-verify');
 
+    expect(skipVerify()).not.toBeInTheDocument();
+    clickLabel('HTTPS');
     expect(skipVerify()).toBeInTheDocument();
     clickLabel('Skip TLS certificate and hostname validation');
     clickLabel('HTTP');
@@ -118,16 +120,16 @@ describe('ExternalForm', () => {
     );
   });
 
-  it('starts at the HTTPS port and follows the scheme', () => {
+  it('starts at the HTTP port and follows the scheme', () => {
     renderServiceForm(ExternalForm);
     const port = () => screen.getByTestId('text-input-port');
 
-    expect(port()).toHaveValue('443');
-    clickLabel('HTTP');
     expect(port()).toHaveValue('80');
+    clickLabel('HTTPS');
+    expect(port()).toHaveValue('443');
 
     type('text-input-port', '9121');
-    clickLabel('HTTPS');
+    clickLabel('HTTP');
     expect(port()).toHaveValue('9121');
   });
 
@@ -142,5 +144,24 @@ describe('ExternalForm', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
       'Used version of protocol'
     );
+  });
+
+  it('keeps a parsed URL when switching to manual entry', () => {
+    renderServiceForm(ExternalForm);
+
+    clickLabel('Parse from URL string');
+    type('text-input-url', 'http://user:pass@redis-exporter:9121/metrics2');
+    clickLabel('Set manually');
+
+    expect(screen.getByLabelText('HTTP')).toBeChecked();
+    expect(screen.getByTestId('text-input-address')).toHaveValue(
+      'redis-exporter'
+    );
+    expect(screen.getByTestId('text-input-port')).toHaveValue('9121');
+    expect(screen.getByTestId('text-input-metrics-path')).toHaveValue(
+      '/metrics2'
+    );
+    expect(screen.getByTestId('text-input-username')).toHaveValue('user');
+    expect(screen.getByTestId('text-input-password')).toHaveValue('pass');
   });
 });

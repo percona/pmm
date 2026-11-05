@@ -1,6 +1,7 @@
 import {
   getExternalUrlError,
   parseExternalUrl,
+  toManualFields,
   toSchemePort,
 } from './ExternalForm.utils';
 import { Scheme } from './ExternalForm.types';
@@ -55,5 +56,22 @@ describe('ExternalForm.utils', () => {
     expect(toSchemePort('80', Scheme.https)).toBe('443');
     expect(toSchemePort('', Scheme.https)).toBe('443');
     expect(toSchemePort('9121', Scheme.http)).toBe('9121');
+  });
+
+  it('turns a parsed URL into the manual fields', () => {
+    expect(
+      toManualFields('https://user:pass@redis-exporter:9121/metrics2')
+    ).toEqual({
+      scheme: Scheme.https,
+      address: 'redis-exporter',
+      port: '9121',
+      metricsPath: '/metrics2',
+      username: 'user',
+      password: 'pass',
+    });
+    expect(toManualFields('http://redis-exporter')).toEqual(
+      expect.objectContaining({ port: '80', metricsPath: '' })
+    );
+    expect(toManualFields('not a url')).toBeUndefined();
   });
 });

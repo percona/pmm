@@ -71,6 +71,23 @@ export const parseExternalUrl = (text: string): ExporterEndpoint => {
   };
 };
 
+// The manual fields for a parsed URL, so switching to manual entry keeps what the URL said.
+export const toManualFields = (url: string) => {
+  if (getExternalUrlError(url)) {
+    return undefined;
+  }
+
+  const endpoint = parseExternalUrl(url);
+  return {
+    scheme: endpoint.scheme,
+    address: endpoint.address,
+    port: String(endpoint.listenPort),
+    metricsPath: endpoint.metricsPath ?? '',
+    username: endpoint.username,
+    password: endpoint.password,
+  };
+};
+
 const toEndpoint = (values: ExternalFormValues): ExporterEndpoint =>
   values.metricsParameters === MetricsParameters.parsed
     ? parseExternalUrl(values.url)

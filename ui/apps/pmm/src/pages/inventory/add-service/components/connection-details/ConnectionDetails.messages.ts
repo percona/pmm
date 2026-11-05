@@ -10,7 +10,7 @@ export const Messages = {
   },
   placeholders: {
     serviceName: 'Service name (default: Hostname)',
-    timeout: '2s',
+    timeout: (defaultTimeout: string) => defaultTimeout,
   },
   tooltips: {
     serviceName: 'Service name to use',
@@ -18,7 +18,7 @@ export const Messages = {
     port: 'Port your service is listening on',
     username: 'Your database user name',
     password: 'Your database password',
-    timeout:
-      'How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.',
+    timeout: (defaultTimeout: string) =>
+      `How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of ${defaultTimeout}.`,
   },
 };

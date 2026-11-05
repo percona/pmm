@@ -5,6 +5,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import { wrapWithQueryProvider, wrapWithSettings } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 import { TEST_USER_VIEWER } from 'utils/testStubs';
+import { SettingsContext } from 'contexts/settings/settings.context';
 import { AddServicePage } from './AddServicePage';
 import { mockNodes } from './service-form/ServiceForm.testUtils';
 
@@ -175,6 +176,27 @@ describe('AddServicePage', () => {
 
     expect(screen.getByTestId('location-probe')).toHaveTextContent(
       /^\/add-instance$/
+    );
+  });
+
+  it('keeps the Azure link until the settings arrive', () => {
+    render(
+      <TestWrapper routerProps={{ initialEntries: ['/add-instance/azure'] }}>
+        {wrapWithQueryProvider(
+          <SettingsContext.Provider
+            value={{ isLoading: false, settings: null }}
+          >
+            <LocationProbe />
+            <Routes>
+              <Route path="/add-instance/:type?" element={<AddServicePage />} />
+            </Routes>
+          </SettingsContext.Provider>
+        )}
+      </TestWrapper>
+    );
+
+    expect(screen.getByTestId('location-probe')).toHaveTextContent(
+      '/add-instance/azure'
     );
   });
 

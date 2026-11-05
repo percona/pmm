@@ -22,7 +22,7 @@ export const ValkeyForm: FC = () => {
       serviceTypeLabel={PageMessages.serviceTypes.valkey}
       onSubmit={(values) => addService(toValkeyPayload(values))}
     >
-      <ConnectionDetails withNodes />
+      <ConnectionDetails withNodes defaultTimeout="3s" />
       <Labels />
       <AdditionalOptions>
         <TlsOptions certificates={<TlsCertificates />} />
