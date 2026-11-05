@@ -74,8 +74,8 @@
     },
     {
       "type": "dashboard",
-      "name": "Amazon Aurora Overview",
-      "path": "dashboards/MySQL/Amazon_Aurora_Overview.json"
+      "name": "Amazon RDS Overview",
+      "path": "dashboards/Amazon RDS/Amazon_RDS_Overview.json"
     },
     {
       "type": "dashboard",

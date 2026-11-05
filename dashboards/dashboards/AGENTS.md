@@ -23,6 +23,7 @@ dashboards/dashboards/*.json
 
 | Directory | Domain |
 |-----------|--------|
+| `Amazon RDS/` | Amazon RDS Overview: Aurora and RDS clusters and instances of every engine |
 | `MySQL/` | MySQL, PXC/Galera, Aurora, ProxySQL, HAProxy |
 | `MongoDB/` | MongoDB, WiredTiger, MMAPv1, InMemory, PBM, ReplSet |
 | `PostgreSQL/` | PostgreSQL, Patroni |

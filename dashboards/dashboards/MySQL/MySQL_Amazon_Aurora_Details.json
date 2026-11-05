@@ -51,7 +51,20 @@
     "graphTooltip": 1,
     "id": null,
     "iteration": 1656498489966,
-    "links": [],
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "dashboard",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Amazon RDS Overview",
+            "tooltip": "Amazon RDS and Aurora clusters and instances",
+            "type": "link",
+            "url": "/graph/d/rds-overview/amazon-rds-overview?refresh=1m"
+        }
+    ],
     "liveNow": false,
     "panels": [
         {

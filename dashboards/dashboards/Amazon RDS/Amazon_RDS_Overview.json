@@ -1,0 +1,193 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "Amazon RDS and Aurora (MySQL, MariaDB, PostgreSQL) clusters and instances monitored by PMM",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "bolt",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Alerting",
+            "tooltip": "Alert rules and firing alerts",
+            "type": "link",
+            "url": "/graph/alerting/list"
+        },
+        {
+            "asDropdown": false,
+            "icon": "info",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Advisors",
+            "tooltip": "Advisor insights for your services",
+            "type": "link",
+            "url": "/graph/advisors/insights"
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": "Metrics",
+            "description": "Amazon Aurora and RDS clusters, replication groups and standalone instances (MySQL, MariaDB, PostgreSQL) monitored by PMM. Expand a row to see its instances; click an instance to open its dashboard.",
+            "gridPos": {
+                "h": 20,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "interval": "1m",
+            "options": {
+                "freeStorageField": "Value #H",
+                "inRecoveryField": "Value #E",
+                "innodbReadOnlyField": "Value #C",
+                "readOnlyField": "Value #D",
+                "throughputField": "Value #F",
+                "upField": "Value #A",
+                "volumeUsedField": "Value #G"
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name, node_name, node_id, service_type, region) ({__name__=~\"mysql_up|pg_up\", node_type=\"remote_rds\"})\nor\n(\n  max by (service_name, node_name, node_id, service_type, region) (last_over_time({__name__=~\"mysql_up|pg_up\", node_type=\"remote_rds\"}[1h]))\n  unless on (service_name) {__name__=~\"mysql_up|pg_up\", node_type=\"remote_rds\"}\n) * 0",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (node_id, region, aws_account_id, aws_cluster_id, aws_engine, instance, aws_source_instance_id, aws_source_region) (\n  aws_rds_instance_info\n  or\n  (last_over_time(aws_rds_instance_info[1h]) unless on (node_id) aws_rds_instance_info)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name) (mysql_global_variables_innodb_read_only{node_type=\"remote_rds\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name) (mysql_global_variables_read_only{node_type=\"remote_rds\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name) (pg_replication_is_replica{node_type=\"remote_rds\"})\nor\nmax by (service_name) (pg_settings_in_hot_standby{node_type=\"remote_rds\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (service_name) (rate(mysql_global_status_queries{node_type=\"remote_rds\"}[$__rate_interval]))\nor\n(\n  sum by (service_name) (rate(pg_stat_database_xact_commit{node_type=\"remote_rds\"}[$__rate_interval]))\n  + sum by (service_name) (rate(pg_stat_database_xact_rollback{node_type=\"remote_rds\"}[$__rate_interval]))\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (node_id) (aws_rds_volume_bytes_used_average)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "G"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (node_id) (aws_rds_free_storage_space_average)\nor\nmax by (node_id) (node_filesystem_free_bytes{node_type=\"remote_rds\", mountpoint=\"\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "H"
+                }
+            ],
+            "title": "Clusters, replication groups and instances",
+            "type": "pmm-aurora-tree-panel"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "Percona",
+        "Amazon RDS",
+        "MySQL",
+        "PostgreSQL"
+    ],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {
+        "hidden": true
+    },
+    "timezone": "",
+    "title": "Amazon RDS Overview",
+    "uid": "rds-overview",
+    "weekStart": ""
+}
