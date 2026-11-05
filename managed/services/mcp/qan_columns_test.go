@@ -43,6 +43,9 @@ func TestQANColumnsMatchQANAPI2(t *testing.T) {
 	for name := range maps["commonColumnNames"] {
 		want[name] = true
 	}
+	// qan-api2 still lists these, but its migration 17 renamed their columns to shared_blk_*_time, so ClickHouse fails a report that asks for them.
+	delete(want, "blk_read_time")
+	delete(want, "blk_write_time")
 
 	got := make(map[string]bool, len(qanColumns))
 	for _, c := range qanColumns {
@@ -51,6 +54,11 @@ func TestQANColumnsMatchQANAPI2(t *testing.T) {
 	}
 	assert.Len(t, qanColumns, len(got), "a name is listed twice")
 	assert.Equal(t, want, got)
+
+	// qan-api2 rejects any other group_by with a bare HTTP 500.
+	for _, d := range groupByDimensions {
+		assert.Contains(t, maps["standartDimensions"], d)
+	}
 }
 
 // qanAPI2Maps reads the map literals declared in qan-api2's analytics/base.go.

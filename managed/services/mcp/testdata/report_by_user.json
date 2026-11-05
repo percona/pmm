@@ -1,0 +1,10 @@
+{
+  "total_rows": 14,
+  "rows": [
+    {"rank": 10, "dimension": "", "fingerprint": "", "num_queries": 900, "load": 0.5, "metrics": {}},
+    {"rank": 11, "dimension": "app", "fingerprint": "", "num_queries": 700, "load": 0.4,
+     "metrics": {"query_time": {"stats": {"sum": 120, "avg": 0.171}}, "rows_examined": {"stats": {"sum": 70000, "avg": 100}}, "full_scan": {"stats": {"sum": 12, "avg": 0.017}}}},
+    {"rank": 12, "dimension": "", "fingerprint": "", "num_queries": 200, "load": 0.1,
+     "metrics": {"query_time": {"stats": {"sum": 30, "avg": 0.15}}, "rows_examined": {"stats": {"sum": 0, "avg": 0}}, "full_scan": {"stats": {"sum": 0}}}}
+  ]
+}
