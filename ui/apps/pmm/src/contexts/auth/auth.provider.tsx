@@ -15,6 +15,7 @@ import {
   ensureClientSessionListener,
   useClientSession,
 } from './auth.clientSession';
+import { MIN_ROTATE_DELAY_MS } from './auth.constants';
 import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
 import {
   getRefetchInterval,
@@ -45,9 +46,14 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
       establishClientSession();
       return token;
     },
-    // Without a session (anonymous access) there is nothing to rotate.
-    refetchInterval: (query) =>
-      query.state.data ? getRefetchInterval() : false,
+    refetchInterval: (query) => {
+      if (query.state.data) {
+        return getRefetchInterval();
+      }
+      // An anonymous visitor has no session to rotate. Anyone else retries soon, not at the
+      // session deadline, so a failed check (a 502 while Grafana starts) recovers.
+      return settings.data?.anonymousEnabled ? false : MIN_ROTATE_DELAY_MS;
+    },
     refetchIntervalInBackground: true,
     // Without a session, returning to the tab checks for a sign-in made in another tab.
     refetchOnWindowFocus: (query) =>
