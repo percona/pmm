@@ -203,6 +203,8 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
+	// anonymous is set when Grafana resolved the caller as its anonymous user.
+	anonymous bool
 }
 
 // CurrentUser represents Grafana user payload.
@@ -321,8 +323,9 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		if anonymousEnabled {
 			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
 			return authUser{
-				role:   anonymousRole,
-				userID: 0,
+				role:      anonymousRole,
+				userID:    0,
+				anonymous: true,
 			}, nil
 		}
 		return emptyUser, err
