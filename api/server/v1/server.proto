@@ -7,6 +7,7 @@ import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
@@ -130,16 +131,6 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// AdvisorRunIntervals represents intervals between each run of Advisor checks.
-message AdvisorRunIntervals {
-  // Standard check interval.
-  google.protobuf.Duration standard_interval = 1;
-  // Interval for rare check runs.
-  google.protobuf.Duration rare_interval = 2;
-  // Interval for frequent check runs.
-  google.protobuf.Duration frequent_interval = 3;
-}
-
 // Settings represents PMM Server settings.
 message Settings {
   // True if updates are enabled.
@@ -157,8 +148,9 @@ message Settings {
   bool alerting_enabled = 10;
   // PMM Server public address.
   string pmm_public_address = 11;
-  // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 12;
+  // Field 12 (advisor_run_intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 12;
+  reserved "advisor_run_intervals";
   // True if Backup Management is enabled.
   bool backup_management_enabled = 13;
   // True if Azure Discover is enabled.
@@ -181,6 +173,14 @@ message Settings {
   bool extensions_enabled = 21;
   // True if OpenManager is enabled.
   bool om_enabled = 22;
+  // True if Advisor email notifications are enabled.
+  bool advisor_notifications_enabled = 23;
+  // Severities of the Advisor insights that are emailed.
+  repeated management.v1.Severity advisor_notification_severities = 24;
+  // Email addresses Advisor notifications are sent to.
+  repeated string advisor_notification_email_addresses = 25;
+  // Advisor check results history retention.
+  google.protobuf.Duration advisor_history_retention = 26;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -233,8 +233,9 @@ message ChangeSettingsRequest {
   optional bool enable_alerting = 8;
   // PMM Server public address.
   optional string pmm_public_address = 9;
-  // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 10;
+  // Field 10 (advisor_run_intervals) was removed when Advisor schedules replaced check intervals.
+  reserved 10;
+  reserved "advisor_run_intervals";
   // Enable Azure Discover.
   optional bool enable_azurediscover = 11;
   // Enable Backup Management.
@@ -248,6 +249,15 @@ message ChangeSettingsRequest {
   reserved "update_snooze_duration";
   // Enable OpenManager.
   optional bool enable_om = 16;
+  // A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+  google.protobuf.Duration advisor_history_retention = 17;
+  // Enable Advisor email notifications.
+  optional bool enable_advisor_notifications = 18;
+  // Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
+  repeated management.v1.Severity advisor_notification_severities = 19;
+  // Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
+  // array clears the list.
+  optional common.StringArray advisor_notification_email_addresses = 20;
 }
 
 message ChangeSettingsResponse {

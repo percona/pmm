@@ -7,6 +7,7 @@ export const Messages = {
     ssh: 'SSH key',
     metrics: 'Metrics resolution',
     advanced: 'Advanced settings',
+    advisors: 'Advisors',
     serviceNow: 'ServiceNow connection',
   },
   advanced: {
@@ -14,7 +15,6 @@ export const Messages = {
       required: 'Required field',
       retentionRange: (min: number, max: number) =>
         `Value should be in the range from ${min} to ${max}`,
-      intervalMin: (min: number) => `Min ${min}`,
     },
     retentionLabel: 'Data retention',
     retentionTooltip:
@@ -34,15 +34,6 @@ export const Messages = {
     updatesLink: 'https://per.co.na/updates',
     updatesTooltip:
       'Option to check new versions and ability to update PMM from UI.',
-    advisorsLabel: 'Advisors',
-    sttRareIntervalLabel: 'Rare',
-    sttStandardIntervalLabel: 'Standard',
-    sttFrequentIntervalLabel: 'Frequent',
-    sttCheckIntervalTooltip:
-      'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
-    advisorsLink: 'https://per.co.na/advisors',
-    advisorsTooltip:
-      'Run automated checks to identify potential database performance and configuration issues.',
     azureDiscoverLabel: 'Microsoft Azure monitoring',
     azureDiscoverTooltip:
       'Option to enable/disable Microsoft Azure DB instances discovery and monitoring',
@@ -92,6 +83,46 @@ export const Messages = {
     developerPreviewDescriptionSuffix:
       ' to be used in production environments. They are earlier than a technical preview and change without notice. Read more about feature status',
     developerPreviewLinkText: 'here.',
+  },
+  advisors: {
+    validation: {
+      required: 'Required field',
+      retentionRange: (min: number, max: number) =>
+        `Value should be in the range from ${min} to ${max}`,
+      emailsRequired:
+        'Add at least one recipient, or turn Advisor notifications off',
+      severitiesRequired:
+        'Select at least one severity, or turn Advisor notifications off',
+      emailInvalid: (email: string) =>
+        `"${email}" is not a valid email address`,
+      emailsMax: (max: number) => `At most ${max} recipients are allowed`,
+    },
+    advisorsLabel: 'Advisors',
+    advisorsLink: 'https://per.co.na/advisors',
+    advisorsTooltip:
+      'Run automated checks to identify potential database performance and configuration issues.',
+    advisorRetentionLabel: 'Advisor history retention',
+    advisorRetentionTooltip:
+      'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
+    retentionUnits: 'days',
+    advisorNotificationsLabel: 'Advisor notifications',
+    advisorNotificationsTooltip:
+      'Email a summary of completed Advisor runs to the recipients below.',
+    advisorSeveritiesLabel: 'Default severities',
+    advisorSeveritiesTooltip:
+      'Only insights with the selected severities are emailed.',
+    advisorEmailsLabel: 'Default recipients',
+    advisorEmailsTooltip:
+      'Email addresses the summaries are sent to, separated by commas or spaces.',
+    schedulesOverride:
+      'Each Advisor schedule emails these recipients and severities unless it sets its own. Manage schedules in the',
+    schedulerLink: 'Scheduler',
+    sendTestEmail: 'Send test email',
+    sendTestEmailPending: 'Sending…',
+    sendTestEmailTooltip:
+      'Sends a sample report to the recipients above for the selected severities, unsaved changes included. No checks are run.',
+    sendTestEmailSuccess: (recipients: string) =>
+      `Test email sent to ${recipients}`,
   },
   metrics: {
     label: 'Metrics resolution',
