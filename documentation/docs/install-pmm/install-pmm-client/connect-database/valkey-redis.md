@@ -154,7 +154,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).
 
 === ":material-cog: Via inventory commands (Advanced)"
-PMM also provides inventory commands for more granular control:
+    PMM also provides inventory commands for more granular control:
 
     === ":material-database-plus: Add Valkey service via inventory"
         ```sh
