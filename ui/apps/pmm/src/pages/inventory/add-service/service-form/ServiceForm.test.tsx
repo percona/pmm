@@ -80,7 +80,7 @@ const TestForm: FC<{ onSubmit: (values: Values) => Promise<void> }> = ({
 
   return (
     <ServiceForm form={form} serviceTypeLabel="MySQL" onSubmit={onSubmit}>
-      <ConnectionDetails withNodes />
+      <ConnectionDetails requiresCredentials withNodes />
       <Labels />
       <AdditionalOptions>
         <TlsOptions certificates={<TlsCertificates />} />
@@ -167,23 +167,28 @@ describe('ServiceForm', () => {
       'text-input-custom-labels',
       'switch-input-skip-connection-check',
       'switch-input-tls',
-      'switch-input-tls-skip-verify',
       'text-input-disable-collectors',
     ]) {
       expect(screen.getByTestId(testId)).toBeInTheDocument();
     }
   });
 
-  it('shows the TLS certificates only once TLS is on', async () => {
+  it('shows the TLS certificates and verification only once TLS is on', async () => {
     renderForm();
 
     expect(screen.queryByTestId('text-input-tls-ca')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('switch-input-tls-skip-verify')
+    ).not.toBeInTheDocument();
 
     turnOnTls();
 
     expect(await screen.findByTestId('text-input-tls-ca')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-tls-key')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-tls-cert')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('switch-input-tls-skip-verify')
+    ).toBeInTheDocument();
   });
 
   it('blocks submitting without the required fields', async () => {
@@ -205,6 +210,27 @@ describe('ServiceForm', () => {
     }
     expect(screen.getAllByText('Required field')).toHaveLength(3);
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('marks the required fields, the credentials only without TLS', () => {
+    renderForm();
+
+    for (const testId of [
+      'text-input-address',
+      'text-input-port',
+      'text-input-username',
+      'text-input-password',
+    ]) {
+      expect(screen.getByTestId(testId)).toBeRequired();
+    }
+    expect(
+      screen.getByTestId('text-input-connection-timeout')
+    ).not.toBeRequired();
+
+    turnOnTls();
+
+    expect(screen.getByTestId('text-input-username')).not.toBeRequired();
+    expect(screen.getByTestId('text-input-password')).not.toBeRequired();
   });
 
   it('does not ask for credentials with TLS on', async () => {

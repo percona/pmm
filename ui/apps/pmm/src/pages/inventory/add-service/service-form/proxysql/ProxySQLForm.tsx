@@ -22,7 +22,7 @@ export const ProxySQLForm: FC = () => {
       serviceTypeLabel={PageMessages.serviceTypes.proxysql}
       onSubmit={(values) => addService(toProxySQLPayload(values))}
     >
-      <ConnectionDetails withNodes />
+      <ConnectionDetails requiresCredentials withNodes />
       <Labels />
       <AdditionalOptions>
         <TlsOptions />

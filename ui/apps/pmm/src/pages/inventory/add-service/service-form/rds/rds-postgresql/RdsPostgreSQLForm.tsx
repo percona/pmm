@@ -39,7 +39,7 @@ export const RdsPostgreSQLForm: FC<RdsServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails withNodes isAddressDisabled>
+      <ConnectionDetails requiresCredentials withNodes isAddressDisabled>
         <InstanceIdField />
         <DatabaseField />
         <MaxQueryLengthField />

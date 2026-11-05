@@ -6,6 +6,7 @@ import { QueryAnalyticsOptions } from '../../../components/query-analytics-optio
 import { TlsCertificates } from '../../../components/tls-certificates';
 import { TlsOptions } from '../../../components/tls-options';
 import {
+  AUTO_DISCOVERY_LIMITS,
   AUTO_DISCOVERY_OPTIONS,
   MAX_CONNECTIONS_OPTIONS,
   TRACKING_OPTIONS,
@@ -37,6 +38,7 @@ export const PostgreSQLOptions: FC<PostgreSQLOptionsProps> = ({
       editableOption={AutoDiscoveryOption.custom}
       limitName="autoDiscoveryLimit"
       limitLabel={Messages.autoDiscovery.limit}
+      presets={AUTO_DISCOVERY_LIMITS}
       limitTooltip={Messages.autoDiscovery.tooltip}
     />
     {withExporterOptions && (

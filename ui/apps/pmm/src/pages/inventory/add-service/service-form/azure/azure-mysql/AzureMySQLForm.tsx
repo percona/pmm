@@ -33,7 +33,7 @@ export const AzureMySQLForm: FC<AzureServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails withNodes>
+      <ConnectionDetails requiresCredentials withNodes>
         <MaxQueryLengthField />
       </ConnectionDetails>
       <Labels />

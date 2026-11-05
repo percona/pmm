@@ -14,7 +14,7 @@ export const TlsOptions: FC<TlsOptionsProps> = ({ certificates }) => {
     <>
       <SwitchInput name="tls" label={Messages.tls} />
       {tls && certificates}
-      <TlsSkipVerify />
+      {tls && <TlsSkipVerify />}
     </>
   );
 };

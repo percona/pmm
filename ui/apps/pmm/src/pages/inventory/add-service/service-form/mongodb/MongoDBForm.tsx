@@ -26,7 +26,7 @@ export const MongoDBForm: FC = () => {
       serviceTypeLabel={PageMessages.serviceTypes.mongodb}
       onSubmit={(values) => addService(toMongoDBPayload(values))}
     >
-      <ConnectionDetails withNodes>
+      <ConnectionDetails requiresCredentials withNodes>
         <MaxQueryLengthField />
       </ConnectionDetails>
       <Labels />

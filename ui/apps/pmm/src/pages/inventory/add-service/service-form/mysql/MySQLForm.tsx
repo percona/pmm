@@ -22,7 +22,7 @@ export const MySQLForm: FC = () => {
       serviceTypeLabel={PageMessages.serviceTypes.mysql}
       onSubmit={(values) => addService(toMySQLPayload(values))}
     >
-      <ConnectionDetails withNodes>
+      <ConnectionDetails requiresCredentials withNodes>
         <MaxQueryLengthField />
       </ConnectionDetails>
       <Labels />

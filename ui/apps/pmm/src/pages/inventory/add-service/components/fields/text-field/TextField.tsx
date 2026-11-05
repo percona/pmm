@@ -14,9 +14,11 @@ export const TextField: FC<TextFieldProps> = ({
   autoComplete,
   endAdornment,
   disabled,
+  required,
 }) => (
   <TextInput
     name={name}
+    isRequired={required}
     textFieldProps={{
       // peak-ui's own label prop is a string; the tooltip needs a node.
       label: <FieldLabel label={label} tooltip={tooltip} />,

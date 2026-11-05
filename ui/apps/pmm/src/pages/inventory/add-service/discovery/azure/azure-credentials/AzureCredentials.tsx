@@ -30,21 +30,25 @@ export const AzureCredentials: FC<AzureCredentialsProps> = ({
           name="azureClientId"
           label={Messages.clientId}
           placeholder={Messages.clientId}
+          required
         />
         <PasswordField
           name="azureClientSecret"
           label={Messages.clientSecret}
           placeholder={Messages.clientSecret}
+          required
         />
         <TextField
           name="azureTenantId"
           label={Messages.tenantId}
           placeholder={Messages.tenantId}
+          required
         />
         <TextField
           name="azureSubscriptionId"
           label={Messages.subscriptionId}
           placeholder={Messages.subscriptionId}
+          required
         />
       </FieldGrid>
     </DiscoveryCredentials>

@@ -7,7 +7,6 @@ import { FieldGrid } from '../../components/field-grid';
 import { PasswordField, TextField } from '../../components/fields';
 import { FormSection } from '../../components/form-section';
 import { Labels } from '../../components/labels';
-import { TlsSkipVerify } from '../../components/tls-skip-verify';
 import { ServiceForm } from '../ServiceForm';
 import { useServiceForm } from '../ServiceForm.hooks';
 import { HAPROXY_DEFAULTS } from './HAProxyForm.constants';
@@ -39,11 +38,13 @@ export const HAProxyForm: FC = () => {
             name="address"
             label={labels.address}
             tooltip={tooltips.address}
+            required
           />
           <TextField
             name="port"
             label={labels.port}
             tooltip={Messages.tooltips.port}
+            required
           />
           <TextField
             name="username"
@@ -58,9 +59,7 @@ export const HAProxyForm: FC = () => {
         </FieldGrid>
       </FormSection>
       <Labels />
-      <AdditionalOptions>
-        <TlsSkipVerify />
-      </AdditionalOptions>
+      <AdditionalOptions />
     </ServiceForm>
   );
 };

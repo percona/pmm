@@ -55,6 +55,7 @@ export const ServiceForm = <
           {...(onCancel ? { onCancel } : { cancelTo: PMM_ADD_SERVICE_PATH })}
           submitLabel={Messages.addService}
           isSubmitting={form.formState.isSubmitting}
+          isSticky
         />
       </Stack>
     </FormProvider>

@@ -1,3 +1,4 @@
+import { screen } from '@testing-library/react';
 import { MetricsMode } from 'types/services.types';
 import { NodeType } from 'types/nodes.types';
 import {
@@ -40,5 +41,13 @@ describe('HAProxyForm', () => {
       username: 'stats',
       password: 'secret',
     });
+  });
+
+  it('does not offer skipping TLS verification', () => {
+    renderServiceForm(HAProxyForm);
+
+    expect(
+      screen.queryByTestId('switch-input-tls-skip-verify')
+    ).not.toBeInTheDocument();
   });
 });

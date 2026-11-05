@@ -1,5 +1,10 @@
 export const Messages = {
   noCredentials: 'No credentials provided and IAM role is not defined',
+  serverDiscovery: {
+    loading: "Looking for instances with PMM Server's AWS identity…",
+    failed:
+      "PMM Server couldn't list instances with its own AWS identity. Enter an access key and secret key, or an IAM role ARN, and select Discover.",
+  },
   docs: {
     credentials:
       'Where do I get the security credentials for my Amazon RDS DB instances',

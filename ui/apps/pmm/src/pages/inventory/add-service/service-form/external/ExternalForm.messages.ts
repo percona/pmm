@@ -17,6 +17,7 @@ export const Messages = {
   },
   tooltips: {
     group: 'Group to which your service belongs',
+    metricsParameters: 'Your external service endpoint',
     url: 'Your external service endpoint',
     scheme: 'Used version of protocol',
     metricsPath: 'Path to your metrics',

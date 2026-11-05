@@ -8,5 +8,7 @@ export const MaxQueryLengthField: FC = () => (
     kind="number"
     label={Messages.label}
     tooltip={Messages.tooltip}
+    placeholder={Messages.placeholder}
+    helperText={Messages.helperText}
   />
 );

@@ -38,7 +38,7 @@ export const AzurePostgreSQLForm: FC<AzureServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails withNodes>
+      <ConnectionDetails requiresCredentials withNodes>
         <DatabaseField />
         <MaxQueryLengthField />
       </ConnectionDetails>

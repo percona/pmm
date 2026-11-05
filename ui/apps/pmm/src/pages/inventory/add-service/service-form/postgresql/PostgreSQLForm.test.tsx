@@ -101,4 +101,19 @@ describe('PostgreSQLForm', () => {
       expect.objectContaining({ autoDiscoveryLimit: -1 })
     );
   });
+
+  it('shows the limits each option sends', async () => {
+    renderServiceForm(PostgreSQLForm);
+    await waitForNodePreselect();
+
+    expect(screen.getByTestId('text-input-auto-discovery-limit')).toHaveValue(
+      '10'
+    );
+    expect(
+      screen.getByTestId('text-input-auto-discovery-limit')
+    ).toBeDisabled();
+    expect(
+      screen.getByTestId('text-input-max-exporter-connections')
+    ).toBeDisabled();
+  });
 });

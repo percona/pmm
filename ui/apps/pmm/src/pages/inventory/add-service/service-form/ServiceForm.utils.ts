@@ -161,7 +161,8 @@ export const toConnection = (values: DatabaseServiceFormValues) => ({
   connectionTimeout: toOptionalString(values.connectionTimeout),
   skipConnectionCheck: values.skipConnectionCheck,
   tls: values.tls,
-  tlsSkipVerify: values.tlsSkipVerify,
+  // Only offered with TLS on, so a choice made before turning TLS off is dropped.
+  tlsSkipVerify: values.tls && values.tlsSkipVerify,
 });
 
 // Fields every database service (MySQL, PostgreSQL, MongoDB, ProxySQL, Valkey) is added with.

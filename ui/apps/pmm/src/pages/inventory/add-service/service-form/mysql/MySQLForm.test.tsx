@@ -137,4 +137,40 @@ describe('MySQLForm', () => {
       expect.objectContaining({ tablestatsGroupTableLimit: 1000 })
     );
   });
+
+  it('drops TLS verification skipping once TLS is turned off', async () => {
+    renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
+    fillRequired();
+
+    clickLabel('Use TLS for database connections');
+    clickLabel('Skip TLS certificate and hostname validation');
+    clickLabel('Use TLS for database connections');
+
+    expect(
+      screen.queryByTestId('switch-input-tls-skip-verify')
+    ).not.toBeInTheDocument();
+    submit();
+
+    expect(await sentPayload('mysql')).toEqual(
+      expect.objectContaining({ tls: false, tlsSkipVerify: false })
+    );
+  });
+
+  it('shows the table statistics limit each option sends', async () => {
+    renderServiceForm(MySQLForm);
+    await waitForNodePreselect();
+    const limit = () =>
+      screen.getByTestId('text-input-tablestats-group-table-limit');
+
+    expect(limit()).toHaveValue('-1');
+    expect(limit()).toBeDisabled();
+
+    clickLabel('Default');
+    expect(limit()).toHaveValue('1000');
+    expect(limit()).toBeDisabled();
+
+    clickLabel('Custom');
+    expect(limit()).toBeEnabled();
+  });
 });

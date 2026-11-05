@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
 import { enqueueSnackbar } from 'notistack';
 import { MetricsMode } from 'types/services.types';
@@ -92,6 +92,55 @@ describe('ExternalForm', () => {
         'Service “redis-exporter” added to your inventory. Your external service instance is now ready to be monitored.',
         { variant: 'success' }
       )
+    );
+  });
+
+  it('offers skipping TLS verification only over HTTPS', async () => {
+    renderServiceForm(ExternalForm);
+    const skipVerify = () =>
+      screen.queryByTestId('switch-input-tls-skip-verify');
+
+    expect(skipVerify()).toBeInTheDocument();
+    clickLabel('Skip TLS certificate and hostname validation');
+    clickLabel('HTTP');
+    expect(skipVerify()).not.toBeInTheDocument();
+
+    clickLabel('Parse from URL string');
+    type('text-input-url', 'http://redis-exporter:9121/metrics');
+    expect(skipVerify()).not.toBeInTheDocument();
+    type('text-input-url', 'https://redis-exporter:9121/metrics');
+    expect(skipVerify()).toBeInTheDocument();
+    type('text-input-url', 'http://redis-exporter:9121/metrics');
+    submit();
+
+    expect(await sentPayload('external')).toEqual(
+      expect.objectContaining({ scheme: 'http', tlsSkipVerify: false })
+    );
+  });
+
+  it('starts at the HTTPS port and follows the scheme', () => {
+    renderServiceForm(ExternalForm);
+    const port = () => screen.getByTestId('text-input-port');
+
+    expect(port()).toHaveValue('443');
+    clickLabel('HTTP');
+    expect(port()).toHaveValue('80');
+
+    type('text-input-port', '9121');
+    clickLabel('HTTPS');
+    expect(port()).toHaveValue('9121');
+  });
+
+  it('explains the scheme in a tooltip', async () => {
+    renderServiceForm(ExternalForm);
+
+    const schema = screen.getByText('Schema');
+    fireEvent.mouseOver(
+      schema.parentElement!.querySelector('[data-testid="InfoOutlinedIcon"]')!
+    );
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Used version of protocol'
     );
   });
 });

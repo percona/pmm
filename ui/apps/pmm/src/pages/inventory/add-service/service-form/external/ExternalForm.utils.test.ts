@@ -1,4 +1,8 @@
-import { getExternalUrlError, parseExternalUrl } from './ExternalForm.utils';
+import {
+  getExternalUrlError,
+  parseExternalUrl,
+  toSchemePort,
+} from './ExternalForm.utils';
 import { Scheme } from './ExternalForm.types';
 
 describe('ExternalForm.utils', () => {
@@ -44,5 +48,12 @@ describe('ExternalForm.utils', () => {
       })
     );
     expect(parseExternalUrl('http://example.com').listenPort).toBe(80);
+  });
+
+  it('moves a default port with the scheme and keeps a typed one', () => {
+    expect(toSchemePort('443', Scheme.http)).toBe('80');
+    expect(toSchemePort('80', Scheme.https)).toBe('443');
+    expect(toSchemePort('', Scheme.https)).toBe('443');
+    expect(toSchemePort('9121', Scheme.http)).toBe('9121');
   });
 });

@@ -1,7 +1,8 @@
 import Stack from '@mui/material/Stack';
 import { useDiscoverAzure } from 'hooks/api/useServices';
-import { type FC, useState } from 'react';
+import { type FC, useCallback, useState } from 'react';
 import type { DiscoverAzureInstance } from 'types/services.types';
+import { useBackToList } from '../../AddServicePage.context';
 import { AzureServiceForm } from '../../service-form/azure';
 import { DiscoveredInstances } from '../components/discovered-instances';
 import { DiscoveryDocs } from '../components/discovery-docs';
@@ -13,6 +14,8 @@ import {
 
 export const AzureDiscovery: FC = () => {
   const [selected, setSelected] = useState<DiscoverAzureInstance>();
+  const backToList = useCallback(() => setSelected(undefined), []);
+  useBackToList(selected && backToList);
   const { mutate: discover, data, variables, isPending } = useDiscoverAzure();
 
   if (selected && variables) {
@@ -20,7 +23,7 @@ export const AzureDiscovery: FC = () => {
       <AzureServiceForm
         instance={selected}
         credentials={variables}
-        onCancel={() => setSelected(undefined)}
+        onCancel={backToList}
       />
     );
   }

@@ -13,6 +13,9 @@ export const Messages = {
   placeholders: {
     customLabels: 'key1:value1\nkey2:value2',
   },
-  customLabelsDescription:
-    'Follow the format as exemplified below, one label per line.',
+  tooltips: {
+    region: 'Region',
+    az: 'Availability Zone',
+  },
+  customLabelsDescription: 'One label per line, as key:value',
 };

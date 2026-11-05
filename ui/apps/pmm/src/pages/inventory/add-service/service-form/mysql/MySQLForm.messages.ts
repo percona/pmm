@@ -2,8 +2,7 @@ export const Messages = {
   qanMysqlPerfschema: 'Use performance schema',
   extraDsnParams: {
     label: 'Extra DSN Parameters',
-    description:
-      'Follow the format as exemplified below, one parameter per line.',
+    description: 'One parameter per line, as key:value',
     placeholder: 'key1:value1\nkey2:value2',
   },
   tablestats: {

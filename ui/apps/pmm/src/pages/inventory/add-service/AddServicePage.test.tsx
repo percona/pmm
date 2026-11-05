@@ -1,4 +1,6 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { discoverRDS } from 'api/services';
+import { DiscoverRDSEngine } from 'types/services.types';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { wrapWithQueryProvider, wrapWithSettings } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
@@ -79,6 +81,46 @@ describe('AddServicePage', () => {
     expect(cardIds().at(-1)).toBe('azure-instance');
   });
 
+  it('describes each service type', () => {
+    renderPage('/add-instance');
+
+    expect(screen.getByTestId('mysql-instance')).toHaveTextContent(
+      'MySQL, Percona Server for MySQL or MariaDB'
+    );
+    expect(screen.queryByTestId('add-service-back')).not.toBeInTheDocument();
+  });
+
+  it('goes back to the discovered instances from an instance form', async () => {
+    vi.mocked(discoverRDS).mockResolvedValueOnce({
+      rdsInstances: [
+        {
+          region: 'eu-west-1',
+          az: 'eu-west-1a',
+          instanceId: 'rds-mysql',
+          nodeModel: 'db.t3.micro',
+          address: 'rds-mysql.rds.amazonaws.com',
+          port: 3306,
+          engine: DiscoverRDSEngine.mysql,
+          engineVersion: '8.0.35',
+        },
+      ],
+    });
+    renderPage('/add-instance/rds');
+
+    fireEvent.click(await screen.findByTestId('start-monitoring-rds-mysql'));
+    const back = screen.getByTestId('add-service-back');
+    expect(back).toHaveTextContent('Discovered instances');
+
+    fireEvent.click(back);
+
+    expect(
+      await screen.findByTestId('start-monitoring-rds-mysql')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('add-service-back')).toHaveTextContent(
+      'Select service type'
+    );
+  });
+
   it('links each card to its form', () => {
     renderPage('/add-instance');
 
@@ -111,6 +153,10 @@ describe('AddServicePage', () => {
     expect(screen.getByTestId('add-service-form')).toBeInTheDocument();
     expect(screen.queryByTestId('mysql-instance')).not.toBeInTheDocument();
     expect(screen.getByTestId('add-service-cancel')).toHaveAttribute(
+      'href',
+      '/add-instance'
+    );
+    expect(screen.getByTestId('add-service-back')).toHaveAttribute(
       'href',
       '/add-instance'
     );

@@ -8,5 +8,6 @@ export const InstanceIdField: FC = () => (
     label={Messages.instanceId.label}
     placeholder={Messages.instanceId.placeholder}
     tooltip={Messages.instanceId.tooltip}
+    required
   />
 );

@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import { Table } from '@percona/peak-ui';
 import type { MRT_ColumnDef } from 'material-react-table';
 import { useMemo } from 'react';
+import { WRAPPING_HEADER_SX } from './DiscoveredInstances.constants';
 import { Messages } from './DiscoveredInstances.messages';
 import type {
   DiscoveredInstance,
@@ -18,10 +19,16 @@ export const DiscoveredInstances = <T extends DiscoveredInstance>({
 }: DiscoveredInstancesProps<T>) => {
   const columnsWithAction = useMemo<MRT_ColumnDef<T>[]>(
     () => [
-      ...columns,
+      ...columns.map((column) => ({
+        ...column,
+        muiTableHeadCellProps: { sx: WRAPPING_HEADER_SX },
+      })),
       {
         id: 'action',
         header: Messages.action,
+        // Fits the button and takes none of the spare width.
+        size: 170,
+        grow: false,
         Cell: ({ row }) => (
           <Button
             size="small"

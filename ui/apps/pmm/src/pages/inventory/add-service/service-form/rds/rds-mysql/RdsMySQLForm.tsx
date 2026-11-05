@@ -31,7 +31,7 @@ export const RdsMySQLForm: FC<RdsServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails withNodes isAddressDisabled>
+      <ConnectionDetails requiresCredentials withNodes isAddressDisabled>
         <InstanceIdField />
         <MaxQueryLengthField />
       </ConnectionDetails>

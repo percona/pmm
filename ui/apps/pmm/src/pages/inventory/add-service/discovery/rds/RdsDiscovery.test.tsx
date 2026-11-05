@@ -165,19 +165,27 @@ describe('RdsDiscovery', () => {
     );
   });
 
-  it("keeps loading while PMM Server's own discovery runs again after failing", async () => {
+  it("explains a failed discovery with PMM Server's own identity, and the retry", async () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
     vi.mocked(discoverRDS).mockRejectedValueOnce(new Error('Gateway Timeout'));
     const { unmount } = renderServiceForm(RdsDiscovery, queryClient);
-    expect(await screen.findByText('No instances found')).toBeInTheDocument();
+    expect(
+      await screen.findByTestId('rds-server-discovery-failed')
+    ).toBeInTheDocument();
     unmount();
 
     vi.mocked(discoverRDS).mockReturnValueOnce(new Promise(() => {}));
     renderServiceForm(RdsDiscovery, queryClient);
 
     await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    expect(
+      screen.getByText("Looking for instances with PMM Server's AWS identity…")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('rds-server-discovery-failed')
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('No instances found')).not.toBeInTheDocument();
   });
 

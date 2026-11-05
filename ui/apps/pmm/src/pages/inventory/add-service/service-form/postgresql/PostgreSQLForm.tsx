@@ -23,7 +23,7 @@ export const PostgreSQLForm: FC = () => {
       serviceTypeLabel={PageMessages.serviceTypes.postgresql}
       onSubmit={(values) => addService(toPostgreSQLPayload(values))}
     >
-      <ConnectionDetails withNodes>
+      <ConnectionDetails requiresCredentials withNodes>
         <DatabaseField />
         <MaxQueryLengthField />
       </ConnectionDetails>

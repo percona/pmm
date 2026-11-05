@@ -6,7 +6,7 @@ import { OptionWithLimit } from '../../../components/option-with-limit';
 import { QueryAnalyticsOptions } from '../../../components/query-analytics-options';
 import { TlsCertificates } from '../../../components/tls-certificates';
 import { TlsOptions } from '../../../components/tls-options';
-import { TABLESTAT_OPTIONS } from '../MySQLForm.constants';
+import { TABLESTAT_LIMITS, TABLESTAT_OPTIONS } from '../MySQLForm.constants';
 import { Messages } from '../MySQLForm.messages';
 import { TablestatOption } from '../MySQLForm.types';
 import type { MySQLOptionsProps } from './MySQLOptions.types';
@@ -36,6 +36,7 @@ export const MySQLOptions: FC<MySQLOptionsProps> = ({
       editableOption={TablestatOption.custom}
       limitName="tablestatsGroupTableLimit"
       limitLabel={Messages.tablestats.limit}
+      presets={TABLESTAT_LIMITS}
     />
   </>
 );

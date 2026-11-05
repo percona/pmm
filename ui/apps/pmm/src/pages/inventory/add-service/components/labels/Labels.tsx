@@ -12,8 +12,12 @@ export const Labels: FC = () => (
       <TextField name="environment" label={labels.environment} />
       <TextField name="cluster" label={labels.cluster} />
       <TextField name="replicationSet" label={labels.replicationSet} />
-      <TextField name="region" label={labels.region} />
-      <TextField name="az" label={labels.az} />
+      <TextField
+        name="region"
+        label={labels.region}
+        tooltip={Messages.tooltips.region}
+      />
+      <TextField name="az" label={labels.az} tooltip={Messages.tooltips.az} />
     </FieldGrid>
     <TextField
       name="customLabels"

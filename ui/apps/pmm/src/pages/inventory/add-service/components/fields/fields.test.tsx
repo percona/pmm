@@ -27,7 +27,7 @@ const renderFields = () =>
           tooltip="Service name to use"
         />
         <PasswordField name="password" label="Password" />
-        <TextField name="limit" kind="number" label="Limit" />
+        <TextField name="limit" kind="number" label="Limit" required />
         <TextField name="customLabels" kind="textarea" label="Custom labels" />
       </Form>
     </TestWrapper>
@@ -91,5 +91,20 @@ describe('fields', () => {
     expect(screen.getByRole('textbox', { name: 'Service name' })).toBe(
       screen.getByTestId('text-input-service-name')
     );
+  });
+
+  it('lets the keyboard reach the tooltip', () => {
+    renderFields();
+
+    expect(
+      screen.getAllByTestId('InfoOutlinedIcon')[0].parentElement
+    ).toHaveAttribute('tabindex', '0');
+  });
+
+  it('marks a required field', () => {
+    renderFields();
+
+    expect(screen.getByTestId('text-input-limit')).toBeRequired();
+    expect(screen.getByTestId('text-input-service-name')).not.toBeRequired();
   });
 });

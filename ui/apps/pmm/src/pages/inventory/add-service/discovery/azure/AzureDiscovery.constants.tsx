@@ -6,6 +6,7 @@ import {
 } from 'types/services.types';
 import { Messages as PageMessages } from '../../AddServicePage.messages';
 import { Messages as InstancesMessages } from '../components/discovered-instances/DiscoveredInstances.messages';
+import { HostName } from '../components/host-name';
 import { Messages } from './AzureDiscovery.messages';
 
 export const AZURE_DOC_LINKS = [
@@ -18,14 +19,32 @@ const AZURE_ENGINE_LABELS: Record<DiscoverAzureDatabaseType, string> = {
   [DiscoverAzureDatabaseType.unspecified]: InstancesMessages.unknownEngine,
 };
 
+// Sizes are minimums that, with the action column, fit the page content from a
+// 1100px window up; the spare width goes to the columns with long values.
 export const AZURE_INSTANCE_COLUMNS: MRT_ColumnDef<DiscoverAzureInstance>[] = [
-  { accessorKey: 'region', header: Messages.columns.region },
-  { accessorKey: 'azureResourceGroup', header: Messages.columns.resourceGroup },
-  { accessorKey: 'serviceName', header: Messages.columns.name },
+  {
+    accessorKey: 'region',
+    header: Messages.columns.region,
+    size: 110,
+    grow: false,
+  },
+  {
+    accessorKey: 'azureResourceGroup',
+    header: Messages.columns.resourceGroup,
+    size: 130,
+  },
+  { accessorKey: 'serviceName', header: Messages.columns.name, size: 110 },
   {
     id: 'engine',
     header: Messages.columns.engine,
+    size: 90,
+    grow: false,
     accessorFn: ({ type }) => AZURE_ENGINE_LABELS[type],
   },
-  { accessorKey: 'address', header: Messages.columns.address },
+  {
+    accessorKey: 'address',
+    header: Messages.columns.address,
+    size: 130,
+    Cell: ({ cell }) => <HostName host={cell.getValue<string>()} />,
+  },
 ];

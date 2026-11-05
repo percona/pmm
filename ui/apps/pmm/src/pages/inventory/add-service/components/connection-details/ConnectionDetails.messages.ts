@@ -10,6 +10,7 @@ export const Messages = {
   },
   placeholders: {
     serviceName: 'Service name (default: Hostname)',
+    timeout: '2s',
   },
   tooltips: {
     serviceName: 'Service name to use',

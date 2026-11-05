@@ -35,6 +35,27 @@ export const getExternalUrlError = (text: string) => {
   return undefined;
 };
 
+// A port left at a scheme's default follows the scheme; one the user typed stays.
+export const toSchemePort = (port: string, scheme: Scheme) =>
+  !port.trim() || Object.values(DEFAULT_PORTS).map(String).includes(port.trim())
+    ? String(DEFAULT_PORTS[scheme])
+    : port;
+
+// The scheme the exporter is scraped with, once the endpoint names one.
+export const getEndpointScheme = ({
+  metricsParameters,
+  url,
+  scheme,
+}: Pick<ExternalFormValues, 'metricsParameters' | 'url' | 'scheme'>) => {
+  if (metricsParameters !== MetricsParameters.parsed) {
+    return scheme;
+  }
+
+  const protocol = toUrl(url)?.protocol;
+  const parsed = protocol && toScheme(protocol);
+  return parsed && isScheme(parsed) ? parsed : undefined;
+};
+
 // An endpoint without a path keeps the server's default metrics path.
 export const parseExternalUrl = (text: string): ExporterEndpoint => {
   const url = new URL(text.trim());
@@ -71,6 +92,8 @@ export const toExternalPayload = (
     external: {
       ...toScrapedService(values, endpoint.address),
       ...endpoint,
+      // Only offered over HTTPS, so a choice made before switching to HTTP is dropped.
+      tlsSkipVerify: endpoint.scheme === Scheme.https && values.tlsSkipVerify,
       group: toOptionalString(values.group),
     },
   };

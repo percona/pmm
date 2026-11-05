@@ -1,11 +1,11 @@
 import { RadioGroup } from '@percona/peak-ui';
 import { useAddService } from 'hooks/api/useServices';
-import type { FC } from 'react';
+import { type FC, useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { AdditionalOptions } from '../../components/additional-options';
 import { Messages as ConnectionMessages } from '../../components/connection-details/ConnectionDetails.messages';
 import { FieldGrid } from '../../components/field-grid';
-import { PasswordField, TextField } from '../../components/fields';
+import { InfoTooltip, PasswordField, TextField } from '../../components/fields';
 import { FormSection } from '../../components/form-section';
 import { Labels } from '../../components/labels';
 import { TlsSkipVerify } from '../../components/tls-skip-verify';
@@ -18,17 +18,30 @@ import {
 } from './ExternalForm.constants';
 import { Messages } from './ExternalForm.messages';
 import { externalSchema } from './ExternalForm.schema';
-import { MetricsParameters } from './ExternalForm.types';
-import { toExternalPayload } from './ExternalForm.utils';
+import { MetricsParameters, Scheme } from './ExternalForm.types';
+import {
+  getEndpointScheme,
+  toExternalPayload,
+  toSchemePort,
+} from './ExternalForm.utils';
 
 const { labels, placeholders, tooltips } = Messages;
 
 export const ExternalForm: FC = () => {
   const form = useServiceForm(externalSchema, EXTERNAL_DEFAULTS);
-  const metricsParameters = useWatch({
+  const [metricsParameters, url, scheme] = useWatch({
     control: form.control,
-    name: 'metricsParameters',
+    name: ['metricsParameters', 'url', 'scheme'],
   });
+  const isHttps =
+    getEndpointScheme({ metricsParameters, url, scheme }) === Scheme.https;
+
+  useEffect(() => {
+    const { getValues, setValue } = form;
+    setValue('port', toSchemePort(getValues('port'), scheme), {
+      shouldValidate: form.formState.isSubmitted,
+    });
+  }, [form, scheme]);
   const { mutateAsync: addService } = useAddService();
 
   return (
@@ -54,6 +67,11 @@ export const ExternalForm: FC = () => {
         <RadioGroup
           name="metricsParameters"
           label={labels.metricsParameters}
+          labelProps={{
+            horizontalStackChildrenSlot: (
+              <InfoTooltip title={tooltips.metricsParameters} />
+            ),
+          }}
           options={METRICS_PARAMETERS_OPTIONS}
         />
         {metricsParameters === MetricsParameters.parsed ? (
@@ -62,12 +80,18 @@ export const ExternalForm: FC = () => {
             label={labels.url}
             tooltip={tooltips.url}
             placeholder={placeholders.url}
+            required
           />
         ) : (
           <>
             <RadioGroup
               name="scheme"
               label={labels.scheme}
+              labelProps={{
+                horizontalStackChildrenSlot: (
+                  <InfoTooltip title={tooltips.scheme} />
+                ),
+              }}
               options={SCHEME_OPTIONS}
             />
             <FieldGrid>
@@ -75,6 +99,7 @@ export const ExternalForm: FC = () => {
                 name="address"
                 label={labels.address}
                 tooltip={ConnectionMessages.tooltips.address}
+                required
               />
               <TextField
                 name="metricsPath"
@@ -86,6 +111,7 @@ export const ExternalForm: FC = () => {
                 name="port"
                 label={labels.port}
                 tooltip={tooltips.port}
+                required
               />
               <TextField
                 name="username"
@@ -102,9 +128,7 @@ export const ExternalForm: FC = () => {
         )}
       </FormSection>
       <Labels />
-      <AdditionalOptions>
-        <TlsSkipVerify />
-      </AdditionalOptions>
+      <AdditionalOptions>{isHttps && <TlsSkipVerify />}</AdditionalOptions>
     </ServiceForm>
   );
 };

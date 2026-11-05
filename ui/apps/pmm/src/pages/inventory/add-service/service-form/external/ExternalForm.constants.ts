@@ -33,7 +33,7 @@ export const EXTERNAL_DEFAULTS: ExternalFormValues = {
   scheme: Scheme.https,
   address: '',
   metricsPath: '',
-  port: '',
+  port: String(DEFAULT_PORTS[Scheme.https]),
   username: '',
   password: '',
   ...LABELS_DEFAULTS,

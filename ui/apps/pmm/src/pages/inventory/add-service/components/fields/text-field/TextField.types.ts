@@ -11,4 +11,5 @@ export interface TextFieldProps {
   autoComplete?: string;
   endAdornment?: ReactNode;
   disabled?: boolean;
+  required?: boolean;
 }

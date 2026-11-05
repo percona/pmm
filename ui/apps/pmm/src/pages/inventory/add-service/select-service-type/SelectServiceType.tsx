@@ -49,7 +49,7 @@ export const SelectServiceType: FC<SelectServiceTypeProps> = ({
                     {PageMessages.serviceTypes[type]}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {Messages.cardDescription}
+                    {Messages.cardDescriptions[type]}
                   </Typography>
                 </Stack>
               </Stack>
