@@ -69,7 +69,7 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	localCtx, cancel := context.WithTimeout(ctx, d.config.Timeout)
 	defer cancel()
 
-	result, _, err := d.vm.Query(localCtx, config.Query, time.Now())
+	result, _, _, err := d.vm.Query(localCtx, config.Query, time.Now())
 	if err != nil {
 		return nil, err
 	}

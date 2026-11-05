@@ -25,7 +25,7 @@
  */
 
 import { isRunActive } from './api';
-import { SCAN_ERROR_KIND } from './constants';
+import { SCAN_ERROR_KIND, SERVICE_SCAN_ERROR_KIND } from './constants';
 import { runDurationSeconds } from './format';
 import type {
   OmHostDatabaseState,
@@ -273,11 +273,27 @@ export function describeScanFailure(
   freshness: OmInventoryFreshness,
   now: number = Date.now()
 ): ScanFailure | null {
+  return describeFailure(freshness, now, SCAN_ERROR_KIND);
+}
+
+/** {@link describeScanFailure} for a service row, worded for the service. */
+export function describeServiceScanFailure(
+  freshness: OmInventoryFreshness,
+  now: number = Date.now()
+): ScanFailure | null {
+  return describeFailure(freshness, now, SERVICE_SCAN_ERROR_KIND);
+}
+
+function describeFailure(
+  freshness: OmInventoryFreshness,
+  now: number,
+  kinds: Record<OmScanErrorCode, { label: string; hint: string | null }>
+): ScanFailure | null {
   if (!isFailing({ freshness })) {
     return null;
   }
   const code = scanErrorCode(freshness.last_error_code);
-  const kind = SCAN_ERROR_KIND[code];
+  const kind = kinds[code];
   const error = freshness.last_error?.trim() || null;
   let shortReason = kind.label;
   if (code === 'unknown' && error) {
@@ -299,6 +315,75 @@ export function describeScanFailure(
     consecutiveFailures: freshness.consecutive_failures,
     runId: freshness.last_run_id || null,
   };
+}
+
+/**
+ * The failures that come with a record of the service, and so with what the scan
+ * read of its process: PMM Extensions merges those facts on a failed attempt only
+ * when the payload printed a record that could not query the database. Every other
+ * code is a scan that never reached the service, which leaves the facts stale.
+ * `environment_setup_failed` is left out: it is a record failure or a node-wide
+ * one, and the code does not say which.
+ */
+const PROCESS_FACTS_REFRESHED: ReadonlySet<OmScanErrorCode> =
+  new Set<OmScanErrorCode>([
+    'database_unreachable',
+    'database_auth_failed',
+    'database_error',
+  ]);
+
+/**
+ * When the scan that `server_running` and the other process facts come from ran, or
+ * null when the page cannot say.
+ *
+ * Null for a failing service whose last scan brought no process facts: the stored
+ * reading is then some older scan's, and dating it by the last attempt or the last
+ * success would both be wrong.
+ */
+export function processReadAt(
+  inventory: OmInventoryService | null | undefined
+): string | null {
+  if (!inventory) {
+    return null;
+  }
+  const { freshness } = inventory;
+  if (!isFailing(inventory)) {
+    return freshness.last_success_at ?? null;
+  }
+  return PROCESS_FACTS_REFRESHED.has(scanErrorCode(freshness.last_error_code))
+    ? (freshness.last_attempt_at ?? null)
+    : null;
+}
+
+/**
+ * `server_running`, or null for a false the page cannot trust.
+ *
+ * A false is trusted only from a `database_unreachable` failure, where the process
+ * listing is the only evidence. Any other scan reached a server on the port, so its
+ * false means PMM Extensions could not tell which of several server processes is
+ * this service's, not that none was running.
+ */
+export function serverRunning(
+  inventory: OmInventoryService | null | undefined
+): boolean | null {
+  if (inventory?.server_running !== false) {
+    return inventory?.server_running ?? null;
+  }
+  return isFailing(inventory) &&
+    scanErrorCode(inventory.freshness.last_error_code) ===
+      'database_unreachable'
+    ? false
+    : null;
+}
+
+/**
+ * When the latest scan to read this service's process found neither mongod nor
+ * mongos running, or null when {@link serverRunning} does not say false.
+ */
+export function notRunningScanAt(
+  inventory: OmInventoryService | null | undefined
+): string | null {
+  return serverRunning(inventory) === false ? processReadAt(inventory) : null;
 }
 
 /**
