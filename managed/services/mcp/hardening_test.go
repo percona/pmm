@@ -536,10 +536,10 @@ func TestHandlerOnlyServesLoopbackPeers(t *testing.T) {
 
 // TestServesRequestsProxiedByNginx pins that a request shaped exactly like
 // nginx's is served: it arrives over loopback and carries the public Host
-// header.
+// header, here a name that is not loopback.
 //
-// That is the request the SDK's DNS-rebinding guard rejects with 403, so the
-// guard has to stay off whatever interface pmm-managed is bound to.
+// The SDK's DNS-rebinding guard rejects such a request with 403 when the
+// listener is bound to loopback, so the guard has to stay off.
 func TestServesRequestsProxiedByNginx(t *testing.T) {
 	t.Parallel()
 
@@ -552,7 +552,7 @@ func TestServesRequestsProxiedByNginx(t *testing.T) {
 	nginx := httptest.NewServer(&httputil.ReverseProxy{
 		Rewrite: func(r *httputil.ProxyRequest) {
 			r.SetURL(target)
-			r.Out.Host = r.In.Host
+			r.Out.Host = "pmm.example"
 		},
 	})
 	t.Cleanup(nginx.Close)

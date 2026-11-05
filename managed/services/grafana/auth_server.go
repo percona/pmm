@@ -650,7 +650,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, cleane
 	}
 	l = l.WithField("role", user.role.String())
 
-	if prefix == "/mcp" && user.anonymous {
+	if (cleanedPath == "/mcp" || strings.HasPrefix(cleanedPath, "/mcp/")) && user.anonymous {
 		l.Warn("Anonymous caller on /mcp, denying access.")
 		return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 	}
