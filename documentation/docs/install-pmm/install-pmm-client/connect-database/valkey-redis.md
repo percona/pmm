@@ -8,9 +8,17 @@ Connect your Valkey or Redis instances to PMM to track performance, analyze comm
 
 Before connecting Valkey or Redis to PMM, review the prerequisites for your monitoring setup:
 
-=== ":material-server: Local Valkey/Redis monitoring" - [PMM Server is installed](../../install-pmm-server/index.md) and running. - [PMM Client is installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server. - Access to the Valkey instance (localhost or network accessible).
+=== ":material-server: Local Valkey/Redis monitoring"
 
-=== ":material-cloud: Remote Valkey/Redis monitoring" - [PMM Server is installed](../../install-pmm-server/index.md) and running. - PMM Server has direct network access to the Valkey/Redis instance. - You have Valkey/Redis authentication credentials if ACL is enabled.
+    - [PMM Server is installed](../../install-pmm-server/index.md) and running.
+    - [PMM Client is installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
+    - Access to the Valkey instance (localhost or network accessible).
+
+=== ":material-cloud: Remote Valkey/Redis monitoring"
+
+    - [PMM Server is installed](../../install-pmm-server/index.md) and running.
+    - PMM Server has direct network access to the Valkey/Redis instance.
+    - You have Valkey/Redis authentication credentials if ACL is enabled.
 
 ### Security setup
 
