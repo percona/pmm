@@ -1,12 +1,10 @@
 import { useAddAzureService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { Messages as PageMessages } from '../../../AddServicePage.messages';
+import { AddServiceType } from '../../../AddServicePage.types';
 import { AdditionalOptions } from '../../../components/additional-options';
 import { ConnectionDetails } from '../../../components/connection-details';
 import { Labels } from '../../../components/labels';
-import { MaxQueryLengthField } from '../../../components/max-query-length';
-import { DatabaseField } from '../../postgresql/database-field';
-import { DISCOVERED_TRACKING_OPTIONS } from '../../postgresql/PostgreSQLForm.constants';
 import { PostgreSQLOptions } from '../../postgresql/postgresql-options';
 import { ServiceForm } from '../../ServiceForm';
 import { useServiceForm } from '../../ServiceForm.hooks';
@@ -38,16 +36,10 @@ export const AzurePostgreSQLForm: FC<AzureServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails requiresCredentials withNodes>
-        <DatabaseField />
-        <MaxQueryLengthField />
-      </ConnectionDetails>
-      <Labels />
+      <ConnectionDetails requiresCredentials withNodes />
+      <Labels withCluster={false} />
       <AdditionalOptions>
-        <PostgreSQLOptions
-          trackingOptions={DISCOVERED_TRACKING_OPTIONS}
-          withExporterOptions={false}
-        />
+        <PostgreSQLOptions cloud={AddServiceType.azure} />
         <AzureOptions />
       </AdditionalOptions>
     </ServiceForm>

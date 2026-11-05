@@ -39,7 +39,7 @@ describe('HAProxyForm', () => {
       tlsSkipVerify: false,
       listenPort: 8404,
       username: 'stats',
-      password: 'secret',
+      password: ' secret ',
     });
   });
 

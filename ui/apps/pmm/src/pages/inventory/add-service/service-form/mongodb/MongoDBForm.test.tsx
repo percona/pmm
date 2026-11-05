@@ -1,5 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
-import { addService } from 'api/services';
+import { screen } from '@testing-library/react';
 import {
   clickLabel,
   mockAddService,
@@ -67,20 +66,18 @@ describe('MongoDBForm', () => {
     );
   });
 
-  it('requires credentials without TLS', async () => {
+  it('adds a MongoDB without authentication', async () => {
     renderServiceForm(MongoDBForm);
     await waitForNodePreselect();
 
     type('text-input-address', 'mongo.example.com');
     submit();
 
-    await waitFor(() =>
-      expect(screen.getByTestId('text-input-username')).toHaveAttribute(
-        'aria-invalid',
-        'true'
-      )
+    const mongodb = await sentPayload('mongodb');
+    expect(mongodb).toEqual(
+      expect.objectContaining({ tls: false, username: '', password: '' })
     );
-    expect(addService).not.toHaveBeenCalled();
+    expect(mongodb).not.toHaveProperty('authenticationMechanism');
   });
 
   it('keeps password authentication over TLS when a username is given', async () => {

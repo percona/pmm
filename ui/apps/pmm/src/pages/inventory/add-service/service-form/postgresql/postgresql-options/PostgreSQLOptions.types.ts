@@ -1,7 +1,6 @@
-import type { TrackingOption } from '../PostgreSQLForm.types';
+import type { AddServiceType } from '../../../AddServicePage.types';
 
 export interface PostgreSQLOptionsProps {
-  trackingOptions?: { value: TrackingOption; label: string }[];
-  // The exporter's collectors and connection limit; Azure has neither.
-  withExporterOptions?: boolean;
+  // RDS and Azure take no certificates or pg_stat_monitor; Azure also no exporter options or comments parsing.
+  cloud?: AddServiceType.rds | AddServiceType.azure;
 }

@@ -16,7 +16,10 @@ const isScheme = (value: string): value is Scheme =>
 
 const toUrl = (text: string) => {
   try {
-    return new URL(text.trim());
+    const url = new URL(text.trim());
+    decodeURIComponent(url.username);
+    decodeURIComponent(url.password);
+    return url;
   } catch {
     return undefined;
   }
@@ -97,7 +100,7 @@ const toEndpoint = (values: ExternalFormValues): ExporterEndpoint =>
         listenPort: Number(values.port),
         metricsPath: toOptionalString(values.metricsPath),
         username: values.username.trim(),
-        password: values.password.trim(),
+        password: values.password,
       };
 
 export const toExternalPayload = (

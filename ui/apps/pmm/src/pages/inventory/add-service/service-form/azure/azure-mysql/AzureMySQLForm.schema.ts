@@ -5,7 +5,7 @@ import {
 } from '../../mysql/MySQLForm.schema';
 import {
   databaseServiceSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from '../../ServiceForm.schema';
 import { azureSchema } from '../AzureServiceForm.schema';
 
@@ -15,5 +15,5 @@ export const azureMysqlSchema = z
     ...mysqlOptionsSchema.shape,
     ...azureSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireTablestatsLimit);

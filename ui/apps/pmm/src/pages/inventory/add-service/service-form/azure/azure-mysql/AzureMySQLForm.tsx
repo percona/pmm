@@ -1,10 +1,10 @@
 import { useAddAzureService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { Messages as PageMessages } from '../../../AddServicePage.messages';
+import { AddServiceType } from '../../../AddServicePage.types';
 import { AdditionalOptions } from '../../../components/additional-options';
 import { ConnectionDetails } from '../../../components/connection-details';
 import { Labels } from '../../../components/labels';
-import { MaxQueryLengthField } from '../../../components/max-query-length';
 import { MySQLOptions } from '../../mysql/mysql-options';
 import { ServiceForm } from '../../ServiceForm';
 import { useServiceForm } from '../../ServiceForm.hooks';
@@ -33,12 +33,10 @@ export const AzureMySQLForm: FC<AzureServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails requiresCredentials withNodes>
-        <MaxQueryLengthField />
-      </ConnectionDetails>
-      <Labels />
+      <ConnectionDetails requiresCredentials withNodes />
+      <Labels withCluster={false} />
       <AdditionalOptions>
-        <MySQLOptions withCollectors={false} />
+        <MySQLOptions cloud={AddServiceType.azure} />
         <AzureOptions />
       </AdditionalOptions>
     </ServiceForm>

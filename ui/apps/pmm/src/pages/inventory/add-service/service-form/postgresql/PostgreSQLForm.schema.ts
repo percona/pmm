@@ -5,7 +5,7 @@ import {
   getIntegerError,
   maxQueryLengthSchema,
   queryAnalyticsOptionsSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
   requireWhen,
   tlsCertificatesSchema,
 } from '../ServiceForm.schema';
@@ -46,6 +46,6 @@ export const requireMaxExporterConnections =
 
 export const postgresqlSchema = z
   .object({ ...databaseServiceSchema.shape, ...postgresqlOptionsSchema.shape })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireAutoDiscoveryLimit)
   .superRefine(requireMaxExporterConnections);

@@ -2,12 +2,12 @@ import { z } from 'zod';
 import {
   connectionSchema,
   optionalIntegerText,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from './ServiceForm.schema';
 
 const credentialsSchema = z
   .object({ tls: z.boolean(), username: z.string(), password: z.string() })
-  .superRefine(requireCredentialsWithoutTls);
+  .superRefine(requireCredentials);
 
 const errorPaths = (result: { success: boolean; error?: z.ZodError }) =>
   result.error?.issues.map((issue) => issue.path.join('.')) ?? [];
@@ -23,11 +23,14 @@ describe('ServiceForm.schema', () => {
     expect(errorPaths(result)).toEqual(['username', 'password']);
   });
 
-  it('accepts missing credentials with TLS', () => {
-    expect(
-      credentialsSchema.safeParse({ tls: true, username: '', password: '' })
-        .success
-    ).toBe(true);
+  it('requires only the username with TLS', () => {
+    const result = credentialsSchema.safeParse({
+      tls: true,
+      username: '',
+      password: '',
+    });
+
+    expect(errorPaths(result)).toEqual(['username']);
   });
 
   it.each([

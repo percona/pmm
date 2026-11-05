@@ -6,7 +6,7 @@ import {
   keyValuesText,
   maxQueryLengthSchema,
   queryAnalyticsOptionsSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
   requireWhen,
   tlsCertificatesSchema,
 } from '../ServiceForm.schema';
@@ -35,5 +35,5 @@ export const requireTablestatsLimit = requireWhen<MySQLOptionsFormValues>(
 
 export const mysqlSchema = z
   .object({ ...databaseServiceSchema.shape, ...mysqlOptionsSchema.shape })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireTablestatsLimit);

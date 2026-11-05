@@ -9,6 +9,6 @@ export const toHAProxyPayload = (
     ...toScrapedService(values, values.address.trim()),
     listenPort: Number(values.port),
     username: values.username.trim(),
-    password: values.password.trim(),
+    password: values.password,
   },
 });

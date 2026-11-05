@@ -14,6 +14,7 @@ describe('ExternalForm.utils', () => {
     ['ftp://example.com', 'Invalid URL string'],
     ['example.com:9121', 'Invalid URL string'],
     ['', 'Invalid URL string'],
+    ['http://user:pa%zz@exporter:9100/metrics', 'Invalid URL string'],
     [
       'http://exporter:9121/metrics?target=redis',
       'Query parameters are not supported in the endpoint',

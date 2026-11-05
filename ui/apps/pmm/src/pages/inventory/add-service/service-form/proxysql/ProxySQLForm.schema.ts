@@ -2,7 +2,7 @@ import { z } from 'zod';
 import {
   databaseServiceSchema,
   disableCollectorsSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from '../ServiceForm.schema';
 
 export const proxysqlSchema = z
@@ -10,4 +10,4 @@ export const proxysqlSchema = z
     ...databaseServiceSchema.shape,
     ...disableCollectorsSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls);
+  .superRefine(requireCredentials);

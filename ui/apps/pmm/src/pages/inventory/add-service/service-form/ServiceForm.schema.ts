@@ -118,16 +118,16 @@ export const disableCollectorsSchema = z.object({
     .refine(isValidCollectors, validation.collectors),
 });
 
-// Client certificates replace the username and password when TLS is on.
-export const requireCredentialsWithoutTls = (
+// The username is always required; with TLS on, a client certificate can replace the password.
+export const requireCredentials = (
   values: { tls: boolean; username: string; password: string },
   ctx: z.RefinementCtx
 ) => {
-  if (values.tls) {
-    return;
-  }
+  const fields = values.tls
+    ? (['username'] as const)
+    : (['username', 'password'] as const);
 
-  for (const field of ['username', 'password'] as const) {
+  for (const field of fields) {
     if (!values[field].trim()) {
       ctx.addIssue({
         code: 'custom',

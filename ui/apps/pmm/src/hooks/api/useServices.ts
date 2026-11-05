@@ -70,37 +70,32 @@ const invalidateInventory = (queryClient: QueryClient) =>
     ].map((queryKey) => queryClient.invalidateQueries({ queryKey }))
   );
 
-export const useAddService = (
-  options?: Partial<UseMutationOptions<void, Error, AddServicePayload>>
+// The inventory refreshes in the background, so the caller moves on without waiting for it.
+const useAddMutation = <T>(
+  mutationKey: string[],
+  mutationFn: (payload: T) => Promise<void>,
+  options?: Partial<UseMutationOptions<void, Error, T>>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ['services:add'],
-    mutationFn: addService,
+    mutationKey,
+    mutationFn,
     ...options,
-    onSuccess: async (data, variables, onMutate, context) => {
-      await invalidateInventory(queryClient);
-      await options?.onSuccess?.(data, variables, onMutate, context);
+    onSuccess: (data, variables, onMutate, context) => {
+      void invalidateInventory(queryClient);
+      return options?.onSuccess?.(data, variables, onMutate, context);
     },
   });
 };
+
+export const useAddService = (
+  options?: Partial<UseMutationOptions<void, Error, AddServicePayload>>
+) => useAddMutation(['services:add'], addService, options);
 
 export const useAddAzureService = (
   options?: Partial<UseMutationOptions<void, Error, AddAzureDatabasePayload>>
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: ['services:add-azure'],
-    mutationFn: addAzureService,
-    ...options,
-    onSuccess: async (data, variables, onMutate, context) => {
-      await invalidateInventory(queryClient);
-      await options?.onSuccess?.(data, variables, onMutate, context);
-    },
-  });
-};
+) => useAddMutation(['services:add-azure'], addAzureService, options);
 
 // Discovery with PMM Server's own AWS identity; aborted when the page is left.
 export const useServerRDSInstances = (

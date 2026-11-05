@@ -3,15 +3,20 @@ import { FieldGrid } from '../field-grid';
 import { TextField } from '../fields';
 import { FormSection } from '../form-section';
 import { Messages } from './Labels.messages';
+import type { LabelsProps } from './Labels.types';
 
 const { labels } = Messages;
 
-export const Labels: FC = () => (
+export const Labels: FC<LabelsProps> = ({ withCluster = true }) => (
   <FormSection title={Messages.title} description={Messages.description}>
     <FieldGrid>
       <TextField name="environment" label={labels.environment} />
-      <TextField name="cluster" label={labels.cluster} />
-      <TextField name="replicationSet" label={labels.replicationSet} />
+      {withCluster && (
+        <>
+          <TextField name="cluster" label={labels.cluster} />
+          <TextField name="replicationSet" label={labels.replicationSet} />
+        </>
+      )}
       <TextField
         name="region"
         label={labels.region}

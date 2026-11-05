@@ -22,7 +22,8 @@ describe('ServiceForm.utils', () => {
     ['65534', true],
     ['0', false],
     ['22.5', false],
-    ['65535', false],
+    ['65535', true],
+    ['65536', false],
     ['', false],
     ['abc', false],
   ])('validates port %s', (port, valid) => {
@@ -118,15 +119,35 @@ describe('ServiceForm.utils', () => {
   it.each(['localhost', '127.0.0.1'])(
     'places a service on %s on the selected node',
     (address) => {
-      expect(toPlacement(address, 'mysql-1', 'node-1')).toEqual({
+      expect(
+        toPlacement(
+          { address, nodeId: 'node-1', region: '', az: '' },
+          'mysql-1'
+        )
+      ).toEqual({
         nodeId: 'node-1',
       });
     }
   );
 
   it('creates a remote node for any other address', () => {
-    expect(toPlacement('db.example.com', 'mysql-1', 'n')).toEqual({
-      addNode: { nodeName: 'mysql-1', nodeType: NodeType.remote },
+    expect(
+      toPlacement(
+        {
+          address: 'db.example.com',
+          nodeId: 'n',
+          region: 'eu-west-1',
+          az: 'eu-west-1a',
+        },
+        'mysql-1'
+      )
+    ).toEqual({
+      addNode: {
+        nodeName: 'mysql-1',
+        nodeType: NodeType.remote,
+        region: 'eu-west-1',
+        az: 'eu-west-1a',
+      },
     });
   });
 

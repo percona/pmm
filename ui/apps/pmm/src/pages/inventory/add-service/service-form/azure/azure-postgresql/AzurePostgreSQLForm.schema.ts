@@ -5,7 +5,7 @@ import {
 } from '../../postgresql/PostgreSQLForm.schema';
 import {
   databaseServiceSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from '../../ServiceForm.schema';
 import { azureSchema } from '../AzureServiceForm.schema';
 
@@ -15,5 +15,5 @@ export const azurePostgresqlSchema = z
     ...postgresqlOptionsSchema.shape,
     ...azureSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireAutoDiscoveryLimit);

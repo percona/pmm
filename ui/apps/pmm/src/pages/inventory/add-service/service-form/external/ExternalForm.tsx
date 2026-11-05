@@ -37,12 +37,14 @@ export const ExternalForm: FC = () => {
   const isHttps =
     getEndpointScheme({ metricsParameters, url, scheme }) === Scheme.https;
 
-  useEffect(() => {
-    const { getValues, setValue } = form;
-    setValue('port', toSchemePort(getValues('port'), scheme), {
-      shouldValidate: form.formState.isSubmitted,
+  // Only a scheme the user picks moves the port; a parsed URL keeps the port it names.
+  const selectScheme = (value: Scheme) => {
+    const { formState, getValues, setValue } = form;
+    setValue('scheme', value);
+    setValue('port', toSchemePort(getValues('port'), value), {
+      shouldValidate: formState.isSubmitted,
     });
-  }, [form, scheme]);
+  };
 
   const previousParameters = useRef(metricsParameters);
   useEffect(() => {
@@ -113,6 +115,10 @@ export const ExternalForm: FC = () => {
                 ),
               }}
               options={SCHEME_OPTIONS}
+              // Replaces the form's own onChange, so the scheme is set here too.
+              radioGroupFieldProps={{
+                onChange: (_, value) => selectScheme(value as Scheme),
+              }}
             />
             <FieldGrid>
               <TextField

@@ -19,7 +19,7 @@ export const ConnectionDetails: FC<ConnectionDetailsProps> = ({
 }) => {
   const { control } = useFormContext<TlsFormValues>();
   const tls = useWatch({ control, name: 'tls' });
-  const credentialsRequired = requiresCredentials && !tls;
+  const passwordRequired = requiresCredentials && !tls;
 
   return (
     <FormSection title={Messages.title}>
@@ -50,13 +50,13 @@ export const ConnectionDetails: FC<ConnectionDetailsProps> = ({
           name="username"
           label={labels.username}
           tooltip={tooltips.username}
-          required={credentialsRequired}
+          required={requiresCredentials}
         />
         <PasswordField
           name="password"
           label={labels.password}
           tooltip={tooltips.password}
-          required={credentialsRequired}
+          required={passwordRequired}
         />
         <TextField
           name="connectionTimeout"

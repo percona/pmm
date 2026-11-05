@@ -29,7 +29,7 @@ const splitCollectors = (text: string) =>
 
 export const isValidPort = (value: string) => {
   const port = Number(value);
-  return Number.isInteger(port) && port > 0 && port < 65535;
+  return Number.isInteger(port) && port > 0 && port <= 65535;
 };
 
 // Keys follow the Prometheus label name rules.
@@ -112,15 +112,27 @@ export const toLabels = ({
   customLabels: toKeyValueMap(customLabels),
 });
 
+export const toRemoteNode = (
+  nodeName: string,
+  { region, az }: Pick<LabelsFormValues, 'region' | 'az'>
+) => ({
+  nodeName,
+  nodeType: NodeType.remote,
+  region: toOptionalString(region),
+  az: toOptionalString(az),
+});
+
 // A service on the agent's own host joins that node; anything else gets a remote node of its own.
 export const toPlacement = (
-  address: string,
-  serviceName: string,
-  nodeId?: string
+  values: Pick<
+    DatabaseServiceFormValues,
+    'address' | 'nodeId' | 'region' | 'az'
+  >,
+  serviceName: string
 ) =>
-  LOCAL_ADDRESSES.includes(address.trim()) && nodeId
-    ? { nodeId }
-    : { addNode: { nodeName: serviceName, nodeType: NodeType.remote } };
+  LOCAL_ADDRESSES.includes(values.address.trim()) && values.nodeId
+    ? { nodeId: values.nodeId }
+    : { addNode: toRemoteNode(serviceName, values) };
 
 export const getMetricsMode = (isPmmServerNode: boolean) =>
   isPmmServerNode ? MetricsMode.pull : MetricsMode.push;
@@ -173,7 +185,7 @@ export const toDatabaseService = (values: DatabaseServiceFormValues) => {
     ...connection,
     metricsMode: getMetricsMode(values.isPmmServerNode),
     ...toLabels(values),
-    ...toPlacement(values.address, connection.serviceName, values.nodeId),
+    ...toPlacement(values, connection.serviceName),
   };
 };
 
@@ -193,7 +205,7 @@ export const toScrapedService = (
     serviceName,
     address,
     ...toLabels(values),
-    addNode: { nodeName: serviceName, nodeType: NodeType.remote },
+    addNode: toRemoteNode(serviceName, values),
     metricsMode: MetricsMode.pull,
     skipConnectionCheck: values.skipConnectionCheck,
     tlsSkipVerify: values.tlsSkipVerify,

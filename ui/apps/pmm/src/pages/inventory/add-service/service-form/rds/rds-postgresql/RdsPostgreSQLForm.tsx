@@ -1,12 +1,11 @@
 import { useAddService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { Messages as PageMessages } from '../../../AddServicePage.messages';
+import { AddServiceType } from '../../../AddServicePage.types';
 import { AdditionalOptions } from '../../../components/additional-options';
 import { ConnectionDetails } from '../../../components/connection-details';
 import { Labels } from '../../../components/labels';
-import { MaxQueryLengthField } from '../../../components/max-query-length';
 import { DatabaseField } from '../../postgresql/database-field';
-import { DISCOVERED_TRACKING_OPTIONS } from '../../postgresql/PostgreSQLForm.constants';
 import { PostgreSQLOptions } from '../../postgresql/postgresql-options';
 import { ServiceForm } from '../../ServiceForm';
 import { useServiceForm } from '../../ServiceForm.hooks';
@@ -42,11 +41,10 @@ export const RdsPostgreSQLForm: FC<RdsServiceFormProps> = ({
       <ConnectionDetails requiresCredentials withNodes isAddressDisabled>
         <InstanceIdField />
         <DatabaseField />
-        <MaxQueryLengthField />
       </ConnectionDetails>
       <Labels />
       <AdditionalOptions>
-        <PostgreSQLOptions trackingOptions={DISCOVERED_TRACKING_OPTIONS} />
+        <PostgreSQLOptions cloud={AddServiceType.rds} />
         <RdsOptions />
       </AdditionalOptions>
     </ServiceForm>

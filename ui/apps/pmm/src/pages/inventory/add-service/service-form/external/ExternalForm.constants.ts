@@ -30,7 +30,6 @@ export const EXTERNAL_DEFAULTS: ExternalFormValues = {
   group: '',
   metricsParameters: MetricsParameters.manually,
   url: '',
-  // What the old page effectively used: it showed HTTPS but never sent the scheme.
   scheme: Scheme.http,
   address: '',
   metricsPath: '',

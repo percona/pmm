@@ -4,7 +4,7 @@ export interface ConnectionDetailsProps extends PropsWithChildren {
   // Picks the node and pmm-agent that run the exporter.
   withNodes?: boolean;
   isAddressDisabled?: boolean;
-  // Username and password are required unless TLS is on (see requireCredentialsWithoutTls).
+  // Username is required, and password too unless TLS is on (see requireCredentials).
   requiresCredentials?: boolean;
   // The exporter's own connection timeout, used when the field is left empty.
   defaultTimeout?: string;

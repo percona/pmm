@@ -38,7 +38,7 @@ describe('useAddService', () => {
     vi.clearAllMocks();
   });
 
-  it('refreshes the inventory before calling onSuccess', async () => {
+  it('refreshes the inventory and calls onSuccess', async () => {
     addService.mockResolvedValue(undefined);
     const onSuccess = vi.fn();
     const { result, invalidate } = renderWithClient(() =>

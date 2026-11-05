@@ -5,7 +5,7 @@ import {
 } from '../../mysql/MySQLForm.schema';
 import {
   databaseServiceSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from '../../ServiceForm.schema';
 import { rdsSchema } from '../RdsServiceForm.schema';
 
@@ -15,5 +15,5 @@ export const rdsMysqlSchema = z
     ...mysqlOptionsSchema.shape,
     ...rdsSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireTablestatsLimit);

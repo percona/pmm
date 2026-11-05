@@ -30,7 +30,7 @@ import {
   disableCollectorsSchema,
   labelsSchema,
   nodeSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
   tlsCertificatesSchema,
   tlsSchema,
 } from './ServiceForm.schema';
@@ -50,7 +50,7 @@ const schema = z
     ...tlsCertificatesSchema.shape,
     ...disableCollectorsSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls);
+  .superRefine(requireCredentials);
 
 type Values = z.infer<typeof schema>;
 
@@ -212,7 +212,7 @@ describe('ServiceForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('marks the required fields, the credentials only without TLS', () => {
+  it('marks the required fields, the password only without TLS', () => {
     renderForm();
 
     for (const testId of [
@@ -229,14 +229,15 @@ describe('ServiceForm', () => {
 
     turnOnTls();
 
-    expect(screen.getByTestId('text-input-username')).not.toBeRequired();
+    expect(screen.getByTestId('text-input-username')).toBeRequired();
     expect(screen.getByTestId('text-input-password')).not.toBeRequired();
   });
 
-  it('does not ask for credentials with TLS on', async () => {
+  it('does not ask for a password with TLS on', async () => {
     const onSubmit = renderForm();
 
     type('text-input-address', 'db.example.com');
+    type('text-input-username', 'pmm');
     turnOnTls();
     fireEvent.click(screen.getByTestId('add-service-submit'));
 

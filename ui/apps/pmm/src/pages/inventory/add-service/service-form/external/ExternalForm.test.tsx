@@ -164,4 +164,30 @@ describe('ExternalForm', () => {
     expect(screen.getByTestId('text-input-username')).toHaveValue('user');
     expect(screen.getByTestId('text-input-password')).toHaveValue('pass');
   });
+
+  it('keeps the port a parsed URL names, even a default one', () => {
+    renderServiceForm(ExternalForm);
+
+    clickLabel('Parse from URL string');
+    type('text-input-url', 'https://exporter:80/metrics');
+    clickLabel('Set manually');
+
+    expect(screen.getByLabelText('HTTPS')).toBeChecked();
+    expect(screen.getByTestId('text-input-port')).toHaveValue('80');
+
+    clickLabel('HTTP');
+    expect(screen.getByTestId('text-input-port')).toHaveValue('80');
+    clickLabel('HTTPS');
+    expect(screen.getByTestId('text-input-port')).toHaveValue('443');
+  });
+
+  it('rejects a URL whose credentials do not decode', () => {
+    renderServiceForm(ExternalForm);
+
+    clickLabel('Parse from URL string');
+    type('text-input-url', 'http://user:pa%zz@exporter:9100/metrics');
+    clickLabel('Set manually');
+
+    expect(screen.getByTestId('text-input-address')).toHaveValue('');
+  });
 });

@@ -6,7 +6,7 @@ import {
 } from '../../postgresql/PostgreSQLForm.schema';
 import {
   databaseServiceSchema,
-  requireCredentialsWithoutTls,
+  requireCredentials,
 } from '../../ServiceForm.schema';
 import { rdsSchema } from '../RdsServiceForm.schema';
 
@@ -16,6 +16,6 @@ export const rdsPostgresqlSchema = z
     ...postgresqlOptionsSchema.shape,
     ...rdsSchema.shape,
   })
-  .superRefine(requireCredentialsWithoutTls)
+  .superRefine(requireCredentials)
   .superRefine(requireAutoDiscoveryLimit)
   .superRefine(requireMaxExporterConnections);
