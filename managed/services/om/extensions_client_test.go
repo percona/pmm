@@ -62,7 +62,7 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 
 	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(redirecting.URL, "test-token")
 
-	err := svc.probe.app.triggerRun(asService(t.Context()))
+	err := svc.probe.app.setEnabled(asService(t.Context()), true)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "answered 307")
@@ -87,8 +87,27 @@ func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	svc := stub.service(t)
 	stub.server.Close()
 
-	err := svc.probe.app.triggerRun(asService(t.Context()))
+	err := svc.probe.app.setEnabled(asService(t.Context()), true)
 
 	require.Error(t, err)
 	assert.Equal(t, 1, strings.Count(err.Error(), stub.server.URL), "the URL belongs in the message once: %s", err)
+}
+
+func TestReadEnabledRefusesAConfigWithoutABooleanSwitch(t *testing.T) {
+	t.Parallel()
+
+	for name, body := range map[string]string{
+		"missing":     `[{"key": "AUTO_SCAN", "value": true}]`,
+		"not boolean": `[{"key": "ENABLED", "value": "true"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := newSEPStub(t, http.StatusOK, body).service(t)
+
+			_, err := svc.probe.app.readEnabled(asService(t.Context()))
+
+			require.Error(t, err)
+		})
+	}
 }

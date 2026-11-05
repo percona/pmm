@@ -84,6 +84,9 @@ type Service struct {
 	// running serialises collection.
 	running sync.Mutex
 
+	// syncMu orders ENABLED syncs, each reading PMM's switch and writing it as one step.
+	syncMu sync.Mutex
+
 	mu     sync.Mutex
 	latest *omv1.GetTopologyResponse
 
@@ -123,12 +126,20 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 
 // Enabled returns true if OpenManager is enabled.
 func (s *Service) Enabled() bool {
-	settings, err := models.GetSettings(s.db)
+	enabled, err := s.storedSwitch()
 	if err != nil {
 		s.l.WithError(err).Error("can't get settings")
-		return false
 	}
-	return settings.IsOMEnabled()
+	return enabled
+}
+
+// storedSwitch reads PMM's OpenManager switch, reporting a failed read that Enabled hides as off.
+func (s *Service) storedSwitch() (bool, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return false, fmt.Errorf("failed to read settings: %w", err)
+	}
+	return settings.IsOMEnabled(), nil
 }
 
 // IsAvailable reports whether PMM Extensions' om_inventory app is configured and reachable.
@@ -140,33 +151,50 @@ func (s *Service) IsAvailable(ctx context.Context) bool {
 	return err == nil
 }
 
-// SyncInventoryEnabled sets om_inventory's ENABLED flag and, on enabling, triggers an immediate sweep so the
-// estate does not wait out a full SCHEDULE interval. Failures are logged, not returned.
-func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
-	_ = s.syncInventoryEnabled(ctx, enabled)
+// SyncInventoryEnabled writes PMM's stored switch to om_inventory's ENABLED flag, leaving Run to correct a failed write.
+func (s *Service) SyncInventoryEnabled(ctx context.Context) {
+	s.syncSwitch(ctx, true)
 }
 
-// syncInventoryEnabled returns only the ENABLED write's error: a failed sweep trigger is logged and left to the
-// app's own SCHEDULE.
-func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error {
+// syncSwitch writes PMM's stored switch to om_inventory unless, unforced, the app already holds it; it reports success.
+func (s *Service) syncSwitch(ctx context.Context, force bool) bool {
 	if s.probe == nil || s.probe.app.client == nil {
-		return nil
+		return true
 	}
 	ctx = asService(ctx)
-	err := s.probe.app.setEnabled(ctx, enabled)
+	s.syncMu.Lock()
+	defer s.syncMu.Unlock()
+
+	var current bool
+	if !force {
+		var err error
+		current, err = s.probe.app.readEnabled(ctx)
+		if err != nil {
+			level := logrus.WarnLevel
+			if status.Code(err) == codes.Unavailable {
+				level = logrus.DebugLevel
+			}
+			s.l.WithError(err).Log(level, "can't read om_inventory's on/off state to compare it with OpenManager's switch")
+			return false
+		}
+	}
+	// Read after the app and under syncMu, so the switch's latest saved state is the one compared and written.
+	stored, err := s.storedSwitch()
 	if err != nil {
-		s.l.WithError(err).WithField("enabled", enabled).
+		s.l.WithError(err).Warn("can't read the OpenManager switch to sync it to PMM Extensions")
+		return false
+	}
+	if !force && current == stored {
+		return true
+	}
+
+	err = s.probe.app.setEnabled(ctx, stored)
+	if err != nil {
+		s.l.WithError(err).WithField("enabled", stored).
 			Warn("failed to sync OpenManager's on/off state to PMM Extensions' om_inventory app")
-		return err
+		return false
 	}
-	if !enabled {
-		return nil
-	}
-	err = s.probe.app.triggerRun(ctx)
-	if err != nil {
-		s.l.WithError(err).Warn("failed to trigger an immediate PMM Extensions inventory sweep after enabling OpenManager")
-	}
-	return nil
+	return true
 }
 
 // WithBootstrapSource attaches PMM Extensions' om_bootstrap app for RunBootstrapStepper and TriggerHostBootstrap.
@@ -270,11 +298,12 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 	}, nil
 }
 
-// Run refreshes the document on a timer until ctx is cancelled. It also syncs the OpenManager switch to om_inventory,
-// retrying until it lands, since a server that starts enabled sees no ChangeSettings transition.
+// Run refreshes the document on a timer until ctx is cancelled, keeping om_inventory's ENABLED flag on PMM's switch.
 func (s *Service) Run(ctx context.Context) {
 	ctx = asService(ctx)
-	reconciled := s.syncInventoryEnabled(ctx, s.Enabled()) == nil
+	// Forced, and retried until it lands: a server that starts enabled sees no ChangeSettings transition,
+	// and this write is what starts the app's sweep after a restart.
+	pending := !s.syncSwitch(ctx, true)
 
 	interval := s.tick
 	if interval == 0 {
@@ -289,8 +318,8 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		case <-ticker.C:
 			// Before the Enabled() gate: syncing an off switch is how PMM Extensions is told to stop sweeping.
-			if !reconciled {
-				reconciled = s.syncInventoryEnabled(ctx, s.Enabled()) == nil
+			if s.syncSwitch(ctx, pending) {
+				pending = false
 			}
 			if !s.Enabled() {
 				continue

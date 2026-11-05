@@ -33,9 +33,9 @@ func (_m *mockOmService) IsAvailable(ctx context.Context) bool {
 	return r0
 }
 
-// SyncInventoryEnabled provides a mock function with given fields: ctx, enabled
-func (_m *mockOmService) SyncInventoryEnabled(ctx context.Context, enabled bool) {
-	_m.Called(ctx, enabled)
+// SyncInventoryEnabled provides a mock function with given fields: ctx
+func (_m *mockOmService) SyncInventoryEnabled(ctx context.Context) {
+	_m.Called(ctx)
 }
 
 // TriggerTopologyCollection provides a mock function with given fields: ctx, req

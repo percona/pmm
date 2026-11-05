@@ -1071,6 +1071,13 @@ func bootstrapStepsToProto(steps []extensionsBootstrapStep) []*omv1.BootstrapSte
 // inventorySettingsClass is om_inventory's settings class on PMM Extensions' admin settings router.
 const inventorySettingsClass = "OmInventorySettings"
 
+// inventorySwitchKey is om_inventory's ENABLED flag, which follows PMM's Operations for MongoDB switch.
+const inventorySwitchKey = "ENABLED"
+
+// errInventorySwitchKey refuses a change Run would undo on its next tick.
+var errInventorySwitchKey = status.Error(codes.InvalidArgument,
+	"ENABLED follows PMM's Operations for MongoDB switch; turn Operations for MongoDB on or off in PMM Settings instead")
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -1096,7 +1103,10 @@ const (
 
 func validateConfigValues(values *structpb.Struct) error {
 	fields := values.GetFields()
+	_, switchKey := fields[inventorySwitchKey]
 	switch {
+	case switchKey:
+		return errInventorySwitchKey
 	case len(fields) == 0:
 		return status.Error(codes.InvalidArgument, "values must name at least one field to change")
 	case len(fields) > maxConfigFields:
@@ -1169,6 +1179,9 @@ func (s *Service) DeleteInventoryConfigOverride(
 	probe, err := s.inventoryProbe()
 	if err != nil {
 		return nil, err
+	}
+	if req.GetKey() == inventorySwitchKey {
+		return nil, errInventorySwitchKey
 	}
 
 	call := inventoryCall{method: http.MethodDelete, path: inventoryPath(inventorySettingsClass, req.GetKey())}
@@ -1359,12 +1372,17 @@ func inventoryRunEntitiesToProto(nodes []extensionsRunNode) []*omv1.InventoryRun
 func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySetting {
 	out := make([]*omv1.InventorySetting, 0, len(settings))
 	for _, setting := range settings {
+		reload := extensionsReloadToProto(setting.Reload)
+		// Read as fixed, matching the refusal of a change to it.
+		if setting.Key == inventorySwitchKey {
+			reload = omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE
+		}
 		out = append(out, &omv1.InventorySetting{
 			Key:          setting.Key,
 			Value:        anyToValue(setting.Value),
 			DefaultValue: anyToValue(setting.DefaultValue),
 			Type:         setting.Type,
-			Reload:       extensionsReloadToProto(setting.Reload),
+			Reload:       reload,
 			HasOverride:  setting.HasOverride,
 			IsAdvanced:   setting.IsAdvanced,
 			Description:  optionalString(setting.Description),

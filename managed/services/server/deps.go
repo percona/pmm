@@ -126,5 +126,5 @@ type omService interface {
 	// IsAvailable reports whether the PMM Extensions inventory app is configured and reachable.
 	IsAvailable(ctx context.Context) bool
 	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
-	SyncInventoryEnabled(ctx context.Context, enabled bool)
+	SyncInventoryEnabled(ctx context.Context)
 }

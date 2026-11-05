@@ -733,7 +733,7 @@ func TestApplyOMSwitch(t *testing.T) {
 		record := func(args mock.Arguments) { effects <- args.Get(0).(context.Context).Err() }
 		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
 			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).Run(record)
-		om.On("SyncInventoryEnabled", mock.Anything, true).Run(record)
+		om.On("SyncInventoryEnabled", mock.Anything).Run(record)
 
 		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
 		ctx, cancel := context.WithCancel(t.Context())
@@ -758,7 +758,7 @@ func TestApplyOMSwitch(t *testing.T) {
 		// leaves the Hosts page empty until the app's own schedule comes round.
 		om := newMockOmService(t)
 		calls := make(chan string, 2)
-		om.On("SyncInventoryEnabled", mock.Anything, true).
+		om.On("SyncInventoryEnabled", mock.Anything).
 			Run(func(mock.Arguments) { calls <- "sync" })
 		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
 			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).
@@ -784,7 +784,7 @@ func TestApplyOMSwitch(t *testing.T) {
 
 		om := newMockOmService(t)
 		synced := make(chan struct{})
-		om.On("SyncInventoryEnabled", mock.Anything, false).
+		om.On("SyncInventoryEnabled", mock.Anything).
 			Run(func(mock.Arguments) { close(synced) })
 
 		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
