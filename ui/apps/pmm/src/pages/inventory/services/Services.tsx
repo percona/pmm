@@ -15,6 +15,7 @@ import {
   type MRT_RowSelectionState,
 } from '@percona/peak-ui';
 import { type MRT_ExpandedState } from 'material-react-table';
+import { ExportButton } from 'components/export-button';
 import { useManagedServices, useRemoveServices } from 'hooks/api/useServices';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
@@ -36,11 +37,13 @@ import {
   getServiceQanUrl,
 } from '../Inventory.utils';
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
+import { exportServicesToCsv } from './export/exportServicesToCsv';
 import { ServiceDetails } from './service-details';
 import { SERVICES_COLUMNS, SERVICES_TABLE_NAME } from './Services.constants';
 import { Messages } from './Services.messages';
 import type { ServiceRow } from './Services.types';
 import {
+  getFilteredServices,
   getServicesRowId,
   isClusterRow,
   toClusterRows,
@@ -185,12 +188,16 @@ export const Services: FC = () => {
           ];
         }}
         renderTopToolbarCustomActions={({ table }) => {
-          // Filters hide selected services without unselecting them; flatRows
-          // holds the selected services of the clusters too
-          const selectedServices = table
-            .getFilteredSelectedRowModel()
-            .flatRows.map(({ original }) => original)
-            .filter((row): row is ServiceRow => !isClusterRow(row));
+          const filteredServices = getFilteredServices(table);
+          // Filters hide selected services without unselecting them, so the
+          // actions take only the selected services left visible
+          const selectedServices = filteredServices.filter(
+            ({ serviceId }) => rowSelection[serviceId]
+          );
+          // A selection narrows the export, as it does the delete
+          const exportedServices = selectedServices.length
+            ? selectedServices
+            : filteredServices;
 
           return (
             <Stack
@@ -228,6 +235,11 @@ export const Services: FC = () => {
                   }
                 />
               </Stack>
+              <ExportButton
+                disabled={!exportedServices.length}
+                onClick={() => exportServicesToCsv(exportedServices)}
+                data-testid="export-services-button"
+              />
               <Button
                 startIcon={<AddOutlinedIcon />}
                 component={RouterLink}

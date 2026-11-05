@@ -9575,7 +9575,6 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       react-hook-form: 7.84.0(react@19.2.8)
       react-is: 18.3.1
-
   '@percona/peak-ui@1.0.31(ce7a36355021fe88046b483c20084ec1)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.18)(react@19.2.8)
