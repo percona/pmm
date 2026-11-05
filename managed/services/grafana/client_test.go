@@ -82,6 +82,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, viewer, u.role)
 		assert.Equal(t, 0, u.userID)
+		assert.True(t, u.anonymous)
 	})
 
 	t.Run("no anonymous fallback when credentials are present", func(t *testing.T) {
@@ -137,6 +138,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		u, err := c.getAuthUser(ctx, headers, l)
 		require.NoError(t, err)
 		assert.Equal(t, viewer, u.role)
+		assert.True(t, u.anonymous)
 	})
 
 	t.Run("no frontend settings when cookie session succeeds on api user", func(t *testing.T) {
@@ -169,6 +171,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, viewer, u.role)
 		assert.Equal(t, 42, u.userID)
+		assert.False(t, u.anonymous)
 		assert.Zero(t, settingsCalls, "/api/frontend/settings must not be called when /api/user succeeds")
 	})
 

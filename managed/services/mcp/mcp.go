@@ -152,7 +152,7 @@ func New(params Params) (*Service, error) {
 	})
 	s.registerTools(server)
 
-	s.handler = mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	s.handler = http.NewCrossOriginProtection().Handler(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return server
 	}, &mcp.StreamableHTTPOptions{
 		// No session table: every request carries its own credentials and is
@@ -161,11 +161,12 @@ func New(params Params) (*Service, error) {
 		Stateless: true,
 		// A client that disconnects cancels its call, and with it the call's unfinished actions; protocol 2026-07-28 and later only.
 		PropagateRequestCancellation: true,
-		// nginx forwards with its upstream name as Host, which the SDK's DNS-rebinding
-		// guard rejects; Handler's loopback-peer check protects /mcp instead.
+		// nginx sends the public Host over a loopback connection, which the SDK's
+		// DNS-rebinding guard rejects; Handler's loopback-peer check and the
+		// cross-origin check above protect /mcp instead.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
-	})
+	}))
 
 	return s, nil
 }
