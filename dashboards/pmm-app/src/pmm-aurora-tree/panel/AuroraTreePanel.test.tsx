@@ -76,6 +76,10 @@ describe('AuroraTreePanel::', () => {
       'href',
       '/graph/d/node-instance-summary/node-summary?var-node_name=aurora-stale',
     );
+    screen.getAllByRole('link').forEach((link) => {
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
     expect(screen.getByText('reader')).toBeInTheDocument();
     expect(screen.getByText('unknown')).toBeInTheDocument();
     expect(screen.getByText('Down')).toBeInTheDocument();

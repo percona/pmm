@@ -43,6 +43,9 @@ const StatusCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
     : <span className={styles.bad}>{Messages.down}</span>;
 };
 
+// Plain Grafana URLs are enough: nginx redirects a top-level /graph navigation (the new tab) into /pmm-ui.
+const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
+
 const LinksCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
   const styles = useStyles2(getStyles);
   const nodeName = original.nodeName || original.serviceName;
@@ -51,6 +54,7 @@ const LinksCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
     <span className={styles.links}>
       <a
         className={styles.link}
+        {...NEW_TAB}
         href={getMysqlSummaryUrl(original.serviceName)}
         title={Messages.mysqlLinkTitle(original.serviceName)}
         aria-label={Messages.mysqlLinkTitle(original.serviceName)}
@@ -59,6 +63,7 @@ const LinksCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
       </a>
       <a
         className={styles.link}
+        {...NEW_TAB}
         href={getNodeSummaryUrl(original.nodeName, original.serviceName)}
         title={Messages.osLinkTitle(nodeName)}
         aria-label={Messages.osLinkTitle(nodeName)}
@@ -80,7 +85,7 @@ export const InstancesTable: FC<InstancesTableProps> = ({ instances }) => {
       id: 'serviceName',
       header: Messages.columns.service,
       cell: ({ row: { original } }) => (
-        <a className={styles.link} href={getServiceUrl(original.serviceName)}>
+        <a className={styles.link} {...NEW_TAB} href={getServiceUrl(original.serviceName)}>
           {original.serviceName}
         </a>
       ),
