@@ -594,7 +594,9 @@ describe('TaskHistoryTable sort + pagination', () => {
     expect(firstPageNames).toHaveLength(10);
     expect(firstPageNames[0]).toBe('task-1');
 
-    await userEvent.click(screen.getByLabelText(/Go to next page/i));
+    await userEvent.click(
+      screen.getByRole('button', { name: /Go to next page/i })
+    );
 
     const secondPageNames = taskNamesInOrder();
     expect(secondPageNames).toHaveLength(10);

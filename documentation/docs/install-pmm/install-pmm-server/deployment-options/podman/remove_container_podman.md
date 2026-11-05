@@ -17,39 +17,30 @@ To completely remove your container and data:
     sleep 10
     ```
 
-2. If you're using Watchtower for UI upgrades, stop it too:
-
-    ```sh
-    systemctl --user stop watchtower
-    ```
-
-3. Remove the PMM data volume:
+2. Remove the PMM data volume:
 
     ```sh
     podman volume rm --force pmm-server
     ```
 
-4. Remove the PMM Server images:
+3. Remove the PMM Server images:
 
     ```sh
     podman rmi $(podman images | grep "pmm-server" | awk {'print $3'})
     ```
 
-5. Disable the SystemD services:
+4. Disable the systemd service:
     ```sh
     systemctl --user disable pmm-server
-    systemctl --user disable watchtower
     ```
 
-6. Optionally, remove service files:
+5. Optionally, remove service files:
     ```sh
     rm -f %h/.config/systemd/user/pmm-server.service
     rm -f %h/.config/systemd/user/pmm-server.env
-    rm -f %h/.config/systemd/user/watchtower.service
-    rm -f %h/.config/systemd/user/watchtower.env
     ```
 
-7. If you no longer need it, remove the PMM network:
+6. If you no longer need it, remove the PMM network:
     ```sh
     podman network rm pmm_default
     ```

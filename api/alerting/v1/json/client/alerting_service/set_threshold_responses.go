@@ -425,8 +425,8 @@ type SetThresholdDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// set threshold default body details items0
-	SetThresholdDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// set threshold default body details items0 additional properties
+	SetThresholdDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -461,7 +461,7 @@ func (o *SetThresholdDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 			}
 			result[k] = toadd
 		}
-		o.SetThresholdDefaultBodyDetailsItems0 = result
+		o.SetThresholdDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -482,12 +482,12 @@ func (o SetThresholdDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.SetThresholdDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.SetThresholdDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.SetThresholdDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.SetThresholdDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
