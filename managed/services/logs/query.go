@@ -1,0 +1,305 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Package logs serves log lines, volume, patterns and facets from ClickHouse otel.logs.
+package logs
+
+import (
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/percona/pmm/managed/otel"
+)
+
+const (
+	defaultSearchLimit = 200
+	maxSearchLimit     = 500
+	listBodyLimit      = 4096
+	contextBodyLimit   = 65536
+	contextWindow      = 24 * time.Hour
+	maxVolumeBuckets   = 100
+	// The longest range (days) is the one the largest volume step (a day) covers in maxVolumeBuckets.
+	maxRangeDays  = maxVolumeBuckets - 1
+	maxRange      = maxRangeDays * 24 * time.Hour
+	querySettings = " SETTINGS max_execution_time = 30, readonly = 1"
+)
+
+// volumeSteps are the volume bucket widths, smallest first.
+var volumeSteps = []time.Duration{
+	time.Second, 5 * time.Second, 10 * time.Second, 30 * time.Second,
+	time.Minute, 5 * time.Minute, 10 * time.Minute, 30 * time.Minute,
+	time.Hour, 3 * time.Hour, 6 * time.Hour, 12 * time.Hour, 24 * time.Hour,
+}
+
+// Filter is the shared filter of every logs call.
+type Filter struct {
+	Start, End       time.Time
+	NodeNames        []string
+	ExcludeNodeNames []string
+	Sources          []string
+	Presets          []string
+	MinSeverity      int32
+	MaxSeverity      int32
+	Text             string
+	Pattern          string
+	PatternHash      uint64
+	// ExcludePatternHashes hides lines of these patterns.
+	ExcludePatternHashes []uint64
+	// ByLabels keeps only lines of LabelNodes, the nodes running services with the requested labels; none when empty.
+	ByLabels   bool
+	LabelNodes []string
+}
+
+// lineHash identifies a line among those with the same Timestamp; lines it cannot tell apart look identical.
+const lineHash = "cityHash64(Body, ServiceName, ResourceAttributes['node_name'], LogAttributes, SeverityNumber, SeverityText)"
+
+// Cursor positions a search page after the last returned line.
+type Cursor struct {
+	Time time.Time
+	Hash uint64
+	// Skip counts the returned lines identical to the last one (same Time and Hash).
+	Skip int
+}
+
+// Encode returns the opaque form of c that clients pass back.
+func (c Cursor) Encode() string {
+	return base64.RawURLEncoding.EncodeToString(fmt.Appendf(nil, "%d.%d.%d", c.Time.UnixNano(), c.Hash, c.Skip))
+}
+
+// DecodeCursor parses a cursor made by Cursor.Encode.
+func DecodeCursor(s string) (Cursor, error) {
+	b, err := base64.RawURLEncoding.DecodeString(s)
+	if err != nil {
+		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
+	}
+	// time.hash.skip
+	const fields = 3
+	parts := strings.Split(string(b), ".")
+	if len(parts) != fields {
+		return Cursor{}, errors.New("invalid cursor")
+	}
+	n, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
+	}
+	h, err := strconv.ParseUint(parts[1], 10, 64)
+	if err != nil {
+		return Cursor{}, fmt.Errorf("invalid cursor: %w", err)
+	}
+	skip, err := strconv.Atoi(parts[2])
+	if err != nil || skip < 0 {
+		return Cursor{}, errors.New("invalid cursor")
+	}
+	return Cursor{Time: time.Unix(0, n).UTC(), Hash: h, Skip: skip}, nil
+}
+
+// timeWhere returns the conditions selecting [start, end]; TimestampTime prunes by the primary key and partition.
+func timeWhere(start, end time.Time) (string, []any) {
+	return "TimestampTime BETWEEN toDateTime(?) AND toDateTime(?) AND " +
+			"Timestamp BETWEEN fromUnixTimestamp64Nano(?) AND fromUnixTimestamp64Nano(?)",
+		[]any{start.Unix(), end.Unix(), start.UnixNano(), end.UnixNano()}
+}
+
+func buildWhere(f Filter) (string, []any) {
+	where, args := timeWhere(f.Start, f.End)
+	conds := []string{where}
+	for _, in := range []struct {
+		column string
+		values []string
+	}{
+		{"ServiceName", f.Sources},
+		{"ResourceAttributes['node_name']", f.NodeNames},
+		{"LogAttributes['log.preset']", f.Presets},
+	} {
+		if len(in.values) > 0 {
+			conds = append(conds, in.column+" IN ?")
+			args = append(args, in.values)
+		}
+	}
+	if len(f.ExcludeNodeNames) > 0 {
+		conds = append(conds, "ResourceAttributes['node_name'] NOT IN ?")
+		args = append(args, f.ExcludeNodeNames)
+	}
+	if f.ByLabels {
+		if len(f.LabelNodes) == 0 {
+			conds = append(conds, "0")
+		} else {
+			conds = append(conds, "ResourceAttributes['node_name'] IN ?")
+			args = append(args, f.LabelNodes)
+		}
+	}
+	if f.MinSeverity > 0 {
+		conds = append(conds, "SeverityNumber >= ?")
+		args = append(args, f.MinSeverity)
+	}
+	if f.MaxSeverity > 0 {
+		conds = append(conds, "SeverityNumber <= ?")
+		args = append(args, f.MaxSeverity)
+	}
+	if f.Text != "" {
+		conds = append(conds, "positionCaseInsensitiveUTF8(Body, ?) > 0")
+		args = append(args, f.Text)
+	}
+	if f.Pattern != "" {
+		conds = append(conds, "PatternHash = cityHash64(?)")
+		args = append(args, f.Pattern)
+	}
+	if f.PatternHash != 0 {
+		conds = append(conds, "PatternHash = ?")
+		args = append(args, f.PatternHash)
+	}
+	if len(f.ExcludePatternHashes) > 0 {
+		conds = append(conds, "PatternHash NOT IN ?")
+		args = append(args, f.ExcludePatternHashes)
+	}
+	return strings.Join(conds, " AND "), args
+}
+
+// lineColumnNames are the names lineColumns gives the columns of a log line.
+const lineColumnNames = "Timestamp, node_name, ServiceName, preset, file_name, SeverityNumber, SeverityText, body, body_truncated, " +
+	"LogAttributes, PatternHash"
+
+// lineColumns returns the columns of a log line with the body cut to bodyLimit characters.
+func lineColumns(bodyLimit int) string {
+	return fmt.Sprintf("Timestamp, ResourceAttributes['node_name'] AS node_name, ServiceName, LogAttributes['log.preset'] AS preset, "+
+		"LogAttributes['log.file.name'] AS file_name, SeverityNumber, SeverityText, substringUTF8(Body, 1, %d) AS body, "+
+		"lengthUTF8(Body) > %d AS body_truncated, LogAttributes, PatternHash", bodyLimit, bodyLimit)
+}
+
+// pageSize returns the search page size for a requested limit.
+func pageSize(limit int) int {
+	if limit <= 0 {
+		return defaultSearchLimit
+	}
+	return min(limit, maxSearchLimit)
+}
+
+// searchQuery returns the newest page of lines older than after; its subquery bounds Timestamp first, so only the page's rows are hashed and sorted.
+func searchQuery(f Filter, after *Cursor, limit int) (string, []any) {
+	size := pageSize(limit)
+	where, whereArgs := buildWhere(f)
+	inner, innerArgs := where, append([]any{}, whereArgs...)
+	if after != nil {
+		// Strictly older, so lines sharing after's timestamp stay above the bound; the tuple comparison drops returned ones.
+		inner += " AND Timestamp < fromUnixTimestamp64Nano(?)"
+		innerArgs = append(innerArgs, after.Time.UnixNano())
+	}
+	cond := where + " AND Timestamp >= (SELECT min(Timestamp) FROM (SELECT Timestamp FROM otel.logs WHERE " + inner +
+		" ORDER BY Timestamp DESC LIMIT ?))"
+	args := append(append(append([]any{}, whereArgs...), innerArgs...), size)
+	q := "SELECT " + lineColumns(listBodyLimit) + ", " + lineHash + " AS h FROM otel.logs WHERE " + cond
+	if after == nil {
+		return q + " ORDER BY Timestamp DESC, h DESC LIMIT ?" + querySettings, append(args, size)
+	}
+	// Lines identical to after sort first; OFFSET skips the ones already returned.
+	q += " AND (Timestamp, h) <= (fromUnixTimestamp64Nano(?), ?) ORDER BY Timestamp DESC, h DESC LIMIT ? OFFSET ?" + querySettings
+	return q, append(args, after.Time.UnixNano(), after.Hash, size, after.Skip)
+}
+
+func volumeQuery(f Filter) (string, []any, time.Duration) {
+	r := f.End.Sub(f.Start)
+	step := volumeSteps[len(volumeSteps)-1]
+	for _, s := range volumeSteps {
+		// One bucket is spare: an unaligned start adds one.
+		if r <= s*(maxVolumeBuckets-1) {
+			step = s
+			break
+		}
+	}
+	where, args := buildWhere(f)
+	q := fmt.Sprintf("SELECT toStartOfInterval(Timestamp, INTERVAL %d SECOND) AS t, "+
+		"countIf(SeverityNumber >= 17) AS error, "+
+		"countIf(SeverityNumber >= 13 AND SeverityNumber < 17) AS warning, "+
+		"countIf(SeverityNumber >= 9 AND SeverityNumber < 13) AS info, "+
+		"countIf(SeverityNumber < 9) AS other "+
+		"FROM otel.logs WHERE %s GROUP BY t "+
+		"ORDER BY t WITH FILL FROM toStartOfInterval(toDateTime(?), INTERVAL %[1]d SECOND) TO toDateTime(?) + 1 STEP INTERVAL %[1]d SECOND",
+		int(step.Seconds()), where)
+	return q + querySettings, append(args, f.Start.Unix(), f.End.Unix()), step
+}
+
+func patternsQuery(f Filter) (string, []any) {
+	prev := f
+	prev.Start = f.Start.Add(-f.End.Sub(f.Start))
+	where, args := buildWhere(prev)
+	// A pattern is new when the previous window had lines of the same nodes, sources and presets but none of it;
+	// without such lines (collection had not started) nothing is new. Search and severity do not narrow the baseline.
+	baseWhere, baseArgs := buildWhere(Filter{
+		Start: prev.Start, End: f.Start,
+		NodeNames: f.NodeNames, ExcludeNodeNames: f.ExcludeNodeNames, Sources: f.Sources, Presets: f.Presets,
+		ByLabels: f.ByLabels, LabelNodes: f.LabelNodes,
+	})
+	// The top sources cost about a fifth more over many patterns, so they are counted only for one.
+	topSources, innerTopSources := "CAST([], 'Array(String)') AS top_sources", ""
+	if f.Pattern != "" || f.PatternHash != 0 {
+		topSources, innerTopSources = "top_sources", ", topKIf(3)(ServiceName, cur) AS top_sources"
+	}
+	// Lines are grouped by the PatternHash stored at insert; only the returned patterns are masked, from a sample line.
+	q := fmt.Sprintf("SELECT %s AS p, PatternHash, current, previous, "+
+		"previous = 0 AND (SELECT count() FROM (SELECT 1 FROM otel.logs WHERE %s LIMIT 1)) > 0 AS is_new, "+
+		"max_severity, first_seen, last_seen, substringUTF8(body, 1, %d) AS sample, %s FROM ("+
+		"WITH Timestamp >= fromUnixTimestamp64Nano(?) AS cur SELECT PatternHash, "+
+		"countIf(cur) AS current, countIf(NOT cur) AS previous, "+
+		"maxIf(SeverityNumber, cur) AS max_severity, minIf(Timestamp, cur) AS first_seen, maxIf(Timestamp, cur) AS last_seen, "+
+		"anyIf(Body, cur) AS body%s "+
+		"FROM otel.logs WHERE %s GROUP BY PatternHash"+
+		") WHERE current > 0 ORDER BY current DESC, p LIMIT 50",
+		otel.PatternExpr("body"), baseWhere, listBodyLimit, topSources, innerTopSources, where)
+	args = append(append(baseArgs, f.Start.UnixNano()), args...)
+	return q + querySettings, args
+}
+
+// contextQuery returns n lines before the anchor time, every line at that time (at most 100) and n after it, of one
+// node and file; source, when set, uses the primary key.
+func contextQuery(at time.Time, nodeName, fileName, source string, n int) (string, []any) {
+	var args []any
+	part := func(from, to time.Time, tail string, tailArgs ...any) string {
+		sel := "SELECT " + lineColumns(contextBodyLimit) + " FROM otel.logs WHERE "
+		if source != "" {
+			sel += "ServiceName = ? AND "
+			args = append(args, source)
+		}
+		args = append(append(args, nodeName, fileName, from.Unix(), to.Unix()), tailArgs...)
+		return "(" + sel + "ResourceAttributes['node_name'] = ? AND LogAttributes['log.file.name'] = ? AND " +
+			"TimestampTime BETWEEN toDateTime(?) AND toDateTime(?) AND " + tail + ")"
+	}
+	nanos := at.UnixNano()
+	q := "SELECT " + lineColumnNames + " FROM (" +
+		part(at.Add(-contextWindow), at, "Timestamp < fromUnixTimestamp64Nano(?) ORDER BY Timestamp DESC LIMIT ?", nanos, n) +
+		" UNION ALL " + part(at, at, "Timestamp = fromUnixTimestamp64Nano(?) LIMIT 100", nanos) +
+		" UNION ALL " + part(at, at.Add(contextWindow), "Timestamp > fromUnixTimestamp64Nano(?) ORDER BY Timestamp LIMIT ?", nanos, n) +
+		") ORDER BY Timestamp" + querySettings
+	return q, args
+}
+
+func facetsQueries(f Filter) (string, string, string, []any) {
+	where, args := timeWhere(f.Start, f.End)
+	facet := func(column string) string {
+		return "SELECT " + column + " AS v, count() FROM otel.logs WHERE " + where +
+			" GROUP BY v HAVING v != '' ORDER BY count() DESC LIMIT 200" + querySettings
+	}
+	return facet("ResourceAttributes['node_name']"), facet("ServiceName"), facet("LogAttributes['log.preset']"), args
+}
+
+// nodeCountsQuery counts the range's lines of each of the nodes.
+func nodeCountsQuery(f Filter, nodes []string) (string, []any) {
+	where, args := timeWhere(f.Start, f.End)
+	return "SELECT ResourceAttributes['node_name'] AS v, count() FROM otel.logs WHERE " + where +
+		" AND ResourceAttributes['node_name'] IN ? GROUP BY v" + querySettings, append(args, nodes)
+}

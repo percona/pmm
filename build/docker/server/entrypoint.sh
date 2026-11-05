@@ -80,7 +80,7 @@ declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,otelcol,prometheus/rules,victoriametrics}
 fi
 
 # Sync bundled Grafana plugins into /srv when the bundled set changes. 

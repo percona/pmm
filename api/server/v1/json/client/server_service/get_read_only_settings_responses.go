@@ -713,6 +713,9 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if OpenManager is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
+
+	// True if native Query Analytics UI is enabled.
+	NativeQANEnabled bool `json:"native_qan_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings

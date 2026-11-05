@@ -46,9 +46,16 @@ const recoverFromUnauthorized =
     return instance.request(config);
   };
 
-const notifyError = (error: AxiosError<{ message?: string }>) => {
+const notifyError = (
+  error: AxiosError<{ error?: string; message?: string }>
+) => {
   if (error.response && error.response.status >= 400) {
-    let message = error.response.data?.message ?? DEFAULT_ERROR_MESSAGE;
+    // pmm-managed's hand-written JSON handlers return {"error": "..."}, while gRPC-gateway
+    // errors use {"message": "..."}. Prefer the real message over the generic fallback.
+    let message =
+      error.response.data?.error ??
+      error.response.data?.message ??
+      DEFAULT_ERROR_MESSAGE;
     let notificationsDisabled =
       error.config?.disableNotifications ?? error.response.status === 429;
 

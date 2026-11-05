@@ -67,6 +67,14 @@
         - directory
       no_log: true
 
+    - name: Create '/srv/otelcol' directory for otel-collector config
+      file:
+        path: /srv/otelcol
+        state: directory
+        owner: pmm
+        group: root
+        mode: 0775
+
     - name: Create empty log directory for nginx
       file:
         path: /var/log/nginx

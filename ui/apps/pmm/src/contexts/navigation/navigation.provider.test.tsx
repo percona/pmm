@@ -237,3 +237,11 @@ describe('NavigationProvider', () => {
     });
   });
 });
+
+describe('NavigationProvider Assistant entries', () => {
+  it('shows Logs to viewers', () => {
+    const ids = renderNavTree(TEST_USER_VIEWER).map((item) => item.id);
+
+    expect(ids).toContain('logs');
+  });
+});

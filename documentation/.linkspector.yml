@@ -13,6 +13,9 @@ ignorePatterns:
   - pattern: "^https://pmmdemo.percona.com"
   - pattern: '^https://developer.hashicorp.com/nomad'
   - pattern: '^https://www.nomadproject.io/'
+  # Cross-tree references to in-repo developer docs that are being added
+  # by this PR; resolve on v3 only after merge.
+  - pattern: '^https://github\.com/percona/pmm/blob/v3/dev/(adre|investigations)/'
   - pattern: "#os_alerts$"
   - pattern: "#pmm_alerts$"
   - pattern: "#mongodb_alerts$"

@@ -37,6 +37,7 @@ const (
 	AgentTypeExternalExporter                = "AGENT_TYPE_EXTERNAL_EXPORTER"
 	AgentTypeAzureDatabaseExporter           = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
 	AgentTypeRTAMongoDBAgent                 = "AGENT_TYPE_RTA_MONGODB_AGENT"
+	AgentTypeOtelCollector                   = "AGENT_TYPE_OTEL_COLLECTOR"
 )
 
 var agentTypeNames = map[string]string{
@@ -60,6 +61,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeExternalExporter:                "external-exporter",
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
 	AgentTypeRTAMongoDBAgent:                 "rta_mongodb_agent",
+	AgentTypeOtelCollector:                   "otel_collector",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports.
