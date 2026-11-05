@@ -13,6 +13,8 @@ import { ComboboxOption } from '@grafana/ui';
 import {
   DETAILS_DASHBOARD_PATH,
   LABEL_FIELDS,
+  MYSQL_SUMMARY_DASHBOARD_PATH,
+  NODE_SUMMARY_DASHBOARD_PATH,
   NO_VALUE,
   ROLE_ORDER,
   UNKNOWN_CLUSTER,
@@ -64,6 +66,7 @@ export const readInstances = (series: DataFrame[], options: AuroraTreeOptions): 
       return;
     }
 
+    const nodeField = findField(frame, LABEL_FIELDS.nodeName, series);
     const regionField = findField(frame, LABEL_FIELDS.region, series);
     const accountField = findField(frame, LABEL_FIELDS.awsAccountId, series);
     const clusterField = findField(frame, LABEL_FIELDS.clusterId, series);
@@ -90,7 +93,11 @@ export const readInstances = (series: DataFrame[], options: AuroraTreeOptions): 
         awsAccountId,
         clusterId,
         serviceName,
+        nodeName: '',
       };
+
+      // The same node_name comes with every query, so the first non-empty one wins.
+      row.nodeName = row.nodeName || toLabel(nodeField, index);
 
       metricFields.forEach(([metric, field]) => {
         const value = toNumber(field?.values[index]);
@@ -143,6 +150,7 @@ export const groupClusters = (rows: InstanceRow[]): AuroraCluster[] => {
 
     cluster.instances.push({
       serviceName: row.serviceName,
+      nodeName: row.nodeName,
       role,
       up: row.up,
       qps: row.qps,
@@ -177,6 +185,17 @@ export const formatValue = (value: number | undefined, unit: string, decimals?: 
 export const getServiceUrl = (serviceName: string) => urlUtil.renderUrl(
   `${config.appSubUrl}${DETAILS_DASHBOARD_PATH}`,
   { 'var-service_name': serviceName },
+);
+
+export const getMysqlSummaryUrl = (serviceName: string) => urlUtil.renderUrl(
+  `${config.appSubUrl}${MYSQL_SUMMARY_DASHBOARD_PATH}`,
+  { 'var-service_name': serviceName },
+);
+
+// RDS-added instances have node_name equal to service_name, so that is the fallback.
+export const getNodeSummaryUrl = (nodeName: string, serviceName: string) => urlUtil.renderUrl(
+  `${config.appSubUrl}${NODE_SUMMARY_DASHBOARD_PATH}`,
+  { 'var-node_name': nodeName || serviceName },
 );
 
 const includesQuery = (value: string, query: string) => value.toLowerCase().includes(query);

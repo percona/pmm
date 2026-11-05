@@ -59,10 +59,22 @@ describe('AuroraTreePanel::', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand all rows' }));
 
-    expect(screen.getAllByRole('link')).toHaveLength(5);
+    expect(screen.getAllByRole('link')).toHaveLength(15);
     expect(screen.getByRole('link', { name: 'database-3-instance-1-reader' })).toHaveAttribute(
       'href',
       '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=database-3-instance-1-reader',
+    );
+    expect(screen.getByRole('link', { name: 'MySQL Instance Summary for database-3-instance-1-reader' })).toHaveAttribute(
+      'href',
+      '/graph/d/mysql-instance-summary/mysql-instance-summary?var-service_name=database-3-instance-1-reader',
+    );
+    expect(screen.getByRole('link', { name: 'Node Summary for database-3-instance-1-reader' })).toHaveAttribute(
+      'href',
+      '/graph/d/node-instance-summary/node-summary?var-node_name=database-3-instance-1-reader',
+    );
+    expect(screen.getByRole('link', { name: 'Node Summary for aurora-stale' })).toHaveAttribute(
+      'href',
+      '/graph/d/node-instance-summary/node-summary?var-node_name=aurora-stale',
     );
     expect(screen.getByText('reader')).toBeInTheDocument();
     expect(screen.getByText('unknown')).toBeInTheDocument();

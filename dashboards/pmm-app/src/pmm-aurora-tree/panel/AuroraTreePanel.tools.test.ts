@@ -7,6 +7,8 @@ import {
   getAccountOptions,
   getClusterOptions,
   getRegionOptions,
+  getMysqlSummaryUrl,
+  getNodeSummaryUrl,
   getServiceUrl,
   getWritersText,
   groupClusters,
@@ -47,10 +49,10 @@ describe('AuroraTreePanel.tools::', () => {
     });
     expect(database3.instances).toEqual([
       {
-        serviceName: 'database-3-instance-1', role: 'writer', up: 1, qps: 20.5,
+        serviceName: 'database-3-instance-1', nodeName: 'database-3-instance-1', role: 'writer', up: 1, qps: 20.5,
       },
       {
-        serviceName: 'database-3-instance-1-reader', role: 'reader', up: 1, qps: 4.25,
+        serviceName: 'database-3-instance-1-reader', nodeName: 'database-3-instance-1-reader', role: 'reader', up: 1, qps: 4.25,
       },
     ]);
   });
@@ -58,7 +60,9 @@ describe('AuroraTreePanel.tools::', () => {
   it('marks an instance without innodb_read_only as unknown role', () => {
     const unknown = clusters[2];
 
-    expect(unknown.instances).toEqual([{ serviceName: 'aurora-stale', role: 'unknown', up: 0 }]);
+    expect(unknown.instances).toEqual([{
+      serviceName: 'aurora-stale', nodeName: '', role: 'unknown', up: 0,
+    }]);
     expect(unknown).toMatchObject({ exportersConnected: 0, writers: 0 });
     expect(unknown.qps).toBeUndefined();
     expect(unknown.storageBytes).toBeUndefined();
@@ -92,6 +96,17 @@ describe('AuroraTreePanel.tools::', () => {
       '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=database-3-instance-1-reader',
     );
     expect(getServiceUrl('db 1')).toBe('/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=db%201');
+  });
+
+  it('links a service to its MySQL Instance Summary', () => {
+    expect(getMysqlSummaryUrl('database-3-instance-1-reader')).toBe(
+      '/graph/d/mysql-instance-summary/mysql-instance-summary?var-service_name=database-3-instance-1-reader',
+    );
+  });
+
+  it('links a node to its Node Summary, falling back to the service name', () => {
+    expect(getNodeSummaryUrl('node-1', 'db-1')).toBe('/graph/d/node-instance-summary/node-summary?var-node_name=node-1');
+    expect(getNodeSummaryUrl('', 'db-1')).toBe('/graph/d/node-instance-summary/node-summary?var-node_name=db-1');
   });
 });
 

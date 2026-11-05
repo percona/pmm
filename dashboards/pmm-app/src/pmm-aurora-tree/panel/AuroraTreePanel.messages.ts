@@ -15,6 +15,10 @@ export const Messages = {
   writersChanging: 'changing',
   up: 'Up',
   down: 'Down',
+  mysqlLink: 'MySQL',
+  mysqlLinkTitle: (serviceName: string) => `MySQL Instance Summary for ${serviceName}`,
+  osLink: 'OS',
+  osLinkTitle: (nodeName: string) => `Node Summary for ${nodeName}`,
   columns: {
     region: 'Region',
     awsAccount: 'AWS account',
@@ -25,6 +29,7 @@ export const Messages = {
     qps: 'Queries/s',
     storage: 'Storage used',
     service: 'Service',
+    links: 'Dashboards',
     role: 'Role',
     status: 'Status',
   },

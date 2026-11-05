@@ -6,6 +6,7 @@ export const LABEL_FIELDS = {
   awsAccountId: 'aws_account_id',
   clusterId: 'aws_cluster_id',
   serviceName: 'service_name',
+  nodeName: 'node_name',
 };
 
 // Prometheus names the value field of instant table query <refId> "Value #<refId>".
@@ -19,6 +20,10 @@ export const DEFAULT_OPTIONS: AuroraTreeOptions = {
 export const UNKNOWN_CLUSTER = 'AWS cluster unknown';
 
 export const DETAILS_DASHBOARD_PATH = '/d/mysql-amazonaurora/mysql-amazon-aurora-details';
+
+export const MYSQL_SUMMARY_DASHBOARD_PATH = '/d/mysql-instance-summary/mysql-instance-summary';
+
+export const NODE_SUMMARY_DASHBOARD_PATH = '/d/node-instance-summary/node-summary';
 
 export const NO_VALUE = '-';
 

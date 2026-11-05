@@ -19,6 +19,8 @@ const labelFields = (rows: string[][]) => [
   { name: 'aws_account_id', type: FieldType.string, values: rows.map((row) => row[1]) },
   { name: 'aws_cluster_id', type: FieldType.string, values: rows.map((row) => row[2]) },
   { name: 'service_name', type: FieldType.string, values: rows.map((row) => row[3]) },
+  // RDS-added instances have node_name equal to service_name; aurora-stale has none.
+  { name: 'node_name', type: FieldType.string, values: rows.map((row) => (row[3] === 'aurora-stale' ? '' : row[3])) },
 ];
 
 // Values per instance, in the order of `instances`; null marks a missing series.

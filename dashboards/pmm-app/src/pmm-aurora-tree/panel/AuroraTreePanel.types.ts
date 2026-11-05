@@ -15,6 +15,7 @@ export interface InstanceRow {
   awsAccountId: string;
   clusterId: string;
   serviceName: string;
+  nodeName: string;
   up?: number;
   readOnly?: number;
   qps?: number;
@@ -23,6 +24,7 @@ export interface InstanceRow {
 
 export interface AuroraInstance {
   serviceName: string;
+  nodeName: string;
   role: InstanceRole;
   up?: number;
   qps?: number;

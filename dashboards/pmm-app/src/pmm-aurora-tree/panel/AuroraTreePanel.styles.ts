@@ -110,6 +110,11 @@ export const getStyles = (theme: GrafanaTheme2) => {
       color: ${text.secondary};
       font-style: italic;
     `,
+    links: css`
+      display: inline-flex;
+      gap: ${theme.spacing(1.5)};
+      font-size: ${theme.typography.bodySmall.fontSize};
+    `,
     link: css`
       color: ${text.link};
 

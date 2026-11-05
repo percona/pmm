@@ -13,7 +13,12 @@ import {
 } from './AuroraTreePanel.constants';
 import { Messages } from './AuroraTreePanel.messages';
 import { getStyles } from './AuroraTreePanel.styles';
-import { formatValue, getServiceUrl } from './AuroraTreePanel.tools';
+import {
+  formatValue,
+  getMysqlSummaryUrl,
+  getNodeSummaryUrl,
+  getServiceUrl,
+} from './AuroraTreePanel.tools';
 import { AuroraInstance, TableColumn } from './AuroraTreePanel.types';
 
 interface InstancesTableProps {
@@ -38,6 +43,32 @@ const StatusCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
     : <span className={styles.bad}>{Messages.down}</span>;
 };
 
+const LinksCell = ({ row: { original } }: CellProps<AuroraInstance>) => {
+  const styles = useStyles2(getStyles);
+  const nodeName = original.nodeName || original.serviceName;
+
+  return (
+    <span className={styles.links}>
+      <a
+        className={styles.link}
+        href={getMysqlSummaryUrl(original.serviceName)}
+        title={Messages.mysqlLinkTitle(original.serviceName)}
+        aria-label={Messages.mysqlLinkTitle(original.serviceName)}
+      >
+        {Messages.mysqlLink}
+      </a>
+      <a
+        className={styles.link}
+        href={getNodeSummaryUrl(original.nodeName, original.serviceName)}
+        title={Messages.osLinkTitle(nodeName)}
+        aria-label={Messages.osLinkTitle(nodeName)}
+      >
+        {Messages.osLink}
+      </a>
+    </span>
+  );
+};
+
 const QpsCell = ({ row: { original } }: CellProps<AuroraInstance>) => (
   <>{formatValue(original.qps, QPS_UNIT, QPS_DECIMALS)}</>
 );
@@ -54,6 +85,7 @@ export const InstancesTable: FC<InstancesTableProps> = ({ instances }) => {
         </a>
       ),
     },
+    { id: 'nodeName', header: Messages.columns.links, cell: LinksCell },
     { id: 'role', header: Messages.columns.role, cell: RoleCell },
     { id: 'up', header: Messages.columns.status, cell: StatusCell },
     { id: 'qps', header: Messages.columns.qps, cell: QpsCell },
