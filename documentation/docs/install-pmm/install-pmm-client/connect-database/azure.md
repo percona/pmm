@@ -120,7 +120,7 @@ To get the tenant ID, client ID and the client secret:
 ![!](../../../images/azure_app_permissions_03.png)
 ![!](../../../images/azure_app_permissions_04.png)
 
-When you fill in all fields press the **Discover** button and you will see a list of available databases for monitoring.
+After you fill in all four fields, click **Discover** to see a list of the databases available for monitoring.
 
 ![!](../../../images/PMM_Add_Instance_Azure_2.png)
 
@@ -143,9 +143,9 @@ You can find more details on how to create DB on Azure at:
 
 ![!](../../../images/PMM_Add_Instance_Azure_3.png)
 
-In the list of databases on the **Discovery** page click **Start Monitoring** to add the selected Azure Database to PMM.
+In the list of databases, click **Start monitoring** next to the Azure database that you want to add to PMM.
 
-Fill in all required fields. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 5s. Click **Add service**.
+Fill in all required fields, which are marked with an asterisk (*). To go back to the list of databases without adding the service, click **Cancel** or **Discovered instances** at the top of the page. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 2s. Click **Add service**.
 
 PMM can use 3 exporters to collect metrics:
 

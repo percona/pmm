@@ -23,7 +23,7 @@ To add a MySQL instance on Google Cloud:
 
 5. Log into the PMM user interface.
 
-6. Select **Inventory > Add Service > MySQL**.
+6. Select **Inventory > Add service > MySQL**.
 
 7. Fill in the details for the remote MySQL instance and make sure to enable the **Use performance schema** option.
 
@@ -45,7 +45,7 @@ Google Cloud SQL MySQL requires only the CA certificate for TLS connections. Cli
     1. Go to **Inventory > Add service > MySQL**.
     2. Fill in the connection details (host, port, username, password).
     3. Enable **Use performance schema** option.
-    4. Check **Use TLS for database connections**.
+    4. Turn on **Use TLS for database connections**.
     5. Paste the server CA certificate content in the **TLS CA** field.
     6. Click **Add service**.
 
@@ -117,7 +117,7 @@ To add a PostgreSQL instance on Google Cloud:
 
 5. Select **Inventory > Add service > PostgreSQL**.
 
-6. Fill in the details for the remote PostgreSQL instance and make sure to **PG Stat Statements** option under **Stat tracking options**.
+6. Fill in the details for the remote PostgreSQL instance and make sure to select **PG Stat Statements** under **Stat tracking options**.
 
 7. Click **Add service**.
 

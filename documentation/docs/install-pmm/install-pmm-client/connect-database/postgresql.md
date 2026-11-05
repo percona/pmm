@@ -322,20 +322,20 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to  **Inventory > Add service > PostgreSQL**.
+    1. Go to **Inventory > Add service > PostgreSQL**.
     
-    2. Enter or select values for the fields.
-
-    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
-
-    4. Click **Add service**.
+    2. Enter or select values for the fields. Required fields are marked with an asterisk (*).
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, turn on **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
+
+    4. If using TLS, turn on **Use TLS for database connections** and fill in your TLS certificates and key. The **Skip TLS certificate and hostname validation** option appears after you turn on TLS.
     For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
     
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
     See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
+
+    5. Click **Add service**.
 
 ### Configure auto-discovery
 

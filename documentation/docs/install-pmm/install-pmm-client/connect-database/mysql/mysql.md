@@ -518,26 +518,27 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **Inventory > Add Service**.
+    1. Go to **Inventory > Add service**.
     
     2. Select **MySQL** service type.
     
-    3. Enter or select values for the fields:
+    3. Enter or select values for the fields. Required fields are marked with an asterisk (*):
 
-        - **Service Name**: A descriptive name for your MySQL instance
-        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
+        - **Service name**: A descriptive name for your MySQL instance
+        - **Nodes** and **Agents**: Select the node and the PMM agent that should monitor this instance
+        - **Hostname**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
         - **Port**: MySQL port (default: 3306)
         - **Username**: The PMM user created earlier
         - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
-        - **PMM Agent**: Select which PMM agent should monitor this instance
-        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Max query length**: A number; enter `-1` for no limit, or leave empty to use the server default
+        - **Use performance schema**: Turn on to collect Query Analytics data from Performance Schema
+        - **Disable query examples**: Turn on this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
         - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
 
-    4. Click **Add Service**.
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
+    4. If using TLS, turn on **Use TLS for database connections** and fill in your TLS certificates and key information. The **Skip TLS certificate and hostname validation** option appears after you turn on TLS.
     ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
+
+    5. Click **Add service**.
 
 #### TLS/SSL certificate configuration
 

@@ -418,11 +418,11 @@ After configuring your database server, add a MongoDB service using either the u
 
     1. Select **Inventory > Add service > MongoDB**.
 
-    2. Fill in the required fields.
+    2. Fill in the required fields, which are marked with an asterisk (*).
 
     3. Click **Add service**.
 
-    ![!](../../../images/PMM_Add_Instance_MongoDB.jpg)
+    ![!](../../../images/PMM_Add_Instance_MongoDB.png)
 
 === "With environment variables"
     Use `--agent-env-vars` to pass environment variables from `pmm-agent` to `mongodb_exporter`:
