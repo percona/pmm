@@ -332,7 +332,10 @@ func TestInventoryEnabledSyncUsesTheSharedTokenInsideARequest(t *testing.T) {
 	// A ChangeSettings request carries an admin's credential, but the ENABLED route admits only the shared token.
 	stub := newSEPStub(t, http.StatusOK, `{}`)
 
-	stub.service(t).SyncInventoryEnabled(callerContext(t, "authorization", "Bearer glsa_admin"), false)
+	svc := stub.service(t)
+	svc.db = switchDB(t, false)
+
+	svc.SyncInventoryEnabled(callerContext(t, "authorization", "Bearer glsa_admin"), false)
 
 	require.Len(t, stub.calls, 1)
 	assert.Equal(t, "/api/apps/om_inventory/enabled", stub.calls[0].path)

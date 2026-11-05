@@ -2166,6 +2166,12 @@ func TestInventoryErrorMapping(t *testing.T) {
 			hides: true,
 		},
 		{
+			name: "an app that cannot serve now is unavailable",
+			code: http.StatusServiceUnavailable,
+			body: `{"detail": "Operations Inventory is switched off"}`,
+			want: codes.Unavailable,
+		},
+		{
 			name: "anything else is internal",
 			code: http.StatusInternalServerError,
 			body: `{"detail": "boom"}`,

@@ -159,9 +159,7 @@ type inventoryCall struct {
 	method string
 	path   string
 	query  url.Values
-	// With sendEmptyBody, a nil body is sent as `{}`: FastAPI rejects a bodyless POST against a typed body.
-	body          any
-	sendEmptyBody bool
+	body   any
 }
 
 func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error {
@@ -172,7 +170,7 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	if err != nil {
 		return err
 	}
-	req, err := a.request(ctx, cred.bearer, c.method, c.path, c.query, c.body, c.sendEmptyBody)
+	req, err := a.request(ctx, cred.bearer, c.method, c.path, c.query, c.body)
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to build the request: %s", err)
 	}
@@ -212,6 +210,8 @@ func extensionsStatusError(resp *http.Response, callers bool) error {
 		return status.Error(codes.Aborted, detail)
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		return status.Error(codes.InvalidArgument, detail)
+	case http.StatusServiceUnavailable:
+		return status.Error(codes.Unavailable, detail)
 	case http.StatusUnauthorized, http.StatusForbidden:
 		// A rejected shared token is PMM's own fault, so it must not tell the browser to sign in again.
 		if !callers {

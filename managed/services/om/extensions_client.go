@@ -28,8 +28,6 @@ import (
 	"sync"
 
 	"golang.org/x/sync/singleflight"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type extensionsClient struct {
@@ -106,22 +104,19 @@ func (a extensionsApp) endpoint(path string) string {
 	return strings.TrimSuffix(a.client.baseURL, "/") + "/" + a.path + "/" + strings.TrimPrefix(path, "/")
 }
 
-func (a extensionsApp) request(ctx context.Context, bearer, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
+func (a extensionsApp) request(ctx context.Context, bearer, method, path string, query url.Values, body any) (*http.Request, error) {
 	endpoint := a.endpoint(path)
 	if len(query) > 0 {
 		endpoint += "?" + query.Encode()
 	}
 
 	var payload []byte
-	switch {
-	case body != nil:
+	if body != nil {
 		encoded, err := json.Marshal(body)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encode the request: %w", err)
 		}
 		payload = encoded
-	case sendEmptyBody:
-		payload = []byte("{}")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, endpoint, bytes.NewReader(payload))
@@ -139,14 +134,4 @@ func (a extensionsApp) request(ctx context.Context, bearer, method, path string,
 
 func (a extensionsApp) setEnabled(ctx context.Context, enabled bool) error {
 	return a.call(ctx, inventoryCall{method: http.MethodPut, path: "enabled", body: map[string]bool{"enabled": enabled}}, nil)
-}
-
-// triggerRun queues a full-estate probe sweep. A 409 means a sweep is already in flight, which is
-// just as good.
-func (a extensionsApp) triggerRun(ctx context.Context) error {
-	err := a.call(ctx, inventoryCall{method: http.MethodPost, path: "runs", sendEmptyBody: true}, nil)
-	if status.Code(err) == codes.Aborted {
-		return nil
-	}
-	return err
 }
