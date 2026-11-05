@@ -80,6 +80,19 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventoryv1.ListNodesR
 	return res, nil
 }
 
+// ListActiveNodeTypes returns the Node types present in the inventory.
+func (s *nodesServer) ListActiveNodeTypes(
+	ctx context.Context,
+	_ *inventoryv1.ListActiveNodeTypesRequest,
+) (*inventoryv1.ListActiveNodeTypesResponse, error) {
+	types, err := s.svc.ListActiveNodeTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inventoryv1.ListActiveNodeTypesResponse{NodeTypes: types}, nil
+}
+
 // GetNode returns a single Node by ID.
 func (s *nodesServer) GetNode(ctx context.Context, req *inventoryv1.GetNodeRequest) (*inventoryv1.GetNodeResponse, error) {
 	node, err := s.svc.Get(ctx, req)

@@ -149,6 +149,34 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 	return nodes, nil
 }
 
+// FindActiveNodeTypes returns the distinct Node types present in the inventory.
+func FindActiveNodeTypes(q *reform.Querier) ([]NodeType, error) {
+	rows, err := q.Query("SELECT DISTINCT node_type FROM " + NodeTable.s.SQLName + " ORDER BY node_type")
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		rowsErr := rows.Close()
+		if rowsErr != nil {
+			logrus.Debug(rowsErr)
+		}
+	}()
+
+	var res []NodeType
+	for rows.Next() {
+		var nodeType NodeType
+		err = rows.Scan(&nodeType)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, nodeType)
+	}
+
+	return res, rows.Err()
+}
+
 // FindNodeByID finds a Node by ID.
 func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	if id == "" {
