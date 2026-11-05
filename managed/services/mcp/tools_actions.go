@@ -40,6 +40,7 @@ const (
 
 	pollInitialDelay = 300 * time.Millisecond
 	pollMaxDelay     = 2 * time.Second
+	cancelTimeout    = 5 * time.Second
 	pollBackoff      = 1.5
 
 	formatJSON        = "json"
@@ -419,6 +420,7 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 	for {
 		res, err := s.api.GetAction(ctx, auth, actionID)
 		if err != nil {
+			s.cancelAction(ctx, auth, actionID)
 			return "", s.deadlineOr(ctx, actionID, err)
 		}
 		if res.Done {
@@ -429,10 +431,23 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 		}
 		select {
 		case <-ctx.Done():
+			s.cancelAction(ctx, auth, actionID)
 			return "", s.deadlineOr(ctx, actionID, ctx.Err())
 		case <-time.After(delay):
 		}
 		delay = min(time.Duration(float64(delay)*pollBackoff), pollMaxDelay)
+	}
+}
+
+// cancelAction cancels an unfinished action on pmm-agent. It runs on a context
+// that outlives the call's, since the call's has already ended.
+func (s *Service) cancelAction(ctx context.Context, auth callerAuth, actionID string) {
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cancelTimeout)
+	defer cancel()
+
+	err := s.api.CancelAction(ctx, auth, actionID)
+	if err != nil {
+		s.l.WithField("action_id", actionID).WithError(err).Warn("Cannot cancel the action.")
 	}
 }
 

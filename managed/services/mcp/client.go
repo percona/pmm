@@ -317,6 +317,13 @@ func (c *client) GetAction(ctx context.Context, auth callerAuth, actionID string
 	return res.Payload, nil
 }
 
+func (c *client) CancelAction(ctx context.Context, auth callerAuth, actionID string) error {
+	params := actions_service.NewCancelActionParamsWithContext(ctx).WithTimeout(callTimeout).
+		WithBody(actions_service.CancelActionBody{ActionID: actionID})
+	_, err := c.actions.ActionsService.CancelAction(params, auth.option())
+	return err
+}
+
 // GetDatasourceByName returns the Grafana datasource with the given name.
 func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error) {
 	var out datasource
