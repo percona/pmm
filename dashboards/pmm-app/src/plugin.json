@@ -41,6 +41,10 @@
       "name": "pmm-qan-app-panel"
     },
     {
+      "type": "panel",
+      "name": "pmm-aurora-tree-panel"
+    },
+    {
       "type": "dashboard",
       "name": "Home Dashboard",
       "path": "dashboards/Insight/Home_Dashboard.json",
