@@ -61,10 +61,14 @@ export interface ClusterSort {
   desc: boolean;
 }
 
-export interface ClusterFilters {
-  query: string;
+export interface ClusterSelection {
+  regions: string[];
   accounts: string[];
   clusters: string[];
+}
+
+export interface ClusterFilters extends ClusterSelection {
+  query: string;
 }
 
 export interface FilteredClusters {

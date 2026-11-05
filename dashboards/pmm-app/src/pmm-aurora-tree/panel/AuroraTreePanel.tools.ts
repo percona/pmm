@@ -4,8 +4,6 @@ import {
   formattedValueToString,
   getFieldDisplayName,
   getValueFormat,
-  TimeRange,
-  toURLRange,
   UrlQueryMap,
   UrlQueryValue,
   urlUtil,
@@ -25,6 +23,7 @@ import {
   AuroraCluster,
   AuroraTreeOptions,
   ClusterFilters,
+  ClusterSelection,
   FilteredClusters,
   InstanceRole,
   InstanceRow,
@@ -174,17 +173,15 @@ export const formatValue = (value: number | undefined, unit: string, decimals?: 
   value === undefined ? NO_VALUE : formattedValueToString(getValueFormat(unit)(value, decimals))
 );
 
-export const getServiceUrl = (serviceName: string, timeRange: TimeRange) => {
-  const { from, to } = toURLRange(timeRange.raw);
-
-  return urlUtil.renderUrl(`${config.appSubUrl}${DETAILS_DASHBOARD_PATH}`, {
-    'var-service_name': serviceName,
-    from: String(from),
-    to: String(to),
-  });
-};
+// No time range: the overview shows current state, so Details opens with its own default range.
+export const getServiceUrl = (serviceName: string) => urlUtil.renderUrl(
+  `${config.appSubUrl}${DETAILS_DASHBOARD_PATH}`,
+  { 'var-service_name': serviceName },
+);
 
 const includesQuery = (value: string, query: string) => value.toLowerCase().includes(query);
+
+const isSelected = (selected: string[], value: string) => !selected.length || selected.includes(value);
 
 // Plain substring match: subsequence matching would hit nearly every row, since all names share
 // words like "database", "instance" and "aurora".
@@ -192,8 +189,9 @@ export const filterClusters = (clusters: AuroraCluster[], filters: ClusterFilter
   const query = filters.query.trim().toLowerCase();
   const autoExpanded = new Set<string>();
   const matching = clusters
-    .filter((cluster) => !filters.accounts.length || filters.accounts.includes(cluster.awsAccountId))
-    .filter((cluster) => !filters.clusters.length || filters.clusters.includes(cluster.clusterId))
+    .filter((cluster) => isSelected(filters.regions, cluster.region)
+      && isSelected(filters.accounts, cluster.awsAccountId)
+      && isSelected(filters.clusters, cluster.clusterId))
     .reduce<AuroraCluster[]>((acc, cluster) => {
       const clusterFields = [cluster.clusterId, cluster.awsAccountId, cluster.region];
 
@@ -216,7 +214,12 @@ export const filterClusters = (clusters: AuroraCluster[], filters: ClusterFilter
   return { clusters: matching, autoExpanded };
 };
 
-const toOptions = (clusters: AuroraCluster[], getValue: (cluster: AuroraCluster) => string) => {
+// One option per distinct value; the description lists the regions the value occurs in.
+const toOptions = (
+  clusters: AuroraCluster[],
+  getValue: (cluster: AuroraCluster) => string,
+  withRegions = true,
+) => {
   const regions = new Map<string, Set<string>>();
 
   clusters.forEach((cluster) => {
@@ -227,25 +230,47 @@ const toOptions = (clusters: AuroraCluster[], getValue: (cluster: AuroraCluster)
     }
   });
 
-  return [...regions.entries()].map(([value, valueRegions]): ComboboxOption => ({
-    label: value,
-    value,
-    description: [...valueRegions].sort().join(', '),
-  }));
+  return [...regions.entries()]
+    .map(([value, valueRegions]): ComboboxOption => ({
+      label: value,
+      value,
+      ...(withRegions && { description: [...valueRegions].sort().join(', ') }),
+    }))
+    .sort((a, b) => Number(a.value === UNKNOWN_CLUSTER) - Number(b.value === UNKNOWN_CLUSTER)
+      || a.value.localeCompare(b.value));
 };
 
-const byValue = (a: ComboboxOption, b: ComboboxOption) => Number(a.value === UNKNOWN_CLUSTER)
-  - Number(b.value === UNKNOWN_CLUSTER) || a.value.localeCompare(b.value);
-
-export const getAccountOptions = (clusters: AuroraCluster[]) => toOptions(
+export const getRegionOptions = (clusters: AuroraCluster[]) => toOptions(
   clusters,
-  (cluster) => cluster.awsAccountId,
-).sort(byValue);
+  (cluster) => cluster.region,
+  false,
+);
 
-export const getClusterOptions = (clusters: AuroraCluster[], accounts: string[]) => toOptions(
-  clusters.filter((cluster) => !accounts.length || accounts.includes(cluster.awsAccountId)),
+export const getAccountOptions = (clusters: AuroraCluster[], regions: string[]) => toOptions(
+  clusters.filter((cluster) => isSelected(regions, cluster.region)),
+  (cluster) => cluster.awsAccountId,
+);
+
+export const getClusterOptions = (
+  clusters: AuroraCluster[],
+  { regions, accounts }: Omit<ClusterSelection, 'clusters'>,
+) => toOptions(
+  clusters.filter((cluster) => isSelected(regions, cluster.region)
+    && isSelected(accounts, cluster.awsAccountId)),
   (cluster) => cluster.clusterId,
-).sort(byValue);
+);
+
+const hasOption = (options: ComboboxOption[]) => (value: string) => options
+  .some((option) => option.value === value);
+
+// Drops selected accounts and clusters that the selected regions (and accounts) no longer offer.
+export const narrowSelection = (clusters: AuroraCluster[], selection: ClusterSelection): ClusterSelection => {
+  const { regions } = selection;
+  const accounts = selection.accounts.filter(hasOption(getAccountOptions(clusters, regions)));
+  const clusterOptions = getClusterOptions(clusters, { regions, accounts });
+
+  return { regions, accounts, clusters: selection.clusters.filter(hasOption(clusterOptions)) };
+};
 
 const toList = (value: UrlQueryValue): string[] => {
   if (value === undefined || value === null) {
@@ -257,13 +282,17 @@ const toList = (value: UrlQueryValue): string[] => {
 
 export const readFilters = (search: UrlQueryMap): ClusterFilters => ({
   query: toList(search[URL_PARAMS.query])[0] ?? '',
+  regions: toList(search[URL_PARAMS.regions]),
   accounts: toList(search[URL_PARAMS.accounts]),
   clusters: toList(search[URL_PARAMS.clusters]),
 });
 
 // null removes a parameter from the URL.
-export const toUrlQuery = ({ query, accounts, clusters }: ClusterFilters): UrlQueryMap => ({
+export const toUrlQuery = ({
+  query, regions, accounts, clusters,
+}: ClusterFilters): UrlQueryMap => ({
   [URL_PARAMS.query]: query || null,
+  [URL_PARAMS.regions]: regions.length ? regions : null,
   [URL_PARAMS.accounts]: accounts.length ? accounts : null,
   [URL_PARAMS.clusters]: clusters.length ? clusters : null,
 });

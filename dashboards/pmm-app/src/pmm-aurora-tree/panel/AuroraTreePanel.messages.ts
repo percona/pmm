@@ -3,6 +3,7 @@ export const Messages = {
   noMatch: 'No clusters match the filters',
   clearFilters: 'Clear filters',
   searchPlaceholder: 'Search clusters, instances, accounts',
+  allRegions: 'All regions',
   allAccounts: 'All accounts',
   allClusters: 'All clusters',
   shownClusters: (shown: number, total: number) => `${shown} of ${total} clusters`,

@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { TimeRange } from '@grafana/data';
 import { Icon, IconButton, useStyles2 } from '@grafana/ui';
 import {
   QPS_DECIMALS,
@@ -23,7 +22,6 @@ interface ClusterTableProps {
   autoExpanded: Set<string>;
   // Rows the user expanded or collapsed are forgotten when this changes (the search text).
   expansionKey: string;
-  timeRange: TimeRange;
 }
 
 const ClusterName: FC<{ cluster: AuroraCluster }> = ({ cluster }) => {
@@ -107,7 +105,7 @@ const getAriaSort = (sort: ClusterSort | undefined, id: string) => {
 };
 
 export const ClusterTable: FC<ClusterTableProps> = ({
-  clusters, autoExpanded, expansionKey, timeRange,
+  clusters, autoExpanded, expansionKey,
 }) => {
   const styles = useStyles2(getStyles);
   const [sort, setSort] = useState<ClusterSort>();
@@ -176,7 +174,7 @@ export const ClusterTable: FC<ClusterTableProps> = ({
                 <tr id={contentId}>
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label -- holds a table */}
                   <td className={styles.expandedCell} colSpan={COLUMNS.length + 1}>
-                    <InstancesTable instances={cluster.instances} timeRange={timeRange} />
+                    <InstancesTable instances={cluster.instances} />
                   </td>
                 </tr>
               )}

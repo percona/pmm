@@ -7,34 +7,55 @@ import {
   filterClusters,
   getAccountOptions,
   getClusterOptions,
+  getRegionOptions,
   groupClusters,
+  narrowSelection,
   readInstances,
 } from './AuroraTreePanel.tools';
-import { AuroraTreeOptions } from './AuroraTreePanel.types';
+import { AuroraTreeOptions, ClusterSelection } from './AuroraTreePanel.types';
 import { ClusterTable } from './ClusterTable';
-import { Toolbar } from './Toolbar';
+import { SelectFilter, Toolbar } from './Toolbar';
 import { useClusterFilters } from './useClusterFilters';
 
-export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, options, timeRange }) => {
+export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, options }) => {
   const styles = useStyles2(getStyles);
   const {
-    search, setSearch, filters, setAccounts, setClusters, clear,
+    search, setSearch, filters, setSelection, clear,
   } = useClusterFilters();
   const clusters = useMemo(() => groupClusters(readInstances(data.series, options)), [data.series, options]);
-  const accountOptions = useMemo(() => getAccountOptions(clusters), [clusters]);
-  const clusterOptions = useMemo(
-    () => getClusterOptions(clusters, filters.accounts),
-    [clusters, filters.accounts],
-  );
   const filtered = useMemo(() => filterClusters(clusters, filters), [clusters, filters]);
+  const selects = useMemo((): SelectFilter[] => {
+    const select = (changed: Partial<ClusterSelection>) => setSelection(
+      narrowSelection(clusters, { ...filters, ...changed }),
+    );
 
-  // Selected clusters outside the selected accounts would hide everything, so they are dropped.
-  const onAccountsChange = (accounts: string[]) => {
-    const allowed = getClusterOptions(clusters, accounts).map(({ value }) => value);
-
-    setAccounts(accounts);
-    setClusters(filters.clusters.filter((cluster) => allowed.includes(cluster)));
-  };
+    return [
+      {
+        id: 'aurora-tree-region',
+        label: Messages.columns.region,
+        placeholder: Messages.allRegions,
+        options: getRegionOptions(clusters),
+        value: filters.regions,
+        onChange: (regions) => select({ regions }),
+      },
+      {
+        id: 'aurora-tree-account',
+        label: Messages.columns.awsAccount,
+        placeholder: Messages.allAccounts,
+        options: getAccountOptions(clusters, filters.regions),
+        value: filters.accounts,
+        onChange: (accounts) => select({ accounts }),
+      },
+      {
+        id: 'aurora-tree-cluster',
+        label: Messages.columns.cluster,
+        placeholder: Messages.allClusters,
+        options: getClusterOptions(clusters, filters),
+        value: filters.clusters,
+        onChange: (ids) => select({ clusters: ids }),
+      },
+    ];
+  }, [clusters, filters, setSelection]);
 
   if (!clusters.length) {
     return <div className={styles.empty}>{Messages.noData}</div>;
@@ -45,12 +66,7 @@ export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, optio
       <Toolbar
         search={search}
         onSearchChange={setSearch}
-        accounts={filters.accounts}
-        accountOptions={accountOptions}
-        onAccountsChange={onAccountsChange}
-        clusters={filters.clusters}
-        clusterOptions={clusterOptions}
-        onClustersChange={setClusters}
+        selects={selects}
         shown={filtered.clusters.length}
         total={clusters.length}
       />
@@ -59,7 +75,6 @@ export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, optio
           clusters={filtered.clusters}
           autoExpanded={filtered.autoExpanded}
           expansionKey={filters.query}
-          timeRange={timeRange}
         />
       ) : (
         <div className={styles.empty}>

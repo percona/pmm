@@ -1,5 +1,4 @@
 import React, { FC, useMemo } from 'react';
-import { TimeRange } from '@grafana/data';
 import {
   Badge,
   CellProps,
@@ -19,7 +18,6 @@ import { AuroraInstance, TableColumn } from './AuroraTreePanel.types';
 
 interface InstancesTableProps {
   instances: AuroraInstance[];
-  timeRange: TimeRange;
 }
 
 const getInstanceId = (instance: AuroraInstance) => instance.serviceName;
@@ -44,14 +42,14 @@ const QpsCell = ({ row: { original } }: CellProps<AuroraInstance>) => (
   <>{formatValue(original.qps, QPS_UNIT, QPS_DECIMALS)}</>
 );
 
-export const InstancesTable: FC<InstancesTableProps> = ({ instances, timeRange }) => {
+export const InstancesTable: FC<InstancesTableProps> = ({ instances }) => {
   const styles = useStyles2(getStyles);
   const columns = useMemo((): Array<TableColumn<AuroraInstance>> => [
     {
       id: 'serviceName',
       header: Messages.columns.service,
       cell: ({ row: { original } }) => (
-        <a className={styles.link} href={getServiceUrl(original.serviceName, timeRange)}>
+        <a className={styles.link} href={getServiceUrl(original.serviceName)}>
           {original.serviceName}
         </a>
       ),
@@ -59,7 +57,7 @@ export const InstancesTable: FC<InstancesTableProps> = ({ instances, timeRange }
     { id: 'role', header: Messages.columns.role, cell: RoleCell },
     { id: 'up', header: Messages.columns.status, cell: StatusCell },
     { id: 'qps', header: Messages.columns.qps, cell: QpsCell },
-  ], [styles, timeRange]);
+  ], [styles]);
 
   return <InteractiveTable columns={columns} data={instances} getRowId={getInstanceId} />;
 };

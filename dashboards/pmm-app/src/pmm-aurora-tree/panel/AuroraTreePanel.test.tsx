@@ -62,8 +62,7 @@ describe('AuroraTreePanel::', () => {
     expect(screen.getAllByRole('link')).toHaveLength(5);
     expect(screen.getByRole('link', { name: 'database-3-instance-1-reader' })).toHaveAttribute(
       'href',
-      '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details'
-      + '?var-service_name=database-3-instance-1-reader&from=now-12h&to=now',
+      '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=database-3-instance-1-reader',
     );
     expect(screen.getByText('reader')).toBeInTheDocument();
     expect(screen.getByText('unknown')).toBeInTheDocument();
@@ -86,6 +85,7 @@ describe('AuroraTreePanel::', () => {
     renderPanel([mergedFrame]);
 
     expect(screen.getByPlaceholderText('Search clusters, instances, accounts')).toBeInTheDocument();
+    expect(screen.getByLabelText('Region')).toBeInTheDocument();
     expect(screen.getByLabelText('AWS account')).toBeInTheDocument();
     expect(screen.getByLabelText('Cluster')).toBeInTheDocument();
     expect(screen.getByText('4 of 4 clusters')).toBeInTheDocument();
@@ -102,9 +102,20 @@ describe('AuroraTreePanel::', () => {
     expect(screen.getByRole('link', { name: 'database-3-instance-1-reader' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'database-3-instance-1' })).not.toBeInTheDocument();
     expect(locationService.partial).toHaveBeenLastCalledWith(
-      { 'aurora-q': 'reader', 'aurora-account': null, 'aurora-cluster': null },
+      {
+        'aurora-q': 'reader', 'aurora-region': null, 'aurora-account': null, 'aurora-cluster': null,
+      },
       true,
     );
+  });
+
+  it('restores the region filter from the URL', () => {
+    mockSearch.current = { 'aurora-region': 'eu-north-1' };
+    renderPanel([mergedFrame]);
+
+    expect(screen.getByText('3 of 4 clusters')).toBeInTheDocument();
+    expect(screen.getByText('AWS cluster unknown')).toBeInTheDocument();
+    expect(screen.queryByText('pmm-qa-aurora3-mysql')).not.toBeInTheDocument();
   });
 
   it('restores filters from the URL', () => {

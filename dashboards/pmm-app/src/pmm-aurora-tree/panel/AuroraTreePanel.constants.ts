@@ -32,6 +32,7 @@ export const SEARCH_DEBOUNCE_MS = 200;
 
 export const URL_PARAMS = {
   query: 'aurora-q',
+  regions: 'aurora-region',
   accounts: 'aurora-account',
   clusters: 'aurora-cluster',
 };

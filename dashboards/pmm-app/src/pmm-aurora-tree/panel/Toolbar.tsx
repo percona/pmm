@@ -9,32 +9,25 @@ import {
 import { Messages } from './AuroraTreePanel.messages';
 import { getStyles } from './AuroraTreePanel.styles';
 
+export interface SelectFilter {
+  id: string;
+  label: string;
+  placeholder: string;
+  options: ComboboxOption[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}
+
 interface ToolbarProps {
   search: string;
   onSearchChange: (search: string) => void;
-  accounts: string[];
-  accountOptions: ComboboxOption[];
-  onAccountsChange: (accounts: string[]) => void;
-  clusters: string[];
-  clusterOptions: ComboboxOption[];
-  onClustersChange: (clusters: string[]) => void;
+  selects: SelectFilter[];
   shown: number;
   total: number;
 }
 
-const toValues = (options: ComboboxOption[]) => options.map(({ value }) => value);
-
 export const Toolbar: FC<ToolbarProps> = ({
-  search,
-  onSearchChange,
-  accounts,
-  accountOptions,
-  onAccountsChange,
-  clusters,
-  clusterOptions,
-  onClustersChange,
-  shown,
-  total,
+  search, onSearchChange, selects, shown, total,
 }) => {
   const styles = useStyles2(getStyles);
 
@@ -49,32 +42,23 @@ export const Toolbar: FC<ToolbarProps> = ({
           aria-label={Messages.searchPlaceholder}
         />
       </div>
-      <InlineField label={Messages.columns.awsAccount}>
-        <MultiCombobox
-          id="aurora-tree-account"
-          options={accountOptions}
-          value={accounts}
-          onChange={(options) => onAccountsChange(toValues(options))}
-          placeholder={Messages.allAccounts}
-          isClearable
-          width="auto"
-          minWidth={20}
-          maxWidth={40}
-        />
-      </InlineField>
-      <InlineField label={Messages.columns.cluster}>
-        <MultiCombobox
-          id="aurora-tree-cluster"
-          options={clusterOptions}
-          value={clusters}
-          onChange={(options) => onClustersChange(toValues(options))}
-          placeholder={Messages.allClusters}
-          isClearable
-          width="auto"
-          minWidth={20}
-          maxWidth={40}
-        />
-      </InlineField>
+      {selects.map(({
+        id, label, placeholder, options, value, onChange,
+      }) => (
+        <InlineField key={id} label={label}>
+          <MultiCombobox
+            id={id}
+            options={options}
+            value={value}
+            onChange={(selected) => onChange(selected.map((option) => option.value))}
+            placeholder={placeholder}
+            isClearable
+            width="auto"
+            minWidth={18}
+            maxWidth={40}
+          />
+        </InlineField>
+      ))}
       <span className={styles.count}>{Messages.shownClusters(shown, total)}</span>
     </div>
   );

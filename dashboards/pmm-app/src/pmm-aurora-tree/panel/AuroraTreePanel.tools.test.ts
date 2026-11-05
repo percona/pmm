@@ -1,15 +1,16 @@
-import { dateTime } from '@grafana/data';
 import { DEFAULT_OPTIONS } from './AuroraTreePanel.constants';
-import { mergedFrame, timeRange, unmergedFrames } from './AuroraTreePanel.mocks';
+import { mergedFrame, unmergedFrames } from './AuroraTreePanel.mocks';
 import {
   compareSortValues,
   filterClusters,
   formatValue,
   getAccountOptions,
   getClusterOptions,
+  getRegionOptions,
   getServiceUrl,
   getWritersText,
   groupClusters,
+  narrowSelection,
   readFilters,
   readInstances,
   toUrlQuery,
@@ -86,26 +87,20 @@ describe('AuroraTreePanel.tools::', () => {
     expect(formatValue(5 * 1024 * 1024 * 1024, 'bytes')).toBe('5 GiB');
   });
 
-  it('links a service to its details dashboard under the Grafana sub-path with the time range', () => {
-    expect(getServiceUrl('database-3-instance-1-reader', timeRange)).toBe(
-      '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details'
-      + '?var-service_name=database-3-instance-1-reader&from=now-12h&to=now',
+  it('links a service to its details dashboard under the Grafana sub-path without a time range', () => {
+    expect(getServiceUrl('database-3-instance-1-reader')).toBe(
+      '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=database-3-instance-1-reader',
     );
-  });
-
-  it('uses epoch milliseconds for an absolute time range', () => {
-    const from = dateTime(1700000000000);
-    const to = dateTime(1700003600000);
-
-    expect(getServiceUrl('db 1', { from, to, raw: { from, to } })).toBe(
-      '/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=db%201&from=1700000000000&to=1700003600000',
-    );
+    expect(getServiceUrl('db 1')).toBe('/graph/d/mysql-amazonaurora/mysql-amazon-aurora-details?var-service_name=db%201');
   });
 });
 
 describe('AuroraTreePanel.tools:: filters', () => {
   const clusters = groupClusters(readInstances([mergedFrame], DEFAULT_OPTIONS));
-  const noFilters: ClusterFilters = { query: '', accounts: [], clusters: [] };
+  const noFilters: ClusterFilters = {
+    query: '', regions: [], accounts: [], clusters: [],
+  };
+  const values = (options: Array<{ value: string }>) => options.map(({ value }) => value);
   const filter = (filters: Partial<ClusterFilters>) => filterClusters(clusters, { ...noFilters, ...filters });
   const clusterIds = (filters: Partial<ClusterFilters>) => filter(filters).clusters
     .map(({ clusterId }) => clusterId);
@@ -152,36 +147,95 @@ describe('AuroraTreePanel.tools:: filters', () => {
     expect(filter({ query: 'no-such-cluster' })).toEqual({ clusters: [], autoExpanded: new Set() });
   });
 
-  it('builds account options without the empty account of the unknown group', () => {
-    expect(getAccountOptions(clusters)).toEqual([
-      { label: '111111111111', value: '111111111111', description: 'eu-north-1' },
-      { label: '222222222222', value: '222222222222', description: 'us-east-2' },
+  it('filters by region, alone and combined with the other filters', () => {
+    expect(clusterIds({ regions: ['us-east-2'] })).toEqual(['pmm-qa-aurora3-mysql']);
+    expect(clusterIds({ regions: ['eu-north-1'] })).toEqual(['database-2', 'database-3', 'AWS cluster unknown']);
+    expect(clusterIds({ regions: ['eu-north-1', 'us-east-2'], accounts: ['222222222222'] })).toEqual([
+      'pmm-qa-aurora3-mysql',
+    ]);
+    expect(clusterIds({ regions: ['us-east-2'], clusters: ['database-3'] })).toEqual([]);
+    expect(clusterIds({ regions: ['eu-north-1'], query: 'reader' })).toEqual(['database-3']);
+  });
+
+  it('builds region options from the data', () => {
+    expect(getRegionOptions(clusters)).toEqual([
+      { label: 'eu-north-1', value: 'eu-north-1' },
+      { label: 'us-east-2', value: 'us-east-2' },
     ]);
   });
 
-  it('builds cluster options narrowed to the selected accounts, unknown group last', () => {
-    expect(getClusterOptions(clusters, []).map(({ value }) => value)).toEqual([
+  it('builds account options narrowed to the selected regions, without the empty account', () => {
+    expect(getAccountOptions(clusters, [])).toEqual([
+      { label: '111111111111', value: '111111111111', description: 'eu-north-1' },
+      { label: '222222222222', value: '222222222222', description: 'us-east-2' },
+    ]);
+    expect(values(getAccountOptions(clusters, ['us-east-2']))).toEqual(['222222222222']);
+  });
+
+  it('builds cluster options narrowed to the selected regions and accounts, unknown group last', () => {
+    expect(values(getClusterOptions(clusters, { regions: [], accounts: [] }))).toEqual([
       'database-2',
       'database-3',
       'pmm-qa-aurora3-mysql',
       'AWS cluster unknown',
     ]);
-    expect(getClusterOptions(clusters, ['222222222222']).map(({ value }) => value)).toEqual(['pmm-qa-aurora3-mysql']);
+    expect(values(getClusterOptions(clusters, { regions: [], accounts: ['222222222222'] }))).toEqual([
+      'pmm-qa-aurora3-mysql',
+    ]);
+    expect(values(getClusterOptions(clusters, { regions: ['eu-north-1'], accounts: [] }))).toEqual([
+      'database-2',
+      'database-3',
+      'AWS cluster unknown',
+    ]);
+  });
+
+  it('drops selected accounts and clusters the selected regions and accounts no longer offer', () => {
+    const selection = {
+      regions: [],
+      accounts: ['111111111111', '222222222222'],
+      clusters: ['database-3', 'pmm-qa-aurora3-mysql'],
+    };
+
+    expect(narrowSelection(clusters, { ...selection, regions: ['us-east-2'] })).toEqual({
+      regions: ['us-east-2'],
+      accounts: ['222222222222'],
+      clusters: ['pmm-qa-aurora3-mysql'],
+    });
+    expect(narrowSelection(clusters, { ...selection, accounts: ['111111111111'] })).toEqual({
+      regions: [],
+      accounts: ['111111111111'],
+      clusters: ['database-3'],
+    });
+    expect(narrowSelection(clusters, selection)).toEqual(selection);
   });
 
   it('reads filters from URL parameters', () => {
     expect(readFilters({})).toEqual(noFilters);
     expect(readFilters({
       'aurora-q': 'reader',
+      'aurora-region': ['eu-north-1', 'us-east-2'],
       'aurora-account': '111111111111',
       'aurora-cluster': ['database-2', 'database-3'],
-    })).toEqual({ query: 'reader', accounts: ['111111111111'], clusters: ['database-2', 'database-3'] });
+    })).toEqual({
+      query: 'reader',
+      regions: ['eu-north-1', 'us-east-2'],
+      accounts: ['111111111111'],
+      clusters: ['database-2', 'database-3'],
+    });
   });
 
   it('writes filters to URL parameters, removing empty ones', () => {
-    expect(toUrlQuery(noFilters)).toEqual({ 'aurora-q': null, 'aurora-account': null, 'aurora-cluster': null });
-    expect(toUrlQuery({ query: 'db', accounts: ['1'], clusters: ['c'] })).toEqual({
+    expect(toUrlQuery(noFilters)).toEqual({
+      'aurora-q': null,
+      'aurora-region': null,
+      'aurora-account': null,
+      'aurora-cluster': null,
+    });
+    expect(toUrlQuery({
+      query: 'db', regions: ['r'], accounts: ['1'], clusters: ['c'],
+    })).toEqual({
       'aurora-q': 'db',
+      'aurora-region': ['r'],
       'aurora-account': ['1'],
       'aurora-cluster': ['c'],
     });

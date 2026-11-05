@@ -75,7 +75,7 @@
           "datasource": "Metrics",
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  (max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) unless on (service_name) mysql_up{region=~\"$region\"}) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up)\n  or\n  (max by (node_id, service_name) (last_over_time(mysql_up[1h])) unless on (service_name) mysql_up) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -86,7 +86,7 @@
           "datasource": "Metrics",
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\nmax by (node_id, service_name) (mysql_global_variables_innodb_read_only{region=~\"$region\"})\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\nmax by (node_id, service_name) (mysql_global_variables_innodb_read_only)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -97,7 +97,7 @@
           "datasource": "Metrics",
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (service_name, region, aws_account_id, aws_cluster_id) (\nrate(mysql_global_status_queries{region=~\"$region\"}[$__rate_interval])\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
+          "expr": "sum by (service_name, region, aws_account_id, aws_cluster_id) (\nrate(mysql_global_status_queries[$__rate_interval])\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -108,7 +108,7 @@
           "datasource": "Metrics",
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up{region=~\"$region\"})\n  or\n  (max by (node_id, service_name) (last_over_time(mysql_up{region=~\"$region\"}[1h])) unless on (service_name) mysql_up{region=~\"$region\"}) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\",region=~\"$region\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits{region=~\"$region\"}[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)\n* 0\n+ on (region, aws_account_id, aws_cluster_id) group_left ()\nmax by (region, aws_account_id, aws_cluster_id) (aws_rds_volume_bytes_used_average{region=~\"$region\"})",
+          "expr": "max by (service_name, region, aws_account_id, aws_cluster_id) (\n(\n  max by (node_id, service_name) (mysql_up)\n  or\n  (max by (node_id, service_name) (last_over_time(mysql_up[1h])) unless on (service_name) mysql_up) * 0\n)\n* on (node_id) group_left(region, aws_account_id, aws_cluster_id)\n(\n  max by (node_id, region, aws_account_id, aws_cluster_id) (aws_rds_instance_info{aws_engine=\"aurora-mysql\"})\n  or\n  label_replace(\n    group by (node_id, region) (last_over_time(mysql_global_status_auroradb_commits[1h])) unless on (node_id) aws_rds_instance_info,\n    \"aws_cluster_id\", \"AWS cluster unknown\", \"\", \"\")\n)\n)\n* 0\n+ on (region, aws_account_id, aws_cluster_id) group_left ()\nmax by (region, aws_account_id, aws_cluster_id) (aws_rds_volume_bytes_used_average)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -123,49 +123,26 @@
           "options": {}
         }
       ],
-      "type": "pmm-aurora-tree-panel"
+      "type": "pmm-aurora-tree-panel",
+      "interval": "1m"
     }
   ],
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 41,
   "tags": [
     "Percona",
     "MySQL"
   ],
   "templating": {
-    "list": [
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "Metrics",
-        "definition": "label_values(mysql_global_status_auroradb_commits, region)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Region",
-        "multi": true,
-        "name": "region",
-        "options": [],
-        "query": {
-          "query": "label_values(mysql_global_status_auroradb_commits, region)",
-          "refId": "Metrics-region-Variable-Query"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      }
-    ]
+    "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-1h",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "Amazon Aurora Overview (panel prototype)",
   "uid": "aurora-overview-panel",
