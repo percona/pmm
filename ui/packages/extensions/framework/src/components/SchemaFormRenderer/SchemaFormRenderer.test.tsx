@@ -87,6 +87,45 @@ describe('buildValidationRules', () => {
     expect(rules.max).toMatchObject({ value: 5 });
   });
 
+  it('registers no length or range rule for bounds that arrive as null', () => {
+    const stringRules = buildValidationRules({
+      type: 'string',
+      name: 'title',
+      label: 'Title',
+      min_length: null,
+      max_length: null,
+      pattern: null,
+    });
+    expect(stringRules).not.toHaveProperty('minLength');
+    expect(stringRules).not.toHaveProperty('maxLength');
+    expect(stringRules).not.toHaveProperty('pattern');
+
+    for (const type of ['integer', 'float'] as const) {
+      const rules = buildValidationRules({
+        type,
+        name: 'n',
+        label: 'N',
+        ge: null,
+        le: null,
+        step: null,
+      });
+      expect(rules).not.toHaveProperty('min');
+      expect(rules).not.toHaveProperty('max');
+    }
+  });
+
+  it('keeps a zero bound', () => {
+    const rules = buildValidationRules({
+      type: 'integer',
+      name: 'n',
+      label: 'N',
+      ge: 0,
+      le: 0,
+    });
+    expect(rules.min).toMatchObject({ value: 0 });
+    expect(rules.max).toMatchObject({ value: 0 });
+  });
+
   it('treats whitespace-only numeric input as empty', () => {
     const optional = buildValidationRules({
       type: 'integer',
