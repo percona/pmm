@@ -124,6 +124,14 @@ describe('buildValidationRules', () => {
     });
     expect(rules.min).toMatchObject({ value: 0 });
     expect(rules.max).toMatchObject({ value: 0 });
+
+    const stringRules = buildValidationRules({
+      type: 'string',
+      name: 'title',
+      label: 'Title',
+      max_length: 0,
+    });
+    expect(stringRules.maxLength).toMatchObject({ value: 0 });
   });
 
   it('treats whitespace-only numeric input as empty', () => {
