@@ -13,6 +13,7 @@ Before creating MongoDB backups, make sure to:
 
     !!! caution "Let PMM manage PBM"
         PMM configures PBM for you. Run `pbm` commands yourself only for tasks that PMM can't do, such as [restoring a sharded cluster backup](restore_MongoDB_backups.md#restoring-from-a-sharded-cluster). Changing the PBM configuration manually can break PMM backups.
+
 5. Check that installed **mongod** binary is added to **PATH** variable of the user under which PMM client is running, and that **mongod** is controlled as a service by **systemctl**. PMM only works with a single **mongod** installed on a node.
 6. Check that your MongoDB Services are managed as clusters in PMM. Go to **Inventory > Services**, turn on **Organize by Clusters**, and make sure that none of your MongoDB services appear under **Non-clustered services**.
 Services that do not specify a cluster name should be removed and re-added using commands like the following:
