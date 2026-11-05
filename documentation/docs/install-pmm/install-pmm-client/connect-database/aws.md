@@ -199,7 +199,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
-    The **Main details** section shows the DNS hostname of your instance, which PMM takes from AWS. In this section, you set the service name to use within PMM, the node and agent that monitor the instance, the port your service is listening on, the database username and password, and the **Instance ID** that matches your RDS instance between PMM and the AWS console. **Max query length** takes a number; enter `-1` for no limit. Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 2s.
+    The **Main details** section shows the DNS hostname of your instance, which PMM takes from AWS. In this section, you set the service name to use within PMM, the node and agent that monitor the instance, the port your service is listening on, the database username and password, and the **Instance ID** that matches your RDS instance between PMM and the AWS console. Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 2s.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Labels.png)
 
