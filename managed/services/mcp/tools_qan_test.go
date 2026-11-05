@@ -460,7 +460,7 @@ func TestRenderRowPrintsRankedValue(t *testing.T) {
 
 	var row qanReportRow
 	err := json.Unmarshal([]byte(`{"dimension": "app", "metrics": {
-		"blk_read_time": {"stats": {"sum": 30, "avg": 3}},
+		"shared_blk_read_time": {"stats": {"sum": 30, "avg": 3}},
 		"docs_examined": {"stats": {"sum": 20000, "avg": 2000}}}}`), &row)
 	require.NoError(t, err)
 
@@ -469,13 +469,13 @@ func TestRenderRowPrintsRankedValue(t *testing.T) {
 		want    []string
 		notWant []string
 	}{
-		{"-blk_read_time", []string{" blk_read_time_avg=3 blk_read_time=30", " docs_examined_avg=2000"}, []string{"docs_examined=20000"}},
-		{"-docs_examined", []string{" docs_examined_avg=2000 docs_examined=20000", " blk_read_time=30"}, []string{"blk_read_time_avg="}},
+		{"-shared_blk_read_time", []string{" shared_blk_read_time_avg=3 shared_blk_read_time=30", " docs_examined_avg=2000"}, []string{"docs_examined=20000"}},
+		{"-docs_examined", []string{" docs_examined_avg=2000 docs_examined=20000", " shared_blk_read_time=30"}, []string{"shared_blk_read_time_avg="}},
 	} {
 		t.Run(tc.orderBy, func(t *testing.T) {
 			t.Parallel()
 
-			q := &reportQuery{groupBy: "username", orderBy: tc.orderBy, columns: []string{"blk_read_time", "docs_examined"}}
+			q := &reportQuery{groupBy: "username", orderBy: tc.orderBy, columns: []string{"shared_blk_read_time", "docs_examined"}}
 			line := q.renderRow(row, 1, "", false)
 			for _, w := range tc.want {
 				assert.Contains(t, line, w)

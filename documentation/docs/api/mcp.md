@@ -153,8 +153,6 @@ Every result carries a **View in PMM** link that opens the QAN dashboard on the 
 | `local_blks_written` | PostgreSQL | sum | Local blocks written |
 | `temp_blks_read` | PostgreSQL | sum | Temp blocks read |
 | `temp_blks_written` | PostgreSQL | sum | Temp blocks written |
-| `blk_read_time` | PostgreSQL | sum | Time the statement spent reading blocks [deprecated] |
-| `blk_write_time` | PostgreSQL | sum | Time the statement spent writing blocks [deprecated] |
 | `shared_blk_read_time` | PostgreSQL | sum | Time the statement spent reading shared blocks |
 | `shared_blk_write_time` | PostgreSQL | sum | Time the statement spent writing shared blocks |
 | `local_blk_read_time` | PostgreSQL | sum | Time the statement spent reading local_blocks |

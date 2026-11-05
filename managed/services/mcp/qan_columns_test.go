@@ -43,6 +43,9 @@ func TestQANColumnsMatchQANAPI2(t *testing.T) {
 	for name := range maps["commonColumnNames"] {
 		want[name] = true
 	}
+	// qan-api2 still lists these, but its migration 17 renamed their columns to shared_blk_*_time, so ClickHouse fails a report that asks for them.
+	delete(want, "blk_read_time")
+	delete(want, "blk_write_time")
 
 	got := make(map[string]bool, len(qanColumns))
 	for _, c := range qanColumns {

@@ -81,8 +81,6 @@ var qanColumns = []qanColumn{
 	{"local_blks_written", enginePostgreSQL, false},
 	{"temp_blks_read", enginePostgreSQL, false},
 	{"temp_blks_written", enginePostgreSQL, false},
-	{"blk_read_time", enginePostgreSQL, false},
-	{"blk_write_time", enginePostgreSQL, false},
 	{"shared_blk_read_time", enginePostgreSQL, false},
 	{"shared_blk_write_time", enginePostgreSQL, false},
 	{"local_blk_read_time", enginePostgreSQL, false},
