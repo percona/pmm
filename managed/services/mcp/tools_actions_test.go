@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,6 +29,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -596,4 +598,118 @@ func headers(text string) []string {
 		}
 	}
 	return out
+}
+
+func TestLiveInspectionRateLimited(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	take := func(t *testing.T, s *Service, key string) func() {
+		t.Helper()
+
+		rel, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+		return rel
+	}
+	schemaArgs := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
+
+	t.Run("PerCaller", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assert.Contains(t, text, "these credentials")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+
+		// The stored PostgreSQL plan is passive and not limited.
+		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		assert.False(t, isError, text)
+
+		rel1()
+		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.False(t, isError, text)
+		rel2()
+	})
+
+	t.Run("PerReplica", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		rels := make([]func(), 0, maxLiveCallsPerReplica)
+		for i := range maxLiveCallsPerReplica {
+			rels = append(rels, take(t, s, "other-"+string(rune('0'+i))))
+		}
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "database": "shop"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assert.Contains(t, text, "this replica")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+		for _, rel := range rels {
+			rel()
+		}
+	})
+
+	t.Run("FailedCallReleases", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+
+		_, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		require.True(t, isError)
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		rel1()
+		rel2()
+	})
+
+	t.Run("CancelledCallReleases", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0, "ddl-customers")
+		s := newQANService(t, fake, true)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+		done := make(chan error, 1)
+		go func() {
+			_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+			done <- err
+		}()
+
+		require.Eventually(t, func() bool {
+			stub.mu.Lock()
+			defer stub.mu.Unlock()
+			return len(stub.starts) > 0
+		}, 5*time.Second, 10*time.Millisecond)
+		// The running call holds one of the two slots.
+		rel := take(t, s, key)
+		_, hit := s.live.acquire(key)
+		require.Equal(t, limitPerCaller, hit)
+		rel()
+		cancel()
+
+		select {
+		case err := <-done:
+			require.Error(t, err)
+		case <-time.After(5 * time.Second):
+			require.FailNow(t, "the cancelled call did not return")
+		}
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		rel1()
+		rel2()
+	})
 }

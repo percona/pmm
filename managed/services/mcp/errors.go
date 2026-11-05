@@ -37,6 +37,7 @@ const (
 	codeInsufficientPrivileges errorCode = "insufficient_privileges"
 	codeAgentUnreachable       errorCode = "agent_unreachable"
 	codePMMUnavailable         errorCode = "pmm_unavailable"
+	codeRateLimited            errorCode = "rate_limited"
 )
 
 // toolError is the typed error every tool returns on failure. The MCP SDK

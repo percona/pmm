@@ -167,6 +167,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
+	release, err := s.startLive(auth)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+
 	output, err := s.runAction(ctx, auth, body, !raw)
 	var te *toolError
 	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
@@ -260,6 +266,12 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return nil, newToolError(codeInvalidInput, "service_id and database are required")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startLive(auth)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 

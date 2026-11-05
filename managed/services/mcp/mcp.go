@@ -69,6 +69,7 @@ type Service struct {
 	actionTimeout func() time.Duration
 	publicAddress func(context.Context) string
 	now           func() time.Time
+	live          *limiter
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -116,6 +117,7 @@ func New(params Params) (*Service, error) {
 		actionTimeout: params.ActionTimeout,
 		publicAddress: params.PublicAddress,
 		now:           time.Now,
+		live:          newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This
