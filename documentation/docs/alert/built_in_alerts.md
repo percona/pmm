@@ -15,7 +15,7 @@ The built-in rules fire even if no one receives their alerts. To get notified, [
 
 ## Customize the alert rules
 
-To adjust a threshold, duration, or severity, create your own rule from the same template with the values you want, then [turn off the built-in set](#turn-off-the-built-in-rules) so you don't get notified twice. See [Add an alert rule based on a template](alert_rules.md#add-an-alert-rule-based-on-a-template).
+To adjust a threshold, duration, or severity, create your own rule from the same template with the values you want, then [turn off the built-in set](#turn-off-the-built-in-rules) so you don't get notified twice. See [Add an alert rule based on a template](alert_rules.md#create-an-alert-rule-from-a-template).
 
 ## Turn off the built-in rules
 

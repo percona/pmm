@@ -1,6 +1,6 @@
 # List of available alert templates
 
-Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#add-an-alert-rule-based-on-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
+Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#create-an-alert-rule-from-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
 
 ## Template catalog
 
@@ -91,11 +91,11 @@ Whether the component alerts fire depends on which component fails and how:
 <a id="qan_alerts"></a>
 ### Query Analytics templates
 
-These templates alert on query performance data that Query Analytics collects. For how they work, see [Alert on Query Analytics data](alert_rules.md#alert-on-query-analytics-data).
+Use these templates to get alerted when queries slow down on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#alert-on-query-performance).
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
-| QAN | **QAN slow queries** | Alerts when the slowest query class on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the longest run for MySQL slow log and MongoDB, and the average run for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. This template has a **Dynamic** badge, meaning that you can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
+| QAN | **QAN slow queries** | Alerts when the slowest query on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the maximum query time for MySQL slow log and MongoDB, and the average query time for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. You can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
