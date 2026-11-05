@@ -1,0 +1,250 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package models
+
+import (
+	"context"
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/jmoiron/sqlx/reflectx"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
+)
+
+// TestMetricsLBAC pins that every query-details read path applies the caller's LBAC
+// filter, so a queryid recorded only on hidden services reads as absent; see PMM-15697.
+func TestMetricsLBAC(t *testing.T) {
+	t.Parallel()
+	db := setupTestClickHouse(t)
+	// The same mapper as qan-api2's own connection, which GetQueryPlanResponse needs.
+	db.Mapper = reflectx.NewMapperTagFunc("json", strings.ToUpper, func(value string) string {
+		return strings.Split(value, ",")[0]
+	})
+	m := NewMetrics(db)
+	r := NewReporter(db)
+
+	from, err := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	require.NoError(t, err)
+	to, err := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+	require.NoError(t, err)
+	const queryID = "B305F6354FA21F2A"
+
+	// The fixture holds no plans or histograms, so clone one of the queryid's rows (service_id1,
+	// with label7) into its own queryid and period, where other tests sharing the database don't read.
+	const planQueryID = "TESTLBACPLANQID"
+	planFrom, err := time.Parse(time.RFC3339, "2019-01-03T00:00:00Z")
+	require.NoError(t, err)
+	planTo := planFrom.Add(time.Hour)
+	t.Cleanup(func() {
+		// t.Context() is already canceled by the time Cleanup runs, so this needs its own.
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_, err := db.ExecContext(ctx, `ALTER TABLE metrics DELETE WHERE queryid = ? SETTINGS mutations_sync = 1`, planQueryID)
+		assert.NoError(t, err, "failed to clean up seeded row")
+	})
+	// The histogram JSON is an argument: clickhouse-go reads {…:…} in query text as server-side parameters.
+	//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
+	_, err = db.ExecContext(t.Context(), `
+		INSERT INTO metrics
+		SELECT * REPLACE(
+			? AS queryid,
+			toDateTime('2019-01-03 00:30:00', 'UTC') AS period_start,
+			'lbac-test-plan' AS planid,
+			'Seq Scan on lbac_test' AS query_plan,
+			? AS histogram_items
+		)
+		FROM metrics
+		WHERE queryid = ? AND has(labels.key, 'label7')
+		LIMIT 1`, planQueryID, []string{`{"range":"(0 - 3)","frequency":2}`}, queryID)
+	require.NoError(t, err, "failed to seed a row with a plan and histogram")
+
+	// read runs every query-details read path and returns what each one saw.
+	read := func(t *testing.T, ctx context.Context) map[string]any {
+		t.Helper()
+		got := make(map[string]any)
+
+		rows, err := m.Get(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+		require.NoError(t, err)
+		// WITH TOTALS always adds a row, so only the data rows are compared.
+		got["Get"] = len(rows) - 1
+
+		sparklines, err := m.SelectSparklines(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil)
+		require.NoError(t, err)
+		var load float32
+		for _, p := range sparklines {
+			load += p.Load
+		}
+		got["SelectSparklines"] = load
+
+		examples, err := m.SelectQueryExamples(ctx, from, to, queryID, "queryid", 10, nil, nil)
+		require.NoError(t, err)
+		got["SelectQueryExamples"] = len(examples.QueryExamples)
+
+		labels, err := m.SelectObjectDetailsLabels(ctx, from, to, queryID, "queryid")
+		require.NoError(t, err)
+		got["SelectObjectDetailsLabels"] = len(labels.Labels["service_name"].GetValues()) + len(labels.Labels["label7"].GetValues())
+
+		histogram, err := m.SelectHistogram(ctx, planFrom.Unix(), planTo.Unix(), nil, nil, planQueryID)
+		require.NoError(t, err)
+		got["SelectHistogram"] = len(histogram.HistogramItems)
+
+		meta, err := m.GetSelectedQueryMetadata(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+		require.NoError(t, err)
+		got["GetSelectedQueryMetadata"] = meta.ServiceName
+
+		fingerprint, err := m.GetFingerprintByQueryID(ctx, queryID)
+		require.NoError(t, err)
+		got["GetFingerprintByQueryID"] = fingerprint
+
+		plan, err := m.SelectQueryPlan(ctx, planQueryID, "service_id1")
+		require.NoError(t, err)
+		got["SelectQueryPlan"] = plan.Planid + plan.QueryPlan
+
+		schema, err := m.SchemaByQueryID(ctx, "service_id1", queryID)
+		require.NoError(t, err)
+		got["SchemaByQueryID"] = schema.Schema
+
+		explain, err := m.ExplainFingerprintByQueryID(ctx, "service_id1", queryID)
+		if err != nil {
+			require.ErrorContains(t, err, "query_id")
+		}
+		got["ExplainFingerprintByQueryID"] = explain.ExplainFingerprint
+		return got
+	}
+
+	unfiltered := read(t, metadata.NewIncomingContext(t.Context(), metadata.MD{}))
+	for path, v := range unfiltered {
+		require.NotZero(t, v, "the fixture must exercise %s", path)
+	}
+
+	// Each filter matches every row of the queryid, some of them, or none.
+	const (
+		all = iota
+		some
+		none
+	)
+	for name, tc := range map[string]struct {
+		filter  string
+		matches int
+	}{
+		"Allowed":           {filter: `["{service_id=\"service_id1\"}"]`, matches: all},
+		"AnyOfTwoSelectors": {filter: `["{service_id=\"other\"}", "{service_id=\"service_id1\"}"]`, matches: all},
+		"AllowedByLabel":    {filter: `["{label7=~\"value.*\"}"]`, matches: some},
+		"Denied":            {filter: `["{service_id=\"other\"}"]`, matches: none},
+		"DeniedByLabel":     {filter: `["{label7=\"no-such-value\"}"]`, matches: none},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			got := read(t, setup(t, tc.filter))
+			for path, v := range got {
+				switch {
+				case tc.matches == none:
+					assert.Zero(t, v, path)
+				case tc.matches == all && path != "SchemaByQueryID":
+					assert.Equal(t, unfiltered[path], v, path)
+				case !reflect.ValueOf(unfiltered[path]).IsZero():
+					// SchemaByQueryID reads one row of many, so it is only checked for presence.
+					assert.NotZero(t, v, path)
+				}
+			}
+		})
+	}
+
+	t.Run("PlanIsScopedToTheService", func(t *testing.T) {
+		t.Parallel()
+		ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
+		for serviceID, want := range map[string]string{
+			"service_id1": "Seq Scan on lbac_test",
+			"":            "Seq Scan on lbac_test",
+			"other":       "",
+		} {
+			plan, err := m.SelectQueryPlan(ctx, planQueryID, serviceID)
+			require.NoError(t, err)
+			assert.Equal(t, want, plan.QueryPlan, "service_id '%s'", serviceID)
+		}
+	})
+
+	// headersToLbacFilter returns "" both for "no filter" and on error, so a path that
+	// drops the error runs unfiltered. Every path must fail on a filter that doesn't parse.
+	t.Run("UnparsableFilterFailsEveryPath", func(t *testing.T) {
+		t.Parallel()
+		ctx := setup(t, `["service_id=\"service_id1\""]`) // no braces
+		for path, call := range map[string]func() error{
+			"Get": func() error {
+				_, err := m.Get(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+				return err
+			},
+			"SelectSparklines": func() error {
+				_, err := m.SelectSparklines(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil)
+				return err
+			},
+			"SelectQueryExamples": func() error {
+				_, err := m.SelectQueryExamples(ctx, from, to, queryID, "queryid", 10, nil, nil)
+				return err
+			},
+			"SelectObjectDetailsLabels": func() error {
+				_, err := m.SelectObjectDetailsLabels(ctx, from, to, queryID, "queryid")
+				return err
+			},
+			"SelectHistogram": func() error {
+				_, err := m.SelectHistogram(ctx, planFrom.Unix(), planTo.Unix(), nil, nil, planQueryID)
+				return err
+			},
+			"GetSelectedQueryMetadata": func() error {
+				_, err := m.GetSelectedQueryMetadata(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+				return err
+			},
+			"GetFingerprintByQueryID": func() error {
+				_, err := m.GetFingerprintByQueryID(ctx, queryID)
+				return err
+			},
+			"SelectQueryPlan": func() error {
+				_, err := m.SelectQueryPlan(ctx, planQueryID, "service_id1")
+				return err
+			},
+			"SchemaByQueryID": func() error {
+				_, err := m.SchemaByQueryID(ctx, "service_id1", queryID)
+				return err
+			},
+			"ExplainFingerprintByQueryID": func() error {
+				_, err := m.ExplainFingerprintByQueryID(ctx, "service_id1", queryID)
+				return err
+			},
+			"QueryExists": func() error {
+				_, err := m.QueryExists(ctx, "service_id1", "SELECT 1")
+				return err
+			},
+			"Reporter.Select": func() error {
+				_, err := r.Select(ctx, from.Unix(), to.Unix(), nil, nil, "queryid", "load", "", 0, 10, nil, nil, nil)
+				return err
+			},
+			"Reporter.SelectSparklines": func() error {
+				_, err := r.SelectSparklines(ctx, queryID, from.Unix(), to.Unix(), nil, nil, "queryid", "load", false)
+				return err
+			},
+			"Reporter.SelectFilters": func() error {
+				_, err := r.SelectFilters(ctx, from.Unix(), to.Unix(), "load", nil, nil)
+				return err
+			},
+		} {
+			assert.ErrorContains(t, call(), "failed to parse metric selector", path)
+		}
+	})
+}
