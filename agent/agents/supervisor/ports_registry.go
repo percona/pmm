@@ -84,6 +84,16 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 	return 0, errNoFreePort
 }
 
+// Forget drops a port reservation without checking that the port is free, for a port its Agent
+// could not use: something else may be listening on it, and Release would then keep it reserved for
+// good. Reserve checks a port is free before handing it out again.
+func (r *portsRegistry) Forget(port uint16) {
+	r.m.Lock()
+	defer r.m.Unlock()
+
+	delete(r.reserved, port)
+}
+
 // Release releases port.
 func (r *portsRegistry) Release(port uint16) error {
 	r.m.Lock()
