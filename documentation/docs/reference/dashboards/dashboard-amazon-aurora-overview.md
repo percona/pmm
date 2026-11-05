@@ -32,6 +32,6 @@ This table has one row per Aurora MySQL service. Click a service name to open [M
 
 * **Role**: **writer** or **reader**, based on `innodb_read_only`. It shows **unknown** when the exporter doesn't report the role. The value is sampled every minute.
 
-* **Status**: **Up** when the MySQL exporter is connected to the database, and **Down** when it isn't. An exporter that stopped reporting shows as **Down** for one hour, and then the row disappears.
+* **Status**: **Up** when the MySQL exporter is connected to the database, and **Down** when it isn't. An exporter that stopped reporting shows as **Down** for one hour, and then the row disappears. An instance you remove and add again shows once.
 
 * **Queries/s**: the queries per second on the instance.
