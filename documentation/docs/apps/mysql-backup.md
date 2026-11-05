@@ -256,6 +256,9 @@ A daily purge job removes log bodies for finished tasks older than the configure
 #### Handle large runs
 PMM caps each log stream at 100 MiB. If a run exceeds this limit, PMM drops the oldest log chunks. To retain all logs, keep each run's log output under 100 MiB.
 
+#### Spot incomplete logs
+If some of a finished run's log output was lost before PMM could store it, the **Execution History** tab shows a warning icon beside the run's status. Hover over or tab to the icon to see **Captured logs are incomplete**. Runs that are still in progress never show the icon.
+
 #### Execution host logs
 Nomad allocation files on the execution host follow Nomad's own garbage collection, independent of `TASKS__LOG_RETENTION_DAYS`.
                                                                       
