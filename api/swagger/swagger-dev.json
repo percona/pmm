@@ -19516,6 +19516,84 @@
         }
       }
     },
+    "/v1/inventory/nodes:getTypes": {
+      "post": {
+        "description": "Returns a list of Node types present in the inventory.",
+        "tags": [
+          "NodesService"
+        ],
+        "summary": "List Active Node Types",
+        "operationId": "ListActiveNodeTypes",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_types": {
+                  "type": "array",
+                  "items": {
+                    "description": "NodeType describes supported Node types.",
+                    "type": "string",
+                    "default": "NODE_TYPE_UNSPECIFIED",
+                    "enum": [
+                      "NODE_TYPE_UNSPECIFIED",
+                      "NODE_TYPE_GENERIC_NODE",
+                      "NODE_TYPE_CONTAINER_NODE",
+                      "NODE_TYPE_REMOTE_NODE",
+                      "NODE_TYPE_REMOTE_RDS_NODE",
+                      "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+                    ]
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/services": {
       "get": {
         "description": "Returns a list of Services filtered by type.",
