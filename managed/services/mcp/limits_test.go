@@ -16,7 +16,9 @@
 package mcp
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -66,6 +68,7 @@ func TestCallerKey(t *testing.T) {
 
 		alice := callerKey(callerAuth{authorization: basic("alice:pw")})
 		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"}))
+		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("ALICE:pw")}))
 
 		session := callerKey(callerAuth{cookie: "pmm_session=s1"})
 		assert.Equal(t, session, callerKey(callerAuth{cookie: "pmm_session=s1; other=1"}))
@@ -88,6 +91,13 @@ func TestCallerKey(t *testing.T) {
 			assert.False(t, seen[k], "duplicate key %s", k)
 			seen[k] = true
 		}
+	})
+
+	t.Run("IsSHA256", func(t *testing.T) {
+		t.Parallel()
+
+		sum := sha256.Sum256([]byte("token\x00T"))
+		assert.Equal(t, hex.EncodeToString(sum[:]), callerKey(callerAuth{authorization: "Bearer T"}))
 	})
 
 	t.Run("NoSecretInKey", func(t *testing.T) {

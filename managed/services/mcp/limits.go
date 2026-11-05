@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/percona/pmm/managed/utils/auth"
@@ -97,7 +98,8 @@ func callerKey(a callerAuth) string {
 	req := &http.Request{Header: h}
 	user, _, ok := req.BasicAuth()
 	if ok {
-		return hashKey("user\x00" + user)
+		// Grafana logins are case-insensitive.
+		return hashKey("user\x00" + strings.ToLower(user))
 	}
 
 	req.Header = http.Header{"Cookie": {a.cookie}}
