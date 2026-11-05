@@ -157,6 +157,7 @@ type Setup struct {
 	NodeModel         string
 	Region            string
 	Az                string
+	Environment       string
 	Address           string
 	MetricsMode       string
 	DisableCollectors string
@@ -632,6 +633,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_NODE_MODEL").StringVar(&cfg.Setup.NodeModel)
 	setupCmd.Flag("region", "Node region [PMM_AGENT_SETUP_REGION]").
 		Envar("PMM_AGENT_SETUP_REGION").StringVar(&cfg.Setup.Region)
+	setupCmd.Flag("environment", "Node environment [PMM_AGENT_SETUP_ENVIRONMENT]").
+		Envar("PMM_AGENT_SETUP_ENVIRONMENT").StringVar(&cfg.Setup.Environment)
 	setupCmd.Flag("az", "Node availability zone [PMM_AGENT_SETUP_AZ]").
 		Envar("PMM_AGENT_SETUP_AZ").StringVar(&cfg.Setup.Az)
 

@@ -53,6 +53,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeOK, error)
 
+	ChangeNode(params *ChangeNodeParams, opts ...ClientOption) (*ChangeNodeOK, error)
+
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
@@ -102,6 +104,50 @@ func (a *Client) AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeO
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*AddNodeDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ChangeNode changes a node
+
+Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed.
+*/
+func (a *Client) ChangeNode(params *ChangeNodeParams, opts ...ClientOption) (*ChangeNodeOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewChangeNodeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ChangeNode",
+		Method:             "PUT",
+		PathPattern:        "/v1/inventory/nodes/{node_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ChangeNodeOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ChangeNodeDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

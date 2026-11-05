@@ -51,6 +51,7 @@ type ConfigCommand struct {
 	NodeModel         string   `help:"Node model"`
 	Region            string   `help:"Node region"`
 	Az                string   `help:"Node availability zone"`
+	Environment       string   `help:"Node environment"`
 	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
 	Force             bool     `help:"Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
@@ -126,6 +127,9 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	}
 	if cmd.Az != "" {
 		res = append(res, "--az="+cmd.Az)
+	}
+	if cmd.Environment != "" {
+		res = append(res, "--environment="+cmd.Environment)
 	}
 	if cmd.Force {
 		res = append(res, "--force")

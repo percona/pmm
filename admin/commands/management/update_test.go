@@ -396,6 +396,10 @@ func TestUpdateExternal(t *testing.T) {
 	_, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--external-name=external_srv_1", "--url=http://10.0.0.1:9100/metrics")
 	require.EqualError(t, err, "--url cannot be changed by update; remove the Service and add it again")
 
+	// The labels of the remote Node are changed with the Node.
+	_, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--external-name=external_srv_1", "--region=eu-west-1")
+	require.EqualError(t, err, "--region is a label of the Node; change it with pmm-admin update node --node-id=<Node ID>")
+
 	// The Services of this Node say nothing about a serverless one, so they must not pick it.
 	_, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--group=exporters")
 	require.EqualError(t, err, "an external-serverless Service runs on a Node of its own; pass --external-name or --service-id")
