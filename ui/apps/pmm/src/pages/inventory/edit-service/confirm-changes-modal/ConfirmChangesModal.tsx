@@ -1,8 +1,10 @@
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -26,16 +28,22 @@ const DocsLink: FC<{ text: string }> = ({ text }) => (
 interface Props {
   open: boolean;
   serviceName: string;
+  labelsChanged: boolean;
+  settingsChanged: boolean;
   clusterChanged: boolean;
   credentialsChanged: boolean;
   dropsCredentials: boolean;
-  onConfirm: () => Promise<void>;
+  // The connection check is skipped for this save only; the server does not
+  // store the choice
+  onConfirm: (skipConnectionCheck: boolean) => Promise<void>;
   onClose: () => void;
 }
 
 export const ConfirmChangesModal: FC<Props> = ({
   open,
   serviceName,
+  labelsChanged,
+  settingsChanged,
   clusterChanged,
   credentialsChanged,
   dropsCredentials,
@@ -43,13 +51,20 @@ export const ConfirmChangesModal: FC<Props> = ({
   onClose,
 }) => {
   const [submitting, setSubmitting] = useState(false);
+  const [skipConnectionCheck, setSkipConnectionCheck] = useState(false);
+
+  const handleClose = () => {
+    setSkipConnectionCheck(false);
+    onClose();
+  };
 
   const handleConfirm = async () => {
     setSubmitting(true);
     try {
-      await onConfirm();
+      await onConfirm(settingsChanged && skipConnectionCheck);
     } finally {
       setSubmitting(false);
+      setSkipConnectionCheck(false);
     }
   };
 
@@ -58,19 +73,26 @@ export const ConfirmChangesModal: FC<Props> = ({
       data-testid="confirm-changes-modal"
       aria-labelledby="confirm-changes-modal-title"
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle id="confirm-changes-modal-title" onClose={onClose}>
+      <DialogTitle id="confirm-changes-modal-title" onClose={handleClose}>
         {Messages.title(serviceName)}
       </DialogTitle>
       <DialogContent>
         <Stack gap={2}>
-          <Typography>
-            {confirm.description}
-            <DocsLink text={confirm.docsLink} />.
-          </Typography>
+          {labelsChanged && (
+            <Typography>
+              {confirm.description}
+              <DocsLink text={confirm.docsLink} />.
+            </Typography>
+          )}
+          {settingsChanged && (
+            <Typography data-testid="settings-changed-info">
+              {confirm.settingsDescription}
+            </Typography>
+          )}
           {clusterChanged && (
             <Alert severity="warning" data-testid="cluster-changed-warning">
               <AlertTitle>{confirm.cluster.title}</AlertTitle>
@@ -90,10 +112,29 @@ export const ConfirmChangesModal: FC<Props> = ({
               {confirm.hostCredentials.description}
             </Alert>
           )}
+          {settingsChanged && (
+            <Stack>
+              <FormControlLabel
+                label={confirm.skipConnectionCheck}
+                control={
+                  <Checkbox
+                    checked={skipConnectionCheck}
+                    onChange={(event) =>
+                      setSkipConnectionCheck(event.target.checked)
+                    }
+                    data-testid="skip-connection-check"
+                  />
+                }
+              />
+              <Typography variant="body2" color="text.secondary">
+                {confirm.skipConnectionCheckDescription}
+              </Typography>
+            </Stack>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button variant="text" onClick={onClose}>
+        <Button variant="text" onClick={handleClose}>
           {confirm.cancel}
         </Button>
         <Button
