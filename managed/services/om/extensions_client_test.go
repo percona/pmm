@@ -69,6 +69,16 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 	assert.Empty(t, elsewhere.calls, "the redirect target must never see the request, let alone the bearer")
 }
 
+func TestSEPClientBypassesProxy(t *testing.T) {
+	t.Parallel()
+
+	client := newExtensionsClient("http://pmm-extensions:9000", "test-token")
+
+	transport, ok := client.http.Transport.(*http.Transport)
+	require.True(t, ok)
+	assert.Nil(t, transport.Proxy, "the proxy environment must not see what is sent to PMM Extensions")
+}
+
 func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	t.Parallel()
 

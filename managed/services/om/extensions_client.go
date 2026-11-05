@@ -56,10 +56,23 @@ func newExtensionsClient(baseURL, token string) *extensionsClient {
 		baseURL: baseURL,
 		token:   token,
 		http: &http.Client{
+			Transport:     directTransport(),
 			Timeout:       probeRequestTimeout,
 			CheckRedirect: refuseRedirect,
 		},
 	}
+}
+
+// directTransport ignores the proxy environment, which would otherwise see the credentials and secrets sent to PMM Extensions.
+func directTransport() *http.Transport {
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return &http.Transport{}
+	}
+
+	direct := defaultTransport.Clone()
+	direct.Proxy = nil
+	return direct
 }
 
 // net/http keeps the Authorization header on a same-host redirect even from https to http,
