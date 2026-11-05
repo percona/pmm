@@ -6,22 +6,29 @@ import {
   getValueFormat,
   TimeRange,
   toURLRange,
+  UrlQueryMap,
+  UrlQueryValue,
   urlUtil,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { ComboboxOption } from '@grafana/ui';
 import {
   DETAILS_DASHBOARD_PATH,
   LABEL_FIELDS,
   NO_VALUE,
   ROLE_ORDER,
   UNKNOWN_CLUSTER,
+  URL_PARAMS,
 } from './AuroraTreePanel.constants';
 import { Messages } from './AuroraTreePanel.messages';
 import {
   AuroraCluster,
   AuroraTreeOptions,
+  ClusterFilters,
+  FilteredClusters,
   InstanceRole,
   InstanceRow,
+  SortValue,
 } from './AuroraTreePanel.types';
 
 type MetricKey = 'up' | 'readOnly' | 'qps' | 'storageBytes';
@@ -175,4 +182,103 @@ export const getServiceUrl = (serviceName: string, timeRange: TimeRange) => {
     from: String(from),
     to: String(to),
   });
+};
+
+const includesQuery = (value: string, query: string) => value.toLowerCase().includes(query);
+
+// Plain substring match: subsequence matching would hit nearly every row, since all names share
+// words like "database", "instance" and "aurora".
+export const filterClusters = (clusters: AuroraCluster[], filters: ClusterFilters): FilteredClusters => {
+  const query = filters.query.trim().toLowerCase();
+  const autoExpanded = new Set<string>();
+  const matching = clusters
+    .filter((cluster) => !filters.accounts.length || filters.accounts.includes(cluster.awsAccountId))
+    .filter((cluster) => !filters.clusters.length || filters.clusters.includes(cluster.clusterId))
+    .reduce<AuroraCluster[]>((acc, cluster) => {
+      const clusterFields = [cluster.clusterId, cluster.awsAccountId, cluster.region];
+
+      if (!query || clusterFields.some((value) => includesQuery(value, query))) {
+        acc.push(cluster);
+
+        return acc;
+      }
+
+      const instances = cluster.instances.filter((instance) => includesQuery(instance.serviceName, query));
+
+      if (instances.length) {
+        autoExpanded.add(cluster.key);
+        acc.push({ ...cluster, instances });
+      }
+
+      return acc;
+    }, []);
+
+  return { clusters: matching, autoExpanded };
+};
+
+const toOptions = (clusters: AuroraCluster[], getValue: (cluster: AuroraCluster) => string) => {
+  const regions = new Map<string, Set<string>>();
+
+  clusters.forEach((cluster) => {
+    const value = getValue(cluster);
+
+    if (value) {
+      regions.set(value, (regions.get(value) ?? new Set()).add(cluster.region));
+    }
+  });
+
+  return [...regions.entries()].map(([value, valueRegions]): ComboboxOption => ({
+    label: value,
+    value,
+    description: [...valueRegions].sort().join(', '),
+  }));
+};
+
+const byValue = (a: ComboboxOption, b: ComboboxOption) => Number(a.value === UNKNOWN_CLUSTER)
+  - Number(b.value === UNKNOWN_CLUSTER) || a.value.localeCompare(b.value);
+
+export const getAccountOptions = (clusters: AuroraCluster[]) => toOptions(
+  clusters,
+  (cluster) => cluster.awsAccountId,
+).sort(byValue);
+
+export const getClusterOptions = (clusters: AuroraCluster[], accounts: string[]) => toOptions(
+  clusters.filter((cluster) => !accounts.length || accounts.includes(cluster.awsAccountId)),
+  (cluster) => cluster.clusterId,
+).sort(byValue);
+
+const toList = (value: UrlQueryValue): string[] => {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  return (Array.isArray(value) ? value : [value]).map(String).filter(Boolean);
+};
+
+export const readFilters = (search: UrlQueryMap): ClusterFilters => ({
+  query: toList(search[URL_PARAMS.query])[0] ?? '',
+  accounts: toList(search[URL_PARAMS.accounts]),
+  clusters: toList(search[URL_PARAMS.clusters]),
+});
+
+// null removes a parameter from the URL.
+export const toUrlQuery = ({ query, accounts, clusters }: ClusterFilters): UrlQueryMap => ({
+  [URL_PARAMS.query]: query || null,
+  [URL_PARAMS.accounts]: accounts.length ? accounts : null,
+  [URL_PARAMS.clusters]: clusters.length ? clusters : null,
+});
+
+// Missing values sort last in both directions.
+export const compareSortValues = (a: SortValue, b: SortValue, desc: boolean) => {
+  if (a === b) {
+    return 0;
+  }
+
+  if (a === undefined || b === undefined) {
+    return a === undefined ? 1 : -1;
+  }
+
+  const result = typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b));
+
+  return desc ? -result : result;
 };

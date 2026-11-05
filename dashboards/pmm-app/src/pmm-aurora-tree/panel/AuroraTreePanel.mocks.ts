@@ -10,6 +10,7 @@ const instances = [
   ['eu-north-1', '111111111111', 'database-3', 'database-3-instance-1'],
   ['eu-north-1', '111111111111', 'database-3', 'database-3-instance-1-reader'],
   ['eu-north-1', '', 'AWS cluster unknown', 'aurora-stale'],
+  ['us-east-2', '222222222222', 'pmm-qa-aurora3-mysql', 'pmm-qa-aurora3-mysql-instance-1'],
 ];
 
 const labelFields = (rows: string[][]) => [
@@ -22,10 +23,10 @@ const labelFields = (rows: string[][]) => [
 
 // Values per instance, in the order of `instances`; null marks a missing series.
 const values: Record<string, Array<number | null>> = {
-  'Value #A': [1, 1, 1, 0],
-  'Value #B': [0, 0, 1, null],
-  'Value #C': [10, 20.5, 4.25, null],
-  'Value #D': [1000, 5000, 5000, null],
+  'Value #A': [1, 1, 1, 0, 1],
+  'Value #B': [0, 0, 1, null, 0],
+  'Value #C': [10, 20.5, 4.25, null, 7],
+  'Value #D': [1000, 5000, 5000, null, 2000],
 };
 
 export const mergedFrame = toDataFrame({

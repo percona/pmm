@@ -28,6 +28,14 @@ export const QPS_DECIMALS = 2;
 
 export const STORAGE_UNIT = 'bytes';
 
+export const SEARCH_DEBOUNCE_MS = 200;
+
+export const URL_PARAMS = {
+  query: 'aurora-q',
+  accounts: 'aurora-account',
+  clusters: 'aurora-cluster',
+};
+
 export const ROLE_ORDER: InstanceRole[] = ['writer', 'reader', 'unknown'];
 
 export const ROLE_COLORS: Record<InstanceRole, BadgeColor> = {

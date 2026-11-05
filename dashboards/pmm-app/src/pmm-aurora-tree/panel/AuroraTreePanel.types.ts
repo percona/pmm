@@ -45,5 +45,29 @@ export interface TableColumn<T extends object> {
   id: keyof T & string;
   header: string;
   cell?: (props: CellProps<T>) => ReactNode;
-  sortType?: 'alphanumeric' | 'number';
+}
+
+export type SortValue = string | number | undefined;
+
+export interface ClusterColumn {
+  id: string;
+  header: string;
+  render: (cluster: AuroraCluster) => ReactNode;
+  sortValue: (cluster: AuroraCluster) => SortValue;
+}
+
+export interface ClusterSort {
+  id: string;
+  desc: boolean;
+}
+
+export interface ClusterFilters {
+  query: string;
+  accounts: string[];
+  clusters: string[];
+}
+
+export interface FilteredClusters {
+  clusters: AuroraCluster[];
+  autoExpanded: Set<string>;
 }
