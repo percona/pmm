@@ -67,8 +67,15 @@ func TestCallerKey(t *testing.T) {
 		assert.Equal(t, bearer, callerKey(callerAuth{authorization: "Bearer T", cookie: "pmm_session=s"}))
 
 		alice := callerKey(callerAuth{authorization: basic("alice:pw")})
-		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"}))
 		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("ALICE:pw")}))
+
+		both := callerKey(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"})
+		assert.Equal(t, both, callerKey(callerAuth{authorization: basic("bob:x"), cookie: "pmm_session=t"}))
+		assert.NotEqual(t, both, alice)
+		assert.NotEqual(t, both, callerKey(callerAuth{cookie: "pmm_session=s"}))
+		assert.NotEqual(t, both, callerKey(callerAuth{}))
+
+		assert.Equal(t, callerKey(callerAuth{cookie: "pmm_session=abc"}), callerKey(callerAuth{cookie: "pmm_session=%61bc"}))
 
 		session := callerKey(callerAuth{cookie: "pmm_session=s1"})
 		assert.Equal(t, session, callerKey(callerAuth{cookie: "pmm_session=s1; other=1"}))

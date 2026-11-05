@@ -399,6 +399,7 @@ type actionStub struct {
 	mu          sync.Mutex
 	release     chan struct{}
 	starts      []actions_service.StartServiceActionBody
+	polls       int
 	inFlight    int
 	maxInFlight int
 	// cancels and cancelAuth record each cancelAction call's action id and Authorization.
@@ -492,11 +493,12 @@ func (a *actionStub) cancel(rw http.ResponseWriter, body []byte, authorization s
 
 func (a *actionStub) get(rw http.ResponseWriter, id string) {
 	done := !slices.Contains(a.slow, id)
+	a.mu.Lock()
+	a.polls++
 	if done {
-		a.mu.Lock()
 		a.inFlight--
-		a.mu.Unlock()
 	}
+	a.mu.Unlock()
 	kind, table, _ := strings.Cut(id, "-")
 	output := map[string]string{"ddl": fmt.Sprintf("CREATE TABLE `%s` (`id` int)", table), "index": "index of " + table, "explain": a.explain}[kind]
 	var actionErr string
@@ -726,7 +728,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		require.Eventually(t, func() bool {
 			stub.mu.Lock()
 			defer stub.mu.Unlock()
-			return len(stub.starts) > 0
+			return stub.polls > 0
 		}, 5*time.Second, 10*time.Millisecond)
 		// The running call holds one of the two slots.
 		rel := take(t, s, key)

@@ -439,8 +439,7 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 	}
 }
 
-// cancelAction cancels an unfinished action on pmm-agent. It runs on a context
-// that outlives the call's, since the call's has already ended.
+// cancelAction cancels an unfinished action on pmm-agent, on a context that is not cancelled with the call's.
 func (s *Service) cancelAction(ctx context.Context, auth callerAuth, actionID string) {
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cancelTimeout)
 	defer cancel()

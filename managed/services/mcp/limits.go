@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -96,16 +97,26 @@ func callerKey(a callerAuth) string {
 	}
 
 	req := &http.Request{Header: h}
-	user, _, ok := req.BasicAuth()
-	if ok {
+	user, _, isBasic := req.BasicAuth()
+
+	cookieReq := &http.Request{Header: http.Header{"Cookie": {a.cookie}}}
+	c, cookieErr := cookieReq.Cookie(sessionCookieName)
+
+	if isBasic && cookieErr == nil {
+		// Grafana falls back from Basic to the session, so neither value alone identifies the caller.
+		return hashKey("basic+session\x00")
+	}
+	if isBasic {
 		// Grafana logins are case-insensitive.
 		return hashKey("user\x00" + strings.ToLower(user))
 	}
-
-	req.Header = http.Header{"Cookie": {a.cookie}}
-	c, err := req.Cookie(sessionCookieName)
-	if err == nil {
-		return hashKey("session\x00" + c.Value)
+	if cookieErr == nil {
+		// Grafana unescapes the session cookie value before looking it up.
+		v, err := url.QueryUnescape(c.Value)
+		if err != nil {
+			v = c.Value
+		}
+		return hashKey("session\x00" + v)
 	}
 	return hashKey("")
 }

@@ -159,7 +159,7 @@ func New(params Params) (*Service, error) {
 		// authorized on its own by nginx, so nothing has to be replicated in HA
 		// mode and restarts are transparent to clients.
 		Stateless: true,
-		// A client that disconnects cancels its call, and with it the call's unfinished actions.
+		// A client that disconnects cancels its call, and with it the call's unfinished actions; protocol 2026-07-28 and later only.
 		PropagateRequestCancellation: true,
 		// nginx forwards with its upstream name as Host, which the SDK's DNS-rebinding
 		// guard rejects; Handler's loopback-peer check protects /mcp instead.
