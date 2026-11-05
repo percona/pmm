@@ -10,6 +10,7 @@ import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
+import CloudOutlined from '@mui/icons-material/CloudOutlined';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
@@ -90,12 +91,6 @@ export const NAV_MYSQL: NavItem = {
       icon: AppsRounded,
       text: 'Summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,
-    },
-    {
-      id: 'mysql-aurora',
-      icon: DashboardOutlined,
-      text: 'Amazon Aurora',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/aurora-overview/amazon-aurora-overview`,
     },
     {
       id: 'mysql-high-availability',
@@ -273,6 +268,32 @@ export const NAV_POSTGRESQL: NavItem = {
       id: 'postgresql-top-queries',
       text: 'Top queries',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-top-queries/postgresql-top-queries`,
+    },
+  ],
+};
+
+//
+// Amazon RDS
+//
+const RDS_OVERVIEW_PATH = `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview/amazon-rds-overview`;
+// The provisioned dashboard cannot carry its own refresh interval, so the link sets it.
+const RDS_OVERVIEW_URL = `${RDS_OVERVIEW_PATH}?refresh=1m`;
+
+export const NAV_RDS: NavItem = {
+  id: 'rds',
+  icon: CloudOutlined,
+  text: 'Amazon RDS',
+  url: RDS_OVERVIEW_URL,
+  children: [
+    {
+      id: 'rds-overview',
+      icon: PageviewOutlined,
+      text: 'Overview',
+      url: RDS_OVERVIEW_URL,
+      matches: [
+        RDS_OVERVIEW_PATH,
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview`,
+      ],
     },
   ],
 };

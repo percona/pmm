@@ -2,11 +2,13 @@ import { renderHook } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
+import { NodeType, type RemoteRdsNode } from 'types/nodes.types';
 import { User } from 'types/user.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   OM_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
@@ -20,9 +22,15 @@ import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
 
+const { useNodes } = vi.hoisted(() => ({
+  useNodes: vi.fn(),
+}));
+
 vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
 }));
+
+vi.mock('hooks/api/useNodes', () => ({ useNodes }));
 
 vi.mock('hooks/api/useAdvisors', () => ({
   useAdvisors: () => ({ data: [] }),
@@ -78,7 +86,73 @@ const renderNavTree = (
 const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
+const RDS_NODE: RemoteRdsNode = {
+  nodeId: 'node-1',
+  nodeName: 'database-1',
+  address: 'database-1.example.eu-north-1.rds.amazonaws.com',
+  nodeModel: '',
+  region: 'eu-north-1',
+  az: 'eu-north-1a',
+  customLabels: {},
+  instanceId: 'database-1',
+};
+
 describe('NavigationProvider', () => {
+  beforeEach(() => {
+    useNodes.mockReturnValue({ data: { remoteRds: [] } });
+  });
+
+  describe('Amazon RDS section', () => {
+    it('is hidden without RDS nodes', () => {
+      const ids = renderNavTree().map((item) => item.id);
+
+      expect(ids).not.toContain('rds');
+    });
+
+    it('is shown with one RDS node, holding the overview, before Operating system', () => {
+      useNodes.mockReturnValue({ data: { remoteRds: [RDS_NODE] } });
+
+      const navTree = renderNavTree();
+      const ids = navTree.map((item) => item.id);
+      const rds = findById(navTree, 'rds');
+
+      expect(ids.indexOf('rds')).toBe(ids.indexOf('system') - 1);
+      expect(rds?.text).toBe('Amazon RDS');
+      expect(rds?.children?.map((child) => child.id)).toEqual(['rds-overview']);
+    });
+
+    it('lists only RDS nodes, and only for an admin, who alone may list nodes', () => {
+      renderNavTree(TEST_USER_ADMIN);
+      expect(useNodes).toHaveBeenLastCalledWith(
+        { nodeType: NodeType.remoteRds },
+        expect.objectContaining({ enabled: true })
+      );
+
+      renderNavTree(TEST_USER_EDITOR);
+      expect(useNodes).toHaveBeenLastCalledWith(
+        { nodeType: NodeType.remoteRds },
+        expect.objectContaining({ enabled: false })
+      );
+    });
+
+    it('marks the overview active on the dashboard, with or without a slug', () => {
+      useNodes.mockReturnValue({ data: { remoteRds: [RDS_NODE] } });
+
+      const navTree = renderNavTree();
+      const rds = findById(navTree, 'rds');
+
+      [
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview/amazon-rds-overview`,
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview`,
+      ].forEach((path) => {
+        const active = findActiveNavItem(navTree, path);
+
+        expect(active?.id).toBe('rds-overview');
+        expect(rds?.children).toContain(active);
+      });
+    });
+  });
+
   describe('Apps section', () => {
     it.each([
       ['admin', TEST_USER_ADMIN],
