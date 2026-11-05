@@ -176,6 +176,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 
 	// Exporter options
 	ua.DisabledCollectors = agent.ExporterOptions.DisabledCollectors
+	ua.EnabledCollectors = agent.ExporterOptions.EnabledCollectors
 	ua.MetricsPath = agent.ExporterOptions.MetricsPath
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics

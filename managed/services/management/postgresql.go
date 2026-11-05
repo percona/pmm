@@ -19,13 +19,17 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/managed/utils/duration"
+	"github.com/percona/pmm/version"
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
@@ -65,6 +69,11 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			return err
 		}
 
+		err = validateEnabledCollectors(tx.Querier, req.PmmAgentId, req.EnableCollectors, req.DisableCollectors)
+		if err != nil {
+			return err
+		}
+
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID:    req.PmmAgentId,
 			ServiceID:     service.ServiceID,
@@ -77,6 +86,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				EnabledCollectors:  req.EnableCollectors,
 				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
@@ -181,4 +191,30 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 	}
 
 	return res, nil
+}
+
+// validateEnabledCollectors checks the postgres_exporter collectors to enable against the exporter that the
+// pmm-agent runs. A pmm-agent that hasn't reported its version yet isn't checked: its exporter configuration
+// leaves out the flags that the exporter doesn't take.
+func validateEnabledCollectors(q *reform.Querier, pmmAgentID string, enabled, disabled []string) error {
+	if len(enabled) == 0 {
+		return nil
+	}
+
+	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	var pmmAgentVersion *version.Parsed
+	if pmmAgent.Version != nil {
+		pmmAgentVersion, _ = version.Parse(*pmmAgent.Version)
+	}
+
+	err = collectors.ValidatePostgresExporterCollectors(enabled, disabled, pmmAgentVersion)
+	if err != nil {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return nil
 }

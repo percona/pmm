@@ -5645,6 +5645,14 @@
                         },
                         "x-order": 9
                       },
+                      "enabled_collectors": {
+                        "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -5659,18 +5667,18 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -5685,24 +5693,24 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "auto_discovery_limit": {
                         "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
-                        "x-order": 15
+                        "x-order": 16
                       },
                       "max_exporter_connections": {
                         "description": "Maximum number of connections that exporter can open to the database instance.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 16
+                        "x-order": 17
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -5724,12 +5732,12 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 17
+                        "x-order": 18
                       },
                       "connection_timeout": {
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
-                        "x-order": 18
+                        "x-order": 19
                       }
                     }
                   },
@@ -9335,6 +9343,14 @@
                       },
                       "x-order": 9
                     },
+                    "enabled_collectors": {
+                      "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -9349,18 +9365,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -9375,24 +9391,24 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_exporter_connections": {
                       "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -9414,12 +9430,12 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -11425,6 +11441,14 @@
                       },
                       "x-order": 9
                     },
+                    "enabled_collectors": {
+                      "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -11439,18 +11463,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -11465,24 +11489,24 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_exporter_connections": {
                       "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -11504,12 +11528,12 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     }
                   },
                   "x-order": 5
@@ -15592,6 +15616,14 @@
                       },
                       "x-order": 9
                     },
+                    "enabled_collectors": {
+                      "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -15606,18 +15638,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -15632,24 +15664,24 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_exporter_connections": {
                       "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -15671,12 +15703,12 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -21320,11 +21352,19 @@
                         },
                         "x-order": 9
                       },
+                      "enabled_collectors": {
+                        "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -21339,29 +21379,29 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "max_query_length": {
                         "description": "Limit query length in QAN.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "max_query_log_size": {
                         "description": "Limit query log size in QAN.",
                         "type": "string",
                         "format": "int64",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "metrics_path": {
                         "description": "Path under which metrics are exposed, used to generate URI.",
                         "type": "string",
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "metrics_scheme": {
                         "description": "Scheme to generate URI to exporter metrics endpoints.",
                         "type": "string",
-                        "x-order": 15
+                        "x-order": 16
                       },
                       "mongo_db_options": {
                         "type": "object",
@@ -21411,7 +21451,7 @@
                             "x-order": 7
                           }
                         },
-                        "x-order": 16
+                        "x-order": 17
                       },
                       "mysql_options": {
                         "type": "object",
@@ -21430,22 +21470,22 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 17
+                        "x-order": 18
                       },
                       "node_id": {
                         "description": "A unique node identifier.",
                         "type": "string",
-                        "x-order": 18
+                        "x-order": 19
                       },
                       "is_password_set": {
                         "description": "True if password for connecting the agent to the database is set.",
                         "type": "boolean",
-                        "x-order": 19
+                        "x-order": 20
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier.",
                         "type": "string",
-                        "x-order": 20
+                        "x-order": 21
                       },
                       "postgresql_options": {
                         "type": "object",
@@ -21468,104 +21508,104 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 21
+                        "x-order": 22
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 22
+                        "x-order": 23
                       },
                       "push_metrics": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 23
+                        "x-order": 24
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 24
+                        "x-order": 25
                       },
                       "comments_parsing_disabled": {
                         "description": "True if query comments parsing is disabled.",
                         "type": "boolean",
-                        "x-order": 25
+                        "x-order": 26
                       },
                       "rds_basic_metrics_disabled": {
                         "description": "True if RDS basic metrics are disdabled.",
                         "type": "boolean",
-                        "x-order": 26
+                        "x-order": 27
                       },
                       "rds_enhanced_metrics_disabled": {
                         "description": "True if RDS enhanced metrics are disdabled.",
                         "type": "boolean",
-                        "x-order": 27
+                        "x-order": 28
                       },
                       "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string",
-                        "x-order": 28
+                        "x-order": 29
                       },
                       "service_id": {
                         "description": "Service identifier.",
                         "type": "string",
-                        "x-order": 29
+                        "x-order": 30
                       },
                       "status": {
                         "description": "Actual Agent status.",
                         "type": "string",
-                        "x-order": 30
+                        "x-order": 31
                       },
                       "table_count": {
                         "description": "Last known table count.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 31
+                        "x-order": 32
                       },
                       "table_count_tablestats_group_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 32
+                        "x-order": 33
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 33
+                        "x-order": 34
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 34
+                        "x-order": 35
                       },
                       "username": {
                         "description": "HTTP basic auth username for collecting metrics.",
                         "type": "string",
-                        "x-order": 35
+                        "x-order": 36
                       },
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 36
+                        "x-order": 37
                       },
                       "version": {
                         "description": "Agent version.",
                         "type": "string",
-                        "x-order": 37
+                        "x-order": 38
                       },
                       "is_connected": {
                         "description": "True if Agent is running and connected to pmm-managed.",
                         "type": "boolean",
-                        "x-order": 38
+                        "x-order": 39
                       },
                       "expose_exporter": {
                         "description": "True if an exporter agent is exposed on all host addresses.",
                         "type": "boolean",
-                        "x-order": 39
+                        "x-order": 40
                       },
                       "valkey_options": {
                         "type": "object",
-                        "x-order": 40
+                        "x-order": 41
                       },
                       "rta_options": {
                         "description": "RTAOptions holds Real-Time Query Analytics agent options.",
@@ -21577,17 +21617,17 @@
                             "x-order": 0
                           }
                         },
-                        "x-order": 41
+                        "x-order": 42
                       },
                       "connection_timeout": {
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
-                        "x-order": 42
+                        "x-order": 43
                       },
                       "aws_role_arn": {
                         "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                         "type": "string",
-                        "x-order": 43
+                        "x-order": 44
                       },
                       "environment_variable_names": {
                         "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
@@ -21595,7 +21635,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 44
+                        "x-order": 45
                       }
                     }
                   },
@@ -22907,11 +22947,19 @@
                               },
                               "x-order": 9
                             },
+                            "enabled_collectors": {
+                              "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "x-order": 10
+                            },
                             "listen_port": {
                               "description": "Listen port for scraping metrics.",
                               "type": "integer",
                               "format": "int64",
-                              "x-order": 10
+                              "x-order": 11
                             },
                             "log_level": {
                               "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -22926,29 +22974,29 @@
                                 "LOG_LEVEL_INFO",
                                 "LOG_LEVEL_DEBUG"
                               ],
-                              "x-order": 11
+                              "x-order": 12
                             },
                             "max_query_length": {
                               "description": "Limit query length in QAN.",
                               "type": "integer",
                               "format": "int32",
-                              "x-order": 12
+                              "x-order": 13
                             },
                             "max_query_log_size": {
                               "description": "Limit query log size in QAN.",
                               "type": "string",
                               "format": "int64",
-                              "x-order": 13
+                              "x-order": 14
                             },
                             "metrics_path": {
                               "description": "Path under which metrics are exposed, used to generate URI.",
                               "type": "string",
-                              "x-order": 14
+                              "x-order": 15
                             },
                             "metrics_scheme": {
                               "description": "Scheme to generate URI to exporter metrics endpoints.",
                               "type": "string",
-                              "x-order": 15
+                              "x-order": 16
                             },
                             "mongo_db_options": {
                               "type": "object",
@@ -22998,7 +23046,7 @@
                                   "x-order": 7
                                 }
                               },
-                              "x-order": 16
+                              "x-order": 17
                             },
                             "mysql_options": {
                               "type": "object",
@@ -23017,22 +23065,22 @@
                                   "x-order": 1
                                 }
                               },
-                              "x-order": 17
+                              "x-order": 18
                             },
                             "node_id": {
                               "description": "A unique node identifier.",
                               "type": "string",
-                              "x-order": 18
+                              "x-order": 19
                             },
                             "is_password_set": {
                               "description": "True if password for connecting the agent to the database is set.",
                               "type": "boolean",
-                              "x-order": 19
+                              "x-order": 20
                             },
                             "pmm_agent_id": {
                               "description": "The pmm-agent identifier.",
                               "type": "string",
-                              "x-order": 20
+                              "x-order": 21
                             },
                             "postgresql_options": {
                               "type": "object",
@@ -23055,104 +23103,104 @@
                                   "x-order": 2
                                 }
                               },
-                              "x-order": 21
+                              "x-order": 22
                             },
                             "process_exec_path": {
                               "description": "Path to exec process.",
                               "type": "string",
-                              "x-order": 22
+                              "x-order": 23
                             },
                             "push_metrics": {
                               "description": "True if exporter uses push metrics mode.",
                               "type": "boolean",
-                              "x-order": 23
+                              "x-order": 24
                             },
                             "query_examples_disabled": {
                               "description": "True if query examples are disabled.",
                               "type": "boolean",
-                              "x-order": 24
+                              "x-order": 25
                             },
                             "comments_parsing_disabled": {
                               "description": "True if query comments parsing is disabled.",
                               "type": "boolean",
-                              "x-order": 25
+                              "x-order": 26
                             },
                             "rds_basic_metrics_disabled": {
                               "description": "True if RDS basic metrics are disdabled.",
                               "type": "boolean",
-                              "x-order": 26
+                              "x-order": 27
                             },
                             "rds_enhanced_metrics_disabled": {
                               "description": "True if RDS enhanced metrics are disdabled.",
                               "type": "boolean",
-                              "x-order": 27
+                              "x-order": 28
                             },
                             "runs_on_node_id": {
                               "description": "Node identifier where this instance runs.",
                               "type": "string",
-                              "x-order": 28
+                              "x-order": 29
                             },
                             "service_id": {
                               "description": "Service identifier.",
                               "type": "string",
-                              "x-order": 29
+                              "x-order": 30
                             },
                             "status": {
                               "description": "Actual Agent status.",
                               "type": "string",
-                              "x-order": 30
+                              "x-order": 31
                             },
                             "table_count": {
                               "description": "Last known table count.",
                               "type": "integer",
                               "format": "int32",
-                              "x-order": 31
+                              "x-order": 32
                             },
                             "table_count_tablestats_group_limit": {
                               "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                               "type": "integer",
                               "format": "int32",
-                              "x-order": 32
+                              "x-order": 33
                             },
                             "tls": {
                               "description": "Use TLS for database connections.",
                               "type": "boolean",
-                              "x-order": 33
+                              "x-order": 34
                             },
                             "tls_skip_verify": {
                               "description": "Skip TLS certificate and hostname validation.",
                               "type": "boolean",
-                              "x-order": 34
+                              "x-order": 35
                             },
                             "username": {
                               "description": "HTTP basic auth username for collecting metrics.",
                               "type": "string",
-                              "x-order": 35
+                              "x-order": 36
                             },
                             "updated_at": {
                               "description": "Last update timestamp.",
                               "type": "string",
                               "format": "date-time",
-                              "x-order": 36
+                              "x-order": 37
                             },
                             "version": {
                               "description": "Agent version.",
                               "type": "string",
-                              "x-order": 37
+                              "x-order": 38
                             },
                             "is_connected": {
                               "description": "True if Agent is running and connected to pmm-managed.",
                               "type": "boolean",
-                              "x-order": 38
+                              "x-order": 39
                             },
                             "expose_exporter": {
                               "description": "True if an exporter agent is exposed on all host addresses.",
                               "type": "boolean",
-                              "x-order": 39
+                              "x-order": 40
                             },
                             "valkey_options": {
                               "type": "object",
-                              "x-order": 40
+                              "x-order": 41
                             },
                             "rta_options": {
                               "description": "RTAOptions holds Real-Time Query Analytics agent options.",
@@ -23164,17 +23212,17 @@
                                   "x-order": 0
                                 }
                               },
-                              "x-order": 41
+                              "x-order": 42
                             },
                             "connection_timeout": {
                               "description": "Connection timeout for exporter (if set).",
                               "type": "string",
-                              "x-order": 42
+                              "x-order": 43
                             },
                             "aws_role_arn": {
                               "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                               "type": "string",
-                              "x-order": 43
+                              "x-order": 44
                             },
                             "environment_variable_names": {
                               "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
@@ -23182,7 +23230,7 @@
                               "items": {
                                 "type": "string"
                               },
-                              "x-order": 44
+                              "x-order": 45
                             }
                           }
                         },
@@ -24021,25 +24069,33 @@
                       },
                       "x-order": 24
                     },
+                    "enable_collectors": {
+                      "description": "List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions.\nA collector that the exporter runs by default needs no entry. A name can't be in both lists.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 25
+                    },
                     "tls_ca": {
                       "description": "TLS CA certificate.",
                       "type": "string",
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "tls_cert": {
                       "description": "TLS Certifcate.",
                       "type": "string",
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "tls_key": {
                       "description": "TLS Certificate Key.",
                       "type": "string",
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "agent_password": {
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
-                      "x-order": 28
+                      "x-order": 29
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -24054,29 +24110,29 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 29
+                      "x-order": 30
                     },
                     "auto_discovery_limit": {
                       "description": "Limit for auto discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 30
+                      "x-order": 31
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 31
+                      "x-order": 32
                     },
                     "max_exporter_connections": {
                       "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 32
+                      "x-order": 33
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
-                      "x-order": 33
+                      "x-order": 34
                     }
                   },
                   "x-order": 2
@@ -26252,6 +26308,14 @@
                           },
                           "x-order": 9
                         },
+                        "enabled_collectors": {
+                          "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 10
+                        },
                         "status": {
                           "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                           "type": "string",
@@ -26266,18 +26330,18 @@
                             "AGENT_STATUS_DONE",
                             "AGENT_STATUS_UNKNOWN"
                           ],
-                          "x-order": 10
+                          "x-order": 11
                         },
                         "listen_port": {
                           "description": "Listen port for scraping metrics.",
                           "type": "integer",
                           "format": "int64",
-                          "x-order": 11
+                          "x-order": 12
                         },
                         "process_exec_path": {
                           "description": "Path to exec process.",
                           "type": "string",
-                          "x-order": 12
+                          "x-order": 13
                         },
                         "log_level": {
                           "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -26292,24 +26356,24 @@
                             "LOG_LEVEL_INFO",
                             "LOG_LEVEL_DEBUG"
                           ],
-                          "x-order": 13
+                          "x-order": 14
                         },
                         "auto_discovery_limit": {
                           "description": "Limit of databases for auto-discovery.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 14
+                          "x-order": 15
                         },
                         "expose_exporter": {
                           "type": "boolean",
                           "title": "Optionally expose the exporter process on all public interfaces",
-                          "x-order": 15
+                          "x-order": 16
                         },
                         "max_exporter_connections": {
                           "description": "Maximum number of connections that exporter can open to the database instance.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 16
+                          "x-order": 17
                         },
                         "metrics_resolutions": {
                           "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -26331,12 +26395,12 @@
                               "x-order": 2
                             }
                           },
-                          "x-order": 17
+                          "x-order": 18
                         },
                         "connection_timeout": {
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
-                          "x-order": 18
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -27789,6 +27853,14 @@
                           },
                           "x-order": 9
                         },
+                        "enabled_collectors": {
+                          "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 10
+                        },
                         "status": {
                           "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                           "type": "string",
@@ -27803,18 +27875,18 @@
                             "AGENT_STATUS_DONE",
                             "AGENT_STATUS_UNKNOWN"
                           ],
-                          "x-order": 10
+                          "x-order": 11
                         },
                         "listen_port": {
                           "description": "Listen port for scraping metrics.",
                           "type": "integer",
                           "format": "int64",
-                          "x-order": 11
+                          "x-order": 12
                         },
                         "process_exec_path": {
                           "description": "Path to exec process.",
                           "type": "string",
-                          "x-order": 12
+                          "x-order": 13
                         },
                         "log_level": {
                           "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -27829,24 +27901,24 @@
                             "LOG_LEVEL_INFO",
                             "LOG_LEVEL_DEBUG"
                           ],
-                          "x-order": 13
+                          "x-order": 14
                         },
                         "auto_discovery_limit": {
                           "description": "Limit of databases for auto-discovery.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 14
+                          "x-order": 15
                         },
                         "expose_exporter": {
                           "type": "boolean",
                           "title": "Optionally expose the exporter process on all public interfaces",
-                          "x-order": 15
+                          "x-order": 16
                         },
                         "max_exporter_connections": {
                           "description": "Maximum number of connections that exporter can open to the database instance.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 16
+                          "x-order": 17
                         },
                         "metrics_resolutions": {
                           "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -27868,12 +27940,12 @@
                               "x-order": 2
                             }
                           },
-                          "x-order": 17
+                          "x-order": 18
                         },
                         "connection_timeout": {
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
-                          "x-order": 18
+                          "x-order": 19
                         }
                       },
                       "x-order": 6
@@ -29070,19 +29142,33 @@
                       },
                       "x-order": 22
                     },
+                    "enable_collectors": {
+                      "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 23
+                    },
                     "auto_discovery_limit": {
                       "description": "Limit for auto discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-nullable": true,
-                      "x-order": 23
+                      "x-order": 24
                     },
                     "max_exporter_connections": {
                       "description": "Maximum number of connections that exporter can open to the database instance.",
                       "type": "integer",
                       "format": "int32",
                       "x-nullable": true,
-                      "x-order": 24
+                      "x-order": 25
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -29098,23 +29184,23 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-nullable": true,
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "expose_exporter": {
                       "description": "Expose the exporter process on all public interfaces.",
                       "type": "boolean",
                       "x-nullable": true,
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter; zero restores the default.",
                       "type": "string",
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 28
+                      "x-order": 29
                     }
                   },
                   "x-order": 2
@@ -29800,11 +29886,19 @@
                             },
                             "x-order": 9
                           },
+                          "enabled_collectors": {
+                            "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 10
+                          },
                           "listen_port": {
                             "description": "Listen port for scraping metrics.",
                             "type": "integer",
                             "format": "int64",
-                            "x-order": 10
+                            "x-order": 11
                           },
                           "log_level": {
                             "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -29819,29 +29913,29 @@
                               "LOG_LEVEL_INFO",
                               "LOG_LEVEL_DEBUG"
                             ],
-                            "x-order": 11
+                            "x-order": 12
                           },
                           "max_query_length": {
                             "description": "Limit query length in QAN.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 12
+                            "x-order": 13
                           },
                           "max_query_log_size": {
                             "description": "Limit query log size in QAN.",
                             "type": "string",
                             "format": "int64",
-                            "x-order": 13
+                            "x-order": 14
                           },
                           "metrics_path": {
                             "description": "Path under which metrics are exposed, used to generate URI.",
                             "type": "string",
-                            "x-order": 14
+                            "x-order": 15
                           },
                           "metrics_scheme": {
                             "description": "Scheme to generate URI to exporter metrics endpoints.",
                             "type": "string",
-                            "x-order": 15
+                            "x-order": 16
                           },
                           "mongo_db_options": {
                             "type": "object",
@@ -29891,7 +29985,7 @@
                                 "x-order": 7
                               }
                             },
-                            "x-order": 16
+                            "x-order": 17
                           },
                           "mysql_options": {
                             "type": "object",
@@ -29910,22 +30004,22 @@
                                 "x-order": 1
                               }
                             },
-                            "x-order": 17
+                            "x-order": 18
                           },
                           "node_id": {
                             "description": "A unique node identifier.",
                             "type": "string",
-                            "x-order": 18
+                            "x-order": 19
                           },
                           "is_password_set": {
                             "description": "True if password for connecting the agent to the database is set.",
                             "type": "boolean",
-                            "x-order": 19
+                            "x-order": 20
                           },
                           "pmm_agent_id": {
                             "description": "The pmm-agent identifier.",
                             "type": "string",
-                            "x-order": 20
+                            "x-order": 21
                           },
                           "postgresql_options": {
                             "type": "object",
@@ -29948,104 +30042,104 @@
                                 "x-order": 2
                               }
                             },
-                            "x-order": 21
+                            "x-order": 22
                           },
                           "process_exec_path": {
                             "description": "Path to exec process.",
                             "type": "string",
-                            "x-order": 22
+                            "x-order": 23
                           },
                           "push_metrics": {
                             "description": "True if exporter uses push metrics mode.",
                             "type": "boolean",
-                            "x-order": 23
+                            "x-order": 24
                           },
                           "query_examples_disabled": {
                             "description": "True if query examples are disabled.",
                             "type": "boolean",
-                            "x-order": 24
+                            "x-order": 25
                           },
                           "comments_parsing_disabled": {
                             "description": "True if query comments parsing is disabled.",
                             "type": "boolean",
-                            "x-order": 25
+                            "x-order": 26
                           },
                           "rds_basic_metrics_disabled": {
                             "description": "True if RDS basic metrics are disdabled.",
                             "type": "boolean",
-                            "x-order": 26
+                            "x-order": 27
                           },
                           "rds_enhanced_metrics_disabled": {
                             "description": "True if RDS enhanced metrics are disdabled.",
                             "type": "boolean",
-                            "x-order": 27
+                            "x-order": 28
                           },
                           "runs_on_node_id": {
                             "description": "Node identifier where this instance runs.",
                             "type": "string",
-                            "x-order": 28
+                            "x-order": 29
                           },
                           "service_id": {
                             "description": "Service identifier.",
                             "type": "string",
-                            "x-order": 29
+                            "x-order": 30
                           },
                           "status": {
                             "description": "Actual Agent status.",
                             "type": "string",
-                            "x-order": 30
+                            "x-order": 31
                           },
                           "table_count": {
                             "description": "Last known table count.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 31
+                            "x-order": 32
                           },
                           "table_count_tablestats_group_limit": {
                             "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 32
+                            "x-order": 33
                           },
                           "tls": {
                             "description": "Use TLS for database connections.",
                             "type": "boolean",
-                            "x-order": 33
+                            "x-order": 34
                           },
                           "tls_skip_verify": {
                             "description": "Skip TLS certificate and hostname validation.",
                             "type": "boolean",
-                            "x-order": 34
+                            "x-order": 35
                           },
                           "username": {
                             "description": "HTTP basic auth username for collecting metrics.",
                             "type": "string",
-                            "x-order": 35
+                            "x-order": 36
                           },
                           "updated_at": {
                             "description": "Last update timestamp.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 36
+                            "x-order": 37
                           },
                           "version": {
                             "description": "Agent version.",
                             "type": "string",
-                            "x-order": 37
+                            "x-order": 38
                           },
                           "is_connected": {
                             "description": "True if Agent is running and connected to pmm-managed.",
                             "type": "boolean",
-                            "x-order": 38
+                            "x-order": 39
                           },
                           "expose_exporter": {
                             "description": "True if an exporter agent is exposed on all host addresses.",
                             "type": "boolean",
-                            "x-order": 39
+                            "x-order": 40
                           },
                           "valkey_options": {
                             "type": "object",
-                            "x-order": 40
+                            "x-order": 41
                           },
                           "rta_options": {
                             "description": "RTAOptions holds Real-Time Query Analytics agent options.",
@@ -30057,17 +30151,17 @@
                                 "x-order": 0
                               }
                             },
-                            "x-order": 41
+                            "x-order": 42
                           },
                           "connection_timeout": {
                             "description": "Connection timeout for exporter (if set).",
                             "type": "string",
-                            "x-order": 42
+                            "x-order": 43
                           },
                           "aws_role_arn": {
                             "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                             "type": "string",
-                            "x-order": 43
+                            "x-order": 44
                           },
                           "environment_variable_names": {
                             "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
@@ -30075,7 +30169,7 @@
                             "items": {
                               "type": "string"
                             },
-                            "x-order": 44
+                            "x-order": 45
                           }
                         }
                       },
@@ -30279,11 +30373,19 @@
                             },
                             "x-order": 9
                           },
+                          "enabled_collectors": {
+                            "description": "List of enabled collector names: collectors that the exporter doesn't run by default.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 10
+                          },
                           "listen_port": {
                             "description": "Listen port for scraping metrics.",
                             "type": "integer",
                             "format": "int64",
-                            "x-order": 10
+                            "x-order": 11
                           },
                           "log_level": {
                             "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -30298,29 +30400,29 @@
                               "LOG_LEVEL_INFO",
                               "LOG_LEVEL_DEBUG"
                             ],
-                            "x-order": 11
+                            "x-order": 12
                           },
                           "max_query_length": {
                             "description": "Limit query length in QAN.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 12
+                            "x-order": 13
                           },
                           "max_query_log_size": {
                             "description": "Limit query log size in QAN.",
                             "type": "string",
                             "format": "int64",
-                            "x-order": 13
+                            "x-order": 14
                           },
                           "metrics_path": {
                             "description": "Path under which metrics are exposed, used to generate URI.",
                             "type": "string",
-                            "x-order": 14
+                            "x-order": 15
                           },
                           "metrics_scheme": {
                             "description": "Scheme to generate URI to exporter metrics endpoints.",
                             "type": "string",
-                            "x-order": 15
+                            "x-order": 16
                           },
                           "mongo_db_options": {
                             "type": "object",
@@ -30370,7 +30472,7 @@
                                 "x-order": 7
                               }
                             },
-                            "x-order": 16
+                            "x-order": 17
                           },
                           "mysql_options": {
                             "type": "object",
@@ -30389,22 +30491,22 @@
                                 "x-order": 1
                               }
                             },
-                            "x-order": 17
+                            "x-order": 18
                           },
                           "node_id": {
                             "description": "A unique node identifier.",
                             "type": "string",
-                            "x-order": 18
+                            "x-order": 19
                           },
                           "is_password_set": {
                             "description": "True if password for connecting the agent to the database is set.",
                             "type": "boolean",
-                            "x-order": 19
+                            "x-order": 20
                           },
                           "pmm_agent_id": {
                             "description": "The pmm-agent identifier.",
                             "type": "string",
-                            "x-order": 20
+                            "x-order": 21
                           },
                           "postgresql_options": {
                             "type": "object",
@@ -30427,104 +30529,104 @@
                                 "x-order": 2
                               }
                             },
-                            "x-order": 21
+                            "x-order": 22
                           },
                           "process_exec_path": {
                             "description": "Path to exec process.",
                             "type": "string",
-                            "x-order": 22
+                            "x-order": 23
                           },
                           "push_metrics": {
                             "description": "True if exporter uses push metrics mode.",
                             "type": "boolean",
-                            "x-order": 23
+                            "x-order": 24
                           },
                           "query_examples_disabled": {
                             "description": "True if query examples are disabled.",
                             "type": "boolean",
-                            "x-order": 24
+                            "x-order": 25
                           },
                           "comments_parsing_disabled": {
                             "description": "True if query comments parsing is disabled.",
                             "type": "boolean",
-                            "x-order": 25
+                            "x-order": 26
                           },
                           "rds_basic_metrics_disabled": {
                             "description": "True if RDS basic metrics are disdabled.",
                             "type": "boolean",
-                            "x-order": 26
+                            "x-order": 27
                           },
                           "rds_enhanced_metrics_disabled": {
                             "description": "True if RDS enhanced metrics are disdabled.",
                             "type": "boolean",
-                            "x-order": 27
+                            "x-order": 28
                           },
                           "runs_on_node_id": {
                             "description": "Node identifier where this instance runs.",
                             "type": "string",
-                            "x-order": 28
+                            "x-order": 29
                           },
                           "service_id": {
                             "description": "Service identifier.",
                             "type": "string",
-                            "x-order": 29
+                            "x-order": 30
                           },
                           "status": {
                             "description": "Actual Agent status.",
                             "type": "string",
-                            "x-order": 30
+                            "x-order": 31
                           },
                           "table_count": {
                             "description": "Last known table count.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 31
+                            "x-order": 32
                           },
                           "table_count_tablestats_group_limit": {
                             "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 32
+                            "x-order": 33
                           },
                           "tls": {
                             "description": "Use TLS for database connections.",
                             "type": "boolean",
-                            "x-order": 33
+                            "x-order": 34
                           },
                           "tls_skip_verify": {
                             "description": "Skip TLS certificate and hostname validation.",
                             "type": "boolean",
-                            "x-order": 34
+                            "x-order": 35
                           },
                           "username": {
                             "description": "HTTP basic auth username for collecting metrics.",
                             "type": "string",
-                            "x-order": 35
+                            "x-order": 36
                           },
                           "updated_at": {
                             "description": "Last update timestamp.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 36
+                            "x-order": 37
                           },
                           "version": {
                             "description": "Agent version.",
                             "type": "string",
-                            "x-order": 37
+                            "x-order": 38
                           },
                           "is_connected": {
                             "description": "True if Agent is running and connected to pmm-managed.",
                             "type": "boolean",
-                            "x-order": 38
+                            "x-order": 39
                           },
                           "expose_exporter": {
                             "description": "True if an exporter agent is exposed on all host addresses.",
                             "type": "boolean",
-                            "x-order": 39
+                            "x-order": 40
                           },
                           "valkey_options": {
                             "type": "object",
-                            "x-order": 40
+                            "x-order": 41
                           },
                           "rta_options": {
                             "description": "RTAOptions holds Real-Time Query Analytics agent options.",
@@ -30536,17 +30638,17 @@
                                 "x-order": 0
                               }
                             },
-                            "x-order": 41
+                            "x-order": 42
                           },
                           "connection_timeout": {
                             "description": "Connection timeout for exporter (if set).",
                             "type": "string",
-                            "x-order": 42
+                            "x-order": 43
                           },
                           "aws_role_arn": {
                             "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                             "type": "string",
-                            "x-order": 43
+                            "x-order": 44
                           },
                           "environment_variable_names": {
                             "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
@@ -30554,7 +30656,7 @@
                             "items": {
                               "type": "string"
                             },
-                            "x-order": 44
+                            "x-order": 45
                           }
                         }
                       },
