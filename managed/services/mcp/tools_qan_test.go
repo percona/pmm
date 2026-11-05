@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"slices"
@@ -452,6 +453,40 @@ func TestKeyMetricsMongoDB(t *testing.T) {
 		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
 }
 
+// TestRenderRowPrintsRankedValue checks that the order_by column also prints the value qan-api2 sorted by:
+// the total for counters, the per-call average for time metrics.
+func TestRenderRowPrintsRankedValue(t *testing.T) {
+	t.Parallel()
+
+	var row qanReportRow
+	err := json.Unmarshal([]byte(`{"dimension": "app", "metrics": {
+		"blk_read_time": {"stats": {"sum": 30, "avg": 3}},
+		"docs_examined": {"stats": {"sum": 20000, "avg": 2000}}}}`), &row)
+	require.NoError(t, err)
+
+	for _, tc := range []struct {
+		orderBy string
+		want    []string
+		notWant []string
+	}{
+		{"-blk_read_time", []string{" blk_read_time_avg=3 blk_read_time=30", " docs_examined_avg=2000"}, []string{"docs_examined=20000"}},
+		{"-docs_examined", []string{" docs_examined_avg=2000 docs_examined=20000", " blk_read_time=30"}, []string{"blk_read_time_avg="}},
+	} {
+		t.Run(tc.orderBy, func(t *testing.T) {
+			t.Parallel()
+
+			q := &reportQuery{groupBy: "username", orderBy: tc.orderBy, columns: []string{"blk_read_time", "docs_examined"}}
+			line := q.renderRow(row, 1, "", false)
+			for _, w := range tc.want {
+				assert.Contains(t, line, w)
+			}
+			for _, w := range tc.notWant {
+				assert.NotContains(t, line, w)
+			}
+		})
+	}
+}
+
 // TestTopQueriesReportInputs pins the getReport body that each input produces,
 // and the header, paging and columns of a report not grouped by queryid.
 func TestTopQueriesReportInputs(t *testing.T) {
@@ -471,8 +506,8 @@ func TestTopQueriesReportInputs(t *testing.T) {
 	assert.Equal(t, strings.Join([]string{
 		"Rows 11-12 of 14 (group_by=username, order_by=-rows_examined):",
 		"",
-		"11. [app] load=0.4 calls=700 total=120s avg=0.171s rows_examined_avg=100 full_scan=12",
-		"12. [(empty)] load=0.1 calls=200 total=30s avg=0.15s rows_examined_avg=0 full_scan=0",
+		"11. [app] load=0.4 calls=700 total=120s avg=0.171s rows_examined_avg=100 rows_examined=70000 full_scan=12",
+		"12. [(empty)] load=0.1 calls=200 total=30s avg=0.15s rows_examined_avg=0 rows_examined=0 full_scan=0",
 		"",
 		"[Open this workload in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
 			"from=" + ms(testNow.Add(-time.Hour)) + "&to=" + ms(testNow) + "&var-service_name=shop-mysql)",

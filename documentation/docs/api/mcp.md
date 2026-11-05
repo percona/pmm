@@ -102,7 +102,7 @@ Every result carries a **View in PMM** link that opens the QAN dashboard on the 
 
 ### QAN columns
 
-`pmm_top_queries` adds up to 10 of these QAN metrics to each row (`columns`) and can rank by any of them (`order_by`, with `-` for descending). The meanings are QAN's own. A column shown as an average is per call; the others are totals over the window.
+`pmm_top_queries` adds up to 10 of these QAN metrics to each row (`columns`) and can rank by any of them (`order_by`, with `-` for descending). The meanings are QAN's own. A column shown as an average is per call; the others are totals over the window. The `order_by` column is shown as both, because QAN ranks a time metric by its per-call average and any other column by its total.
 
 | Column | Engine | Shown as | Meaning |
 |--------|--------|----------|---------|

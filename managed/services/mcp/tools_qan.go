@@ -96,7 +96,8 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 		Description: "Rank queries, or another QAN dimension (group_by: service_name, database, schema, username, client_host, " +
 			"application_name, cmd_type), over a time window, from PMM Query Analytics (QAN). order_by load and total_query_time " +
 			"rank by total time, avg_query_time by the slowest calls, count by frequency, and a column by its value (- for " +
-			"descending). Rows carry load, calls and timing plus the requested columns; queryid rows (the default) also carry " +
+			"descending): ranked by the total, or by the per-call average for time metrics, as QAN does, and printed as both. " +
+			"Rows carry load, calls and timing plus the requested columns; queryid rows (the default) also carry " +
 			"the fingerprint, and the queryid goes to pmm_query_detail or pmm_get_explain. Page with offset. Columns: " +
 			qanColumnsText() + ".",
 		Annotations: readOnly("Top queries by load"),
@@ -311,9 +312,12 @@ func (q *reportQuery) renderRow(row qanReportRow, rank int, engine string, raw b
 		if slices.Contains(baseColumns, name) || !ok || m.Stats == nil {
 			continue
 		}
-		if c, _ := qanColumnByName(name); c.avg {
+		c, _ := qanColumnByName(name)
+		ranked := name == strings.TrimPrefix(q.orderBy, "-")
+		if c.avg || ranked {
 			fmt.Fprintf(&b, " %s_avg=%s", name, fmtNum3(finite(m.Stats.Avg)))
-		} else {
+		}
+		if !c.avg || ranked {
 			fmt.Fprintf(&b, " %s=%s", name, fmtNum3(finite(m.Stats.Sum)))
 		}
 	}
