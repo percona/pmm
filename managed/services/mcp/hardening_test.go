@@ -535,8 +535,8 @@ func TestHandlerOnlyServesLoopbackPeers(t *testing.T) {
 }
 
 // TestServesRequestsProxiedByNginx pins that a request shaped exactly like
-// nginx's is served: it arrives over loopback and carries the upstream name,
-// managed-json, as its Host header.
+// nginx's is served: it arrives over loopback and carries the public Host
+// header.
 //
 // That is the request the SDK's DNS-rebinding guard rejects with 403, so the
 // guard has to stay off whatever interface pmm-managed is bound to.
@@ -552,7 +552,7 @@ func TestServesRequestsProxiedByNginx(t *testing.T) {
 	nginx := httptest.NewServer(&httputil.ReverseProxy{
 		Rewrite: func(r *httputil.ProxyRequest) {
 			r.SetURL(target)
-			r.Out.Host = "managed-json"
+			r.Out.Host = r.In.Host
 		},
 	})
 	t.Cleanup(nginx.Close)
@@ -592,4 +592,57 @@ func TestDefaultsAreOff(t *testing.T) {
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = res.Body.Close() })
 	assert.Equal(t, http.StatusNotFound, res.StatusCode, "a disabled endpoint must answer 404")
+}
+
+// TestOriginCheck pins that a browser request from another site never reaches
+// the MCP handler, while clients that send no browser headers still do.
+// Go compares Origin with Host when Sec-Fetch-Site is absent, so nginx must
+// pass the public Host.
+func TestOriginCheck(t *testing.T) {
+	t.Parallel()
+
+	const initialize = `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"t","version":"0"}}}`
+
+	for _, tc := range []struct {
+		name    string
+		host    string
+		headers map[string]string
+		enabled bool
+		want    int
+	}{
+		{"NoBrowserHeaders", "", nil, true, http.StatusOK},
+		{"SameOriginFetch", "", map[string]string{"Sec-Fetch-Site": "same-origin"}, true, http.StatusOK},
+		{"OriginIsPublicHost", "pmm.example", map[string]string{"Origin": "https://pmm.example"}, true, http.StatusOK},
+		{"OriginIsPublicHostButHostRewritten", "managed-json", map[string]string{"Origin": "https://pmm.example"}, true, http.StatusForbidden},
+		{"CrossSiteFetch", "", map[string]string{"Sec-Fetch-Site": "cross-site", "Origin": "https://evil.example"}, true, http.StatusForbidden},
+		{"ForeignOriginOnly", "", map[string]string{"Origin": "https://evil.example"}, true, http.StatusForbidden},
+		{"CrossSiteWhileDisabled", "", map[string]string{"Sec-Fetch-Site": "cross-site"}, false, http.StatusNotFound},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			s, err := New(Params{Enabled: func() bool { return tc.enabled }})
+			require.NoError(t, err)
+			srv := httptest.NewServer(s.Handler())
+			t.Cleanup(srv.Close)
+
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, srv.URL+"/mcp", strings.NewReader(initialize))
+			require.NoError(t, err)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Accept", "application/json, text/event-stream")
+			req.Header.Set("Authorization", testToken)
+			for k, v := range tc.headers {
+				req.Header.Set(k, v)
+			}
+			if tc.host != "" {
+				req.Host = tc.host
+			}
+
+			resp, err := http.DefaultClient.Do(req)
+			require.NoError(t, err)
+			defer resp.Body.Close()
+
+			assert.Equal(t, tc.want, resp.StatusCode)
+		})
+	}
 }
