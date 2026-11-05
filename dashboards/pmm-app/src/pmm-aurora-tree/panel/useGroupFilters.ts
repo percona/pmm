@@ -3,18 +3,20 @@ import { isEqual } from 'lodash';
 import { locationService } from '@grafana/runtime';
 import { SEARCH_DEBOUNCE_MS } from './AuroraTreePanel.constants';
 import { readFilters, toUrlQuery } from './AuroraTreePanel.tools';
-import { ClusterFilters, ClusterSelection } from './AuroraTreePanel.types';
+import { GroupFilters, GroupSelection } from './AuroraTreePanel.types';
 
-const NO_SELECTION: ClusterSelection = { regions: [], accounts: [], clusters: [] };
+const NO_SELECTION: GroupSelection = {
+  regions: [], accounts: [], engines: [], groups: [],
+};
 
 // Filters start from the URL and are written back to it, so a reload or a shared link keeps them.
-export const useClusterFilters = () => {
+export const useGroupFilters = () => {
   const [{ query: initialQuery, ...initialSelection }] = useState(() => readFilters(
     locationService.getSearchObject(),
   ));
   const [search, setSearch] = useState(initialQuery);
   const [query, setQuery] = useState(initialQuery);
-  const [selection, setSelection] = useState<ClusterSelection>(initialSelection);
+  const [selection, setSelection] = useState<GroupSelection>(initialSelection);
 
   useEffect(() => {
     const timer = setTimeout(() => setQuery(search), SEARCH_DEBOUNCE_MS);
@@ -22,7 +24,7 @@ export const useClusterFilters = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const filters = useMemo((): ClusterFilters => ({ query, ...selection }), [query, selection]);
+  const filters = useMemo((): GroupFilters => ({ query, ...selection }), [query, selection]);
 
   useEffect(() => {
     if (!isEqual(filters, readFilters(locationService.getSearchObject()))) {

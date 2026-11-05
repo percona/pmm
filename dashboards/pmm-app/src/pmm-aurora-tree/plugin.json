@@ -1,5 +1,5 @@
 {
   "type": "panel",
-  "name": "Aurora clusters",
+  "name": "Amazon RDS tree",
   "id": "pmm-aurora-tree-panel"
 }

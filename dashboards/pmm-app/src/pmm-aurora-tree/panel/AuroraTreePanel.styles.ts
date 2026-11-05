@@ -106,9 +106,26 @@ export const getStyles = (theme: GrafanaTheme2) => {
     bad: css`
       color: ${theme.visualization.getColorByName('red')};
     `,
-    unknownCluster: css`
+    muted: css`
+      color: ${text.secondary};
+    `,
+    unknownGroup: css`
       color: ${text.secondary};
       font-style: italic;
+    `,
+    groupName: css`
+      display: inline-flex;
+      align-items: baseline;
+      gap: ${theme.spacing(1)};
+    `,
+    groupKind: css`
+      color: ${text.secondary};
+      font-size: ${theme.typography.bodySmall.fontSize};
+    `,
+    instanceDetails: css`
+      margin-left: ${theme.spacing(1)};
+      color: ${text.secondary};
+      font-size: ${theme.typography.bodySmall.fontSize};
     `,
     links: css`
       display: inline-flex;

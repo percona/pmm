@@ -59,7 +59,7 @@ export const Toolbar: FC<ToolbarProps> = ({
           />
         </InlineField>
       ))}
-      <span className={styles.count}>{Messages.shownClusters(shown, total)}</span>
+      <span className={styles.count}>{Messages.shownGroups(shown, total)}</span>
     </div>
   );
 };

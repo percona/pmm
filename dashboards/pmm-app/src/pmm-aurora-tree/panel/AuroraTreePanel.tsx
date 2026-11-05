@@ -4,29 +4,30 @@ import { Button, useStyles2 } from '@grafana/ui';
 import { Messages } from './AuroraTreePanel.messages';
 import { getStyles } from './AuroraTreePanel.styles';
 import {
-  filterClusters,
+  filterGroups,
   getAccountOptions,
-  getClusterOptions,
+  getEngineOptions,
+  getGroupOptions,
   getRegionOptions,
-  groupClusters,
+  groupInstances,
   narrowSelection,
   readInstances,
 } from './AuroraTreePanel.tools';
-import { AuroraTreeOptions, ClusterSelection } from './AuroraTreePanel.types';
-import { ClusterTable } from './ClusterTable';
+import { AuroraTreeOptions, GroupSelection } from './AuroraTreePanel.types';
+import { GroupTable } from './GroupTable';
 import { SelectFilter, Toolbar } from './Toolbar';
-import { useClusterFilters } from './useClusterFilters';
+import { useGroupFilters } from './useGroupFilters';
 
 export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, options }) => {
   const styles = useStyles2(getStyles);
   const {
     search, setSearch, filters, setSelection, clear,
-  } = useClusterFilters();
-  const clusters = useMemo(() => groupClusters(readInstances(data.series, options)), [data.series, options]);
-  const filtered = useMemo(() => filterClusters(clusters, filters), [clusters, filters]);
+  } = useGroupFilters();
+  const groups = useMemo(() => groupInstances(readInstances(data.series, options)), [data.series, options]);
+  const filtered = useMemo(() => filterGroups(groups, filters), [groups, filters]);
   const selects = useMemo((): SelectFilter[] => {
-    const select = (changed: Partial<ClusterSelection>) => setSelection(
-      narrowSelection(clusters, { ...filters, ...changed }),
+    const select = (changed: Partial<GroupSelection>) => setSelection(
+      narrowSelection(groups, { ...filters, ...changed }),
     );
 
     return [
@@ -34,7 +35,7 @@ export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, optio
         id: 'aurora-tree-region',
         label: Messages.columns.region,
         placeholder: Messages.allRegions,
-        options: getRegionOptions(clusters),
+        options: getRegionOptions(groups),
         value: filters.regions,
         onChange: (regions) => select({ regions }),
       },
@@ -42,22 +43,30 @@ export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, optio
         id: 'aurora-tree-account',
         label: Messages.columns.awsAccount,
         placeholder: Messages.allAccounts,
-        options: getAccountOptions(clusters, filters.regions),
+        options: getAccountOptions(groups, filters.regions),
         value: filters.accounts,
         onChange: (accounts) => select({ accounts }),
       },
       {
-        id: 'aurora-tree-cluster',
-        label: Messages.columns.cluster,
-        placeholder: Messages.allClusters,
-        options: getClusterOptions(clusters, filters),
-        value: filters.clusters,
-        onChange: (ids) => select({ clusters: ids }),
+        id: 'aurora-tree-engine',
+        label: Messages.columns.engine,
+        placeholder: Messages.allEngines,
+        options: getEngineOptions(groups),
+        value: filters.engines,
+        onChange: (engines) => select({ engines }),
+      },
+      {
+        id: 'aurora-tree-group',
+        label: Messages.columns.group,
+        placeholder: Messages.allGroups,
+        options: getGroupOptions(groups, filters),
+        value: filters.groups,
+        onChange: (names) => select({ groups: names }),
       },
     ];
-  }, [clusters, filters, setSelection]);
+  }, [groups, filters, setSelection]);
 
-  if (!clusters.length) {
+  if (!groups.length) {
     return <div className={styles.empty}>{Messages.noData}</div>;
   }
 
@@ -67,12 +76,12 @@ export const AuroraTreePanel: FC<PanelProps<AuroraTreeOptions>> = ({ data, optio
         search={search}
         onSearchChange={setSearch}
         selects={selects}
-        shown={filtered.clusters.length}
-        total={clusters.length}
+        shown={filtered.groups.length}
+        total={groups.length}
       />
-      {filtered.clusters.length ? (
-        <ClusterTable
-          clusters={filtered.clusters}
+      {filtered.groups.length ? (
+        <GroupTable
+          groups={filtered.groups}
           autoExpanded={filtered.autoExpanded}
           expansionKey={filters.query}
         />
