@@ -2462,7 +2462,7 @@
     {
       "type": "timeseries",
       "title": "Search Command Errors",
-      "description": "Failed and invalid commands/queries per service. Command failures are user-visible errors; internally failed queries are mongot-side failures; invalid queries were rejected as malformed. When mongot is hung or unreachable these stay at 0 - check 'mongod to mongot Streams' instead.",
+      "description": "Failed and invalid commands/queries per service. Command failures do not include rejected queries; those are counted as invalid $search/$vectorSearch (rejected as malformed). Internally failed queries are mongot-side failures. When mongot is hung or unreachable these stay at 0 - check 'mongod to mongot Streams' instead.",
       "datasource": "Metrics",
       "fieldConfig": {
         "defaults": {
@@ -2580,7 +2580,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "sum by (service_name) (rate(mongot_index_stats_query_invalidQueries_total{service_name=~\"$service_name\"}))",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_searchCommandInvalidQueries_total{service_name=~\"$service_name\"}))",
           "legendFormat": "{{service_name}} invalid $search",
           "refId": "F",
           "interval": "$interval",
