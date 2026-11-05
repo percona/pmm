@@ -28,7 +28,7 @@ const renderPanel = (series: DataFrame[]) => {
 };
 
 const typeSearch = (text: string) => fireEvent.change(
-  screen.getByPlaceholderText('Search groups, instances, accounts'),
+  screen.getByPlaceholderText('Search DB identifiers, types, instances, accounts'),
   { target: { value: text } },
 );
 
@@ -45,14 +45,16 @@ describe('AuroraTreePanel::', () => {
     jest.useRealTimers();
   });
 
-  it('renders groups collapsed with their engine, kind and aggregates', () => {
+  it('renders groups collapsed with their engine, type and aggregates', () => {
     renderPanel(queryFrames);
 
     expect(screen.getByText('database-3')).toBeInTheDocument();
     expect(screen.getAllByText('AWS info unavailable')).toHaveLength(2);
-    expect(screen.getAllByText('cluster')).toHaveLength(3);
-    expect(screen.getByText('replication group')).toBeInTheDocument();
-    expect(screen.getAllByText('instance')).toHaveLength(2);
+    expect(screen.getAllByText('Aurora cluster')).toHaveLength(3);
+    expect(screen.getByText('Replication group')).toBeInTheDocument();
+    expect(screen.getAllByText('Instance')).toHaveLength(2);
+    expect(screen.getAllByText('Unavailable')).toHaveLength(2);
+    expect(screen.queryByText('Multi-AZ DB cluster')).not.toBeInTheDocument();
     expect(screen.getByText('Aurora PostgreSQL')).toBeInTheDocument();
     expect(screen.getByText('MariaDB')).toBeInTheDocument();
     expect(screen.getAllByText('1 writer')).toHaveLength(7);
@@ -112,14 +114,24 @@ describe('AuroraTreePanel::', () => {
     expect(rows[7]).toContain('AWS info unavailable');
   });
 
+  it('names the columns DB identifier and Type, next to each other', () => {
+    renderPanel(queryFrames);
+
+    const headers = screen.getAllByRole('columnheader').map((header) => header.textContent);
+
+    expect(headers.slice(1, 5)).toEqual(['Region', 'AWS account', 'DB identifier', 'Type']);
+    expect(headers).not.toContain('Group');
+  });
+
   it('renders the toolbar with the group count', () => {
     renderPanel(queryFrames);
 
-    expect(screen.getByPlaceholderText('Search groups, instances, accounts')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search DB identifiers, types, instances, accounts')).toBeInTheDocument();
     expect(screen.getByLabelText('Region')).toBeInTheDocument();
     expect(screen.getByLabelText('AWS account')).toBeInTheDocument();
     expect(screen.getByLabelText('Engine')).toBeInTheDocument();
-    expect(screen.getByLabelText('Group')).toBeInTheDocument();
+    expect(screen.getByLabelText('Type')).toBeInTheDocument();
+    expect(screen.getByLabelText('DB identifier')).toBeInTheDocument();
     expect(screen.getByText('8 of 8 groups')).toBeInTheDocument();
     expect(locationService.partial).not.toHaveBeenCalled();
   });
@@ -135,7 +147,13 @@ describe('AuroraTreePanel::', () => {
     expect(screen.queryByRole('link', { name: 'database-3-instance-1' })).not.toBeInTheDocument();
     expect(locationService.partial).toHaveBeenLastCalledWith(
       {
-        'rds-q': 'reader', 'rds-region': null, 'rds-account': null, 'rds-engine': null, 'rds-group': null,
+        'rds-q': 'reader',
+        'rds-region': null,
+        'rds-account': null,
+        'rds-engine': null,
+        'rds-type': null,
+        'rds-id': null,
+        'rds-group': null,
       },
       true,
     );
@@ -149,6 +167,39 @@ describe('AuroraTreePanel::', () => {
     expect(screen.getByText('database-4')).toBeInTheDocument();
     expect(screen.getByText('rds-pg-1')).toBeInTheDocument();
     expect(screen.queryByText('database-3')).not.toBeInTheDocument();
+  });
+
+  it('restores the type filter from the URL', () => {
+    mockSearch.current = { 'rds-type': 'aurora-cluster' };
+    renderPanel(queryFrames);
+
+    expect(screen.getByText('3 of 8 groups')).toBeInTheDocument();
+    expect(screen.getByText('database-3')).toBeInTheDocument();
+    expect(screen.queryByText('rds-pg-1')).not.toBeInTheDocument();
+  });
+
+  it('restores the DB identifier filter from rds-id and the legacy rds-group', () => {
+    mockSearch.current = { 'rds-id': 'database-3' };
+    const { unmount } = renderPanel(queryFrames);
+
+    expect(screen.getByText('1 of 8 groups')).toBeInTheDocument();
+    unmount();
+
+    mockSearch.current = { 'rds-group': 'database-3' };
+    renderPanel(queryFrames);
+
+    expect(screen.getByText('1 of 8 groups')).toBeInTheDocument();
+  });
+
+  it('sorts groups by type', () => {
+    renderPanel(queryFrames);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Type' }));
+
+    const rows = groupRows();
+
+    expect(rows[0]).toContain('Aurora cluster');
+    expect(rows[7]).toContain('Unavailable');
   });
 
   it('restores the account filter from the URL', () => {

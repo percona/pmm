@@ -15,6 +15,7 @@ import {
   ENGINES,
   LABEL_FIELDS,
   LEGACY_AURORA_ENGINE,
+  LEGACY_GROUPS_PARAM,
   METRIC_OPTIONS,
   MYSQL_SUMMARY_DASHBOARD_PATH,
   NODE_SUMMARY_DASHBOARD_PATH,
@@ -37,6 +38,7 @@ import {
   GroupFilters,
   GroupKind,
   GroupSelection,
+  GroupType,
   InstanceGroup,
   InstanceLabels,
   InstanceLink,
@@ -452,14 +454,30 @@ export const getInstanceDetails = (instance: RdsInstance, group: InstanceGroup) 
   instance.region !== group.region ? instance.region : '',
 ].filter(Boolean).join(', ');
 
+export const getGroupType = ({ kind, engine }: InstanceGroup): GroupType => {
+  if (kind === 'cluster') {
+    return isAurora(engine) ? 'aurora-cluster' : 'multi-az-cluster';
+  }
+
+  return kind === 'unknown' ? 'unavailable' : kind;
+};
+
+export const getGroupTypeLabel = (group: InstanceGroup) => Messages.groupTypes[getGroupType(group)];
+
 const includesQuery = (value: string, query: string) => value.toLowerCase().includes(query);
 
 const isSelected = (selected: string[], value: string) => !selected.length || selected.includes(value);
 
-const matchesSelection = (group: InstanceGroup, { regions, accounts, engines }: Omit<GroupSelection, 'groups'>) => (
+const matchesSelection = (
+  group: InstanceGroup,
+  {
+    regions, accounts, engines, types,
+  }: Omit<GroupSelection, 'groups'>,
+) => (
   isSelected(regions, group.region)
   && isSelected(accounts, group.awsAccountId)
   && isSelected(engines, group.engine ?? '')
+  && isSelected(types, getGroupType(group))
 );
 
 // Plain substring match: subsequence matching would hit nearly every row, since all names share
@@ -470,7 +488,13 @@ export const filterGroups = (groups: InstanceGroup[], filters: GroupFilters): Fi
   const matching = groups
     .filter((group) => matchesSelection(group, filters) && isSelected(filters.groups, group.name))
     .reduce<InstanceGroup[]>((acc, group) => {
-      const groupFields = [group.name, group.awsAccountId, group.region, getEngineLabel(group.engine)];
+      const groupFields = [
+        group.name,
+        getGroupTypeLabel(group),
+        group.awsAccountId,
+        group.region,
+        getEngineLabel(group.engine),
+      ];
 
       if (!query || groupFields.some((value) => includesQuery(value, query))) {
         acc.push(group);
@@ -535,6 +559,12 @@ export const getEngineOptions = (groups: InstanceGroup[]): ComboboxOption[] => [
   .map((engine) => ({ label: ENGINES[engine].label, value: engine }))
   .sort((a, b) => a.label.localeCompare(b.label));
 
+export const getTypeOptions = (groups: InstanceGroup[]): ComboboxOption[] => [
+  ...new Set(groups.map(getGroupType)),
+]
+  .map((type) => ({ label: Messages.groupTypes[type], value: type }))
+  .sort((a, b) => a.label.localeCompare(b.label));
+
 export const getGroupOptions = (groups: InstanceGroup[], selection: Omit<GroupSelection, 'groups'>) => toOptions(
   groups.filter((group) => matchesSelection(group, selection)),
   (group) => group.name,
@@ -545,14 +575,17 @@ const hasOption = (options: ComboboxOption[]) => (value: string) => options
 
 // Drops selected accounts and groups that the selected regions, accounts and engines no longer offer.
 export const narrowSelection = (groups: InstanceGroup[], selection: GroupSelection): GroupSelection => {
-  const { regions, engines } = selection;
+  const { regions, engines, types } = selection;
   const accounts = selection.accounts.filter(hasOption(getAccountOptions(groups, regions)));
-  const groupOptions = getGroupOptions(groups, { regions, accounts, engines });
+  const groupOptions = getGroupOptions(groups, {
+    regions, accounts, engines, types,
+  });
 
   return {
     regions,
     accounts,
     engines,
+    types,
     groups: selection.groups.filter(hasOption(groupOptions)),
   };
 };
@@ -570,20 +603,23 @@ export const readFilters = (search: UrlQueryMap): GroupFilters => ({
   regions: toList(search[URL_PARAMS.regions]),
   accounts: toList(search[URL_PARAMS.accounts]),
   engines: toList(search[URL_PARAMS.engines]),
-  groups: toList(search[URL_PARAMS.groups]),
+  types: toList(search[URL_PARAMS.types]),
+  groups: toList(search[URL_PARAMS.groups] ?? search[LEGACY_GROUPS_PARAM]),
 });
 
 const toParam = (values: string[]) => (values.length ? values : null);
 
 // null removes a parameter from the URL.
 export const toUrlQuery = ({
-  query, regions, accounts, engines, groups,
+  query, regions, accounts, engines, types, groups,
 }: GroupFilters): UrlQueryMap => ({
   [URL_PARAMS.query]: query || null,
   [URL_PARAMS.regions]: toParam(regions),
   [URL_PARAMS.accounts]: toParam(accounts),
   [URL_PARAMS.engines]: toParam(engines),
+  [URL_PARAMS.types]: toParam(types),
   [URL_PARAMS.groups]: toParam(groups),
+  [LEGACY_GROUPS_PARAM]: null,
 });
 
 // Missing values sort last in both directions.

@@ -10,6 +10,8 @@ import {
   getEngine,
   getEngineOptions,
   getGroupOptions,
+  getGroupType,
+  getTypeOptions,
   getInstanceDetails,
   getInstanceLinks,
   getRegionOptions,
@@ -330,7 +332,7 @@ describe('AuroraTreePanel.tools:: formatting and links', () => {
 
 describe('AuroraTreePanel.tools:: filters', () => {
   const noFilters: GroupFilters = {
-    query: '', regions: [], accounts: [], engines: [], groups: [],
+    query: '', regions: [], accounts: [], engines: [], types: [], groups: [],
   };
   const values = (options: Array<{ value: string }>) => options.map(({ value }) => value);
   const filter = (filters: Partial<GroupFilters>) => filterGroups(groups, { ...noFilters, ...filters });
@@ -381,6 +383,46 @@ describe('AuroraTreePanel.tools:: filters', () => {
     ]);
   });
 
+  it('derives the type of every kind of group', () => {
+    expect(groups.map((group) => [group.name, getGroupType(group)])).toEqual([
+      ['database-2', 'aurora-cluster'],
+      ['database-3', 'aurora-cluster'],
+      ['database-4', 'aurora-cluster'],
+      ['AWS info unavailable', 'unavailable'],
+      ['AWS info unavailable', 'unavailable'],
+      ['rds-mariadb-1', 'instance'],
+      ['rds-mysql-1', 'replication'],
+      ['rds-pg-1', 'instance'],
+    ]);
+    expect(getGroupType({ kind: 'cluster', engine: 'postgres' } as InstanceGroup)).toBe('multi-az-cluster');
+    expect(getGroupType({ kind: 'cluster', engine: 'mysql' } as InstanceGroup)).toBe('multi-az-cluster');
+    expect(getGroupType({ kind: 'cluster', engine: 'aurora-postgresql' } as InstanceGroup)).toBe('aurora-cluster');
+  });
+
+  it('filters by type and searches the type text', () => {
+    expect(names({ types: ['aurora-cluster'] })).toEqual(['database-2', 'database-3', 'database-4']);
+    expect(names({ types: ['instance', 'replication'] })).toEqual(['rds-mariadb-1', 'rds-mysql-1', 'rds-pg-1']);
+    expect(names({ types: ['unavailable'] })).toEqual(['AWS info unavailable', 'AWS info unavailable']);
+    expect(names({ types: ['aurora-cluster'], engines: ['aurora-postgresql'] })).toEqual(['database-4']);
+    expect(names({ query: 'aurora cluster' })).toEqual(['database-2', 'database-3', 'database-4']);
+    expect(names({ query: 'replication group' })).toEqual(['rds-mysql-1']);
+  });
+
+  it('builds type options from the data and narrows the DB identifier options by type', () => {
+    expect(getTypeOptions(groups)).toEqual([
+      { label: 'Aurora cluster', value: 'aurora-cluster' },
+      { label: 'Instance', value: 'instance' },
+      { label: 'Replication group', value: 'replication' },
+      { label: 'Unavailable', value: 'unavailable' },
+    ]);
+    expect(values(getGroupOptions(groups, {
+      regions: [], accounts: [], engines: [], types: ['instance', 'replication'],
+    }))).toEqual(['rds-mariadb-1', 'rds-mysql-1', 'rds-pg-1']);
+    expect(narrowSelection(groups, {
+      regions: [], accounts: [], engines: [], types: ['instance'], groups: ['database-3', 'rds-pg-1'],
+    }).groups).toEqual(['rds-pg-1']);
+  });
+
   it('finds the groups without AWS details by search and by group filter', () => {
     expect(names({ query: 'unavailable' })).toEqual(['AWS info unavailable', 'AWS info unavailable']);
     expect(names({ groups: ['AWS info unavailable'] })).toEqual(['AWS info unavailable', 'AWS info unavailable']);
@@ -417,7 +459,9 @@ describe('AuroraTreePanel.tools:: filters', () => {
   });
 
   it('builds group options narrowed to the selected regions, accounts and engines, unknown group last', () => {
-    const selection = { regions: [], accounts: [], engines: [] };
+    const selection = {
+      regions: [], accounts: [], engines: [], types: [],
+    };
 
     expect(values(getGroupOptions(groups, selection))).toEqual([
       'database-2',
@@ -445,6 +489,7 @@ describe('AuroraTreePanel.tools:: filters', () => {
       regions: [],
       accounts: ['111111111111', '222222222222'],
       engines: [],
+      types: [],
       groups: ['database-3', 'rds-mysql-1'],
     };
 
@@ -469,14 +514,18 @@ describe('AuroraTreePanel.tools:: filters', () => {
       'rds-region': ['eu-north-1', 'us-east-2'],
       'rds-account': '111111111111',
       'rds-engine': 'postgres',
-      'rds-group': ['database-2', 'database-3'],
+      'rds-type': 'aurora-cluster',
+      'rds-id': ['database-2', 'database-3'],
     })).toEqual({
       query: 'reader',
       regions: ['eu-north-1', 'us-east-2'],
       accounts: ['111111111111'],
       engines: ['postgres'],
+      types: ['aurora-cluster'],
       groups: ['database-2', 'database-3'],
     });
+    expect(readFilters({ 'rds-group': 'database-2' }).groups).toEqual(['database-2']);
+    expect(readFilters({ 'rds-group': 'old', 'rds-id': 'new' }).groups).toEqual(['new']);
   });
 
   it('writes filters to URL parameters, removing empty ones', () => {
@@ -485,16 +534,20 @@ describe('AuroraTreePanel.tools:: filters', () => {
       'rds-region': null,
       'rds-account': null,
       'rds-engine': null,
+      'rds-type': null,
+      'rds-id': null,
       'rds-group': null,
     });
     expect(toUrlQuery({
-      query: 'db', regions: ['r'], accounts: ['1'], engines: ['mysql'], groups: ['g'],
+      query: 'db', regions: ['r'], accounts: ['1'], engines: ['mysql'], types: ['instance'], groups: ['g'],
     })).toEqual({
       'rds-q': 'db',
       'rds-region': ['r'],
       'rds-account': ['1'],
       'rds-engine': ['mysql'],
-      'rds-group': ['g'],
+      'rds-type': ['instance'],
+      'rds-id': ['g'],
+      'rds-group': null,
     });
   });
 

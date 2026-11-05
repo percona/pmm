@@ -25,6 +25,8 @@ export type InstanceRole = 'writer' | 'reader' | 'unknown';
 
 export type GroupKind = 'cluster' | 'replication' | 'instance' | 'unknown';
 
+export type GroupType = 'aurora-cluster' | 'multi-az-cluster' | 'replication' | 'instance' | 'unavailable';
+
 export interface InstanceLabels {
   serviceName: string;
   nodeName: string;
@@ -117,6 +119,7 @@ export interface GroupSelection {
   regions: string[];
   accounts: string[];
   engines: string[];
+  types: string[];
   groups: string[];
 }
 

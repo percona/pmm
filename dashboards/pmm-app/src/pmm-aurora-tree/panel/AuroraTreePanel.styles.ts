@@ -118,10 +118,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
       align-items: baseline;
       gap: ${theme.spacing(1)};
     `,
-    groupKind: css`
-      color: ${text.secondary};
-      font-size: ${theme.typography.bodySmall.fontSize};
-    `,
     instanceDetails: css`
       margin-left: ${theme.spacing(1)};
       color: ${text.secondary};

@@ -6,7 +6,7 @@ import { readFilters, toUrlQuery } from './AuroraTreePanel.tools';
 import { GroupFilters, GroupSelection } from './AuroraTreePanel.types';
 
 const NO_SELECTION: GroupSelection = {
-  regions: [], accounts: [], engines: [], groups: [],
+  regions: [], accounts: [], engines: [], types: [], groups: [],
 };
 
 // Filters start from the URL and are written back to it, so a reload or a shared link keeps them.

@@ -12,6 +12,8 @@ import {
   formatStorage,
   formatThroughput,
   getEngineLabel,
+  getGroupType,
+  getGroupTypeLabel,
   getWriters,
 } from './AuroraTreePanel.tools';
 import { GroupColumn, GroupSort, InstanceGroup } from './AuroraTreePanel.types';
@@ -26,18 +28,14 @@ interface GroupTableProps {
 
 const GroupName: FC<{ group: InstanceGroup }> = ({ group }) => {
   const styles = useStyles2(getStyles);
-  const title = Messages.groupKindTitles[group.kind];
 
   if (group.kind === 'unknown') {
-    return <span className={styles.unknownGroup} title={title}>{group.name}</span>;
+    return (
+      <span className={styles.unknownGroup} title={Messages.groupTypeTitles.unavailable}>{group.name}</span>
+    );
   }
 
-  return (
-    <span className={styles.groupName}>
-      {group.name}
-      <span className={styles.groupKind} title={title}>{Messages.groupKinds[group.kind]}</span>
-    </span>
-  );
+  return <span className={styles.groupName}>{group.name}</span>;
 };
 
 const Writers: FC<{ group: InstanceGroup }> = ({ group }) => {
@@ -60,9 +58,15 @@ const COLUMNS: GroupColumn[] = [
   },
   {
     id: 'name',
-    header: Messages.columns.group,
+    header: Messages.columns.identifier,
     render: (g) => <GroupName group={g} />,
     sortValue: (g) => g.name,
+  },
+  {
+    id: 'type',
+    header: Messages.columns.type,
+    render: (g) => <span title={Messages.groupTypeTitles[getGroupType(g)]}>{getGroupTypeLabel(g)}</span>,
+    sortValue: (g) => getGroupTypeLabel(g),
   },
   {
     id: 'engine',

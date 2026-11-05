@@ -90,8 +90,12 @@ export const URL_PARAMS = {
   regions: 'rds-region',
   accounts: 'rds-account',
   engines: 'rds-engine',
-  groups: 'rds-group',
+  types: 'rds-type',
+  groups: 'rds-id',
 };
+
+// Read when rds-id is absent, so links made before the rename still filter.
+export const LEGACY_GROUPS_PARAM = 'rds-group';
 
 export const ROLE_ORDER: InstanceRole[] = ['writer', 'reader', 'unknown'];
 
