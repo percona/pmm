@@ -236,4 +236,116 @@ describe('FleetServicesTab', () => {
       `${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
+  describe('Group by (PMM-15712)', () => {
+    const groupBy = (label: string) => {
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Group by' }));
+      fireEvent.click(screen.getByRole('option', { name: label }));
+    };
+
+    it('opens flat, with no drag-to-group handle on any column header', () => {
+      renderTab();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('None');
+      for (const header of screen.getAllByRole('columnheader')) {
+        expect(
+          within(header).queryByRole('button', { name: /move/i })
+        ).toBeNull();
+      }
+    });
+
+    it('names an unset environment, never "null" or "undefined"', () => {
+      serve(
+        topology([
+          {
+            env_name: null,
+            clusters: [
+              cluster({
+                name: 'a',
+                services: [service({ service_name: 'a-1' })],
+              }),
+            ],
+          },
+          {
+            env_name: undefined,
+            clusters: [
+              cluster({
+                name: 'b',
+                services: [service({ service_name: 'b-1' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Environment');
+
+      const header = rowFor('Unassigned environment');
+      expect(header).toHaveTextContent('(2)');
+      expect(
+        within(header).getByRole('button', {
+          name: 'Collapse Unassigned environment',
+        })
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^(null|undefined)$/)).toBeNull();
+    });
+
+    it('keeps two clusters sharing a name, or both unnamed, in separate groups', () => {
+      serve(
+        topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-a' })],
+              }),
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-b' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-a' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-b' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Cluster');
+
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse orders' })
+      ).toHaveLength(2);
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse No cluster' })
+      ).toHaveLength(2);
+    });
+
+    it('groups by cluster from the select, with every group open', () => {
+      renderTab();
+
+      groupBy('Cluster');
+
+      const header = rowFor('orders');
+      expect(header).toHaveTextContent('(4)');
+      expect(
+        within(header).getByRole('button', { name: 'Collapse orders' })
+      ).toHaveAttribute('aria-expanded', 'true');
+      expect(
+        screen.getByRole('link', { name: 'orders-2' })
+      ).toBeInTheDocument();
+
+      groupBy('None');
+      expect(screen.queryByText('(4)')).toBeNull();
+    });
+  });
 });

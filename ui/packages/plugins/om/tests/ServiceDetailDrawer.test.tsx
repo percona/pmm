@@ -42,6 +42,7 @@ const row = (
   ...service({}),
   env_name: 'production',
   cluster_name: 'orders',
+  cluster_id: 'cluster-orders',
   inventory: null,
   ...overrides,
 });

@@ -356,8 +356,8 @@ type TriggerInventoryRefreshDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// trigger inventory refresh default body details items0
-	TriggerInventoryRefreshDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// trigger inventory refresh default body details items0 additional properties
+	TriggerInventoryRefreshDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -392,7 +392,7 @@ func (o *TriggerInventoryRefreshDefaultBodyDetailsItems0) UnmarshalJSON(data []b
 			}
 			result[k] = toadd
 		}
-		o.TriggerInventoryRefreshDefaultBodyDetailsItems0 = result
+		o.TriggerInventoryRefreshDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -413,12 +413,12 @@ func (o TriggerInventoryRefreshDefaultBodyDetailsItems0) MarshalJSON() ([]byte, 
 		return nil, err
 	}
 
-	if len(o.TriggerInventoryRefreshDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.TriggerInventoryRefreshDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.TriggerInventoryRefreshDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.TriggerInventoryRefreshDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

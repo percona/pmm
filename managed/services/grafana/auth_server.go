@@ -587,7 +587,7 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 }
 
 func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
+	ip, _, _ := strings.Cut(req.RemoteAddr, ":")
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
 	if ip == "127.0.0.1" &&
