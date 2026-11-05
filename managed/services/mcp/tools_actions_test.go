@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,6 +29,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -397,8 +399,19 @@ type actionStub struct {
 	mu          sync.Mutex
 	release     chan struct{}
 	starts      []actions_service.StartServiceActionBody
+	polls       int
 	inFlight    int
 	maxInFlight int
+	// cancels and cancelAuth record each cancelAction call's action id and Authorization.
+	cancels    []string
+	cancelAuth []string
+}
+
+// cancelled returns the action ids cancelAction was called for, in call order.
+func (a *actionStub) cancelled() []string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return slices.Clone(a.cancels)
 }
 
 func newActionStub(t *testing.T, barrier int, slow ...string) (*fakePMM, *actionStub) {
@@ -415,6 +428,9 @@ func newActionStub(t *testing.T, barrier int, slow ...string) (*fakePMM, *action
 		case req.URL.Path == "/v1/actions:startServiceAction":
 			body, _ := io.ReadAll(req.Body)
 			stub.start(rw, body)
+		case req.URL.Path == "/v1/actions:cancelAction":
+			body, _ := io.ReadAll(req.Body)
+			stub.cancel(rw, body, req.Header.Get("Authorization"))
 		case strings.HasPrefix(req.URL.Path, "/v1/actions/"):
 			stub.get(rw, strings.TrimPrefix(req.URL.Path, "/v1/actions/"))
 		default:
@@ -461,13 +477,28 @@ func (a *actionStub) start(rw http.ResponseWriter, body []byte) {
 	writeJSON(rw, map[string]map[string]string{"mysql_show_create_table": {"action_id": id}})
 }
 
+func (a *actionStub) cancel(rw http.ResponseWriter, body []byte, authorization string) {
+	var b actions_service.CancelActionBody
+	err := json.Unmarshal(body, &b)
+	if err != nil {
+		http.Error(rw, `{"message":"cannot decode the cancel body"}`, http.StatusBadRequest)
+		return
+	}
+	a.mu.Lock()
+	a.cancels = append(a.cancels, b.ActionID)
+	a.cancelAuth = append(a.cancelAuth, authorization)
+	a.mu.Unlock()
+	writeJSON(rw, struct{}{})
+}
+
 func (a *actionStub) get(rw http.ResponseWriter, id string) {
 	done := !slices.Contains(a.slow, id)
+	a.mu.Lock()
+	a.polls++
 	if done {
-		a.mu.Lock()
 		a.inFlight--
-		a.mu.Unlock()
 	}
+	a.mu.Unlock()
 	kind, table, _ := strings.Cut(id, "-")
 	output := map[string]string{"ddl": fmt.Sprintf("CREATE TABLE `%s` (`id` int)", table), "index": "index of " + table, "explain": a.explain}[kind]
 	var actionErr string
@@ -498,7 +529,7 @@ func writeJSON(rw http.ResponseWriter, v any) {
 func TestActionDeadlineIsPerCall(t *testing.T) {
 	t.Parallel()
 
-	fake, _ := newActionStub(t, 0, "index-customers")
+	fake, stub := newActionStub(t, 0, "index-customers")
 	s := newQANService(t, fake, true)
 	s.actionTimeout = func() time.Duration { return time.Second }
 	session := connect(t, s)
@@ -510,6 +541,8 @@ func TestActionDeadlineIsPerCall(t *testing.T) {
 	assert.Contains(t, text, "error: timeout\naction index-customers did not complete within 1s")
 	// A deadline per action would end the call at about 1.4 s: polls at 0, 0.3, 0.75 and 1.4 s.
 	assert.Less(t, time.Since(start), 1250*time.Millisecond)
+	assert.Equal(t, []string{"index-customers"}, stub.cancelled())
+	assert.Equal(t, []string{testToken}, stub.cancelAuth)
 }
 
 // TestSchemaManyTables pins the multi-table pmm_get_schema: actions run in
@@ -526,6 +559,7 @@ func TestSchemaManyTables(t *testing.T) {
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"d", "b", "a", "c"}})
 		require.False(t, isError, text)
 		assert.Len(t, stub.starts, 4)
+		assert.Empty(t, stub.cancelled())
 		assert.Equal(t, []string{"### shop.d", "### shop.b", "### shop.a", "### shop.c"}, headers(text), "input order")
 	})
 
@@ -539,6 +573,7 @@ func TestSchemaManyTables(t *testing.T) {
 		require.False(t, isError, text)
 		assert.Len(t, stub.starts, 20, "10 distinct tables, DDL and indexes")
 		assert.Equal(t, 4, stub.maxInFlight)
+		assert.Empty(t, stub.cancelled())
 		assert.Equal(t, strings.Split("### shop.a,### shop.b,### shop.c,### shop.d,### shop.e,### shop.f,### shop.g,### shop.h,### shop.i,### shop.j", ","), headers(text))
 	})
 
@@ -550,10 +585,11 @@ func TestSchemaManyTables(t *testing.T) {
 			"definition": "### shop.a\n```sql\nCREATE TABLE `a` (`id` int)\n```",
 			"indexes":    "### shop.a\nindexes:\n```\nindex of a\n```",
 		} {
-			fake, _ := newActionStub(t, 0)
+			fake, stub := newActionStub(t, 0)
 			session := connect(t, newQANService(t, fake, true))
 			text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "info_types": infoTypes})
 			require.False(t, isError, text)
+			assert.Empty(t, stub.cancelled())
 			assert.Equal(t, want, text, infoTypes)
 		}
 	})
@@ -561,7 +597,7 @@ func TestSchemaManyTables(t *testing.T) {
 	t.Run("SlowTableTimesOutAlone", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := newActionStub(t, 0, "ddl-slow")
+		fake, stub := newActionStub(t, 0, "ddl-slow")
 		s := newQANService(t, fake, true)
 		s.actionTimeout = func() time.Duration { return time.Second }
 		session := connect(t, s)
@@ -572,18 +608,20 @@ func TestSchemaManyTables(t *testing.T) {
 		assert.Less(t, time.Since(start), 1250*time.Millisecond)
 		assert.Contains(t, text, "### shop.slow\nerror: timeout\naction ddl-slow did not complete within 1s (PMM_MCP_ACTION_TIMEOUT)\n\n### shop.b\n```sql\nCREATE TABLE `b`")
 		assert.Contains(t, text, "### shop.a\n```sql\nCREATE TABLE `a`")
+		assert.Equal(t, []string{"ddl-slow"}, stub.cancelled())
 	})
 
 	t.Run("EveryActionFails", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := newActionStub(t, 0, "ddl-x", "ddl-y")
+		fake, stub := newActionStub(t, 0, "ddl-x", "ddl-y")
 		s := newQANService(t, fake, true)
 		s.actionTimeout = func() time.Duration { return 500 * time.Millisecond }
 		session := connect(t, s)
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"x", "y"}})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: timeout\naction ddl-x did not complete"), text)
+		assert.ElementsMatch(t, []string{"ddl-x", "ddl-y"}, stub.cancelled())
 	})
 }
 
@@ -596,4 +634,119 @@ func headers(text string) []string {
 		}
 	}
 	return out
+}
+
+func TestLiveInspectionRateLimited(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	take := func(t *testing.T, s *Service, key string) func() {
+		t.Helper()
+
+		rel, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+		return rel
+	}
+	schemaArgs := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
+
+	t.Run("PerCaller", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assert.Contains(t, text, "these credentials")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+
+		// The stored PostgreSQL plan is passive and not limited.
+		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		assert.False(t, isError, text)
+
+		rel1()
+		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.False(t, isError, text)
+		rel2()
+	})
+
+	t.Run("PerReplica", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		rels := make([]func(), 0, maxLiveCallsPerReplica)
+		for i := range maxLiveCallsPerReplica {
+			rels = append(rels, take(t, s, "other-"+string(rune('0'+i))))
+		}
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "database": "shop"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assert.Contains(t, text, "this replica")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+		for _, rel := range rels {
+			rel()
+		}
+	})
+
+	t.Run("FailedCallReleases", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+
+		_, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		require.True(t, isError)
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		rel1()
+		rel2()
+	})
+
+	t.Run("CancelledCallReleases", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0, "ddl-customers")
+		s := newQANService(t, fake, true)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+		done := make(chan error, 1)
+		go func() {
+			_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+			done <- err
+		}()
+
+		require.Eventually(t, func() bool {
+			stub.mu.Lock()
+			defer stub.mu.Unlock()
+			return stub.polls > 0
+		}, 5*time.Second, 10*time.Millisecond)
+		// The running call holds one of the two slots.
+		rel := take(t, s, key)
+		_, hit := s.live.acquire(key)
+		require.Equal(t, limitPerCaller, hit)
+		rel()
+		cancel()
+
+		select {
+		case err := <-done:
+			require.Error(t, err)
+			assert.Equal(t, []string{"ddl-customers"}, stub.cancelled())
+		case <-time.After(5 * time.Second):
+			require.FailNow(t, "the cancelled call did not return")
+		}
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		rel1()
+		rel2()
+	})
 }

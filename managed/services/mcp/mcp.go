@@ -69,6 +69,7 @@ type Service struct {
 	actionTimeout func() time.Duration
 	publicAddress func(context.Context) string
 	now           func() time.Time
+	live          *limiter
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -116,6 +117,7 @@ func New(params Params) (*Service, error) {
 		actionTimeout: params.ActionTimeout,
 		publicAddress: params.PublicAddress,
 		now:           time.Now,
+		live:          newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This
@@ -157,6 +159,8 @@ func New(params Params) (*Service, error) {
 		// authorized on its own by nginx, so nothing has to be replicated in HA
 		// mode and restarts are transparent to clients.
 		Stateless: true,
+		// A client that disconnects cancels its call, and with it the call's unfinished actions; protocol 2026-07-28 and later only.
+		PropagateRequestCancellation: true,
 		// nginx sends the public Host over a loopback connection, which the SDK's
 		// DNS-rebinding guard rejects; Handler's loopback-peer check and the
 		// cross-origin check above protect /mcp instead.

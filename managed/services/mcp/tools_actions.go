@@ -40,6 +40,7 @@ const (
 
 	pollInitialDelay = 300 * time.Millisecond
 	pollMaxDelay     = 2 * time.Second
+	cancelTimeout    = 5 * time.Second
 	pollBackoff      = 1.5
 
 	formatJSON        = "json"
@@ -167,6 +168,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
+	release, err := s.startLive(auth)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+
 	output, err := s.runAction(ctx, auth, body, !raw)
 	var te *toolError
 	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
@@ -260,6 +267,12 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return nil, newToolError(codeInvalidInput, "service_id and database are required")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startLive(auth)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 
@@ -407,6 +420,7 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 	for {
 		res, err := s.api.GetAction(ctx, auth, actionID)
 		if err != nil {
+			s.cancelAction(ctx, auth, actionID)
 			return "", s.deadlineOr(ctx, actionID, err)
 		}
 		if res.Done {
@@ -417,10 +431,22 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 		}
 		select {
 		case <-ctx.Done():
+			s.cancelAction(ctx, auth, actionID)
 			return "", s.deadlineOr(ctx, actionID, ctx.Err())
 		case <-time.After(delay):
 		}
 		delay = min(time.Duration(float64(delay)*pollBackoff), pollMaxDelay)
+	}
+}
+
+// cancelAction cancels an unfinished action on pmm-agent, on a context that is not cancelled with the call's.
+func (s *Service) cancelAction(ctx context.Context, auth callerAuth, actionID string) {
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cancelTimeout)
+	defer cancel()
+
+	err := s.api.CancelAction(ctx, auth, actionID)
+	if err != nil {
+		s.l.WithField("action_id", actionID).WithError(err).Warn("Cannot cancel the action.")
 	}
 }
 

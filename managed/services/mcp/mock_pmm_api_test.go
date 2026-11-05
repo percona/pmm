@@ -20,6 +20,24 @@ type mockPmmAPI struct {
 	mock.Mock
 }
 
+// CancelAction provides a mock function with given fields: ctx, auth, actionID
+func (_m *mockPmmAPI) CancelAction(ctx context.Context, auth callerAuth, actionID string) error {
+	ret := _m.Called(ctx, auth, actionID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CancelAction")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string) error); ok {
+		r0 = rf(ctx, auth, actionID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetAction provides a mock function with given fields: ctx, auth, actionID
 func (_m *mockPmmAPI) GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error) {
 	ret := _m.Called(ctx, auth, actionID)

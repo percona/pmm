@@ -183,7 +183,9 @@ Every result carries a **View in PMM** link that opens the QAN dashboard on the 
 
 ### Errors
 
-A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. When Grafana's anonymous access is on, PMM refuses `/mcp` to an anonymous caller with HTTP 403. A browser request from another origin also gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
+A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. When Grafana's anonymous access is on, PMM refuses `/mcp` to an anonymous caller with HTTP 403. A browser request from another origin also gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
+
+`rate_limited`: too many live-inspection calls are in flight for these credentials (2) or on this replica (8). Retry when one finishes.
 
 ## Roles
 
@@ -200,7 +202,7 @@ A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain
 |----------------------|---------|--------|
 | `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
 | `PMM_MCP_RAW_SQL` | `false` | Allows tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints, plan literals are replaced with `?`, and agent errors that can quote a statement are withheld. Removing the variable turns raw SQL off at the next start. |
-| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. |
+| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then are cancelled on pmm-agent and end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. |
 
 Set them on the PMM Server container like other `PMM_*` variables, for example `-e PMM_ENABLE_MCP=true`. They are persisted in PMM settings at start-up.
 

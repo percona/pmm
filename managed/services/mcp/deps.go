@@ -176,6 +176,7 @@ type pmmAPI interface {
 	QANServiceTypes(ctx context.Context, auth callerAuth, from, to time.Time) ([]string, error)
 	StartServiceAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody) (*actions_service.StartServiceActionOKBody, error)
 	GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error)
+	CancelAction(ctx context.Context, auth callerAuth, actionID string) error
 	GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error)
 	QueryInstant(ctx context.Context, auth callerAuth, datasourceUID, promql string, at time.Time) ([]metricSample, error)
 }
