@@ -397,6 +397,76 @@ func TestAuthServerGrafanaErrors(t *testing.T) {
 	}
 }
 
+func TestAnonymousCallerOnMCP(t *testing.T) {
+	t.Parallel()
+
+	newServer := func(t *testing.T, userStatus int) *AuthServer {
+		t.Helper()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(userStatus)
+				if userStatus == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"id":5}`)
+				} else {
+					_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+				}
+			case "/api/user/orgs":
+				_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+	}
+
+	authenticate := func(t *testing.T, s *AuthServer, path string, headers map[string]string) *authError {
+		t.Helper()
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+		for k, v := range headers {
+			req.Header.Set(k, v)
+		}
+		_, authErr := s.authenticate(t.Context(), req, path, logrus.WithField("test", t.Name()))
+		return authErr
+	}
+
+	t.Run("anonymous", func(t *testing.T) {
+		t.Parallel()
+
+		for name, headers := range map[string]map[string]string{
+			"no credentials": nil,
+			"junk cookie":    {"Cookie": "junk=1"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				s := newServer(t, http.StatusUnauthorized)
+				for _, path := range []string{"/mcp", "/mcp/"} {
+					authErr := authenticate(t, s, path, headers)
+					require.NotNil(t, authErr, path)
+					assert.Equal(t, codes.PermissionDenied, authErr.code, path)
+				}
+				assert.Nil(t, authenticate(t, s, "/v1/server/version", headers))
+			})
+		}
+	})
+
+	t.Run("viewer with a session", func(t *testing.T) {
+		t.Parallel()
+
+		s := newServer(t, http.StatusOK)
+		headers := map[string]string{"Cookie": "grafana_session=ok"}
+		assert.Nil(t, authenticate(t, s, "/mcp", headers))
+		assert.Nil(t, authenticate(t, s, "/mcp/", headers))
+	})
+}
+
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
