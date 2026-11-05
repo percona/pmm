@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
 import { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
-import { useNodes } from 'hooks/api/useNodes';
+import { useNodeTypes } from 'hooks/api/useNodes';
 import { NodeType } from 'types/nodes.types';
 import {
   addAccount,
@@ -43,15 +43,11 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
-  // Listing nodes needs the admin role, so other users never see the Amazon RDS menu.
-  const { data: rdsNodes } = useNodes(
-    { nodeType: NodeType.remoteRds },
-    {
-      enabled: !!user?.isPMMAdmin,
-      refetchInterval: INTERVALS_MS.SERVICE_TYPES,
-    }
-  );
-  const hasRdsNodes = !!rdsNodes?.remoteRds?.length;
+  const { data: nodeTypes } = useNodeTypes({
+    enabled: !!user,
+    refetchInterval: INTERVALS_MS.SERVICE_TYPES,
+  });
+  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(NodeType.remoteRds);
   const { settings } = useSettings();
   const { data: advisors } = useAdvisors({
     enabled: !!user?.isEditor,

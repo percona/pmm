@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
-import { NodeType, type RemoteRdsNode } from 'types/nodes.types';
+import { NodeType } from 'types/nodes.types';
 import { User } from 'types/user.types';
 import {
   EXTENSIONS_ATW_PATH,
@@ -22,15 +22,15 @@ import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
 
-const { useNodes } = vi.hoisted(() => ({
-  useNodes: vi.fn(),
+const { useNodeTypes } = vi.hoisted(() => ({
+  useNodeTypes: vi.fn(),
 }));
 
 vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
 }));
 
-vi.mock('hooks/api/useNodes', () => ({ useNodes }));
+vi.mock('hooks/api/useNodes', () => ({ useNodeTypes }));
 
 vi.mock('hooks/api/useAdvisors', () => ({
   useAdvisors: () => ({ data: [] }),
@@ -86,20 +86,9 @@ const renderNavTree = (
 const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
-const RDS_NODE: RemoteRdsNode = {
-  nodeId: 'node-1',
-  nodeName: 'database-1',
-  address: 'database-1.example.eu-north-1.rds.amazonaws.com',
-  nodeModel: '',
-  region: 'eu-north-1',
-  az: 'eu-north-1a',
-  customLabels: {},
-  instanceId: 'database-1',
-};
-
 describe('NavigationProvider', () => {
   beforeEach(() => {
-    useNodes.mockReturnValue({ data: { remoteRds: [] } });
+    useNodeTypes.mockReturnValue({ data: { nodeTypes: [NodeType.generic] } });
   });
 
   describe('Amazon RDS section', () => {
@@ -109,8 +98,10 @@ describe('NavigationProvider', () => {
       expect(ids).not.toContain('rds');
     });
 
-    it('is shown with one RDS node, holding the overview, before Operating system', () => {
-      useNodes.mockReturnValue({ data: { remoteRds: [RDS_NODE] } });
+    it('is shown with an RDS node, holding the overview, before Operating system', () => {
+      useNodeTypes.mockReturnValue({
+        data: { nodeTypes: [NodeType.generic, NodeType.remoteRds] },
+      });
 
       const navTree = renderNavTree();
       const ids = navTree.map((item) => item.id);
@@ -121,22 +112,27 @@ describe('NavigationProvider', () => {
       expect(rds?.children?.map((child) => child.id)).toEqual(['rds-overview']);
     });
 
-    it('lists only RDS nodes, and only for an admin, who alone may list nodes', () => {
-      renderNavTree(TEST_USER_ADMIN);
-      expect(useNodes).toHaveBeenLastCalledWith(
-        { nodeType: NodeType.remoteRds },
+    it.each([
+      ['admin', TEST_USER_ADMIN],
+      ['editor', TEST_USER_EDITOR],
+      ['viewer', TEST_USER_VIEWER],
+    ])('is shown to a %s', (_, user) => {
+      useNodeTypes.mockReturnValue({
+        data: { nodeTypes: [NodeType.remoteRds] },
+      });
+
+      const ids = renderNavTree(user).map((item) => item.id);
+
+      expect(useNodeTypes).toHaveBeenLastCalledWith(
         expect.objectContaining({ enabled: true })
       );
-
-      renderNavTree(TEST_USER_EDITOR);
-      expect(useNodes).toHaveBeenLastCalledWith(
-        { nodeType: NodeType.remoteRds },
-        expect.objectContaining({ enabled: false })
-      );
+      expect(ids).toContain('rds');
     });
 
     it('marks the overview active on the dashboard, with or without a slug', () => {
-      useNodes.mockReturnValue({ data: { remoteRds: [RDS_NODE] } });
+      useNodeTypes.mockReturnValue({
+        data: { nodeTypes: [NodeType.remoteRds] },
+      });
 
       const navTree = renderNavTree();
       const rds = findById(navTree, 'rds');

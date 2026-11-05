@@ -1,23 +1,12 @@
 export enum NodeType {
+  generic = 'NODE_TYPE_GENERIC_NODE',
+  container = 'NODE_TYPE_CONTAINER_NODE',
+  remote = 'NODE_TYPE_REMOTE_NODE',
   remoteRds = 'NODE_TYPE_REMOTE_RDS_NODE',
+  remoteAzureDatabase = 'NODE_TYPE_REMOTE_AZURE_DATABASE_NODE',
 }
 
-export interface RemoteRdsNode {
-  nodeId: string;
-  nodeName: string;
-  address: string;
-  nodeModel: string;
-  region: string;
-  az: string;
-  customLabels: Record<string, string>;
-  instanceId: string;
-}
-
-// Response from /v1/inventory/nodes API, which lists each Node type separately.
-export interface ListNodesResponse {
-  remoteRds?: RemoteRdsNode[];
-}
-
-export interface ListNodesParams {
-  nodeType?: NodeType;
+// Response from /v1/inventory/nodes:getTypes, the Node types in the inventory.
+export interface ListNodeTypesResponse {
+  nodeTypes?: NodeType[];
 }

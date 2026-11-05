@@ -1,9 +1,7 @@
-import type { ListNodesParams, ListNodesResponse } from 'types/nodes.types';
+import type { ListNodeTypesResponse } from 'types/nodes.types';
 import { api } from './api';
 
-export const listNodes = async (
-  params: ListNodesParams
-): Promise<ListNodesResponse> => {
-  const res = await api.get('/inventory/nodes', { params });
+export const getNodeTypes = async (): Promise<ListNodeTypesResponse> => {
+  const res = await api.post('/inventory/nodes:getTypes');
   return res.data;
 };

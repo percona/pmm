@@ -1,13 +1,12 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { listNodes } from 'api/nodes';
-import type { ListNodesParams, ListNodesResponse } from 'types/nodes.types';
+import { getNodeTypes } from 'api/nodes';
+import type { ListNodeTypesResponse } from 'types/nodes.types';
 
-export const useNodes = (
-  params: ListNodesParams = {},
-  options?: Partial<UseQueryOptions<ListNodesResponse>>
+export const useNodeTypes = (
+  options?: Partial<UseQueryOptions<ListNodeTypesResponse>>
 ) =>
   useQuery({
-    queryKey: ['nodes:list', params],
-    queryFn: ({ queryKey: [, params] }) => listNodes(params as ListNodesParams),
+    queryKey: ['nodes:getTypes'],
+    queryFn: () => getNodeTypes(),
     ...options,
   });
