@@ -76,7 +76,7 @@ Each component stores its logs differently. Use the table below to find the righ
 kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/pmm-managed.log
 ```
 
-`/srv/logs/` also contains `grafana.log`, `nginx.log`, `pmm-agent.log`, `qan-api2.log`, `vmalert.log`, `vmproxy.log`, and `supervisord.log`.
+`/srv/logs/` also contains `grafana.log`, `nginx.log`, `pmm-agent.log`, `qan-api2.log`, `vmproxy.log`, and `supervisord.log`.
 
 !!! note ""
     `/srv` is a persistent volume, so these logs survive a pod restart and contain messages from earlier runs. Check the timestamps before concluding that a message relates to the problem you are investigating.

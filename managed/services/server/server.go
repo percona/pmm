@@ -57,21 +57,19 @@ const omSwitchEffectsTimeout = 5 * time.Minute
 type Server struct {
 	serverv1.UnimplementedServerServiceServer
 
-	db                   *reform.DB
-	vmdb                 prometheusService
-	agentsState          agentsStateUpdater
-	vmalert              vmAlertService
-	vmalertExternalRules vmAlertExternalRules
-	checksService        checksService
-	templatesService     templatesService
-	supervisord          supervisordService
-	telemetryService     telemetryService
-	grafanaClient        grafanaClient
-	qanClient            healthChecker
-	haService            haService
-	updater              *Updater
-	nomad                nomadService
-	omService            omService
+	db               *reform.DB
+	vmdb             prometheusService
+	agentsState      agentsStateUpdater
+	checksService    checksService
+	templatesService templatesService
+	supervisord      supervisordService
+	telemetryService telemetryService
+	grafanaClient    grafanaClient
+	qanClient        healthChecker
+	haService        haService
+	updater          *Updater
+	nomad            nomadService
+	omService        omService
 
 	l *logrus.Entry
 
@@ -89,22 +87,20 @@ type Server struct {
 
 // Params holds the parameters needed to create a new service.
 type Params struct {
-	DB                   *reform.DB
-	AgentsStateUpdater   agentsStateUpdater
-	VMDB                 prometheusService
-	VMAlert              prometheusService
-	ChecksService        checksService
-	TemplatesService     templatesService
-	VMAlertExternalRules vmAlertExternalRules
-	Supervisord          supervisordService
-	TelemetryService     telemetryService
-	GrafanaClient        grafanaClient
-	QANClient            healthChecker
-	Updater              *Updater
-	Dus                  *distribution.Service
-	HAService            haService
-	Nomad                nomadService
-	OmService            omService
+	DB                 *reform.DB
+	AgentsStateUpdater agentsStateUpdater
+	VMDB               prometheusService
+	ChecksService      checksService
+	TemplatesService   templatesService
+	Supervisord        supervisordService
+	TelemetryService   telemetryService
+	GrafanaClient      grafanaClient
+	QANClient          healthChecker
+	Updater            *Updater
+	Dus                *distribution.Service
+	HAService          haService
+	Nomad              nomadService
+	OmService          omService
 }
 
 // NewServer returns new server for Server service.
@@ -116,23 +112,21 @@ func NewServer(params *Params) (*Server, error) {
 	}
 
 	s := &Server{
-		db:                   params.DB,
-		vmdb:                 params.VMDB,
-		agentsState:          params.AgentsStateUpdater,
-		vmalert:              params.VMAlert,
-		checksService:        params.ChecksService,
-		templatesService:     params.TemplatesService,
-		vmalertExternalRules: params.VMAlertExternalRules,
-		supervisord:          params.Supervisord,
-		telemetryService:     params.TelemetryService,
-		grafanaClient:        params.GrafanaClient,
-		qanClient:            params.QANClient,
-		updater:              params.Updater,
-		haService:            params.HAService,
-		nomad:                params.Nomad,
-		omService:            params.OmService,
-		l:                    logrus.WithField("component", "server"),
-		envSettings:          &models.ChangeSettingsParams{},
+		db:               params.DB,
+		vmdb:             params.VMDB,
+		agentsState:      params.AgentsStateUpdater,
+		checksService:    params.ChecksService,
+		templatesService: params.TemplatesService,
+		supervisord:      params.Supervisord,
+		telemetryService: params.TelemetryService,
+		grafanaClient:    params.GrafanaClient,
+		qanClient:        params.QANClient,
+		updater:          params.Updater,
+		haService:        params.HAService,
+		nomad:            params.Nomad,
+		omService:        params.OmService,
+		l:                logrus.WithField("component", "server"),
+		envSettings:      &models.ChangeSettingsParams{},
 	}
 	return s, nil
 }
@@ -291,7 +285,6 @@ func (s *Server) Readiness(ctx context.Context, _ *serverv1.ReadinessRequest) (*
 	for n, svc := range map[string]healthChecker{
 		"grafana":         s.grafanaClient,
 		"victoriametrics": s.vmdb,
-		"vmalert":         s.vmalert,
 		"qan":             s.qanClient,
 	} {
 		err := svc.IsReady(ctx)
@@ -870,7 +863,6 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	s.reportDataRetention(settings)
 
 	s.vmdb.RequestConfigurationUpdate()
-	s.vmalert.RequestConfigurationUpdate()
 
 	err = s.agentsState.UpdateAgentsState(ctx)
 	if err != nil {
