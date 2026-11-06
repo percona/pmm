@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // errorCode is one of the tool contract's error codes. A failed tool call
@@ -49,6 +51,29 @@ type toolError struct {
 
 func (e *toolError) Error() string {
 	return fmt.Sprintf("error: %s\n%s", e.code, e.message)
+}
+
+// retryable reports whether the same call may succeed if repeated later.
+func (e *toolError) retryable() bool {
+	switch e.code {
+	case codeTimeout, codeAgentUnreachable, codePMMUnavailable, codeRateLimited:
+		return true
+	default:
+		return false
+	}
+}
+
+// errorResult is the failed tool result: text "error: <code>\n<message>" and
+// the code and retryable flag in _meta, without structured content.
+func errorResult(te *toolError) *mcp.CallToolResult {
+	return &mcp.CallToolResult{
+		IsError: true,
+		Content: []mcp.Content{&mcp.TextContent{Text: te.Error()}},
+		Meta: mcp.Meta{"com.percona/error": map[string]any{
+			"code":      string(te.code),
+			"retryable": te.retryable(),
+		}},
+	}
 }
 
 func newToolError(code errorCode, format string, args ...any) *toolError {

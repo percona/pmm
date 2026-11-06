@@ -200,6 +200,38 @@ func callText(t *testing.T, session *mcp.ClientSession, name string, args map[st
 	return text.Text, res.IsError
 }
 
+// callTool calls a tool through the session and returns the whole result.
+func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) *mcp.CallToolResult {
+	t.Helper()
+
+	res, err := session.CallTool(t.Context(), &mcp.CallToolParams{Name: name, Arguments: args})
+	require.NoError(t, err)
+	require.NotEmpty(t, res.Content)
+	return res
+}
+
+// mustJSON marshals v or fails the test.
+func mustJSON(t *testing.T, v any) []byte {
+	t.Helper()
+
+	b, err := json.Marshal(v)
+	require.NoError(t, err)
+	return b
+}
+
+// listTools returns the server's tools by name.
+func listTools(t *testing.T, session *mcp.ClientSession) map[string]*mcp.Tool {
+	t.Helper()
+
+	res, err := session.ListTools(t.Context(), nil)
+	require.NoError(t, err)
+	out := make(map[string]*mcp.Tool, len(res.Tools))
+	for _, tool := range res.Tools {
+		out[tool.Name] = tool
+	}
+	return out
+}
+
 // first returns the first of two results, for asserting on a function that
 // also reports a flag.
 func first[T, U any](v T, _ U) T {

@@ -64,13 +64,13 @@ type inventoryInput struct {
 }
 
 func (s *Service) registerInventoryTools(server *mcp.Server) {
-	mcp.AddTool(server, &mcp.Tool{
+	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_version",
 		Title: "PMM Server version",
 		Description: "Return the PMM Server version. Use it first to confirm the connection and " +
 			"that the caller's token is accepted.",
 		Annotations: readOnly("PMM Server version"),
-	}, handle(s, "pmm_version", s.version))
+	}, s.version)
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_inventory",
@@ -81,19 +81,33 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 	}, handle(s, "pmm_inventory", s.inventory))
 }
 
-func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versionInput) (*mcp.CallToolResult, error) {
+// versionResult is the result of pmm_version.
+type versionResult struct {
+	Version        string `json:"version" jsonschema:"Untrusted. PMM Server version."`
+	ManagedVersion string `json:"managed_version,omitempty" jsonschema:"Untrusted. pmm-managed full version."`
+}
+
+func (r versionResult) render() string {
+	text := "PMM Server " + r.Version
+	if r.ManagedVersion != "" {
+		text += fmt.Sprintf(" (pmm-managed %s)", r.ManagedVersion)
+	}
+	return text
+}
+
+func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versionInput) (versionResult, error) {
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	v, err := s.api.Version(ctx, auth)
 	if err != nil {
-		return nil, err
+		return versionResult{}, err
 	}
 
-	text := "PMM Server " + v.Version
-	if v.Managed != nil && v.Managed.FullVersion != "" {
-		text += fmt.Sprintf(" (pmm-managed %s)", v.Managed.FullVersion)
+	out := versionResult{Version: v.Version}
+	if v.Managed != nil {
+		out.ManagedVersion = v.Managed.FullVersion
 	}
-	return textResult(text), nil
+	return out, nil
 }
 
 func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (*mcp.CallToolResult, error) {
