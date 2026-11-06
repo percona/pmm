@@ -1,0 +1,43 @@
+{
+  "query": "/* select#1 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` join `shop`.`orders` `x` where (`x`.`customer_id` = `shop`.`customers`.`id`)",
+  "inputs": [
+    {
+      "covering": true,
+      "operation": "Covering index scan on customers using idx_region",
+      "index_name": "idx_region",
+      "table_name": "customers",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "id"
+      ],
+      "estimated_rows": 3.0,
+      "index_access_type": "index_scan",
+      "estimated_total_cost": 0.55
+    },
+    {
+      "alias": "x",
+      "covering": true,
+      "operation": "Covering index lookup on x using idx_customer (customer_id=customers.id)",
+      "index_name": "idx_customer",
+      "table_name": "orders",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "customer_id"
+      ],
+      "estimated_rows": 1.3333333730697632,
+      "lookup_condition": "customer_id=customers.id",
+      "index_access_type": "index_lookup",
+      "estimated_total_cost": 0.29452574659169206
+    }
+  ],
+  "join_type": "inner join",
+  "operation": "Nested loop inner join",
+  "query_type": "select",
+  "access_type": "join",
+  "estimated_rows": 4.0000001192092896,
+  "join_algorithm": "nested_loop",
+  "estimated_total_cost": 1.7002439143890289,
+  "warnings": []
+}

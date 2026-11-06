@@ -1,0 +1,64 @@
+{
+  "query": "/* select#1 */ select `shop`.`orders`.`id` AS `id` from `shop`.`orders` where (`shop`.`orders`.`status` = 'new') union /* select#2 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` where (`shop`.`customers`.`region` = 'eu')",
+  "inputs": [
+    {
+      "union": true,
+      "inputs": [
+        {
+          "inputs": [
+            {
+              "operation": "Table scan on orders",
+              "table_name": "orders",
+              "access_type": "table",
+              "schema_name": "shop",
+              "used_columns": [
+                "id",
+                "status"
+              ],
+              "estimated_rows": 4.0,
+              "estimated_total_cost": 0.65
+            }
+          ],
+          "condition": "(orders.`status` = 'new')",
+          "operation": "Filter: (orders.`status` = 'new')",
+          "access_type": "filter",
+          "estimated_rows": 1.0,
+          "estimated_total_cost": 0.65
+        },
+        {
+          "covering": true,
+          "operation": "Covering index lookup on customers using idx_region (region='eu')",
+          "index_name": "idx_region",
+          "table_name": "customers",
+          "access_type": "index",
+          "schema_name": "shop",
+          "used_columns": [
+            "id",
+            "region"
+          ],
+          "estimated_rows": 2.0,
+          "lookup_condition": "region='eu'",
+          "index_access_type": "index_lookup",
+          "estimated_total_cost": 0.4521186440677966
+        }
+      ],
+      "operation": "Union materialize with deduplication",
+      "access_type": "materialize",
+      "deduplication": true,
+      "estimated_rows": 3.0,
+      "estimated_total_cost": 1.4021186440677966,
+      "estimated_first_row_cost": 1.4021186440677966
+    }
+  ],
+  "operation": "Table scan on <union temporary>",
+  "query_type": "select",
+  "table_name": "<union temporary>",
+  "access_type": "table",
+  "used_columns": [
+    "id"
+  ],
+  "estimated_rows": 3.0,
+  "estimated_total_cost": 3.9396186440677967,
+  "estimated_first_row_cost": 2.24795197740113,
+  "warnings": []
+}

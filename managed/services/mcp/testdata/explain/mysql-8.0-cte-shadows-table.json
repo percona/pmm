@@ -1,0 +1,74 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1.70"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "customers",
+          "access_type": "index",
+          "possible_keys": [
+            "PRIMARY"
+          ],
+          "key": "idx_region",
+          "used_key_parts": [
+            "region"
+          ],
+          "key_length": "66",
+          "rows_examined_per_scan": 3,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.30",
+            "prefix_cost": "0.55",
+            "data_read_per_join": "984"
+          },
+          "used_columns": [
+            "id"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "x",
+          "access_type": "ref",
+          "possible_keys": [
+            "idx_customer"
+          ],
+          "key": "idx_customer",
+          "used_key_parts": [
+            "customer_id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.customers.id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 4,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "0.75",
+            "eval_cost": "0.40",
+            "prefix_cost": "1.70",
+            "data_read_per_join": "320"
+          },
+          "used_columns": [
+            "customer_id"
+          ]
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` join `shop`.`orders` `x` where (`shop`.`x`.`customer_id` = `shop`.`customers`.`id`)"
+    }
+  ]
+}
