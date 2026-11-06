@@ -4488,7 +4488,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "min by (node_name) (node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"})*100",
+                            "expr": "min by (node_name) (node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / (node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} + node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}))*100",
                             "format": "table",
                             "instant": true,
                             "interval": "$interval",

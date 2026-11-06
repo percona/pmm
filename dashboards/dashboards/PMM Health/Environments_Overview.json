@@ -1265,7 +1265,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "100 - min by (environment) (clamp_max((min by (node_name, environment) (node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay\"}/\nnode_filesystem_size_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay\"} > 0 )*100),100) * on(node_name) group_left(environment) avg by (node_name, environment) (up{service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external-exporter.*\",environment=~\"$environment\",environment!~\"\"} > 0 ))",
+                    "expr": "100 - min by (environment) (clamp_max((min by (node_name, environment) (node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / (node_filesystem_size_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} + node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}))*100),100) * on(node_name) group_left(environment) avg by (node_name, environment) (up{service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external-exporter.*\",environment=~\"$environment\",environment!~\"\"} > 0 ))",
                     "interval": "$interval",
                     "legendFormat": "{{environment}}",
                     "range": true,
