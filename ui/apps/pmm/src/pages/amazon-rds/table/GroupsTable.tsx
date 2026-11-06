@@ -41,6 +41,7 @@ const WRITERS_COLORS: Record<WritersState, string> = {
   unknown: 'text.secondary',
 };
 
+// Tooltips describe their text (describeChild) rather than replace its accessible name.
 const column = (
   id: GroupColumnId,
   header: string,
@@ -54,7 +55,7 @@ const column = (
   ...(description
     ? {
         Header: () => (
-          <Tooltip title={description}>
+          <Tooltip title={description} describeChild>
             <span>{header}</span>
           </Tooltip>
         ),
@@ -71,7 +72,7 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
   ),
   column('name', Messages.columns.identifier, (group) =>
     group.kind === 'unknown' ? (
-      <Tooltip title={Messages.groupTypeTitles.unavailable}>
+      <Tooltip title={Messages.groupTypeTitles.unavailable} describeChild>
         <Typography
           component="span"
           variant="body2"
@@ -88,7 +89,10 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
     )
   ),
   column('type', Messages.columns.type, (group) => (
-    <Tooltip title={Messages.groupTypeTitles[getGroupType(group)]}>
+    <Tooltip
+      title={Messages.groupTypeTitles[getGroupType(group)]}
+      describeChild
+    >
       <span>{getGroupTypeLabel(group)}</span>
     </Tooltip>
   )),

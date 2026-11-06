@@ -44,7 +44,8 @@ const shown = (text: string) => screen.getByText(text);
 const locationSearch = () =>
   decodeURIComponent(screen.getByTestId('location-search').textContent ?? '');
 
-describe('AmazonRdsPage', () => {
+// The groups table is a full Material React Table, slow to render under a parallel run.
+describe('AmazonRdsPage', { timeout: 20_000 }, () => {
   beforeEach(() => {
     useRdsInstances.mockReturnValue({ data: RDS_ROWS, isError: false });
   });
@@ -66,6 +67,9 @@ describe('AmazonRdsPage', () => {
     expect(screen.getByText('database-3')).toBeInTheDocument();
     expect(screen.getAllByText('AWS info unavailable')).toHaveLength(2);
     expect(screen.getAllByText('Aurora cluster')).toHaveLength(3);
+    expect(
+      screen.getAllByRole('cell', { name: 'Aurora cluster' })
+    ).toHaveLength(3);
     expect(screen.getByText('Replication group')).toBeInTheDocument();
     expect(screen.getAllByText('Instance')).toHaveLength(2);
     expect(screen.getAllByText('Unavailable')).toHaveLength(2);
@@ -230,7 +234,9 @@ describe('AmazonRdsPage', () => {
     );
 
     expect(shown('8 of 8 groups')).toBeInTheDocument();
-    expect(await screen.findByText('2 of 8 groups')).toBeInTheDocument();
+    expect(
+      await screen.findByText('2 of 8 groups', {}, { timeout: 5000 })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'database-3-instance-1-reader' })
     ).toBeInTheDocument();
