@@ -236,6 +236,41 @@ func TestExplainTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: insufficient_privileges\nError 1142"), text)
 	})
 
+	t.Run("MongoDBUnsupportedOperation", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		fake.routes["GET /v1/inventory/services"] = fixture{file: "services_with_mongo.json"}
+		stub.explainErr = "cannot explain this type of query\noperation insert is not supported for explain"
+		session := connect(t, newQANService(t, fake, false))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-mongo", "query": `db.customers.insertOne({"a": 1})`})
+		assert.True(t, res.IsError)
+		assert.Nil(t, res.StructuredContent)
+		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
+		text := textOf(t, res)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\ncannot explain this type of query\noperation insert is not supported for explain"), text)
+		assert.Contains(t, text, "MongoDB can explain read operations only (find, aggregate, count, distinct); pick a read query from pmm_top_queries")
+	})
+
+	t.Run("TrimmedQuery", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes["GET /v1/qan/query/QID-AAA/plan"] = fixture{file: "plan_empty.json"}
+		routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_500_query_trimmed.json", status: http.StatusInternalServerError}
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		assert.True(t, res.IsError)
+		assert.Nil(t, res.StructuredContent)
+		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
+		text := textOf(t, res)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; pick another query, or raise max-query-length on the agent")
+	})
+
 	t.Run("Timeout", func(t *testing.T) {
 		t.Parallel()
 

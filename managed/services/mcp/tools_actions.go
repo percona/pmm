@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -604,12 +605,25 @@ func actionIDOf(res *actions_service.StartServiceActionOKBody) string {
 // the action, which is an agent problem rather than bad input.
 func mapActionStartError(err error) error {
 	te := mapError(err)
+	if strings.Contains(te.message, "query exceeded max length and got trimmed") {
+		return newToolError(codeInvalidInput, "%s\n%s", te.message, trimmedQueryRemediation)
+	}
 	msg := strings.ToLower(te.message)
 	if strings.Contains(msg, "agent") && (te.code == codeInvalidInput || te.code == codeNotFound) {
 		return newToolError(codeAgentUnreachable, "%s", te.message)
 	}
 	return te
 }
+
+const (
+	trimmedQueryRemediation = "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; " +
+		"pick another query, or raise max-query-length on the agent"
+	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
+		"pick a read query from pmm_top_queries"
+)
+
+// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB write or admin operation.
+var mongoUnsupportedExplain = regexp.MustCompile(`(?m)^(?:command|operation) [A-Za-z]+ is not supported for explain$`)
 
 // mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
 // only users, hosts, databases, tables, keys and routines, never a value, so
@@ -677,6 +691,9 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code, safe, header = known.code, known.identifiers, mysqlHeader[0]
 	case mongoName != nil:
 		code, header = mongoErrors[mongoName[1]], mongoName[0]
+	}
+	if mongoUnsupportedExplain.MatchString(rest) {
+		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoReadOnlyRemediation)
 	}
 	if code == "" {
 		code = classifyErrorText(maskQuoted(rest))
