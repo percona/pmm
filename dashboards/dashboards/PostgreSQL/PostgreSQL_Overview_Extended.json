@@ -140,7 +140,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "count (group by (service_name) (pg_up{service_name=~\"$service_name\"}))",
+                    "expr": "count (group by (service_name) (pg_up{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -224,7 +224,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname=~\"$database\",state=\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname=~\"$database\",state=\"active\"}[5m]))",
+                    "expr": "sum(max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname=~\"$database\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname=~\"$database\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -313,7 +313,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(max_over_time(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(max_over_time(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -397,7 +397,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(max_over_time(pg_settings_work_mem_bytes{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_work_mem_bytes{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(max_over_time(pg_settings_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "",
@@ -481,7 +481,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(max_over_time(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\"}[5m])) ",
+                    "expr": "sum(max_over_time(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])) ",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -557,7 +557,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "clamp_max(sum(max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[5m])) / count (group by (service_name) (pg_up{service_name=~\"$service_name\"})),1)",
+                    "expr": "clamp_max(sum(max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])) / count (group by (service_name) (pg_up{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -714,7 +714,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state=~\"idle|active\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state=~\"idle|active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -725,7 +725,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~\"idle|active\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -850,7 +850,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (avg by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~'idle'}[$interval]) or \nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='idle'}[5m]))) / on (service_name)\navg by (service_name) ((max_over_time(pg_settings_max_connections{service_name=~\"$service_name\"}[$interval]) or \nmax_over_time(pg_settings_max_connections{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "sum by (service_name) (avg by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state=~'idle',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='idle',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) / on (service_name)\navg by (service_name) ((max_over_time(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "interval": "$interval",
                             "legendFormat": "{{service_name}}",
                             "refId": "B"
@@ -996,7 +996,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active'}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active'}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1004,7 +1004,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active'}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active'}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_count{service_name=~\"$service_name\",datname!~\"template.*|postgres\",state='active',node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1142,7 +1142,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (avg by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='active',datname!~\"template.*|postgres\"}[$interval]) or max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='active',datname!~\"template.*|postgres\"}[5m]))) / on (service_name) avg by (service_name) ((max_over_time(pg_settings_max_connections{service_name=~\"$service_name\"}[$interval]) or max_over_time(pg_settings_max_connections{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "sum by (service_name) (avg by (service_name) (max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='active',datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or max_over_time(pg_stat_activity_count{service_name=~\"$service_name\",state='active',datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) / on (service_name) avg by (service_name) ((max_over_time(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or max_over_time(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1215,7 +1215,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[5m]) / pg_up{service_name=~\"$service_name\"}",
+                            "expr": "max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]) / pg_up{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}",
                             "format": "table",
                             "instant": true,
                             "intervalFactor": 1,
@@ -1298,7 +1298,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name) (max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "avg by (service_name) (max_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1393,7 +1393,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "(sum(rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or\nsum(irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or\nsum(irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or\nsum(irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                    "expr": "(sum(rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum(irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum(irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum(rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum(irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1471,7 +1471,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1549,7 +1549,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1627,7 +1627,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1705,7 +1705,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1783,7 +1783,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1926,7 +1926,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1934,7 +1934,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2056,7 +2056,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_fetched{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2189,7 +2189,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2197,7 +2197,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2319,7 +2319,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_returned{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2452,7 +2452,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2460,7 +2460,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2582,7 +2582,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_inserted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2715,7 +2715,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2723,7 +2723,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2806,7 +2806,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_updated{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2939,7 +2939,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2947,7 +2947,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3030,7 +3030,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_tup_deleted{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3125,7 +3125,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "(sum(rate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[5m]))) +\n(sum(rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[$interval])) or\nsum(irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[5m])))",
+                    "expr": "(sum(rate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum(rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum(irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3203,7 +3203,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3281,7 +3281,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[$interval])) or\nsum(irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum(irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3359,7 +3359,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "max(max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "max(max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3437,7 +3437,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "max(max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))",
+                    "expr": "max(max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3515,7 +3515,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "max(max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))",
+                    "expr": "max(max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3657,7 +3657,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3667,7 +3667,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3789,7 +3789,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_commit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3922,7 +3922,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3932,7 +3932,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4054,7 +4054,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_xact_rollback{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4187,7 +4187,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[5m])))",
+                            "expr": "topk(5,sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4197,7 +4197,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4319,7 +4319,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\"}[5m]))",
+                            "expr": "sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state=\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4452,7 +4452,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[5m])))",
+                            "expr": "topk(5,sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4462,7 +4462,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4545,7 +4545,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\"}[5m]))",
+                            "expr": "sum by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_stat_activity_max_tx_duration{service_name=~\"$service_name\",state!~\"active\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4692,7 +4692,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4700,7 +4700,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4822,7 +4822,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))",
+                            "expr": "sum by (service_name) (max_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_files{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4955,7 +4955,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -4964,7 +4964,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5086,7 +5086,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\"}[5m]))",
+                            "expr": "sum by (service_name) (max_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nmax_over_time(pg_stat_database_temp_bytes{service_name=~\"$service_name\",datname!~\"|template(0|1)\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5181,7 +5181,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[5m]))",
+                    "expr": "sum(max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5262,7 +5262,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5343,7 +5343,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum(irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum(irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5424,7 +5424,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "clamp_max(min(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname))),1)",
+                    "expr": "clamp_max(min(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5505,7 +5505,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "clamp_max(max(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (datname))),1)",
+                    "expr": "clamp_max(max(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (datname))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5582,7 +5582,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[5m]))))",
+                    "expr": "sum((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5727,7 +5727,7 @@
                         {
                             "alias": "conflicts",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -5778,7 +5778,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5900,7 +5900,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}[5m]))",
+                            "expr": "sum by (service_name) (max_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nmax_over_time(pg_locks_count{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6035,7 +6035,7 @@
                         {
                             "alias": "conflicts",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -6086,7 +6086,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6224,7 +6224,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_deadlocks{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6359,7 +6359,7 @@
                         {
                             "alias": "deadlocks",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -6411,7 +6411,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6549,7 +6549,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or \nsum by (service_name) (irate(pg_stat_database_conflicts{datname=~\"$database\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6698,7 +6698,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "bottomk(5,(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name))))",
+                            "expr": "bottomk(5,(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6706,7 +6706,7 @@
                             "refId": "B"
                         },
                         {
-                            "expr": "avg(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name)))",
+                            "expr": "avg(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name)))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6844,7 +6844,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\"}) by (service_name))",
+                            "expr": "sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) /\n(sum(pg_stat_database_blks_hit{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name) + \nsum(pg_stat_database_blks_read{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*\",datid!=\"0\",node_name=~\"$node_name\",environment=~\"$environment\"}) by (service_name))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6993,7 +6993,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[5m])))))",
+                            "expr": "topk(5,((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7003,7 +7003,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "avg((sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7141,7 +7141,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "(sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "(sum by (service_name) (rate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_bufferpin{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_deadlock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_lock{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_snapshot{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))) +\n(sum by (service_name) (rate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval])) or\nsum by (service_name) (irate(pg_stat_database_conflicts_confl_tablespace{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7236,7 +7236,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m])) + \nsum(rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])) + \nsum(rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7314,7 +7314,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7392,7 +7392,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7470,7 +7470,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum(rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7548,7 +7548,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[5m]))",
+                    "expr": "sum(rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7626,7 +7626,7 @@
             "pluginVersion": "11.6.1",
             "targets": [
                 {
-                    "expr": "sum(rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[5m]))",
+                    "expr": "sum(rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7769,7 +7769,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7777,7 +7777,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7899,7 +7899,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_read_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8032,7 +8032,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8040,7 +8040,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8162,7 +8162,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_database_blk_write_time{datname=~\"$database\",service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8311,7 +8311,7 @@
                         {
                             "alias": "Buffers Allocated",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -8362,7 +8362,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8484,7 +8484,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_alloc{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8619,7 +8619,7 @@
                         {
                             "alias": "Buffers Allocated",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -8670,7 +8670,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8792,7 +8792,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8927,7 +8927,7 @@
                         {
                             "alias": "Buffers Allocated",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -8978,7 +8978,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9100,7 +9100,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_backend{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9235,7 +9235,7 @@
                         {
                             "alias": "Buffers Allocated",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -9286,7 +9286,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9369,7 +9369,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_clean{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9504,7 +9504,7 @@
                         {
                             "alias": "Buffers Allocated",
                             "dsType": "prometheus",
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "groupBy": [
                                 {
@@ -9555,7 +9555,7 @@
                             ]
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9638,7 +9638,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or \nirate(pg_stat_bgwriter_buffers_checkpoint{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9785,7 +9785,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -9796,7 +9796,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -9918,7 +9918,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name'}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_sync_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -10051,7 +10051,7 @@
                     "pluginVersion": "11.6.1",
                     "targets": [
                         {
-                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[5m]))))",
+                            "expr": "topk(5,(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -10062,7 +10062,7 @@
                             "step": 2
                         },
                         {
-                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[5m])))",
+                            "expr": "avg(sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -10184,7 +10184,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name'}[5m]))",
+                            "expr": "sum by (service_name) (rate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[$interval]) or\nirate(pg_stat_bgwriter_checkpoint_write_time{service_name=~'$service_name',node_name=~\"$node_name\",environment=~\"$environment\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -10300,7 +10300,8 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             },
             {
                 "current": {
@@ -10320,7 +10321,8 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             },
             {
                 "allValue": ".*",
@@ -10328,7 +10330,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
+                "definition": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"},datname)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "DB",
@@ -10336,7 +10338,7 @@
                 "name": "database",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
+                    "query": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"},datname)",
                     "refId": "Metrics-database-Variable-Query"
                 },
                 "refresh": 2,
@@ -10355,7 +10357,7 @@
                 "name": "work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_work_mem_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -10374,7 +10376,7 @@
                 "name": "version",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_static{service_name=~\"$service_name\"},version)",
+                    "query": "label_values(pg_static{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},version)",
                     "refId": "Metrics-version-Variable-Query"
                 },
                 "refresh": 2,
@@ -10393,7 +10395,7 @@
                 "name": "max_connections",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_connections{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_connections-Variable-Query"
                 },
                 "refresh": 2,
@@ -10412,7 +10414,7 @@
                 "name": "shared_buffers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-shared_buffers-Variable-Query"
                 },
                 "refresh": 2,
@@ -10431,7 +10433,7 @@
                 "name": "wal_buffers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-wal_buffers-Variable-Query"
                 },
                 "refresh": 2,
@@ -10450,7 +10452,7 @@
                 "name": "wal_segment_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_segment_size_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_wal_segment_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-wal_segment_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -10469,7 +10471,7 @@
                 "name": "maintenance_work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_maintenance_work_mem_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_maintenance_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-maintenance_work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -10488,7 +10490,7 @@
                 "name": "block_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_block_size{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_block_size{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-block_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -10507,7 +10509,7 @@
                 "name": "checkpoint_segments",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_checkpoint_segments{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_checkpoint_segments{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-checkpoint_segments-Variable-Query"
                 },
                 "refresh": 2,
@@ -10526,7 +10528,7 @@
                 "name": "checkpoint_timeout",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_checkpoint_timeout_seconds{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_checkpoint_timeout_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-checkpoint_timeout-Variable-Query"
                 },
                 "refresh": 2,
@@ -10545,7 +10547,7 @@
                 "name": "default_statistics_target",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_default_statistics_target{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_default_statistics_target{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-default_statistics_target-Variable-Query"
                 },
                 "refresh": 2,
@@ -10564,7 +10566,7 @@
                 "name": "seq_page_cost",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_seq_page_cost{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_seq_page_cost{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-seq_page_cost-Variable-Query"
                 },
                 "refresh": 2,
@@ -10583,7 +10585,7 @@
                 "name": "random_page_cost",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_random_page_cost{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_random_page_cost{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-random_page_cost-Variable-Query"
                 },
                 "refresh": 2,
@@ -10602,7 +10604,7 @@
                 "name": "effective_cache_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_effective_cache_size_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_effective_cache_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-effective_cache_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -10621,7 +10623,7 @@
                 "name": "effective_io_concurrency",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_effective_io_concurrency{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_effective_io_concurrency{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-effective_io_concurrency-Variable-Query"
                 },
                 "refresh": 2,
@@ -10640,7 +10642,7 @@
                 "name": "fsync",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_fsync{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-fsync-Variable-Query"
                 },
                 "refresh": 2,
@@ -10659,7 +10661,7 @@
                 "name": "autovacuum",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum-Variable-Query"
                 },
                 "refresh": 2,
@@ -10678,7 +10680,7 @@
                 "name": "autovacuum_analyze_scale_factor",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_analyze_scale_factor{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_analyze_scale_factor{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_analyze_scale_factor-Variable-Query"
                 },
                 "refresh": 2,
@@ -10697,7 +10699,7 @@
                 "name": "autovacuum_analyze_threshold",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_analyze_threshold{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_analyze_threshold{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_analyze_threshold-Variable-Query"
                 },
                 "refresh": 2,
@@ -10716,7 +10718,7 @@
                 "name": "autovacuum_vacuum_scale_factor",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_scale_factor{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_scale_factor{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_vacuum_scale_factor-Variable-Query"
                 },
                 "refresh": 2,
@@ -10735,7 +10737,7 @@
                 "name": "autovacuum_vacuum_threshold",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_threshold{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_threshold{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_vacuum_threshold-Variable-Query"
                 },
                 "refresh": 2,
@@ -10754,7 +10756,7 @@
                 "name": "autovacuum_vacuum_cost_limit",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_limit{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_limit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_vacuum_cost_limit-Variable-Query"
                 },
                 "refresh": 2,
@@ -10773,7 +10775,7 @@
                 "name": "autovacuum_vacuum_cost_delay",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_delay_seconds{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_delay_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_vacuum_cost_delay-Variable-Query"
                 },
                 "refresh": 2,
@@ -10792,7 +10794,7 @@
                 "name": "autovacuum_max_workers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_max_workers{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_max_workers{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_max_workers-Variable-Query"
                 },
                 "refresh": 2,
@@ -10811,7 +10813,7 @@
                 "name": "autovacuum_naptime",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_naptime_seconds{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_naptime_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_naptime-Variable-Query"
                 },
                 "refresh": 2,
@@ -10830,7 +10832,7 @@
                 "name": "autovacuum_freeze_max_age",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_freeze_max_age{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_freeze_max_age{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_freeze_max_age-Variable-Query"
                 },
                 "refresh": 2,
@@ -10849,7 +10851,7 @@
                 "name": "logging_collector",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_logging_collector{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_logging_collector{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-logging_collector-Variable-Query"
                 },
                 "refresh": 2,
@@ -10868,7 +10870,7 @@
                 "name": "log_min_duration_statement",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_min_duration_statement_seconds{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_log_min_duration_statement_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-log_min_duration_statement-Variable-Query"
                 },
                 "refresh": 2,
@@ -10887,7 +10889,7 @@
                 "name": "log_duration",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_duration{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_log_duration{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-log_duration-Variable-Query"
                 },
                 "refresh": 2,
@@ -10906,7 +10908,7 @@
                 "name": "log_lock_waits",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_lock_waits{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_log_lock_waits{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-log_lock_waits-Variable-Query"
                 },
                 "refresh": 2,
@@ -10925,7 +10927,7 @@
                 "name": "max_wal_senders",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_wal_senders{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_wal_senders{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_wal_senders-Variable-Query"
                 },
                 "refresh": 2,
@@ -10944,7 +10946,7 @@
                 "name": "max_wal_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_wal_size_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_wal_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_wal_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -10963,7 +10965,7 @@
                 "name": "min_wal_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_min_wal_size_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_min_wal_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-min_wal_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -10982,7 +10984,7 @@
                 "name": "wal_compression",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_compression{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_wal_compression{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-wal_compression-Variable-Query"
                 },
                 "refresh": 2,
@@ -11001,7 +11003,7 @@
                 "name": "max_worker_processes",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_worker_processes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_worker_processes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_worker_processes-Variable-Query"
                 },
                 "refresh": 2,
@@ -11020,7 +11022,7 @@
                 "name": "max_parallel_workers_per_gather",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_parallel_workers_per_gather-Variable-Query"
                 },
                 "refresh": 2,
@@ -11039,7 +11041,7 @@
                 "name": "max_parallel_workers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-max_parallel_workers-Variable-Query"
                 },
                 "refresh": 2,
@@ -11058,7 +11060,7 @@
                 "name": "autovacuum_work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_work_mem_bytes{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -11077,7 +11079,7 @@
                 "name": "autovacuum_multixact_freeze_max_age",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_multixact_freeze_max_age{service_name=~\"$service_name\"})",
+                    "query": "query_result(pg_settings_autovacuum_multixact_freeze_max_age{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
                     "refId": "Metrics-autovacuum_multixact_freeze_max_age-Variable-Query"
                 },
                 "refresh": 2,
@@ -11174,7 +11176,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
+                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},user)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Username",
@@ -11182,7 +11184,7 @@
                 "name": "username",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
+                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},user)",
                     "refId": "Metrics-username-Variable-Query"
                 },
                 "refresh": 1,

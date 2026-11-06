@@ -125,7 +125,7 @@
             ],
             "targets": [
                 {
-                    "expr": "topk(10, avg by (service_name,schema,table) (sum(mysql_info_schema_table_rows{service_name=~\"$service_name\"}) by (service_name, schema, table))) > 0",
+                    "expr": "topk(10, avg by (service_name,schema,table) (sum(mysql_info_schema_table_rows{service_name=~\"$service_name_list\"}) by (service_name, schema, table))) > 0",
                     "format": "table",
                     "instant": true,
                     "interval": "5m",
@@ -198,7 +198,7 @@
             ],
             "targets": [
                 {
-                    "expr": "topk(10, avg by (service_name,schema,table) (sum(mysql_info_schema_table_size{service_name=~\"$service_name\", component!=\"data_free\"}) by (schema, table,service_name))) > 0",
+                    "expr": "topk(10, avg by (service_name,schema,table) (sum(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component!=\"data_free\"}) by (schema, table,service_name))) > 0",
                     "format": "table",
                     "instant": true,
                     "interval": "5m",
@@ -291,7 +291,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "avg by (service_name) (sum(max_over_time(mysql_info_schema_table_size{service_name=~\"$service_name\", component!=\"data_free\"}[$interval]) or\nmax_over_time(mysql_info_schema_table_size{service_name=~\"$service_name\", component!=\"data_free\"}[5m])))",
+                    "expr": "avg by (service_name) (sum(max_over_time(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component!=\"data_free\"}[$interval]) or\nmax_over_time(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component!=\"data_free\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -304,7 +304,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "avg by (service_name) (sum(max_over_time(mysql_info_schema_table_size{service_name=~\"$service_name\", component=\"data_free\"}[$interval]) or\nmax_over_time(mysql_info_schema_table_size{service_name=~\"$service_name\", component=\"data_free\"}[5m])))",
+                    "expr": "avg by (service_name) (sum(max_over_time(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component=\"data_free\"}[$interval]) or\nmax_over_time(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component=\"data_free\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -407,7 +407,7 @@
             ],
             "targets": [
                 {
-                    "expr": "topk(5, avg by (service_name,schema,table) (sum(mysql_info_schema_table_size{service_name=~\"$service_name\", component=\"data_free\"}) by (schema, table, service_name)))",
+                    "expr": "topk(5, avg by (service_name,schema,table) (sum(mysql_info_schema_table_size{service_name=~\"$service_name_list\", component=\"data_free\"}) by (schema, table, service_name)))",
                     "format": "table",
                     "instant": true,
                     "interval": "5m",
@@ -529,7 +529,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[$interval])) or avg by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=\"fetch\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[5m])) or avg by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=\"fetch\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
+                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name_list\"}[$interval])) or avg by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name_list\", operation=\"fetch\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name_list\"}[5m])) or avg by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name_list\", operation=\"fetch\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -649,7 +649,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[$interval])) or sum by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=~\"insert|update|delete\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[5m])) or sum by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=~\"insert|update|delete\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
+                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name_list\"}[$interval])) or sum by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name_list\", operation=~\"insert|update|delete\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name_list\"}[5m])) or sum by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name_list\", operation=~\"insert|update|delete\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -976,7 +976,7 @@
             ],
             "targets": [
                 {
-                    "expr": "topk(10, avg by (service_name,schema,table) (mysql_info_schema_auto_increment_column{service_name=~\"$service_name\"} / mysql_info_schema_auto_increment_column_max{service_name=~\"$service_name\"}))",
+                    "expr": "topk(10, avg by (service_name,schema,table) (mysql_info_schema_auto_increment_column{service_name=~\"$service_name_list\"} / mysql_info_schema_auto_increment_column_max{service_name=~\"$service_name_list\"}))",
                     "format": "table",
                     "instant": true,
                     "interval": "5m",
@@ -2859,7 +2859,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\"} ",
+                            "expr": "mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name_list\"} ",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3540,7 +3540,7 @@
                     "value": "ip-10-178-1-36.us-east-2.compute.internal"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{service_name=~\"$service_name\"}, node_name)",
+                "definition": "label_values(mysql_info_schema_table_version{service_name=~\"$service_name\"}, node_name)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node Name",
@@ -3549,7 +3549,7 @@
                 "name": "node_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{service_name=~\"$service_name\"}, node_name)",
+                    "query": "label_values(mysql_info_schema_table_version{service_name=~\"$service_name\"}, node_name)",
                     "refId": "Metrics-node_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -3561,6 +3561,7 @@
                 "useTags": false
             },
             {
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -3589,19 +3590,49 @@
             },
             {
                 "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_info_schema_table_version{service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; service_name uses allValue \".+\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mysql_info_schema_table_version{service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
                     "selected": false,
                     "text": "8.0.27-18",
                     "value": "8.0.27-18"
                 },
                 "datasource": "Metrics",
-                "definition": "query_result(mysql_version_info{service_name=~\"$service_name\"})",
+                "definition": "query_result((mysql_version_info{service_name=~\"$service_name\"} and on (service_name) group by (service_name) (mysql_info_schema_table_version)))",
                 "hide": 2,
                 "includeAll": false,
                 "multi": false,
                 "name": "version",
                 "options": [],
                 "query": {
-                    "query": "query_result(mysql_version_info{service_name=~\"$service_name\"})",
+                    "query": "query_result((mysql_version_info{service_name=~\"$service_name\"} and on (service_name) group by (service_name) (mysql_info_schema_table_version)))",
                     "refId": "Metrics-version-Variable-Query"
                 },
                 "refresh": 2,
