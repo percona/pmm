@@ -23,6 +23,7 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 ## ✅ Fixed issues
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
+- [PMM-15773](https://perconadev.atlassian.net/browse/PMM-15773): Fixed an issue where, after PMM Client was restarted or upgraded, a node could stop sending metrics and PMM Server load could rise: a `vmagent` process left running from before held the metrics queue, so the new one kept failing to start. PMM Client now stops the leftover `vmagent` when it starts.
 
 - [PMM-15776](https://perconadev.atlassian.net/browse/PMM-15776): Fixed misleading help on **MongoDB > Operations > Settings**. **Connect to MongoDB** now says that scans log in with the `.mongodb_uri` file in the home directory of the user pmm-agent runs as, not with the monitoring credentials PMM holds. The **Automatic node scans** setting is removed: turning it off also blocked **Scan** and **Scan all** on the **Nodes** page, and PMM turned it back on at every restart. For details, see [Operations for MongoDB](../use/mongodb-operations.md#provide-mongodb-credentials-for-scans).
 
