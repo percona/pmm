@@ -623,7 +623,7 @@ const (
 )
 
 // mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB write or admin operation.
-var mongoUnsupportedExplain = regexp.MustCompile(`(?m)^(?:command|operation) [A-Za-z]+ is not supported for explain$`)
+var mongoUnsupportedExplain = regexp.MustCompile(`\A(?:command|operation) [A-Za-z]+ is not supported for explain\z`)
 
 // mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
 // only users, hosts, databases, tables, keys and routines, never a value, so

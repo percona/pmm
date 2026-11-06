@@ -612,6 +612,11 @@ func TestMapActionError(t *testing.T) {
 		assert.Equal(t, code, mapActionError(msg, false).code, msg)
 	}
 
+	multi := mapActionError("cannot explain this type of query\noperation insert is not supported for explain\n(BadValue) ns=shop.c Tree: age $eq 42", true)
+	assert.Equal(t, codePMMUnavailable, multi.code)
+	assert.NotContains(t, multi.Error(), "42")
+	assert.NotContains(t, multi.Error(), "pmm_top_queries")
+
 	assert.Equal(t, codeAgentUnreachable, mapError(mapActionStartError(&statusError{status: 400, message: "Cannot find right agent"})).code)
 	assert.Equal(t, codeAgentUnreachable, mapError(mapActionStartError(&statusError{status: 404, message: "No pmm-agent running node x"})).code)
 	assert.Equal(t, codeInvalidInput, mapError(mapActionStartError(&statusError{status: 400, message: "invalid field ServiceId"})).code)
