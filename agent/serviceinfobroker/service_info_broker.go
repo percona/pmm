@@ -286,7 +286,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 		res.Error = err.Error()
 		return &res
 	}
-	c, err := redis.DialURLContext(ctx, dsn, opts...)
+	c, err := tlshelpers.DialValkey(ctx, dsn, opts...)
 	if err != nil {
 		res.Error = err.Error()
 		return &res

@@ -874,21 +874,16 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		return dsn
 
 	case ValkeyExporterType:
-		urlScheme := "redis"
-		if a.TLS {
-			urlScheme += "s"
-		}
-		address := ""
-		if socket == "" {
-			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
-		} else {
-			// Set socket directory as host URI parameter.
-			address = socket
-		}
-
 		u := &url.URL{
-			Scheme: urlScheme,
-			Host:   address,
+			Scheme: "redis",
+			Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+		}
+		switch {
+		case socket != "":
+			// The socket path can't be a URL host; pmm-agent and valkey_exporter dial unix:// URLs directly.
+			u = &url.URL{Scheme: "unix", Path: socket}
+		case a.TLS:
+			u.Scheme = "rediss"
 		}
 		switch {
 		case password != "":
