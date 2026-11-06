@@ -149,6 +149,11 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 		return nil, e
 	}
 
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
@@ -176,6 +181,11 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 		return nil, e
 	}
 
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
@@ -200,6 +210,11 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 		return nil, e
 	}
 
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
@@ -220,6 +235,11 @@ func (ss *ServicesService) AddValkey(ctx context.Context, params *models.AddDBMS
 	})
 	if e != nil {
 		return nil, e
+	}
+
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
 	}
 
 	res, err := services.ToAPIService(service)
@@ -243,6 +263,11 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 		return nil, e
 	}
 
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
@@ -263,6 +288,11 @@ func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models
 	})
 	if e != nil {
 		return nil, e
+	}
+
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
 	}
 
 	res, err := services.ToAPIService(service)
@@ -289,6 +319,11 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 		return nil, e
 	}
 
+	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
@@ -306,6 +341,15 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 		service, err := models.FindServiceByID(tx.Querier, id)
 		if err != nil {
 			return err
+		}
+
+		// Looked up before the Service is removed, as its Node may be removed with it.
+		rdsPMMAgentIDs, err := rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		if err != nil {
+			return err
+		}
+		for _, pmmAgentID := range rdsPMMAgentIDs {
+			pmmAgentIDs[pmmAgentID] = struct{}{}
 		}
 
 		mode := models.RemoveRestrict
@@ -417,6 +461,11 @@ func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.Cha
 		return nil, err
 	}
 
+	err = ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	return services.ToAPIService(service)
 }
 
@@ -433,4 +482,36 @@ func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID str
 	}
 
 	return nil
+}
+
+// requestRDSExporterStateUpdate requests a state update of the pmm-agents that run an rds_exporter for the given Node,
+// as its series carry the standard labels of the Node's Services.
+func (ss *ServicesService) requestRDSExporterStateUpdate(ctx context.Context, nodeID string) error {
+	pmmAgentIDs, err := rdsExporterPMMAgentIDs(ss.db.Querier, nodeID)
+	if err != nil {
+		return err
+	}
+
+	for _, pmmAgentID := range pmmAgentIDs {
+		ss.state.RequestStateUpdate(ctx, pmmAgentID)
+	}
+
+	return nil
+}
+
+// rdsExporterPMMAgentIDs returns the IDs of the pmm-agents that run an rds_exporter for the given Node.
+func rdsExporterPMMAgentIDs(q *reform.Querier, nodeID string) ([]string, error) {
+	agents, err := models.FindAgents(q, models.AgentFilters{NodeID: nodeID, AgentType: new(models.RDSExporterType)})
+	if err != nil {
+		return nil, err
+	}
+
+	pmmAgentIDs := make([]string, 0, len(agents))
+	for _, agent := range agents {
+		if agent.PMMAgentID != nil {
+			pmmAgentIDs = append(pmmAgentIDs, *agent.PMMAgentID)
+		}
+	}
+
+	return pmmAgentIDs, nil
 }

@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -84,7 +85,18 @@ func TestRDSExporterConfig(t *testing.T) {
 		node2: agent2,
 		node1: agent1,
 	}
-	actual, err := rdsExporterConfig(pairs, redactSecrets, pmmAgentVersion)
+	nodeServices := map[string][]*models.Service{
+		node1.NodeID: {{
+			ServiceID:      "service1",
+			ServiceType:    models.MySQLServiceType,
+			ServiceName:    "prod-mysql56",
+			NodeID:         node1.NodeID,
+			Environment:    "prod",
+			Cluster:        "mysql56",
+			ReplicationSet: "rs56",
+		}},
+	}
+	actual, err := rdsExporterConfig(pairs, nodeServices, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER,
@@ -108,11 +120,14 @@ instances:
         agent_id: agent1
         agent_type: rds_exporter
         az: us-east-1c
+        cluster: mysql56
+        environment: prod
         foo: bar
         node_id: node1
         node_model: db.t2.micro
         node_name: prod-mysql56
         node_type: remote_rds
+        replication_set: rs56
     - region: us-east-1
       instance: rds-mysql57
       aws_access_key: access_key2
@@ -160,7 +175,7 @@ func TestRDSExporterConfigRoleARN(t *testing.T) {
 		},
 	}
 
-	actual, err := rdsExporterConfig(map[*models.Node]*models.Agent{node: agent}, redactSecrets, pmmAgentVersion)
+	actual, err := rdsExporterConfig(map[*models.Node]*models.Agent{node: agent}, nil, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 
 	expected := strings.TrimSpace(`
@@ -183,6 +198,105 @@ instances:
 
 	require.Equal(t, expected, actual.TextFiles["config"])
 	require.Equal(t, []string{}, actual.RedactWords)
+}
+
+func TestRDSExporterLabels(t *testing.T) {
+	t.Parallel()
+
+	node := &models.Node{
+		NodeID:     "node1",
+		NodeType:   models.RemoteRDSNodeType,
+		NodeName:   "prod-mysql",
+		Region:     new("us-east-1"),
+		InstanceID: "prod-mysql",
+	}
+	agent := &models.Agent{AgentID: "agent1", AgentType: models.RDSExporterType}
+	service := func(id, environment, cluster, replicationSet string) *models.Service {
+		return &models.Service{
+			ServiceID:      id,
+			ServiceType:    models.MySQLServiceType,
+			ServiceName:    id,
+			NodeID:         node.NodeID,
+			Environment:    environment,
+			Cluster:        cluster,
+			ReplicationSet: replicationSet,
+		}
+	}
+	nodeLabels := model.LabelSet{
+		"agent_id":   "agent1",
+		"agent_type": "rds_exporter",
+		"node_id":    "node1",
+		"node_name":  "prod-mysql",
+		"node_type":  "remote_rds",
+	}
+	withLabels := func(extra model.LabelSet) model.LabelSet {
+		return nodeLabels.Merge(extra)
+	}
+
+	for _, tc := range []struct {
+		name     string
+		services []*models.Service
+		expected model.LabelSet
+	}{{
+		name:     "no Service",
+		expected: nodeLabels,
+	}, {
+		name:     "one Service",
+		services: []*models.Service{service("s1", "prod", "c1", "rs1")},
+		expected: withLabels(model.LabelSet{"environment": "prod", "cluster": "c1", "replication_set": "rs1"}),
+	}, {
+		name:     "empty values make no labels",
+		services: []*models.Service{service("s1", "prod", "", " ")},
+		expected: withLabels(model.LabelSet{"environment": "prod"}),
+	}, {
+		name: "Services that agree",
+		services: []*models.Service{
+			service("s1", "prod", "c1", "rs1"),
+			service("s2", "prod", "c1", "rs1"),
+		},
+		expected: withLabels(model.LabelSet{"environment": "prod", "cluster": "c1", "replication_set": "rs1"}),
+	}, {
+		name: "Services that disagree keep only the labels they share",
+		services: []*models.Service{
+			service("s1", "prod", "c1", "rs1"),
+			service("s2", "prod", "c2", ""),
+		},
+		expected: withLabels(model.LabelSet{"environment": "prod"}),
+	}, {
+		name: "a Service without a value drops the label",
+		services: []*models.Service{
+			service("s1", "", "c1", "rs1"),
+			service("s2", "prod", "c1", "rs1"),
+		},
+		expected: withLabels(model.LabelSet{"cluster": "c1", "replication_set": "rs1"}),
+	}} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			actual, err := mergeLabels(node, tc.services, agent)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+
+	t.Run("labels merge in the order of the Service series", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{NodeID: "node1", NodeType: models.RemoteRDSNodeType, NodeName: "prod-mysql"}
+		require.NoError(t, node.SetCustomLabels(map[string]string{"environment": "node", "cluster": "node"}))
+		s := service("s1", "prod", "c1", "rs1")
+		require.NoError(t, s.SetCustomLabels(map[string]string{"replication_set": "custom"}))
+		agent := &models.Agent{AgentID: "agent1", AgentType: models.RDSExporterType}
+		require.NoError(t, agent.SetCustomLabels(map[string]string{"cluster": "agent"}))
+
+		actual, err := mergeLabels(node, []*models.Service{s}, agent)
+		require.NoError(t, err)
+		assert.Equal(t, withLabels(model.LabelSet{
+			"environment":     "prod",
+			"cluster":         "agent",
+			"replication_set": "custom",
+		}), actual)
+	})
 }
 
 func TestCheckRDSExporterSupported(t *testing.T) {
