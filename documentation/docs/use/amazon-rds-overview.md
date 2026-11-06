@@ -17,7 +17,7 @@ You don't need to change any IAM permissions. PMM lists the instances it has no 
 
 ## Groups
 
-The page shows one row per group of instances. The **Type** column says how PMM grouped them:
+The page shows one row per group of instances. The **Type / Engine** column says how PMM grouped them, with the database engine below:
 
 | Type | Instances in the group |
 |------|------------------------|
@@ -31,12 +31,11 @@ The other columns of a group are:
 
 | Column | What it shows |
 |--------|---------------|
-| **Region**, **AWS account** | Where the group runs |
+| **Region / Account** | The AWS region, with the AWS account below it |
 | **DB identifier** | The cluster identifier, or the identifier of the primary or standalone instance |
-| **Engine** | Aurora MySQL, Aurora PostgreSQL, MySQL, MariaDB or PostgreSQL |
+| **Type / Engine** | The group type from the table above, with Aurora MySQL, Aurora PostgreSQL, MySQL, MariaDB or PostgreSQL below it |
 | **Alerts** | The number of firing alerts of the instances. See [Alerts](#alerts) |
-| **Instances** | How many instances have their exporter connected to the database, out of the instances that PMM monitors. For example, **2 / 3** |
-| **Writers** | The number of writer instances, normally **1 writer**. **no writer** and more than one writer show in a warning color. **unknown** means that the instances don't report their role |
+| **Instances / Writers** | How many instances have their exporter connected to the database, out of the instances that PMM monitors, for example **2 / 3**. Below it, the number of writer instances, normally **1 writer**. **no writer** and more than one writer show in a warning color. **unknown** means that the instances don't report their role |
 | **Throughput** | For Aurora MySQL, MySQL and MariaDB, the queries per second (qps). For Aurora PostgreSQL and PostgreSQL, the transactions per second (tps): commits plus rollbacks |
 | **Storage** | For Aurora, the cluster volume used. For other engines, the free storage space; a group shows its lowest instance, marked **(min)** |
 
