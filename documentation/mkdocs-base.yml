@@ -260,6 +260,8 @@ nav:
             - use/qan/qan_mongo.md
           - Real-time analytics: use/qan/QAN-realtime-analytics.md
 
+      - Amazon RDS overview: use/amazon-rds-overview.md
+
       - Operations for MongoDB: use/mongodb-operations.md
 
       - Percona Advisors:
@@ -553,7 +555,6 @@ nav:
               - reference/dashboards/dashboard-prometheus-exporter-status.md
               - reference/dashboards/dashboard-prometheus-exporters-overview.md
           - MySQL dashboards:
-              - reference/dashboards/dashboard-amazon-aurora-overview.md
               - reference/dashboards/dashboard-mysql-amazon-aurora-details.md
               - reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
               - reference/dashboards/dashboard-mysql-innodb-compression-details.md

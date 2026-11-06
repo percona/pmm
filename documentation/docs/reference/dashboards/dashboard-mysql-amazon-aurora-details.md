@@ -2,7 +2,7 @@
 
 ![!image](../../images/PMM_MySQL_Amazon_Aurora_Details.png)
 
-This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** list contains only Aurora MySQL services. To see all the instances of a cluster first, open the [Amazon Aurora Overview](dashboard-amazon-aurora-overview.md) and click a service to open it here.
+This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** list contains only Aurora MySQL services. To see all the instances of a cluster, open the [Amazon RDS overview](../../use/amazon-rds-overview.md) page with the **Amazon RDS Overview** link at the top of the dashboard. Click a service there to open it here.
 
 Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect an Amazon RDS or Aurora instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
 
@@ -79,6 +79,23 @@ This row is expanded by default. It has these graphs:
 * **Buffer Cache Hit Ratio**: the percentage of requests that the Aurora buffer cache served (CloudWatch `BufferCacheHitRatio`).
 
 * **Free Local Storage**: the local storage available to the instance for temporary files and logs (CloudWatch `FreeLocalStorage`).
+
+* **Cluster volume used**: the bytes used by the Aurora cluster volume (CloudWatch `VolumeBytesUsed`). AWS publishes this metric irregularly, so the graph can be up to about 3 hours behind.
+
+## Instance resources (CloudWatch)
+
+This row is expanded by default. Its graphs read Amazon CloudWatch metrics, which don't need Enhanced Monitoring and are about 10 minutes behind:
+
+| Graph | CloudWatch metrics |
+|-------|--------------------|
+| **CPU utilization** | `CPUUtilization` |
+| **Freeable memory** | `FreeableMemory` |
+| **Database connections** | `DatabaseConnections` |
+| **IOPS** | `ReadIOPS`, `WriteIOPS` |
+| **Throughput** | `ReadThroughput`, `WriteThroughput` |
+| **Network throughput** | `NetworkReceiveThroughput`, `NetworkTransmitThroughput` |
+| **Disk queue depth** | `DiskQueueDepth` |
+| **Swap usage** | `SwapUsage` |
 
 ## Replication (needs a reader)
 

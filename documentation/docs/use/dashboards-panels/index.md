@@ -27,6 +27,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
     | [PMM Inventory]                                                                          | Manage monitored services, nodes, and agents
+    | [Amazon RDS overview]                                                                    | Amazon RDS and Aurora clusters and instances, roles, alerts and storage
     | [Environment Overview]                                                                   | High-level view of all monitored environments
     | [Environment Summary]                                                                    | Aggregated metrics across environments
 
@@ -49,7 +50,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
-    | [Amazon Aurora Overview]                                                                 | Aurora clusters and instances, writer and reader roles, storage
     | [MySQL Amazon Aurora Details]                                                            | Aurora-specific metrics and replication
     | [MySQL Command/Handler Counters Compare]                                                 | Compare command execution patterns across instances
     | [MySQL InnoDB Compression Details]                                                       | InnoDB compression efficiency and performance
@@ -127,6 +127,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [VictoriaMetrics]: ../../reference/dashboards/dashboard-victoriametrics.md
 [VictoriaMetrics Agents Overview]: ../../reference/dashboards/dashboard-victoriametrics-agents-overview.md
 [PMM Inventory]: ../../use/dashboard-inventory.md
+[Amazon RDS overview]: ../../use/amazon-rds-overview.md
 [Environment Overview]: ../../reference/dashboards/dashboard-env-overview.md
 [Environment Summary]: ../../reference/dashboards/dashboard-env-overview.md
 [CPU Utilization Details]: ../../reference/dashboards/dashboard-cpu-utilization-details.md
@@ -141,7 +142,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [Processes Details]: ../../reference/dashboards/dashboard-processes-details.md
 [Prometheus Exporter Status]: ../../reference/dashboards/dashboard-prometheus-exporter-status.md
 [Prometheus Exporters Overview]: ../../reference/dashboards/dashboard-prometheus-exporters-overview.md
-[Amazon Aurora Overview]: ../../reference/dashboards/dashboard-amazon-aurora-overview.md
 [MySQL Amazon Aurora Details]: ../../reference/dashboards/dashboard-mysql-amazon-aurora-details.md
 [MySQL Command/Handler Counters Compare]: ../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
 [MySQL InnoDB Compression Details]: ../../reference/dashboards/dashboard-mysql-innodb-compression-details.md
