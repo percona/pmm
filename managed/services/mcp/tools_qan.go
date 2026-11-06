@@ -75,8 +75,8 @@ type topQueriesInput struct {
 	PeriodTo    string              `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
 	GroupBy     string              `json:"group_by,omitempty" jsonschema:"Row dimension, default queryid; the tool description lists the others"`
 	Labels      map[string][]string `json:"labels,omitempty" jsonschema:"Filters: a label or dimension name mapped to the values to keep, such as username: [app]"`
-	Columns     []string            `json:"columns,omitempty" jsonschema:"Up to 10 more QAN metrics per row; the tool description lists the names"`
-	OrderBy     string              `json:"order_by,omitempty" jsonschema:"load (default), total_query_time, avg_query_time, count or [-]column; see tool description"`
+	Columns     []string            `json:"columns,omitempty" jsonschema:"Up to 10 more QAN metrics per row; pmm_catalog (kind qan_columns) lists the names"`
+	OrderBy     string              `json:"order_by,omitempty" jsonschema:"load (default), total_query_time, avg_query_time, count or [-]column from pmm_catalog"`
 	Offset      int                 `json:"offset,omitempty" jsonschema:"Rows to skip, for paging (default 0)"`
 	Limit       int                 `json:"limit,omitempty" jsonschema:"Number of rows, 1-100 (default 10)"`
 	Search      string              `json:"search,omitempty" jsonschema:"Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max"`
@@ -175,8 +175,8 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 			"rank by total time, avg_query_time by the slowest calls, count by frequency, and a column by its value (- for " +
 			"descending): ranked by the total, or by the per-call average for time metrics, as QAN does, and printed as both. " +
 			"Rows carry load, calls and timing plus the requested columns; queryid rows (the default) also carry " +
-			"the fingerprint, and the queryid goes to pmm_query_detail or pmm_get_explain. Page with offset. Columns: " +
-			qanColumnsText() + ".",
+			"the fingerprint, and the queryid goes to pmm_query_detail or pmm_get_explain. Page with offset. The " +
+			"names that columns and order_by take are listed by pmm_catalog with kind qan_columns.",
 		Annotations: readOnly("Top queries by load"),
 	}, s.topQueries)
 
@@ -334,7 +334,7 @@ func checkColumns(columns []string) ([]string, error) {
 	out := make([]string, 0, len(columns))
 	for _, c := range columns {
 		if _, ok := qanColumnByName(c); !ok {
-			return nil, newToolError(codeInvalidInput, "unknown column '%s'; the tool description lists the valid names", c)
+			return nil, newToolError(codeInvalidInput, "unknown column '%s'; pmm_catalog with kind qan_columns lists the valid names", c)
 		}
 		if !slices.Contains(out, c) {
 			out = append(out, c)
@@ -352,7 +352,7 @@ func parseOrderBy(orderBy string) (string, string, string, error) {
 	name := strings.TrimPrefix(orderBy, "-")
 	if _, ok := qanColumnByName(name); !ok {
 		return "", "", "", newToolError(codeInvalidInput,
-			"order_by must be load, total_query_time, avg_query_time, count, or a column from the tool description with an optional - prefix; got '%s'", orderBy)
+			"order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog with an optional - prefix; got '%s'", orderBy)
 	}
 	return orderBy, name, name, nil
 }

@@ -199,6 +199,7 @@ func (s *Service) Handler() http.Handler {
 func (s *Service) registerTools(server *mcp.Server) {
 	s.registerInventoryTools(server)
 	s.registerQANTools(server)
+	s.registerCatalogTools(server)
 	s.registerActionTools(server)
 	s.registerConfigTools(server)
 }

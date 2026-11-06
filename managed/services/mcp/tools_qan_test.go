@@ -868,9 +868,9 @@ func TestTopQueriesReportInputs(t *testing.T) {
 			prefix string
 		}{
 			{map[string]any{"group_by": "service_id"}, "group_by must be one of"},
-			{map[string]any{"columns": []string{"rows_examined", "nope"}}, "unknown column 'nope'"},
+			{map[string]any{"columns": []string{"rows_examined", "nope"}}, "unknown column 'nope'; pmm_catalog"},
 			{map[string]any{"columns": []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"}}, "columns takes at most 10"},
-			{map[string]any{"order_by": "-nope"}, "order_by must be"},
+			{map[string]any{"order_by": "-nope"}, "order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog"},
 			{map[string]any{"offset": -1}, "offset must be 0 or more"},
 			{map[string]any{"search": strings.Repeat("x", 201)}, "search must be at most 200"},
 			{map[string]any{"labels": map[string]any{"user name": []string{"a"}}}, "label name 'user name'"},
@@ -883,6 +883,25 @@ func TestTopQueriesReportInputs(t *testing.T) {
 			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
 		}
 		assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getReport"))
+	})
+
+	t.Run("PointsToCatalog", func(t *testing.T) {
+		t.Parallel()
+
+		session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+		tool := listTools(t, session)["pmm_top_queries"]
+		require.NotNil(t, tool)
+		assert.NotContains(t, tool.Description, "docs_examined")
+		assert.Contains(t, tool.Description, "pmm_catalog")
+		props := string(mustJSON(t, tool.InputSchema))
+		var schema struct {
+			Properties map[string]struct {
+				Description string `json:"description"`
+			} `json:"properties"`
+		}
+		require.NoError(t, json.Unmarshal([]byte(props), &schema))
+		assert.Contains(t, schema.Properties["columns"].Description, "pmm_catalog")
+		assert.Contains(t, schema.Properties["order_by"].Description, "pmm_catalog")
 	})
 }
 
