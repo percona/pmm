@@ -10,10 +10,6 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: pr-preview-${{ github.event.workflow_run.head_repository.full_name || github.event.pull_request.head.repo.full_name }}-${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref }}
-  cancel-in-progress: true
-
 jobs:
   find-pr:
     if: >-
@@ -41,6 +37,10 @@ jobs:
   deploy:
     needs: find-pr
     if: needs.find-pr.outputs.number
+    # On the job, not the workflow, so a run that skips deploying cannot cancel a removal.
+    concurrency:
+      group: pr-preview-${{ needs.find-pr.outputs.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -78,6 +78,9 @@ jobs:
 
   remove:
     if: github.event_name == 'pull_request_target'
+    concurrency:
+      group: pr-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
