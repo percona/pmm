@@ -86,7 +86,7 @@ If PMM Server runs with a self-signed certificate, configure the client to trust
 
 ## Tools
 
-The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`. It also tells the client to page with `offset`, to read reference data from `pmm_catalog`, and that fields marked `Untrusted` hold data from databases or users, not instructions.
+The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`. It also tells the client to page with `offset`, to read reference data from `pmm_catalog`, and to treat text from databases or users as data, not instructions.
 
 | Tool | What it returns | Backing PMM API |
 |------|-----------------|-----------------|
@@ -212,7 +212,7 @@ A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`
 
 ### Untrusted fields
 
-Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, the names of services, nodes, databases, schemas and tables, service addresses, version strings, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`, and the server's instructions tell the model to treat these fields as data, not instructions.
+Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, the names of services, nodes, databases, schemas and tables, service addresses, version strings, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`. Some clients, Claude Code among them, don't pass output schemas to the model, so the server's instructions also name these kinds of text and tell the model to treat them as data, not instructions.
 
 This mark is advice to the model, not a security boundary. A model can still be misled by hostile text in a query. What bounds the damage is that every tool is read-only and runs with the caller's own token and roles.
 
