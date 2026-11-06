@@ -34,6 +34,9 @@ const (
 	engineMongoDB    = "mongodb"
 
 	unknownVersion = "unknown"
+
+	inventoryDefaultLimit = 50
+	inventoryMaxLimit     = 200
 )
 
 // versionMetrics maps an engine to the metric and label that carry the server
@@ -61,6 +64,55 @@ type versionInput struct{}
 type inventoryInput struct {
 	Engine string `json:"engine,omitempty" jsonschema:"Filter by engine: mysql, postgresql or mongodb"`
 	Node   string `json:"node,omitempty" jsonschema:"Filter by node name"`
+	Limit  int    `json:"limit,omitempty" jsonschema:"Maximum services to return; default 50, maximum 200"`
+	Offset int    `json:"offset,omitempty" jsonschema:"Number of services to skip, for the next page"`
+}
+
+// serviceRow is one monitored service in the result of pmm_inventory.
+type serviceRow struct {
+	ServiceID   string `json:"service_id" jsonschema:"Service id."`
+	ServiceName string `json:"service_name" jsonschema:"Untrusted. Service name."`
+	Engine      string `json:"engine" jsonschema:"Engine: mysql, postgresql or mongodb."`
+	Version     string `json:"version,omitempty" jsonschema:"Untrusted. Server version, left out when it cannot be read."`
+	NodeName    string `json:"node_name,omitempty" jsonschema:"Untrusted. Name of the node the service runs on."`
+	Address     string `json:"address,omitempty" jsonschema:"Untrusted. Address the service listens on."`
+	Port        int64  `json:"port,omitempty" jsonschema:"Port the service listens on."`
+	PMMURL      string `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM."`
+}
+
+// inventoryResult is the result of pmm_inventory.
+type inventoryResult struct {
+	Services []serviceRow `json:"services" jsonschema:"Monitored services on this page."`
+	Page     page         `json:"page" jsonschema:"Paging of the full list."`
+}
+
+func (r inventoryResult) render() string {
+	if r.Page.Total == 0 {
+		return "No monitored services found."
+	}
+	var lines []string
+	lines = append(lines, fmt.Sprintf("Monitored services (%d):", r.Page.Total))
+	for _, svc := range r.Services {
+		version := svc.Version
+		if version == "" {
+			version = unknownVersion
+		}
+		row := fmt.Sprintf("- %s | %s %s | id=%s", svc.ServiceName, svc.Engine, version, svc.ServiceID)
+		if svc.NodeName != "" {
+			row += " | node=" + svc.NodeName
+		}
+		if svc.Address != "" {
+			row += " | address=" + svc.Address
+			if svc.Port != 0 {
+				row += fmt.Sprintf(":%d", svc.Port)
+			}
+		}
+		lines = append(lines, row)
+	}
+	if m := r.Page.marker(); m != "" {
+		lines = append(lines, m)
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (s *Service) registerInventoryTools(server *mcp.Server) {
@@ -72,13 +124,13 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 		Annotations: readOnly("PMM Server version"),
 	}, s.version)
 
-	mcp.AddTool(server, &mcp.Tool{
+	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_inventory",
 		Title: "List monitored services",
 		Description: "List database services monitored by PMM, with engine and version. Use this to " +
 			"discover a service_id / service_name and the exact engine version before analysing a query.",
 		Annotations: readOnly("List monitored services"),
-	}, handle(s, "pmm_inventory", s.inventory))
+	}, s.inventory)
 }
 
 // versionResult is the result of pmm_version.
@@ -110,20 +162,20 @@ func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versi
 	return out, nil
 }
 
-func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (*mcp.CallToolResult, error) {
+func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (inventoryResult, error) {
 	if in.Engine != "" && !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, in.Engine) {
-		return nil, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
+		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	services, err := s.listServices(ctx, auth, true)
 	if err != nil {
-		return nil, err
+		return inventoryResult{}, err
 	}
 
 	s.enrichVersions(ctx, auth, services)
 
-	var out []serviceInfo
+	var filtered []serviceInfo
 	for _, svc := range services {
 		if in.Engine != "" && svc.Engine != in.Engine {
 			continue
@@ -131,28 +183,32 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		if in.Node != "" && svc.NodeName != in.Node {
 			continue
 		}
-		out = append(out, svc)
-	}
-	if len(out) == 0 {
-		return textResult("No monitored services found."), nil
+		filtered = append(filtered, svc)
 	}
 
-	lines := make([]string, 0, len(out)+1)
-	lines = append(lines, fmt.Sprintf("Monitored services (%d):", len(out)))
-	for _, svc := range out {
-		row := fmt.Sprintf("- %s | %s %s | id=%s", svc.ServiceName, svc.Engine, svc.Version, svc.ServiceID)
-		if svc.NodeName != "" {
-			row += " | node=" + svc.NodeName
-		}
-		if svc.Address != "" {
-			row += " | address=" + svc.Address
-			if svc.Port != 0 {
-				row += fmt.Sprintf(":%d", svc.Port)
-			}
-		}
-		lines = append(lines, row)
+	paged, pg, err := paginate(filtered, in.Offset, in.Limit, inventoryDefaultLimit, inventoryMaxLimit)
+	if err != nil {
+		return inventoryResult{}, err
 	}
-	return textResult(strings.Join(lines, "\n")), nil
+
+	base := s.publicBaseURL(ctx, req.Extra.Header)
+	rows := make([]serviceRow, 0, len(paged))
+	for _, svc := range paged {
+		row := serviceRow{
+			ServiceID:   svc.ServiceID,
+			ServiceName: svc.ServiceName,
+			Engine:      svc.Engine,
+			NodeName:    svc.NodeName,
+			Address:     svc.Address,
+			Port:        svc.Port,
+			PMMURL:      serviceURL(base, svc),
+		}
+		if svc.Version != unknownVersion {
+			row.Version = svc.Version
+		}
+		rows = append(rows, row)
+	}
+	return inventoryResult{Services: rows, Page: pg}, nil
 }
 
 // listServices fetches the inventory, with node names when withNodeNames is
