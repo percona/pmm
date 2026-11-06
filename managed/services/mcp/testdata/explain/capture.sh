@@ -81,6 +81,8 @@ skipped=""
 for f in "$dir"/*.sql; do
   case=$(basename "$f" .sql)
   [ "$case" = schema ] && continue
+  # CASES="a b" limits the run to those cases.
+  [ -z "${CASES:-}" ] || [[ " $CASES " == *" $case "* ]] || continue
   if [ "$version" = 5.7 ] && [[ " $unsupported_57 " == *" $case "* ]]; then
     skipped="$skipped $case"
     continue
