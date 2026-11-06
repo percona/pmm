@@ -225,7 +225,8 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1"})
+		res := callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1"})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError, text)
 		assert.Contains(t, text, "innodb_buffer_pool_size")
 
@@ -234,6 +235,16 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		reqs := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
 		require.NotEmpty(t, reqs)
 		assert.Contains(t, reqs[0].query, "shop-mysql")
+
+		got := structured[configResult](t, res)
+		assert.Equal(t, "shop-mysql", got.ServiceName)
+		assert.Equal(t, engineMySQL, got.Engine)
+		assert.Len(t, got.Variables, 4)
+		// The version query finds no version label here: the version is left
+		// out, and the text keeps its header without one.
+		assert.Empty(t, got.Version)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), `"version"`)
+		assert.True(t, strings.HasPrefix(text, "-- 4 variables (numeric knobs from PMM metrics)\n"), text)
 	})
 
 	t.Run("ServiceNameStillAccepted", func(t *testing.T) {
@@ -353,11 +364,15 @@ func TestStoredPlanProbe(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		text, isError := textOf(t, res), res.IsError
 		require.False(t, isError, text)
 		assert.Contains(t, text, "Stored plan (pg_stat_monitor, planid PLAN-1)")
 		assert.Contains(t, text, "user42@example.com", "raw SQL is on in this test")
 		assert.Contains(t, text, "var-service_name=shop-postgres", "the deep link now names the service")
+		got := structured[explainResult](t, res)
+		assert.False(t, got.Live, "a stored plan is not produced live")
+		assert.Contains(t, got.PMMURL, "var-service_name=shop-postgres")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"), "PostgreSQL has no live EXPLAIN action")
 		assert.Empty(t, fake.requestsTo("/v1/inventory/nodes"), "a lookup by service id needs no node names")
 		plans := fake.requestsTo("/v1/qan/query/QID-PG/plan")
@@ -418,12 +433,18 @@ func TestExplainMasksLiteralsWhenRawSQLIsOff(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, false))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		text, isError := textOf(t, res), res.IsError
 		require.False(t, isError, text)
 		assert.NotContains(t, text, "user42@example.com")
 		assert.Contains(t, text, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
 		assert.Contains(t, text, `"access_type": "ALL"`, "the plan's shape survives masking")
 		assert.Contains(t, text, `"rows_examined_per_scan": 20000`, "row estimates are not literals")
+
+		got := structured[explainResult](t, res)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
+		assert.Contains(t, got.Plan, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
 	})
 
 	t.Run("PostgreSQLStoredPlan", func(t *testing.T) {
@@ -432,11 +453,17 @@ func TestExplainMasksLiteralsWhenRawSQLIsOff(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, false))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		text, isError := textOf(t, res), res.IsError
 		require.False(t, isError, text)
 		assert.NotContains(t, text, "user42@example.com")
 		assert.Contains(t, text, "Filter: ((email)::text = ?::text)")
 		assert.Contains(t, text, "(cost=0.00..458.00 rows=1 width=64)", "cost and row estimates are not literals")
+
+		got := structured[explainResult](t, res)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
+		assert.Contains(t, got.Plan, "Filter: ((email)::text = ?::text)")
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
 	})
 
 	// Each read of the setting is a settings query, and two reads that

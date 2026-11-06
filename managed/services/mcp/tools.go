@@ -27,32 +27,6 @@ import (
 // the backing API calls have their own per-request deadline as well.
 const toolTimeoutSlack = 45 * time.Second
 
-// toolHandler is a tool implementation before it is wrapped by handle.
-type toolHandler[In any] func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, error)
-
-// handle adapts a toolHandler to the SDK: it bounds the call, logs it with
-// component=mcp and the tool name, and maps failures to the contract's typed
-// errors. Log lines never carry tokens or SQL; the message goes out at Debug.
-func handle[In any](s *Service, name string, fn toolHandler[In]) mcp.ToolHandlerFor[In, any] {
-	return func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, any, error) {
-		l := s.l.WithField("tool", name)
-		start := time.Now()
-
-		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout()+toolTimeoutSlack)
-		defer cancel()
-
-		res, err := fn(ctx, req, in)
-		if err != nil {
-			te := mapError(err)
-			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Warn("Tool call failed.")
-			l.Debugf("Tool call failed: %s.", te.message)
-			return nil, nil, te
-		}
-		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
-		return res, nil, nil
-	}
-}
-
 // renderer is a tool result that renders itself as the text half of the
 // result; the structured half is the value itself.
 type renderer interface {
@@ -84,11 +58,12 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		if err != nil {
 			te := mapError(err)
 			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Warn("Tool call failed.")
+			// The message can quote SQL, so it is logged at Debug only.
 			l.Debugf("Tool call failed: %s.", te.message)
 			return errorResult(te), nil, nil
 		}
 		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
-		return textResult(out.render()), out, nil
+		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: out.render()}}}, out, nil
 	})
 }
 
@@ -102,12 +77,5 @@ func readOnly(title string) *mcp.ToolAnnotations {
 		DestructiveHint: &f,
 		IdempotentHint:  true,
 		OpenWorldHint:   &f,
-	}
-}
-
-// textResult wraps text in a successful tool result.
-func textResult(text string) *mcp.CallToolResult {
-	return &mcp.CallToolResult{
-		Content: []mcp.Content{&mcp.TextContent{Text: text}},
 	}
 }

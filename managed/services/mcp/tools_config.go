@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -31,6 +32,52 @@ type configInput struct {
 	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql. Defaults to the service's own engine when service_id is given, otherwise mysql"`
 	Filter      string `json:"filter,omitempty" jsonschema:"Only variables whose name contains this substring (e.g. innodb)"`
 	At          string `json:"at,omitempty" jsonschema:"Point in time: RFC3339 or relative such as now-1h (default now)"`
+	Limit       int    `json:"limit,omitempty" jsonschema:"Maximum variables to return; default 200, maximum 1000"`
+	Offset      int    `json:"offset,omitempty" jsonschema:"Number of variables to skip, for the next page"`
+}
+
+const (
+	configDefaultLimit = 200
+	configMaxLimit     = 1000
+)
+
+// configResult is the result of pmm_get_config.
+type configResult struct {
+	ServiceName string     `json:"service_name" jsonschema:"Untrusted. Service name."`
+	Engine      string     `json:"engine" jsonschema:"Engine: mysql or postgresql."`
+	Version     string     `json:"version,omitempty" jsonschema:"Untrusted. Server version, left out when it cannot be read."`
+	At          time.Time  `json:"at" jsonschema:"Point in time the variables were read at."`
+	Variables   []variable `json:"variables" jsonschema:"Variables on this page, sorted by name."`
+	Page        page       `json:"page" jsonschema:"Paging of the variables that match filter."`
+	PMMURL      string     `json:"pmm_url" jsonschema:"Link to the service in PMM Query Analytics, over the hour before at."`
+}
+
+// variable is one server variable of a pmm_get_config result.
+type variable struct {
+	Name  string `json:"name" jsonschema:"Variable name, without the exporter's metric prefix."`
+	Value string `json:"value" jsonschema:"Untrusted. Value as PMM's metrics hold it."`
+}
+
+func (r configResult) render() string {
+	view := link("View this service in PMM", r.PMMURL)
+	at := "At: " + r.At.UTC().Format(time.RFC3339)
+	if r.Page.Total == 0 {
+		return "No configuration variables found for that service (check the service and that its metrics are being collected).\n" + at + "\n\n" + view
+	}
+
+	header := fmt.Sprintf("-- %d variables (numeric knobs from PMM metrics)", r.Page.Total)
+	if r.Version != "" {
+		header = fmt.Sprintf("-- %s %s - %d variables (numeric knobs from PMM metrics)", r.Engine, r.Version, r.Page.Total)
+	}
+	lines := []string{header, "-- " + at}
+	for _, v := range r.Variables {
+		lines = append(lines, v.Name+"\t"+v.Value)
+	}
+	text := strings.Join(lines, "\n") + "\n\n" + view
+	if m := r.Page.marker(); m != "" {
+		text += "\n" + m
+	}
+	return text
 }
 
 // configMetrics maps an engine to the metric prefix the exporter uses for
@@ -41,31 +88,33 @@ var configMetrics = map[string]string{
 }
 
 func (s *Service) registerConfigTools(server *mcp.Server) {
-	mcp.AddTool(server, &mcp.Tool{
+	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_get_config",
 		Title: "Database configuration",
 		Description: "Retrieve a monitored database's server configuration (tuning variables) from PMM's collected " +
 			"metrics, as SHOW GLOBAL VARIABLES-style name<TAB>value lines plus the server version. Limitation: " +
 			"exporters publish numeric variables only; string-valued knobs such as sql_mode are not in metrics.",
 		Annotations: readOnly("Database configuration"),
-	}, handle(s, "pmm_get_config", s.config))
+	}, s.config)
 }
 
-func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in configInput) (*mcp.CallToolResult, error) {
+func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in configInput) (configResult, error) {
 	if in.ServiceID == "" && in.ServiceName == "" {
-		return nil, newToolError(codeInvalidInput, "service_id is required (service_name is also accepted)")
+		return configResult{}, newToolError(codeInvalidInput, "service_id is required (service_name is also accepted)")
 	}
 	// Validate an explicit engine before any API round trip.
 	if in.Engine != "" {
 		_, ok := configMetrics[in.Engine]
 		if !ok {
-			return nil, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
+			return configResult{}, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
 		}
 	}
 	at, err := parseTime(in.At, s.now())
 	if err != nil {
-		return nil, err
+		return configResult{}, err
 	}
+	// UTC in whole seconds, so that the text and the structured at read the same.
+	at = at.UTC().Truncate(time.Second)
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	// Accept service_id like the other tools; the metrics are labelled by name.
@@ -74,7 +123,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	if in.ServiceID != "" {
 		svc, err := s.engineOf(ctx, auth, in.ServiceID)
 		if err != nil {
-			return nil, err
+			return configResult{}, err
 		}
 		serviceName = svc.ServiceName
 		// An explicit engine wins over the inventory's.
@@ -89,14 +138,14 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	prefix, ok := configMetrics[engine]
 	if !ok {
 		// An explicit engine was validated above, so this engine came from the inventory.
-		return nil, newToolError(codeInvalidInput,
+		return configResult{}, newToolError(codeInvalidInput,
 			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
 	}
 
 	samples, err := s.queryMetrics(ctx, auth,
 		`{__name__=~"`+prefix+`.+", service_name="`+escapeLabel(serviceName)+`"}`, at)
 	if err != nil {
-		return nil, err
+		return configResult{}, err
 	}
 
 	variables := map[string]string{}
@@ -117,23 +166,26 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	if len(names) == 0 {
-		return textResult("No configuration variables found for that service (check the service and that its metrics are being collected)."), nil
+	paged, pg, err := paginate(names, in.Offset, in.Limit, configDefaultLimit, configMaxLimit)
+	if err != nil {
+		return configResult{}, err
 	}
 
-	version := s.serviceVersion(ctx, auth, engine, serviceName)
-	header := fmt.Sprintf("-- %d variables (numeric knobs from PMM metrics)", len(names))
-	if version != "" {
-		header = fmt.Sprintf("-- %s %s - %d variables (numeric knobs from PMM metrics)", engine, version, len(names))
+	r := configResult{
+		ServiceName: serviceName,
+		Engine:      engine,
+		At:          at,
+		Variables:   make([]variable, 0, len(paged)),
+		Page:        pg,
+		PMMURL:      qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, at.Add(-hourWindow), at),
 	}
-	lines := make([]string, 0, len(names)+1)
-	lines = append(lines, header)
-	for _, name := range names {
-		lines = append(lines, name+"\t"+variables[name])
+	for _, name := range paged {
+		r.Variables = append(r.Variables, variable{Name: name, Value: variables[name]})
 	}
-	text := strings.Join(lines, "\n")
-	text += "\n\n" + link("View this service in PMM", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, at.Add(-hourWindow), at))
-	return textResult(text), nil
+	if len(names) > 0 {
+		r.Version = s.serviceVersion(ctx, auth, engine, serviceName)
+	}
+	return r, nil
 }
 
 // formatMetricValue renders integers without an exponent and keeps other

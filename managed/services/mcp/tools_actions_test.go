@@ -81,12 +81,26 @@ func TestExplainTool(t *testing.T) {
 		fake, seq := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "database": "shop"})
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "database": "shop"})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
 		assert.True(t, strings.HasPrefix(text, "EXPLAIN (json, mysql shop-mysql):\n```\n-- SELECT * FROM customers WHERE email = 'user42@example.com'\n{\n  \"query_block\""), text)
 		assert.Contains(t, text, `"access_type": "ALL"`)
 		assert.Contains(t, text, "details_tab=explain&filter_by=QID-AAA")
 		fake.assertForwardedAuth(t)
+
+		got := structured[explainResult](t, res)
+		assert.Equal(t, engineMySQL, got.Engine)
+		assert.Equal(t, "shop-mysql", got.ServiceName)
+		assert.Equal(t, "json", got.Format)
+		assert.True(t, got.Live)
+		assert.False(t, got.Truncated)
+		assert.Nil(t, got.QueryRef)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "query_ref")
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the plan the text shows")
+		assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-AAA"+
+			"&from="+ms(testNow.Add(-time.Hour))+"&query_selected=true&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+		assert.Contains(t, text, "("+got.PMMURL+")")
 
 		// MySQL has no stored plans, so there is no probe: the action is started
 		// and polled straight away.
@@ -123,10 +137,22 @@ func TestExplainTool(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
 		assert.True(t, strings.HasPrefix(text, "Stored plan (pg_stat_monitor, planid PLAN-1):\n```\nSeq Scan on customers"), text)
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+
+		got := structured[explainResult](t, res)
+		assert.Equal(t, explainResult{
+			Engine:      enginePostgreSQL,
+			ServiceName: "shop-postgres",
+			Format:      formatText,
+			Plan:        "Seq Scan on customers  (cost=0.00..458.00 rows=1 width=64)\n  Filter: ((email)::text = 'user42@example.com'::text)",
+			PMMURL: "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-PG" +
+				"&from=" + ms(testNow.Add(-time.Hour)) + "&query_selected=true&to=" + ms(testNow) + "&var-service_name=shop-postgres",
+		}, got)
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```\n\n[View this query in PMM ↗]("+got.PMMURL+")")
 	})
 
 	t.Run("PostgreSQLWithoutPlan", func(t *testing.T) {
@@ -139,6 +165,20 @@ func TestExplainTool(t *testing.T) {
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for queryid 'QID-AAA'"), text)
 		assert.Contains(t, text, "pgsm_enable_query_plan=on")
+	})
+
+	t.Run("PlanCapped", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = strings.Repeat("x", 70<<10)
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		got := structured[explainResult](t, res)
+		assert.True(t, got.Truncated)
+		assert.Equal(t, strings.Repeat("x", 64<<10), got.Plan)
+		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n\n[View this query in PMM ↗]("+got.PMMURL+")")
 	})
 
 	t.Run("PlaceholderError", func(t *testing.T) {
@@ -234,10 +274,16 @@ func TestSchemaTool(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
 		assert.Equal(t, "### shop.customers\n```sql\nCREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB\n```", text)
 		fake.assertForwardedAuth(t)
+		assert.Equal(t, schemaResult{Tables: []tableResult{{
+			Database:   "shop",
+			Name:       "customers",
+			Definition: "CREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB",
+		}}}, structured[schemaResult](t, res))
 		body := unmarshalBody[actions_service.StartServiceActionBody](t, fake.requestsTo("/v1/actions:startServiceAction")[0])
 		require.NotNil(t, body.MysqlShowCreateTable)
 		assert.Equal(t, "customers", body.MysqlShowCreateTable.TableName)
@@ -250,12 +296,37 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
 		assert.Equal(t, "### shop.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```\nindexes:\n```\nindex of customers\n```", text)
+		assert.Equal(t, schemaResult{Tables: []tableResult{{
+			Database: "shop", Name: "customers", Definition: "CREATE TABLE `customers` (`id` int)", Indexes: "index of customers",
+		}}}, structured[schemaResult](t, res))
 		require.Len(t, stub.starts, 2)
 		assert.True(t, slices.ContainsFunc(stub.starts, func(b actions_service.StartServiceActionBody) bool { return b.PostgresShowCreateTable != nil }))
 		assert.True(t, slices.ContainsFunc(stub.starts, func(b actions_service.StartServiceActionBody) bool { return b.PostgresShowIndex != nil }))
+	})
+
+	t.Run("TableTextCapped", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.outputs = map[string]string{"ddl-a": strings.Repeat("d", 40<<10), "index-b": strings.Repeat("i", 33<<10)}
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", "b", "c"}, "info_types": "all"})
+		got := structured[schemaResult](t, res)
+		require.Len(t, got.Tables, 3)
+		assert.Equal(t, tableResult{Database: "shop", Name: "a", Definition: strings.Repeat("d", 32<<10), Indexes: "index of a", Truncated: true}, got.Tables[0])
+		assert.Equal(t, tableResult{Database: "shop", Name: "b", Definition: "CREATE TABLE `b` (`id` int)", Indexes: strings.Repeat("i", 32<<10), Truncated: true}, got.Tables[1])
+		assert.False(t, got.Tables[2].Truncated)
+		assert.False(t, got.Partial)
+
+		text := textOf(t, res)
+		assert.Contains(t, text, "### shop.a\n```sql\n"+got.Tables[0].Definition+"\n```\n(definition cut at 32 KiB)\nindexes:\n```\nindex of a\n```\n\n")
+		assert.Contains(t, text, "### shop.b\n```sql\nCREATE TABLE `b` (`id` int)\n```\nindexes:\n```\n"+got.Tables[1].Indexes+"\n```\n(indexes cut at 32 KiB)\n\n")
+		assert.True(t, strings.HasSuffix(text, "### shop.c\n```sql\nCREATE TABLE `c` (`id` int)\n```\nindexes:\n```\nindex of c\n```"), text)
 	})
 
 	// A syntax error from SHOW CREATE TABLE is not EXPLAIN's placeholder
@@ -320,10 +391,12 @@ func TestConfigTool(t *testing.T) {
 	})
 	session := connect(t, newQANService(t, fake, true))
 
-	text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "at": "now-1h"})
+	res := callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "at": "now-1h"})
+	text, isError := textOf(t, res), res.IsError
 	assert.False(t, isError)
 	assert.Equal(t, strings.Join([]string{
 		"-- mysql 8.0.46-37 - 4 variables (numeric knobs from PMM metrics)",
+		"-- At: 2026-09-14T11:00:00Z",
 		"innodb_buffer_pool_size\t134217728",
 		"innodb_io_capacity\t200",
 		"long_query_time\t0.5",
@@ -332,6 +405,21 @@ func TestConfigTool(t *testing.T) {
 		"[View this service in PMM ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from=" + ms(testNow.Add(-2*time.Hour)) + "&to=" + ms(testNow.Add(-time.Hour)) + "&var-service_name=shop-mysql)",
 	}, "\n"), text)
 	fake.assertForwardedAuth(t)
+	assert.Equal(t, configResult{
+		ServiceName: "shop-mysql",
+		Engine:      engineMySQL,
+		Version:     "8.0.46-37",
+		At:          testNow.Add(-time.Hour),
+		Variables: []variable{
+			{Name: "innodb_buffer_pool_size", Value: "134217728"},
+			{Name: "innodb_io_capacity", Value: "200"},
+			{Name: "long_query_time", Value: "0.5"},
+			{Name: "max_connections", Value: "151"},
+		},
+		Page:   page{Total: 4, Limit: 200},
+		PMMURL: "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from=" + ms(testNow.Add(-2*time.Hour)) + "&to=" + ms(testNow.Add(-time.Hour)) + "&var-service_name=shop-mysql",
+	}, structured[configResult](t, res))
+	assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"at":"2026-09-14T11:00:00Z"`)
 
 	queries := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
 	require.Len(t, queries, 2)
@@ -345,6 +433,69 @@ func TestConfigTool(t *testing.T) {
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "engine": "mongodb"})
 	assert.True(t, isError)
 	assert.True(t, strings.HasPrefix(text, "error: invalid_input\nengine"), text)
+
+	// No variable matches: the text keeps its message and gains the time and the link.
+	res = callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "nothing_matches"})
+	got := structured[configResult](t, res)
+	assert.Empty(t, got.Variables)
+	assert.Equal(t, page{Limit: 200}, got.Page)
+	assert.Equal(t, strings.Join([]string{
+		"No configuration variables found for that service (check the service and that its metrics are being collected).",
+		"At: 2026-09-14T12:00:00Z",
+		"",
+		"[View this service in PMM ↗](" + got.PMMURL + ")",
+	}, "\n"), textOf(t, res))
+	assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+
+	t.Run("Paging", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, inventoryRoutes())
+		prev := fake.server.Config.Handler
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			if strings.HasSuffix(req.URL.Path, "/api/v1/query") && strings.Contains(req.URL.Query().Get("query"), "mysql_global_variables_") {
+				writeJSON(rw, vmVariables(250))
+				return
+			}
+			prev.ServeHTTP(rw, req)
+		})
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1"})
+		got := structured[configResult](t, res)
+		assert.Equal(t, page{Total: 250, Limit: 200, Truncated: true}, got.Page)
+		require.Len(t, got.Variables, 200)
+		assert.Equal(t, variable{Name: "var_000", Value: "0"}, got.Variables[0])
+		assert.Equal(t, variable{Name: "var_199", Value: "199"}, got.Variables[199])
+		assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+		text := textOf(t, res)
+		assert.True(t, strings.HasPrefix(text, "-- mysql 8.0.46-37 - 250 variables (numeric knobs from PMM metrics)\n-- At: 2026-09-14T12:00:00Z\nvar_000\t0\n"), text)
+		assert.True(t, strings.HasSuffix(text, "\nvar_199\t199\n\n[View this service in PMM ↗]("+got.PMMURL+")\nshowing 1–200 of 250; pass offset=200 for more"), text)
+		assert.Equal(t, 200, strings.Count(text, "\t"))
+
+		res = callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "offset": 200})
+		got = structured[configResult](t, res)
+		assert.Equal(t, page{Total: 250, Offset: 200, Limit: 200}, got.Page)
+		require.Len(t, got.Variables, 50)
+		assert.Equal(t, "var_200", got.Variables[0].Name)
+		assert.NotContains(t, textOf(t, res), "showing ")
+
+		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "limit": 1001})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nlimit must be between 1 and 1000; got 1001"), text)
+	})
+}
+
+// vmVariables is an instant-query answer with n MySQL variables, var_000 = 0 and up.
+func vmVariables(n int) any {
+	result := make([]any, 0, n)
+	for i := range n {
+		result = append(result, map[string]any{
+			"metric": map[string]string{"__name__": fmt.Sprintf("mysql_global_variables_var_%03d", i), "service_name": "shop-mysql"},
+			"value":  []any{1782379897, strconv.Itoa(i)},
+		})
+	}
+	return map[string]any{"status": "success", "data": map[string]any{"resultType": "vector", "result": result}}
 }
 
 func TestMapActionError(t *testing.T) {
@@ -395,6 +546,8 @@ type actionStub struct {
 	explain string
 	// explainErr is the error of an explain action, instead of its output.
 	explainErr string
+	// outputs replaces the output of the action ids it names.
+	outputs map[string]string
 
 	mu          sync.Mutex
 	release     chan struct{}
@@ -501,6 +654,9 @@ func (a *actionStub) get(rw http.ResponseWriter, id string) {
 	a.mu.Unlock()
 	kind, table, _ := strings.Cut(id, "-")
 	output := map[string]string{"ddl": fmt.Sprintf("CREATE TABLE `%s` (`id` int)", table), "index": "index of " + table, "explain": a.explain}[kind]
+	if o, ok := a.outputs[id]; ok {
+		output = o
+	}
 	var actionErr string
 	if kind == "explain" {
 		actionErr = a.explainErr
@@ -535,14 +691,26 @@ func TestActionDeadlineIsPerCall(t *testing.T) {
 	session := connect(t, s)
 
 	start := time.Now()
-	text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
+	res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
+	elapsed := time.Since(start)
+	text, isError := textOf(t, res), res.IsError
 	assert.False(t, isError, text)
 	assert.Contains(t, text, "CREATE TABLE `customers`")
 	assert.Contains(t, text, "error: timeout\naction index-customers did not complete within 1s")
 	// A deadline per action would end the call at about 1.4 s: polls at 0, 0.3, 0.75 and 1.4 s.
-	assert.Less(t, time.Since(start), 1250*time.Millisecond)
+	assert.Less(t, elapsed, 1250*time.Millisecond)
 	assert.Equal(t, []string{"index-customers"}, stub.cancelled())
 	assert.Equal(t, []string{testToken}, stub.cancelAuth)
+
+	got := structured[schemaResult](t, res)
+	assert.True(t, got.Partial)
+	require.Len(t, got.Tables, 1)
+	assert.Equal(t, "CREATE TABLE `customers` (`id` int)", got.Tables[0].Definition)
+	assert.Nil(t, got.Tables[0].DefinitionError)
+	assert.Empty(t, got.Tables[0].Indexes)
+	require.NotNil(t, got.Tables[0].IndexesError)
+	assert.Equal(t, codeTimeout, got.Tables[0].IndexesError.Code)
+	assert.Equal(t, "action index-customers did not complete within 1s (PMM_MCP_ACTION_TIMEOUT)", got.Tables[0].IndexesError.Message)
 }
 
 // TestSchemaManyTables pins the multi-table pmm_get_schema: actions run in
@@ -556,11 +724,19 @@ func TestSchemaManyTables(t *testing.T) {
 
 		fake, stub := newActionStub(t, 4)
 		session := connect(t, newQANService(t, fake, true))
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"d", "b", "a", "c"}})
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"d", "b", "a", "c"}})
+		text, isError := textOf(t, res), res.IsError
 		require.False(t, isError, text)
 		assert.Len(t, stub.starts, 4)
 		assert.Empty(t, stub.cancelled())
 		assert.Equal(t, []string{"### shop.d", "### shop.b", "### shop.a", "### shop.c"}, headers(text), "input order")
+		got := structured[schemaResult](t, res)
+		assert.False(t, got.Partial)
+		names := make([]string, 0, len(got.Tables))
+		for _, tbl := range got.Tables {
+			names = append(names, tbl.Name)
+		}
+		assert.Equal(t, []string{"d", "b", "a", "c"}, names, "input order")
 	})
 
 	t.Run("AtMostFourInFlight", func(t *testing.T) {
@@ -603,12 +779,26 @@ func TestSchemaManyTables(t *testing.T) {
 		session := connect(t, s)
 
 		start := time.Now()
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", "slow", "b"}})
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", "slow", "b"}})
+		elapsed := time.Since(start)
+		text, isError := textOf(t, res), res.IsError
 		require.False(t, isError, text)
-		assert.Less(t, time.Since(start), 1250*time.Millisecond)
+		assert.Less(t, elapsed, 1250*time.Millisecond)
 		assert.Contains(t, text, "### shop.slow\nerror: timeout\naction ddl-slow did not complete within 1s (PMM_MCP_ACTION_TIMEOUT)\n\n### shop.b\n```sql\nCREATE TABLE `b`")
 		assert.Contains(t, text, "### shop.a\n```sql\nCREATE TABLE `a`")
 		assert.Equal(t, []string{"ddl-slow"}, stub.cancelled())
+
+		got := structured[schemaResult](t, res)
+		assert.True(t, got.Partial)
+		require.Len(t, got.Tables, 3)
+		assert.Equal(t, tableResult{Database: "shop", Name: "a", Definition: "CREATE TABLE `a` (`id` int)"}, got.Tables[0])
+		assert.Equal(t, tableResult{Database: "shop", Name: "b", Definition: "CREATE TABLE `b` (`id` int)"}, got.Tables[2])
+		assert.Equal(t, "slow", got.Tables[1].Name)
+		assert.Empty(t, got.Tables[1].Definition)
+		require.NotNil(t, got.Tables[1].DefinitionError)
+		assert.Equal(t, codeTimeout, got.Tables[1].DefinitionError.Code)
+		assert.Equal(t, "action ddl-slow did not complete within 1s (PMM_MCP_ACTION_TIMEOUT)", got.Tables[1].DefinitionError.Message)
+		assert.Nil(t, got.Tables[1].IndexesError)
 	})
 
 	t.Run("EveryActionFails", func(t *testing.T) {
