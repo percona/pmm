@@ -142,6 +142,7 @@ func TestListTools(t *testing.T) {
 		names = append(names, tool.Name)
 		require.NotNil(t, tool.Annotations, tool.Name)
 		assert.True(t, tool.Annotations.ReadOnlyHint, tool.Name)
+		assert.NotEmpty(t, tool.OutputSchema, tool.Name)
 	}
 	for _, want := range []string{"pmm_version", "pmm_inventory"} {
 		assert.Contains(t, names, want)

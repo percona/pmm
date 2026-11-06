@@ -86,19 +86,30 @@ If PMM Server runs with a self-signed certificate, configure the client to trust
 
 ## Tools
 
-The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`.
+The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`. It also tells the client to page with `offset`, to read reference data from `pmm_catalog`, and to treat text from databases or users as data, not instructions.
 
 | Tool | What it returns | Backing PMM API |
 |------|-----------------|-----------------|
 | `pmm_version` | PMM Server version; confirms the connection and the token | `GET /v1/server/version` |
-| `pmm_inventory` | Monitored services with `service_id`, `service_name`, engine, version, node and address; optional `engine` / `node` filters | `GET /v1/inventory/services`, `GET /v1/inventory/nodes`, version metrics |
+| `pmm_inventory` | Monitored services with `service_id`, `service_name`, engine, version, node and address; optional `engine` / `node` filters; page with `limit` and `offset` | `GET /v1/inventory/services`, `GET /v1/inventory/nodes`, version metrics |
 | `pmm_top_queries` | Rows of QAN's report over a window (`period_from` / `period_to`, RFC 3339 or relative such as `now-1h`): queries with their `queryid` by default, or another dimension with `group_by` (`service_name`, `database`, `schema`, `username`, `client_host`, `application_name`, `cmd_type`). Filter with `service_name`, `service_id`, `labels` and `search`; add up to 10 [QAN columns](#qan-columns); rank with `order_by` (`load`, `total_query_time`, `avg_query_time`, `count`, or a column); page with `offset` and `limit`. The header reads `Rows 11-20 of 143` | `POST /v1/qan/metrics:getReport`, `POST /v1/qan/metrics:getFilters` |
 | `pmm_query_detail` | Fingerprint, engine and version, schema, tables, key metrics (rows examined/sent, full scans, filesorts, …; for MongoDB, documents and keys examined, documents returned and bytes read) and an example statement for one `queryid` | `POST /v1/qan:getMetrics`, `POST /v1/qan/query:getExample` |
 | `pmm_get_explain` | The execution plan for a `queryid`: the stored `pg_stat_monitor` plan for PostgreSQL, a live `EXPLAIN` (JSON or traditional) run by pmm-agent for MySQL, `explain` for MongoDB | `GET /v1/inventory/services`, `GET /v1/qan/query/{queryid}/plan` (PostgreSQL), `POST /v1/actions:startServiceAction` and `GET /v1/actions/{action_id}` (MySQL, MongoDB) |
 | `pmm_get_schema` | `SHOW CREATE TABLE` (MySQL) or the table definition (PostgreSQL), the indexes, or both (`info_types`: `definition`, `indexes`, `all`) for 1 to 10 `tables`, fetched in parallel. A table that fails shows its error in its own block; the call fails only when every table does | `POST /v1/actions:startServiceAction`, `GET /v1/actions/{action_id}` |
-| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted) | `GET /v1/inventory/services` (with `service_id`), `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy |
+| `pmm_catalog` | Reference data the other tools accept. `kind=qan_columns` lists the [QAN columns](#qan-columns) with their engine and aggregation; the optional `engine` argument keeps one engine's entries plus those every engine has | None: served from the server's built-in catalogue |
+| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); page with `limit` and `offset` | `GET /v1/inventory/services` (with `service_id`), `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy |
 
-Every result carries a **View in PMM** link that opens the QAN dashboard on the same window, service and query, so an answer can always be checked in PMM itself. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
+Most results link to the same data in PMM, so you can check an answer in PMM itself. The link is the `pmm_url` field, and the text shows it too:
+
+| Tool | The link opens |
+|------|----------------|
+| `pmm_top_queries` | QAN on the report's window, filtered to the service when the request names one with `service_name` |
+| `pmm_query_detail` | QAN on the same window, with the query selected |
+| `pmm_get_explain` | QAN on the last hour, with the query selected on its **Explain** tab. Without a `queryid`, QAN for the service |
+| `pmm_get_config` | QAN for the service, over the hour before `at` |
+| `pmm_inventory` | The instance summary dashboard of each MySQL, PostgreSQL and MongoDB service |
+
+`pmm_version`, `pmm_catalog` and `pmm_get_schema` carry no link. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
 
 ### QAN columns
 
@@ -181,17 +192,45 @@ Every result carries a **View in PMM** link that opens the QAN dashboard on the 
 | `locks_database_acquire_wait_count_read_shared` | MongoDB | sum | Number of times a read lock at the database level was requested but had to wait before being granted |
 | `locks_collection_acquire_count_read_shared` | MongoDB | sum | Number of times a read lock was acquired on a specific collection during operations |
 
+### Structured output
+
+Every tool returns one typed result and renders it twice from the same value: as text in `content`, and as JSON in `structuredContent`, which follows the tool's `outputSchema` from `tools/list`. A client can read whichever it prefers, and both always agree. Field names are snake_case and times are RFC 3339.
+
+Results carry provenance. `pmm_url` is the link to the same data in PMM, as listed under [Tools](#tools). `pmm_top_queries` and `pmm_query_detail` carry `window`, the time range of the QAN data they read (`period_from`, `period_to`). `pmm_get_config` reads one point in time and carries `at` instead. `pmm_get_explain` carries neither. A result made of several parts, such as the tables of `pmm_get_schema`, sets `partial` to `true` when at least one part failed and at least one succeeded. The failed part reports its own error, for example `definition_error` for a table. When every part fails, the call is an error.
+
+### Paging
+
+`pmm_inventory`, `pmm_get_config` and `pmm_top_queries` page with `limit` and `offset`:
+
+| Tool | Default `limit` | Maximum `limit` | Counts |
+|------|-----------------|-----------------|--------|
+| `pmm_inventory` | 50 | 200 | services |
+| `pmm_get_config` | 200 | 1000 | variables |
+| `pmm_top_queries` | 10 | 100 | rows |
+
+A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`. Pass that `offset` to get the next page. Other limits apply to one item: an execution plan is cut at 64 KiB, and the definition and indexes of one table at 32 KiB each. A cut item sets `truncated` and says so in its text.
+
+### Untrusted fields
+
+Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, the names of services, nodes, databases, schemas and tables, service addresses, version strings, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`. Some clients, Claude Code among them, don't pass output schemas to the model, so the server's instructions also name these kinds of text and tell the model to treat them as data, not instructions.
+
+This mark is advice to the model, not a security boundary. A model can still be misled by hostile text in a query. What bounds the damage is that every tool is read-only and runs with the caller's own token and roles.
+
 ### Errors
 
 A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. When Grafana's anonymous access is on, PMM refuses `/mcp` to an anonymous caller with HTTP 403. A browser request from another origin also gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
 
+Every error result also carries `_meta["com.percona/error"]` with the `code` and a `retryable` flag, and has no `structuredContent`. A client can act on the flag without parsing the text. These codes are retryable, because the same call can succeed later: `timeout`, `agent_unreachable`, `pmm_unavailable` and `rate_limited`. The others (`not_found`, `invalid_input`, `unauthorized`, `no_query_source`, `insufficient_privileges`) are not: change the request or the setup first.
+
 `rate_limited`: too many live-inspection calls are in flight for these credentials (2) or on this replica (8). Retry when one finishes.
+
+Input that doesn't match a tool's input schema, such as a missing required argument or a value of the wrong type, is refused by the MCP SDK before the tool runs. That refusal has `isError: true` and a text that starts with `validating "arguments":`. It has no `error: <code>` text and no `com.percona/error` entry in `_meta`, so it is outside the error envelope above. Tools check the values and combinations of their arguments themselves and answer those with `invalid_input`.
 
 ## Roles
 
 | Tool | Minimum role |
 |------|--------------|
-| `pmm_version`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config` | Viewer |
+| `pmm_version`, `pmm_catalog`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config` | Viewer |
 | `pmm_inventory` | Viewer (`GET /v1/inventory/services` and `GET /v1/inventory/nodes` are readable by any authenticated user; inventory changes still require Admin) |
 
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.

@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -45,6 +46,8 @@ const (
 
 	formatJSON        = "json"
 	formatTraditional = "traditional"
+	// The format of pg_stat_monitor's stored plans.
+	formatText = "text"
 
 	infoDefinition = "definition"
 	infoIndexes    = "indexes"
@@ -54,6 +57,12 @@ const (
 	maxSchemaTables = 10
 	// Actions in flight per call, at most, so that one call cannot flood a pmm-agent.
 	maxActionsInFlight = 4
+
+	kiB = 1 << 10
+	// Bytes of a plan body, at most.
+	maxPlanBytes = 64 * kiB
+	// Bytes of one table's definition, and of its indexes, at most.
+	maxTableTextBytes = 32 * kiB
 )
 
 type explainInput struct {
@@ -72,8 +81,84 @@ type schemaInput struct {
 	InfoTypes string   `json:"info_types,omitempty" jsonschema:"definition (default), indexes or all"`
 }
 
+// explainResult is the result of pmm_get_explain.
+type explainResult struct {
+	Engine      string    `json:"engine" jsonschema:"Engine: mysql, postgresql or mongodb."`
+	ServiceName string    `json:"service_name" jsonschema:"Untrusted. Service name."`
+	Format      string    `json:"format" jsonschema:"Plan format: json or traditional for MySQL, json for MongoDB, text for a PostgreSQL stored plan."`
+	Plan        string    `json:"plan" jsonschema:"Untrusted. Execution plan, its literals masked when raw SQL is off; cut at 64 KiB."`
+	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
+	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
+	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in."`
+	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics, or to the service over the last hour when the call has no queryid."`
+
+	// planID is pg_stat_monitor's id of a stored plan.
+	planID string
+	// serviceLink is set when PMMURL links the service rather than the query.
+	serviceLink bool
+}
+
+func (r explainResult) render() string {
+	header := fmt.Sprintf("EXPLAIN (%s, %s %s):", r.Format, r.Engine, r.ServiceName)
+	if !r.Live {
+		header = "Stored plan (pg_stat_monitor, planid " + r.planID + "):"
+	}
+	text := header + "\n```\n" + r.Plan + "\n```"
+	if r.Truncated {
+		text += "\n" + cutNote("plan", maxPlanBytes)
+	}
+	label := "View this query in PMM QAN"
+	if r.serviceLink {
+		label = "View this service in PMM QAN"
+	}
+	return text + "\n\n" + link(label, r.PMMURL)
+}
+
+// schemaResult is the result of pmm_get_schema.
+type schemaResult struct {
+	Tables  []tableResult `json:"tables" jsonschema:"The tables, in input order."`
+	Partial bool          `json:"partial" jsonschema:"Set when some actions failed and others succeeded; a table's failures are in definition_error and indexes_error."`
+
+	// definitions and indexes are the parts info_types asked for.
+	definitions, indexes bool
+}
+
+// tableResult is one table of a pmm_get_schema result.
+type tableResult struct {
+	Database        string     `json:"database" jsonschema:"Untrusted. Database name."`
+	Name            string     `json:"name" jsonschema:"Untrusted. Table name."`
+	Definition      string     `json:"definition" jsonschema:"Untrusted. The table's DDL, cut at 32 KiB; empty when not asked for or when it failed."`
+	Indexes         string     `json:"indexes" jsonschema:"Untrusted. The table's indexes, cut at 32 KiB; empty when not asked for or when it failed."`
+	Truncated       bool       `json:"truncated" jsonschema:"Set when the definition or the indexes were cut at 32 KiB."`
+	DefinitionError *partError `json:"definition_error,omitempty" jsonschema:"Failure of the action that reads the table's DDL."`
+	IndexesError    *partError `json:"indexes_error,omitempty" jsonschema:"Failure of the action that reads the table's indexes."`
+
+	// definitionCut and indexesCut tell which text Truncated is about.
+	definitionCut, indexesCut bool
+}
+
+func (r schemaResult) render() string {
+	blocks := make([]string, 0, len(r.Tables))
+	for _, t := range r.Tables {
+		block := "### " + t.Database + "." + t.Name
+		if r.definitions {
+			block += "\n" + schemaPart(false, t.Definition, t.definitionCut, t.DefinitionError)
+		}
+		if r.indexes {
+			block += "\n" + schemaPart(true, t.Indexes, t.indexesCut, t.IndexesError)
+		}
+		blocks = append(blocks, block)
+	}
+	return strings.Join(blocks, "\n\n")
+}
+
+// cutNote is the text's note that a capped text was cut.
+func cutNote(what string, maxBytes int) string {
+	return fmt.Sprintf("(%s cut at %d KiB)", what, maxBytes/kiB)
+}
+
 func (s *Service) registerActionTools(server *mcp.Server) {
-	mcp.AddTool(server, &mcp.Tool{
+	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_get_explain",
 		Title: "Execution plan",
 		Description: "Return the execution plan for a query addressed by queryid. PostgreSQL plans come from " +
@@ -83,34 +168,34 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 			"modifies data. If a MySQL fingerprint has ? placeholders and no query example is stored, pass " +
 			"placeholders and database.",
 		Annotations: readOnly("Execution plan"),
-	}, handle(s, "pmm_get_explain", s.explain))
+	}, s.explain)
 
-	mcp.AddTool(server, &mcp.Tool{
+	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_get_schema",
 		Title: "Table DDL",
 		Description: "Return SHOW CREATE TABLE (MySQL or PostgreSQL) and/or the indexes of up to 10 tables via the PMM agent, " +
 			"fetched in parallel. A table that fails shows its error inline; the others still return.",
 		Annotations: readOnly("Table DDL"),
-	}, handle(s, "pmm_get_schema", s.schema))
+	}, s.schema)
 }
 
-func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in explainInput) (*mcp.CallToolResult, error) {
+func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in explainInput) (explainResult, error) {
 	if in.ServiceID == "" {
-		return nil, newToolError(codeInvalidInput, "service_id is required")
+		return explainResult{}, newToolError(codeInvalidInput, "service_id is required")
 	}
 	if in.QueryID == "" && in.Query == "" {
-		return nil, newToolError(codeInvalidInput, "queryid or query is required")
+		return explainResult{}, newToolError(codeInvalidInput, "queryid or query is required")
 	}
 	err := checkQANValue("queryid", in.QueryID)
 	if err != nil {
-		return nil, err
+		return explainResult{}, err
 	}
 	format := in.Format
 	if format == "" {
 		format = formatJSON
 	}
 	if format != formatJSON && format != formatTraditional {
-		return nil, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
+		return explainResult{}, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
@@ -126,7 +211,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	// fetched.
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
-		return nil, err
+		return explainResult{}, err
 	}
 
 	// PostgreSQL has no live EXPLAIN action; its plans come only from
@@ -140,7 +225,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	switch svc.Engine {
 	case engineMySQL:
 		if in.QueryID == "" {
-			return nil, newToolError(codeInvalidInput, "MySQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
+			return explainResult{}, newToolError(codeInvalidInput, "MySQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
 		}
 		// PMM resolves the placeholder values from the stored query example, so
 		// service_id + queryid (+ database) is enough; explicit placeholders
@@ -160,17 +245,19 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if query == "" {
 			query, err = s.storedExample(ctx, auth, in.QueryID, in.ServiceID, now)
 			if err != nil {
-				return nil, err
+				return explainResult{}, err
 			}
 		}
 		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: in.ServiceID, Query: query}
+		// format is MySQL's; MongoDB's explain always answers JSON.
+		format = formatJSON
 	default:
-		return nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
+		return explainResult{}, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
 	release, err := s.startLive(auth)
 	if err != nil {
-		return nil, err
+		return explainResult{}, err
 	}
 	defer release()
 
@@ -179,40 +266,43 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
 		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no
 		// concrete statement was available.
-		return nil, newToolError(codeInvalidInput,
+		return explainResult{}, newToolError(codeInvalidInput,
 			"EXPLAIN could not run on the fingerprint (placeholder syntax): %s. "+
 				"Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database.", te.message)
 	}
 	if err != nil {
-		return nil, err
+		return explainResult{}, err
 	}
 
 	plan, decoded := decodeExplainOutput(output, raw)
 	if !raw {
 		plan = redactPlan(svc.Engine, format, plan, decoded)
 	}
-	text := fmt.Sprintf("EXPLAIN (%s, %s %s):\n```\n%s\n```", format, svc.Engine, svc.ServiceName, plan)
+	r := explainResult{Engine: svc.Engine, ServiceName: svc.ServiceName, Format: format, Live: true}
+	r.Plan, r.Truncated = capText(plan, maxPlanBytes)
 	if in.QueryID != "" {
-		text += "\n\n" + link("View this query in PMM", qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"))
+		r.PMMURL = qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain")
+	} else {
+		r.PMMURL, r.serviceLink = qanOverviewURL(base, svc.ServiceName, now.Add(-time.Hour), now), true
 	}
-	return textResult(text), nil
+	return r, nil
 }
 
 // storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {};
 // qan-api2 ignores the service_id it is sent until PMM-15697.
 func (s *Service) storedPlan(
 	ctx context.Context, auth callerAuth, queryID string, svc serviceInfo, base string, now time.Time, raw bool,
-) (*mcp.CallToolResult, error) {
+) (explainResult, error) {
 	if queryID == "" {
-		return nil, newToolError(codeInvalidInput, "PostgreSQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
+		return explainResult{}, newToolError(codeInvalidInput, "PostgreSQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
 	}
 
 	plan, err := s.api.GetQueryPlan(ctx, auth, queryID, svc.ServiceID)
 	if err != nil {
-		return nil, err
+		return explainResult{}, err
 	}
 	if plan == nil || plan.QueryPlan == "" {
-		return nil, newToolError(codeNotFound,
+		return explainResult{}, newToolError(codeNotFound,
 			"no stored plan for queryid '%s'. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
 				"pg_stat_monitor: monitor the service with pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on, "+
 				"then retry once the query has run again", queryID)
@@ -222,9 +312,15 @@ func (s *Service) storedPlan(
 	if !raw {
 		body = maskPGPlan(body)
 	}
-	text := "Stored plan (pg_stat_monitor, planid " + plan.Planid + "):\n```\n" + body + "\n```"
-	text += "\n\n" + link("View this query in PMM", qanQueryURL(base, queryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"))
-	return textResult(text), nil
+	r := explainResult{
+		Engine:      svc.Engine,
+		ServiceName: svc.ServiceName,
+		Format:      formatText,
+		PMMURL:      qanQueryURL(base, queryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"),
+		planID:      plan.Planid,
+	}
+	r.Plan, r.Truncated = capText(body, maxPlanBytes)
+	return r, nil
 }
 
 // storedExample returns the stored example statement for a queryid, which is
@@ -254,22 +350,22 @@ func (s *Service) storedExample(ctx context.Context, auth callerAuth, queryID, s
 	return res.QueryExamples[0].Example, nil
 }
 
-func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (*mcp.CallToolResult, error) {
+func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (schemaResult, error) {
 	infoTypes := cmp.Or(in.InfoTypes, infoDefinition)
 	if !slices.Contains([]string{infoDefinition, infoIndexes, infoAll}, infoTypes) {
-		return nil, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
+		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
 	}
 	tables, err := checkTables(in.Tables)
 	if err != nil {
-		return nil, err
+		return schemaResult{}, err
 	}
 	if in.ServiceID == "" || in.Database == "" {
-		return nil, newToolError(codeInvalidInput, "service_id and database are required")
+		return schemaResult{}, newToolError(codeInvalidInput, "service_id and database are required")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	release, err := s.startLive(auth)
 	if err != nil {
-		return nil, err
+		return schemaResult{}, err
 	}
 	defer release()
 
@@ -278,7 +374,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
-		return nil, err
+		return schemaResult{}, err
 	}
 	refs := make([]tableRef, len(tables))
 	for i, t := range tables {
@@ -319,11 +415,11 @@ type schemaJob struct {
 }
 
 // tableInfo runs the DDL and index actions of tables, at most maxActionsInFlight
-// at a time and all under ctx's one deadline, and renders a block per table in
-// input order. It fails only when every action fails.
-func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInfo, tables []tableRef, infoTypes string) (*mcp.CallToolResult, error) {
+// at a time and all under ctx's one deadline, and returns the tables in input
+// order. It fails only when every action fails.
+func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInfo, tables []tableRef, infoTypes string) (schemaResult, error) {
 	if svc.Engine != engineMySQL && svc.Engine != enginePostgreSQL {
-		return nil, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
+		return schemaResult{}, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
 	}
 	var jobs []schemaJob
 	for i, t := range tables {
@@ -355,17 +451,34 @@ func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInf
 	}
 	wg.Wait()
 	if !slices.Contains(errs, nil) {
-		return nil, errs[0]
+		return schemaResult{}, errs[0]
 	}
 
-	blocks := make([]string, len(tables))
+	r := schemaResult{
+		Tables:      make([]tableResult, len(tables)),
+		Partial:     slices.ContainsFunc(errs, func(err error) bool { return err != nil }),
+		definitions: infoTypes != infoIndexes,
+		indexes:     infoTypes != infoDefinition,
+	}
 	for i, t := range tables {
-		blocks[i] = "### " + t.database + "." + t.name
+		r.Tables[i] = tableResult{Database: t.database, Name: t.name}
 	}
 	for i, job := range jobs {
-		blocks[job.table] += "\n" + schemaPart(job.indexes, outputs[i], errs[i])
+		t := &r.Tables[job.table]
+		output := strings.TrimRight(outputs[i], "\n")
+		switch {
+		case errs[i] != nil && job.indexes:
+			t.IndexesError = partErrorOf(errs[i])
+		case errs[i] != nil:
+			t.DefinitionError = partErrorOf(errs[i])
+		case job.indexes:
+			t.Indexes, t.indexesCut = capText(output, maxTableTextBytes)
+		default:
+			t.Definition, t.definitionCut = capText(output, maxTableTextBytes)
+		}
+		t.Truncated = t.definitionCut || t.indexesCut
 	}
-	return textResult(strings.Join(blocks, "\n\n")), nil
+	return r, nil
 }
 
 // schemaBodies returns the DDL and index action bodies of a table.
@@ -389,18 +502,21 @@ func schemaBodies(svc serviceInfo, t tableRef) (actions_service.StartServiceActi
 	return ddl, idx
 }
 
-// schemaPart renders one action's result inside its table's block.
-func schemaPart(indexes bool, output string, err error) string {
+// schemaPart renders one action's part of its table's block.
+func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
+	what, part := "definition", "```sql\n"+text+"\n```"
 	switch {
-	case err != nil:
-		return mapError(err).Error()
+	case pe != nil:
+		return fmt.Sprintf("error: %s\n%s", pe.Code, pe.Message)
 	case indexes:
-		return "indexes:\n```\n" + strings.TrimRight(output, "\n") + "\n```"
-	case strings.TrimSpace(output) == "":
+		what, part = "indexes", "indexes:\n```\n"+text+"\n```"
+	case strings.TrimSpace(text) == "":
 		return "No DDL returned for that table."
-	default:
-		return "```sql\n" + strings.TrimRight(output, "\n") + "\n```"
 	}
+	if cut {
+		part += "\n" + cutNote(what, maxTableTextBytes)
+	}
+	return part
 }
 
 // runAction starts a service action and polls it with 300 ms -> 2 s backoff
@@ -489,12 +605,25 @@ func actionIDOf(res *actions_service.StartServiceActionOKBody) string {
 // the action, which is an agent problem rather than bad input.
 func mapActionStartError(err error) error {
 	te := mapError(err)
+	if strings.Contains(te.message, "query exceeded max length and got trimmed") {
+		return newToolError(codeInvalidInput, "%s\n%s", te.message, trimmedQueryRemediation)
+	}
 	msg := strings.ToLower(te.message)
 	if strings.Contains(msg, "agent") && (te.code == codeInvalidInput || te.code == codeNotFound) {
 		return newToolError(codeAgentUnreachable, "%s", te.message)
 	}
 	return te
 }
+
+const (
+	trimmedQueryRemediation = "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; " +
+		"pick another query, or raise max-query-length on the agent"
+	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
+		"pick a read query from pmm_top_queries"
+)
+
+// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB write or admin operation.
+var mongoUnsupportedExplain = regexp.MustCompile(`\A(?:command|operation) [A-Za-z]+ is not supported for explain\z`)
 
 // mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
 // only users, hosts, databases, tables, keys and routines, never a value, so
@@ -562,6 +691,9 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code, safe, header = known.code, known.identifiers, mysqlHeader[0]
 	case mongoName != nil:
 		code, header = mongoErrors[mongoName[1]], mongoName[0]
+	}
+	if mongoUnsupportedExplain.MatchString(rest) {
+		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoReadOnlyRemediation)
 	}
 	if code == "" {
 		code = classifyErrorText(maskQuoted(rest))

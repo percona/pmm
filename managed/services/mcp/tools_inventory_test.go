@@ -16,10 +16,12 @@
 package mcp
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
 
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -61,9 +63,9 @@ func TestInventoryTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.Equal(t, strings.Join([]string{
 			"Monitored services (3):",
-			"- shop-mysql | mysql 8.0.46-37 | id=svc-1 | node=demo-node | address=mysql:3306",
-			"- pmm-server-postgresql | postgresql unknown | id=svc-pmm-pg | node=pmm-server | address=127.0.0.1:5432",
-			"- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432",
+			"- shop-mysql | mysql 8.0.46-37 | id=svc-1 | node=demo-node | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)",
+			"- pmm-server-postgresql | postgresql unknown | id=svc-pmm-pg | node=pmm-server | address=127.0.0.1:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=pmm-server-postgresql)",
+			"- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=shop-postgres)",
 		}, "\n"), text)
 		fake.assertForwardedAuth(t)
 
@@ -77,6 +79,81 @@ func TestInventoryTool(t *testing.T) {
 		assert.ElementsMatch(t, []string{"query=mysql_version_info", "query=pg_static"}, promql)
 	})
 
+	t.Run("Structured", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, inventoryRoutes())
+		session := connect(t, newTestService(t, fake))
+
+		res := callTool(t, session, "pmm_inventory", map[string]any{})
+		require.False(t, res.IsError)
+		var got inventoryResult
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		assert.Equal(t, page{Total: 3, Offset: 0, Limit: 50}, got.Page)
+		require.Len(t, got.Services, 3)
+		assert.Equal(t, serviceRow{
+			ServiceID: "svc-1", ServiceName: "shop-mysql", Engine: "mysql", Version: "8.0.46-37",
+			NodeName: "demo-node", Address: "mysql", Port: 3306,
+			PMMURL: "graph/d/mysql-instance-summary?var-service_name=shop-mysql",
+		}, got.Services[0])
+		assert.Equal(t, "svc-pmm-pg", got.Services[1].ServiceID)
+		assert.Empty(t, got.Services[1].Version)
+
+		text := res.Content[0].(*mcp.TextContent).Text
+		assert.NotContains(t, text, "showing ")
+	})
+
+	t.Run("Paging", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, inventoryRoutes())
+		session := connect(t, newTestService(t, fake))
+
+		res := callTool(t, session, "pmm_inventory", map[string]any{"limit": 2})
+		require.False(t, res.IsError)
+		var got inventoryResult
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		assert.Equal(t, page{Total: 3, Offset: 0, Limit: 2, Truncated: true}, got.Page)
+		require.Len(t, got.Services, 2)
+		text := res.Content[0].(*mcp.TextContent).Text
+		assert.True(t, strings.HasSuffix(text, "\nshowing 1–2 of 3; pass offset=2 for more"), text)
+		assert.Contains(t, text, "Monitored services (3):")
+
+		res = callTool(t, session, "pmm_inventory", map[string]any{"limit": 2, "offset": 2})
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		assert.Equal(t, page{Total: 3, Offset: 2, Limit: 2}, got.Page)
+		require.Len(t, got.Services, 1)
+		assert.Equal(t, "svc-2", got.Services[0].ServiceID)
+
+		res = callTool(t, session, "pmm_inventory", map[string]any{"limit": 2, "offset": 5})
+		got = inventoryResult{}
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		assert.Equal(t, page{Total: 3, Offset: 5, Limit: 2}, got.Page)
+		assert.Empty(t, got.Services)
+		assert.Equal(t, "No rows at offset 5; the service list has 3.", res.Content[0].(*mcp.TextContent).Text)
+
+		text, isError := callText(t, session, "pmm_inventory", map[string]any{"limit": 300})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+	})
+
+	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
+		t.Parallel()
+
+		// No routes: a backing call would answer not_found instead.
+		fake := newFakePMM(t, nil)
+		session := connect(t, newTestService(t, fake))
+		for want, args := range map[string]map[string]any{
+			"limit must be between 1 and 200; got 201": {"limit": 201},
+			"offset must not be negative; got -1":      {"offset": -1},
+		} {
+			text, isError := callText(t, session, "pmm_inventory", args)
+			assert.True(t, isError, "%v", args)
+			assert.Equal(t, "error: invalid_input\n"+want, text)
+		}
+		assert.Zero(t, fake.requestCount())
+	})
+
 	t.Run("EngineAndNodeFilters", func(t *testing.T) {
 		t.Parallel()
 
@@ -85,7 +162,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "postgresql", "node": "demo-node"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=shop-postgres)", text)
 
 		text, isError = callText(t, session, "pmm_inventory", map[string]any{"engine": "mongodb"})
 		assert.False(t, isError)
@@ -114,7 +191,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "mysql"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql unknown | id=svc-1 | node=demo-node | address=mysql:3306", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql unknown | id=svc-1 | node=demo-node | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)", text)
 	})
 
 	t.Run("NodesUnavailable", func(t *testing.T) {
@@ -127,7 +204,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "mysql"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql 8.0.46-37 | id=svc-1 | address=mysql:3306", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql 8.0.46-37 | id=svc-1 | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)", text)
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
