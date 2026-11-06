@@ -396,6 +396,12 @@ func TestLinks(t *testing.T) {
 	assert.Equal(t, "graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-1&from="+ms(from)+"&query_selected=true&to="+ms(to)+"&var-service_name=s1",
 		qanQueryURL("", "QID-1", "s1", from, to, "explain"))
 
+	for engine, uid := range map[string]string{"mysql": "mysql", "postgresql": "postgresql", "mongodb": "mongodb"} {
+		assert.Equal(t, "https://pmm.example.com/graph/d/"+uid+"-instance-summary?var-service_name=svc+1",
+			serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "svc 1", Engine: engine}))
+	}
+	assert.Empty(t, serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "x", Engine: "valkey"}))
+
 	s, err := New(Params{API: &mockPmmAPI{}, Enabled: func() bool { return true }})
 	require.NoError(t, err)
 	assert.Empty(t, s.publicBaseURL(t.Context(), http.Header{}))

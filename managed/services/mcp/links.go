@@ -66,6 +66,19 @@ func qanOverviewURL(base, serviceName string, from, to time.Time) string {
 	return base + qanPath + "?" + q.Encode()
 }
 
+// serviceURL links to the engine's instance summary dashboard for a service,
+// or returns "" for an engine without one.
+func serviceURL(base string, svc serviceInfo) string {
+	switch svc.Engine {
+	case "mysql", "postgresql", "mongodb":
+	default:
+		return ""
+	}
+	q := url.Values{}
+	q.Set("var-service_name", svc.ServiceName)
+	return base + "graph/d/" + svc.Engine + "-instance-summary?" + q.Encode()
+}
+
 // qanQueryURL links to QAN with one query pre-selected; detailsTab may be
 // "" (default), "explain" or "tables".
 func qanQueryURL(base, queryID, serviceName string, from, to time.Time, detailsTab string) string {
