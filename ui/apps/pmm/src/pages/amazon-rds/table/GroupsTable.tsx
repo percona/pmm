@@ -35,6 +35,13 @@ interface GroupsTableProps {
 // Table's own size for the expand buttons, which these props replace.
 const EXPAND_BUTTON_SX = { height: 40, width: 40 };
 
+// Content-sized cells with the compact padding of PMM's other tables; long headers wrap.
+const BODY_CELL_SX = { width: 'auto', minWidth: 'auto', px: 1 };
+const HEAD_CELL_SX = {
+  ...BODY_CELL_SX,
+  '& .Mui-TableHeadCell-Content-Wrapper': { whiteSpace: 'normal' },
+};
+
 const WRITERS_COLORS: Record<WritersState, string> = {
   good: 'success.main',
   warning: 'warning.main',
@@ -75,7 +82,7 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
       <Tooltip title={Messages.groupTypeTitles.unavailable} describeChild>
         <Typography
           component="span"
-          variant="body2"
+          variant="inherit"
           color="text.secondary"
           sx={{ fontStyle: 'italic' }}
         >
@@ -83,7 +90,7 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
         </Typography>
       </Tooltip>
     ) : (
-      <Typography component="span" variant="body2" fontWeight="medium">
+      <Typography component="span" variant="inherit" fontWeight="medium">
         {group.name}
       </Typography>
     )
@@ -115,7 +122,7 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
     return (
       <Typography
         component="span"
-        variant="body2"
+        variant="inherit"
         color={WRITERS_COLORS[state]}
       >
         {text}
@@ -210,9 +217,11 @@ export const GroupsTable: FC<GroupsTableProps> = ({
           : Messages.expandGroup(row.original.name),
         sx: EXPAND_BUTTON_SX,
       })}
-      displayColumnDefOptions={{
-        'mrt-row-expand': { size: 60, grow: false },
-      }}
+      // A plain table sized to its content, so the ten columns fit beside the menu: MRT gives
+      // every column a fixed width otherwise.
+      layoutMode="semantic"
+      muiTableHeadCellProps={{ sx: HEAD_CELL_SX }}
+      muiTableBodyCellProps={{ sx: BODY_CELL_SX }}
       enablePagination={false}
       enableTopToolbar={false}
       enableBottomToolbar={false}

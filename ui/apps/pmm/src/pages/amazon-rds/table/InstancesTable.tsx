@@ -77,7 +77,12 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
   return (
     <TableRow>
       <TableCell>
-        <Stack direction="row" alignItems="baseline" gap={1}>
+        <Stack
+          direction="row"
+          flexWrap="wrap"
+          alignItems="baseline"
+          columnGap={1}
+        >
           <DashboardLink link={service} />
           {details && (
             <Typography variant="body2" color="text.secondary">
@@ -111,16 +116,25 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
   );
 };
 
+// Fixed shares, so the instance tables of all expanded groups line up.
+const COLUMNS = [
+  { header: Messages.columns.service, width: '34%' },
+  { header: Messages.columns.links, width: '14%' },
+  { header: Messages.columns.role, width: '10%' },
+  { header: Messages.columns.status, width: '10%' },
+  { header: Messages.columns.throughput, width: '14%' },
+  { header: Messages.columns.storage, width: '18%' },
+];
+
 export const InstancesTable: FC<{ group: InstanceGroup }> = ({ group }) => (
-  <Table size="small" aria-label={group.name}>
+  <Table size="small" aria-label={group.name} sx={{ tableLayout: 'fixed' }}>
     <TableHead>
       <TableRow>
-        <TableCell>{Messages.columns.service}</TableCell>
-        <TableCell>{Messages.columns.links}</TableCell>
-        <TableCell>{Messages.columns.role}</TableCell>
-        <TableCell>{Messages.columns.status}</TableCell>
-        <TableCell>{Messages.columns.throughput}</TableCell>
-        <TableCell>{Messages.columns.storage}</TableCell>
+        {COLUMNS.map(({ header, width }) => (
+          <TableCell key={header} sx={{ width }}>
+            {header}
+          </TableCell>
+        ))}
       </TableRow>
     </TableHead>
     <TableBody>
