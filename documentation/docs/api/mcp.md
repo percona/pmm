@@ -214,13 +214,13 @@ Every error result also carries `_meta["com.percona/error"]` with the `code` and
 
 `rate_limited`: too many live-inspection calls are in flight for these credentials (2) or on this replica (8). Retry when one finishes.
 
-Input that doesn't match a tool's input schema, such as a missing required argument or a value of the wrong type, is refused by the MCP SDK before the tool runs. That refusal has `isError: true` and a text that starts with `validating "arguments":`. It has no `error: <code>` and no `_meta`, so it is outside the error envelope above. Tools check the values and combinations of their arguments themselves and answer those with `invalid_input`.
+Input that doesn't match a tool's input schema, such as a missing required argument or a value of the wrong type, is refused by the MCP SDK before the tool runs. That refusal has `isError: true` and a text that starts with `validating "arguments":`. It has no `error: <code>` text and no `com.percona/error` entry in `_meta`, so it is outside the error envelope above. Tools check the values and combinations of their arguments themselves and answer those with `invalid_input`.
 
 ## Roles
 
 | Tool | Minimum role |
 |------|--------------|
-| `pmm_version`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config` | Viewer |
+| `pmm_version`, `pmm_catalog`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config` | Viewer |
 | `pmm_inventory` | Viewer (`GET /v1/inventory/services` and `GET /v1/inventory/nodes` are readable by any authenticated user; inventory changes still require Admin) |
 
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.
