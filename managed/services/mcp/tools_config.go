@@ -109,6 +109,10 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 			return configResult{}, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
 		}
 	}
+	err := checkPage(in.Offset, in.Limit, configMaxLimit)
+	if err != nil {
+		return configResult{}, err
+	}
 	at, err := parseTime(in.At, s.now())
 	if err != nil {
 		return configResult{}, err

@@ -89,10 +89,12 @@ type explainResult struct {
 	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
 	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
 	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"The query, its service and the window the plan is for."`
-	PMMURL      string    `json:"pmm_url,omitempty" jsonschema:"Link to the query in PMM Query Analytics; left out when the call has no queryid."`
+	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics, or to the service over the last hour when the call has no queryid."`
 
 	// planID is pg_stat_monitor's id of a stored plan.
 	planID string
+	// serviceLink is set when PMMURL links the service rather than the query.
+	serviceLink bool
 }
 
 func (r explainResult) render() string {
@@ -104,10 +106,11 @@ func (r explainResult) render() string {
 	if r.Truncated {
 		text += "\n" + cutNote("plan", maxPlanBytes)
 	}
-	if r.PMMURL != "" {
-		text += "\n\n" + link("View this query in PMM", r.PMMURL)
+	label := "View this query in PMM"
+	if r.serviceLink {
+		label = "View this service in PMM"
 	}
-	return text
+	return text + "\n\n" + link(label, r.PMMURL)
 }
 
 // schemaResult is the result of pmm_get_schema.
@@ -278,6 +281,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	r.Plan, r.Truncated = capText(plan, maxPlanBytes)
 	if in.QueryID != "" {
 		r.PMMURL = qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain")
+	} else {
+		r.PMMURL, r.serviceLink = qanOverviewURL(base, svc.ServiceName, now.Add(-time.Hour), now), true
 	}
 	return r, nil
 }

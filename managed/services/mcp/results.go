@@ -38,13 +38,22 @@ func (p page) marker() string {
 	return fmt.Sprintf("showing %d–%d of %d; pass offset=%d for more", p.Offset+1, end, p.Total, end)
 }
 
-// paginate returns the requested slice of items; limit 0 means defLimit.
-func paginate[T any](items []T, offset, limit, defLimit, maxAllowed int) ([]T, page, error) {
+// checkPage validates offset and limit, so that a tool can refuse them before any backing call.
+func checkPage(offset, limit, maxAllowed int) error {
 	if offset < 0 {
-		return nil, page{}, newToolError(codeInvalidInput, "offset must not be negative; got %d", offset)
+		return newToolError(codeInvalidInput, "offset must not be negative; got %d", offset)
 	}
 	if limit < 0 || limit > maxAllowed {
-		return nil, page{}, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxAllowed, limit)
+		return newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxAllowed, limit)
+	}
+	return nil
+}
+
+// paginate returns the requested slice of items; limit 0 means defLimit.
+func paginate[T any](items []T, offset, limit, defLimit, maxAllowed int) ([]T, page, error) {
+	err := checkPage(offset, limit, maxAllowed)
+	if err != nil {
+		return nil, page{}, err
 	}
 	if limit == 0 {
 		limit = defLimit

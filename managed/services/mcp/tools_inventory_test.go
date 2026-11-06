@@ -130,6 +130,23 @@ func TestInventoryTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
 	})
 
+	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
+		t.Parallel()
+
+		// No routes: a backing call would answer not_found instead.
+		fake := newFakePMM(t, nil)
+		session := connect(t, newTestService(t, fake))
+		for want, args := range map[string]map[string]any{
+			"limit must be between 1 and 200; got 201": {"limit": 201},
+			"offset must not be negative; got -1":      {"offset": -1},
+		} {
+			text, isError := callText(t, session, "pmm_inventory", args)
+			assert.True(t, isError, "%v", args)
+			assert.Equal(t, "error: invalid_input\n"+want, text)
+		}
+		assert.Zero(t, fake.requestCount())
+	})
+
 	t.Run("EngineAndNodeFilters", func(t *testing.T) {
 		t.Parallel()
 

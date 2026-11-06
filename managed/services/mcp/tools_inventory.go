@@ -169,6 +169,10 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	if in.Engine != "" && !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, in.Engine) {
 		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
 	}
+	err := checkPage(in.Offset, in.Limit, inventoryMaxLimit)
+	if err != nil {
+		return inventoryResult{}, err
+	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	services, err := s.listServices(ctx, auth, true)

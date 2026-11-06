@@ -181,6 +181,38 @@ func TestExplainTool(t *testing.T) {
 		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n\n[View this query in PMM ↗]("+got.PMMURL+")")
 	})
 
+	t.Run("MongoDBQueryOnly", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		fake.routes["GET /v1/inventory/services"] = fixture{file: "services_with_mongo.json"}
+		stub.explain = strings.TrimSpace(string(readFixture(t, "mongo_explain.json")))
+		session := connect(t, newQANService(t, fake, false))
+
+		query := `db.customers.find({"email": "user42@example.com", "age": {"$gt": 4417}})`
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-mongo", "query": query, "format": "traditional"})
+		got := structured[explainResult](t, res)
+		text := textOf(t, res)
+		assert.Equal(t, engineMongoDB, got.Engine)
+		assert.Equal(t, "shop-mongo", got.ServiceName)
+		assert.Equal(t, "json", got.Format, "MongoDB's explain answers JSON whatever format asks for")
+		assert.True(t, got.Live)
+		assert.Contains(t, got.Plan, `"stage":"COLLSCAN"`)
+		assert.True(t, strings.HasPrefix(text, "EXPLAIN (json, mongodb shop-mongo):\n```\n"+got.Plan+"\n```\n\n"), text)
+		for _, literal := range []string{"user42@example.com", "4417"} {
+			assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), literal)
+			assert.NotContains(t, text, literal)
+		}
+
+		// Without a queryid there is no query to select: the link opens the service in QAN.
+		assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mongo", got.PMMURL)
+		assert.True(t, strings.HasSuffix(text, "\n\n[View this service in PMM ↗]("+got.PMMURL+")"), text)
+
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MongodbExplain)
+		assert.Equal(t, query, stub.starts[0].MongodbExplain.Query)
+	})
+
 	t.Run("PlaceholderError", func(t *testing.T) {
 		t.Parallel()
 
@@ -446,6 +478,23 @@ func TestConfigTool(t *testing.T) {
 		"[View this service in PMM ↗](" + got.PMMURL + ")",
 	}, "\n"), textOf(t, res))
 	assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+
+	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
+		t.Parallel()
+
+		// No routes: a backing call would answer not_found instead.
+		fake := newFakePMM(t, nil)
+		session := connect(t, newQANService(t, fake, true))
+		for want, args := range map[string]map[string]any{
+			"limit must be between 1 and 1000; got 1001": {"service_id": "svc-unknown", "limit": 1001},
+			"offset must not be negative; got -1":        {"service_name": "shop-mysql", "offset": -1},
+		} {
+			text, isError := callText(t, session, "pmm_get_config", args)
+			assert.True(t, isError, "%v", args)
+			assert.Equal(t, "error: invalid_input\n"+want, text)
+		}
+		assert.Zero(t, fake.requestCount())
+	})
 
 	t.Run("Paging", func(t *testing.T) {
 		t.Parallel()

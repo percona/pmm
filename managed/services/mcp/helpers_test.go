@@ -111,6 +111,13 @@ func (f *fakePMM) requestsTo(path string) []recordedRequest {
 	return out
 }
 
+// requestCount returns how many requests the fake PMM received.
+func (f *fakePMM) requestCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return len(f.requests)
+}
+
 // assertForwardedAuth checks that every recorded request carried the caller's token.
 func (f *fakePMM) assertForwardedAuth(t *testing.T) {
 	t.Helper()
