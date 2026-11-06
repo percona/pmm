@@ -34,6 +34,8 @@ export const ALERTING_URL = `${PMM_NEW_NAV_PATH}/alerting/status`;
 
 export const ADVISORS_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`;
 
+export const ALERT_GROUPS_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`;
+
 export const DASHBOARD_URLS = {
   auroraDetails: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-amazonaurora/mysql-amazon-aurora-details`,
   mysqlSummary: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,

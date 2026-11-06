@@ -140,35 +140,82 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText('database-3')).toBeInTheDocument();
     expect(
-      within(groupRow('database-3')).getByRole('link', {
+      within(groupRow('database-3')).getByRole('button', {
         name: '2 firing alerts',
       })
     ).toBeInTheDocument();
   });
 
-  it('shows the firing alerts of groups and instances', () => {
+  it('lists the firing alerts of a group, linking each to its rule', () => {
     renderPage();
 
-    const database3 = within(groupRow('database-3'));
-
     expect(
-      database3.getByRole('link', { name: '2 firing alerts' })
-    ).toHaveAttribute('href', '/alerting/status');
-    expect(database3.getByText('2 / 2')).toBeInTheDocument();
+      within(groupRow('database-3')).getByText('2 / 2')
+    ).toBeInTheDocument();
     expect(
       within(groupRow('database-2')).getByText('None')
     ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(groupRow('database-3')).getByRole('button', {
+        name: '2 firing alerts',
+      })
+    );
+
+    const popover = within(
+      screen.getByRole('dialog', { name: '2 firing alerts' })
+    );
+
+    expect(popover.getByRole('link', { name: 'MySQL down' })).toHaveAttribute(
+      'href',
+      '/graph/alerting/grafana/mysql-down/view?tab=instances'
+    );
     expect(
-      database3.getByRole('link', { name: '2 firing alerts' })
-    ).toHaveAttribute('target', '_blank');
+      popover.getByText(/^database-3-instance-1-reader · firing for/)
+    ).toBeInTheDocument();
+    expect(popover.getByRole('link', { name: 'Node CPU' })).toHaveAttribute(
+      'href',
+      '/graph/alerting/grafana/node-cpu/view?tab=instances'
+    );
+    expect(
+      popover.getByRole('link', { name: 'Show all in Alert groups' })
+    ).toHaveAttribute(
+      'href',
+      `/graph/alerting/groups?${new URLSearchParams({
+        queryString:
+          'node_name=~"database-3-instance-1|database-3-instance-1-reader"',
+        alertState: 'active',
+      })}`
+    );
+    popover.getAllByRole('link').forEach((link) => {
+      expect(link).toHaveAttribute('target', '_blank');
+    });
+  });
+
+  it('shows the alerts of each instance', () => {
+    renderPage();
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand database-3' }));
-
     const instances = within(screen.getByRole('table', { name: 'database-3' }));
 
     expect(
-      instances.getAllByRole('link', { name: '1 firing alert' })
+      instances.getAllByRole('button', { name: '1 firing alert' })
     ).toHaveLength(2);
+
+    fireEvent.click(
+      instances.getAllByRole('button', { name: '1 firing alert' })[1]
+    );
+
+    const popover = within(
+      screen.getByRole('dialog', { name: '1 firing alert' })
+    );
+
+    expect(
+      popover.getByRole('link', { name: 'MySQL down' })
+    ).toBeInTheDocument();
+    expect(
+      popover.queryByText(/database-3-instance-1-reader/)
+    ).not.toBeInTheDocument();
   });
 
   it('shows no alert value until the alerts load', () => {
@@ -177,7 +224,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
 
     expect(screen.queryByText('None')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: /firing alert/ })
+      screen.queryByRole('button', { name: /firing alert/ })
     ).not.toBeInTheDocument();
   });
 

@@ -28,6 +28,8 @@ export const Messages = {
   noAlerts: 'None',
   firingAlerts: (count: number) =>
     count === 1 ? '1 firing alert' : `${count} firing alerts`,
+  firingFor: (age: string) => `firing for ${age}`,
+  showAllAlerts: 'Show all in Alert groups',
   instances: (connected: number, monitored: number) =>
     `${connected} / ${monitored}`,
   up: 'Up',

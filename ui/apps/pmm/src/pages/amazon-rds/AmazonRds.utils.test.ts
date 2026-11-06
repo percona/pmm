@@ -21,6 +21,9 @@ import {
   formatThroughput,
   getAccountOptions,
   getEngine,
+  getAlertGroupsUrl,
+  getAlertRuleUrl,
+  getAlertsBand,
   getEngineOptions,
   getFiringAlerts,
   getGroupOptions,
@@ -851,15 +854,13 @@ describe('AmazonRds.utils: alerts', () => {
     expect(getFiringAlerts(ALERT_RULES)).toHaveLength(5);
   });
 
-  it('adds up the alerts of a group with the worst severity', () => {
-    expect(alertsOf('database-3').alerts).toEqual({
-      count: 2,
-      band: 'critical',
-    });
-    expect(alertsOf('database-2').alerts).toEqual({
-      count: 0,
-      band: undefined,
-    });
+  it('gathers the alerts of a group, with the worst severity', () => {
+    const database3 = alertsOf('database-3').alerts ?? [];
+
+    expect(database3).toHaveLength(2);
+    expect(getAlertsBand(database3)).toBe('critical');
+    expect(alertsOf('database-2').alerts).toEqual([]);
+    expect(getAlertsBand([])).toBeUndefined();
   });
 
   it('gives an alert without service or node name to no instance', () => {
@@ -867,19 +868,44 @@ describe('AmazonRds.utils: alerts', () => {
       group.instances.some(({ nodeName }) => !nodeName)
     ) as InstanceGroup;
 
-    expect(stale.alerts).toEqual({ count: 0, band: undefined });
+    expect(stale.alerts).toEqual([]);
   });
 
   it('matches an alert to an instance by service or node name', () => {
     expect(
       alertsOf('database-3').instances.map(({ serviceName, alerts }) => [
         serviceName,
-        alerts,
+        alerts?.map((alert) => alert.alertName),
       ])
     ).toEqual([
-      ['database-3-instance-1', { count: 1, band: 'warning' }],
-      ['database-3-instance-1-reader', { count: 1, band: 'critical' }],
+      ['database-3-instance-1', ['Node CPU']],
+      ['database-3-instance-1-reader', ['MySQL down']],
     ]);
+  });
+
+  it('links an alert to its rule and a group to its active alerts', () => {
+    const queryOf = (url?: string) =>
+      Object.fromEntries(new URL(url ?? '', 'http://pmm').searchParams);
+
+    const [firstAlert] = alertsOf('database-3').alerts ?? [];
+
+    expect(getAlertRuleUrl(firstAlert)).toBe(
+      '/graph/alerting/grafana/mysql-down/view?tab=instances'
+    );
+    expect(
+      getAlertGroupsUrl(alertsOf('database-3').instances)?.split('?')[0]
+    ).toBe('/graph/alerting/groups');
+    expect(
+      queryOf(getAlertGroupsUrl(alertsOf('database-3').instances))
+    ).toEqual({
+      queryString:
+        'node_name=~"database-3-instance-1|database-3-instance-1-reader"',
+      alertState: 'active',
+    });
+    expect(
+      queryOf(getAlertGroupsUrl([instance({ nodeName: 'db.1' })])).queryString
+    ).toBe('node_name=~"db\\\\.1"');
+    expect(getAlertGroupsUrl([instance({ nodeName: '' })])).toBeUndefined();
   });
 
   it('leaves the counts unknown without alert data', () => {

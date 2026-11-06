@@ -110,7 +110,7 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
         <Status up={instance.up} />
       </TableCell>
       <TableCell>
-        <AlertsBadge alerts={instance.alerts} />
+        <AlertsBadge alerts={instance.alerts} instances={[instance]} />
       </TableCell>
       <TableCell>
         {formatThroughput(instance.throughput, instance.engine)}

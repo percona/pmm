@@ -1,4 +1,5 @@
 import type { AlertRow } from 'pages/alerting/status/AlertsPage.types';
+import { createAlertRuleViewUrl } from 'pages/alerting/status/table/AlertStatusTable.utils';
 import {
   buildSilenceMap,
   flattenAlertRules,
@@ -13,6 +14,7 @@ import type {
 } from 'types/alerting.types';
 import type { RdsInstanceRow } from 'types/rds.types';
 import {
+  ALERT_GROUPS_URL,
   DASHBOARD_URLS,
   ENGINES,
   LEGACY_AURORA_ENGINE,
@@ -25,7 +27,6 @@ import {
 } from './AmazonRds.constants';
 import { Messages } from './AmazonRds.messages';
 import type {
-  AlertSummary,
   EngineFamily,
   EngineId,
   FilteredGroups,
@@ -655,7 +656,7 @@ export const GROUP_SORT_VALUES: Record<
   name: (group) => group.name,
   type: (group) => getGroupTypeLabel(group),
   engine: (group) => group.engine && getEngineLabel(group.engine),
-  alerts: (group) => group.alerts?.count,
+  alerts: (group) => group.alerts?.length,
   instances: (group) => group.monitoredInstances,
   writers: (group) => group.writers,
   throughput: (group) => group.throughput,
@@ -711,12 +712,11 @@ export const getFiringAlerts = (
     (alert) => alert.state === 'Alerting' && !alert.silenced
   );
 
-const summarizeAlerts = (alerts: AlertRow[]): AlertSummary => ({
-  count: alerts.length,
-  band: SEVERITY_BAND_ORDER.find((band) =>
+// The severity of the most severe alert; undefined when none has a known one.
+export const getAlertsBand = (alerts: AlertRow[]) =>
+  SEVERITY_BAND_ORDER.find((band) =>
     alerts.some((alert) => getSeverityBand(alert.labels.severity) === band)
-  ),
-});
+  );
 
 // An alert belongs to an instance by its service or node name; an alert without either, such as
 // one about PMM Server itself, belongs to none.
@@ -725,11 +725,8 @@ const belongsTo = (alert: AlertRow, instance: RdsInstance) =>
   (!!alert.nodeId && alert.nodeId === instance.nodeName);
 
 const getAlerts = (instances: RdsInstance[], alerts?: AlertRow[]) =>
-  alerts &&
-  summarizeAlerts(
-    alerts.filter((alert) =>
-      instances.some((instance) => belongsTo(alert, instance))
-    )
+  alerts?.filter((alert) =>
+    instances.some((instance) => belongsTo(alert, instance))
   );
 
 export const addAlerts = (
@@ -744,3 +741,31 @@ export const addAlerts = (
       alerts: getAlerts([instance], alerts),
     })),
   }));
+
+// The rule's Instances tab, which lists every instance of the rule: the URL cannot narrow it to one.
+export const getAlertRuleUrl = (alert: AlertRow) =>
+  alert.ruleGroupUid &&
+  `${createAlertRuleViewUrl(alert.ruleGroupUid)}?tab=instances`;
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Alert groups lists the active alerts of any rule whose node_name is one of the instances'.
+export const getAlertGroupsUrl = (instances: RdsInstance[]) => {
+  const pattern = instances
+    .map(({ nodeName }) => nodeName)
+    .filter(Boolean)
+    .map(escapeRegExp)
+    .join('|');
+
+  if (!pattern) {
+    return undefined;
+  }
+
+  const params = new URLSearchParams({
+    queryString: `node_name=~"${pattern.replace(/[\\"]/g, '\\$&')}"`,
+    alertState: 'active',
+  });
+
+  return `${ALERT_GROUPS_URL}?${params}`;
+};

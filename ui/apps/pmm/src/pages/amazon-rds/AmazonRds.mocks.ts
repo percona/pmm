@@ -147,6 +147,7 @@ const firing = (labels: Record<string, string>): PrometheusAlertItem => ({
   labels,
   annotations: {},
   state: 'firing',
+  activeAt: '2026-11-06T08:00:00Z',
 });
 
 const MYSQL_DOWN_DATABASE_2 = {
@@ -165,6 +166,7 @@ export const ALERT_RULES: PrometheusAlertRulesResponse = {
         name: 'PMM',
         rules: [
           {
+            uid: 'mysql-down',
             name: 'MySQL down',
             alerts: [
               firing({
@@ -183,6 +185,7 @@ export const ALERT_RULES: PrometheusAlertRulesResponse = {
             ],
           },
           {
+            uid: 'node-cpu',
             name: 'Node CPU',
             alerts: [
               firing({
@@ -201,6 +204,7 @@ export const ALERT_RULES: PrometheusAlertRulesResponse = {
             ],
           },
           {
+            uid: 'pmm-grafana-down',
             name: 'PMM Grafana is down',
             alerts: [
               firing({

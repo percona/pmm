@@ -110,7 +110,9 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
   column(
     'alerts',
     Messages.columns.alerts,
-    (group) => <AlertsBadge alerts={group.alerts} />,
+    (group) => (
+      <AlertsBadge alerts={group.alerts} instances={group.instances} />
+    ),
     Messages.columns.alertsDescription
   ),
   column(

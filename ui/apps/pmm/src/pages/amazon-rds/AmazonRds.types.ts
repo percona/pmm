@@ -1,4 +1,4 @@
-import type { AlertSeverityBand } from 'types/alerting.types';
+import type { AlertRow } from 'pages/alerting/status/AlertsPage.types';
 
 export type EngineId =
   | 'aurora-mysql'
@@ -33,12 +33,6 @@ export interface Storage {
   lowest?: boolean;
 }
 
-export interface AlertSummary {
-  count: number;
-  // Severity of the most severe alert; undefined when none has a known severity.
-  band?: AlertSeverityBand;
-}
-
 export interface RdsInstance {
   serviceName: string;
   nodeName: string;
@@ -50,7 +44,7 @@ export interface RdsInstance {
   throughput?: number;
   storage?: Storage;
   // Undefined while the alerts are unknown: not loaded or not readable.
-  alerts?: AlertSummary;
+  alerts?: AlertRow[];
 }
 
 export interface InstanceGroup {
@@ -68,7 +62,7 @@ export interface InstanceGroup {
   throughput?: number;
   storage?: Storage;
   // Undefined while the alerts are unknown: not loaded or not readable.
-  alerts?: AlertSummary;
+  alerts?: AlertRow[];
 }
 
 export interface InstanceLink {
