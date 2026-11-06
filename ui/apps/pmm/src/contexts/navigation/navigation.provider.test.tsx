@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import { User } from 'types/user.types';
 import {
   AMAZON_RDS_PATH,
@@ -88,7 +88,7 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
 
 describe('NavigationProvider', () => {
   beforeEach(() => {
-    useNodeTypes.mockReturnValue({ data: { nodeTypes: [NodeType.generic] } });
+    useNodeTypes.mockReturnValue({ data: { nodeTypes: [InventoryNodeType.generic] } });
   });
 
   describe('Amazon RDS section', () => {
@@ -100,7 +100,7 @@ describe('NavigationProvider', () => {
 
     it('is shown with an RDS node, holding the overview, before Operating system', () => {
       useNodeTypes.mockReturnValue({
-        data: { nodeTypes: [NodeType.generic, NodeType.remoteRds] },
+        data: { nodeTypes: [InventoryNodeType.generic, InventoryNodeType.remoteRds] },
       });
 
       const navTree = renderNavTree();
@@ -118,7 +118,7 @@ describe('NavigationProvider', () => {
       ['viewer', TEST_USER_VIEWER],
     ])('is shown to a %s', (_, user) => {
       useNodeTypes.mockReturnValue({
-        data: { nodeTypes: [NodeType.remoteRds] },
+        data: { nodeTypes: [InventoryNodeType.remoteRds] },
       });
 
       const ids = renderNavTree(user).map((item) => item.id);
@@ -131,7 +131,7 @@ describe('NavigationProvider', () => {
 
     it('links the overview to the Amazon RDS page and marks it active there', () => {
       useNodeTypes.mockReturnValue({
-        data: { nodeTypes: [NodeType.remoteRds] },
+        data: { nodeTypes: [InventoryNodeType.remoteRds] },
       });
 
       const navTree = renderNavTree();

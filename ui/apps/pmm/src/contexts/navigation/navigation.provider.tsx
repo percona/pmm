@@ -3,7 +3,7 @@ import { NavigationContext } from './navigation.context';
 import { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
 import { useNodeTypes } from 'hooks/api/useNodes';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   addAccount,
   addAdvisors,
@@ -47,7 +47,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
-  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(NodeType.remoteRds);
+  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(InventoryNodeType.remoteRds);
   const { settings } = useSettings();
   const { data: advisors } = useAdvisors({
     enabled: !!user?.isEditor,
