@@ -305,7 +305,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       screen.getByRole('link', { name: 'database-4-instance-1' })
     ).toHaveAttribute(
       'href',
-      '/graph/d/postgresql-instance-summary/postgresql-instance-summary?var-service_name=database-4-instance-1'
+      '/graph/d/postgresql-amazonaurora/postgresql-amazon-aurora-details?var-service_name=database-4-instance-1'
     );
     expect(
       screen.getByRole('link', { name: 'rds-mysql-1-replica' })
