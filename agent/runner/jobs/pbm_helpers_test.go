@@ -152,6 +152,35 @@ func TestCreatePBMConfig(t *testing.T) {
 	}
 }
 
+func TestPBMRestoreArgs(t *testing.T) {
+	t.Parallel()
+
+	pitr := time.Date(2024, 1, 2, 3, 4, 5, 0, time.UTC)
+	for _, tc := range []struct {
+		name       string
+		pbmVersion string
+		pitr       time.Time
+		expected   []string
+	}{
+		{name: "pbm 2.13 snapshot", pbmVersion: "2.13.0", pitr: time.Unix(0, 0), expected: []string{"restore", "backup"}},
+		{name: "pbm 2.13 pitr", pbmVersion: "2.13.0", pitr: pitr, expected: []string{"restore", "--time=2024-01-02T03:04:05"}},
+		{name: "pbm 2.14 snapshot", pbmVersion: "2.14.0", pitr: time.Unix(0, 0), expected: []string{"restore", "backup", "--yes"}},
+		{name: "pbm 2.15 pitr", pbmVersion: "2.15.0", pitr: pitr, expected: []string{"restore", "--time=2024-01-02T03:04:05", "--yes"}},
+		{name: "pbm 2.14 prerelease", pbmVersion: "2.14.0-dev", pitr: time.Unix(0, 0), expected: []string{"restore", "backup", "--yes"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			args, err := pbmRestoreArgs(tc.pbmVersion, "backup", tc.pitr)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expected, args)
+		})
+	}
+
+	_, err := pbmRestoreArgs("invalid", "backup", pitr)
+	require.Error(t, err)
+}
+
 func TestIsTransientDescribeErr(t *testing.T) {
 	t.Parallel()
 
