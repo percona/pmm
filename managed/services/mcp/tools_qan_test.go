@@ -232,6 +232,7 @@ func TestTopQueriesTool(t *testing.T) {
 	assert.False(t, isError)
 	assert.Equal(t, strings.Join([]string{
 		"Rows 1-2 of 2 (group_by=queryid, order_by=load):",
+		"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
 		"",
 		"1. [QID-AAA] load=0.42 calls=1200 total=88.5s avg=0.073s",
 		"   SELECT * FROM `customers` WHERE `email` = ?",
@@ -292,7 +293,13 @@ func TestTopQueriesTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_top_queries", map[string]any{})
 		assert.False(t, isError)
-		assert.Equal(t, "No queries found for that service / time window.", text)
+		assert.Equal(t, strings.Join([]string{
+			"No queries found for that service / time window.",
+			"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
+			"",
+			"[Open this workload in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+				"from=" + ms(testNow.Add(-time.Hour)) + "&to=" + ms(testNow) + ")",
+		}, "\n"), text)
 	})
 
 	t.Run("Structured", func(t *testing.T) {
@@ -332,6 +339,8 @@ func TestTopQueriesTool(t *testing.T) {
 				fmtNum3(row.Load), fmtNum(row.Calls), fmtSeconds(row.QueryTimeTotal), fmtSeconds(row.QueryTimeAvg), row.Fingerprint))
 		}
 		assert.Contains(t, text, "("+got.PMMURL+")")
+		assert.Contains(t, text, "\nWindow: "+got.Window.From.Format(time.RFC3339)+" – "+got.Window.To.Format(time.RFC3339)+"\n")
+		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"window":{"period_from":"2026-09-14T11:00:00Z","period_to":"2026-09-14T12:00:00Z"}`)
 		assert.Len(t, fake.requestsTo("/v1/inventory/services"), 1, "the service_name is looked up once, for query_ref")
 	})
 
@@ -421,6 +430,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.Equal(t, strings.Join([]string{
 			"queryid: QID-AAA",
+			"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
 			"engine: mysql 8.0.46-37",
 			"service: shop-mysql",
 			"database: shop_db",
@@ -452,11 +462,18 @@ func TestQueryDetailTool(t *testing.T) {
 		fake := newFakePMM(t, qanRoutes())
 		session := connect(t, newQANService(t, fake, false))
 
-		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
 		assert.NotContains(t, text, "user42@example.com")
 		assert.Contains(t, text, "example (normalized, literals stripped; raw SQL disabled):\n```sql\n")
 		assert.Contains(t, text, "FROM `customers` WHERE `email` = :1\n```")
+
+		got := structured[queryDetailResult](t, res)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
+		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :1", got.Example) //nolint:unqueryvet
+		assert.Contains(t, text, "```sql\n"+got.Example+"\n```", "the example the text shows")
+		assert.Contains(t, text, "fingerprint:\n"+got.Fingerprint+"\n", "the fingerprint the text shows")
 	})
 
 	t.Run("ExampleUnavailable", func(t *testing.T) {
@@ -552,6 +569,8 @@ func TestQueryDetailTool(t *testing.T) {
 			assert.Contains(t, text, " "+name+"=", "the text prints every structured metric under its name")
 		}
 		assert.Contains(t, text, "("+got.PMMURL+")")
+		assert.Contains(t, text, "\nWindow: "+got.Window.From.Format(time.RFC3339)+" – "+got.Window.To.Format(time.RFC3339)+"\n")
+		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"window":{"period_from":"2026-09-14T11:00:00Z","period_to":"2026-09-14T12:00:00Z"}`)
 		assert.NotContains(t, text, "partial")
 	})
 
@@ -640,6 +659,23 @@ func TestParseTime(t *testing.T) {
 		require.Error(t, err, expr)
 		assert.Equal(t, codeInvalidInput, mapError(err).code, expr)
 	}
+}
+
+// TestParseWindowIsUTCSeconds pins that a window is UTC in whole seconds, so
+// that the text's RFC 3339 window matches the structured one.
+func TestParseWindowIsUTCSeconds(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 9, 14, 14, 0, 0, 123456789, time.FixedZone("CEST", 2*60*60))
+	from, to, err := parseWindow("now-1h", "", now)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-09-14T11:00:00Z", from.Format(time.RFC3339Nano))
+	assert.Equal(t, "2026-09-14T12:00:00Z", to.Format(time.RFC3339Nano))
+
+	from, to, err = parseWindow("2026-09-14T13:30:00.5+02:00", "2026-09-14T11:45:00Z", now)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-09-14T11:30:00Z", from.Format(time.RFC3339Nano))
+	assert.Equal(t, "2026-09-14T11:45:00Z", to.Format(time.RFC3339Nano))
 }
 
 func TestLinks(t *testing.T) {
@@ -769,6 +805,7 @@ func TestTopQueriesReportInputs(t *testing.T) {
 	require.False(t, isError, text)
 	assert.Equal(t, strings.Join([]string{
 		"Rows 11-12 of 14 (group_by=username, order_by=-rows_examined):",
+		"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
 		"",
 		"11. [app] load=0.4 calls=700 total=120s avg=0.171s rows_examined_avg=100 rows_examined=70000 full_scan=12",
 		"12. [(empty)] load=0.1 calls=200 total=30s avg=0.15s rows_examined_avg=0 rows_examined=0 full_scan=0",
@@ -812,7 +849,13 @@ func TestTopQueriesReportInputs(t *testing.T) {
 		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
 		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"offset": 50})
 		require.False(t, isError)
-		assert.Equal(t, "No rows at offset 50; the report has 14.", text)
+		assert.Equal(t, strings.Join([]string{
+			"No rows at offset 50; the report has 14.",
+			"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
+			"",
+			"[Open this workload in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+				"from=" + ms(testNow.Add(-time.Hour)) + "&to=" + ms(testNow) + ")",
+		}, "\n"), text)
 	})
 
 	t.Run("Validation", func(t *testing.T) {

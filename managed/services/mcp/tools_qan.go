@@ -123,19 +123,21 @@ type columnStat struct {
 }
 
 func (r topQueriesResult) render() string {
+	workload := link("Open this workload in PMM QAN", r.PMMURL)
 	if len(r.Rows) == 0 {
+		header := "No queries found for that service / time window."
 		if r.Page.Offset > 0 {
-			return fmt.Sprintf("No rows at offset %d; the report has %d.", r.Page.Offset, r.Page.Total)
+			header = fmt.Sprintf("No rows at offset %d; the report has %d.", r.Page.Offset, r.Page.Total)
 		}
-		return "No queries found for that service / time window."
+		return header + "\n" + windowLine(r.Window) + "\n\n" + workload
 	}
 	lines := make([]string, 0, len(r.Rows))
 	for _, row := range r.Rows {
 		lines = append(lines, r.renderRow(row))
 	}
-	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n\n%s",
-		r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, strings.Join(lines, "\n"))
-	text += "\n\n" + link("Open this workload in PMM QAN", r.PMMURL)
+	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n%s\n\n%s",
+		r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, windowLine(r.Window), strings.Join(lines, "\n"))
+	text += "\n\n" + workload
 	if m := r.Page.marker(); m != "" {
 		text += "\n" + m
 	}
@@ -238,9 +240,8 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	}, nil
 }
 
-// pinnedServiceID returns the id of the one service a report's filters pin: by
-// one service_id, else by one service_name found in the caller's service list.
-// It returns "" otherwise, or when that lookup fails.
+// pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
+// service_name found in the caller's service list, and "" when they pin none or that lookup fails.
 func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels map[string][]string) string {
 	if ids := labels["service_id"]; len(ids) == 1 {
 		return ids[0]
@@ -463,7 +464,7 @@ type queryDetailResult struct {
 }
 
 func (r queryDetailResult) render() string {
-	parts := []string{"queryid: " + r.QueryID}
+	parts := []string{"queryid: " + r.QueryID, windowLine(r.Window)}
 	if r.Engine != "" {
 		engine := r.Engine
 		if r.Version != "" {
@@ -667,6 +668,11 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 	}
 	r.Partial = r.MetricsError != nil || r.ExampleError != nil
 	return r
+}
+
+// windowLine renders a result's window for its text, in RFC 3339 UTC like the structured window.
+func windowLine(w window) string {
+	return "Window: " + w.From.UTC().Format(time.RFC3339) + " – " + w.To.UTC().Format(time.RFC3339)
 }
 
 // checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).

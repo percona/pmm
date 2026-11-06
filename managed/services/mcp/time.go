@@ -77,7 +77,7 @@ func outOfRange(expr string) *toolError {
 		expr, maxLookbackYears, int(maxLookahead/time.Hour))
 }
 
-// parseWindow resolves a period_from / period_to pair with defaults now-1h / now.
+// parseWindow resolves a period_from / period_to pair, with defaults now-1h / now, to UTC times in whole seconds, as results show them.
 func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
 	if from == "" {
 		from = "now-1h"
@@ -90,6 +90,7 @@ func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
+	start, end = start.UTC().Truncate(time.Second), end.UTC().Truncate(time.Second)
 	if !end.After(start) {
 		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", to, from)
 	}
