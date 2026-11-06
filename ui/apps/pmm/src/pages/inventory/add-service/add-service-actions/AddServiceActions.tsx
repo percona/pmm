@@ -13,21 +13,7 @@ export const AddServiceActions: FC<AddServiceActionsProps> = ({
   isSubmitting,
   isSticky,
 }) => (
-  <Stack
-    direction="row"
-    justifyContent="flex-end"
-    gap={1}
-    sx={isSticky ? STICKY_ACTIONS_SX : undefined}
-  >
-    <Button
-      variant="outlined"
-      data-testid="add-service-cancel"
-      {...(onCancel
-        ? { onClick: onCancel }
-        : { component: Link, to: cancelTo })}
-    >
-      {Messages.cancel}
-    </Button>
+  <Stack direction="row" gap={2} sx={isSticky ? STICKY_ACTIONS_SX : undefined}>
     {submitLabel && (
       <Button
         type="submit"
@@ -38,5 +24,13 @@ export const AddServiceActions: FC<AddServiceActionsProps> = ({
         {submitLabel}
       </Button>
     )}
+    <Button
+      data-testid="add-service-cancel"
+      {...(onCancel
+        ? { onClick: onCancel }
+        : { component: Link, to: cancelTo })}
+    >
+      {Messages.cancel}
+    </Button>
   </Stack>
 );
