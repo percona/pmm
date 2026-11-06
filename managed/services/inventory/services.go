@@ -333,8 +333,17 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 				return err
 			}
 
-			// For RDS and Azure remove also node.
-			if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
+			// RemoveNode cascades to every service on the node, so keep it while other services use it.
+			remaining, err := models.FindServices(tx.Querier, models.ServiceFilters{NodeID: node.NodeID})
+			if err != nil {
+				return err
+			}
+
+			// For RDS, Azure and ElastiCache remove also node.
+			if len(remaining) == 0 &&
+				(node.NodeType == models.RemoteRDSNodeType ||
+					node.NodeType == models.RemoteAzureDatabaseNodeType ||
+					node.NodeType == models.RemoteElastiCacheNodeType) {
 				agents, err := models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 				if err != nil {
 					return err
@@ -345,7 +354,8 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 					}
 				}
 
-				if len(pmmAgentIDs) <= 1 {
+				// Discovery re-creates ElastiCache nodes by name, so a leftover node would block it.
+				if len(pmmAgentIDs) <= 1 || node.NodeType == models.RemoteElastiCacheNodeType {
 					err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 					if err != nil {
 						return err

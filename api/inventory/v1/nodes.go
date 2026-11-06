@@ -29,3 +29,4 @@ func (*ContainerNode) sealedNode()           {}
 func (*RemoteNode) sealedNode()              {}
 func (*RemoteRDSNode) sealedNode()           {}
 func (*RemoteAzureDatabaseNode) sealedNode() {}
+func (*RemoteElastiCacheNode) sealedNode()   {}

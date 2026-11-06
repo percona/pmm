@@ -36,6 +36,7 @@ const (
 	RemoteNodeType              NodeType = "remote"
 	RemoteRDSNodeType           NodeType = "remote_rds"
 	RemoteAzureDatabaseNodeType NodeType = "remote_azure_database"
+	RemoteElastiCacheNodeType   NodeType = "remote_elasticache"
 )
 
 // defaultPMMServerNodeID is the PMM Server Node ID that never changes at runtime.

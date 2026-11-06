@@ -201,6 +201,9 @@ type AddNodeBody struct {
 	// remote azure
 	RemoteAzure *AddNodeParamsBodyRemoteAzure `json:"remote_azure,omitempty"`
 
+	// remote elasticache
+	RemoteElasticache *AddNodeParamsBodyRemoteElasticache `json:"remote_elasticache,omitempty"`
+
 	// remote rds
 	RemoteRDS *AddNodeParamsBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -222,6 +225,10 @@ func (o *AddNodeBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemoteAzure(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteElasticache(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -327,6 +334,29 @@ func (o *AddNodeBody) validateRemoteAzure(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddNodeBody) validateRemoteElasticache(formats strfmt.Registry) error {
+	if swag.IsZero(o.RemoteElasticache) { // not required
+		return nil
+	}
+
+	if o.RemoteElasticache != nil {
+		if err := o.RemoteElasticache.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "remote_elasticache")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddNodeBody) validateRemoteRDS(formats strfmt.Registry) error {
 	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
@@ -367,6 +397,10 @@ func (o *AddNodeBody) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := o.contextValidateRemoteAzure(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteElasticache(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -467,6 +501,30 @@ func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats st
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote_azure")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddNodeBody) contextValidateRemoteElasticache(ctx context.Context, formats strfmt.Registry) error {
+	if o.RemoteElasticache != nil {
+
+		if swag.IsZero(o.RemoteElasticache) { // not required
+			return nil
+		}
+
+		if err := o.RemoteElasticache.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "remote_elasticache")
 			}
 
 			return err
@@ -763,6 +821,9 @@ type AddNodeOKBody struct {
 	// remote azure database
 	RemoteAzureDatabase *AddNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
 
+	// remote elasticache
+	RemoteElasticache *AddNodeOKBodyRemoteElasticache `json:"remote_elasticache,omitempty"`
+
 	// remote rds
 	RemoteRDS *AddNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -784,6 +845,10 @@ func (o *AddNodeOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemoteAzureDatabase(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteElasticache(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -889,6 +954,29 @@ func (o *AddNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 	return nil
 }
 
+func (o *AddNodeOKBody) validateRemoteElasticache(formats strfmt.Registry) error {
+	if swag.IsZero(o.RemoteElasticache) { // not required
+		return nil
+	}
+
+	if o.RemoteElasticache != nil {
+		if err := o.RemoteElasticache.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addNodeOk" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addNodeOk" + "." + "remote_elasticache")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
@@ -929,6 +1017,10 @@ func (o *AddNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := o.contextValidateRemoteAzureDatabase(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteElasticache(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1029,6 +1121,30 @@ func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote_azure_database")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddNodeOKBody) contextValidateRemoteElasticache(ctx context.Context, formats strfmt.Registry) error {
+	if o.RemoteElasticache != nil {
+
+		if swag.IsZero(o.RemoteElasticache) { // not required
+			return nil
+		}
+
+		if err := o.RemoteElasticache.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addNodeOk" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addNodeOk" + "." + "remote_elasticache")
 			}
 
 			return err
@@ -1322,6 +1438,64 @@ func (o *AddNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
 }
 
 /*
+AddNodeOKBodyRemoteElasticache RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.
+swagger:model AddNodeOKBodyRemoteElasticache
+*/
+type AddNodeOKBodyRemoteElasticache struct {
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// ElastiCache primary endpoint address.
+	Address string `json:"address,omitempty"`
+
+	// Node model (cache node type).
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID (replication group ID).
+	InstanceID string `json:"instance_id,omitempty"`
+}
+
+// Validate validates this add node OK body remote elasticache
+func (o *AddNodeOKBodyRemoteElasticache) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add node OK body remote elasticache based on context it is used
+func (o *AddNodeOKBodyRemoteElasticache) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeOKBodyRemoteElasticache) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeOKBodyRemoteElasticache) UnmarshalBinary(b []byte) error {
+	var res AddNodeOKBodyRemoteElasticache
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model AddNodeOKBodyRemoteRDS
 */
@@ -1595,6 +1769,61 @@ func (o *AddNodeParamsBodyRemoteAzure) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddNodeParamsBodyRemoteAzure) UnmarshalBinary(b []byte) error {
 	var res AddNodeParamsBodyRemoteAzure
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddNodeParamsBodyRemoteElasticache add node params body remote elasticache
+swagger:model AddNodeParamsBodyRemoteElasticache
+*/
+type AddNodeParamsBodyRemoteElasticache struct {
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// ElastiCache primary endpoint address.
+	Address string `json:"address,omitempty"`
+
+	// Node model (cache node type).
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID (replication group ID).
+	InstanceID string `json:"instance_id,omitempty"`
+}
+
+// Validate validates this add node params body remote elasticache
+func (o *AddNodeParamsBodyRemoteElasticache) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add node params body remote elasticache based on context it is used
+func (o *AddNodeParamsBodyRemoteElasticache) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteElasticache) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteElasticache) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyRemoteElasticache
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
