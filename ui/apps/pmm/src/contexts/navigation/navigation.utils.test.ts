@@ -1,10 +1,8 @@
 import {
   TEST_USER_ADMIN,
-  TEST_USER_ANONYMOUS,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
-import { createAnonymousUser } from 'contexts/user/user.utils';
 import {
   addAlerting,
   addSection,
@@ -40,28 +38,6 @@ describe('addAlerting', () => {
     expect(ids).not.toContain('alerts-settings');
   });
 
-  it('adds silences for anonymous when UA is off, without groups or UA pages', () => {
-    const ids = childIds(addAlerting(false, false, TEST_USER_ANONYMOUS));
-
-    expect(ids).toContain('alerts-rules');
-    expect(ids).toContain('alerts-silences');
-    expect(ids).not.toContain('alerts-groups');
-    expect(ids).not.toContain('alerts-contact-points');
-    expect(ids).not.toContain('alerts-policies');
-    expect(ids).not.toContain('alerts-settings');
-  });
-
-  it('adds silences, contact points and policies for anonymous when UA is on', () => {
-    const ids = childIds(addAlerting(false, true, TEST_USER_ANONYMOUS));
-
-    expect(ids).toContain('alerts-rules');
-    expect(ids).toContain('alerts-silences');
-    expect(ids).toContain('alerts-contact-points');
-    expect(ids).toContain('alerts-policies');
-    expect(ids).not.toContain('alerts-groups');
-    expect(ids).not.toContain('alerts-settings');
-  });
-
   it('adds silences and groups for authenticated user when UA is off', () => {
     const ids = childIds(addAlerting(false, false, TEST_USER_VIEWER));
 
@@ -81,7 +57,7 @@ describe('addAlerting', () => {
     expect(ids).toContain('alerts-policies');
   });
 
-  it('adds alert settings only for non-anonymous PMM admin when UA is on', () => {
+  it('adds alert settings only for PMM admin when UA is on', () => {
     expect(childIds(addAlerting(false, true, TEST_USER_ADMIN))).toContain(
       'alerts-settings'
     );
@@ -91,11 +67,6 @@ describe('addAlerting', () => {
     expect(childIds(addAlerting(false, false, TEST_USER_ADMIN))).not.toContain(
       'alerts-settings'
     );
-    expect(
-      childIds(
-        addAlerting(false, true, createAnonymousUser({ isPMMAdmin: true }))
-      )
-    ).not.toContain('alerts-settings');
   });
 
   it('adds status when alerting is enabled and templates only for editors', () => {

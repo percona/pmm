@@ -392,9 +392,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs               *server.Logs
-	authServer         *grafana.AuthServer
-	currentUserHandler http.Handler
+	logs       *server.Logs
+	authServer *grafana.AuthServer
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -474,8 +473,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
-	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1353,9 +1350,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:               logs,
-			authServer:         authServer,
-			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			logs:       logs,
+			authServer: authServer,
 		})
 	})
 

@@ -102,8 +102,6 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
-	"/v1/users/current":               none,
-	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -225,6 +223,9 @@ var errDotDotSegment = errors.New("dot-dot segment in path")
 // errFiltersDropped is returned for a filtered user on a route that cannot carry the filters.
 var errFiltersDropped = errors.New("route drops LBAC filters")
 
+// errNotAuthenticated is returned when Grafana does not authenticate the caller of a filtered route.
+var errNotAuthenticated = errors.New("caller not authenticated")
+
 type cacheItem struct {
 	u       authUser
 	created time.Time
@@ -232,7 +233,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -348,6 +349,16 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
 		return
 	}
+	// A 401, not a 403: an expired session lands here too, and clients refresh a session on 401.
+	if errors.Is(errF, errNotAuthenticated) {
+		s.returnAuthError(rw, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, l)
+		return
+	}
+	if errors.Is(errF, ErrInvalidUserID) {
+		l.Warn("Refusing a filtered route to a caller without a user ID, such as a service account token.")
+		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+		return
+	}
 	if errF != nil {
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
@@ -402,6 +413,9 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		l.Debugf("Getting authenticated user info")
 		authUser, err := s.getAuthUser(ctx, req, l)
 		if err != nil {
+			if err.code == codes.Unauthenticated {
+				return errNotAuthenticated
+			}
 			return ErrCannotGetUserID
 		}
 
@@ -413,10 +427,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
-		// Skip adding filters and allow the request to proceed.
-		l.Debugf("Skipping LBAC filters for anonymous user.")
-		return nil
+		return ErrInvalidUserID
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
@@ -725,7 +736,7 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)

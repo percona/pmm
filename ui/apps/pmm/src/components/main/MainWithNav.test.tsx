@@ -2,7 +2,7 @@ import { TestWrapper } from 'utils/testWrapper';
 import { MainWithNav } from './MainWithNav';
 import { render, screen } from '@testing-library/react';
 import { wrapWithGrafana, wrapWithQueryProvider } from 'utils/testUtils';
-import { TEST_USER_ADMIN, TEST_USER_ANONYMOUS } from 'utils/testStubs';
+import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { User } from 'types/user.types';
 
 const setup = ({
@@ -30,15 +30,13 @@ const setup = ({
   });
 
   let user: User | undefined;
-  if (isAnonymous) {
-    user = TEST_USER_ANONYMOUS;
-  } else if (isLoggedIn) {
+  if (isLoggedIn) {
     user = TEST_USER_ADMIN;
   }
 
   return render(
     <TestWrapper
-      authContext={{ isLoading, isLoggedIn }}
+      authContext={{ isLoading, isLoggedIn, isAnonymous }}
       userContext={{ isLoading: false, user }}
     >
       {wrapWithQueryProvider(
@@ -73,6 +71,12 @@ describe('MainWithNav', () => {
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
   });
 
+  it('shows sidebar to an anonymous visitor', () => {
+    setup({ isLoading: false, isLoggedIn: false, isAnonymous: true });
+
+    expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
+  });
+
   it('does not show sidebar when kiosk mode is active', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: true });
 
@@ -92,12 +96,6 @@ describe('MainWithNav', () => {
 
   it('shows sidebar when not in renderer mode', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });
-
-    expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
-  });
-
-  it('shows sidebar when user is anonymous', () => {
-    setup({ isLoading: false, isLoggedIn: false, isAnonymous: true });
 
     expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
