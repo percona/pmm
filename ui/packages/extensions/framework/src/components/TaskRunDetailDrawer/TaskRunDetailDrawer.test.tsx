@@ -2,6 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { TaskHistoryEntry, TaskHistoryStatus } from '../../hooks';
+import type * as TerminalRunNotes from '../TaskLogViewer/terminalRunNotes';
 import { TaskRunDetailDrawer } from './TaskRunDetailDrawer';
 
 // Manual factory rather than `importOriginal`: it keeps axios out of the graph,
@@ -16,7 +17,14 @@ vi.mock('@pmm-extensions/api', () => ({
 
 // The viewer holds an SSE connection and is covered by its own suite; this one
 // is about what the drawer puts around it, and which run it hands over.
-vi.mock('../TaskLogViewer', () => ({
+vi.mock('../TaskLogViewer', async () => ({
+  // The drawer's own non-failure terminal note reads this map, so the real one
+  // is loaded rather than copied.
+  NON_FAILURE_TERMINAL_NOTES: (
+    await vi.importActual<typeof TerminalRunNotes>(
+      '../TaskLogViewer/terminalRunNotes'
+    )
+  ).NON_FAILURE_TERMINAL_NOTES,
   TaskLogViewer: ({
     taskHistoryId,
     taskStatus,
@@ -30,16 +38,6 @@ vi.mock('../TaskLogViewer', () => ({
       data-task-status={taskStatus ?? ''}
     />
   ),
-  // The drawer's own non-failure terminal note reads this map; it is not part
-  // of what this suite covers about the viewer, so the real one is reused.
-  NON_FAILURE_TERMINAL_NOTES: {
-    stopped: 'This run was stopped before it finished.',
-    lost: 'The executor stopped reporting on this run, so its outcome is unknown.',
-    stale:
-      'This run was skipped because the executor could not place it before the staleness threshold.',
-    unlaunchable:
-      'The executor node could not launch this run, so the payload never executed. This is not a script failure.',
-  },
 }));
 
 import { apiClient } from '@pmm-extensions/api';
@@ -197,13 +195,13 @@ describe('TaskRunDetailDrawer', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('says a run was not a script failure when there is no log to carry the note', () => {
+    it('says a run did not fail when there is no log to carry the note', () => {
       renderDrawer({
         entry: makeEntry(16, 'unlaunchable', { has_logs: false }),
       });
 
       expect(screen.getByTestId('run-detail-note')).toHaveTextContent(
-        /not a script failure/
+        /not a failure of the run itself/
       );
       expect(screen.queryByTestId('log-viewer')).not.toBeInTheDocument();
     });

@@ -21,6 +21,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -123,13 +124,13 @@ describe('ResultsPane', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Run snippets from the Collect pane/i)
+        screen.getByText(/Run diagnostic scripts from Collect/i)
       ).toBeTruthy();
     });
     // An empty pane is not news: plain text, not an info alert.
     expect(
       screen
-        .getByText(/Run snippets from the Collect pane/i)
+        .getByText(/Run diagnostic scripts from Collect/i)
         .closest('[role="alert"]')
     ).toBeNull();
   });
@@ -679,6 +680,45 @@ describe('ResultsPane diagnostics send', () => {
     ).toBeNull();
   });
 
+  it('names a re-sent execution by the loaded page’s title, since the send log records only the file', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...FINISHED_EXECUTION, snippet_title: 'Slow Query' }],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                id: FINISHED_EXECUTION.id,
+                task_history_id: FINISHED_EXECUTION.task_history_id,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Slow Query')).toBeTruthy();
+    expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
+  });
+
   it('flags a send history it could not load', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/send-jobs/')) {
@@ -1070,7 +1110,7 @@ describe('ResultsPane send-unavailable notice', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+      screen.getByText(/Sending to a support case needs a valid connection/i)
     ).toBeTruthy();
     expect(
       screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')
@@ -1751,6 +1791,70 @@ describe('ResultsPane execution rows', () => {
     await waitFor(() => {
       expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
     });
+  });
+
+  it.each([
+    ['untitled first', [null, 'MySQL Summary']],
+    ['titled first', ['MySQL Summary', null]],
+  ])(
+    'labels each run of one file by its own title (%s)',
+    async (_order, titles) => {
+      routeGet({
+        executions: {
+          items: titles.map((title, index) => ({
+            ...NAMED_EXECUTION,
+            id: `exec-${index}`,
+            task_history_id: 40 + index,
+            snippet_title: title,
+          })),
+          total: 2,
+          offset: 0,
+          limit: 20,
+        },
+      });
+
+      renderPane(<ResultsPane incidentId="inc-1" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('MySQL Summary')).toBeTruthy();
+      });
+      expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
+    }
+  );
+
+  it('appends the filename to rows whose different scripts share a title', async () => {
+    routeGet({
+      executions: {
+        items: [
+          NAMED_EXECUTION,
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-named-again',
+            task_history_id: 32,
+          },
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-twin',
+            snippet_filename: 'ops/mysql-summary.sh',
+            task_history_id: 33,
+          },
+        ],
+        total: 3,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByText('MySQL Summary (pt-mysql-summary.sh)')
+      ).toHaveLength(2);
+    });
+    expect(
+      screen.getByText('MySQL Summary (ops/mysql-summary.sh)')
+    ).toBeTruthy();
   });
 
   it('counts up while a run is still going', async () => {

@@ -59,6 +59,7 @@ import {
   useAtwIncidentExecutions,
   useAtwSendJobs,
 } from './hooks';
+import { scriptLabeler } from './scriptLabels';
 import { SendDialog } from './SendDialog';
 import { SendUnavailableNotice } from './SendUnavailableNotice';
 import type {
@@ -287,10 +288,22 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
     }
     return map;
   }, [rows]);
+
+  const rowLabel = useMemo(
+    () =>
+      scriptLabeler(
+        (rows ?? []).map((execution) => ({
+          title: execution.snippet_title,
+          filename: execution.snippet_filename,
+        }))
+      ),
+    [rows]
+  );
 
   const [selectionLabels, setSelectionLabels] = useState<
     Map<string, AtwSendLogExecution>
@@ -312,6 +325,7 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
       return next;
     });
@@ -380,6 +394,17 @@ export function ResultsPane({
       (execution): execution is AtwSendLogExecution => execution !== undefined
     );
 
+  // A send log records filenames only, so titles come from the loaded page; an
+  // execution paged out of it is named by its filename.
+  const resendExecutions = useMemo(
+    () =>
+      resend?.executions.map((execution) => ({
+        ...execution,
+        snippet_title: knownExecutions.get(execution.id)?.snippet_title,
+      })),
+    [resend, knownExecutions]
+  );
+
   const disabledReasons = config?.send_disabled_reasons ?? [];
   // Every unmet condition, not the first one found. Send is routinely blocked by
   // both an unconfigured receiver and an empty selection at once, and a tooltip
@@ -434,7 +459,7 @@ export function ResultsPane({
         >
           {/* A closed incident has no Collect pane to point at. */}
           {canMutate && acceptsRuns
-            ? 'No executions yet. Run snippets from the Collect pane to see results here.'
+            ? 'No executions yet. Run diagnostic scripts from Collect to see results here.'
             : 'No executions yet.'}
         </Typography>
       )}
@@ -506,6 +531,10 @@ export function ResultsPane({
         <ExecutionRow
           key={execution.id}
           execution={execution}
+          displayName={rowLabel(
+            execution.snippet_title,
+            execution.snippet_filename
+          )}
           elapsedSeconds={runSeconds(execution, now)}
           highlighted={Boolean(
             highlightedTaskIds?.has(execution.task_history_id)
@@ -555,7 +584,7 @@ export function ResultsPane({
         key={sendSessionKey}
         open={sendOpen}
         incidentId={incidentId}
-        executions={resend?.executions ?? selectedExecutions}
+        executions={resendExecutions ?? selectedExecutions}
         defaultCaseRef={resend?.caseRef ?? incident?.case_ref}
         onClose={closeSend}
       />
@@ -677,6 +706,7 @@ function SendHistory({
 
 function ExecutionRow({
   execution,
+  displayName,
   elapsedSeconds,
   highlighted,
   selected,
@@ -689,6 +719,8 @@ function ExecutionRow({
   onEditParameters,
 }: {
   execution: AtwIncidentExecution;
+  /** The script's name in this list, with its filename when another shares its title. */
+  displayName: string;
   elapsedSeconds: number | null;
   /** Whether this execution was started moments ago from this tab. */
   highlighted: boolean;
@@ -710,7 +742,6 @@ function ExecutionRow({
   const { canMutate } = useAuth();
   const {
     snippet_filename,
-    snippet_title,
     executor_host,
     task_status,
     task_history_id,
@@ -730,8 +761,6 @@ function ExecutionRow({
   // log route refuses a pending run, and the viewer does not reconnect once it
   // starts, so it mounts when the polled status reaches `running`.
   const logsUnavailable = has_logs === false && task_status !== 'running';
-
-  const displayName = snippet_title?.trim() || snippet_filename;
 
   // A queued run has no start time, so the row falls back to when it was
   // recorded and labels it as such rather than leaving the column blank.
@@ -880,7 +909,7 @@ function ExecutionRow({
             color="text.secondary"
             sx={{ display: 'block' }}
           >
-            Snippet
+            Script file
           </Typography>
           <Typography
             variant="body2"
@@ -929,6 +958,7 @@ function ExecutionRow({
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
             maxHeight={360}
+            itemName="script"
           />
         )}
       </AccordionDetails>
