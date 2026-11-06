@@ -1,0 +1,53 @@
+export const Messages = {
+  title: 'PMM Dump',
+  description:
+    'Simplify troubleshooting and accelerate issue resolution by securely sharing relevant data, ensuring a smoother support experience.',
+  createDataset: 'Create dataset',
+  empty: 'No dumps available',
+  notAvailable: 'N/A',
+  loading: 'Loading datasets',
+  loadError: 'Could not load datasets.',
+  selected: (count: number) =>
+    count > 1 ? `${count} rows selected:` : '1 row selected:',
+  columns: {
+    id: 'ID',
+    status: 'Status',
+    created: 'Created',
+    timeRange: 'Time range',
+    start: 'Start date',
+    end: 'End date',
+    services: 'Service names',
+  },
+  status: {
+    unspecified: 'Unspecified',
+    inProgress: 'In progress',
+    success: 'Success',
+    error: 'Error',
+  },
+  actions: {
+    download: 'Download',
+    downloadSelected: (count: number) =>
+      `Download ${count} ${count === 1 ? 'item' : 'items'}`,
+    delete: 'Delete',
+    deleteSelected: (count: number) =>
+      `Delete ${count} ${count === 1 ? 'item' : 'items'}`,
+    sendToSupport: 'Send to Support',
+    viewLogs: 'View logs',
+  },
+  delete: {
+    title: 'Delete PMM dump',
+    single: 'Are you sure you want to delete this PMM dump?',
+    multiple: 'Are you sure you want to delete these PMM dumps?',
+    success: 'Dataset deleted successfully.',
+    multipleSuccess: 'Datasets deleted successfully.',
+    cancel: 'Cancel',
+    confirm: 'Delete',
+  },
+  logs: {
+    title: (id: string) => `Logs for ${id}`,
+    empty: 'No logs available.',
+    loading: 'Loading logs',
+    error: 'Could not load dump logs.',
+    close: 'Close',
+  },
+};

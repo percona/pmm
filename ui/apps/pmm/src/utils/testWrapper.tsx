@@ -3,6 +3,8 @@ import { UserContext, UserContextProps } from 'contexts/user';
 import { FC, PropsWithChildren } from 'react';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
 import { pmmThemeOptions, ThemeContextProvider } from '@percona/peak-ui';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { TEST_USER_ADMIN } from './testStubs';
 
 interface TestWrapperProps extends PropsWithChildren {
@@ -24,7 +26,9 @@ export const TestWrapper: FC<TestWrapperProps> = ({
     <UserContext.Provider value={userContext}>
       <MemoryRouter {...routerProps}>
         <ThemeContextProvider themeOptions={pmmThemeOptions}>
-          {children}
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            {children}
+          </LocalizationProvider>
         </ThemeContextProvider>
       </MemoryRouter>
     </UserContext.Provider>
