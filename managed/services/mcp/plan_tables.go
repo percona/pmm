@@ -137,37 +137,25 @@ func collectPlanTables(n *planNode, out *[]planTable) {
 }
 
 // aliasMap maps the alias, or the table name when there is none, of each FROM
-// entry in Note 1003 to its table. An alias or name used for two different
-// tables is dropped: it cannot be told apart.
+// entry in Note 1003 to its table. An alias or name that stands for two different
+// tables in the note is left out: it cannot be told apart.
 func aliasMap(plan []byte) map[string]tableRef {
-	out := map[string]tableRef{}
 	var envelope struct {
 		Warnings []struct {
-			Code    any
-			Message string
-		}
+			Code    any    `json:"Code"`
+			Message string `json:"Message"`
+		} `json:"warnings"`
 	}
 	err := json.Unmarshal(plan, &envelope)
 	if err != nil {
-		return out
+		return map[string]tableRef{}
 	}
-	ambiguous := map[string]bool{}
 	for _, w := range envelope.Warnings {
-		if fmt.Sprint(w.Code) != "1003" {
-			continue
-		}
-		for key, ref := range noteTables(w.Message) {
-			prev, ok := out[key]
-			if ok && prev != ref {
-				ambiguous[key] = true
-			}
-			out[key] = ref
+		if fmt.Sprint(w.Code) == "1003" {
+			return noteTables(w.Message)
 		}
 	}
-	for key := range ambiguous {
-		delete(out, key)
-	}
-	return out
+	return map[string]tableRef{}
 }
 
 // noteToken is a word, a quoted identifier or a punctuation mark of a note.
@@ -196,13 +184,16 @@ func tokenizeNote(s string) []noteToken {
 		case marks[i] != 0 || c == ' ' || c == '\t' || c == '\n' || c == '\r':
 			i++
 		case c == '#':
-			i = lineEnd(s, i)
+			return nil
 		case strings.HasPrefix(s[i:], "/*"), strings.HasPrefix(s[i:], "*/"), strings.HasPrefix(s[i:], "--"):
 			i += 2
 		case c == '`':
 			var b strings.Builder
 			i++
 			for i < len(s) {
+				if marks[i] != 0 {
+					return nil
+				}
 				if s[i] == '`' {
 					if i+1 < len(s) && s[i+1] == '`' {
 						b.WriteByte('`')
@@ -243,7 +234,8 @@ func noteTables(note string) map[string]tableRef {
 	}
 
 	out := map[string]tableRef{}
-	for i := 0; i < len(toks); i++ {
+	ambiguous := map[string]bool{}
+	for i := range toks {
 		if !toks[i].isWord("from") && !toks[i].isWord("join") {
 			continue
 		}
@@ -270,7 +262,14 @@ func noteTables(note string) map[string]tableRef {
 		if j < len(toks) && toks[j].quoted {
 			key = toks[j].text
 		}
+		prev, ok := out[key]
+		if ok && prev != ref {
+			ambiguous[key] = true
+		}
 		out[key] = ref
+	}
+	for key := range ambiguous {
+		delete(out, key)
 	}
 	return out
 }

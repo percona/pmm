@@ -104,7 +104,7 @@ func TestPlanTablesCTEShadowsTableKeepsBothEntries(t *testing.T) {
 		}
 	}
 	require.Len(t, orders, 2)
-	assert.True(t, orders[0].Derived != orders[1].Derived)
+	assert.NotEqual(t, orders[0].Derived, orders[1].Derived)
 }
 
 func TestPlanTablesFormat2(t *testing.T) {
@@ -226,7 +226,27 @@ func TestAliasMap(t *testing.T) {
 		{
 			name: "hash comment",
 			plan: notePlan(t, "select 1 from `shop`.`orders` # join `shop`.`secret` `s`\n where 1"),
-			want: map[string]tableRef{"orders": o},
+			want: map[string]tableRef{},
+		},
+		{
+			name: "quote in hash comment",
+			plan: notePlan(t, "select 1 from `shop`.`orders` # it's\n where `x` = 'from `shop`.`secret` `s`'"),
+			want: map[string]tableRef{},
+		},
+		{
+			name: "misread string boundary inside a backquoted identifier",
+			plan: notePlan(t, "select 'it\\'s' AS `a`,`shop`.`o`.`we'ird` AS `from`,'secret_t' AS `z` from `shop`.`orders` `o`"),
+			want: map[string]tableRef{},
+		},
+		{
+			name: "alias reused for two tables",
+			plan: notePlan(t, "select 1 from `shop`.`orders` `t` semi join (`shop`.`customers` `t`)"),
+			want: map[string]tableRef{},
+		},
+		{
+			name: "same table under the same key twice",
+			plan: notePlan(t, "select 1 from `shop`.`orders` `t` join `shop`.`orders` `t`"),
+			want: map[string]tableRef{"t": o},
 		},
 		{
 			name: "block comment",
@@ -252,6 +272,15 @@ func TestAliasMapNoNoteLeavesFormat1Unresolved(t *testing.T) {
 	resolved, unresolved := resolveTables(tables, aliasMap(plan), "shop")
 	assert.Empty(t, resolved)
 	assert.Equal(t, []string{"o"}, unresolved)
+}
+
+func TestResolveTablesAmbiguousAliasIsUnresolved(t *testing.T) {
+	t.Parallel()
+
+	plan := notePlan(t, "select 1 from `shop`.`orders` `t` semi join (`shop`.`customers` `t`)")
+	resolved, unresolved := resolveTables([]planTable{{Name: "t"}}, aliasMap(plan), "shop")
+	assert.Empty(t, resolved)
+	assert.Equal(t, []string{"t"}, unresolved)
 }
 
 func TestResolveTablesOnlyPlanNames(t *testing.T) {
