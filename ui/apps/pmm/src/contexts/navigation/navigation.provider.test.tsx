@@ -5,10 +5,10 @@ import { NavItem } from 'types/navigation.types';
 import { NodeType } from 'types/nodes.types';
 import { User } from 'types/user.types';
 import {
+  AMAZON_RDS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   OM_PATH,
-  PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
@@ -129,23 +129,19 @@ describe('NavigationProvider', () => {
       expect(ids).toContain('rds');
     });
 
-    it('marks the overview active on the dashboard, with or without a slug', () => {
+    it('links the overview to the Amazon RDS page and marks it active there', () => {
       useNodeTypes.mockReturnValue({
         data: { nodeTypes: [NodeType.remoteRds] },
       });
 
       const navTree = renderNavTree();
       const rds = findById(navTree, 'rds');
+      const active = findActiveNavItem(navTree, AMAZON_RDS_PATH);
 
-      [
-        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview/amazon-rds-overview`,
-        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview`,
-      ].forEach((path) => {
-        const active = findActiveNavItem(navTree, path);
-
-        expect(active?.id).toBe('rds-overview');
-        expect(rds?.children).toContain(active);
-      });
+      expect(rds?.url).toBe(AMAZON_RDS_PATH);
+      expect(active?.id).toBe('rds-overview');
+      expect(active?.url).toBe(AMAZON_RDS_PATH);
+      expect(rds?.children).toContain(active);
     });
   });
 

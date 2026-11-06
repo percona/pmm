@@ -12,9 +12,10 @@ import {
   addDashboardItems,
   addOm,
 } from './navigation.utils';
-import { NAV_MONGO, NAV_MYSQL } from './navigation.constants';
+import { NAV_MONGO, NAV_MYSQL, NAV_RDS } from './navigation.constants';
 import { ServiceType } from 'types/services.types';
 import {
+  AMAZON_RDS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
@@ -220,11 +221,12 @@ describe('addDashboardItems', () => {
     expect(ids(true)).toEqual(['mysql', 'rds', 'system', 'dashboards']);
   });
 
-  it('links the RDS overview from the Amazon RDS menu only, not from MySQL', () => {
-    const urls = (NAV_MYSQL.children ?? []).map((child) => child.url ?? '');
+  it('links the Amazon RDS page from the Amazon RDS menu only, not from MySQL', () => {
+    const urls = (NAV_MYSQL.children ?? []).map((child) => child.url);
 
-    expect(
-      urls.filter((url) => /\/d\/(rds|aurora)-overview/.test(url))
-    ).toEqual([]);
+    expect(NAV_RDS.children?.map((child) => child.url)).toEqual([
+      AMAZON_RDS_PATH,
+    ]);
+    expect(urls).not.toContain(AMAZON_RDS_PATH);
   });
 });

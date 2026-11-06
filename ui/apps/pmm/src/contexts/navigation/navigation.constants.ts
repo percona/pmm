@@ -1,4 +1,5 @@
 import {
+  AMAZON_RDS_PATH,
   PMM_LOGIN_URL,
   PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
@@ -275,25 +276,17 @@ export const NAV_POSTGRESQL: NavItem = {
 //
 // Amazon RDS
 //
-const RDS_OVERVIEW_PATH = `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview/amazon-rds-overview`;
-// The provisioned dashboard cannot carry its own refresh interval, so the link sets it.
-const RDS_OVERVIEW_URL = `${RDS_OVERVIEW_PATH}?refresh=1m`;
-
 export const NAV_RDS: NavItem = {
   id: 'rds',
   icon: CloudOutlined,
   text: 'Amazon RDS',
-  url: RDS_OVERVIEW_URL,
+  url: AMAZON_RDS_PATH,
   children: [
     {
       id: 'rds-overview',
       icon: PageviewOutlined,
       text: 'Overview',
-      url: RDS_OVERVIEW_URL,
-      matches: [
-        RDS_OVERVIEW_PATH,
-        `${PMM_NEW_NAV_GRAFANA_PATH}/d/rds-overview`,
-      ],
+      url: AMAZON_RDS_PATH,
     },
   ],
 };

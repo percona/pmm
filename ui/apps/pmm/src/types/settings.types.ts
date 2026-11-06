@@ -77,6 +77,13 @@ export interface GetFrontendSettingsResponse {
   auth: {
     disableLogin: boolean;
   };
+  // The data sources the user can query, keyed by name.
+  datasources?: Record<string, GrafanaDatasource>;
+}
+
+export interface GrafanaDatasource {
+  uid?: string | null;
+  type: string;
 }
 
 export interface GrafanaBuildInfo {

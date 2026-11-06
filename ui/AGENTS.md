@@ -59,6 +59,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/selection`   | RTA service selection           |
 | `/rta/sessions`    | RTA sessions list               |
 | `/rta/overview`    | RTA overview                    |
+| `/amazon-rds`      | Amazon RDS overview             |
 | `/graph/*`         | Grafana iframe                  |
 | `*`                | Page not found (`NotFoundPage`) |
 
