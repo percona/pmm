@@ -11,13 +11,13 @@ To open the page, go to **Amazon RDS > Overview** in the side menu. The menu app
 To see your databases on the page, make sure that:
 
 - You added the instances through **Inventory > Add service > Amazon RDS**, as described in [Connect Amazon RDS instance](../install-pmm/install-pmm-client/connect-database/aws.md). Instances added with `pmm-admin add mysql` or `pmm-admin add postgresql` don't run on an Amazon RDS node, so the page doesn't list them.
-- The pmm-agent that monitors the instances is the same version as PMM Server. Its `rds_exporter` reads the cluster, AWS account, engine and read replica source of each instance from AWS. For the pmm-agent built into PMM Server, upgrading PMM Server is enough. If you attached the instances to a PMM Client on another host, upgrade that PMM Client.
+- The PMM Client that monitors the instances is the same version as PMM Server. Its `rds_exporter` reads the cluster, AWS account, engine and read replica source of each instance from AWS. For the PMM Client built into PMM Server, upgrading PMM Server is enough. If you attached the instances to a PMM Client on another host, upgrade that PMM Client.
 
 You don't need to change any IAM permissions. PMM lists the instances it has no AWS details for under **AWS info unavailable**.
 
 ## Groups
 
-The page shows one row per group of instances. The **Type / Engine** column says how PMM grouped them, with the database engine below:
+The page shows one row per group of instances. The **Type / Engine** column shows how PMM grouped them:
 
 | Type | Instances in the group |
 |------|------------------------|
@@ -33,7 +33,7 @@ The other columns of a group are:
 |--------|---------------|
 | **Region / Account** | The AWS region, with the AWS account below it |
 | **DB identifier** | The cluster identifier, or the identifier of the primary or standalone instance |
-| **Type / Engine** | The group type from the table above, with Aurora MySQL, Aurora PostgreSQL, MySQL, MariaDB or PostgreSQL below it |
+| **Type / Engine** | The group type from the previous table, with the database engine below it: Aurora MySQL, Aurora PostgreSQL, MySQL, MariaDB or PostgreSQL |
 | **Alerts** | The number of firing alerts of the instances. See [Alerts](#alerts) |
 | **Instances / Writers** | How many instances have their exporter connected to the database, out of the instances that PMM monitors, for example **2 / 3**. Below it, the number of writer instances, normally **1 writer**. **no writer** and more than one writer show in a warning color. **unknown** means that the instances don't report their role |
 | **Throughput** | For Aurora MySQL, MySQL and MariaDB, the queries per second (qps). For Aurora PostgreSQL and PostgreSQL, the transactions per second (tps): commits plus rollbacks |
@@ -53,7 +53,7 @@ Click the arrow at the start of a group to list its instances, writers first. Th
 | **Status** | **Up** when the exporter is connected to the database, **Down** when it isn't. An instance whose exporter stopped reporting shows as **Down** for one hour, and then disappears |
 | **Alerts**, **Throughput**, **Storage** | The same values as for a group, for this instance. Aurora instances show **-** for storage, because the cluster volume belongs to the cluster |
 
-All links on the page open in a new tab.
+All links in the table open in a new tab.
 
 ## Alerts
 

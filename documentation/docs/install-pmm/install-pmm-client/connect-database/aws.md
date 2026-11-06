@@ -224,7 +224,7 @@ The instances that you add here appear on the [Amazon RDS overview](../../../use
 
 ### Adding an RDS instance via command line
 
-You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool.
+You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool. Instances added this way don't appear on the [Amazon RDS overview](../../../use/amazon-rds-overview.md) page, which lists only the instances added through **Inventory > Add service > Amazon RDS**.
 
 === "With TLS (CA certificate only - recommended)"
 

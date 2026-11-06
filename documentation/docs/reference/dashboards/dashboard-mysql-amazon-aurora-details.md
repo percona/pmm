@@ -4,7 +4,7 @@
 
 This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** list contains only Aurora MySQL services. To see all the instances of a cluster, open the [Amazon RDS overview](../../use/amazon-rds-overview.md) page with the **Amazon RDS Overview** link at the top of the dashboard. Click a service there to open it here.
 
-Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect an Amazon RDS or Aurora instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
+Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect Amazon RDS instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
 
 ## Amazon Aurora Transaction Commits
 
@@ -99,7 +99,7 @@ This row is expanded by default. Its graphs read Amazon CloudWatch metrics, whic
 
 ## Replication (needs a reader)
 
-This row is collapsed by default. It shows data only when the cluster has a reader instance. It has these graphs:
+This row is collapsed by default. Its graphs show data only for an instance that replicates: an Aurora reader, or an instance that is a binlog replica. It has these graphs:
 
 * **Aurora Replica Lag**: the replication lag of an Aurora reader behind the writer (CloudWatch `AuroraReplicaLag`). Only readers report it.
 
