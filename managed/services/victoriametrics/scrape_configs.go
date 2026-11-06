@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
 
 	"github.com/percona/pmm/managed/models"
@@ -613,10 +612,10 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
-	if pointer.GetString(params.agent.Username) != "" {
+	if params.agent.Username.Reveal() != "" {
 		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{
-			Username: pointer.GetString(params.agent.Username),
-			Password: pointer.GetString(params.agent.Password),
+			Username: params.agent.Username.Reveal(),
+			Password: params.agent.Password.Reveal(),
 		}
 	}
 	if params.agent.TLSSkipVerify {
@@ -651,11 +650,11 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
-	if pointer.GetString(params.agent.Username) != "" {
+	if params.agent.Username.Reveal() != "" {
 		cfg.HTTPClientConfig = config.HTTPClientConfig{
 			BasicAuth: &config.BasicAuth{
-				Username: pointer.GetString(params.agent.Username),
-				Password: pointer.GetString(params.agent.Password),
+				Username: params.agent.Username.Reveal(),
+				Password: params.agent.Password.Reveal(),
 			},
 		}
 	}
