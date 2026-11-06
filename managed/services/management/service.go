@@ -53,6 +53,9 @@ type ManagementService struct { //nolint:revive
 	// internalNodePrefixes holds the Node name prefixes reserved for the internal
 	// infrastructure of this PMM deployment, e.g. its HA persistence layer.
 	internalNodePrefixes []string
+	// protectedNodePrefixes holds the Node name prefixes of the Nodes this PMM deployment
+	// provisioned for itself, which users cannot remove, see services.CheckNodeRemovable.
+	protectedNodePrefixes []string
 	// haEnabled indicates whether this PMM Server is a node of an HA cluster.
 	haEnabled bool
 }
@@ -87,21 +90,23 @@ func NewManagementService(
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
 	internalNodePrefixes []string,
+	protectedNodePrefixes []string,
 	haEnabled bool,
 ) *ManagementService {
 	return &ManagementService{
-		db:                   db,
-		r:                    r,
-		state:                state,
-		cc:                   cc,
-		sib:                  sib,
-		vmdb:                 vmdb,
-		vc:                   vc,
-		grafanaClient:        grafanaClient,
-		vmClient:             vmClient,
-		l:                    logrus.WithField("service", "management"),
-		internalNodePrefixes: internalNodePrefixes,
-		haEnabled:            haEnabled,
+		db:                    db,
+		r:                     r,
+		state:                 state,
+		cc:                    cc,
+		sib:                   sib,
+		vmdb:                  vmdb,
+		vc:                    vc,
+		grafanaClient:         grafanaClient,
+		vmClient:              vmClient,
+		l:                     logrus.WithField("service", "management"),
+		internalNodePrefixes:  internalNodePrefixes,
+		protectedNodePrefixes: protectedNodePrefixes,
+		haEnabled:             haEnabled,
 	}
 }
 
@@ -123,6 +128,11 @@ func (s *ManagementService) isInternalNode(node *models.Node) bool {
 	}
 
 	return false
+}
+
+// isProtectedNode reports whether users cannot remove the Node, see services.IsNodeProtected.
+func (s *ManagementService) isProtectedNode(ctx context.Context, node *models.Node) (bool, error) {
+	return services.IsNodeProtected(s.db.WithContext(ctx), s.r, node, s.protectedNodePrefixes)
 }
 
 // A map to check if the service is supported.

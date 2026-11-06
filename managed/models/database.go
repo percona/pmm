@@ -1302,6 +1302,7 @@ var databaseSchema = [][]string{
 		)`,
 	},
 	125: {
+		`ALTER TABLE agents ADD COLUMN connection_id VARCHAR`,
 		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
 		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
 		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
@@ -1421,6 +1422,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	}
 
 	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
+	resetStaleConnections(ctx, db, params.HANodeID)
 
 	return db, nil
 }
@@ -1737,6 +1739,26 @@ func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string
 		default:
 			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
 		}
+	}
+}
+
+// resetStaleConnections persists as disconnected the pmm-agent connections of this replica, see
+// ResetHANodeConnections. It runs at startup, before any connection is served and before the
+// replica joins the cluster.
+func resetStaleConnections(ctx context.Context, db *reform.DB, localHANodeID string) {
+	if localHANodeID == "" {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	reset, err := ResetHANodeConnections(db.WithContext(ctx), localHANodeID)
+	if err != nil {
+		l.WithError(err).Warn("Failed to reset stale agent connections.")
+		return
+	}
+	if reset > 0 {
+		l.WithField("count", reset).Info("Reset stale agent connections.")
 	}
 }
 

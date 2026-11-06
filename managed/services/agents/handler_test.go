@@ -153,7 +153,7 @@ func TestCheckPortChanged(t *testing.T) {
 	agentColumns := []string{
 		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
 		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
-		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
+		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected", "connection_id",
 		"username", "password", "agent_password", "tls", "tls_skip_verify",
 		"log_level", "exporter_options", "qan_options", "rta_options",
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
@@ -214,6 +214,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // connection_id
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -269,6 +270,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // connection_id
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -324,6 +326,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // connection_id
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -379,6 +382,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // connection_id
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -409,7 +413,7 @@ func TestCheckPortChanged(t *testing.T) {
 				"test-node-4",
 				nil, nil, nil, nil, nil,
 				time.Now(), time.Now(),
-				false, "", 42000, nil, nil, false,
+				false, "", 42000, nil, nil, false, nil,
 				nil, nil, nil, false, false, nil,
 				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 			))
