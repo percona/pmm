@@ -25,6 +25,11 @@ export const Messages = {
     writers === 1 ? '1 writer' : `${writers} writers`,
   noWriter: 'no writer',
   writerUnknown: 'unknown',
+  noAlerts: 'None',
+  firingAlerts: (count: number) =>
+    count === 1 ? '1 firing alert' : `${count} firing alerts`,
+  instances: (connected: number, monitored: number) =>
+    `${connected} / ${monitored}`,
   up: 'Up',
   down: 'Down',
   storageUsed: (value: string) => `${value} used`,
@@ -63,8 +68,12 @@ export const Messages = {
     identifier: 'DB identifier',
     type: 'Type',
     engine: 'Engine',
-    monitoredInstances: 'Monitored instances',
-    exportersConnected: 'Exporters connected',
+    alerts: 'Alerts',
+    alertsDescription:
+      'Firing alerts of the instances, except silenced ones. An alert counts when its service_name or node_name label names an instance.',
+    instances: 'Instances',
+    instancesDescription:
+      'Instances whose exporter is connected, out of the monitored instances.',
     writers: 'Writers',
     throughput: 'Throughput',
     throughputDescription:

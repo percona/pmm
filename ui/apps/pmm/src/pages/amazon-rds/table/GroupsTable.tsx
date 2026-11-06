@@ -23,6 +23,7 @@ import {
   GROUP_SORT_VALUES,
   sortGroups,
 } from '../AmazonRds.utils';
+import { AlertsBadge } from './AlertsBadge';
 import { InstancesTable } from './InstancesTable';
 
 interface GroupsTableProps {
@@ -107,14 +108,28 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
     getEngineLabel(group.engine)
   ),
   column(
-    'monitoredInstances',
-    Messages.columns.monitoredInstances,
-    (group) => group.monitoredInstances
+    'alerts',
+    Messages.columns.alerts,
+    (group) => <AlertsBadge alerts={group.alerts} />,
+    Messages.columns.alertsDescription
   ),
   column(
-    'exportersConnected',
-    Messages.columns.exportersConnected,
-    (group) => group.exportersConnected
+    'instances',
+    Messages.columns.instances,
+    (group) => (
+      <Typography
+        component="span"
+        variant="inherit"
+        color={
+          group.exportersConnected < group.monitoredInstances
+            ? 'warning.main'
+            : undefined
+        }
+      >
+        {Messages.instances(group.exportersConnected, group.monitoredInstances)}
+      </Typography>
+    ),
+    Messages.columns.instancesDescription
   ),
   column('writers', Messages.columns.writers, (group) => {
     const { text, state } = getWriters(group);

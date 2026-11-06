@@ -23,6 +23,7 @@ import {
   getInstanceDetails,
   getInstanceLinks,
 } from '../AmazonRds.utils';
+import { AlertsBadge } from './AlertsBadge';
 
 const ROLE_CHIPS: Record<
   InstanceRole,
@@ -109,6 +110,9 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
         <Status up={instance.up} />
       </TableCell>
       <TableCell>
+        <AlertsBadge alerts={instance.alerts} />
+      </TableCell>
+      <TableCell>
         {formatThroughput(instance.throughput, instance.engine)}
       </TableCell>
       <TableCell>{formatStorage(instance.storage)}</TableCell>
@@ -118,12 +122,13 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
 
 // Fixed shares, so the instance tables of all expanded groups line up.
 const COLUMNS = [
-  { header: Messages.columns.service, width: '34%' },
-  { header: Messages.columns.links, width: '14%' },
-  { header: Messages.columns.role, width: '10%' },
-  { header: Messages.columns.status, width: '10%' },
-  { header: Messages.columns.throughput, width: '14%' },
-  { header: Messages.columns.storage, width: '18%' },
+  { header: Messages.columns.service, width: '30%' },
+  { header: Messages.columns.links, width: '12%' },
+  { header: Messages.columns.role, width: '9%' },
+  { header: Messages.columns.status, width: '9%' },
+  { header: Messages.columns.alerts, width: '12%' },
+  { header: Messages.columns.throughput, width: '13%' },
+  { header: Messages.columns.storage, width: '15%' },
 ];
 
 export const InstancesTable: FC<{ group: InstanceGroup }> = ({ group }) => (

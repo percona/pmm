@@ -19,6 +19,7 @@ import type {
   InstanceGroup,
 } from './AmazonRds.types';
 import {
+  addAlerts,
   filterGroups,
   getAccountOptions,
   getEngineOptions,
@@ -31,6 +32,7 @@ import {
 import { GroupsTable } from './table/GroupsTable';
 import { RdsToolbar, type SelectFilter } from './toolbar/RdsToolbar';
 import { useRdsFilters } from './useRdsFilters';
+import { useRdsAlerts } from './useRdsAlerts';
 
 type RdsGroupsProps = ReturnType<typeof useRdsFilters> & {
   groups: InstanceGroup[];
@@ -129,7 +131,11 @@ export const AmazonRdsPage: FC = () => {
   const { user } = useUser();
   const { settings } = useSettings();
   const { data: rows, isError } = useRdsInstances();
-  const groups = useMemo(() => groupInstances(rows ?? []), [rows]);
+  const alerts = useRdsAlerts();
+  const groups = useMemo(
+    () => addAlerts(groupInstances(rows ?? []), alerts),
+    [rows, alerts]
+  );
   const rdsFilters = useRdsFilters();
   const filtered = useMemo(
     () => filterGroups(groups, rdsFilters.filters),

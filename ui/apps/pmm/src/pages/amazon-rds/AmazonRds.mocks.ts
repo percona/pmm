@@ -1,3 +1,8 @@
+import type {
+  AlertmanagerAlert,
+  PrometheusAlertItem,
+  PrometheusAlertRulesResponse,
+} from 'types/alerting.types';
 import type { RdsInstanceRow } from 'types/rds.types';
 
 export const GIB = 1024 * 1024 * 1024;
@@ -136,4 +141,88 @@ export const RDS_ROWS: RdsInstanceRow[] = [
     inRecovery: 0,
     throughput: 1,
   }),
+];
+
+const firing = (labels: Record<string, string>): PrometheusAlertItem => ({
+  labels,
+  annotations: {},
+  state: 'firing',
+});
+
+const MYSQL_DOWN_DATABASE_2 = {
+  alertname: 'MySQL down',
+  service_name: 'database-2-instance-1',
+  node_name: 'database-2-instance-1',
+  severity: 'critical',
+};
+
+// database-3 fires on its reader's service and its writer's node; database-2's alerts are
+// silenced or pending. The alerts on a service outside RDS and on PMM Server belong to no group.
+export const ALERT_RULES: PrometheusAlertRulesResponse = {
+  data: {
+    groups: [
+      {
+        name: 'PMM',
+        rules: [
+          {
+            name: 'MySQL down',
+            alerts: [
+              firing({
+                alertname: 'MySQL down',
+                service_name: 'database-3-instance-1-reader',
+                node_name: 'database-3-instance-1-reader',
+                severity: 'critical',
+              }),
+              firing(MYSQL_DOWN_DATABASE_2),
+              firing({
+                alertname: 'MySQL down',
+                service_name: 'mysql-on-premises',
+                node_name: 'host-1',
+                severity: 'critical',
+              }),
+            ],
+          },
+          {
+            name: 'Node CPU',
+            alerts: [
+              firing({
+                alertname: 'Node CPU',
+                node_name: 'database-3-instance-1',
+                severity: 'warning',
+              }),
+              {
+                ...firing({
+                  alertname: 'Node CPU',
+                  node_name: 'database-2-instance-1',
+                  severity: 'warning',
+                }),
+                state: 'pending',
+              },
+            ],
+          },
+          {
+            name: 'PMM Grafana is down',
+            alerts: [
+              firing({
+                alertname: 'PMM Grafana is down',
+                severity: 'critical',
+              }),
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export const SILENCED_ALERTS: AlertmanagerAlert[] = [
+  {
+    labels: MYSQL_DOWN_DATABASE_2,
+    annotations: {},
+    startsAt: '2026-11-06T08:00:00Z',
+    endsAt: '2026-11-06T10:00:00Z',
+    updatedAt: '2026-11-06T08:00:00Z',
+    fingerprint: 'database-2-mysql-down',
+    status: { state: 'suppressed', silencedBy: ['silence-1'], inhibitedBy: [] },
+  },
 ];

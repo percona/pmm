@@ -4,12 +4,24 @@ import type { User } from 'types/user.types';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSettings } from 'utils/testUtils';
-import { RDS_ROWS } from './AmazonRds.mocks';
+import { ALERT_RULES, RDS_ROWS, SILENCED_ALERTS } from './AmazonRds.mocks';
 import { AmazonRdsPage } from './AmazonRdsPage';
 
-const { useRdsInstances } = vi.hoisted(() => ({ useRdsInstances: vi.fn() }));
+const { useRdsInstances, usePrometheusAlertRules, useAlertmanagerAlerts } =
+  vi.hoisted(() => ({
+    useRdsInstances: vi.fn(),
+    usePrometheusAlertRules: vi.fn(),
+    useAlertmanagerAlerts: vi.fn(),
+  }));
 
-vi.mock('hooks/api/useRds', () => ({ useRdsInstances }));
+vi.mock('hooks/api/useRds', () => ({
+  useRdsInstances,
+  RDS_REFETCH_INTERVAL_MS: 60_000,
+}));
+vi.mock('hooks/api/usePrometheusAlertRules', () => ({
+  usePrometheusAlertRules,
+}));
+vi.mock('hooks/api/useAlertmanagerAlerts', () => ({ useAlertmanagerAlerts }));
 
 const LocationSearch = () => (
   <div data-testid="location-search">{useLocation().search}</div>
@@ -41,6 +53,11 @@ const groupRows = () =>
 
 const shown = (text: string) => screen.getByText(text);
 
+const groupRow = (name: string) =>
+  screen
+    .getByRole('button', { name: `Expand ${name}` })
+    .closest('tr') as HTMLElement;
+
 const locationSearch = () =>
   decodeURIComponent(screen.getByTestId('location-search').textContent ?? '');
 
@@ -48,6 +65,8 @@ const locationSearch = () =>
 describe('AmazonRdsPage', { timeout: 20_000 }, () => {
   beforeEach(() => {
     useRdsInstances.mockReturnValue({ data: RDS_ROWS, isError: false });
+    usePrometheusAlertRules.mockReturnValue({ data: ALERT_RULES });
+    useAlertmanagerAlerts.mockReturnValue({ data: SILENCED_ALERTS });
   });
 
   it('renders the title, header links and groups collapsed with their aggregates', () => {
@@ -100,8 +119,8 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       'DB identifier',
       'Type',
       'Engine',
-      'Monitored instances',
-      'Exporters connected',
+      'Alerts',
+      'Instances',
       'Writers',
       'Throughput',
       'Storage',
@@ -120,6 +139,46 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       screen.queryByRole('link', { name: 'Advisors' })
     ).not.toBeInTheDocument();
     expect(screen.getByText('database-3')).toBeInTheDocument();
+    expect(
+      within(groupRow('database-3')).getByRole('link', {
+        name: '2 firing alerts',
+      })
+    ).toBeInTheDocument();
+  });
+
+  it('shows the firing alerts of groups and instances', () => {
+    renderPage();
+
+    const database3 = within(groupRow('database-3'));
+
+    expect(
+      database3.getByRole('link', { name: '2 firing alerts' })
+    ).toHaveAttribute('href', '/alerting/status');
+    expect(database3.getByText('2 / 2')).toBeInTheDocument();
+    expect(
+      within(groupRow('database-2')).getByText('None')
+    ).toBeInTheDocument();
+    expect(
+      database3.getByRole('link', { name: '2 firing alerts' })
+    ).toHaveAttribute('target', '_blank');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand database-3' }));
+
+    const instances = within(screen.getByRole('table', { name: 'database-3' }));
+
+    expect(
+      instances.getAllByRole('link', { name: '1 firing alert' })
+    ).toHaveLength(2);
+  });
+
+  it('shows no alert value until the alerts load', () => {
+    usePrometheusAlertRules.mockReturnValue({ data: undefined });
+    renderPage();
+
+    expect(screen.queryByText('None')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /firing alert/ })
+    ).not.toBeInTheDocument();
   });
 
   it('expands a group into its instances, linking each to its dashboards in a new tab', () => {
@@ -135,8 +194,8 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
         .slice(1)
         .map((row) => row.textContent)
     ).toEqual([
-      'database-3-instance-1MySQLOSwriterUp20.50 qps-',
-      'database-3-instance-1-readerMySQLOSreaderUp4.25 qps-',
+      'database-3-instance-1MySQLOSwriterUp120.50 qps-',
+      'database-3-instance-1-readerMySQLOSreaderUp14.25 qps-',
     ]);
     expect(
       within(instances).getByRole('link', {

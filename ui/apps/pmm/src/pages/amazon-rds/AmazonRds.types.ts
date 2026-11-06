@@ -1,3 +1,5 @@
+import type { AlertSeverityBand } from 'types/alerting.types';
+
 export type EngineId =
   | 'aurora-mysql'
   | 'aurora-postgresql'
@@ -31,6 +33,12 @@ export interface Storage {
   lowest?: boolean;
 }
 
+export interface AlertSummary {
+  count: number;
+  // Severity of the most severe alert; undefined when none has a known severity.
+  band?: AlertSeverityBand;
+}
+
 export interface RdsInstance {
   serviceName: string;
   nodeName: string;
@@ -41,6 +49,8 @@ export interface RdsInstance {
   up?: number;
   throughput?: number;
   storage?: Storage;
+  // Undefined while the alerts are unknown: not loaded or not readable.
+  alerts?: AlertSummary;
 }
 
 export interface InstanceGroup {
@@ -57,6 +67,8 @@ export interface InstanceGroup {
   unknownRoles: number;
   throughput?: number;
   storage?: Storage;
+  // Undefined while the alerts are unknown: not loaded or not readable.
+  alerts?: AlertSummary;
 }
 
 export interface InstanceLink {
@@ -78,8 +90,8 @@ export type GroupColumnId =
   | 'name'
   | 'type'
   | 'engine'
-  | 'monitoredInstances'
-  | 'exportersConnected'
+  | 'alerts'
+  | 'instances'
   | 'writers'
   | 'throughput'
   | 'storage';

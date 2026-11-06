@@ -1,3 +1,16 @@
+import type { AlertRow } from 'pages/alerting/status/AlertsPage.types';
+import {
+  buildSilenceMap,
+  flattenAlertRules,
+} from 'pages/alerting/status/AlertsPage.utils';
+import {
+  getSeverityBand,
+  SEVERITY_BAND_ORDER,
+} from 'pages/alerting/status/alert-severity';
+import type {
+  AlertmanagerAlert,
+  PrometheusAlertRulesResponse,
+} from 'types/alerting.types';
 import type { RdsInstanceRow } from 'types/rds.types';
 import {
   DASHBOARD_URLS,
@@ -12,6 +25,7 @@ import {
 } from './AmazonRds.constants';
 import { Messages } from './AmazonRds.messages';
 import type {
+  AlertSummary,
   EngineFamily,
   EngineId,
   FilteredGroups,
@@ -641,8 +655,8 @@ export const GROUP_SORT_VALUES: Record<
   name: (group) => group.name,
   type: (group) => getGroupTypeLabel(group),
   engine: (group) => group.engine && getEngineLabel(group.engine),
-  monitoredInstances: (group) => group.monitoredInstances,
-  exportersConnected: (group) => group.exportersConnected,
+  alerts: (group) => group.alerts?.count,
+  instances: (group) => group.monitoredInstances,
   writers: (group) => group.writers,
   throughput: (group) => group.throughput,
   storage: (group) => group.storage?.bytes,
@@ -687,3 +701,46 @@ export const sortGroups = (groups: InstanceGroup[], sorting: GroupSort[]) => {
     compareSortValues(getValue(a), getValue(b), sort.desc)
   );
 };
+
+// Firing alerts that no silence suppresses, as the Alerts page lists them.
+export const getFiringAlerts = (
+  rules: PrometheusAlertRulesResponse,
+  silencedAlerts?: AlertmanagerAlert[]
+) =>
+  flattenAlertRules(rules, buildSilenceMap(silencedAlerts)).filter(
+    (alert) => alert.state === 'Alerting' && !alert.silenced
+  );
+
+const summarizeAlerts = (alerts: AlertRow[]): AlertSummary => ({
+  count: alerts.length,
+  band: SEVERITY_BAND_ORDER.find((band) =>
+    alerts.some((alert) => getSeverityBand(alert.labels.severity) === band)
+  ),
+});
+
+// An alert belongs to an instance by its service or node name; an alert without either, such as
+// one about PMM Server itself, belongs to none.
+const belongsTo = (alert: AlertRow, instance: RdsInstance) =>
+  (!!alert.serviceName && alert.serviceName === instance.serviceName) ||
+  (!!alert.nodeId && alert.nodeId === instance.nodeName);
+
+const getAlerts = (instances: RdsInstance[], alerts?: AlertRow[]) =>
+  alerts &&
+  summarizeAlerts(
+    alerts.filter((alert) =>
+      instances.some((instance) => belongsTo(alert, instance))
+    )
+  );
+
+export const addAlerts = (
+  groups: InstanceGroup[],
+  alerts?: AlertRow[]
+): InstanceGroup[] =>
+  groups.map((group) => ({
+    ...group,
+    alerts: getAlerts(group.instances, alerts),
+    instances: group.instances.map((instance) => ({
+      ...instance,
+      alerts: getAlerts([instance], alerts),
+    })),
+  }));

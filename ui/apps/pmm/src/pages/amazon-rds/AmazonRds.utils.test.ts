@@ -1,5 +1,11 @@
 import type { RdsInstanceRow } from 'types/rds.types';
-import { GIB, RDS_ROWS, rdsRow } from './AmazonRds.mocks';
+import {
+  ALERT_RULES,
+  GIB,
+  RDS_ROWS,
+  rdsRow,
+  SILENCED_ALERTS,
+} from './AmazonRds.mocks';
 import { NO_FILTERS } from './AmazonRds.constants';
 import type {
   GroupFilters,
@@ -7,6 +13,7 @@ import type {
   RdsInstance,
 } from './AmazonRds.types';
 import {
+  addAlerts,
   compareSortValues,
   filterGroups,
   formatBytes,
@@ -15,6 +22,7 @@ import {
   getAccountOptions,
   getEngine,
   getEngineOptions,
+  getFiringAlerts,
   getGroupOptions,
   getGroupType,
   getInstanceDetails,
@@ -824,5 +832,73 @@ describe('AmazonRds.utils: sorting', () => {
     expect(sortGroups(groups, [{ id: 'mrt-row-expand', desc: false }])).toBe(
       groups
     );
+  });
+});
+
+describe('AmazonRds.utils: alerts', () => {
+  const alerts = getFiringAlerts(ALERT_RULES, SILENCED_ALERTS);
+  const withAlerts = addAlerts(groups, alerts);
+  const alertsOf = (name: string) =>
+    withAlerts.find((group) => group.name === name) as InstanceGroup;
+
+  it('counts firing alerts no silence suppresses', () => {
+    expect(alerts.map((alert) => alert.serviceName || alert.nodeId)).toEqual([
+      'database-3-instance-1-reader',
+      'mysql-on-premises',
+      'database-3-instance-1',
+      '',
+    ]);
+    expect(getFiringAlerts(ALERT_RULES)).toHaveLength(5);
+  });
+
+  it('adds up the alerts of a group with the worst severity', () => {
+    expect(alertsOf('database-3').alerts).toEqual({
+      count: 2,
+      band: 'critical',
+    });
+    expect(alertsOf('database-2').alerts).toEqual({
+      count: 0,
+      band: undefined,
+    });
+  });
+
+  it('gives an alert without service or node name to no instance', () => {
+    const stale = withAlerts.find((group) =>
+      group.instances.some(({ nodeName }) => !nodeName)
+    ) as InstanceGroup;
+
+    expect(stale.alerts).toEqual({ count: 0, band: undefined });
+  });
+
+  it('matches an alert to an instance by service or node name', () => {
+    expect(
+      alertsOf('database-3').instances.map(({ serviceName, alerts }) => [
+        serviceName,
+        alerts,
+      ])
+    ).toEqual([
+      ['database-3-instance-1', { count: 1, band: 'warning' }],
+      ['database-3-instance-1-reader', { count: 1, band: 'critical' }],
+    ]);
+  });
+
+  it('leaves the counts unknown without alert data', () => {
+    expect(addAlerts(groups)[0].alerts).toBeUndefined();
+    expect(addAlerts(groups)[0].instances[0].alerts).toBeUndefined();
+  });
+
+  it('sorts by alert count, groups with unknown alerts last', () => {
+    const names = (sorted: InstanceGroup[]) => sorted.map(({ name }) => name);
+
+    expect(
+      names(sortGroups(withAlerts, [{ id: 'alerts', desc: true }]))[0]
+    ).toBe('database-3');
+    expect(
+      names(
+        sortGroups(addAlerts(groups.slice(0, 2)).concat(withAlerts.slice(2)), [
+          { id: 'alerts', desc: true },
+        ])
+      ).slice(-2)
+    ).toEqual(names(groups.slice(0, 2)));
   });
 });
