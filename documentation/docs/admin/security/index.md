@@ -9,6 +9,7 @@ Taking the following precautions will ensure that you are truly secure:
 
 - [Grafana HTTPS secure cookies](../../admin/security/grafana_cookies.md)
 - [Encrypt the PMM Client configuration file](client_config_encryption.md) to protect stored credentials on client hosts
+- [Supply credentials as files](credentials_as_files.md) to keep PMM Server's credentials out of environment variables and configuration files
 
 ## Manually configure the PostgreSQL Grafana datasource
 

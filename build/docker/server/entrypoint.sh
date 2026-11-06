@@ -158,6 +158,14 @@ if is_enabled "$PMM_ENABLE_EXTENSIONS" && [ -z "$PMM_EXTENSIONS_POSTGRES_PASSWOR
     unset EXTENSIONS_PG_PASSWORD_FILE EXTENSIONS_PG_MODE
 fi
 
+# Resolves every credential to a file under /run/pmm/secrets, the only place PMM's programs read them from
+# (PMM-15168). It fails on a contradictory or unreadable configuration, listing every problem.
+pmm-managed-init secrets
+
+# The values now live in files (see managed/utils/secrets), so no child may inherit them.
+unset PMM_POSTGRES_DBPASSWORD GF_DATABASE_PASSWORD PMM_CLICKHOUSE_PASSWORD PMM_CLICKHOUSE_DATASOURCE_PASSWORD \
+    PMM_ADMIN_PASSWORD GF_SECURITY_ADMIN_PASSWORD GF_SECURITY_SECRET_KEY
+
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
 # creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then

@@ -31,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 const (
@@ -283,6 +284,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 
 		default:
+			// credential files are resolved by pmm-managed-init before this runs
+			if slices.Contains(secrets.EnvVarNames(), k) {
+				continue
+			}
+
 			// handle prefixes
 
 			// skip Grafana's environment variables
