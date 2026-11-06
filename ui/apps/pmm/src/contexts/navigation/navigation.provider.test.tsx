@@ -88,7 +88,9 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
 
 describe('NavigationProvider', () => {
   beforeEach(() => {
-    useNodeTypes.mockReturnValue({ data: { nodeTypes: [InventoryNodeType.generic] } });
+    useNodeTypes.mockReturnValue({
+      data: { nodeTypes: [InventoryNodeType.generic] },
+    });
   });
 
   describe('Amazon RDS section', () => {
@@ -100,7 +102,9 @@ describe('NavigationProvider', () => {
 
     it('is shown with an RDS node, holding the overview, before Operating system', () => {
       useNodeTypes.mockReturnValue({
-        data: { nodeTypes: [InventoryNodeType.generic, InventoryNodeType.remoteRds] },
+        data: {
+          nodeTypes: [InventoryNodeType.generic, InventoryNodeType.remoteRds],
+        },
       });
 
       const navTree = renderNavTree();

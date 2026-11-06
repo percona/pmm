@@ -47,7 +47,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
-  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(InventoryNodeType.remoteRds);
+  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(
+    InventoryNodeType.remoteRds
+  );
   const { settings } = useSettings();
   const { data: advisors } = useAdvisors({
     enabled: !!user?.isEditor,

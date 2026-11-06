@@ -91,8 +91,8 @@ const router = createBrowserRouter(
             {
               path: relativeToNav(AMAZON_RDS_PATH),
               element: <AmazonRdsPage />,
-              },
-              {
+            },
+            {
               path: 'inventory',
               children: [
                 {
