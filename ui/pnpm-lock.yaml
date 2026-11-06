@@ -584,6 +584,9 @@ importers:
       '@mui/material':
         specifier: 7.3.11
         version: 7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@percona/peak-ui':
+        specifier: 1.0.26
+        version: 1.0.26(ce7a36355021fe88046b483c20084ec1)
       '@percona/percona-ui':
         specifier: 1.0.22
         version: 1.0.22(ce7a36355021fe88046b483c20084ec1)
@@ -1868,6 +1871,7 @@ packages:
   '@opentelemetry/sdk-trace-base@2.0.1':
     resolution: {integrity: sha512-xYLlvk/xdScGx1aEqvxLwf6sXQLXCjk3/1SQT9X9AoN5rXRhkdvIFShuNNmtTEPRBqcsMbS4p/gJLNI2wXaDuQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 

@@ -16,7 +16,6 @@
  */
 
 import {
-  act,
   fireEvent,
   render,
   screen,
@@ -227,7 +226,7 @@ describe('FleetServicesTab', () => {
     scanned(null);
     const router = createMemoryRouter(
       [{ path: '/fleet', element: <FleetServicesTab /> }],
-      { initialEntries: ['/fleet?tab=services&failing=true'] }
+      { initialEntries: ['/fleet?tab=services&services.f.failing=true'] }
     );
     render(<RouterProvider router={router} />);
 
@@ -236,15 +235,29 @@ describe('FleetServicesTab', () => {
     );
 
     fireEvent.click(screen.getByText('0 failing a scan'));
-    expect(router.state.location.search).toBe('?tab=services');
     expect(screen.queryByTestId('om-empty-state')).toBeNull();
+    await waitFor(() =>
+      expect(router.state.location.search).toBe('?tab=services')
+    );
 
-    await act(async () => {
-      await router.navigate(-1);
-    });
-    expect(router.state.location.search).toBe('?tab=services&failing=true');
-    expect(screen.getByTestId('om-empty-state')).toHaveTextContent(
-      'No service is failing a scan right now'
+    expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('writes the failing filter as a peak-ui column filter', async () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    const router = createMemoryRouter(
+      [{ path: '/fleet', element: <FleetServicesTab /> }],
+      { initialEntries: ['/fleet?tab=services'] }
+    );
+    render(<RouterProvider router={router} />);
+
+    fireEvent.click(screen.getByText('1 failing a scan'));
+
+    await waitFor(() =>
+      expect(router.state.location.search).toBe(
+        '?tab=services&services.f.failing=true'
+      )
     );
   });
 
@@ -257,7 +270,7 @@ describe('FleetServicesTab', () => {
       serve(ordersEstate());
       useOmInventoryServices.mockReturnValue(inventory);
       render(
-        <MemoryRouter initialEntries={['/?failing=true']}>
+        <MemoryRouter initialEntries={['/?services.f.failing=true']}>
           <FleetServicesTab />
         </MemoryRouter>
       );
@@ -272,7 +285,7 @@ describe('FleetServicesTab', () => {
     serve(ordersEstate());
     scanned(null);
     render(
-      <MemoryRouter initialEntries={['/?failing=yes']}>
+      <MemoryRouter initialEntries={['/?services.f.failing=yes']}>
         <FleetServicesTab />
       </MemoryRouter>
     );

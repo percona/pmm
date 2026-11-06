@@ -15,16 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  useLocation,
-  useNavigationType,
-  useSearchParams,
-} from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import {
   Box,
   Button,
-  InputAdornment,
   LinearProgress,
   Link,
   Stack,
@@ -33,11 +27,9 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import { EmptyState } from './components/EmptyState';
 import {
   MRT_ExpandAllButton,
@@ -46,7 +38,9 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ExpandedState,
+  type MRT_FilterFn,
   type MRT_Row,
+  type MRT_SortingState,
   type MRT_TableInstance,
 } from 'material-react-table';
 import {
@@ -83,17 +77,17 @@ import {
   downFirst,
   toClusterRows,
 } from './topology';
-import {
-  HEALTH_FILTER_VALUES,
-  TYPE_FILTER_VALUES,
-  filterClusterRows,
-  hasClusterFilters,
-  parseClusterFilters,
-  withClusterFilters,
-  type ClusterFilters,
-} from './clusterFilters';
-import type { OmClusterHealth, OmClusterRow, OmProcessRole } from './types';
+import type {
+  OmClusterHealth,
+  OmClusterRow,
+  OmClusterType,
+  OmProcessRole,
+} from './types';
 import { OmError } from './components/OmError';
+import {
+  useTableUrlState,
+  type TableUrlStateOptions,
+} from './useTableUrlState';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
@@ -175,6 +169,45 @@ const HIDDEN_BY_DEFAULT = {
 
 const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
 
+/** Worst first, the order the health filter offers them in. */
+const HEALTH_FILTER_VALUES: OmClusterHealth[] = [
+  'down',
+  'degraded',
+  'unknown',
+  'healthy',
+];
+
+/** How each cluster type is spelled in the URL. */
+const TYPE_FILTER_VALUE: Partial<Record<OmClusterType, string>> = {
+  CLUSTER_TYPE_REPLICA_SET: 'replica-set',
+  CLUSTER_TYPE_SHARDED: 'sharded',
+  CLUSTER_TYPE_STANDALONE: 'standalone',
+};
+
+/** The unnamed environment's filter value: peak-ui drops an empty one as no filter. */
+const UNNAMED_ENVIRONMENT_VALUE = '(none)';
+
+/** A filter's picked values; a hand-written URL can carry one bare value. */
+const pickedValues = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.map(String)
+    : value == null || value === ''
+      ? []
+      : [String(value)];
+
+/**
+ * An exact match on any picked value. Not MRT's multi-select default, which matches
+ * substrings: `prod` would also pick `preprod`.
+ */
+const anyOf =
+  (
+    valueOf: (row: OmClusterRow) => string | undefined
+  ): MRT_FilterFn<OmClusterRow> =>
+  (row, _columnId, picked: unknown) => {
+    const value = valueOf(row.original);
+    return value !== undefined && pickedValues(picked).includes(value);
+  };
+
 /** Element by element, oldest first, so a cluster still on an old build leads. */
 const compareVersionLists = (a: string[], b: string[]) => {
   for (let i = 0; i < Math.min(a.length, b.length); i++) {
@@ -230,12 +263,15 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         id: 'env_name',
         header: 'Environment',
         size: 160,
+        filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
         Cell: ({ row: { original } }) => environmentLabel(original),
       },
       {
         accessorKey: 'cluster_name',
         header: 'Cluster',
         size: 200,
+        // The only column the search reads.
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) => (
           <Stack
             direction="row"
@@ -262,6 +298,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         header: 'Type',
         size: 120,
         sortUndefined: 'last',
+        filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
         Cell: ({ row: { original } }) =>
           typeLabel(original) ?? <Unavailable reason="not_applicable" />,
       },
@@ -269,6 +306,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         accessorKey: 'health',
         header: 'Health',
         size: 130,
+        filterFn: anyOf((row) => row.health),
         // Worst first ascending, so one click brings trouble to the top.
         sortingFn: (a, b, columnId) =>
           clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
@@ -587,165 +625,128 @@ function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
   return { expanded, onExpandedChange };
 }
 
-const NO_FILTERS: ClusterFilters = {
-  q: '',
-  health: [],
-  type: [],
-  environment: [],
-};
-
-/** The filters as their URL parameters alone, to tell two sets apart. */
-const filtersKey = (filters: ClusterFilters) =>
-  withClusterFilters(new URLSearchParams(), filters).toString();
-
-/**
- * The search and filters, kept in the URL, and what the bar shows.
- *
- * Each change is a history entry, so Back undoes a filter - except while a search is
- * being refined (`replace`), where one entry per keystroke would make Back retype it
- * backwards.
- *
- * A navigation settles after the change that made it, so the bar shows and builds on
- * what it last wrote, not the URL: bound to the URL, it drops fast typing and a filter
- * picked before the previous one lands.
- */
-function useClusterFilters() {
-  const [params, setParams] = useSearchParams();
-  const filters = useMemo(() => parseClusterFilters(params), [params]);
-  const key = filtersKey(filters);
-  const entry = useLocation().key;
-  const pop = useNavigationType() === 'POP';
-  const [draft, setDraft] = useState(filters);
-  // What the bar wrote that the URL may not show yet, oldest first.
-  const written = useRef<string[]>([]);
-  useEffect(() => {
-    const index = written.current.indexOf(key);
-    // Back or Forward can land on a key the bar also wrote, so only its own
-    // navigations may keep the draft.
-    if (!pop && index >= 0) {
-      written.current = written.current.slice(index + 1);
-      return;
-    }
-    written.current = [];
-    setDraft(parseClusterFilters(new URLSearchParams(key)));
-  }, [entry, key, pop]);
-  const setFilters = (next: ClusterFilters, replace = false) => {
-    written.current.push(filtersKey(next));
-    setDraft(next);
-    setParams((current) => withClusterFilters(current, next), { replace });
-  };
-  return [filters, draft, setFilters] as const;
-}
-
-const SearchField = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) => (
-  <TextField
-    size="small"
-    placeholder="Search clusters"
-    value={value}
-    onChange={(event) => onChange(event.target.value)}
-    slotProps={{
-      htmlInput: { 'aria-label': 'Search clusters' },
-      input: {
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon fontSize="small" />
-          </InputAdornment>
-        ),
-      },
-    }}
-    sx={{ width: 240 }}
-  />
-);
-
 const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map((value) => ({
   value,
   label: CLUSTER_HEALTH_LABEL[value],
 }));
 
-const TYPE_OPTIONS: FilterOption[] = Object.entries(TYPE_FILTER_VALUES).map(
-  ([value, type]) => ({ value, label: CLUSTER_TYPE_LABEL[type] ?? value })
+const TYPE_OPTIONS: FilterOption[] = Object.entries(TYPE_FILTER_VALUE).map(
+  ([type, value]) => ({
+    value,
+    label: CLUSTER_TYPE_LABEL[type as OmClusterType] ?? value,
+  })
 );
 
-/** Search and filters, above the table so they stay put when nothing matches. */
+/**
+ * A picked value the options lack - a stale link's, say - is listed under its own
+ * name, so it can be seen and unpicked rather than silently emptying the table.
+ */
+const withPicked = (options: FilterOption[], picked: string[]) => [
+  ...options,
+  ...picked
+    .filter((value) => !options.some((option) => option.value === value))
+    .map((value) => ({ value, label: value })),
+];
+
+type FilterColumn = 'health' | 'type' | 'env_name';
+
+/**
+ * Trouble first: a degraded or down cluster leads its group. Groups themselves keep
+ * the document's order, since they have no health of their own to sort on. Being the
+ * default, it stays out of the URL.
+ */
+const DEFAULT_SORTING: MRT_SortingState = [
+  { id: 'health', desc: false },
+  { id: 'cluster_name', desc: false },
+];
+
+/**
+ * The search, filters and sort, in the URL under `clusters.` so a filtered view can
+ * be shared - the pattern every PMM table follows. Group by stays out of it: a
+ * shareable filter matters, a shareable grouping does not (PMM-15767).
+ */
+const URL_STATE: TableUrlStateOptions = {
+  paramPrefix: 'clusters',
+  defaults: { sorting: DEFAULT_SORTING },
+  sync: { pagination: false },
+  initialShowGlobalFilter: true,
+};
+
+/**
+ * The filters, as toolbar selects rather than MRT's header inputs: Type is hidden by
+ * default, and Environment's column leaves the table while grouped by it, so neither
+ * would have a header to filter from. Driven by the table's own filter state.
+ */
 const ClusterFilterBar = ({
+  table,
   rows,
-  shown,
-  applied,
-  filters,
-  onChange,
 }: {
+  table: MRT_TableInstance<OmClusterRow>;
   rows: OmClusterRow[];
-  shown: number;
-  /** The filters the table shows, which `filters` can be ahead of. */
-  applied: ClusterFilters;
-  filters: ClusterFilters;
-  onChange: (filters: ClusterFilters, replace?: boolean) => void;
 }) => {
+  const { columnFilters, globalFilter } = table.getState();
+  const picked = (id: FilterColumn) =>
+    pickedValues(columnFilters.find((filter) => filter.id === id)?.value);
+  const pick = (id: FilterColumn) => (values: string[]) =>
+    table.setColumnFilters((filters) => [
+      ...filters.filter((filter) => filter.id !== id),
+      ...(values.length ? [{ id, value: values }] : []),
+    ]);
   // From the fleet, not a fixed list, with the unnamed one under its label.
   const environments = useMemo(
     () =>
-      [...new Set(rows.map((row) => row.env_name ?? ''))]
+      [...new Set(rows.map((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE))]
         .sort((a, b) => a.localeCompare(b))
-        .map((value) => ({ value, label: value || UNNAMED_ENVIRONMENT })),
+        .map((value) => ({
+          value,
+          label:
+            value === UNNAMED_ENVIRONMENT_VALUE ? UNNAMED_ENVIRONMENT : value,
+        })),
     [rows]
   );
-  // One the fleet no longer has is ignored by the filter, so not shown as picked.
-  const present = (names: string[]) =>
-    names.filter((name) =>
-      environments.some((option) => option.value === name)
-    );
+  const filtered = columnFilters.length > 0 || !!globalFilter;
   return (
-    <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
-      <SearchField
-        value={filters.q}
-        onChange={(q) =>
-          onChange({ ...filters, q }, !!filters.q.trim() && !!q.trim())
-        }
-      />
+    <>
       <MultiSelectFilter
         label="Health"
-        options={HEALTH_OPTIONS}
-        value={filters.health}
-        onChange={(health) =>
-          onChange({ ...filters, health: health as ClusterFilters['health'] })
-        }
+        options={withPicked(HEALTH_OPTIONS, picked('health'))}
+        value={picked('health')}
+        onChange={pick('health')}
       />
       <MultiSelectFilter
         label="Type"
-        options={TYPE_OPTIONS}
-        value={filters.type}
-        onChange={(type) => onChange({ ...filters, type })}
+        options={withPicked(TYPE_OPTIONS, picked('type'))}
+        value={picked('type')}
+        onChange={pick('type')}
       />
       <MultiSelectFilter
         label="Environment"
-        options={environments}
-        value={present(filters.environment)}
-        onChange={(environment) => onChange({ ...filters, environment })}
+        options={withPicked(environments, picked('env_name'))}
+        value={picked('env_name')}
+        onChange={pick('env_name')}
       />
-      {hasClusterFilters({
-        ...applied,
-        environment: present(applied.environment),
-      }) && (
+      {filtered && (
         <>
           <Typography
             variant="body2"
             color="text.secondary"
             data-testid="om-cluster-match-count"
           >
-            {shown} of {rows.length} {pluralize(rows.length, 'cluster')}
+            {table.getFilteredRowModel().rows.length} of {rows.length}{' '}
+            {pluralize(rows.length, 'cluster')}
           </Typography>
-          <Button size="small" onClick={() => onChange(NO_FILTERS)}>
+          <Button
+            size="small"
+            onClick={() => {
+              table.resetColumnFilters(true);
+              table.setGlobalFilter('');
+            }}
+          >
             Clear filters
           </Button>
         </>
       )}
-    </Stack>
+    </>
   );
 };
 
@@ -761,18 +762,15 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     GROUP_BY_OPTIONS,
     DEFAULT_GROUPING
   );
-  const [filters, draft, setFilters] = useClusterFilters();
-  const shown = useMemo(
-    () => filterClusterRows(rows, filters),
-    [rows, filters]
-  );
+  const tableProps = useTableUrlState(URL_STATE);
   // The whole fleet, not the matches: a group folded away stays folded while a
   // filter hides it and brings it back.
   const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
   const columns = useColumns();
   const table = useMaterialReactTable({
+    ...tableProps,
     columns,
-    data: shown,
+    data: rows,
     enablePagination: false,
     enableDensityToggle: false,
     enableExpanding: true,
@@ -792,9 +790,18 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // the chooser does, and the icon it adds to every header is a slice of the width
     // this table does not have.
     enableColumnActions: false,
-    // The toolbar carries the Group by select and the column chooser; everything
-    // else it can hold is off. Search is the filter bar's, so it can live in the URL.
-    enableGlobalFilter: false,
+    // The toolbar carries Group by, the filters, the search and the column chooser;
+    // everything else it can hold is off.
+    enableColumnFilters: false,
+    globalFilterFn: 'contains',
+    defaultColumn: { enableGlobalFilter: false },
+    // TanStack only searches a column whose first row holds a string, and a cluster
+    // can lack a name.
+    getColumnCanGlobalFilter: () => true,
+    muiSearchTextFieldProps: {
+      placeholder: 'Search clusters',
+      inputProps: { 'aria-label': 'Search clusters' },
+    },
     enableFullScreenToggle: false,
     enableHiding: true,
     // The opaque server-issued id, not the label: two clusters can share a label (a
@@ -818,12 +825,15 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
             'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${groupLabel(row.original, grouping)}`,
           }
         : {},
-    renderTopToolbarCustomActions: () => (
-      <GroupBySelect
-        options={GROUP_BY_OPTIONS}
-        value={grouping}
-        onChange={(value) => setGrouping(value as ClusterGrouping)}
-      />
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+        <GroupBySelect
+          options={GROUP_BY_OPTIONS}
+          value={grouping}
+          onChange={(value) => setGrouping(value as ClusterGrouping)}
+        />
+        <ClusterFilterBar table={table} rows={rows} />
+      </Stack>
     ),
     displayColumnDefOptions: {
       'mrt-row-expand': {
@@ -863,6 +873,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       },
     },
     state: {
+      ...tableProps.state,
       grouping: grouping === NO_GROUPING ? [] : [grouping],
       expanded,
     },
@@ -870,27 +881,10 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
-      // Trouble first: a degraded or down cluster leads its group. Groups themselves
-      // keep the document's order, since they have no health of their own to sort on.
-      sorting: [
-        { id: 'health', desc: false },
-        { id: 'cluster_name', desc: false },
-      ],
     },
   });
 
-  return (
-    <Stack gap={1.5}>
-      <ClusterFilterBar
-        rows={rows}
-        shown={shown.length}
-        applied={filters}
-        filters={draft}
-        onChange={setFilters}
-      />
-      <MaterialReactTable table={table} />
-    </Stack>
-  );
+  return <MaterialReactTable table={table} />;
 };
 
 /** Fleet-level counts, so the headline numbers need no reading of rows. */

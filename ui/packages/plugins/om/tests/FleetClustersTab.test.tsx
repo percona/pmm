@@ -23,7 +23,6 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import {
   MemoryRouter,
   RouterProvider,
@@ -561,6 +560,10 @@ describe('FleetClustersTab', () => {
       return router;
     };
 
+    /** A filter's URL value, as peak-ui writes it. */
+    const encoded = (values: string[]) =>
+      encodeURIComponent(JSON.stringify(values));
+
     const search = () =>
       screen.getByRole('textbox', { name: 'Search clusters' });
 
@@ -576,28 +579,45 @@ describe('FleetClustersTab', () => {
     const query = (router: ReturnType<typeof renderAt>) =>
       new URLSearchParams(router.state.location.search);
 
-    it('searches cluster names case-insensitively, keeping the tab', () => {
+    it('searches cluster names case-insensitively, keeping the tab', async () => {
       const router = renderAt('/fleet?tab=clusters');
 
       fireEvent.change(search(), { target: { value: 'ZU' } });
 
-      expect(clusterNames()).toEqual(['zulu']);
-      expect(query(router).toString()).toBe('tab=clusters&q=ZU');
+      await waitFor(() => expect(clusterNames()).toEqual(['zulu']));
+      await waitFor(() =>
+        expect(query(router).toString()).toBe('tab=clusters&clusters.q=ZU')
+      );
       expect(screen.getByTestId('om-cluster-match-count')).toHaveTextContent(
         '1 of 4 clusters'
       );
     });
 
-    it('filters by health, several values ORed', () => {
+    it('searches the cluster name alone', async () => {
+      renderAt('/fleet');
+
+      // "production" is an environment, and "Healthy" a health: neither is a name.
+      fireEvent.change(search(), { target: { value: 'production' } });
+      await waitFor(() => expect(clusterNames()).toEqual([]));
+
+      fireEvent.change(search(), { target: { value: 'healthy' } });
+      await waitFor(() => expect(clusterNames()).toEqual([]));
+    });
+
+    it('filters by health, several values ORed', async () => {
       const router = renderAt('/fleet');
 
       pick('Health', 'Down', 'Degraded');
 
       expect(clusterNames()).toEqual(['zulu', 'yankee']);
-      expect(query(router).getAll('health')).toEqual(['down', 'degraded']);
+      await waitFor(() =>
+        expect(query(router).get('clusters.f.health')).toBe(
+          '["down","degraded"]'
+        )
+      );
     });
 
-    it('filters by type', () => {
+    it('filters by type', async () => {
       useOmTopology.mockReturnValue({
         data: topology([
           {
@@ -623,201 +643,70 @@ describe('FleetClustersTab', () => {
       pick('Type', 'Sharded');
 
       expect(clusterNames()).toEqual(['alpha']);
-      expect(query(router).get('type')).toBe('sharded');
+      await waitFor(() =>
+        expect(query(router).get('clusters.f.type')).toBe('["sharded"]')
+      );
     });
 
-    it('filters by environment, the unnamed one included', () => {
+    it('filters by environment, the unnamed one included', async () => {
       const router = renderAt('/fleet');
 
       pick('Environment', 'Unassigned environment');
 
       expect(clusterNames()).toEqual(['yankee', 'bravo']);
-      expect(query(router).getAll('environment')).toEqual(['']);
+      // Not '', which peak-ui would drop as no filter at all.
+      await waitFor(() =>
+        expect(query(router).get('clusters.f.env_name')).toBe('["(none)"]')
+      );
     });
 
-    it('ANDs search and filters', () => {
-      renderAt('/fleet?environment=production&health=healthy&health=down');
+    it('matches an environment by its whole name', () => {
+      useOmTopology.mockReturnValue({
+        data: topology(
+          ['prod', 'preprod'].map((env_name) => ({
+            env_name,
+            clusters: [
+              cluster({
+                name: `${env_name}-db`,
+                services: [service({ service_name: `${env_name}-1` })],
+              }),
+            ],
+          }))
+        ),
+        isPending: false,
+        isError: false,
+      });
+      renderAt('/fleet');
+
+      pick('Environment', 'prod');
+
+      expect(
+        clusterRows().map((row) =>
+          row.textContent?.includes('preprod-db') ? 'preprod' : 'prod'
+        )
+      ).toEqual(['prod']);
+    });
+
+    it('ANDs search and filters', async () => {
+      renderAt(
+        `/fleet?clusters.f.env_name=${encoded(['production'])}&clusters.f.health=${encoded(['healthy', 'down'])}`
+      );
 
       expect(clusterNames()).toEqual(['alpha']);
 
       fireEvent.change(search(), { target: { value: 'b' } });
-      expect(clusterNames()).toEqual([]);
+      await waitFor(() => expect(clusterNames()).toEqual([]));
     });
 
-    it('opens a shared link filtered, ignoring values it does not know', () => {
-      renderAt('/fleet?tab=clusters&q=a&health=on-fire&environment=staging');
+    it('opens a shared link filtered, showing a value the fleet lacks so it can be cleared', () => {
+      const router = renderAt(
+        `/fleet?tab=clusters&clusters.q=a&clusters.f.env_name=${encoded(['staging'])}`
+      );
 
       expect(search()).toHaveValue('a');
-      expect(
-        screen.getByRole('combobox', { name: 'Health' })
-      ).toHaveTextContent('Any');
       expect(
         screen.getByRole('combobox', { name: 'Environment' })
-      ).toHaveTextContent('Any');
-      // The unknown environment is ignored too, not matched against nothing.
-      expect(clusterNames()).toEqual(['alpha', 'yankee', 'bravo']);
-    });
-
-    it('walks filters back and forward through history', async () => {
-      const router = renderAt('/fleet?tab=clusters');
-
-      pick('Health', 'Down');
-      expect(clusterNames()).toEqual(['yankee']);
-
-      await act(async () => {
-        await router.navigate(-1);
-      });
-      expect(clusterNames()).toEqual(['zulu', 'alpha', 'yankee', 'bravo']);
-      expect(query(router).toString()).toBe('tab=clusters');
-
-      await act(async () => {
-        await router.navigate(1);
-      });
-      expect(clusterNames()).toEqual(['yankee']);
-      expect(
-        screen.getByRole('combobox', { name: 'Health' })
-      ).toHaveTextContent('Down');
-    });
-
-    it('makes one history entry for a search, however it is typed', async () => {
-      const router = renderAt('/fleet');
-
-      for (const value of ['z', 'zu', 'zul']) {
-        fireEvent.change(search(), { target: { value } });
-      }
-      expect(clusterNames()).toEqual(['zulu']);
-
-      await act(async () => {
-        await router.navigate(-1);
-      });
-      expect(search()).toHaveValue('');
-      expect(clusterNames()).toHaveLength(4);
-    });
-
-    it('keeps every character typed fast, while the URL catches up', async () => {
-      // A loader makes each navigation settle after the keystroke, as in PMM.
-      const router = createMemoryRouter(
-        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
-        { initialEntries: ['/fleet'] }
-      );
-      render(<RouterProvider router={router} />);
-      const user = userEvent.setup({ delay: null });
-
-      await user.type(
-        await screen.findByRole('textbox', { name: 'Search clusters' }),
-        'zul'
-      );
-
-      expect(search()).toHaveValue('zul');
-      await waitFor(() => expect(clusterNames()).toEqual(['zulu']));
-      expect(query(router).get('q')).toBe('zul');
-      expect(search()).toHaveValue('zul');
-    });
-
-    it('undoes a filter alone with Back while a search is active', async () => {
-      const router = renderAt('/fleet?q=a');
-
-      pick('Health', 'Down');
-      expect(clusterNames()).toEqual(['yankee']);
-
-      await act(async () => {
-        await router.navigate(-1);
-      });
-      expect(query(router).toString()).toBe('q=a');
-      expect(search()).toHaveValue('a');
-      expect(clusterNames()).toEqual(['alpha', 'yankee', 'bravo']);
-    });
-
-    it('keeps a search still settling in the URL when a filter is picked', async () => {
-      // A loader makes each navigation settle after its keystroke, as in the app.
-      const router = createMemoryRouter(
-        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
-        { initialEntries: ['/fleet'] }
-      );
-      render(<RouterProvider router={router} />);
-
-      fireEvent.change(
-        await screen.findByRole('textbox', { name: 'Search clusters' }),
-        { target: { value: 'a' } }
-      );
-      pick('Health', 'Healthy');
-
-      await waitFor(() =>
-        expect(query(router).toString()).toBe('q=a&health=healthy')
-      );
-      expect(search()).toHaveValue('a');
-    });
-
-    it('keeps a filter still settling in the URL when the next one is picked', async () => {
-      const router = createMemoryRouter(
-        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
-        { initialEntries: ['/fleet'] }
-      );
-      render(<RouterProvider router={router} />);
-      await screen.findByRole('textbox', { name: 'Search clusters' });
-
-      pick('Health', 'Down');
-      pick('Type', 'Replica set');
-
-      await waitFor(() =>
-        expect(query(router).toString()).toBe('health=down&type=replica-set')
-      );
-      await waitFor(() => expect(clusterNames()).toEqual(['yankee']));
-    });
-
-    it('follows Back to a filter the bar wrote more than once', async () => {
-      const router = createMemoryRouter(
-        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
-        { initialEntries: ['/fleet'] }
-      );
-      render(<RouterProvider router={router} />);
-      await screen.findByRole('textbox', { name: 'Search clusters' });
-
-      // On, off and on again before the URL settles: the bar wrote no filter once.
-      pick('Health', 'Down');
-      pick('Health', 'Down');
-      pick('Health', 'Down');
-      await waitFor(() => expect(query(router).toString()).toBe('health=down'));
-
-      await act(async () => {
-        await router.navigate(-1);
-      });
-      expect(query(router).toString()).toBe('');
-      expect(
-        screen.getByRole('combobox', { name: 'Health' })
-      ).toHaveTextContent('Any');
-      expect(clusterNames()).toHaveLength(4);
-    });
-
-    it('empties the search box on Clear filters while its search is settling', async () => {
-      const router = createMemoryRouter(
-        [{ path: '/fleet', loader: () => null, element: <FleetClustersTab /> }],
-        { initialEntries: ['/fleet?health=healthy'] }
-      );
-      render(<RouterProvider router={router} />);
-
-      fireEvent.change(
-        await screen.findByRole('textbox', { name: 'Search clusters' }),
-        { target: { value: 'a' } }
-      );
-      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
-
-      await waitFor(() => expect(query(router).toString()).toBe(''));
-      expect(search()).toHaveValue('');
-    });
-
-    it('does not count an environment the fleet does not have as a filter', () => {
-      renderAt('/fleet?environment=staging');
-
-      expect(screen.queryByTestId('om-cluster-match-count')).toBeNull();
-      expect(
-        screen.queryByRole('button', { name: 'Clear filters' })
-      ).toBeNull();
-    });
-
-    it('keeps the controls when nothing matches, and clears back to the fleet', () => {
-      const router = renderAt('/fleet?tab=clusters&q=nothing');
-
+      ).toHaveTextContent('staging');
       expect(clusterNames()).toEqual([]);
       expect(
         screen.getByText('No cluster matches the search and filters.')
@@ -827,15 +716,68 @@ describe('FleetClustersTab', () => {
 
       expect(clusterNames()).toHaveLength(4);
       expect(search()).toHaveValue('');
-      expect(query(router).toString()).toBe('tab=clusters');
+      return waitFor(() =>
+        expect(query(router).toString()).toBe('tab=clusters')
+      );
     });
 
-    it('keeps Group by out of the URL and as it was', () => {
+    it('replaces the history entry rather than adding one', async () => {
+      const router = renderAt('/fleet');
+
+      pick('Health', 'Down');
+
+      await waitFor(() =>
+        expect(query(router).has('clusters.f.health')).toBe(true)
+      );
+      expect(router.state.historyAction).toBe('REPLACE');
+    });
+
+    it('follows the URL on Back', async () => {
+      const router = renderAt('/fleet');
+      await act(async () => {
+        await router.navigate(`/fleet?clusters.f.health=${encoded(['down'])}`);
+      });
+      expect(clusterNames()).toEqual(['yankee']);
+
+      await act(async () => {
+        await router.navigate(-1);
+      });
+      expect(clusterNames()).toHaveLength(4);
+      expect(
+        screen.getByRole('combobox', { name: 'Health' })
+      ).toHaveTextContent('Any');
+    });
+
+    it('leaves the default sort out of the URL', async () => {
+      const router = renderAt('/fleet');
+
+      pick('Health', 'Down');
+
+      await waitFor(() =>
+        expect(query(router).has('clusters.f.health')).toBe(true)
+      );
+      expect(query(router).has('clusters.sort')).toBe(false);
+    });
+
+    it('clears the search from its own button without writing "undefined"', async () => {
+      const router = renderAt('/fleet?clusters.q=zu');
+      expect(clusterNames()).toEqual(['zulu']);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+
+      await waitFor(() => expect(clusterNames()).toHaveLength(4));
+      await waitFor(() => expect(query(router).toString()).toBe(''));
+    });
+
+    it('keeps Group by out of the URL and as it was', async () => {
       const router = renderAt('/fleet');
 
       groupBy('Health');
       pick('Environment', 'production');
 
+      await waitFor(() =>
+        expect(query(router).has('clusters.f.env_name')).toBe(true)
+      );
       expect(query(router).has('grouping')).toBe(false);
       expect(
         screen.getByRole('combobox', { name: 'Group by' })
