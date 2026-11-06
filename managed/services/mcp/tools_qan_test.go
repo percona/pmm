@@ -18,6 +18,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"slices"
@@ -26,7 +27,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
@@ -57,6 +60,25 @@ func newQANService(t *testing.T, fake *fakePMM, rawSQL bool) *Service {
 	return s
 }
 
+// textOf returns a tool result's text content.
+func textOf(t *testing.T, res *mcp.CallToolResult) string {
+	t.Helper()
+
+	text, ok := res.Content[0].(*mcp.TextContent)
+	require.True(t, ok, "unexpected content %T", res.Content[0])
+	return text.Text
+}
+
+// structured decodes a successful tool result's structured content into T.
+func structured[T any](t *testing.T, res *mcp.CallToolResult) T {
+	t.Helper()
+
+	require.False(t, res.IsError, textOf(t, res))
+	var out T
+	require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &out))
+	return out
+}
+
 // TestRawFingerprintIsMasked pins the case where pmm-agent stores a raw
 // statement as the fingerprint: a PostgreSQL query pg_stat_monitor truncated
 // or could not parse. With raw SQL off its literals must not reach the model.
@@ -76,9 +98,28 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		assert.Contains(t, text, "   -1234567890123\n", "a missing fingerprint falls back to the queryid, unmasked")
 	}
 
-	detail := (&queryDetail{queryID: "Q", fingerprint: raw}).render(false, "", testNow.Add(-time.Hour), testNow)
+	// The structured rows carry the fingerprint the text shows, masked the same way.
+	for rawSQL, want := range map[bool]string{false: withheldFingerprint, true: raw} {
+		session := connect(t, newQANService(t, newFakePMM(t, routes), rawSQL))
+		res := callTool(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		got := structured[topQueriesResult](t, res)
+		require.Len(t, got.Rows, 2)
+		assert.Equal(t, want, got.Rows[0].Fingerprint, "raw SQL %t", rawSQL)
+		assert.Contains(t, textOf(t, res), "\n   "+got.Rows[0].Fingerprint+"\n", "raw SQL %t", rawSQL)
+		assert.Empty(t, got.Rows[1].Fingerprint, "no fingerprint: only the text falls back to the queryid")
+		if !rawSQL {
+			assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
+			assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "4417")
+		}
+	}
+
+	result := (&queryDetail{queryID: "Q", fingerprint: raw}).result(false, "", testNow.Add(-time.Hour), testNow)
+	detail := result.render()
 	assert.NotContains(t, detail, "user42@example.com")
 	assert.NotContains(t, detail, "4417")
+	assert.Equal(t, withheldFingerprint, result.Fingerprint)
+	assert.Contains(t, detail, "fingerprint:\n"+result.Fingerprint+"\n")
+	assert.NotContains(t, string(mustJSON(t, result)), "4417")
 
 	// explain_fingerprint is withheld when quoted, and keeps its numbered placeholders.
 	for fp, want := range map[string]string{
@@ -87,7 +128,9 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: "",
 	} {
 		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
-		got := d.render(false, "", testNow.Add(-time.Hour), testNow)
+		r := d.result(false, "", testNow.Add(-time.Hour), testNow)
+		got := r.render()
+		assert.Equal(t, want, r.Example, "the structured example is the one the text shows, or none: %s", fp)
 		if want == "" {
 			assert.NotContains(t, got, "example (normalized", fp)
 			continue
@@ -251,6 +294,118 @@ func TestTopQueriesTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.Equal(t, "No queries found for that service / time window.", text)
 	})
+
+	t.Run("Structured", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql", "period_from": "now-1h"})
+		got := structured[topQueriesResult](t, res)
+		from := testNow.Add(-time.Hour)
+		ref := func(queryID string) *queryRef {
+			return &queryRef{QueryID: queryID, ServiceID: "svc-1", PeriodFrom: from, PeriodTo: testNow}
+		}
+		assert.Equal(t, topQueriesResult{
+			Rows: []queryRow{
+				{
+					Rank: 1, Dimension: "QID-AAA", Fingerprint: "SELECT * FROM `customers` WHERE `email` = ?",
+					Load: 0.42, Calls: 1200, QueryTimeTotal: 88.5, QueryTimeAvg: 0.073, QueryRef: ref("QID-AAA"),
+				},
+				{
+					Rank: 2, Dimension: "QID-BBB", Fingerprint: "SELECT * FROM `orders` ORDER BY `RAND` ( ) LIMIT ?",
+					Load: 0.18, Calls: 197, QueryTimeTotal: 40, QueryTimeAvg: 40.0 / 197, QueryRef: ref("QID-BBB"),
+				},
+			},
+			Page:    page{Total: 2, Offset: 0, Limit: 10},
+			GroupBy: "queryid",
+			OrderBy: "load",
+			Window:  window{From: from, To: testNow},
+			PMMURL: "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+				"from=" + ms(from) + "&to=" + ms(testNow) + "&var-service_name=shop-mysql",
+		}, got)
+
+		text := textOf(t, res)
+		for _, row := range got.Rows {
+			assert.Contains(t, text, fmt.Sprintf("%d. [%s] load=%s calls=%s total=%s avg=%s\n   %s\n", row.Rank, row.Dimension,
+				fmtNum3(row.Load), fmtNum(row.Calls), fmtSeconds(row.QueryTimeTotal), fmtSeconds(row.QueryTimeAvg), row.Fingerprint))
+		}
+		assert.Contains(t, text, "("+got.PMMURL+")")
+		assert.Len(t, fake.requestsTo("/v1/inventory/services"), 1, "the service_name is looked up once, for query_ref")
+	})
+
+	t.Run("QueryRef", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			args      map[string]any
+			serviceID string
+			lookups   int
+		}{
+			{map[string]any{}, "", 0},
+			{map[string]any{"service_id": "svc-9"}, "svc-9", 0},
+			{map[string]any{"labels": map[string]any{"service_id": []string{"svc-2"}}}, "svc-2", 0},
+			{map[string]any{"labels": map[string]any{"service_id": []string{"svc-1", "svc-2"}}}, "", 0},
+			{map[string]any{"service_name": "shop-mysql"}, "svc-1", 1},
+			{map[string]any{"labels": map[string]any{"service_name": []string{"shop-postgres"}}}, "svc-2", 1},
+			{map[string]any{"labels": map[string]any{"service_name": []string{"shop-mysql", "shop-postgres"}}}, "", 0},
+			{map[string]any{"service_name": "not-in-the-list"}, "", 1},
+		} {
+			fake := newFakePMM(t, qanRoutes())
+			session := connect(t, newQANService(t, fake, true))
+			tc.args["period_from"], tc.args["period_to"] = "now-2h", "now-1h"
+
+			got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", tc.args))
+			require.Len(t, got.Rows, 2, "%v", tc.args)
+			for _, row := range got.Rows {
+				assert.Equal(t, &queryRef{
+					QueryID: row.Dimension, ServiceID: tc.serviceID, PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour),
+				}, row.QueryRef, "%v", tc.args)
+			}
+			assert.Len(t, fake.requestsTo("/v1/inventory/services"), tc.lookups, "%v", tc.args)
+		}
+
+		// A failed lookup leaves service_id out; the call still succeeds.
+		routes := qanRoutes()
+		routes["GET /v1/inventory/services"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+		got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql"}))
+		require.Len(t, got.Rows, 2)
+		require.NotNil(t, got.Rows[0].QueryRef)
+		assert.Equal(t, "QID-AAA", got.Rows[0].QueryRef.QueryID)
+		assert.Empty(t, got.Rows[0].QueryRef.ServiceID)
+	})
+
+	t.Run("ColumnsAndPaging", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_by_user.json"}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+
+		res := callTool(t, session, "pmm_top_queries", map[string]any{
+			"group_by": "username", "columns": []string{"rows_examined", "full_scan", "query_time"},
+			"order_by": "-rows_examined", "offset": 10, "limit": 2,
+		})
+		got := structured[topQueriesResult](t, res)
+		assert.Equal(t, []queryRow{
+			{
+				Rank: 11, Dimension: "app", Load: 0.4, Calls: 700, QueryTimeTotal: 120, QueryTimeAvg: 0.171,
+				Columns: map[string]float64{"rows_examined": 100, "full_scan": 12},
+			},
+			{
+				Rank: 12, Dimension: "", Load: 0.1, Calls: 200, QueryTimeTotal: 30, QueryTimeAvg: 0.15,
+				Columns: map[string]float64{"rows_examined": 0, "full_scan": 0},
+			},
+		}, got.Rows, "avg columns carry the average, the others the sum; base columns are not repeated; no query_ref off queryid")
+		assert.Equal(t, page{Total: 14, Offset: 10, Limit: 2, Truncated: true}, got.Page)
+
+		text := textOf(t, res)
+		assert.Contains(t, text, "11. [app] load=0.4 calls=700 total=120s avg=0.171s rows_examined_avg=100 rows_examined=70000 full_scan=12\n")
+		assert.True(t, strings.HasPrefix(text, "Rows 11-12 of 14 (group_by=username, order_by=-rows_examined):\n"), text)
+		assert.True(t, strings.HasSuffix(text, "\nshowing 11–12 of 14; pass offset=12 for more"), text)
+	})
 }
 
 func TestQueryDetailTool(t *testing.T) {
@@ -360,6 +515,106 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
 	})
+
+	from := testNow.Add(-time.Hour)
+	rawExample := "SELECT * FROM customers WHERE email = 'user42@example.com'" //nolint:unqueryvet
+	detailURL := "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+		"filter_by=QID-AAA&from=" + ms(from) + "&query_selected=true&to=" + ms(testNow) + "&var-service_name=shop-mysql"
+
+	t.Run("Structured", func(t *testing.T) {
+		t.Parallel()
+
+		session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-1"})
+		got := structured[queryDetailResult](t, res)
+		assert.Equal(t, queryDetailResult{
+			QueryID:     "QID-AAA",
+			Engine:      "mysql",
+			Version:     "8.0.46-37",
+			ServiceName: "shop-mysql",
+			Database:    "shop_db",
+			Schema:      "shop",
+			Fingerprint: "SELECT * FROM `customers` WHERE `email` = ?",
+			Tables:      []string{"customers"},
+			Metrics: map[string]float64{
+				"calls": 1200, "query_time_sum": 88.5, "query_time_avg": 0.073, "rows_examined_avg": 20000,
+				"rows_sent_avg": 1, "no_index_used": 1200, "full_scan": 1200,
+			},
+			Example:  rawExample,
+			QueryRef: queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: from, PeriodTo: testNow},
+			Window:   window{From: from, To: testNow},
+			PMMURL:   detailURL,
+		}, got)
+
+		text := textOf(t, res)
+		for name := range got.Metrics {
+			assert.Contains(t, text, " "+name+"=", "the text prints every structured metric under its name")
+		}
+		assert.Contains(t, text, "("+got.PMMURL+")")
+		assert.NotContains(t, text, "partial")
+	})
+
+	t.Run("ExampleFails", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes["POST /v1/qan/query:getExample"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		got := structured[queryDetailResult](t, res)
+		assert.True(t, got.Partial)
+		require.NotNil(t, got.ExampleError)
+		assert.Equal(t, codeUnauthorized, got.ExampleError.Code)
+		assert.Contains(t, got.ExampleError.Message, "Access denied")
+		assert.Nil(t, got.MetricsError)
+		assert.InDelta(t, 1200, got.Metrics["calls"], 1e-9)
+		assert.Empty(t, got.Example)
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "from the qan:getMetrics metadata")
+
+		text := textOf(t, res)
+		assert.Contains(t, text, "\npartial: qan/query:getExample failed (unauthorized)\n")
+		assert.Contains(t, text, "\nmetrics: calls=1200, ")
+	})
+
+	t.Run("MetricsFail", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes["POST /v1/qan:getMetrics"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		got := structured[queryDetailResult](t, res)
+		assert.True(t, got.Partial)
+		require.NotNil(t, got.MetricsError)
+		assert.Equal(t, codeUnauthorized, got.MetricsError.Code)
+		assert.Nil(t, got.ExampleError)
+		assert.Nil(t, got.Metrics)
+		assert.Equal(t, "shop", got.Schema)
+		assert.Equal(t, rawExample, got.Example)
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "from the stored example")
+		assert.Contains(t, textOf(t, res), "\npartial: qan:getMetrics failed (unauthorized)\n")
+	})
+
+	t.Run("ServiceIDPrefersTheExample", func(t *testing.T) {
+		t.Parallel()
+
+		for exampleServiceID, want := range map[string]string{"svc-example": "svc-example", "": "svc-metadata"} {
+			api := newMockPmmAPI(t)
+			api.On("GetMetrics", mock.Anything, mock.Anything, mock.Anything).
+				Return(&queryMetrics{Fingerprint: "SELECT ?", Metadata: &queryMetadata{ServiceID: "svc-metadata"}}, nil)
+			api.On("GetQueryExample", mock.Anything, mock.Anything, mock.Anything).
+				Return(&qan_service.GetQueryExampleOKBody{QueryExamples: []*qan_service.GetQueryExampleOKBodyQueryExamplesItems0{{ServiceID: exampleServiceID}}}, nil)
+			s, err := New(Params{API: api, Enabled: func() bool { return true }})
+			require.NoError(t, err)
+
+			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q"}, from, testNow)
+			require.NoError(t, err)
+			assert.Equal(t, want, d.result(true, "", from, testNow).QueryRef.ServiceID, "example service_id '%s'", exampleServiceID)
+		}
+	})
 }
 
 func TestParseTime(t *testing.T) {
@@ -445,7 +700,7 @@ func TestQANValuesAreChecked(t *testing.T) {
 func TestKeyMetricsMongoDB(t *testing.T) {
 	t.Parallel()
 
-	got := keyMetrics(map[string]metricStats{
+	got := metricsText(keyMetrics(map[string]metricStats{
 		"num_queries":                            {Sum: 50},
 		"query_time":                             {Sum: 2.5, Avg: 0.05},
 		"docs_examined":                          {Sum: 500000, Avg: 10000},
@@ -454,7 +709,7 @@ func TestKeyMetricsMongoDB(t *testing.T) {
 		"response_length":                        {Sum: 6400, Avg: 128},
 		"storage_bytes_read":                     {},
 		"locks_global_acquire_count_read_shared": {Sum: 100, Avg: 2},
-	})
+	}))
 	assert.Equal(t, "calls=50, query_time_sum=2.5, query_time_avg=0.05, docs_examined_avg=10000, docs_returned_avg=1, "+
 		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
 }
@@ -482,7 +737,10 @@ func TestRenderRowPrintsRankedValue(t *testing.T) {
 			t.Parallel()
 
 			q := &reportQuery{groupBy: "username", orderBy: tc.orderBy, columns: []string{"shared_blk_read_time", "docs_examined"}}
-			line := q.renderRow(row, 1, "", false)
+			r := q.row(row, 1, "", false)
+			line := topQueriesResult{GroupBy: q.groupBy, OrderBy: q.orderBy}.renderRow(r)
+			assert.Equal(t, map[string]float64{"shared_blk_read_time": 30, "docs_examined": 2000}, r.Columns,
+				"the catalogue's statistic, whatever the ranking")
 			for _, w := range tc.want {
 				assert.Contains(t, line, w)
 			}
@@ -517,6 +775,7 @@ func TestTopQueriesReportInputs(t *testing.T) {
 		"",
 		"[Open this workload in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
 			"from=" + ms(testNow.Add(-time.Hour)) + "&to=" + ms(testNow) + "&var-service_name=shop-mysql)",
+		"showing 11–12 of 14; pass offset=12 for more",
 	}, "\n"), text)
 
 	body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo("/v1/qan/metrics:getReport")[0])
