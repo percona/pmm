@@ -1,4 +1,5 @@
 import { useMemo, useState, type FC, type ReactNode } from 'react';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
   Table,
@@ -71,13 +72,23 @@ const column = (
     : {}),
 });
 
+// Two values in one cell, the second muted, so the table fits beside the menu on a laptop screen.
+const Stacked: FC<{ primary: ReactNode; secondary: ReactNode }> = ({
+  primary,
+  secondary,
+}) => (
+  <Box sx={{ whiteSpace: 'nowrap' }}>
+    <div>{primary}</div>
+    <Typography variant="body2" color="text.secondary">
+      {secondary}
+    </Typography>
+  </Box>
+);
+
 const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
-  column('region', Messages.columns.region, (group) => group.region),
-  column(
-    'awsAccountId',
-    Messages.columns.awsAccount,
-    (group) => group.awsAccountId
-  ),
+  column('region', Messages.columns.regionAccount, (group) => (
+    <Stacked primary={group.region} secondary={group.awsAccountId} />
+  )),
   column('name', Messages.columns.identifier, (group) =>
     group.kind === 'unknown' ? (
       <Tooltip title={Messages.groupTypeTitles.unavailable} describeChild>
@@ -96,17 +107,19 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
       </Typography>
     )
   ),
-  column('type', Messages.columns.type, (group) => (
-    <Tooltip
-      title={Messages.groupTypeTitles[getGroupType(group)]}
-      describeChild
-    >
-      <span>{getGroupTypeLabel(group)}</span>
-    </Tooltip>
+  column('type', Messages.columns.typeEngine, (group) => (
+    <Stacked
+      primary={
+        <Tooltip
+          title={Messages.groupTypeTitles[getGroupType(group)]}
+          describeChild
+        >
+          <span>{getGroupTypeLabel(group)}</span>
+        </Tooltip>
+      }
+      secondary={getEngineLabel(group.engine)}
+    />
   )),
-  column('engine', Messages.columns.engine, (group) =>
-    getEngineLabel(group.engine)
-  ),
   column(
     'alerts',
     Messages.columns.alerts,
@@ -117,35 +130,42 @@ const COLUMNS: MRT_ColumnDef<InstanceGroup>[] = [
   ),
   column(
     'instances',
-    Messages.columns.instances,
-    (group) => (
-      <Typography
-        component="span"
-        variant="inherit"
-        color={
-          group.exportersConnected < group.monitoredInstances
-            ? 'warning.main'
-            : undefined
-        }
-      >
-        {Messages.instances(group.exportersConnected, group.monitoredInstances)}
-      </Typography>
-    ),
-    Messages.columns.instancesDescription
-  ),
-  column('writers', Messages.columns.writers, (group) => {
-    const { text, state } = getWriters(group);
+    Messages.columns.instancesWriters,
+    (group) => {
+      const writers = getWriters(group);
 
-    return (
-      <Typography
-        component="span"
-        variant="inherit"
-        color={WRITERS_COLORS[state]}
-      >
-        {text}
-      </Typography>
-    );
-  }),
+      return (
+        <Stacked
+          primary={
+            <Typography
+              component="span"
+              variant="inherit"
+              color={
+                group.exportersConnected < group.monitoredInstances
+                  ? 'warning.main'
+                  : undefined
+              }
+            >
+              {Messages.instances(
+                group.exportersConnected,
+                group.monitoredInstances
+              )}
+            </Typography>
+          }
+          secondary={
+            <Typography
+              component="span"
+              variant="inherit"
+              color={WRITERS_COLORS[writers.state]}
+            >
+              {writers.text}
+            </Typography>
+          }
+        />
+      );
+    },
+    Messages.columns.instancesWritersDescription
+  ),
   column(
     'throughput',
     Messages.columns.throughput,
@@ -234,7 +254,7 @@ export const GroupsTable: FC<GroupsTableProps> = ({
           : Messages.expandGroup(row.original.name),
         sx: EXPAND_BUTTON_SX,
       })}
-      // A plain table sized to its content, so the ten columns fit beside the menu: MRT gives
+      // A plain table sized to its content, so the columns fit beside the menu: MRT gives
       // every column a fixed width otherwise.
       layoutMode="semantic"
       muiTableHeadCellProps={{ sx: HEAD_CELL_SX }}

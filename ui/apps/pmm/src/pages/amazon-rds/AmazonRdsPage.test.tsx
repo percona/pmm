@@ -87,7 +87,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     expect(screen.getAllByText('AWS info unavailable')).toHaveLength(2);
     expect(screen.getAllByText('Aurora cluster')).toHaveLength(3);
     expect(
-      screen.getAllByRole('cell', { name: 'Aurora cluster' })
+      screen.getAllByRole('cell', { name: /^Aurora cluster/ })
     ).toHaveLength(3);
     expect(screen.getByText('Replication group')).toBeInTheDocument();
     expect(screen.getAllByText('Instance')).toHaveLength(2);
@@ -114,14 +114,11 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       .getAllByRole('columnheader')
       .map((header) => header.textContent ?? '');
     const positions = [
-      'Region',
-      'AWS account',
+      'Region / Account',
       'DB identifier',
-      'Type',
-      'Engine',
+      'Type / Engine',
       'Alerts',
-      'Instances',
-      'Writers',
+      'Instances / Writers',
       'Throughput',
       'Storage',
     ].map((name) => headers.findIndex((header) => header.includes(name)));

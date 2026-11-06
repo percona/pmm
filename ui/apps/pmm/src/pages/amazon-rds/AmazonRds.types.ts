@@ -80,13 +80,10 @@ export type WritersState = 'good' | 'warning' | 'unknown';
 
 export type GroupColumnId =
   | 'region'
-  | 'awsAccountId'
   | 'name'
   | 'type'
-  | 'engine'
   | 'alerts'
   | 'instances'
-  | 'writers'
   | 'throughput'
   | 'storage';
 

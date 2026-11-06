@@ -651,14 +651,12 @@ export const GROUP_SORT_VALUES: Record<
   GroupColumnId,
   (group: InstanceGroup) => SortValue
 > = {
-  region: (group) => group.region,
-  awsAccountId: (group) => group.awsAccountId,
+  region: (group) => `${group.region} ${group.awsAccountId}`,
   name: (group) => group.name,
-  type: (group) => getGroupTypeLabel(group),
-  engine: (group) => group.engine && getEngineLabel(group.engine),
+  type: (group) =>
+    `${getGroupTypeLabel(group)} ${getEngineLabel(group.engine)}`,
   alerts: (group) => group.alerts?.length,
   instances: (group) => group.monitoredInstances,
-  writers: (group) => group.writers,
   throughput: (group) => group.throughput,
   storage: (group) => group.storage?.bytes,
 };

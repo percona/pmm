@@ -66,17 +66,18 @@ export const Messages = {
   },
   columns: {
     region: 'Region',
+    regionAccount: 'Region / Account',
     awsAccount: 'AWS account',
     identifier: 'DB identifier',
     type: 'Type',
+    typeEngine: 'Type / Engine',
     engine: 'Engine',
     alerts: 'Alerts',
     alertsDescription:
       'Firing alerts of the instances, except silenced ones. An alert counts when its service_name or node_name label names an instance.',
-    instances: 'Instances',
-    instancesDescription:
-      'Instances whose exporter is connected, out of the monitored instances.',
-    writers: 'Writers',
+    instancesWriters: 'Instances / Writers',
+    instancesWritersDescription:
+      'Instances whose exporter is connected, out of the monitored instances, and the number of writer instances.',
     throughput: 'Throughput',
     throughputDescription:
       'MySQL and MariaDB: queries per second. PostgreSQL: transactions (commits and rollbacks) per second.',
