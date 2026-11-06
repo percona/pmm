@@ -565,6 +565,9 @@ importers:
 
   packages/plugins/om:
     dependencies:
+      '@pmm-extensions/api':
+        specifier: workspace:*
+        version: link:../../extensions/api
       '@pmm-extensions/framework':
         specifier: workspace:*
         version: link:../../extensions/framework
