@@ -15,6 +15,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 🔒 Security updates
 
+- [PMM-15194](https://perconadev.atlassian.net/browse/PMM-15194): PMM now encrypts every credential it stores in a new format, including Valkey TLS certificates and keys and the S3 credentials of backup locations, which earlier versions stored unencrypted. The first start after the upgrade re-encrypts the stored credentials with your existing key, and keeps the values it rewrites in a backup file. It also repairs credentials that key rotation corrupted before PMM 3.9.1, which the [PMM 3.9.1 release notes](3.9.1.md) asked you to re-add, using the previous key that the rotation left next to the key file. PMM Server no longer generates a new key when its key file is missing or doesn't match the stored credentials: it refuses to start instead. Back up the key file with your PMM data before you upgrade, because you can't downgrade afterward. In high availability mode, stop every PMM Server node before the upgrade, also with the PMM HA Helm chart. For details, see [Upgrading from PMM 3.10.0 or earlier](../admin/security/data_encryption.md#upgrading-from-pmm-3100-or-earlier).
+
 ## 📈 Improvements
 
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).

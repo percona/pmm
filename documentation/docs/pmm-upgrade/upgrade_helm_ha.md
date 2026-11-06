@@ -5,6 +5,9 @@ Upgrade a [PMM Server High Availability (HA) Cluster](../install-pmm/HA-clustere
 !!! caution "Requires PMM 3.10.0 and `percona/pmm-ha` chart 1.8.0 or later"
     In-place Helm upgrades for HA clusters are not supported on earlier versions. If you're running an earlier version, you cannot use this procedure.
 
+!!! caution "Upgrading from PMM 3.10.0: stop the PMM Server pods first"
+    The first start after an upgrade from PMM 3.10.0 re-encrypts the stored credentials, and pods that still run 3.10.0 can't read them. Don't let the chart upgrade the pods one at a time: stop them before you run `helm upgrade`, as described in [Upgrading from PMM 3.10.0 or earlier](../admin/security/data_encryption.md#upgrading-from-pmm-3100-or-earlier). PMM is unavailable until the first upgraded pod is ready.
+
 ## How PMM HA Helm upgrades work
 
 The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. HAProxy, PostgreSQL, VictoriaMetrics, ClickHouse, and the operators are not restarted and remain running throughout.

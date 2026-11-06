@@ -95,7 +95,7 @@ If you set up HA nodes yourself with the [HA variables](../../install-pmm/instal
 
 If a node has a different key, it logs that the encryption key `cannot decrypt stored credentials` and doesn't start. To fix it, copy the key file from a node that works to the same path on that node, then restart the node.
 
-## Upgrading from PMM 3.9.1 or earlier
+## Upgrading from PMM 3.10.0 or earlier
 
 Earlier versions stored encrypted values without the `pmm1$` prefix, and some sensitive data (backup location S3 credentials, Valkey TLS certificates and keys) without encryption. The first start after the upgrade re-encrypts all of it in the new format with your existing key; the key file is used as is.
 
@@ -104,12 +104,23 @@ Before you upgrade:
 
 1. Back up the key file (`/srv/pmm-encryption.key` or the path in `PMM_ENCRYPTION_KEY_PATH`) together with your PMM data. A database backup cannot be read without it.
 
-2. If PMM runs in [high availability mode](#ha-clusters-use-the-same-key-on-every-node), stop all PMM Server nodes, upgrade them, then start them. Nodes that still run the previous version cannot read data re-encrypted by upgraded nodes.
+2. If PMM runs in [high availability mode](#ha-clusters-use-the-same-key-on-every-node), make sure that no node runs the previous version while an upgraded node starts. Nodes that still run the previous version cannot read the credentials that an upgraded node re-encrypts, and would send unusable credentials to PMM Clients.
+
+    - With the [PMM HA Helm chart](../../pmm-upgrade/upgrade_helm_ha.md), stop the PMM Server pods before you run `helm upgrade`, instead of letting the chart upgrade them one at a time. PMM is unavailable until the first upgraded pod is ready:
+
+        ```sh
+        kubectl scale statefulset/pmm-ha -n pmm --replicas=0
+        kubectl wait --for=delete pod/pmm-ha-0 pod/pmm-ha-1 pod/pmm-ha-2 -n pmm --timeout=300s
+        ```
+
+        Then [run the upgrade](../../pmm-upgrade/upgrade_helm_ha.md#upgrade-pmm-ha-cluster) as usual. Helm sets the replica count back from your values, so all pods start with the new version.
+
+    - With nodes that you set up with the [HA variables](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#ha-variables), stop all PMM Server nodes, upgrade them, then start them.
 
 During the first start, PMM Server:
 
 - Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one reuses that file.
-- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
+- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected credentials. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recover-from-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
 !!! caution "Downgrading is not supported"
@@ -120,7 +131,7 @@ During the first start, PMM Server:
 PMM Server checks at every start that its encryption key is the key that the stored data was encrypted with. It refuses to start, and changes nothing, in these cases:
 
 - The key file is missing, but the database contains data encrypted with the key. PMM Server doesn't generate a new key, because that would make the stored data unreadable.
-- The key file contains a different key. The error lists the affected agents. PMM Server also stores a known value encrypted with the key, so it detects a different key even before any credentials are stored.
+- The key file contains a different key. The error lists the affected credentials. PMM Server also stores a known value encrypted with the key, so it detects a different key even before any credentials are stored.
 
 In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](#ha-clusters-use-the-same-key-on-every-node), copy the key file from a node that works.
 
@@ -143,9 +154,13 @@ To start PMM Server without the lost key:
 
 3. Start PMM Server with that environment variable set to the value from the log. With Docker, re-create the container with the same data volume and add `-e PMM_ENCRYPTION_ACCEPT_KEY_LOSS=<ID from the log>`.
 
-    PMM Server starts, keeps the values that it can't decrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, and logs the affected agents.
+    PMM Server starts, keeps the values that it can't decrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, and logs the credentials it can't recover, for example `agent <ID> password` or `backup location <ID> s3_config`.
 
-4. Re-enter the credentials of the affected services, or remove and re-add the services.
+4. Re-enter the credentials that the log lists:
+
+    - `agent <ID> <field>`: re-enter the credentials of the service that the agent monitors, or remove and re-add the service. PMM Server restores the credentials it monitors its own PostgreSQL database with, and doesn't list them.
+    - `backup location <ID> s3_config`: go to **Backup > Storage locations**, edit the location, and enter its access key and secret key again.
+    - `OM bootstrap secret <run ID> <field>`: the users and keyfile of a replica set that [Operations for MongoDB](../../use/mongodb-operations.md) installs. PMM uses them only until the installation has registered the replica set's services, so they matter only for an installation that hadn't finished.
 
 5. Remove `PMM_ENCRYPTION_ACCEPT_KEY_LOSS` from the container configuration. The setting accepts the loss only for the key that it names, so a key file that is replaced later is refused again.
 
