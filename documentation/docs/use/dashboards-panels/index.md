@@ -86,6 +86,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
     | [PostgreSQL Instances Overview]                                                          | High-level overview of all PostgreSQL instances
+    | [PostgreSQL Amazon Aurora Details]                                                       | Aurora-specific metrics and replica lag
     | [PostgreSQL Instance Summary]                                                            | PostgreSQL instance health and performance
     | [PostgreSQL Instances Compare]                                                           | Compare metrics across PostgreSQL instances
 
@@ -169,6 +170,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MongoDB MMAPv1 Details]: ../../reference/dashboards/dashboard-mongodb-mmapv1-details.md
 [MongoDB WiredTiger Details]: ../../reference/dashboards/dashboard-mongodb-wiredtiger-details.md
 [PostgreSQL Instances Overview]: ../../reference/dashboards/dashboard-postgresql-instances-overview.md
+[PostgreSQL Amazon Aurora Details]: ../../reference/dashboards/dashboard-postgresql-amazon-aurora-details.md
 [PostgreSQL Instance Summary]: ../../reference/dashboards/dashboard-postgresql-instance-summary.md
 [PostgreSQL Instances Compare]: ../../reference/dashboards/dashboard-postgresql-instances-compare.md
 [ProxySQL Instance Summary]: ../../reference/dashboards/dashboard-proxysql-instance-summary.md
