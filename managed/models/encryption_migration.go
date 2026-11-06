@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -306,6 +307,10 @@ type migrationParams struct {
 	keyCreated bool
 	// ha is set on a node of an HA cluster
 	ha bool
+	// pmmServerDB is the database PMM Server connects to, set when it sets up
+	// its own Agents (see setupPMMServerAgents): the Agents of its PostgreSQL
+	// Service connect to it with the same credentials
+	pmmServerDB *SetupDBParams
 }
 
 // acceptValue returns the value of encryption.AcceptKeyLossEnvVar a refusal
@@ -370,13 +375,6 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 		err.otherNodeKey = params.ha && len(u) != 0
 		return err
 	}
-	if len(lost) != 0 {
-		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
-			"either a lost key file or the inner layer added by key rotation in PMM before 3.9.1 (%s). "+
-			"Their stored values are kept in the migration backup. "+
-			"Re-enter the credentials of the affected services; if you still have that key, place it at %s and restart PMM Server.",
-			len(lost), errors.Join(lost...), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
-	}
 
 	if len(backup) != 0 {
 		path, err := writeMigrationBackup(backup)
@@ -389,6 +387,17 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 	err = reencryptRows(q, scans)
 	if err != nil {
 		return err
+	}
+	lost, err = restorePMMServerAgents(q, lost, params.pmmServerDB)
+	if err != nil {
+		return err
+	}
+	if len(lost) != 0 {
+		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
+			"either a lost key file or the inner layer added by key rotation in PMM before 3.9.1 (%s). "+
+			"Their stored values are kept in the migration backup. "+
+			"Re-enter the credentials of the affected services; if you still have that key, place it at %s and restart PMM Server.",
+			len(lost), errors.Join(lost...), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
 
 	if writeCheck {
@@ -420,6 +429,77 @@ func reencryptRows(q *reform.Querier, scans []*secretsScan) error {
 	}
 
 	return nil
+}
+
+// pmmServerAgentColumns are the columns of the secrets setupPMMServerAgents
+// stores for the Agents of PMM Server's own PostgreSQL Service.
+var pmmServerAgentColumns = []string{"username", "password", "postgresql_options"}
+
+// restorePMMServerAgents gives the Agents of PMM Server's own PostgreSQL
+// Service whose secrets are lost the credentials PMM Server connects to its
+// database with, which setupPMMServerAgents set them up with: unlike the
+// credentials of a user's Service, nobody can re-enter them. It returns the
+// lost secrets it did not restore. A nil db restores none.
+func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) ([]error, error) {
+	if db == nil {
+		return lost, nil
+	}
+
+	var ids []string
+	for _, err := range lost {
+		var e *secretError
+		if errors.As(err, &e) && e.label == agentsSecretTable.label && slices.Contains(pmmServerAgentColumns, e.column) &&
+			!slices.Contains(ids, e.id) {
+			ids = append(ids, e.id)
+		}
+	}
+	if len(ids) == 0 {
+		return lost, nil
+	}
+
+	options, err := pmmServerPostgreSQLOptions(*db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the TLS files of PMM Server's database: %w", err)
+	}
+	var restored []string
+	for _, id := range ids {
+		agent := &Agent{}
+		err = q.SelectOneTo(agent, "WHERE agent_id = $1 AND pmm_agent_id = $2 AND "+
+			"service_id = (SELECT service_id FROM services WHERE service_name = $3) FOR UPDATE",
+			id, PMMServerAgentID, PMMServerPostgreSQLServiceName)
+		if errors.Is(err, reform.ErrNoRows) {
+			continue // the Agent of a user's Service
+		}
+		if err == nil {
+			agent.Username = EncryptedStringOrNil(db.Username)
+			agent.Password = EncryptedStringOrNil(db.Password)
+			agent.PostgreSQLOptions.SSLCa = options.SSLCa
+			agent.PostgreSQLOptions.SSLCert = options.SSLCert
+			agent.PostgreSQLOptions.SSLKey = options.SSLKey
+			err = q.UpdateColumns(agent, pmmServerAgentColumns...)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to restore the credentials of agent %s: %w", id, err)
+		}
+		restored = append(restored, id)
+	}
+	if len(restored) == 0 {
+		return lost, nil
+	}
+	logrus.Infof("Restored the lost credentials of PMM Server's own PostgreSQL agents (%s): "+
+		"they are the credentials PMM Server connects to its database with.", strings.Join(restored, ", "))
+
+	remaining := make([]error, 0, len(lost))
+	for _, err := range lost {
+		var e *secretError
+		if errors.As(err, &e) && e.label == agentsSecretTable.label && slices.Contains(pmmServerAgentColumns, e.column) &&
+			slices.Contains(restored, e.id) {
+			continue
+		}
+		remaining = append(remaining, err)
+	}
+
+	return remaining, nil
 }
 
 // secretColumn is a column holding an encrypted secret: a scalar
@@ -719,10 +799,10 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 
 		scan.keyReadsData = scan.keyReadsData || insp.decrypted
 		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("%s %s %s: %w", t.label, id, p.column, p.err))
+			scan.undecryptable = append(scan.undecryptable, &secretError{t.label, id, p.column, p.err})
 		}
 		for _, p := range insp.unknownKey {
-			scan.unknownKey = append(scan.unknownKey, fmt.Errorf("%s %s %s: %w", t.label, id, p.column, p.err))
+			scan.unknownKey = append(scan.unknownKey, &secretError{t.label, id, p.column, p.err})
 		}
 		if !insp.needs || len(insp.undecryptable) != 0 {
 			continue
@@ -730,7 +810,7 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 		// reported once, when the row is rewritten; later reads see an
 		// envelope around the unrecoverable inner layer
 		for _, p := range insp.lost {
-			scan.lost = append(scan.lost, fmt.Errorf("%s %s %s", t.label, id, p.column))
+			scan.lost = append(scan.lost, &secretError{t.label, id, p.column, nil})
 		}
 		scan.needs = append(scan.needs, id)
 		if insp.preEnvelope || len(insp.lost) != 0 {
@@ -757,6 +837,27 @@ func storedValue(c secretColumn, v sql.NullString) any {
 type columnProblem struct {
 	column string
 	err    error
+}
+
+// secretError is a problem with a stored secret: the column of the row with
+// the ID id in the table labeled label. A lost secret has no err.
+type secretError struct {
+	label  string
+	id     string
+	column string
+	err    error
+}
+
+func (e *secretError) Error() string {
+	if e.err == nil {
+		return e.label + " " + e.id + " " + e.column
+	}
+
+	return e.label + " " + e.id + " " + e.column + ": " + e.err.Error()
+}
+
+func (e *secretError) Unwrap() error {
+	return e.err
 }
 
 // inspector classifies the stored secrets of one row without decrypting

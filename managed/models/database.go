@@ -1575,7 +1575,12 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams, keyCrea
 		// data migration relies on the latest schema; skip it when an older
 		// schema version is explicitly requested (only done in tests)
 		if latestVersion == len(databaseSchema)-1 {
-			err := migrateEncryption(tx.Querier, migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""})
+			mp := migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""}
+			if params.SetupFixtures != SkipFixtures && !mp.ha {
+				// the database setupPMMServerAgents connects PMM Server's own Agents to
+				mp.pmmServerDB = &params
+			}
+			err := migrateEncryption(tx.Querier, mp)
 			if err != nil {
 				return err
 			}
@@ -1814,22 +1819,9 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 			CommentsParsingDisabled: true,
 		},
 	}
-	if ap.TLS {
-		ap.PostgreSQLOptions = PostgreSQLOptions{}
-		for path, field := range map[string]*string{
-			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
-			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
-			params.SSLKeyPath:  &ap.PostgreSQLOptions.SSLKey,
-		} {
-			if path == "" {
-				continue
-			}
-			content, err := os.ReadFile(path) //nolint:gosec
-			if err != nil {
-				return err
-			}
-			*field = string(content)
-		}
+	ap.PostgreSQLOptions, err = pmmServerPostgreSQLOptions(params)
+	if err != nil {
+		return err
 	}
 	_, err = CreateAgent(q, PostgresExporterType, ap)
 	if err != nil {
@@ -1846,6 +1838,31 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	return nil
+}
+
+// pmmServerPostgreSQLOptions returns the TLS files PMM Server connects to its
+// database with, for the Agents of its own PostgreSQL Service.
+func pmmServerPostgreSQLOptions(params SetupDBParams) (PostgreSQLOptions, error) {
+	var options PostgreSQLOptions
+	if params.SSLMode == DisableSSLMode {
+		return options, nil
+	}
+	for path, field := range map[string]*string{
+		params.SSLCAPath:   &options.SSLCa,
+		params.SSLCertPath: &options.SSLCert,
+		params.SSLKeyPath:  &options.SSLKey,
+	} {
+		if path == "" {
+			continue
+		}
+		content, err := os.ReadFile(path) //nolint:gosec
+		if err != nil {
+			return PostgreSQLOptions{}, err
+		}
+		*field = string(content)
+	}
+
+	return options, nil
 }
 
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.

@@ -71,6 +71,51 @@ func setupHADB(t *testing.T, sqlDB *sql.DB) error {
 	return err
 }
 
+// newPMMServerDB describes a database PMM Server connects to with TLS, whose
+// files hold their names.
+func newPMMServerDB(t *testing.T) models.SetupDBParams {
+	t.Helper()
+
+	params := models.SetupDBParams{
+		Address:  models.DefaultPostgreSQLAddr,
+		Username: "pmm-managed",
+		Password: "pmm-managed-password",
+		SSLMode:  models.RequireSSLMode,
+	}
+	dir := t.TempDir()
+	for name, path := range map[string]*string{"ssl-ca": &params.SSLCAPath, "ssl-cert": &params.SSLCertPath, "ssl-key": &params.SSLKeyPath} {
+		*path = filepath.Join(dir, name)
+		require.NoError(t, os.WriteFile(*path, []byte(name), 0o600))
+	}
+
+	return params
+}
+
+// setupDBWithFixtures runs pmm-managed's startup like setupDB, but with PMM
+// Server's own Node, Service and Agents, connected to the given database.
+func setupDBWithFixtures(t *testing.T, sqlDB *sql.DB, params models.SetupDBParams) error {
+	t.Helper()
+
+	params.Logf = t.Logf
+	params.SetupFixtures = models.SetupFixtures
+	_, err := models.SetupDB(t.Context(), sqlDB, params)
+
+	return err
+}
+
+// pmmServerPostgreSQLAgents returns the Agents of PMM Server's own PostgreSQL
+// Service.
+func pmmServerPostgreSQLAgents(t *testing.T, q *reform.Querier) []*models.Agent {
+	t.Helper()
+
+	service, err := models.FindServiceByName(q, models.PMMServerPostgreSQLServiceName)
+	require.NoError(t, err)
+	agents, err := models.FindAgents(q, models.AgentFilters{ServiceID: service.ServiceID})
+	require.NoError(t, err)
+
+	return agents
+}
+
 func backupFiles(t *testing.T, dir string) []string {
 	t.Helper()
 
@@ -297,6 +342,92 @@ func TestAcceptKeyLossMissingKey(t *testing.T) {
 	keyID, ok = encryption.StoredKeyID(storedPassword(t, sqlDB, "E1"))
 	require.True(t, ok)
 	assert.Equal(t, created.PrimaryKeyID(), keyID)
+}
+
+// TestAcceptKeyLossPMMServerAgents covers PMM Server's own PostgreSQL Service
+// after its key is lost: PMM Server set up its Agents with the credentials of
+// its own database, which no user knows, so they get those back. The Agent of
+// a user's Service keeps its lost value until the user re-enters it.
+func TestAcceptKeyLossPMMServerAgents(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	forgetKeyCheck(t, sqlDB)
+	path := filepath.Join(t.TempDir(), "pmm-encryption.key")
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	db := newPMMServerDB(t)
+
+	// set up with the key that gets lost
+	lost, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
+	require.NoError(t, err)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	agents := pmmServerPostgreSQLAgents(t, q)
+	require.Len(t, agents, 2, "postgres_exporter and QAN")
+	stored, err := lost.Encrypt("password-before-key-loss")
+	require.NoError(t, err)
+	insertExporter(t, sqlDB, "E1", stored, "")
+	require.NoError(t, os.Remove(path))
+
+	created, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
+	require.NoError(t, err)
+	setAcceptKeyLoss(t, created)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+
+	for _, agent := range pmmServerPostgreSQLAgents(t, q) {
+		assert.Equal(t, "pmm-managed", agent.Username.Reveal(), agent.AgentType)
+		assert.Equal(t, "pmm-managed-password", agent.Password.Reveal(), agent.AgentType)
+		assert.Equal(t, "ssl-ca", agent.PostgreSQLOptions.SSLCa, agent.AgentType)
+		assert.Equal(t, "ssl-cert", agent.PostgreSQLOptions.SSLCert, agent.AgentType)
+		assert.Equal(t, "ssl-key", agent.PostgreSQLOptions.SSLKey, agent.AgentType)
+		keyID, ok := encryption.StoredKeyID(storedPassword(t, sqlDB, agent.AgentID))
+		require.True(t, ok)
+		assert.Equal(t, created.PrimaryKeyID(), keyID, agent.AgentType)
+	}
+	agent, err := models.FindAgentByID(q, "E1")
+	require.NoError(t, err)
+	assert.Equal(t, stored, agent.Password.Reveal(), "a user's Agent keeps the lost value")
+
+	t.Setenv(encryption.AcceptKeyLossEnvVar, "")
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db), "the new key is the database's key now")
+}
+
+// TestAcceptKeyLossLegacyPMMServerAgents is TestAcceptKeyLossPMMServerAgents
+// for a key lost under PMM 3.x, see TestAcceptKeyLossLegacy.
+func TestAcceptKeyLossLegacyPMMServerAgents(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	forgetKeyCheck(t, sqlDB)
+	path, current := newKeyFile(t)
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	db := newPMMServerDB(t)
+	db.SSLMode = models.DisableSSLMode
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	forgetKeyCheck(t, sqlDB)
+
+	// as PMM 3.x stored them, with the key that got lost
+	_, lost := newKeyFile(t)
+	_, err := sqlDB.ExecContext(t.Context(), `UPDATE settings SET settings = settings || `+
+		`'{"encrypted_items": ["pmm-managed.agents.username", "pmm-managed.agents.password"]}'::jsonb`)
+	require.NoError(t, err)
+	for _, agent := range pmmServerPostgreSQLAgents(t, q) {
+		_, err = sqlDB.ExecContext(t.Context(), `UPDATE agents SET username = $1, password = $2 WHERE agent_id = $3`,
+			legacyCiphertext(t, lost, "pmm-managed"), legacyCiphertext(t, lost, "pmm-managed-password"), agent.AgentID)
+		require.NoError(t, err)
+	}
+
+	err = setupDBWithFixtures(t, sqlDB, db)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	require.ErrorContains(t, err, acceptKeyLoss(current))
+
+	setAcceptKeyLoss(t, current)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	agents := pmmServerPostgreSQLAgents(t, q)
+	require.Len(t, agents, 2, "postgres_exporter and QAN")
+	for _, agent := range agents {
+		assert.Equal(t, "pmm-managed", agent.Username.Reveal(), agent.AgentType)
+		assert.Equal(t, "pmm-managed-password", agent.Password.Reveal(), agent.AgentType)
+	}
 }
 
 // TestAcceptKeyLossNamesTheKey covers the setting left behind after a
