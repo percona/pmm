@@ -96,7 +96,7 @@ func TestNodeService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, false)
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, nil, false)
 
 			return ctx, s, teardown
 		}
@@ -307,7 +307,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient := &mockGrafanaClient{}
 			grafanaClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -584,7 +584,7 @@ func TestNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
