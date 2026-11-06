@@ -9,23 +9,18 @@ The `dashboards/pmm-app/` directory contains a **Grafana application plugin** (`
 
 ### Plugin Structure
 
-The pmm-app plugin consists of sub-plugins registered in their respective `plugin.json` manifests:
+The pmm-app plugin consists of two sub-plugins registered in their respective `plugin.json` manifests:
 
-1. **App plugin** (`pmm-app/src/plugin.json`) — declares the application, registers PMM dashboard JSON includes, and exposes the panels.
+1. **App plugin** (`pmm-app/src/plugin.json`) — declares the application, registers PMM dashboard JSON includes, and exposes the QAN panel.
 2. **Panel plugin** (`pmm-app/src/pmm-qan/plugin.json`) — declares the `pmm-qan-app-panel` panel type used by `Query Analytics/pmm-qan.json`.
-3. **Panel plugin** (`pmm-app/src/pmm-aurora-tree/plugin.json`) — `pmm-aurora-tree-panel`: Amazon RDS clusters, replication groups and instances as an expandable tree, used by `Amazon RDS/Amazon_RDS_Overview.json`.
-
-Webpack bundles every `src/**/plugin.json` that has a sibling `module.ts`. PMM Server loads them unsigned, so each panel ID must also be listed in `allow_loading_unsigned_plugins` in `build/ansible/roles/grafana/files/grafana.ini`.
 
 ```
 pmm-app/src/module.ts          → AppPlugin() (minimal app shell)
 pmm-app/src/pmm-qan/module.ts  → PanelPlugin(QueryAnalyticsPanel)
-pmm-app/src/pmm-aurora-tree/module.ts → PanelPlugin(AuroraTreePanel)
 
 plugin.json includes[]:
   - dashboards from dashboards/dashboards/**/*.json
   - panel: pmm-qan-app-panel
-  - panel: pmm-aurora-tree-panel
 
 Build (webpack) → dist/
   → deployed to Grafana plugins directory on PMM Server

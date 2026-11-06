@@ -41,10 +41,6 @@
       "name": "pmm-qan-app-panel"
     },
     {
-      "type": "panel",
-      "name": "pmm-aurora-tree-panel"
-    },
-    {
       "type": "dashboard",
       "name": "Home Dashboard",
       "path": "dashboards/Insight/Home_Dashboard.json",
@@ -71,11 +67,6 @@
       "type": "dashboard",
       "name": "MySQL Amazon Aurora Details",
       "path": "dashboards/MySQL/MySQL_Amazon_Aurora_Details.json"
-    },
-    {
-      "type": "dashboard",
-      "name": "Amazon RDS Overview",
-      "path": "dashboards/Amazon RDS/Amazon_RDS_Overview.json"
     },
     {
       "type": "dashboard",
