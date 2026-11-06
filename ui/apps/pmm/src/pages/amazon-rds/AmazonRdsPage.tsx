@@ -13,7 +13,11 @@ import { useUser } from 'contexts/user';
 import { useRdsInstances } from 'hooks/api/useRds';
 import { ADVISORS_URL, ALERTING_URL } from './AmazonRds.constants';
 import { Messages } from './AmazonRds.messages';
-import type { GroupSelection, InstanceGroup } from './AmazonRds.types';
+import type {
+  FilteredGroups,
+  GroupSelection,
+  InstanceGroup,
+} from './AmazonRds.types';
 import {
   filterGroups,
   getAccountOptions,
@@ -28,12 +32,20 @@ import { GroupsTable } from './table/GroupsTable';
 import { RdsToolbar, type SelectFilter } from './toolbar/RdsToolbar';
 import { useRdsFilters } from './useRdsFilters';
 
-const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
-  const { search, setSearch, filters, update, clear } = useRdsFilters();
-  const filtered = useMemo(
-    () => filterGroups(groups, filters),
-    [groups, filters]
-  );
+type RdsGroupsProps = ReturnType<typeof useRdsFilters> & {
+  groups: InstanceGroup[];
+  filtered: FilteredGroups;
+};
+
+const RdsGroups: FC<RdsGroupsProps> = ({
+  groups,
+  filtered,
+  search,
+  setSearch,
+  filters,
+  update,
+  clear,
+}) => {
   const selects = useMemo(
     (): SelectFilter[] => [
       {
@@ -42,6 +54,7 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         placeholder: Messages.allRegions,
         options: getRegionOptions(groups),
         value: filters.regions,
+        width: 110,
       },
       {
         id: 'accounts',
@@ -49,6 +62,7 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         placeholder: Messages.allAccounts,
         options: getAccountOptions(groups, filters.regions),
         value: filters.accounts,
+        width: 150,
       },
       {
         id: 'engines',
@@ -56,6 +70,7 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         placeholder: Messages.allEngines,
         options: getEngineOptions(groups),
         value: filters.engines,
+        width: 110,
       },
       {
         id: 'types',
@@ -63,6 +78,7 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         placeholder: Messages.allTypes,
         options: getTypeOptions(groups),
         value: filters.types,
+        width: 100,
       },
       {
         id: 'groups',
@@ -70,6 +86,7 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         placeholder: Messages.allGroups,
         options: getGroupOptions(groups, filters),
         value: filters.groups,
+        width: 150,
       },
     ],
     [groups, filters]
@@ -85,8 +102,6 @@ const RdsGroups: FC<{ groups: InstanceGroup[] }> = ({ groups }) => {
         onSearchChange={setSearch}
         selects={selects}
         onSelectChange={handleSelectChange}
-        shown={filtered.groups.length}
-        total={groups.length}
       />
       {filtered.groups.length ? (
         <GroupsTable
@@ -115,13 +130,18 @@ export const AmazonRdsPage: FC = () => {
   const { settings } = useSettings();
   const { data: rows, isError } = useRdsInstances();
   const groups = useMemo(() => groupInstances(rows ?? []), [rows]);
+  const rdsFilters = useRdsFilters();
+  const filtered = useMemo(
+    () => filterGroups(groups, rdsFilters.filters),
+    [groups, rdsFilters.filters]
+  );
   // Same rule as the Advisors menu.
   const showAdvisors = !!user?.isEditor && !!settings?.advisorEnabled;
 
   const renderContent = () => {
     if (rows) {
       return groups.length ? (
-        <RdsGroups groups={groups} />
+        <RdsGroups groups={groups} filtered={filtered} {...rdsFilters} />
       ) : (
         <Alert severity="info">{Messages.noData}</Alert>
       );
@@ -146,7 +166,14 @@ export const AmazonRdsPage: FC = () => {
           justifyContent="space-between"
           gap={1}
         >
-          <Typography variant="h2">{Messages.title}</Typography>
+          <Stack direction="row" alignItems="baseline" gap={2}>
+            <Typography variant="h2">{Messages.title}</Typography>
+            {!!groups.length && (
+              <Typography variant="body2" color="text.secondary">
+                {Messages.shownGroups(filtered.groups.length, groups.length)}
+              </Typography>
+            )}
+          </Stack>
           <Stack direction="row" gap={1}>
             <Button
               component={RouterLink}
