@@ -62,10 +62,9 @@ type renderer interface {
 // toolFunc is a tool implementation that returns a typed result.
 type toolFunc[In any, Out renderer] func(ctx context.Context, req *mcp.CallToolRequest, in In) (Out, error)
 
-// addTool registers a tool whose result is Out. It registers with Out = any and
-// an explicit OutputSchema, because the SDK sends the zero value of a typed Out
-// next to isError. A failing call returns errorResult, never an SDK-level error.
-// It bounds the call and logs it as handle does.
+// addTool registers a tool that returns its typed result as text and structuredContent.
+//
+// The SDK sends a typed Out's zero value next to isError, so tools register with Out = any and an explicit OutputSchema.
 func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Tool, fn toolFunc[In, Out]) {
 	schema, err := jsonschema.For[Out](nil)
 	if err != nil {

@@ -83,8 +83,8 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 
 // versionResult is the result of pmm_version.
 type versionResult struct {
-	Version        string `json:"version" jsonschema:"Untrusted. PMM Server version."`
-	ManagedVersion string `json:"managed_version,omitempty" jsonschema:"Untrusted. pmm-managed full version."`
+	Version        string `json:"version" jsonschema:"PMM Server version."`
+	ManagedVersion string `json:"managed_version,omitempty" jsonschema:"pmm-managed full version."`
 }
 
 func (r versionResult) render() string {
