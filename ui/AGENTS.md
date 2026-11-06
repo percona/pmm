@@ -159,8 +159,8 @@ Two traps:
 
 - **Framework**: Vitest (`pmm`, plugin and extension packages), Jest (`pmm-compat`, `@pmm/shared`)
 - **Libraries**: `@testing-library/react`, `@testing-library/jest-dom`
-- **Setup**: `src/setupTests.ts` provides global mocks (clipboard, `navigator.isSecureContext`)
-- **Config**: `vitest.config.ts` — jsdom environment, `globals: true`
+- **Setup**: `src/setupTests.ts` in `pmm` provides global mocks (clipboard, `navigator.isSecureContext`); the plugin and extension packages use `tests/setup.ts`, and `pmm-compat` uses `jest-setup.js`
+- **Config**: each package's `vitest.config.ts` (jsdom environment, `globals: true`) or `jest.config.js`
 - **Pattern**: co-located `*.test.tsx` / `*.test.ts` files next to components
 - **Run**: `make test` or via Turborepo (`turbo test`)
 

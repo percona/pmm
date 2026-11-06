@@ -53,19 +53,50 @@
     "unicorn/prefer-includes": "warn"
   },
   "overrides": [
-    // Predate no-restricted-imports; remove each entry once its file moves to
-    // peak-ui, and add none.
+    // Files that predate no-restricted-imports, each exempted only from the
+    // restriction it breaks. Remove an entry once its file moves to peak-ui, and
+    // add none.
+    {
+      "files": [
+        "packages/plugins/om/src/AutomationsPage.tsx",
+        "packages/plugins/om/src/AutomationsScansTab.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "material-react-table",
+                "importNames": ["MaterialReactTable", "useMaterialReactTable"],
+                "message": "Build tables with Table from '@percona/peak-ui' (ui/AGENTS.md, Tables)."
+              }
+            ]
+          }
+        ]
+      }
+    },
     {
       "files": [
         "packages/extensions/framework/src/components/SchemaListView/SchemaListView.tsx",
         "packages/extensions/framework/src/components/TaskHistoryTable/TaskHistoryTable.tsx",
-        "packages/plugins/om/src/AutomationsPage.tsx",
-        "packages/plugins/om/src/AutomationsScansTab.tsx",
         "packages/plugins/om/src/FleetClustersTab.tsx",
         "packages/plugins/om/src/FleetServicesTab.tsx",
         "packages/plugins/om/src/NodesPage.tsx"
       ],
-      "rules": { "no-restricted-imports": "off" }
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@percona/percona-ui",
+                "message": "Former name of @percona/peak-ui; import from '@percona/peak-ui'."
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "ignorePatterns": ["dist", "node_modules", "storybook-static", ".config"]
