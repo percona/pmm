@@ -36,6 +36,10 @@ func TestInitializeAndListTools(t *testing.T) {
 	require.NotNil(t, init)
 	assert.Equal(t, serverName, init.ServerInfo.Name)
 	assert.Contains(t, init.Instructions, "pmm_inventory")
+	assert.Contains(t, init.Instructions, "pmm_catalog")
+	assert.Contains(t, init.Instructions, "offset")
+	assert.Contains(t, init.Instructions, "Untrusted")
+	assert.Less(t, strings.Count(init.Instructions, "\n"), 25)
 
 	res, err := session.ListTools(t.Context(), nil)
 	require.NoError(t, err)
