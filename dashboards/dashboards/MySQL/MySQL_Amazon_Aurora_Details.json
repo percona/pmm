@@ -62,7 +62,7 @@
             "title": "Amazon RDS Overview",
             "tooltip": "Amazon RDS and Aurora clusters and instances",
             "type": "link",
-            "url": "/graph/d/rds-overview/amazon-rds-overview?refresh=1m"
+            "url": "/pmm-ui/amazon-rds"
         }
     ],
     "liveNow": false,
