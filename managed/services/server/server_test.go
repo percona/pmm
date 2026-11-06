@@ -292,6 +292,21 @@ func TestServer(t *testing.T) {
 			EnableMcp: new(false),
 		}))
 
+		s.envSettings.EnableOM = new(false)
+		expected = status.New(codes.FailedPrecondition,
+			"Operations for MongoDB is set by the PMM_ENABLE_OM environment variable and can't be changed here.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableOm: new(true),
+		}))
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableOm: new(false),
+		}))
+
+		s.envSettings.EnableOM = new(true)
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableOm: new(false),
+		}))
+
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAdvisor: new(false),
 		}))

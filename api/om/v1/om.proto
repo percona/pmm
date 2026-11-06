@@ -1161,7 +1161,7 @@ message DeleteInventoryConfigOverrideRequest {
 // DeleteInventoryConfigOverrideResponse acknowledges the revert.
 message DeleteInventoryConfigOverrideResponse {}
 
-// OmService provides the OpenManager topology and health API.
+// OmService provides the Operations for MongoDB topology and health API.
 service OmService {
   // GetTopology returns the whole MongoDB estate as one document.
   rpc GetTopology(GetTopologyRequest) returns (GetTopologyResponse) {

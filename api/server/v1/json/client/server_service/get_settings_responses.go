@@ -736,7 +736,7 @@ type GetSettingsOKBodySettings struct {
 	// Server process was started, and cannot be changed through ChangeSettings.
 	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.

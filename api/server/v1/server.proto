@@ -179,7 +179,7 @@ message Settings {
   // True if PMM Extensions is enabled. Read-only: it reports how this PMM
   // Server process was started, and cannot be changed through ChangeSettings.
   bool extensions_enabled = 21;
-  // True if OpenManager is enabled.
+  // True if Operations for MongoDB is enabled.
   bool om_enabled = 22;
   // True if the Model Context Protocol endpoint (/mcp) is enabled.
   bool enable_mcp = 23;
@@ -205,7 +205,7 @@ message ReadOnlySettings {
   bool enable_access_control = 8;
   // True if PMM Extensions is enabled.
   bool extensions_enabled = 9;
-  // True if OpenManager is enabled.
+  // True if Operations for MongoDB is enabled.
   bool om_enabled = 10;
   // True if the Model Context Protocol endpoint (/mcp) is enabled.
   bool enable_mcp = 11;
@@ -250,7 +250,7 @@ message ChangeSettingsRequest {
   // Field 15 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 15;
   reserved "update_snooze_duration";
-  // Enable OpenManager.
+  // Enable Operations for MongoDB.
   optional bool enable_om = 16;
   // Enable the Model Context Protocol endpoint (/mcp).
   optional bool enable_mcp = 17;
