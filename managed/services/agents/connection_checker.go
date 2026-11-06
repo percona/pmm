@@ -84,7 +84,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	request, err := connectionRequest(q, service, agent)
+	request, err := connectionRequest(ctx, q, service, agent)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.CheckConnectionRequest, error) {
+func connectionRequest(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.CheckConnectionRequest, error) {
 	var request *agentv1.CheckConnectionRequest
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
@@ -192,7 +192,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			Timeout: requestDeadline,
 		}
 	case models.ExternalServiceType:
-		exporterURL, err := agent.ExporterURL(q)
+		exporterURL, err := externalExporterURL(ctx, q, agent)
 		if err != nil {
 			return nil, err
 		}
@@ -204,7 +204,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			TlsSkipVerify: agent.TLSSkipVerify,
 		}
 	case models.HAProxyServiceType:
-		exporterURL, err := agent.ExporterURL(q)
+		exporterURL, err := externalExporterURL(ctx, q, agent)
 		if err != nil {
 			return nil, err
 		}
@@ -266,4 +266,14 @@ func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID st
 		return false, nil
 	}
 	return true, nil
+}
+
+// externalExporterURL returns the URL of an external exporter with its password read from Vault, if it is
+// stored there: PMM Server scrapes the exporter with it too.
+func externalExporterURL(ctx context.Context, q *reform.Querier, agent *models.Agent) (string, error) {
+	resolved, err := agent.WithServerSecrets(ctx)
+	if err != nil {
+		return "", status.Errorf(codes.FailedPrecondition, "Failed to read the %s.", err)
+	}
+	return resolved.ExporterURL(q)
 }

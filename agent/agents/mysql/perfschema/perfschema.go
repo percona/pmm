@@ -134,7 +134,7 @@ func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	if params.TextFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
+		err := tlshelpers.RegisterMySQLCerts(context.Background(), params.TextFiles.Files, params.TLSSkipVerify)
 		if err != nil {
 			return nil, err
 		}

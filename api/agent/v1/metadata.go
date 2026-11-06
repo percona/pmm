@@ -30,6 +30,7 @@ const (
 	mdAgentID          = "pmm-agent-id"
 	mdAgentVersion     = "pmm-agent-version"
 	mdAgentMetricsPort = "pmm-agent-metrics-port"
+	mdAgentSealingKey  = "pmm-agent-sealing-key"
 	mdAgentNodeID      = "pmm-agent-node-id"
 	mdNodeName         = "pmm-node-name"
 	mdServerVersion    = "pmm-server-version"
@@ -40,6 +41,8 @@ type AgentConnectMetadata struct {
 	ID          string
 	Version     string
 	MetricsPort uint16
+	// SealingKey is the public key that secrets are sealed to for this pmm-agent alone, see vault.Seal.
+	SealingKey string
 }
 
 // ServerConnectMetadata represents metadata sent by pmm-managed in response to Connect RPC method call.
@@ -59,10 +62,14 @@ func getValue(md metadata.MD, key string) string {
 
 // AddAgentConnectMetadata adds pmm-agent's metadata to outgoing context. Used by pmm-agent.
 func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) context.Context {
-	return metadata.AppendToOutgoingContext(ctx,
+	ctx = metadata.AppendToOutgoingContext(ctx,
 		mdAgentID, md.ID,
 		mdAgentVersion, md.Version,
 		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10))
+	if md.SealingKey != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, mdAgentSealingKey, md.SealingKey)
+	}
+	return ctx
 }
 
 // ReceiveAgentConnectMetadata receives pmm-agent's metadata. Used by pmm-managed.
@@ -91,6 +98,7 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 		ID:          agentID,
 		Version:     getValue(md, mdAgentVersion),
 		MetricsPort: uint16(mp),
+		SealingKey:  getValue(md, mdAgentSealingKey),
 	}, nil
 }
 

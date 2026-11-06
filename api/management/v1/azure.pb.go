@@ -382,7 +382,11 @@ type AddAzureDatabaseRequest struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.
-	PmmAgentId    string `protobuf:"bytes,27,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	PmmAgentId string `protobuf:"bytes,27,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath     string `protobuf:"bytes,28,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -606,6 +610,13 @@ func (x *AddAzureDatabaseRequest) GetPmmAgentId() string {
 	return ""
 }
 
+func (x *AddAzureDatabaseRequest) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type AddAzureDatabaseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -667,7 +678,7 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"node_model\x18\n" +
 	" \x01(\tR\tnodeModel\"\x85\x01\n" +
 	"\x1dDiscoverAzureDatabaseResponse\x12d\n" +
-	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\x9e\n" +
+	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xb6\n" +
 	"\n" +
 	"\x17AddAzureDatabaseRequest\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
@@ -680,9 +691,9 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x04port\x18\x06 \x01(\rB\a\xfaB\x04*\x02 \x00R\x04port\x12\x1b\n" +
 	"\tnode_name\x18\a \x01(\tR\bnodeName\x12!\n" +
 	"\fservice_name\x18\b \x01(\tR\vserviceName\x12 \n" +
-	"\venvironment\x18\t \x01(\tR\venvironment\x12'\n" +
+	"\venvironment\x18\t \x01(\tR\venvironment\x12 \n" +
 	"\busername\x18\n" +
-	" \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\v \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x123\n" +
 	"\x0fazure_client_id\x18\f \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
 	"\x13azure_client_secret\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +
@@ -700,7 +711,9 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x12R\n" +
 	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12 \n" +
 	"\fpmm_agent_id\x18\x1b \x01(\tR\n" +
-	"pmmAgentId\x1a?\n" +
+	"pmmAgentId\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1c \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +

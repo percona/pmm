@@ -49,6 +49,7 @@ func (v *agentTableType) Columns() []string {
 		"agent_password",
 		"tls",
 		"tls_skip_verify",
+		"vault_path",
 		"log_level",
 		"exporter_options",
 		"qan_options",
@@ -104,6 +105,7 @@ var AgentTable = &agentTableType{
 			{Name: "AgentPassword", Type: "*string", Column: "agent_password"},
 			{Name: "TLS", Type: "bool", Column: "tls"},
 			{Name: "TLSSkipVerify", Type: "bool", Column: "tls_skip_verify"},
+			{Name: "VaultPath", Type: "*string", Column: "vault_path"},
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
 			{Name: "ExporterOptions", Type: "ExporterOptions", Column: "exporter_options"},
 			{Name: "QANOptions", Type: "QANOptions", Column: "qan_options"},
@@ -122,7 +124,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 31)
+	res := make([]string, 32)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -144,16 +146,17 @@ func (s Agent) String() string {
 	res[18] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
 	res[19] = "TLS: " + reform.Inspect(s.TLS, true)
 	res[20] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
-	res[21] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
-	res[22] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
-	res[23] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
-	res[24] = "RTAOptions: " + reform.Inspect(s.RTAOptions, true)
-	res[25] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
-	res[26] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[27] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[28] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[29] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[30] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
+	res[21] = "VaultPath: " + reform.Inspect(s.VaultPath, true)
+	res[22] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[23] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
+	res[24] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
+	res[25] = "RTAOptions: " + reform.Inspect(s.RTAOptions, true)
+	res[26] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
+	res[27] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[28] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[29] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[30] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[31] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -182,6 +185,7 @@ func (s *Agent) Values() []interface{} {
 		s.AgentPassword,
 		s.TLS,
 		s.TLSSkipVerify,
+		s.VaultPath,
 		s.LogLevel,
 		s.ExporterOptions,
 		s.QANOptions,
@@ -220,6 +224,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.AgentPassword,
 		&s.TLS,
 		&s.TLSSkipVerify,
+		&s.VaultPath,
 		&s.LogLevel,
 		&s.ExporterOptions,
 		&s.QANOptions,

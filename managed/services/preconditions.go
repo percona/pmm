@@ -174,3 +174,12 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 
 	return nil
 }
+
+// RequireUsername returns the error protoc-gen-validate returned for an empty username of message
+// before a Vault secret could hold the username: it is required unless vaultPath is set.
+func RequireUsername(message, username, vaultPath string) error {
+	if username != "" || vaultPath != "" {
+		return nil
+	}
+	return status.Errorf(codes.InvalidArgument, "invalid %s.Username: value length must be at least 1 runes", message)
+}

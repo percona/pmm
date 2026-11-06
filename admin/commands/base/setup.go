@@ -207,7 +207,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		duration: retryUnavailableFor,
 	}
 
-	inventoryClient.Default.SetTransport(transport)
-	managementClient.Default.SetTransport(transport)
+	inventoryClient.Default.SetTransport(stagingTransport{transport})
+	managementClient.Default.SetTransport(stagingTransport{transport})
 	serverClient.Default.SetTransport(transport)
 }

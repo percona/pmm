@@ -242,7 +242,7 @@ func TestSanitizeURLError(t *testing.T) {
 func serverTransport(t *testing.T) *http.Transport {
 	t.Helper()
 
-	runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
+	runtime, ok := inventoryClient.Default.Transport.(stagingTransport).ClientTransport.(*httptransport.Runtime)
 	require.True(t, ok, "expected the inventory client to use a go-openapi runtime")
 
 	retry, ok := runtime.Transport.(*retryTransport)
@@ -312,7 +312,7 @@ func TestSetupClientsServerURL(t *testing.T) {
 			assert.NotNil(t, transport.TLSNextProto)
 			assert.Empty(t, transport.TLSNextProto)
 
-			runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
+			runtime, ok := inventoryClient.Default.Transport.(stagingTransport).ClientTransport.(*httptransport.Runtime)
 			require.True(t, ok)
 			if tc.expectedAuth {
 				assert.NotNil(t, runtime.DefaultAuthentication, "credentials from --server-url must be sent")

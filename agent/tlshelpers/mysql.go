@@ -16,6 +16,7 @@
 package tlshelpers
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -26,9 +27,14 @@ import (
 )
 
 // RegisterMySQLCerts is used for register TLS config before sql.Open is called.
-func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
+func RegisterMySQLCerts(ctx context.Context, files map[string]string, tlsSkipVerify bool) error {
 	if files == nil {
 		return nil
+	}
+
+	files, err := resolveFiles(ctx, files)
+	if err != nil {
+		return err
 	}
 
 	tlsConfig := &tls.Config{
@@ -55,7 +61,7 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		tlsConfig.RootCAs = ca
 	}
 
-	err := mysql.RegisterTLSConfig("custom", tlsConfig)
+	err = mysql.RegisterTLSConfig("custom", tlsConfig)
 	if err != nil {
 		return fmt.Errorf("register MySQL CA cert failed: %w", err)
 	}

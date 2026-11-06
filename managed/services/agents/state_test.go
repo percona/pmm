@@ -116,3 +116,16 @@ func TestStateUpdaterVMAgentDeployment(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckVaultSupported(t *testing.T) {
+	t.Parallel()
+
+	oldAgent := &models.Agent{AgentID: "old", AgentType: models.PMMAgentType, Version: new("3.9.1")}
+	newAgent := &models.Agent{AgentID: "new", AgentType: models.PMMAgentType, Version: new("3.11.0")}
+	withVault := &models.Agent{AgentType: models.MySQLdExporterType, VaultPath: new("secret/data/pmm")}
+	withoutVault := &models.Agent{AgentType: models.MySQLdExporterType, Password: new("p")}
+
+	require.NoError(t, checkVaultSupported(oldAgent, withoutVault))
+	require.NoError(t, checkVaultSupported(newAgent, withVault))
+	require.ErrorAs(t, checkVaultSupported(oldAgent, withVault), new(models.AgentNotSupportedError))
+}

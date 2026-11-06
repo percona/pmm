@@ -16,6 +16,8 @@ package commands
 
 import (
 	"archive/zip"
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -93,5 +95,68 @@ func TestSummary(t *testing.T) {
 		}
 
 		assert.True(t, hasPprofDir)
+	})
+}
+
+func TestAddRedactedConfig(t *testing.T) {
+	t.Parallel()
+
+	config := filepath.Join(t.TempDir(), "pmm-agent.yaml")
+	require.NoError(t, os.WriteFile(config, []byte(`id: pmm-agent-id
+server:
+    address: 127.0.0.1:443
+    username: service_token
+    password: glsa_token
+vault:
+    token: ab
+    secret-id: "s3cr3t"
+    role-id: role
+listen-port: 7777
+`), 0o600))
+
+	var buf bytes.Buffer
+	zipW := zip.NewWriter(&buf)
+	addRedactedConfig(zipW, "client/pmm-agent-config.yaml", config)
+	require.NoError(t, zipW.Close())
+
+	zipR, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+	require.NoError(t, err)
+	require.Len(t, zipR.File, 1)
+	f, err := zipR.File[0].Open()
+	require.NoError(t, err)
+	b, err := io.ReadAll(f)
+	require.NoError(t, err)
+
+	// Every credential is masked, whatever its length and quoting.
+	assert.Equal(t, `id: pmm-agent-id
+server:
+    address: 127.0.0.1:443
+    username: service_token
+    password: '***'
+vault:
+    token: '***'
+    secret-id: '***'
+    role-id: role
+listen-port: 7777
+`, string(b))
+
+	t.Run("VaultReference", func(t *testing.T) {
+		t.Parallel()
+
+		config := filepath.Join(t.TempDir(), "pmm-agent.yaml")
+		require.NoError(t, os.WriteFile(config, []byte("server:\n    password: vault:secret/data/pmm/agents#token\n"), 0o600))
+
+		var buf bytes.Buffer
+		zipW := zip.NewWriter(&buf)
+		addRedactedConfig(zipW, "client/pmm-agent-config.yaml", config)
+		require.NoError(t, zipW.Close())
+
+		zipR, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+		require.NoError(t, err)
+		f, err := zipR.File[0].Open()
+		require.NoError(t, err)
+		b, err := io.ReadAll(f)
+		require.NoError(t, err)
+		assert.Equal(t, "server:\n    password: vault:secret/data/pmm/agents#token\n", string(b))
 	})
 }

@@ -2797,6 +2797,9 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3111,6 +3114,9 @@ type AddServiceOKBodyMongodbQANMongodbMongolog struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb QAN mongodb mongolog
@@ -3320,6 +3326,9 @@ type AddServiceOKBodyMongodbQANMongodbProfiler struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb QAN mongodb profiler
@@ -3523,6 +3532,9 @@ type AddServiceOKBodyMongodbRtaMongodbAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// rta options
 	RtaOptions *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
@@ -4217,6 +4229,9 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4549,6 +4564,9 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql perfschema
@@ -4779,6 +4797,9 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql slowlog
@@ -5359,6 +5380,9 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -5676,6 +5700,9 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body postgresql QAN postgresql pgstatements agent
@@ -5891,6 +5918,9 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body postgresql QAN postgresql pgstatmonitor agent
@@ -6348,6 +6378,9 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7350,6 +7383,9 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7817,6 +7853,9 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -8149,6 +8188,9 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body RDS QAN mysql perfschema
@@ -8361,6 +8403,9 @@ type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service OK body RDS QAN postgresql pgstatements
@@ -9130,6 +9175,9 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -10140,6 +10188,11 @@ type AddServiceParamsBodyMongodb struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
 }
@@ -10592,6 +10645,11 @@ type AddServiceParamsBodyMysql struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
 }
@@ -11040,6 +11098,11 @@ type AddServiceParamsBodyPostgresql struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyPostgresqlAddNode `json:"add_node,omitempty"`
 }
@@ -11454,6 +11517,11 @@ type AddServiceParamsBodyProxysql struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
@@ -11915,6 +11983,11 @@ type AddServiceParamsBodyRDS struct {
 	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
 	// Mutually exclusive with aws_access_key and aws_secret_key.
 	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add service params body RDS
@@ -12136,6 +12209,11 @@ type AddServiceParamsBodyValkey struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+	// pmm-agent, once the Agent connects with it, instead of in PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`

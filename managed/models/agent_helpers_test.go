@@ -29,6 +29,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/version"
@@ -324,6 +325,139 @@ func TestAgentHelpers(t *testing.T) {
 			AWSOptions: models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "secret"},
 		})
 		require.NoError(t, err)
+	})
+
+	t.Run("VaultPath", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.9.1"),
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.11.0"),
+		}))
+
+		// An older pmm-agent would use the tokens as the credentials.
+		_, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", VaultPath: "secret/data/pmm/mysql",
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+
+		_, err = models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Password: "p", VaultPath: "secret/data/pmm/mysql",
+		})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Password and Vault path are mutually exclusive", err)
+
+		_, err = models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", VaultPath: "secret/../mysql",
+		})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "relative segment", err)
+
+		agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Username: "pmm", VaultPath: "/secret/data/pmm/mysql/",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "secret/data/pmm/mysql", pointer.GetString(agent.VaultPath))
+		assert.Nil(t, agent.Password)
+
+		// A password replaces the Vault path, and a Vault path the password.
+		changed, err := changeAgent(q, agent.AgentID, &models.ChangeAgentParams{Password: new("p")})
+		require.NoError(t, err)
+		assert.Nil(t, changed.VaultPath)
+		assert.Equal(t, "p", pointer.GetString(changed.Password))
+
+		changed, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{VaultPath: new("secret/data/pmm/other")})
+		require.NoError(t, err)
+		assert.Equal(t, "secret/data/pmm/other", pointer.GetString(changed.VaultPath))
+		assert.Nil(t, changed.Password)
+
+		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{Password: new("p"), VaultPath: new("secret/data/pmm/mysql")})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Password and Vault path are mutually exclusive", err)
+
+		changed, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{VaultPath: new("")})
+		require.NoError(t, err)
+		assert.Nil(t, changed.VaultPath)
+
+		// The version gate applies only when a request sets a Vault path.
+		old, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", Username: "pmm", Password: "p",
+		})
+		require.NoError(t, err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{VaultPath: new("secret/data/pmm/mysql")})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{Enabled: new(false)})
+		require.NoError(t, err)
+	})
+
+	t.Run("TLSFromVault", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.9.1"),
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("N1"), Version: new("3.11.0"),
+		}))
+		const ref = "vault:secret/data/pmm/mysql#tls_key"
+
+		// A reference alone, without a Vault path, needs a pmm-agent that reads it.
+		_, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: ref},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+
+		_, err = models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: "vault:secret/data/pmm"},
+		})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Invalid tls_key", err)
+
+		agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", ServiceID: "S1", Username: "pmm", Password: "p", MySQLOptions: models.MySQLOptions{TLSKey: ref},
+		})
+		require.NoError(t, err)
+		agent, err = models.FindAgentByID(q, agent.AgentID)
+		require.NoError(t, err)
+		assert.Equal(t, ref, agent.MySQLOptions.TLSKey)
+		assert.True(t, agent.UsesVault())
+
+		// A change that sets a reference is gated too, while other changes are not.
+		old, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", ServiceID: "S1", Username: "pmm", Password: "p",
+		})
+		require.NoError(t, err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new(ref)}})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Credentials stored in Vault", err)
+		_, err = changeAgent(q, old.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("KEY")}})
+		require.NoError(t, err)
+		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCa: new("vault:#k")}})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "Invalid tls_ca", err)
+	})
+
+	t.Run("ServerSecretsFromVault", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		t.Cleanup(func() { secrets.Configure(nil, 0) })
+
+		params := &models.CreateAgentParams{
+			PMMAgentID: "A1", ServiceID: "S1", Username: "pmm", Password: "p",
+			AgentPassword: "vault:secret/data/pmm#agent_password",
+		}
+
+		// PMM Server reads it, so it must be able to.
+		_, err := models.CreateAgent(q, models.MySQLdExporterType, params)
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Failed to read the agent_password: .*no Vault configured", err)
+
+		secrets.Configure(mapSecrets{"secret/data/pmm#agent_password": "metrics-pw"}, time.Minute)
+		agent, err := models.CreateAgent(q, models.MySQLdExporterType, params)
+		require.NoError(t, err)
+		agent, err = models.FindAgentByID(q, agent.AgentID)
+		require.NoError(t, err)
+		assert.Equal(t, "vault:secret/data/pmm#agent_password", pointer.GetString(agent.AgentPassword), "the reference is stored")
+
+		_, err = changeAgent(q, agent.AgentID, &models.ChangeAgentParams{AgentPassword: new("vault:secret/data/pmm#missing")})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Failed to read the agent_password", err)
 	})
 
 	t.Run("ChangeAgentRDSExporterRoleARNGateOnlyWhenRequestSetsIt", func(t *testing.T) {
@@ -2094,6 +2228,7 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 		"empty":            {models.ChangeAgentParams{}, false},
 		"username":         {models.ChangeAgentParams{Username: new("user")}, true},
 		"password":         {models.ChangeAgentParams{Password: new("pass")}, true},
+		"vault path":       {models.ChangeAgentParams{VaultPath: new("secret/data/pmm")}, true},
 		"tls":              {models.ChangeAgentParams{TLS: new(true)}, true},
 		"tls skip verify":  {models.ChangeAgentParams{TLSSkipVerify: new(false)}, true},
 		"listen port":      {models.ChangeAgentParams{ListenPort: new(uint32(9104))}, true},

@@ -25,12 +25,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/reform.v1"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/duration"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -136,6 +138,13 @@ func (s *ManagementService) DiscoverAzureDatabase(
 		return nil, services.ErrAzureDisabled
 	}
 
+	// The credentials may be references to them in Vault, as they may be for the exporter they are then added with.
+	req = proto.CloneOf(req)
+	err := secrets.ResolveAll(ctx, &req.AzureClientId, &req.AzureClientSecret, &req.AzureTenantId, &req.AzureSubscriptionId)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to read the Azure credentials: %s.", err)
+	}
+
 	client, err := s.getAzureClient(req)
 	if err != nil {
 		return nil, err
@@ -190,6 +199,12 @@ func (s *ManagementService) DiscoverAzureDatabase(
 //
 //nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, nil)
+	err := services.RequireUsername("AddAzureDatabaseRequest", req.Username, req.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	if !s.isAzureEnabled() {
 		return nil, services.ErrAzureDisabled
 	}
@@ -200,7 +215,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 	if req.GetPmmAgentId() != "" {
 		pmmAgentID = req.GetPmmAgentId()
 	}
-	err := s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
+	err = s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +308,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			VaultPath:     req.VaultPath,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
@@ -303,6 +319,10 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, metricsExporter, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}
@@ -325,6 +345,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{

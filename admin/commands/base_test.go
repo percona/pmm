@@ -276,4 +276,12 @@ func TestReadFile(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, certificate)
 	})
+
+	t.Run("VaultReference", func(t *testing.T) {
+		t.Parallel()
+
+		certificate, err := ReadFile("vault:secret/data/pmm/mysql#tls_key")
+		require.NoError(t, err)
+		assert.Equal(t, "vault:secret/data/pmm/mysql#tls_key", certificate, "pmm-agent reads it from Vault")
+	})
 }

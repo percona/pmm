@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongofix"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -117,7 +118,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
+		err = tlshelpers.RegisterMySQLCerts(ctx, files.Files, tlsSkipVerify)
 		if err != nil {
 			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -125,7 +126,14 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 		}
 	}
 
-	cfg, err := mysql.ParseDSN(dsn)
+	// Resolved apart from dsn: rendering dsn below must not see secrets that may clash with its delimiters.
+	resolved, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	cfg, err := mysql.ParseDSN(resolved)
 	if err != nil {
 		cc.l.Debugf("checkMySQLConnection: failed to parse DSN: %s", err)
 		res.Error = err.Error()
@@ -282,7 +290,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, tls, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(ctx, files, tls, tlsSkipVerify)
 	if err != nil {
 		cc.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
 		res.Error = err.Error()
@@ -300,6 +308,12 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 
 func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
+
+	dsn, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {

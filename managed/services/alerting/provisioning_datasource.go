@@ -137,7 +137,7 @@ func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
 
 	dsn := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword(bundledGrafanaUser, bundledGrafanaPassword),
+		User:     url.UserPassword(bundledGrafanaUser, envvars.GetEnv("GF_DATABASE_PASSWORD", bundledGrafanaPassword)),
 		Host:     fallback.Addr,
 		Path:     bundledGrafanaDB,
 		RawQuery: fallback.SSLParams,

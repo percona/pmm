@@ -419,6 +419,8 @@ func (c *Channel) runReceiver() {
 			req = &ServerRequest{ID: msg.Id, Payload: p.AgentLogs}
 		case *agentv1.ServerMessage_ServiceInfo:
 			req = &ServerRequest{ID: msg.Id, Payload: p.ServiceInfo}
+		case *agentv1.ServerMessage_StoreSecret:
+			req = &ServerRequest{ID: msg.Id, Payload: p.StoreSecret}
 
 		// responses
 		case *agentv1.ServerMessage_Pong:

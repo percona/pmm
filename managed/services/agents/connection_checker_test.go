@@ -61,7 +61,7 @@ func TestConnectionRequestUsesExporterConnectionTimeout(t *testing.T) {
 		},
 	}
 
-	request, err := connectionRequest(db.Querier, service, agent)
+	request, err := connectionRequest(t.Context(), db.Querier, service, agent)
 	require.NoError(t, err)
 
 	assert.Contains(t, request.Dsn, "timeout=7s")
@@ -178,7 +178,7 @@ func TestConnectionRequestDialTimeoutMySQLCloudDefaults(t *testing.T) {
 				Password:   new("password"),
 			}
 
-			request, err := connectionRequest(db.Querier, service, agent)
+			request, err := connectionRequest(t.Context(), db.Querier, service, agent)
 			require.NoError(t, err)
 
 			assert.Contains(t, request.Dsn, "timeout=5s")
@@ -271,7 +271,7 @@ func TestConnectionRequestValkeyForwardsTLSSettings(t *testing.T) {
 	t.Parallel()
 	f := newValkeyTLSRequestFixture(t)
 
-	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	request, err := connectionRequest(t.Context(), f.db.Querier, f.service, f.agent)
 	require.NoError(t, err)
 
 	assert.True(t, request.Tls)
@@ -288,7 +288,7 @@ func TestConnectionRequestValkeyForwardsSkipVerifyWithoutCertificates(t *testing
 	f := newValkeyTLSRequestFixture(t)
 	f.agent.ValkeyOptions = models.ValkeyOptions{}
 
-	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	request, err := connectionRequest(t.Context(), f.db.Querier, f.service, f.agent)
 	require.NoError(t, err)
 
 	assert.True(t, request.Tls)
@@ -311,7 +311,7 @@ func TestConnectionRequestValkeyShipsIncompleteKeyPairAsCertificateAuthorityOnly
 			f := newValkeyTLSRequestFixture(t)
 			f.agent.ValkeyOptions = options
 
-			request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+			request, err := connectionRequest(t.Context(), f.db.Querier, f.service, f.agent)
 			require.NoError(t, err)
 
 			assert.Equal(t, map[string]string{"tlsCa": "ca-pem"}, request.TextFiles.Files)
@@ -328,7 +328,7 @@ func TestConnectionRequestValkeyIgnoresCertificatesWithoutTLS(t *testing.T) {
 	f.agent.TLS = false
 	f.agent.ValkeyOptions = models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"}
 
-	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	request, err := connectionRequest(t.Context(), f.db.Querier, f.service, f.agent)
 	require.NoError(t, err)
 
 	assert.False(t, request.Tls)

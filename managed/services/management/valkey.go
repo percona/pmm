@@ -30,6 +30,11 @@ import (
 
 // addValkey adds a new Valkey service and an accompanying "Valkey Exporter agent".
 func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.AddValkeyServiceParams) (*managementv1.AddServiceResponse, error) {
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, map[string]*string{
+		models.VaultTLSCaKey:   &req.TlsCa,
+		models.VaultTLSCertKey: &req.TlsCert,
+		models.VaultTLSKeyKey:  &req.TlsKey,
+	})
 	valkey := &managementv1.ValkeyServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -69,6 +74,7 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			VaultPath:     req.VaultPath,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
@@ -78,6 +84,10 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			},
 			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}

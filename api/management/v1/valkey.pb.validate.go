@@ -206,6 +206,8 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return AddValkeyServiceParamsMultiError(errors)
 	}

@@ -150,6 +150,8 @@ message UniversalAgent {
   google.protobuf.Duration connection_timeout = 43;
   // AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
   string aws_role_arn = 44;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 45;
 }
 
 message ListAgentsRequest {

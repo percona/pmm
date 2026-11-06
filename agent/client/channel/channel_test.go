@@ -262,6 +262,31 @@ func TestServerRequest(t *testing.T) {
 	}
 }
 
+func TestServerStoreSecretRequest(t *testing.T) {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		err := stream.Send(&agentv1.ServerMessage{
+			Id:      1,
+			Payload: (&agentv1.StoreSecretRequest{Path: "secret/data/pmm/mysql"}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		assert.Equal(t, uint32(1), msg.Id)
+		assert.Nil(t, msg.Status)
+		require.NotNil(t, msg.GetStoreSecret())
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, io.EOF)
+	t.Cleanup(teardown)
+
+	for req := range channel.Requests() {
+		assert.Equal(t, "secret/data/pmm/mysql", req.Payload.(*agentv1.StoreSecretRequest).Path)
+		channel.Send(&AgentResponse{ID: req.ID, Payload: &agentv1.StoreSecretResponse{}})
+	}
+}
+
 func TestServerPing(t *testing.T) {
 	const count = 50
 

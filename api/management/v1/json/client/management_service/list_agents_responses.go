@@ -653,6 +653,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
 	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 

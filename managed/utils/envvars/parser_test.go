@@ -17,6 +17,7 @@ package envvars
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -39,6 +40,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=5s",
 			"PMM_METRICS_RESOLUTION_LR=1h",
 			"PMM_DATA_RETENTION=72h",
+			"PMM_NOMAD_VAULT_PKI_PATH=pki/issue/pmm-nomad",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
@@ -74,6 +76,22 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("Vault and pmm-agent env variables are neither parsed nor logged", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_VAULT_ADDRESS=https://vault:8200", "PMM_VAULT_TOKEN=hvs.secret", "PMM_VAULT_SECRET_ID=secret-id",
+			"PMM_AGENT_VAULT_TOKEN=hvs.agent-secret", "PMM_AGENT_SERVER_PASSWORD=glsa_token",
+			"PMM_ENCRYPTION_KEY=vault:secret/data/pmm/server#encryption_key",
+			"PMM_TLS_CERTIFICATE_KEY=-----BEGIN PRIVATE KEY-----",
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("AWS SDK env variables", func(t *testing.T) {
 		t.Parallel()
 
@@ -92,6 +110,7 @@ func TestEnvVarValidator(t *testing.T) {
 		envs := []string{
 			"PMM_ENABLE_EXTENSIONS=1",
 			"PMM_EXTENSIONS_POSTGRES_PASSWORD=s3cr3t",
+			"PMM_EXTENSIONS_SECRET_KEY=s3cr3t-key",
 			"PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000",
 			"PMM_EXTENSIONS_URL=http://pmm-extensions:9000",
 			"PMM_EXTENSIONS_TOKEN=s3cr3t-bearer",
@@ -194,6 +213,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=s5",
 			"PMM_METRICS_RESOLUTION_LR=1hour",
 			"PMM_DATA_RETENTION=keep one week",
+			"PMM_NOMAD_VAULT_PKI_PATH=pki/issue/../pmm-nomad",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
@@ -206,6 +226,8 @@ func TestEnvVarValidator(t *testing.T) {
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
 			errors.New(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
+			fmt.Errorf("invalid value for environment variable PMM_NOMAD_VAULT_PKI_PATH: %w",
+				errors.New("vault path 'pki/issue/../pmm-nomad' has an empty or relative segment")),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

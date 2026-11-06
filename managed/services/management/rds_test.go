@@ -145,6 +145,18 @@ func TestRDSService(t *testing.T) {
 			assert.Empty(t, instances)
 		})
 
+		t.Run("KeysFromVault", func(t *testing.T) {
+			// PMM Server has no Vault configured in this test, so the reference cannot be read.
+			ctx := logger.Set(t.Context(), t.Name())
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+				AwsSecretKey: "vault:secret/data/pmm/aws#secret_key",
+			})
+
+			tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `Failed to read the AWS keys: cannot read vault:secret/data/pmm/aws#secret_key: PMM Server has no Vault configured`, err)
+			assert.Empty(t, instances)
+		})
+
 		t.Run("DeadlineExceeded", func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(t.Context(), time.Nanosecond)
 			defer cancel()

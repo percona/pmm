@@ -491,6 +491,21 @@ message ServiceInfoResponse {
   optional string pgsm_version = 5;
 }
 
+// StoreSecretRequest is a ServerMessage asking pmm-agent to store credentials in Vault, where the Agents
+// that read their credentials from Vault find them. It keeps the keys of the secret that data does not have.
+message StoreSecretRequest {
+  // Vault API path of the secret, in a KV secrets engine.
+  string path = 1;
+  // Keys and values to store.
+  map<string, string> data = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+}
+
+// StoreSecretResponse is an AgentMessage for StoreSecretRequest.
+message StoreSecretResponse {
+  // Error message if the secret was not stored.
+  string error = 1;
+}
+
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.
 message JobStatusRequest {
   string job_id = 1;
@@ -759,6 +774,7 @@ message AgentMessage {
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     AgentLogsResponse agent_logs = 21;
     ServiceInfoResponse service_info = 22;
+    StoreSecretResponse store_secret = 23;
   }
 }
 
@@ -789,6 +805,7 @@ message ServerMessage {
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     AgentLogsRequest agent_logs = 19;
     ServiceInfoRequest service_info = 20;
+    StoreSecretRequest store_secret = 21;
   }
 }
 

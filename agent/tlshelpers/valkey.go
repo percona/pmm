@@ -15,6 +15,7 @@
 package tlshelpers
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -25,7 +26,7 @@ import (
 )
 
 // GetValkeyTLSConfig returns the dial options for a Valkey connection, or nil when TLS is off.
-func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([]redis.DialOption, error) {
+func GetValkeyTLSConfig(ctx context.Context, files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([]redis.DialOption, error) {
 	if !useTLS {
 		return nil, nil
 	}
@@ -36,7 +37,10 @@ func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([
 
 	// Server-auth-only and pinned-certificate setups are both valid, so each piece of the
 	// material is applied only when it is actually present rather than assumed complete.
-	pemFiles := files.GetFiles()
+	pemFiles, err := resolveFiles(ctx, files.GetFiles())
+	if err != nil {
+		return nil, err
+	}
 
 	if certPEM, keyPEM := pemFiles[agentv1.TLSCertFileName], pemFiles[agentv1.TLSKeyFileName]; certPEM != "" && keyPEM != "" {
 		cert, err := tls.X509KeyPair([]byte(certPEM), []byte(keyPEM))
