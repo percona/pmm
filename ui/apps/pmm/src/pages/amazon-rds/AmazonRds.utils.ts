@@ -305,19 +305,24 @@ export const groupInstances = (rows: RdsInstanceRow[]): InstanceGroup[] => {
 };
 
 export const getWriters = ({
+  kind,
   writers,
   unknownRoles,
 }: InstanceGroup): { text: string; state: WritersState } => {
+  // Instances without AWS details are unrelated, so their writer count is no cause for a warning.
+  const expect = (state: WritersState) =>
+    kind === 'unknown' ? 'unknown' : state;
+
   if (writers) {
     return {
       text: Messages.writers(writers),
-      state: writers === 1 ? 'good' : 'warning',
+      state: expect(writers === 1 ? 'good' : 'warning'),
     };
   }
 
   return unknownRoles
     ? { text: Messages.writerUnknown, state: 'unknown' }
-    : { text: Messages.noWriter, state: 'warning' };
+    : { text: Messages.noWriter, state: expect('warning') };
 };
 
 export const getEngineLabel = (engine: EngineId | undefined) =>
@@ -467,11 +472,19 @@ const includesQuery = (value: string, query: string) =>
 const isSelected = (selected: string[], value: string) =>
   !selected.length || selected.includes(value);
 
+// A group's own region and those of its instances, such as a cross-region read replica.
+const getGroupRegions = (group: InstanceGroup) => [
+  ...new Set([group.region, ...group.instances.map(({ region }) => region)]),
+];
+
+const isRegionSelected = (regions: string[], group: InstanceGroup) =>
+  getGroupRegions(group).some((region) => isSelected(regions, region));
+
 const matchesSelection = (
   group: InstanceGroup,
   { regions, accounts, engines, types }: Omit<GroupSelection, 'groups'>
 ) =>
-  isSelected(regions, group.region) &&
+  isRegionSelected(regions, group) &&
   isSelected(accounts, group.awsAccountId) &&
   isSelected(engines, group.engine ?? '') &&
   isSelected(types, getGroupType(group));
@@ -495,7 +508,7 @@ export const filterGroups = (
         group.name,
         getGroupTypeLabel(group),
         group.awsAccountId,
-        group.region,
+        ...getGroupRegions(group),
         getEngineLabel(group.engine),
       ];
 
@@ -525,8 +538,7 @@ export const filterGroups = (
 // One option per distinct value; the description lists the regions the value occurs in.
 const toOptions = (
   groups: InstanceGroup[],
-  getValue: (group: InstanceGroup) => string,
-  withRegions = true
+  getValue: (group: InstanceGroup) => string
 ): FilterOption[] => {
   const regions = new Map<string, Set<string>>();
 
@@ -542,9 +554,7 @@ const toOptions = (
     .map(([value, valueRegions]) => ({
       label: value,
       value,
-      ...(withRegions && {
-        description: [...valueRegions].sort().join(', '),
-      }),
+      description: [...valueRegions].sort().join(', '),
     }))
     .sort(
       (a, b) =>
@@ -553,12 +563,15 @@ const toOptions = (
     );
 };
 
-export const getRegionOptions = (groups: InstanceGroup[]) =>
-  toOptions(groups, (group) => group.region, false);
+export const getRegionOptions = (groups: InstanceGroup[]): FilterOption[] =>
+  [...new Set(groups.flatMap(getGroupRegions))]
+    .filter(Boolean)
+    .sort()
+    .map((region) => ({ label: region, value: region }));
 
 export const getAccountOptions = (groups: InstanceGroup[], regions: string[]) =>
   toOptions(
-    groups.filter((group) => isSelected(regions, group.region)),
+    groups.filter((group) => isRegionSelected(regions, group)),
     (group) => group.awsAccountId
   );
 

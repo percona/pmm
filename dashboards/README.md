@@ -3,7 +3,6 @@
 The list of featured dashboards:
 
 - Advanced Data Exploration
-- Amazon RDS Overview
 - CPU Utilization Details
 - Disk Details
 - HAProxy Instance Summary

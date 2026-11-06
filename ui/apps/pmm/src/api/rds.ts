@@ -123,10 +123,15 @@ export const readRdsInstances = (
   });
 };
 
+// Without the services or their AWS labels the page has nothing true to show; a failed role,
+// throughput or storage query only leaves those values out.
+const REQUIRED_QUERIES = ['up', 'info'];
+
 export const getRdsInstances = async (datasourceUid: string) =>
   readRdsInstances(
     await queryInstant(
       datasourceUid,
-      Object.entries(RDS_QUERIES).map(([refId, expr]) => ({ refId, expr }))
+      Object.entries(RDS_QUERIES).map(([refId, expr]) => ({ refId, expr })),
+      REQUIRED_QUERIES
     )
   );

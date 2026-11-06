@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { User } from 'types/user.types';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
@@ -40,6 +40,7 @@ const renderPage = ({
         <>
           <AmazonRdsPage />
           <LocationSearch />
+          <Link to="/amazon-rds">Open unfiltered</Link>
         </>,
         { settings: { advisorEnabled: true } }
       )}
@@ -66,7 +67,10 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
   beforeEach(() => {
     useRdsInstances.mockReturnValue({ data: RDS_ROWS, isError: false });
     usePrometheusAlertRules.mockReturnValue({ data: ALERT_RULES });
-    useAlertmanagerAlerts.mockReturnValue({ data: SILENCED_ALERTS });
+    useAlertmanagerAlerts.mockReturnValue({
+      data: SILENCED_ALERTS,
+      isSuccess: true,
+    });
   });
 
   it('renders the title, header links and groups collapsed with their aggregates', () => {
@@ -168,7 +172,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       '/graph/alerting/grafana/mysql-down/view?tab=instances'
     );
     expect(
-      popover.getByText(/^database-3-instance-1-reader · firing for/)
+      popover.getByText(/^Critical · database-3-instance-1-reader · firing for/)
     ).toBeInTheDocument();
     expect(popover.getByRole('link', { name: 'Node CPU' })).toHaveAttribute(
       'href',
@@ -187,6 +191,19 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     popover.getAllByRole('link').forEach((link) => {
       expect(link).toHaveAttribute('target', '_blank');
     });
+  });
+
+  it('shows no alert count until the silenced alerts load', () => {
+    useAlertmanagerAlerts.mockReturnValue({
+      data: undefined,
+      isSuccess: false,
+    });
+    renderPage();
+
+    expect(
+      screen.queryByRole('button', { name: /firing alert/ })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('None')).not.toBeInTheDocument();
   });
 
   it('shows the alerts of each instance', () => {
@@ -347,6 +364,23 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       screen.queryByRole('link', { name: 'database-3-instance-1' })
     ).not.toBeInTheDocument();
     expect(locationSearch()).toBe('?rds-q=reader');
+  });
+
+  it('clears the search when the page opens unfiltered', async () => {
+    renderPage({ search: '?rds-q=reader' });
+
+    const search = screen.getByRole('textbox', {
+      name: 'Search DB identifiers, types, instances, accounts',
+    });
+
+    expect(search).toHaveValue('reader');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Open unfiltered' }));
+
+    expect(await screen.findByText('8 of 8 groups')).toBeInTheDocument();
+    expect(search).toHaveValue('');
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(locationSearch()).toBe('');
   });
 
   it('restores the filters from the URL', () => {

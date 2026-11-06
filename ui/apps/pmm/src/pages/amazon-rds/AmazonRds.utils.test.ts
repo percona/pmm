@@ -343,6 +343,20 @@ describe('AmazonRds.utils: roles and engines', () => {
       state: 'unknown',
     });
   });
+
+  it('does not warn about the writers of instances without AWS details', () => {
+    const unknown = (writers: number) =>
+      ({ kind: 'unknown', writers, unknownRoles: 0 }) as InstanceGroup;
+
+    expect(getWriters(unknown(3))).toEqual({
+      text: '3 writers',
+      state: 'unknown',
+    });
+    expect(getWriters(unknown(0))).toEqual({
+      text: 'no writer',
+      state: 'unknown',
+    });
+  });
 });
 
 describe('AmazonRds.utils: formatting and links', () => {
@@ -475,7 +489,7 @@ describe('AmazonRds.utils: filters', () => {
     ]);
     expect(names({ query: 'mariadb' })).toEqual(['rds-mariadb-1']);
     expect(names({ query: 'aurora postgresql' })).toEqual(['database-4']);
-    expect(names({ query: 'us-west' })).toEqual([]);
+    expect(names({ query: 'us-west' })).toEqual(['rds-mysql-1']);
     expect(filter({ query: 'rds-mysql-1' }).groups[0].instances).toHaveLength(
       3
     );
@@ -648,10 +662,18 @@ describe('AmazonRds.utils: filters', () => {
     ]);
   });
 
+  it('finds a group by the region of a cross-region replica', () => {
+    expect(names({ regions: ['us-west-2'] })).toEqual(['rds-mysql-1']);
+    expect(values(getAccountOptions(groups, ['us-west-2']))).toEqual([
+      '222222222222',
+    ]);
+  });
+
   it('builds region, account and engine options from the data', () => {
     expect(getRegionOptions(groups)).toEqual([
       { label: 'eu-north-1', value: 'eu-north-1' },
       { label: 'us-east-2', value: 'us-east-2' },
+      { label: 'us-west-2', value: 'us-west-2' },
     ]);
     expect(getAccountOptions(groups, [])).toEqual([
       {

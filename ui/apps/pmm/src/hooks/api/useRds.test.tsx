@@ -114,7 +114,7 @@ describe('useRdsInstances', () => {
     const [url, body, config] = post.mock.calls[0];
 
     expect(url).toBe('/ds/query');
-    expect(config).toEqual({ disableNotifications: true });
+    expect(config).toBeUndefined();
     expect(body).toMatchObject({ from: 'now-1h', to: 'now' });
     expect(body.queries.map(({ refId }: { refId: string }) => refId)).toEqual(
       Object.keys(RDS_QUERIES)
@@ -171,21 +171,47 @@ describe('useRdsInstances', () => {
     ]);
   });
 
-  it('fails when a query fails', async () => {
-    post.mockResolvedValue({
-      data: {
-        results: {
-          ...results,
-          throughput: { status: 400, error: 'bad query' },
-        },
-      },
+  // Grafana answers 400 for the whole request when one query fails, with every result in the body.
+  const rejectWith = (failed: Record<string, unknown>) =>
+    post.mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 400, data: { results: { ...results, ...failed } } },
     });
+
+  it('leaves out the values of an optional query that fails', async () => {
+    rejectWith({ throughput: { status: 400, error: 'bad query' } });
+
+    const { result } = renderRdsHook();
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data?.[0]).toMatchObject({
+      serviceName: 'database-3-instance-1',
+      clusterId: 'database-3',
+      up: 1,
+      volumeUsedBytes: 5000,
+    });
+    expect(result.current.data?.[0].throughput).toBeUndefined();
+  });
+
+  it('fails when a required query fails', async () => {
+    rejectWith({ info: { status: 400, error: 'bad query' } });
 
     const { result } = renderRdsHook();
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
     expect(result.current.error?.message).toBe('bad query');
+  });
+
+  it('fails when the request fails otherwise', async () => {
+    post.mockRejectedValue(new Error('Network Error'));
+
+    const { result } = renderRdsHook();
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error?.message).toBe('Network Error');
   });
 
   it('fails without the Metrics data source', async () => {

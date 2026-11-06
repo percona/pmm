@@ -4,6 +4,7 @@ import type {
   InstantQuery,
   InstantSample,
 } from 'types/metrics.types';
+import { isAxiosError } from 'axios';
 import { grafanaApi } from './api';
 
 // Over this range and resolution, $__rate_interval resolves to about one minute.
@@ -33,39 +34,55 @@ const toSamples = (frames: DataFrameJSON[] = []): InstantSample[] =>
     ];
   });
 
+// Grafana answers 400 for the whole request when one query fails, with every result in the body.
+const postQueries = async (body: object): Promise<DataQueryResponse> => {
+  try {
+    const res = await grafanaApi.post<DataQueryResponse>('/ds/query', body);
+
+    return res.data;
+  } catch (error) {
+    if (
+      isAxiosError<DataQueryResponse>(error) &&
+      error.response?.status === 400 &&
+      error.response.data?.results
+    ) {
+      return error.response.data;
+    }
+
+    throw error;
+  }
+};
+
 // Instant PromQL queries through Grafana, which filters them by LBAC and lets viewers run them.
+// A failed query fails the call when it is required, and returns no samples otherwise.
 export const queryInstant = async (
   datasourceUid: string,
-  queries: InstantQuery[]
+  queries: InstantQuery[],
+  required: string[] = queries.map(({ refId }) => refId)
 ): Promise<Record<string, InstantSample[]>> => {
   const datasource = { type: 'prometheus', uid: datasourceUid };
-  const res = await grafanaApi.post<DataQueryResponse>(
-    '/ds/query',
-    {
-      ...QUERY_RANGE,
-      queries: queries.map((query) => ({
-        ...query,
-        datasource,
-        instant: true,
-        range: false,
-        format: 'table',
-        maxDataPoints: MAX_DATA_POINTS,
-        intervalMs: INTERVAL_MS,
-      })),
-    },
-    // The pages show their own error state.
-    { disableNotifications: true }
-  );
+  const data = await postQueries({
+    ...QUERY_RANGE,
+    queries: queries.map((query) => ({
+      ...query,
+      datasource,
+      instant: true,
+      range: false,
+      format: 'table',
+      maxDataPoints: MAX_DATA_POINTS,
+      intervalMs: INTERVAL_MS,
+    })),
+  });
 
   return Object.fromEntries(
     queries.map(({ refId }) => {
-      const result = res.data.results[refId];
+      const result = data.results[refId];
 
-      if (result?.error) {
+      if (result?.error && required.includes(refId)) {
         throw new Error(result.error);
       }
 
-      return [refId, toSamples(result?.frames)];
+      return [refId, result?.error ? [] : toSamples(result?.frames)];
     })
   );
 };

@@ -1,4 +1,4 @@
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -50,6 +50,7 @@ const AlertItem: FC<{ alert: AlertRow; showInstance: boolean }> = ({
   const band = getSeverityBand(alert.labels.severity);
   const url = getAlertRuleUrl(alert);
   const details = [
+    band ? SEVERITY_BAND_CONFIG[band].label : undefined,
     showInstance ? alert.serviceName || alert.nodeId : undefined,
     alert.activeAt ? Messages.firingFor(alert.age) : undefined,
   ].filter(Boolean);
@@ -82,6 +83,13 @@ interface AlertsBadgeProps {
 // Without alert data the cell shows no value, never a "None" it cannot vouch for.
 export const AlertsBadge: FC<AlertsBadgeProps> = ({ alerts, instances }) => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+
+  // The badge goes away with its alerts, so the list must not reopen on its own when they return.
+  useEffect(() => {
+    if (!alerts?.length) {
+      setAnchor(null);
+    }
+  }, [alerts?.length]);
 
   if (!alerts) {
     return <>{NO_VALUE}</>;

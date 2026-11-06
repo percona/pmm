@@ -11,6 +11,11 @@ export const useRdsFilters = () => {
   const filters = useMemo(() => readFilters(searchParams), [searchParams]);
   const [search, setSearch] = useState(filters.query);
 
+  // Follows the URL when it changes elsewhere, such as the menu link that opens the page unfiltered.
+  useEffect(() => {
+    setSearch(filters.query);
+  }, [filters.query]);
+
   const update = useCallback(
     (changed: Partial<GroupFilters>) =>
       setSearchParams(
