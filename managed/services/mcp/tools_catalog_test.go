@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -48,10 +49,23 @@ func TestCatalogQANColumns(t *testing.T) {
 			}
 			assert.Equal(t, want, out.Entries[i].Aggregation, c.name)
 		}
+		for _, want := range []catalogEntry{
+			{Name: "num_queries", Aggregation: "sum"},
+			{Name: "query_time", Aggregation: "avg"},
+			{Name: "no_index_used", Engine: engineMySQL, Aggregation: "sum"},
+			{Name: "docs_examined", Engine: engineMongoDB, Aggregation: "avg"},
+		} {
+			i := slices.IndexFunc(out.Entries, func(e catalogEntry) bool { return e.Name == want.Name })
+			require.GreaterOrEqual(t, i, 0, want.Name)
+			assert.Equal(t, want, out.Entries[i])
+		}
 
 		text := textOf(t, res)
 		assert.Contains(t, text, "docs_examined")
 		assert.Contains(t, text, "shared_blks_hit")
+		for _, line := range []string{"- num_queries sum", "- query_time avg", "- no_index_used [mysql] sum", "- docs_examined [mongodb] avg"} {
+			assert.Contains(t, text, "\n"+line+"\n")
+		}
 	})
 
 	t.Run("Engine", func(t *testing.T) {

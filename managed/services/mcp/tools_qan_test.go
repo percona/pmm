@@ -444,7 +444,7 @@ func TestQueryDetailTool(t *testing.T) {
 			"SELECT * FROM customers WHERE email = 'user42@example.com'",
 			"```",
 			"",
-			"[View this query in PMM ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
+			"[View this query in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
 				"filter_by=QID-AAA&from=" + ms(testNow.Add(-time.Hour)) + "&query_selected=true&to=" + ms(testNow) + "&var-service_name=shop-mysql)",
 		}, "\n"), text)
 		fake.assertForwardedAuth(t)
@@ -533,6 +533,35 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
 	})
 
+	t.Run("FailedPartAndNoOtherData", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			name   string
+			routes map[string]fixture
+			path   string
+		}{
+			{
+				name:   "MetricsFailNoExample",
+				routes: map[string]fixture{"POST /v1/qan:getMetrics": failed, "POST /v1/qan/query:getExample": {file: "example_empty.json"}},
+				path:   "/v1/qan:getMetrics",
+			},
+			{
+				name:   "ExampleFailsNoMetrics",
+				routes: map[string]fixture{"POST /v1/qan:getMetrics": {file: "metrics_empty.json"}, "POST /v1/qan/query:getExample": failed},
+				path:   "/v1/qan/query:getExample",
+			},
+		} {
+			session := connect(t, newQANService(t, newFakePMM(t, withRoutes(qanRoutes(), tc.routes)), true))
+
+			res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+			text := textOf(t, res)
+			assert.True(t, res.IsError, "%s: %s", tc.name, text)
+			assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\nPMM returned 500 on POST "+tc.path+": "), "%s: %s", tc.name, text)
+			assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"], tc.name)
+		}
+	})
+
 	from := testNow.Add(-time.Hour)
 	rawExample := "SELECT * FROM customers WHERE email = 'user42@example.com'" //nolint:unqueryvet
 	detailURL := "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
@@ -590,7 +619,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.MetricsError)
 		assert.InDelta(t, 1200, got.Metrics["calls"], 1e-9)
 		assert.Empty(t, got.Example)
-		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "from the qan:getMetrics metadata")
+		assert.Empty(t, got.QueryRef.ServiceID, "neither the request nor a stored example names the service")
 
 		text := textOf(t, res)
 		assert.Contains(t, text, "\npartial: qan/query:getExample failed (unauthorized)\n")
@@ -617,21 +646,37 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Contains(t, textOf(t, res), "\npartial: qan:getMetrics failed (unauthorized)\n")
 	})
 
-	t.Run("ServiceIDPrefersTheExample", func(t *testing.T) {
+	t.Run("QueryRefServiceID", func(t *testing.T) {
 		t.Parallel()
 
-		for exampleServiceID, want := range map[string]string{"svc-example": "svc-example", "": "svc-metadata"} {
+		example := &qan_service.GetQueryExampleOKBody{QueryExamples: []*qan_service.GetQueryExampleOKBodyQueryExamplesItems0{{ServiceID: "svc-example"}}}
+		noExample := &qan_service.GetQueryExampleOKBody{}
+		for _, tc := range []struct {
+			name      string
+			serviceID string
+			examples  *qan_service.GetQueryExampleOKBody
+			want      string
+		}{
+			{"RequestWithoutExample", "svc-request", noExample, "svc-request"},
+			{"RequestOverExample", "svc-request", example, "svc-request"},
+			{"Example", "", example, "svc-example"},
+			{"Neither", "", noExample, ""},
+		} {
 			api := newMockPmmAPI(t)
+			// qan-api2 never fills the metadata's service_id; one that is set must still be ignored.
 			api.On("GetMetrics", mock.Anything, mock.Anything, mock.Anything).
 				Return(&queryMetrics{Fingerprint: "SELECT ?", Metadata: &queryMetadata{ServiceID: "svc-metadata"}}, nil)
-			api.On("GetQueryExample", mock.Anything, mock.Anything, mock.Anything).
-				Return(&qan_service.GetQueryExampleOKBody{QueryExamples: []*qan_service.GetQueryExampleOKBodyQueryExamplesItems0{{ServiceID: exampleServiceID}}}, nil)
+			api.On("GetQueryExample", mock.Anything, mock.Anything, mock.Anything).Return(tc.examples, nil)
 			s, err := New(Params{API: api, Enabled: func() bool { return true }})
 			require.NoError(t, err)
 
-			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q"}, from, testNow)
+			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q", ServiceID: tc.serviceID}, from, testNow)
 			require.NoError(t, err)
-			assert.Equal(t, want, d.result(true, "", from, testNow).QueryRef.ServiceID, "example service_id '%s'", exampleServiceID)
+			ref := d.result(true, "", from, testNow).QueryRef
+			assert.Equal(t, queryRef{QueryID: "Q", ServiceID: tc.want, PeriodFrom: from, PeriodTo: testNow}, ref, tc.name)
+			if tc.want == "" {
+				assert.NotContains(t, string(mustJSON(t, ref)), "service_id", tc.name)
+			}
 		}
 	})
 }
@@ -871,7 +916,9 @@ func TestTopQueriesReportInputs(t *testing.T) {
 			{map[string]any{"columns": []string{"rows_examined", "nope"}}, "unknown column 'nope'; pmm_catalog"},
 			{map[string]any{"columns": []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"}}, "columns takes at most 10"},
 			{map[string]any{"order_by": "-nope"}, "order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog"},
-			{map[string]any{"offset": -1}, "offset must be 0 or more"},
+			{map[string]any{"offset": -1}, "offset must not be negative; got -1"},
+			{map[string]any{"limit": -1}, "limit must be between 1 and 100; got -1"},
+			{map[string]any{"limit": 101}, "limit must be between 1 and 100; got 101"},
 			{map[string]any{"search": strings.Repeat("x", 201)}, "search must be at most 200"},
 			{map[string]any{"labels": map[string]any{"user name": []string{"a"}}}, "label name 'user name'"},
 			{map[string]any{"labels": map[string]any{"username": []string{}}}, "labels.username needs at least one value"},

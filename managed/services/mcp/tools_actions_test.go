@@ -152,7 +152,7 @@ func TestExplainTool(t *testing.T) {
 			PMMURL: "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-PG" +
 				"&from=" + ms(testNow.Add(-time.Hour)) + "&query_selected=true&to=" + ms(testNow) + "&var-service_name=shop-postgres",
 		}, got)
-		assert.Contains(t, text, "```\n"+got.Plan+"\n```\n\n[View this query in PMM ↗]("+got.PMMURL+")")
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
 	})
 
 	t.Run("PostgreSQLWithoutPlan", func(t *testing.T) {
@@ -178,7 +178,7 @@ func TestExplainTool(t *testing.T) {
 		got := structured[explainResult](t, res)
 		assert.True(t, got.Truncated)
 		assert.Equal(t, strings.Repeat("x", 64<<10), got.Plan)
-		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n\n[View this query in PMM ↗]("+got.PMMURL+")")
+		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
 	})
 
 	t.Run("MongoDBQueryOnly", func(t *testing.T) {
@@ -206,7 +206,7 @@ func TestExplainTool(t *testing.T) {
 
 		// Without a queryid there is no query to select: the link opens the service in QAN.
 		assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mongo", got.PMMURL)
-		assert.True(t, strings.HasSuffix(text, "\n\n[View this service in PMM ↗]("+got.PMMURL+")"), text)
+		assert.True(t, strings.HasSuffix(text, "\n\n[View this service in PMM QAN ↗]("+got.PMMURL+")"), text)
 
 		require.Len(t, stub.starts, 1)
 		require.NotNil(t, stub.starts[0].MongodbExplain)
@@ -434,7 +434,7 @@ func TestConfigTool(t *testing.T) {
 		"long_query_time\t0.5",
 		"max_connections\t151",
 		"",
-		"[View this service in PMM ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from=" + ms(testNow.Add(-2*time.Hour)) + "&to=" + ms(testNow.Add(-time.Hour)) + "&var-service_name=shop-mysql)",
+		"[View this service in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from=" + ms(testNow.Add(-2*time.Hour)) + "&to=" + ms(testNow.Add(-time.Hour)) + "&var-service_name=shop-mysql)",
 	}, "\n"), text)
 	fake.assertForwardedAuth(t)
 	assert.Equal(t, configResult{
@@ -475,7 +475,7 @@ func TestConfigTool(t *testing.T) {
 		"No configuration variables found for that service (check the service and that its metrics are being collected).",
 		"At: 2026-09-14T12:00:00Z",
 		"",
-		"[View this service in PMM ↗](" + got.PMMURL + ")",
+		"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
 	}, "\n"), textOf(t, res))
 	assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
 
@@ -519,7 +519,7 @@ func TestConfigTool(t *testing.T) {
 		assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
 		text := textOf(t, res)
 		assert.True(t, strings.HasPrefix(text, "-- mysql 8.0.46-37 - 250 variables (numeric knobs from PMM metrics)\n-- At: 2026-09-14T12:00:00Z\nvar_000\t0\n"), text)
-		assert.True(t, strings.HasSuffix(text, "\nvar_199\t199\n\n[View this service in PMM ↗]("+got.PMMURL+")\nshowing 1–200 of 250; pass offset=200 for more"), text)
+		assert.True(t, strings.HasSuffix(text, "\nvar_199\t199\n\n[View this service in PMM QAN ↗]("+got.PMMURL+")\nshowing 1–200 of 250; pass offset=200 for more"), text)
 		assert.Equal(t, 200, strings.Count(text, "\t"))
 
 		res = callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "offset": 200})
@@ -528,6 +528,17 @@ func TestConfigTool(t *testing.T) {
 		require.Len(t, got.Variables, 50)
 		assert.Equal(t, "var_200", got.Variables[0].Name)
 		assert.NotContains(t, textOf(t, res), "showing ")
+
+		res = callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "offset": 300})
+		got = structured[configResult](t, res)
+		assert.Equal(t, page{Total: 250, Offset: 300, Limit: 200}, got.Page)
+		assert.Empty(t, got.Variables)
+		assert.Equal(t, strings.Join([]string{
+			"No rows at offset 300; the variable list has 250.",
+			"At: 2026-09-14T12:00:00Z",
+			"",
+			"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
+		}, "\n"), textOf(t, res))
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "limit": 1001})
 		assert.True(t, isError)

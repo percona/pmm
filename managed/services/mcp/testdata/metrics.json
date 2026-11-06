@@ -79,7 +79,6 @@
     "replication_set": "",
     "cluster": "",
     "service_type": "mysql",
-    "service_id": "svc-1",
     "environment": "",
     "node_id": "node-1",
     "node_name": "demo-node",

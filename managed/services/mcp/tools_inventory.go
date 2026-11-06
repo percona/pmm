@@ -90,6 +90,9 @@ func (r inventoryResult) render() string {
 	if r.Page.Total == 0 {
 		return "No monitored services found."
 	}
+	if len(r.Services) == 0 {
+		return r.Page.pastEnd("service list")
+	}
 	var lines []string
 	lines = append(lines, fmt.Sprintf("Monitored services (%d):", r.Page.Total))
 	for _, svc := range r.Services {

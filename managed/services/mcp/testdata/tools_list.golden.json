@@ -269,7 +269,7 @@
         },
         "query_ref": {
           "additionalProperties": false,
-          "description": "The query, its service and the window the plan is for.",
+          "description": "Identifies the query and the window it was read in.",
           "properties": {
             "period_from": {
               "type": "string"
@@ -686,7 +686,7 @@
         },
         "query_ref": {
           "additionalProperties": false,
-          "description": "The query, its service and the window, for pmm_get_explain and pmm_get_schema.",
+          "description": "Identifies the query and the window it was read in.",
           "properties": {
             "period_from": {
               "type": "string"
@@ -905,13 +905,9 @@
                 "description": "Query load: total query time divided by the window's length.",
                 "type": "number"
               },
-              "pmm_url": {
-                "description": "Link to this row in PMM.",
-                "type": "string"
-              },
               "query_ref": {
                 "additionalProperties": false,
-                "description": "The query and window, for pmm_query_detail and pmm_get_explain; on queryid rows.",
+                "description": "Identifies the query and the window it was read in; on queryid rows.",
                 "properties": {
                   "period_from": {
                     "type": "string"

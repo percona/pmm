@@ -38,6 +38,11 @@ func (p page) marker() string {
 	return fmt.Sprintf("showing %d–%d of %d; pass offset=%d for more", p.Offset+1, end, p.Total, end)
 }
 
+// pastEnd is the text of an empty page whose offset is past the end of the list it names, such as "report".
+func (p page) pastEnd(list string) string {
+	return fmt.Sprintf("No rows at offset %d; the %s has %d.", p.Offset, list, p.Total)
+}
+
 // checkPage validates offset and limit, so that a tool can refuse them before any backing call.
 func checkPage(offset, limit, maxAllowed int) error {
 	if offset < 0 {

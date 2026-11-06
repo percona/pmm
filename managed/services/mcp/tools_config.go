@@ -59,10 +59,13 @@ type variable struct {
 }
 
 func (r configResult) render() string {
-	view := link("View this service in PMM", r.PMMURL)
+	view := link("View this service in PMM QAN", r.PMMURL)
 	at := "At: " + r.At.UTC().Format(time.RFC3339)
 	if r.Page.Total == 0 {
 		return "No configuration variables found for that service (check the service and that its metrics are being collected).\n" + at + "\n\n" + view
+	}
+	if len(r.Variables) == 0 {
+		return r.Page.pastEnd("variable list") + "\n" + at + "\n\n" + view
 	}
 
 	header := fmt.Sprintf("-- %d variables (numeric knobs from PMM metrics)", r.Page.Total)

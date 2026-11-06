@@ -88,7 +88,7 @@ type explainResult struct {
 	Plan        string    `json:"plan" jsonschema:"Untrusted. Execution plan, its literals masked when raw SQL is off; cut at 64 KiB."`
 	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
 	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
-	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"The query, its service and the window the plan is for."`
+	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in."`
 	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics, or to the service over the last hour when the call has no queryid."`
 
 	// planID is pg_stat_monitor's id of a stored plan.
@@ -106,9 +106,9 @@ func (r explainResult) render() string {
 	if r.Truncated {
 		text += "\n" + cutNote("plan", maxPlanBytes)
 	}
-	label := "View this query in PMM"
+	label := "View this query in PMM QAN"
 	if r.serviceLink {
-		label = "View this service in PMM"
+		label = "View this service in PMM QAN"
 	}
 	return text + "\n\n" + link(label, r.PMMURL)
 }

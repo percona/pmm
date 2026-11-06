@@ -96,7 +96,7 @@ func qanQueryURL(base, queryID, serviceName string, from, to time.Time, detailsT
 	return base + qanPath + "?" + q.Encode()
 }
 
-// link renders a markdown "View in PMM" line; relative when there is no base.
+// link renders a markdown link to PMM; u is relative when there is no base.
 func link(label, u string) string {
 	return "[" + label + " ↗](" + u + ")"
 }

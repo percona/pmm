@@ -125,6 +125,13 @@ func TestInventoryTool(t *testing.T) {
 		require.Len(t, got.Services, 1)
 		assert.Equal(t, "svc-2", got.Services[0].ServiceID)
 
+		res = callTool(t, session, "pmm_inventory", map[string]any{"limit": 2, "offset": 5})
+		got = inventoryResult{}
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		assert.Equal(t, page{Total: 3, Offset: 5, Limit: 2}, got.Page)
+		assert.Empty(t, got.Services)
+		assert.Equal(t, "No rows at offset 5; the service list has 3.", res.Content[0].(*mcp.TextContent).Text)
+
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"limit": 300})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)

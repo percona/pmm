@@ -99,7 +99,17 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 | `pmm_catalog` | Reference data the other tools accept. `kind=qan_columns` lists the [QAN columns](#qan-columns) with their engine and aggregation; the optional `engine` argument keeps one engine's entries plus those every engine has | None: served from the server's built-in catalogue |
 | `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); page with `limit` and `offset` | `GET /v1/inventory/services` (with `service_id`), `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy |
 
-Every result carries a **View in PMM** link that opens the QAN dashboard on the same window, service and query, so an answer can always be checked in PMM itself. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
+Most results link to the same data in PMM, so you can check an answer in PMM itself. The link is the `pmm_url` field, and the text shows it too:
+
+| Tool | The link opens |
+|------|----------------|
+| `pmm_top_queries` | QAN on the report's window, filtered to the service when the request names one with `service_name` |
+| `pmm_query_detail` | QAN on the same window, with the query selected |
+| `pmm_get_explain` | QAN on the last hour, with the query selected on its **Explain** tab. Without a `queryid`, QAN for the service |
+| `pmm_get_config` | QAN for the service, over the hour before `at` |
+| `pmm_inventory` | The instance summary dashboard of each MySQL, PostgreSQL and MongoDB service |
+
+`pmm_version`, `pmm_catalog` and `pmm_get_schema` carry no link. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
 
 ### QAN columns
 
@@ -186,7 +196,7 @@ Every result carries a **View in PMM** link that opens the QAN dashboard on the 
 
 Every tool returns one typed result and renders it twice from the same value: as text in `content`, and as JSON in `structuredContent`, which follows the tool's `outputSchema` from `tools/list`. A client can read whichever it prefers, and both always agree. Field names are snake_case and times are RFC 3339.
 
-Results carry provenance: `pmm_url` is the link that opens the same view in PMM, and `window` is the time range the result covers. A result made of several parts, such as the tables of `pmm_get_schema`, sets `partial` to `true` when at least one part failed and at least one succeeded. The failed part reports its own error, for example `definition_error` for a table. When every part fails, the call is an error.
+Results carry provenance. `pmm_url` is the link to the same data in PMM, as listed under [Tools](#tools). `pmm_top_queries` and `pmm_query_detail` carry `window`, the time range of the QAN data they read (`period_from`, `period_to`). `pmm_get_config` reads one point in time and carries `at` instead. `pmm_get_explain` carries neither. A result made of several parts, such as the tables of `pmm_get_schema`, sets `partial` to `true` when at least one part failed and at least one succeeded. The failed part reports its own error, for example `definition_error` for a table. When every part fails, the call is an error.
 
 ### Paging
 
@@ -202,7 +212,7 @@ A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`
 
 ### Untrusted fields
 
-Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, and the names of services, nodes, databases, schemas and tables. The `outputSchema` description of each such field starts with `Untrusted.`, and the server's instructions tell the model to treat these fields as data, not instructions.
+Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, the names of services, nodes, databases, schemas and tables, service addresses, version strings, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`, and the server's instructions tell the model to treat these fields as data, not instructions.
 
 This mark is advice to the model, not a security boundary. A model can still be misled by hostile text in a query. What bounds the damage is that every tool is read-only and runs with the caller's own token and roles.
 

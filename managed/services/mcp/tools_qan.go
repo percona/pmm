@@ -109,8 +109,7 @@ type queryRow struct {
 	QueryTimeTotal float64            `json:"query_time_total" jsonschema:"Total query time, in seconds."`
 	QueryTimeAvg   float64            `json:"query_time_avg" jsonschema:"Average query time per call, in seconds."`
 	Columns        map[string]float64 `json:"columns,omitempty" jsonschema:"Requested columns by name: the per-call average for an avg column, else the sum."`
-	QueryRef       *queryRef          `json:"query_ref,omitempty" jsonschema:"The query and window, for pmm_query_detail and pmm_get_explain; on queryid rows."`
-	PMMURL         string             `json:"pmm_url,omitempty" jsonschema:"Link to this row in PMM."`
+	QueryRef       *queryRef          `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in; on queryid rows."`
 
 	// stats are the requested columns the row has, in request order, for the text.
 	stats []columnStat
@@ -127,7 +126,7 @@ func (r topQueriesResult) render() string {
 	if len(r.Rows) == 0 {
 		header := "No queries found for that service / time window."
 		if r.Page.Offset > 0 {
-			header = fmt.Sprintf("No rows at offset %d; the report has %d.", r.Page.Offset, r.Page.Total)
+			header = r.Page.pastEnd("report")
 		}
 		return header + "\n" + windowLine(r.Window) + "\n\n" + workload
 	}
@@ -281,11 +280,9 @@ func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error
 		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), q.groupBy)
 	}
 	limit := cmp.Or(in.Limit, defaultLimit)
-	if limit < 1 || limit > maxLimit {
-		return nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
-	}
-	if in.Offset < 0 {
-		return nil, newToolError(codeInvalidInput, "offset must be 0 or more; got %d", in.Offset)
+	err := checkPage(in.Offset, limit, maxLimit)
+	if err != nil {
+		return nil, err
 	}
 	if utf8.RuneCountInString(in.Search) > maxSearchLen {
 		return nil, newToolError(codeInvalidInput, "search must be at most %d characters", maxSearchLen)
@@ -450,7 +447,7 @@ type queryDetailResult struct {
 	Tables       []string           `json:"tables,omitempty" jsonschema:"Untrusted. Tables the stored example reads."`
 	Metrics      map[string]float64 `json:"metrics,omitempty" jsonschema:"Key diagnostic metrics by the names the text prints; zero counters are left out."`
 	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example statement, raw with raw SQL on, else normalized; left out when withheld."`
-	QueryRef     queryRef           `json:"query_ref" jsonschema:"The query, its service and the window, for pmm_get_explain and pmm_get_schema."`
+	QueryRef     queryRef           `json:"query_ref" jsonschema:"Identifies the query and the window it was read in."`
 	Window       window             `json:"window" jsonschema:"Time window of the data."`
 	PMMURL       string             `json:"pmm_url" jsonschema:"Link to this query in PMM Query Analytics."`
 	Partial      bool               `json:"partial" jsonschema:"Set when qan:getMetrics or qan/query:getExample failed; its error is in metrics_error or example_error."`
@@ -507,7 +504,7 @@ func (r queryDetailResult) render() string {
 		}
 	}
 
-	parts = append(parts, "", link("View this query in PMM", r.PMMURL))
+	parts = append(parts, "", link("View this query in PMM QAN", r.PMMURL))
 	return strings.Join(parts, "\n")
 }
 
@@ -529,7 +526,12 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	if err != nil {
 		return queryDetailResult{}, err
 	}
-	if d.metrics == nil && d.example == nil || d.fingerprint == "" && d.example == nil && len(d.metrics.Metrics) == 0 {
+	if d.example == nil && (d.metrics == nil || d.fingerprint == "" && len(d.metrics.Metrics) == 0) {
+		// The failed call may hold the data, so its error, not not_found, is the answer.
+		failed := cmp.Or(d.metricsErr, d.exampleErr)
+		if failed != nil {
+			return queryDetailResult{}, failed
+		}
 		return queryDetailResult{}, newToolError(codeNotFound,
 			"no data for queryid '%s' in the selected window; widen period_from or check the id with pmm_top_queries", in.QueryID)
 	}
@@ -543,9 +545,10 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample
 // for one queryid.
 type queryDetail struct {
-	queryID     string
-	engine      string
-	version     string
+	queryID string
+	engine  string
+	version string
+	// serviceID is the request's service_id, else the stored example's.
 	serviceID   string
 	serviceName string
 	database    string
@@ -597,13 +600,13 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		return nil, metricsErr
 	}
 
-	d := &queryDetail{queryID: in.QueryID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
+	d := &queryDetail{queryID: in.QueryID, serviceID: in.ServiceID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
 	if metrics != nil {
 		d.fingerprint = metrics.Fingerprint
+		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the example.
 		if metrics.Metadata != nil {
 			d.database = metrics.Metadata.Database
 			d.schema = metrics.Metadata.Schema
-			d.serviceID = metrics.Metadata.ServiceID
 			d.serviceName = metrics.Metadata.ServiceName
 			d.engine = metrics.Metadata.ServiceType
 		}
@@ -616,7 +619,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		if d.engine == "" {
 			d.engine = d.example.ServiceType
 		}
-		d.serviceID = cmp.Or(d.example.ServiceID, d.serviceID)
+		d.serviceID = cmp.Or(d.serviceID, d.example.ServiceID)
 		d.tables = d.example.Tables
 	}
 	return d, nil
