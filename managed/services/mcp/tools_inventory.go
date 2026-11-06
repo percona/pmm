@@ -107,6 +107,9 @@ func (r inventoryResult) render() string {
 				row += fmt.Sprintf(":%d", svc.Port)
 			}
 		}
+		if svc.PMMURL != "" {
+			row += " | " + link("View in PMM", svc.PMMURL)
+		}
 		lines = append(lines, row)
 	}
 	if m := r.Page.marker(); m != "" {

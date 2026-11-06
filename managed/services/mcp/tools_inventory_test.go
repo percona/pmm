@@ -63,9 +63,9 @@ func TestInventoryTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.Equal(t, strings.Join([]string{
 			"Monitored services (3):",
-			"- shop-mysql | mysql 8.0.46-37 | id=svc-1 | node=demo-node | address=mysql:3306",
-			"- pmm-server-postgresql | postgresql unknown | id=svc-pmm-pg | node=pmm-server | address=127.0.0.1:5432",
-			"- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432",
+			"- shop-mysql | mysql 8.0.46-37 | id=svc-1 | node=demo-node | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)",
+			"- pmm-server-postgresql | postgresql unknown | id=svc-pmm-pg | node=pmm-server | address=127.0.0.1:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=pmm-server-postgresql)",
+			"- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=shop-postgres)",
 		}, "\n"), text)
 		fake.assertForwardedAuth(t)
 
@@ -138,7 +138,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "postgresql", "node": "demo-node"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-postgres | postgresql unknown | id=svc-2 | node=demo-node | address=postgres:5432 | [View in PMM ↗](graph/d/postgresql-instance-summary?var-service_name=shop-postgres)", text)
 
 		text, isError = callText(t, session, "pmm_inventory", map[string]any{"engine": "mongodb"})
 		assert.False(t, isError)
@@ -167,7 +167,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "mysql"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql unknown | id=svc-1 | node=demo-node | address=mysql:3306", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql unknown | id=svc-1 | node=demo-node | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)", text)
 	})
 
 	t.Run("NodesUnavailable", func(t *testing.T) {
@@ -180,7 +180,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"engine": "mysql"})
 		assert.False(t, isError)
-		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql 8.0.46-37 | id=svc-1 | address=mysql:3306", text)
+		assert.Equal(t, "Monitored services (1):\n- shop-mysql | mysql 8.0.46-37 | id=svc-1 | address=mysql:3306 | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop-mysql)", text)
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
