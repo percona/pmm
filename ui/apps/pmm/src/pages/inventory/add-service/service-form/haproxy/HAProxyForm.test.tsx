@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { MetricsMode } from 'types/services.types';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   mockAddService,
   renderServiceForm,
@@ -33,7 +33,10 @@ describe('HAProxyForm', () => {
       cluster: '',
       replicationSet: '',
       customLabels: undefined,
-      addNode: { nodeName: 'haproxy.example.com', nodeType: NodeType.remote },
+      addNode: {
+        nodeName: 'haproxy.example.com',
+        nodeType: InventoryNodeType.remote,
+      },
       metricsMode: MetricsMode.pull,
       skipConnectionCheck: false,
       tlsSkipVerify: false,

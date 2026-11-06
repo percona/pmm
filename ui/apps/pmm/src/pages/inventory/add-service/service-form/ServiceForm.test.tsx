@@ -6,8 +6,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { useNodes } from 'hooks/api/useNodes';
-import { AgentStatus, ManagedAgentType } from 'types/agent.types';
-import { ManagedNodeType } from 'types/nodes.types';
+import { AgentStatus, AgentType } from 'types/agent.types';
+import { type ManagedNode, NodeType } from 'types/nodes.types';
+import { ServiceStatus } from 'types/services.types';
 import { TestWrapper } from 'utils/testWrapper';
 import { AdditionalOptions } from '../components/additional-options';
 import { ConnectionDetails } from '../components/connection-details';
@@ -118,30 +119,34 @@ const fillRequired = () => {
   type('text-input-password', 'secret');
 };
 
+const PMM_SERVER_NODE: ManagedNode = {
+  nodeId: 'pmm-server',
+  nodeName: 'pmm-server',
+  nodeType: NodeType.generic,
+  address: '',
+  isPmmServerNode: true,
+  isPmmInternalNode: false,
+  status: ServiceStatus.up,
+  customLabels: {},
+  services: [],
+  properties: {},
+  agents: [
+    {
+      agentId: 'pmm-server',
+      agentType: AgentType.pmmAgent,
+      status: AgentStatus.running,
+      isConnected: true,
+      disabled: false,
+      properties: {},
+    },
+  ],
+};
+
 describe('ServiceForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useNodes).mockReturnValue({
-      data: {
-        nodes: [
-          {
-            nodeId: 'pmm-server',
-            nodeName: 'pmm-server',
-            nodeType: ManagedNodeType.generic,
-            address: '',
-            isPmmServerNode: true,
-            isPmmInternalNode: false,
-            agents: [
-              {
-                agentId: 'pmm-server',
-                agentType: ManagedAgentType.pmmAgent,
-                status: AgentStatus.running,
-                isConnected: true,
-              },
-            ],
-          },
-        ],
-      },
+      data: [PMM_SERVER_NODE],
       isLoading: false,
     } as ReturnType<typeof useNodes>);
   });
@@ -253,7 +258,7 @@ describe('ServiceForm', () => {
 
     await waitFor(() =>
       expect(screen.getByTestId('location-probe')).toHaveTextContent(
-        '/graph/inventory'
+        '/inventory/services'
       )
     );
     expect(onSubmit.mock.calls[0][0]).toEqual(

@@ -1,24 +1,27 @@
 import {
-  type QueryClient,
-  useMutation,
   type UseMutationOptions,
+  type UseQueryOptions,
+  useMutation,
   useQuery,
   useQueryClient,
-  type UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   addAzureService,
   addService,
+  changeService,
   discoverAzure,
   discoverRDS,
+  getService,
   getServiceTypes,
   listServices,
   listManagedServices,
+  removeService,
 } from 'api/services';
-import { NODES_QUERY_KEY } from './useNodes';
 import type {
   AddAzureDatabasePayload,
   AddServicePayload,
+  BaseService,
+  ChangeServiceParams,
   DiscoverAzurePayload,
   DiscoverAzureResponse,
   DiscoverRDSPayload,
@@ -27,7 +30,9 @@ import type {
   ListServicesResponse,
   ListTypesResponse,
   ManagedServicesResponse,
+  RemoveServiceParams,
 } from 'types/services.types';
+import { invalidateInventory, removeEach } from 'utils/inventory.utils';
 
 export const useServiceTypes = (
   options?: Partial<UseQueryOptions<ListTypesResponse>>
@@ -60,15 +65,32 @@ export const useManagedServices = (
     ...options,
   });
 
-const invalidateInventory = (queryClient: QueryClient) =>
-  Promise.all(
-    [
-      ['services:getTypes'],
-      ['services:list'],
-      ['services:managed'],
-      NODES_QUERY_KEY,
-    ].map((queryKey) => queryClient.invalidateQueries({ queryKey }))
-  );
+export const useService = (
+  serviceId?: string,
+  options?: Partial<UseQueryOptions<BaseService | null>>
+) =>
+  useQuery({
+    queryKey: ['services:get', serviceId],
+    queryFn: () => getService(serviceId as string),
+    enabled: !!serviceId,
+    ...options,
+  });
+
+export const useRemoveServices = (
+  options?: Partial<UseMutationOptions<number, Error, RemoveServiceParams[]>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (services: RemoveServiceParams[]) =>
+      removeEach(services, removeService),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};
 
 // The inventory refreshes in the background, so the caller moves on without waiting for it.
 const useAddMutation = <T>(
@@ -128,3 +150,18 @@ export const useDiscoverAzure = (
     mutationFn: discoverAzure,
     ...options,
   });
+
+export const useChangeService = (
+  options?: Partial<UseMutationOptions<void, Error, ChangeServiceParams>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChangeServiceParams) => changeService(params),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};

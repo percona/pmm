@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios';
 import { getApiErrorMessage } from 'api/api.utils';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import { MetricsMode } from 'types/services.types';
 import {
   LOCAL_ADDRESSES,
@@ -117,7 +117,7 @@ export const toRemoteNode = (
   { region, az }: Pick<LabelsFormValues, 'region' | 'az'>
 ) => ({
   nodeName,
-  nodeType: NodeType.remote,
+  nodeType: InventoryNodeType.remote,
   region: toOptionalString(region),
   az: toOptionalString(az),
 });

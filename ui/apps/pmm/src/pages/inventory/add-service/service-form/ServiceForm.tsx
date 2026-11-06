@@ -1,6 +1,9 @@
 import Stack from '@mui/material/Stack';
 import { isAxiosError } from 'axios';
-import { PMM_ADD_SERVICE_PATH, PMM_INVENTORY_URL } from 'lib/constants';
+import {
+  PMM_ADD_SERVICE_PATH,
+  PMM_INVENTORY_SERVICES_PATH,
+} from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
 import { FormProvider, type FieldValues } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +41,7 @@ export const ServiceForm = <
       Messages.success(getServiceName(values), serviceTypeLabel),
       { variant: 'success' }
     );
-    navigate(PMM_INVENTORY_URL);
+    navigate(PMM_INVENTORY_SERVICES_PATH);
   };
 
   return (

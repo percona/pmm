@@ -135,7 +135,7 @@ describe('AddServicePage', () => {
 
     expect(screen.getByTestId('add-service-cancel')).toHaveAttribute(
       'href',
-      '/graph/inventory/services'
+      '/inventory/services'
     );
   });
 

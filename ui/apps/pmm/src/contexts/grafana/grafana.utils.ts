@@ -1,5 +1,5 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
-import { Path } from 'react-router-dom';
+import type { Path } from 'react-router-dom';
 
 export const getLocationUrl = (location: Path) => {
   const pathname = location.pathname.startsWith('/pmm-ui')
@@ -10,7 +10,12 @@ export const getLocationUrl = (location: Path) => {
 };
 
 // Grafana pages with a native replacement; the router redirects them.
-const MIGRATED_PAGES = ['/graph/settings', '/graph/add-instance'];
+const MIGRATED_PAGES = [
+  '/graph/settings',
+  '/graph/inventory',
+  '/graph/edit-instance',
+  '/graph/add-instance',
+];
 
 export const isMigratedPage = (src: string) =>
   MIGRATED_PAGES.some((page) => src.includes(page));

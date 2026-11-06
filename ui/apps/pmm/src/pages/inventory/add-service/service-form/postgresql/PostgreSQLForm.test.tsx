@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { MetricsMode } from 'types/services.types';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   clickLabel,
   mockAddService,
@@ -51,7 +51,10 @@ describe('PostgreSQLForm', () => {
       cluster: '',
       replicationSet: '',
       customLabels: undefined,
-      addNode: { nodeName: 'pg.example.com', nodeType: NodeType.remote },
+      addNode: {
+        nodeName: 'pg.example.com',
+        nodeType: InventoryNodeType.remote,
+      },
       database: undefined,
       tls: false,
       qanPostgresqlPgstatementsAgent: false,

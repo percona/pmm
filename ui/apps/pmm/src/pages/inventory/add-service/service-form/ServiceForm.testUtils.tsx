@@ -3,36 +3,46 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
 import { listNodes } from 'api/nodes';
 import type { FC } from 'react';
-import { AgentStatus, ManagedAgentType } from 'types/agent.types';
-import { ManagedNodeType, type UniversalNode } from 'types/nodes.types';
+import { AgentStatus, AgentType } from 'types/agent.types';
+import { NodeType, type ManagedNode } from 'types/nodes.types';
+import { ServiceStatus } from 'types/services.types';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 
 const pmmAgentNode = (
   nodeId: string,
   isPmmServerNode: boolean
-): UniversalNode => ({
+): ManagedNode => ({
   nodeId,
   nodeName: nodeId,
-  nodeType: ManagedNodeType.generic,
+  nodeType: NodeType.generic,
   address: '',
   isPmmServerNode,
   isPmmInternalNode: false,
+  status: ServiceStatus.up,
+  customLabels: {},
+  services: [],
+  properties: {},
   agents: [
     {
       agentId: `${nodeId}-agent`,
-      agentType: ManagedAgentType.pmmAgent,
+      agentType: AgentType.pmmAgent,
       status: AgentStatus.running,
       isConnected: true,
+      disabled: false,
+      properties: {},
     },
   ],
 });
 
 // Requires `vi.mock('api/nodes', () => ({ listNodes: vi.fn() }))` in the test file.
 export const mockNodes = () =>
-  vi.mocked(listNodes).mockResolvedValue({
-    nodes: [pmmAgentNode('pmm-server', true), pmmAgentNode('client', false)],
-  });
+  vi
+    .mocked(listNodes)
+    .mockResolvedValue([
+      pmmAgentNode('pmm-server', true),
+      pmmAgentNode('client', false),
+    ]);
 
 export const waitForNodePreselect = () =>
   waitFor(() =>

@@ -17,8 +17,7 @@ export interface GetAgentVersionsResponse {
   agentVersions: GetAgentVersionItem[];
 }
 
-// Agent types returned by /v1/management APIs (lowercase format)
-export enum ManagedAgentType {
+export enum AgentType {
   pmmAgent = 'pmm-agent',
   nodeExporter = 'node_exporter',
   mysqldExporter = 'mysqld_exporter',
@@ -34,14 +33,13 @@ export enum ManagedAgentType {
   qanPostgresqlPgstatementsAgent = 'qan-postgresql-pgstatements-agent',
   qanPostgresqlPgstatmonitorAgent = 'qan-postgresql-pgstatmonitor-agent',
   externalExporter = 'external-exporter',
-  vmagent = 'vmagent',
+  vmAgent = 'vmagent',
   nomadAgent = 'nomad-agent',
   valkeyExporter = 'valkey_exporter',
   rtaMongodbAgent = 'rta-mongodb-agent',
 }
 
 export enum AgentStatus {
-  unspecified = 'AGENT_STATUS_UNSPECIFIED',
   starting = 'AGENT_STATUS_STARTING',
   initializationError = 'AGENT_STATUS_INITIALIZATION_ERROR',
   running = 'AGENT_STATUS_RUNNING',
@@ -49,4 +47,45 @@ export enum AgentStatus {
   stopping = 'AGENT_STATUS_STOPPING',
   done = 'AGENT_STATUS_DONE',
   unknown = 'AGENT_STATUS_UNKNOWN',
+}
+
+// Agent from the /v1/management APIs (agents, nodes and services lists)
+export interface ManagedAgent {
+  agentId: string;
+  agentType: AgentType;
+  status: AgentStatus;
+  isConnected: boolean;
+  disabled: boolean;
+  // Custom labels plus the agent's other parameters, keyed as the API names them
+  properties: Record<string, string>;
+}
+
+export interface ListAgentsParams {
+  serviceId?: string;
+  nodeId?: string;
+}
+
+export interface RemoveAgentParams {
+  agentId: string;
+  force: boolean;
+}
+
+// The rds_exporter of a remote RDS node; the API only says whether a secret key is set
+export interface RdsExporter {
+  agentId: string;
+  awsAccessKey: string;
+  awsRoleArn: string;
+  isAwsSecretKeySet: boolean;
+}
+
+// ChangeAgent only applies the fields it is sent, and an empty string clears one
+export interface RdsCredentials {
+  awsAccessKey?: string;
+  awsSecretKey?: string;
+  awsRoleArn?: string;
+}
+
+export interface ChangeRdsCredentialsParams {
+  agentId: string;
+  credentials: RdsCredentials;
 }

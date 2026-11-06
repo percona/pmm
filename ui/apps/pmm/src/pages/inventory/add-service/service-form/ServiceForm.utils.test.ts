@@ -1,4 +1,4 @@
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import { MetricsMode } from 'types/services.types';
 import {
   getConnectionTimeoutError,
@@ -144,7 +144,7 @@ describe('ServiceForm.utils', () => {
     ).toEqual({
       addNode: {
         nodeName: 'mysql-1',
-        nodeType: NodeType.remote,
+        nodeType: InventoryNodeType.remote,
         region: 'eu-west-1',
         az: 'eu-west-1a',
       },

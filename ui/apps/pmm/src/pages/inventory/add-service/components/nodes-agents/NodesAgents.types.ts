@@ -1,7 +1,7 @@
-import type { UniversalNode } from 'types/nodes.types';
+import type { ManagedNode } from 'types/nodes.types';
 
 export interface NodeOption extends Pick<
-  UniversalNode,
+  ManagedNode,
   'nodeId' | 'nodeName' | 'isPmmServerNode'
 > {
   agentIds: string[];

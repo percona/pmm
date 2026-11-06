@@ -1,6 +1,16 @@
-import type { AgentStatus, ManagedAgentType } from 'types/agent.types';
+import type { ManagedAgent } from './agent.types';
+import type { ManagedServiceType, ServiceStatus } from './services.types';
 
 export enum NodeType {
+  generic = 'generic',
+  container = 'container',
+  remote = 'remote',
+  remoteRds = 'remote_rds',
+  remoteAzureDatabase = 'remote_azure_database',
+}
+
+// Node types the inventory API takes, e.g. for the node a new service adds
+export enum InventoryNodeType {
   unspecified = 'NODE_TYPE_UNSPECIFIED',
   generic = 'NODE_TYPE_GENERIC_NODE',
   container = 'NODE_TYPE_CONTAINER_NODE',
@@ -9,33 +19,41 @@ export enum NodeType {
   remoteAzureDatabase = 'NODE_TYPE_REMOTE_AZURE_DATABASE_NODE',
 }
 
-// Node types returned by /v1/management/nodes API (lowercase format)
-export enum ManagedNodeType {
-  generic = 'generic',
-  container = 'container',
-  remote = 'remote',
-  remoteRds = 'remote_rds',
-  remoteAzureDatabase = 'remote_azure_database',
-}
-
-export interface NodeAgent {
-  agentId: string;
-  agentType: ManagedAgentType;
-  status: AgentStatus;
-  isConnected: boolean;
+export interface NodeService {
+  serviceId: string;
+  serviceType: ManagedServiceType;
+  serviceName: string;
 }
 
 // Node from /v1/management/nodes API
-export interface UniversalNode {
+export interface ManagedNode {
   nodeId: string;
-  nodeType: ManagedNodeType;
+  nodeType: NodeType;
   nodeName: string;
   address: string;
-  agents: NodeAgent[];
+  // Nodes report the same statuses as services
+  status: ServiceStatus;
+  customLabels: Record<string, string>;
   isPmmServerNode: boolean;
-  isPmmInternalNode: boolean;
+  // Nodes PMM Server runs for itself; the add-service node picker leaves them out
+  isPmmInternalNode?: boolean;
+  agents: ManagedAgent[];
+  services: NodeService[];
+  // The node's other scalar attributes, keyed as the API names them
+  properties: Record<string, string>;
 }
 
-export interface ListNodesResponse {
-  nodes: UniversalNode[];
+export interface RemoveNodeParams {
+  nodeId: string;
+  force: boolean;
+}
+
+export interface RemoveNodeResponse {
+  // Names what the removal left behind, e.g. the node's service account
+  warning?: string;
+}
+
+export interface RemoveNodesResult {
+  deleted: number;
+  warnings: string[];
 }

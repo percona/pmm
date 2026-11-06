@@ -19,9 +19,18 @@ import {
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import {
   AddServiceRedirect,
+  EditServiceRedirect,
+  InventoryRedirect,
   Redirect,
   SettingsRedirect,
 } from 'components/redirect';
+import {
+  Agents,
+  EditService,
+  Inventory,
+  Nodes,
+  Services,
+} from 'pages/inventory';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
@@ -83,6 +92,40 @@ const router = createBrowserRouter(
             {
               path: `${relativeToNav(PMM_ADD_SERVICE_PATH)}/:type?`,
               element: <AddServicePage />,
+            },
+            {
+              path: 'inventory',
+              children: [
+                {
+                  path: '',
+                  element: <Navigate to="services" replace />,
+                },
+                {
+                  element: <Inventory />,
+                  children: [
+                    {
+                      path: 'services',
+                      element: <Services />,
+                    },
+                    {
+                      path: 'nodes',
+                      element: <Nodes />,
+                    },
+                  ],
+                },
+                {
+                  path: 'services/:serviceId/agents',
+                  element: <Agents />,
+                },
+                {
+                  path: 'services/:serviceId/edit',
+                  element: <EditService />,
+                },
+                {
+                  path: 'nodes/:nodeId/agents',
+                  element: <Agents />,
+                },
+              ],
             },
             {
               path: 'rta',
@@ -173,6 +216,18 @@ const router = createBrowserRouter(
             {
               path: 'graph/alerting/alerts',
               element: <Navigate to="/alerting/status" replace />,
+            },
+            {
+              path: 'graph/inventory/*',
+              element: <InventoryRedirect />,
+            },
+            {
+              path: 'graph/edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
+            },
+            {
+              path: 'edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
             },
             // Grafana routes are handled at the Main component level
             {

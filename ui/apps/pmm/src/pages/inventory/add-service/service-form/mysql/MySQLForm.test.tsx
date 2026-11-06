@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
 import { MetricsMode } from 'types/services.types';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   clickLabel,
   mockAddService,
@@ -52,7 +52,10 @@ describe('MySQLForm', () => {
       cluster: '',
       replicationSet: '',
       customLabels: undefined,
-      addNode: { nodeName: 'mysql.example.com', nodeType: NodeType.remote },
+      addNode: {
+        nodeName: 'mysql.example.com',
+        nodeType: InventoryNodeType.remote,
+      },
       tls: false,
       qanMysqlPerfschema: true,
       disableQueryExamples: false,

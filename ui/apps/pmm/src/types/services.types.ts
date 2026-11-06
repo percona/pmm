@@ -1,4 +1,5 @@
-import type { NodeType } from 'types/nodes.types';
+import type { ManagedAgent } from './agent.types';
+import type { InventoryNodeType } from './nodes.types';
 
 export enum ServiceType {
   unspecified = 'SERVICE_TYPE_UNSPECIFIED',
@@ -75,7 +76,7 @@ export interface ValkeyService extends VersionedService {}
 // Service from /v1/management/services API
 export interface ManagedService {
   serviceId: string;
-  serviceType: string;
+  serviceType: ManagedServiceType;
   serviceName: string;
   databaseName: string;
   nodeId: string;
@@ -89,7 +90,10 @@ export interface ManagedService {
   port: number;
   socket: string;
   version: string;
-  status?: ServiceStatus;
+  status: ServiceStatus;
+  agents: ManagedAgent[];
+  // Custom labels plus the service's other scalar attributes, keyed as the API names them
+  labels: Record<string, string>;
 }
 
 // Response from /v1/management/services API
@@ -114,6 +118,20 @@ export interface ListServicesParams {
   serviceType?: ServiceType;
 }
 
+export interface RemoveServiceParams {
+  serviceId: string;
+  force: boolean;
+}
+
+// ChangeService only applies the fields it is sent, and an empty string clears one
+export interface ChangeServiceParams {
+  serviceId: string;
+  environment?: string;
+  cluster?: string;
+  replicationSet?: string;
+  customLabels?: Record<string, string>;
+}
+
 export enum MetricsMode {
   unspecified = 'METRICS_MODE_UNSPECIFIED',
   pull = 'METRICS_MODE_PULL',
@@ -134,7 +152,7 @@ export enum DiscoverAzureDatabaseType {
 }
 
 export interface AddNodeParams {
-  nodeType: NodeType;
+  nodeType: InventoryNodeType;
   nodeName: string;
   region?: string;
   az?: string;

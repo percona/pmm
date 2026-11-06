@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import { DiscoverAzureDatabaseType } from 'types/services.types';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import {
@@ -17,6 +17,7 @@ const { addService, addAzureService, discoverRDS } = vi.hoisted(() => ({
 
 vi.mock('api/services', () => ({ addService, addAzureService, discoverRDS }));
 
+// The lists an added service shows up in, among the inventory queries refreshed.
 const INVENTORY_KEYS = [
   ['services:getTypes'],
   ['services:list'],
@@ -51,13 +52,13 @@ describe('useAddService', () => {
           serviceName: 'redis',
           address: 'redis',
           listenPort: 9121,
-          addNode: { nodeName: 'redis', nodeType: NodeType.remote },
+          addNode: { nodeName: 'redis', nodeType: InventoryNodeType.remote },
         },
       })
     );
 
     expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey)).toEqual(
-      INVENTORY_KEYS
+      expect.arrayContaining(INVENTORY_KEYS)
     );
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
@@ -104,7 +105,7 @@ describe('useAddAzureService', () => {
     );
 
     expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey)).toEqual(
-      INVENTORY_KEYS
+      expect.arrayContaining(INVENTORY_KEYS)
     );
   });
 });

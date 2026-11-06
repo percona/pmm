@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { addService } from 'api/services';
 import { enqueueSnackbar } from 'notistack';
 import { MetricsMode } from 'types/services.types';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   clickLabel,
   mockAddService,
@@ -37,7 +37,10 @@ describe('ExternalForm', () => {
       cluster: '',
       replicationSet: '',
       customLabels: undefined,
-      addNode: { nodeName: 'redis-exporter', nodeType: NodeType.remote },
+      addNode: {
+        nodeName: 'redis-exporter',
+        nodeType: InventoryNodeType.remote,
+      },
       metricsMode: MetricsMode.pull,
       skipConnectionCheck: false,
       tlsSkipVerify: false,

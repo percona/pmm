@@ -1,5 +1,5 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { NodeType } from 'types/nodes.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   type AddMySQLServiceParams,
   DiscoverAzureDatabaseType,
@@ -29,7 +29,7 @@ const MYSQL: AddMySQLServiceParams = {
   metricsMode: MetricsMode.push,
   addNode: {
     nodeName: 'mysql-1',
-    nodeType: NodeType.remote,
+    nodeType: InventoryNodeType.remote,
     customLabels: { nodeLabel: 'a' },
   },
   customLabels: { myLabel: 'a', 'my-label': 'b', ENV: 'prod' },

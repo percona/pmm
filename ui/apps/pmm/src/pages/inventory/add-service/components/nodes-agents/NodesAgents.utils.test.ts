@@ -1,23 +1,30 @@
-import { AgentStatus, ManagedAgentType } from 'types/agent.types';
-import { ManagedNodeType, type UniversalNode } from 'types/nodes.types';
+import { AgentStatus, AgentType } from 'types/agent.types';
+import { NodeType, type ManagedNode } from 'types/nodes.types';
+import { ServiceStatus } from 'types/services.types';
 import { getPreselectedNode, toNodeOptions } from './NodesAgents.utils';
 
 const node = (
   nodeId: string,
-  agentTypes: ManagedAgentType[],
-  overrides: Partial<UniversalNode> = {}
-): UniversalNode => ({
+  agentTypes: AgentType[],
+  overrides: Partial<ManagedNode> = {}
+): ManagedNode => ({
   nodeId,
   nodeName: `${nodeId}-name`,
-  nodeType: ManagedNodeType.generic,
+  nodeType: NodeType.generic,
   address: '',
   isPmmServerNode: false,
   isPmmInternalNode: false,
+  status: ServiceStatus.up,
+  customLabels: {},
+  services: [],
+  properties: {},
   agents: agentTypes.map((agentType, i) => ({
     agentId: `${nodeId}-agent-${i}`,
     agentType,
     status: AgentStatus.running,
     isConnected: true,
+    disabled: false,
+    properties: {},
   })),
   ...overrides,
 });
@@ -25,12 +32,9 @@ const node = (
 describe('NodesAgents.utils', () => {
   it('offers nodes that run a pmm-agent, with only their pmm-agents', () => {
     const options = toNodeOptions([
-      node('client', [
-        ManagedAgentType.pmmAgent,
-        ManagedAgentType.nodeExporter,
-      ]),
-      node('exporter-only', [ManagedAgentType.nodeExporter]),
-      node('internal', [ManagedAgentType.pmmAgent], {
+      node('client', [AgentType.pmmAgent, AgentType.nodeExporter]),
+      node('exporter-only', [AgentType.nodeExporter]),
+      node('internal', [AgentType.pmmAgent], {
         isPmmInternalNode: true,
       }),
     ]);

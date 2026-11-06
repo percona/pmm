@@ -2,8 +2,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { FC } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNodes } from 'hooks/api/useNodes';
-import { AgentStatus, ManagedAgentType } from 'types/agent.types';
-import { ManagedNodeType, type UniversalNode } from 'types/nodes.types';
+import { AgentStatus, AgentType } from 'types/agent.types';
+import { NodeType, type ManagedNode } from 'types/nodes.types';
+import { ServiceStatus } from 'types/services.types';
 import { TestWrapper } from 'utils/testWrapper';
 import { NodesAgents } from './NodesAgents';
 
@@ -11,21 +12,27 @@ vi.mock('hooks/api/useNodes', () => ({ useNodes: vi.fn() }));
 
 const pmmAgent = (agentId: string) => ({
   agentId,
-  agentType: ManagedAgentType.pmmAgent,
+  agentType: AgentType.pmmAgent,
   status: AgentStatus.running,
   isConnected: true,
+  disabled: false,
+  properties: {},
 });
 
-const NODE: Omit<UniversalNode, 'nodeId' | 'nodeName' | 'agents'> = {
-  nodeType: ManagedNodeType.generic,
+const NODE: Omit<ManagedNode, 'nodeId' | 'nodeName' | 'agents'> = {
+  nodeType: NodeType.generic,
   address: '',
   isPmmServerNode: false,
   isPmmInternalNode: false,
+  status: ServiceStatus.up,
+  customLabels: {},
+  services: [],
+  properties: {},
 };
 
-const mockNodes = (nodes: UniversalNode[]) =>
+const mockNodes = (nodes: ManagedNode[]) =>
   vi.mocked(useNodes).mockReturnValue({
-    data: { nodes },
+    data: nodes,
     isLoading: false,
   } as ReturnType<typeof useNodes>);
 

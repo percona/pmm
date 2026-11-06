@@ -1,9 +1,9 @@
-import { ManagedAgentType } from 'types/agent.types';
-import type { UniversalNode } from 'types/nodes.types';
+import { AgentType } from 'types/agent.types';
+import type { ManagedNode } from 'types/nodes.types';
 import type { NodeOption } from './NodesAgents.types';
 
 // Internal nodes (e.g. the HA persistence layer) must not take monitoring workloads.
-export const toNodeOptions = (nodes: UniversalNode[]): NodeOption[] =>
+export const toNodeOptions = (nodes: ManagedNode[]): NodeOption[] =>
   nodes
     .filter((node) => !node.isPmmInternalNode)
     .map(({ nodeId, nodeName, isPmmServerNode, agents }) => ({
@@ -11,7 +11,7 @@ export const toNodeOptions = (nodes: UniversalNode[]): NodeOption[] =>
       nodeName,
       isPmmServerNode,
       agentIds: agents
-        .filter((agent) => agent.agentType === ManagedAgentType.pmmAgent)
+        .filter((agent) => agent.agentType === AgentType.pmmAgent)
         .map((agent) => agent.agentId),
     }))
     .filter((node) => node.agentIds.length > 0);
