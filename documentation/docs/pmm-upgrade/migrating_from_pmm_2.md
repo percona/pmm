@@ -61,7 +61,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
     
     1. Download and prepare the automated migration script:   
 	```sh
-	curl -o get-pmm.sh https://www.percona.com/get/pmm
+	curl -fsSL -o get-pmm.sh https://www.percona.com/get/pmm
 	```
     2. Make the script executable: 
     ```sh
