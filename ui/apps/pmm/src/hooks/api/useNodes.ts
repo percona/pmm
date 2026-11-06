@@ -5,8 +5,9 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { getNode, listNodes, removeNode } from 'api/nodes';
+import { getNode, getNodeTypes, listNodes, removeNode } from 'api/nodes';
 import type {
+  ListNodeTypesResponse,
   ManagedNode,
   RemoveNodeParams,
   RemoveNodesResult,
@@ -58,3 +59,12 @@ export const useRemoveNodes = (
     },
   });
 };
+
+export const useNodeTypes = (
+  options?: Partial<UseQueryOptions<ListNodeTypesResponse>>
+) =>
+  useQuery({
+    queryKey: ['nodes:getTypes'],
+    queryFn: () => getNodeTypes(),
+    ...options,
+  });

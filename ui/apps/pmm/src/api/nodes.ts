@@ -1,4 +1,5 @@
 import type {
+  ListNodeTypesResponse,
   ManagedNode,
   RemoveNodeParams,
   RemoveNodeResponse,
@@ -33,4 +34,9 @@ export const removeNode = async ({ nodeId, force }: RemoveNodeParams) => {
     { params: { force } }
   );
   return res.data.warning;
+};
+
+export const getNodeTypes = async (): Promise<ListNodeTypesResponse> => {
+  const res = await api.post('/inventory/nodes:getTypes');
+  return res.data;
 };

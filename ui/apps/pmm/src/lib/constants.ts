@@ -52,6 +52,11 @@ export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 // bearer -- which is why it sits beside the PMM Extensions mounts above rather than under them.
 export const OM_PATH = `${PMM_NEW_NAV_PATH}/operations`;
 
+export const AMAZON_RDS_PATH = `${PMM_NEW_NAV_PATH}/amazon-rds`;
+
+// Grafana data source that PMM dashboards read metrics from.
+export const METRICS_DATASOURCE = 'Metrics';
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,

@@ -38,6 +38,7 @@ import {
   NAV_OTHER_DASHBOARDS_TEMPLATE,
   NAV_POSTGRESQL,
   NAV_PROXYSQL,
+  NAV_RDS,
   NAV_SIGN_OUT,
   NAV_THEME_TOGGLE,
   NAV_ALERTS_SILENCES,
@@ -109,12 +110,15 @@ export const addAllDashboardItem = (
  * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
  * MongoDB service is monitored yet: OM's Hosts and Bootstrap pages exist for exactly
  * that estate, so hiding the menu with the dashboards would hide them too.
+ *
+ * `hasRdsNodes` shows the Amazon RDS menu, which spans MySQL and PostgreSQL services.
  */
 export const addDashboardItems = (
   types: ServiceType[],
   folders: DashboardFolder[],
   user?: User,
-  mongoExtras: NavItem[] = []
+  mongoExtras: NavItem[] = [],
+  hasRdsNodes = false
 ): NavItem[] => {
   const children: NavItem[] = [];
 
@@ -146,6 +150,10 @@ export const addDashboardItems = (
   if (types.includes(ServiceType.valkey)) {
     addOtherDashboardsItem(NAV_VALKEY, folders);
     children.push(NAV_VALKEY);
+  }
+
+  if (hasRdsNodes) {
+    children.push(NAV_RDS);
   }
 
   addOtherDashboardsItem(NAV_OS, folders);

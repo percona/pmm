@@ -87,6 +87,7 @@ Use the matrix below to check which permissions users have based on their assign
     `/v1/actions/` | Viewer | View and execute actions
     `/v1/backups` | Admin | Manage backups
     `/v1/inventory/` | Admin | Manage inventory items
+    `/v1/inventory/nodes:getTypes` | Viewer | View node types
     `/v1/inventory/services:getTypes` | Viewer | View service types
     `/v1/management/` | Admin | Server management functions
     `/v1/management/Jobs` | Viewer | View management jobs

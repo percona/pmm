@@ -125,6 +125,12 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
 
+		// Inventory: only the type lists are viewable; listing Nodes or Services needs admin.
+		{http.MethodPost, "/v1/inventory/nodes:getTypes", viewer},
+		{http.MethodPost, "/v1/inventory/services:getTypes", viewer},
+		{http.MethodGet, "/v1/inventory/nodes", admin},
+		{http.MethodGet, "/v1/inventory/services", admin},
+
 		// OM: reads are viewer; writes need editor or admin.
 		{http.MethodGet, "/v1/om/topology", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts", viewer},

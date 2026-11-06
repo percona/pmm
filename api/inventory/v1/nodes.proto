@@ -137,6 +137,12 @@ message ListNodesResponse {
   repeated RemoteAzureDatabaseNode remote_azure_database = 5;
 }
 
+message ListActiveNodeTypesRequest {}
+
+message ListActiveNodeTypesResponse {
+  repeated NodeType node_types = 1;
+}
+
 // Get
 
 message GetNodeRequest {
@@ -298,6 +304,17 @@ service NodesService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Nodes"
       description: "Returns a list of all Nodes."
+    };
+  }
+  // ListActiveNodeTypes returns a list of Node types present in the inventory.
+  rpc ListActiveNodeTypes(ListActiveNodeTypesRequest) returns (ListActiveNodeTypesResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/nodes:getTypes"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Active Node Types"
+      description: "Returns a list of Node types present in the inventory."
     };
   }
   // GetNode returns a single Node by ID.

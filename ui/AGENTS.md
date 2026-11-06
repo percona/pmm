@@ -60,6 +60,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/inventory/services`, `/inventory/nodes` | Inventory                                   |
 | `/inventory/{services,nodes}/:id/agents`  | Agents of a service or node                 |
 | `/inventory/services/:id/edit`            | Edit a service's labels and RDS credentials |
+| `/amazon-rds`                             | Amazon RDS overview                         |
 | `/rta`                                    | Real-Time Analytics tab                     |
 | `/rta/selection`                          | RTA service selection                       |
 | `/rta/sessions`                           | RTA sessions list                           |
