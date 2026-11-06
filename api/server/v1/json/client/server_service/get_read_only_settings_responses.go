@@ -711,7 +711,7 @@ type GetReadOnlySettingsOKBodySettings struct {
 	// True if PMM Extensions is enabled.
 	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
 }
 
