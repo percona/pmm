@@ -1,15 +1,28 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import {
+  changeService,
+  getService,
   getServiceTypes,
   listServices,
   listManagedServices,
+  removeService,
 } from 'api/services';
-import {
+import type {
+  BaseService,
+  ChangeServiceParams,
   ListServicesParams,
   ListServicesResponse,
   ListTypesResponse,
   ManagedServicesResponse,
+  RemoveServiceParams,
 } from 'types/services.types';
+import { invalidateInventory, removeEach } from 'utils/inventory.utils';
 
 export const useServiceTypes = (
   options?: Partial<UseQueryOptions<ListTypesResponse>>
@@ -41,3 +54,45 @@ export const useManagedServices = (
       listManagedServices(params as ListServicesParams),
     ...options,
   });
+
+export const useService = (
+  serviceId?: string,
+  options?: Partial<UseQueryOptions<BaseService | null>>
+) =>
+  useQuery({
+    queryKey: ['services:get', serviceId],
+    queryFn: () => getService(serviceId as string),
+    enabled: !!serviceId,
+    ...options,
+  });
+
+export const useRemoveServices = (
+  options?: Partial<UseMutationOptions<number, Error, RemoveServiceParams[]>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (services: RemoveServiceParams[]) =>
+      removeEach(services, removeService),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};
+
+export const useChangeService = (
+  options?: Partial<UseMutationOptions<void, Error, ChangeServiceParams>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChangeServiceParams) => changeService(params),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};
