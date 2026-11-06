@@ -49,9 +49,8 @@ or
   + sum by (service_name) (rate(pg_stat_database_xact_rollback{node_type="remote_rds"}[$__rate_interval]))
 )`,
   volumeUsedBytes: `max by (node_id) (aws_rds_volume_bytes_used_average)`,
-  freeStorageBytes: `max by (node_id) (aws_rds_free_storage_space_average)
-or
-max by (node_id) (node_filesystem_free_bytes{node_type="remote_rds", mountpoint=""})`,
+  // rds_exporter publishes CloudWatch FreeStorageSpace under this name, without a mountpoint.
+  freeStorageBytes: `max by (node_id) (node_filesystem_free_bytes{node_type="remote_rds", mountpoint=""})`,
 };
 
 const isMetric = (refId: string): refId is RdsInstanceMetric =>
