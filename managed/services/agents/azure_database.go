@@ -37,18 +37,19 @@ credentials:
 
 targets:
 resource_groups:
-  - resource_group: "{{ .ResourceGroup }}"
+{{- range .ResourceGroups }}
+  - resource_group: "{{ $.ResourceGroup }}"
     aggregations:
       - Average
-{{ .ResourceTypes }}
+    resource_types:
+{{- range .ResourceTypes }}
+      - "{{ . }}"
+{{- end }}
     metrics:
-      - name: "cpu_percent"
-      - name: "memory_percent"
-      - name: "storage_percent"
-      - name: "storage_used"
-      - name: "storage_limit"
-      - name: "network_bytes_egress"
-      - name: "network_bytes_ingress"
+{{- range .Metrics }}
+      - name: "{{ . }}"
+{{- end }}
+{{- end }}
 `
 
 // azureDatabaseExporterConfig returns configuration of azure_database_exporter process.
@@ -63,18 +64,54 @@ func azureDatabaseExporterConfig(
 		return nil, err
 	}
 
-	var resourceTypes string
+	metrics := []string{
+		"cpu_percent",
+		"memory_percent",
+		"storage_percent",
+		"storage_used",
+		"storage_limit",
+		"network_bytes_egress",
+		"network_bytes_ingress",
+	}
+
+	type resourceGroup struct {
+		ResourceTypes []string
+		Metrics       []string
+	}
+
+	var resourceGroups []resourceGroup
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		resourceTypes = `    resource_types:
-      - "Microsoft.DBforMySQL/servers"
-      - "Microsoft.DBforMySQL/flexibleServers"
-      - "Microsoft.DBforMariaDB/servers"`
+		resourceGroups = []resourceGroup{{
+			ResourceTypes: []string{
+				"Microsoft.DBforMySQL/servers",
+				"Microsoft.DBforMySQL/flexibleServers",
+				"Microsoft.DBforMariaDB/servers",
+			},
+			Metrics: metrics,
+		}}
 	case models.PostgreSQLServiceType:
-		resourceTypes = `    resource_types:
-      - "Microsoft.DBforPostgreSQL/servers"
-      - "Microsoft.DBforPostgreSQL/flexibleServers"
-      - "Microsoft.DBforPostgreSQL/serversv2"`
+		// Azure Monitor rejects the whole request if any metric is unknown, and PostgreSQL flexible servers have no storage_limit.
+		resourceGroups = []resourceGroup{
+			{
+				ResourceTypes: []string{
+					"Microsoft.DBforPostgreSQL/servers",
+					"Microsoft.DBforPostgreSQL/serversv2",
+				},
+				Metrics: metrics,
+			},
+			{
+				ResourceTypes: []string{"Microsoft.DBforPostgreSQL/flexibleServers"},
+				Metrics: []string{
+					"cpu_percent",
+					"memory_percent",
+					"storage_percent",
+					"storage_used",
+					"network_bytes_egress",
+					"network_bytes_ingress",
+				},
+			},
+		}
 	default:
 		return nil, fmt.Errorf("unexpected service type %s", service.ServiceType)
 	}
@@ -83,8 +120,8 @@ func azureDatabaseExporterConfig(
 	options := struct {
 		models.AzureOptions
 
-		ResourceTypes string
-	}{exporter.AzureOptions, resourceTypes}
+		ResourceGroups []resourceGroup
+	}{exporter.AzureOptions, resourceGroups}
 
 	err = t.Execute(&config, options)
 	if err != nil {
