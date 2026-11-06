@@ -46,6 +46,7 @@ Choose your preferred method to enable this feature:
 Once access control is enabled:
 
 - All existing users will have full access until you assign specific roles.
+- Recording rules can no longer write to **Metrics**, and each one reports an evaluation error on every run. For details, see [Recording rules](../../../alert/alert_rules.md#recording-rules).
 - [Create access roles](../access-control/create_roles.md) for different user types.
 - [Assign the new roles](../index.md) to your PMM users.
 - Test that restrictions work as expected.

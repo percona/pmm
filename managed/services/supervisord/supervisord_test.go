@@ -119,6 +119,44 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	}
 }
 
+func TestConfigRecordingRuleWrites(t *testing.T) {
+	t.Parallel()
+
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+
+	tmpl := templates.Lookup("vmproxy")
+	require.NotNil(t, tmpl)
+
+	// Under access control vmproxy gets no header name, so it refuses the write.
+	for _, tc := range []struct {
+		name          string
+		accessControl bool
+		expectHeader  bool
+	}{
+		{name: "access control off", accessControl: false, expectHeader: true},
+		{name: "access control on", accessControl: true, expectHeader: false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
+			settings.AccessControl.Enabled = new(tc.accessControl)
+
+			actual, err := s.marshalConfig(tmpl, settings)
+			require.NoError(t, err)
+
+			if tc.expectHeader {
+				assert.Contains(t, string(actual), "--write-header-name=X-Proxy-Write")
+			} else {
+				assert.NotContains(t, string(actual), "--write-header-name")
+			}
+		})
+	}
+}
+
 func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)

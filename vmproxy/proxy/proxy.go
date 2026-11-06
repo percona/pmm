@@ -65,6 +65,19 @@ var readOnlyPaths = map[string]struct{}{
 // adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
 const adminHeaderValue = "1"
 
+// writeHeaderValue is the only value the write marker is honoured with; grafana.ini sets it.
+const writeHeaderValue = "1"
+
+// remoteWritePath is the one shape a write is forwarded in. Grafana asks for /api/v1/push, which
+// single-node VictoriaMetrics accepts but the HA vmauth route map does not.
+const remoteWritePath = "/api/v1/write"
+
+// remoteWritePaths are the endpoints Grafana's recording rule writer can address.
+var remoteWritePaths = map[string]struct{}{
+	remoteWritePath: {},
+	"/api/v1/push":  {},
+}
+
 // Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
@@ -75,6 +88,8 @@ type Config struct {
 	TargetURL *url.URL
 	// Name of the header marking a request as coming from an admin. Case insensitive.
 	AdminHeaderName string
+	// Name of the header marking a recording rule write. Case insensitive. Empty refuses writes.
+	WriteHeaderName string
 }
 
 // RunProxy starts proxy which adds extra filters based on configuration.
@@ -125,7 +140,10 @@ func getHandler(cfg Config) http.HandlerFunc {
 		// would reach VictoriaMetrics as /metrics.
 		cleanedPath := normalizePath(req.URL.Path)
 
-		if failOnDisallowedPath(rw, req, cleanedPath, cfg.AdminHeaderName) {
+		switch {
+		case isRecordingRuleWrite(req, cleanedPath, cfg.WriteHeaderName):
+			cleanedPath = remoteWritePath
+		case failOnDisallowedPath(rw, req, cleanedPath, cfg.AdminHeaderName):
 			return
 		}
 
@@ -181,6 +199,20 @@ func isPathAllowed(cleanedPath string, isAdmin bool) bool {
 	}
 
 	return labelValuesPath.MatchString(cleanedPath)
+}
+
+// isRecordingRuleWrite reports whether this is a remote write from Grafana's recording rules.
+// The marker is not a credential: nginx clears it so a client cannot supply one. See PMM-15844.
+func isRecordingRuleWrite(req *http.Request, cleanedPath, headerName string) bool {
+	if headerName == "" || req.Method != http.MethodPost {
+		return false
+	}
+
+	if _, ok := remoteWritePaths[cleanedPath]; !ok {
+		return false
+	}
+
+	return req.Header.Get(headerName) == writeHeaderValue
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config

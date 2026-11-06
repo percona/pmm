@@ -372,6 +372,131 @@ func TestProxy(t *testing.T) {
 		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 
+	t.Run("shall recognise a recording rule write only from the configured header", func(t *testing.T) {
+		t.Parallel()
+
+		const writeHeader = "X-Proxy-Write"
+
+		newReq := func(method, path string) *http.Request {
+			return httptest.NewRequestWithContext(t.Context(), method, "http://127.0.0.1"+path, nil)
+		}
+
+		req := newReq(http.MethodPost, "/api/v1/write")
+		assert.False(t, isRecordingRuleWrite(req, "/api/v1/write", writeHeader), "absent header is not a rule write")
+
+		req.Header.Set(writeHeader, "1")
+		assert.True(t, isRecordingRuleWrite(req, "/api/v1/write", writeHeader))
+		assert.True(t, isRecordingRuleWrite(req, "/api/v1/push", writeHeader), "both write paths are accepted")
+		assert.False(t, isRecordingRuleWrite(req, "/api/v1/write", ""), "an unconfigured header name never matches")
+		assert.False(t, isRecordingRuleWrite(req, "/api/v1/query", writeHeader), "the marker does not widen other paths")
+
+		req.Header.Set(writeHeader, "true")
+		assert.False(t, isRecordingRuleWrite(req, "/api/v1/write", writeHeader), "only the exact value counts")
+
+		get := newReq(http.MethodGet, "/api/v1/write")
+		get.Header.Set(writeHeader, "1")
+		assert.False(t, isRecordingRuleWrite(get, "/api/v1/write", writeHeader), "only POST writes")
+	})
+
+	t.Run("shall forward a recording rule write as the remote write path", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana asks for /api/v1/push, which HA's vmauth does not route.
+		for _, requested := range []string{"/api/v1/push", "/api/v1/write"} {
+			t.Run(requested, func(t *testing.T) {
+				t.Parallel()
+
+				var gotPath, gotQuery string
+				server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+					gotPath = r.URL.Path
+					gotQuery = r.URL.RawQuery
+				}))
+				t.Cleanup(server.Close)
+
+				uri, err := url.Parse(server.URL)
+				require.NoError(t, err)
+
+				rec := httptest.NewRecorder()
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "http://127.0.0.1"+requested, nil)
+				req.Header.Set("X-Proxy-Write", "1")
+
+				getHandler(Config{
+					HeaderName:      headerName,
+					WriteHeaderName: "X-Proxy-Write",
+					TargetURL:       uri,
+				}).ServeHTTP(rec, req)
+
+				resp := rec.Result()
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
+
+				require.Equal(t, http.StatusOK, resp.StatusCode)
+				assert.Equal(t, "/api/v1/write", gotPath)
+				assert.Empty(t, gotQuery, "a write carries no filters")
+			})
+		}
+	})
+
+	t.Run("shall refuse a write that does not carry the marker", func(t *testing.T) {
+		t.Parallel()
+
+		// What a user reaches this proxy with: nginx keeps the marker off their request.
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "http://127.0.0.1/api/v1/push", nil)
+
+		getHandler(Config{
+			HeaderName:      headerName,
+			WriteHeaderName: "X-Proxy-Write",
+			TargetURL:       uri,
+		}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
+	})
+
+	t.Run("shall refuse a write when no write header is configured", func(t *testing.T) {
+		t.Parallel()
+
+		// What pmm-managed renders while access control is on.
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "http://127.0.0.1/api/v1/push", nil)
+		req.Header.Set("X-Proxy-Write", "1")
+
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
+	})
+
 	t.Run("shall answer a refused path with 403 without proxying", func(t *testing.T) {
 		t.Parallel()
 
