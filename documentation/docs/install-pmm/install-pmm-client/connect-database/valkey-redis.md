@@ -9,11 +9,13 @@ Connect your Valkey or Redis instances to PMM to track performance, analyze comm
 Before connecting Valkey or Redis to PMM, review the prerequisites for your monitoring setup:
 
 === ":material-server: Local Valkey/Redis monitoring"
+
     - [PMM Server is installed](../../install-pmm-server/index.md) and running.
     - [PMM Client is installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
     - Access to the Valkey instance (localhost or network accessible).
 
 === ":material-cloud: Remote Valkey/Redis monitoring"
+
     - [PMM Server is installed](../../install-pmm-server/index.md) and running.
     - PMM Server has direct network access to the Valkey/Redis instance.
     - You have Valkey/Redis authentication credentials if ACL is enabled.
@@ -31,6 +33,7 @@ Configure proper authentication for your Valkey or Redis instance using strong c
 #### ACL configuration (Valkey 6.0+)
 
 For Valkey 6.0 and later, create a dedicated monitoring user with read-only permissions:
+
 ```sh
 ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +latency
 ```
@@ -40,17 +43,18 @@ ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +lat
 For Redis or Valkey without ACL, use basic password authentication when adding the service.
 
 ### Add service to PMM
+
 You can add your Valkey or Redis service to PMM either through the user interface or via the command line:
 
 === ":material-web: Via UI"
 
     To add the service from the user interface:
     {.power-number}
-    
-    1. Go to **Inventory > Services > Add Service**.
-    
+
+    1. Go to **Inventory > Add service**.
+
     2. Select **Valkey/Redis** service type.
-    
+
     3. Fill in the **Main details** section:
 
         - **Service name**: e.g., `valkey-primary-svc`. This defaults to `hostname` if you don't specify a custom descriptive name.
@@ -61,7 +65,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3s.
 
     4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
-        
+
         - **Environment**: Specify the environment (e.g., `production`, `staging`)
         - **Cluster**: Specify the cluster name if applicable
         - **Replication set**: For replica configurations
@@ -70,16 +74,16 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Custom labels**: Add custom key-value pairs in the format `key1:value1`, one per line
 
     5. Configure **Additional options**:
-        
+
         - Check **Skip connection check** to bypass connectivity validation.
         - Check **Use TLS for database connections** to enable TLS.
-        - Check **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead. 
+        - Check **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead.
     6. Click **Add service** to complete the setup.
 
 === ":material-console: Via command line"
 
     === "Basic setup"
-    
+
         Add a local Valkey instance with default settings:
         ```sh
         pmm-admin add valkey \
@@ -87,9 +91,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           localhost:6379 \
           --environment=production
         ```
-    
+
     === "With authentication"
-    
+
         Add a Valkey instance with authentication:
         ```sh
         pmm-admin add valkey \
@@ -99,9 +103,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --password=StrongPassword123! \
           --environment=production
         ```
-    
+
     === "With remote monitoring"
-    
+
         Add a remote Valkey instance:
         ```sh
         pmm-admin add valkey \
@@ -111,9 +115,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --password=StrongPassword123! \
           --environment=production
         ```
-    
+
     === "With custom labels"
-    
+
         Add an instance with environment and custom labels:
         ```sh
         pmm-admin add valkey \
@@ -124,9 +128,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --environment=production \
           --custom-labels="role=primary,datacenter=east"
         ```
-    
+
     === "With TLS connection"
-    
+
         Add an instance with TLS security:
         ```sh
         pmm-admin add valkey \
@@ -139,7 +143,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         ```
 
         For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).
-    
+
     === "With mutual TLS"
 
         If your server requires a client certificate, use mutual TLS (mTLS). Pass your CA certificate, your client certificate, and its private key. Make sure to provide `--tls-cert` and `--tls-key` together, otherwise PMM rejects the command:
@@ -155,7 +159,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --tls-key=/path/to/client-key.pem
         ```
 
-        For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).    
+        For self-signed certificates or validation errors, see [TLS certificate validation](#tls-certificate-validation).
 
 === ":material-cog: Via inventory commands (Advanced)"
     PMM also provides inventory commands for more granular control:
@@ -181,6 +185,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 #### Confirmation message
 
 If the service is added successfully, PMM displays:
+
 ```sh
 Valkey Service added
 Service ID  : /service_id/abcd1234-5678-efgh-ijkl-mnopqrstuvwx
@@ -231,13 +236,13 @@ After adding your Valkey or Redis service to PMM, verify that it's properly conn
         ```
 
 === ":material-web: Via UI"
-    To verify your service in the web interface:
-    {.power-number}
+To verify your service in the web interface:
+{.power-number}
 
-    1. Navigate to **Inventory > Services > Valkey** service.
+    1. Navigate to **Inventory > Services** and find your Valkey service.
     2. Verify the **Service Name** and **Address** match your configuration.
-    3. Check the **Status** column shows as *Active*.
-    4. In the **Options** column, expand the **Details** section to confirm the correct agents are running.
+    3. Check that the **Status** column shows **Up**.
+    4. Click the status in the **Monitoring** column to confirm that the correct agents are running.
 
 ### Verify data collection
 
@@ -247,17 +252,16 @@ Once the service is registered, check that its metrics are reaching PMM and show
 1. Open the **Home** dashboard and verify your Valkey/Redis service appears in the **Monitored DB Services** and **Monitored DB Instances** panels.
 
 2. Navigate to the **Valkey/Redis** dashboards from the left menu. PMM provides 10 dedicated dashboards:
-
-    - **[Clients](../../../reference/dashboards/dashboard-valkey-redis-clients.md)**: Monitor client connections and blocked clients
-    - **[Cluster Details](../../../reference/dashboards/dashboard-valkey-redis-cluster-details.md)**: Track cluster topology and replication health
-    - **[Command Details](../../../reference/dashboards/dashboard-valkey-redis-command-detail.md)**: Analyze command-level performance and latency
-    - **[Load](../../../reference/dashboards/dashboard-valkey-redis-load.md)**: Monitor workload distribution and throughput
-    - **[Memory](../../../reference/dashboards/dashboard-valkey-redis-memory.md)**: Track memory usage and eviction patterns
-    - **[Network](../../../reference/dashboards/dashboard-valkey-redis-network.md)**: Monitor network bandwidth consumption
-    - **[Overview](../../../reference/dashboards/dashboard-valkey-redis-overview.md)**: Get a high-level summary of deployment health
-    - **[Persistence](../../../reference/dashboards/dashboard-valkey-redis-persistence-details.md)**: Verify AOF and RDB persistence operations
-    - **[Replication](../../../reference/dashboards/dashboard-valkey-redis-replication.md)**: Monitor replication lag and synchronization
-    - **[Slowlog](../../../reference/dashboards/dashboard-valkey-redis-slowlog.md)**: Track slow command execution
+   - **[Clients](../../../reference/dashboards/dashboard-valkey-redis-clients.md)**: Monitor client connections and blocked clients
+   - **[Cluster Details](../../../reference/dashboards/dashboard-valkey-redis-cluster-details.md)**: Track cluster topology and replication health
+   - **[Command Details](../../../reference/dashboards/dashboard-valkey-redis-command-detail.md)**: Analyze command-level performance and latency
+   - **[Load](../../../reference/dashboards/dashboard-valkey-redis-load.md)**: Monitor workload distribution and throughput
+   - **[Memory](../../../reference/dashboards/dashboard-valkey-redis-memory.md)**: Track memory usage and eviction patterns
+   - **[Network](../../../reference/dashboards/dashboard-valkey-redis-network.md)**: Monitor network bandwidth consumption
+   - **[Overview](../../../reference/dashboards/dashboard-valkey-redis-overview.md)**: Get a high-level summary of deployment health
+   - **[Persistence](../../../reference/dashboards/dashboard-valkey-redis-persistence-details.md)**: Verify AOF and RDB persistence operations
+   - **[Replication](../../../reference/dashboards/dashboard-valkey-redis-replication.md)**: Monitor replication lag and synchronization
+   - **[Slowlog](../../../reference/dashboards/dashboard-valkey-redis-slowlog.md)**: Track slow command execution
 
 3. Select your Valkey or Redis service from the drop-down menu.
 
@@ -270,7 +274,7 @@ Once the service is registered, check that its metrics are reaching PMM and show
 If you need to remove a Valkey or Redis service from monitoring:
 
 === ":material-console: Via command line"
-    
+
     Remove a Valkey or Redis service:
     ```bash
     pmm-admin remove valkey Valkey-Primary
@@ -280,19 +284,20 @@ If you need to remove a Valkey or Redis service from monitoring:
     ```bash
     # Remove agent
     pmm-admin inventory remove agent <agent-id>
-    
+
     # Remove service
     pmm-admin inventory remove service <service-id>
     ```
 
 === ":material-web: Via UI"
-    To remove the service from the user interface:
-    {.power-number}
-    
+To remove the service from the user interface:
+{.power-number}
+
     1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
-    3. Click the **Remove** button in the **Options** column.
-    4. Confirm the removal when prompted.
+    3. Click :material-dots-vertical: next to the service, then select **Delete**.
+    4. To also remove the agents of the service, select **Force mode**.
+    5. Click **Yes, delete service**.
 
 ## Next steps
 
