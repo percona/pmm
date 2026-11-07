@@ -350,9 +350,12 @@ func TestTopQueriesGroupBy(t *testing.T) {
 // TestSchemaFromQueryID fetches a known join's tables from its query_ref, which pmm_get_schema finds in a live EXPLAIN plan.
 func TestSchemaFromQueryID(t *testing.T) {
 	if !pmmapitests.RunMCPWorkloadTests {
-		t.Skip("Needs a known workload: load managed/services/mcp/testdata/explain/schema.sql into a MySQL 8.0 service, " +
-			"run join-aliases.sql from the same folder 100 times with the mysql client (database shop), wait 2 minutes for QAN, " +
-			"then set -pmm.run-mcp-workload-tests [PMM_RUN_MCP_WORKLOAD_TESTS].")
+		t.Skip("Needs a known workload whose join has a query example in QAN: load managed/services/mcp/testdata/explain/schema.sql " +
+			"into a MySQL 8.0 service monitored with perfschema and query examples on, then run join-aliases.sql from the same " +
+			"folder 100 times in one mysql session (database shop) that ends with SELECT SLEEP(10). pmm-agent reads the example " +
+			"from performance_schema.events_statements_history (consumer events_statements_history, on by default) every 5 " +
+			"seconds, and that table drops a session's statements when it closes. Wait 2 minutes for QAN, then set " +
+			"-pmm.run-mcp-workload-tests [PMM_RUN_MCP_WORKLOAD_TESTS].")
 	}
 	t.Parallel()
 
@@ -393,7 +396,15 @@ func TestSchemaFromQueryID(t *testing.T) {
 		Unresolved []string `json:"unresolved"`
 		Note       string   `json:"note"`
 	}
-	text := callResult(t, session, "pmm_get_schema", map[string]any{"query_ref": ref}, &schema)
+	called, text := callTool(t, session, "pmm_get_schema", map[string]any{"query_ref": ref})
+	if called.IsError && strings.HasPrefix(text, "error: invalid_input\n") && strings.Contains(text, "placeholders") {
+		require.FailNow(t, "no query example stored for the join; keep the workload's mysql session open past pmm-agent's "+
+			"5-second read of events_statements_history, with query examples on, and wait for QAN, as the skip message says", text)
+	}
+	require.False(t, called.IsError, text)
+	b, err := json.Marshal(called.StructuredContent)
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(b, &schema))
 	names := make([]string, 0, len(schema.Tables))
 	for _, tbl := range schema.Tables {
 		names = append(names, tbl.Database+"."+tbl.Name)

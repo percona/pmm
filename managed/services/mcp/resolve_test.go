@@ -19,11 +19,14 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -31,10 +34,13 @@ import (
 )
 
 const (
-	reportPath  = "/v1/qan/metrics:getReport"
-	reportOne   = "report_by_service_one.json"
-	reportTwo   = "report_by_service_two.json"
-	exampleDone = "example.json"
+	reportPath = "/v1/qan/metrics:getReport"
+	reportOne  = "report_by_service_one.json"
+	reportTwo  = "report_by_service_two.json"
+
+	// The next steps of a query not seen in the window, for each input form.
+	widenFlat = "; pass period_from and period_to covering when it ran, or its query_ref from pmm_top_queries"
+	widenRef  = "; pass a query_ref whose period covers when it ran"
 )
 
 func resolveRoutes(report string) map[string]fixture {
@@ -56,6 +62,10 @@ func TestResolveQuery(t *testing.T) {
 
 	withService := func(ref queryRef, id string) queryRef {
 		ref.ServiceID = id
+		return ref
+	}
+	fromQueryRef := func(ref queryRef) queryRef {
+		ref.fromQueryRef = true
 		return ref
 	}
 	with := func(routes map[string]fixture, kv ...string) map[string]fixture {
@@ -110,9 +120,29 @@ func TestResolveQuery(t *testing.T) {
 			routes:     resolveRoutes(reportTwo),
 			ref:        hour,
 			wantErr:    codeInvalidInput,
-			wantText:   []string{"shop-mysql (svc-1)", "shop-postgres (svc-2)", "service_id"},
-			notText:    []string{"more"},
+			wantText:   []string{"shop-mysql (svc-1)", "shop-postgres (svc-2)", "; pass service_id to choose one"},
+			notText:    []string{"more", "query_ref"},
 			wantReport: 1,
+		},
+		{
+			name:       "two candidates of a query_ref",
+			routes:     resolveRoutes(reportTwo),
+			ref:        fromQueryRef(hour),
+			wantErr:    codeInvalidInput,
+			wantText:   []string{"shop-mysql (svc-1)", "shop-postgres (svc-2)", "; set service_id inside query_ref to one of these"},
+			notText:    []string{"pass service_id"},
+			wantReport: 1,
+		},
+		{
+			name:       "query_ref with service_id inside",
+			routes:     resolveRoutes(reportTwo),
+			ref:        fromQueryRef(withService(hour, "svc-2")),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-2", got.Service.ServiceID)
+				assert.Equal(t, "svc-2", got.Ref.ServiceID)
+			},
 		},
 		{
 			name:       "many candidates",
@@ -146,8 +176,17 @@ func TestResolveQuery(t *testing.T) {
 			routes:     resolveRoutes(reportOne),
 			ref:        withService(hour, "svc-2"),
 			wantErr:    codeNotFound,
-			wantText:   []string{"the query was not seen on that service in", hour.PeriodFrom.Format(time.RFC3339)},
+			wantText:   []string{"the query was not seen on that service in", hour.PeriodFrom.Format(time.RFC3339), widenFlat},
 			notText:    []string{"svc-2", "QID-AAA"},
+			wantReport: 1,
+		},
+		{
+			name:       "service_id of a query_ref not a candidate",
+			routes:     resolveRoutes(reportOne),
+			ref:        fromQueryRef(withService(hour, "svc-2")),
+			wantErr:    codeNotFound,
+			wantText:   []string{"the query was not seen on that service in", hour.PeriodFrom.Format(time.RFC3339), widenRef},
+			notText:    []string{"svc-2", "QID-AAA", "pmm_top_queries", "period_from"},
 			wantReport: 1,
 		},
 		{
@@ -155,9 +194,32 @@ func TestResolveQuery(t *testing.T) {
 			routes:     resolveRoutes("report_by_service_empty.json"),
 			ref:        hour,
 			wantErr:    codeNotFound,
-			wantText:   []string{hour.PeriodFrom.Format(time.RFC3339), hour.PeriodTo.Format(time.RFC3339), "query_ref"},
+			wantText:   []string{"not seen on any of your services", hour.PeriodFrom.Format(time.RFC3339), hour.PeriodTo.Format(time.RFC3339), widenFlat},
 			notText:    []string{"QID-AAA"},
 			wantReport: 1,
+		},
+		{
+			name:       "no candidates of a query_ref",
+			routes:     resolveRoutes("report_by_service_empty.json"),
+			ref:        fromQueryRef(hour),
+			wantErr:    codeNotFound,
+			wantText:   []string{"not seen on any of your services", hour.PeriodFrom.Format(time.RFC3339), widenRef},
+			notText:    []string{"QID-AAA", "pmm_top_queries", "period_from"},
+			wantReport: 1,
+		},
+		{
+			name:     "empty service list",
+			routes:   with(resolveRoutes(reportOne), "GET /v1/inventory/services", "empty.json"),
+			ref:      hour,
+			wantErr:  codeNotFound,
+			wantText: []string{notInServiceList},
+		},
+		{
+			name:     "no service id QAN can be asked about",
+			routes:   with(resolveRoutes(reportOne), "GET /v1/inventory/services", "services_quoted_ids.json"),
+			ref:      hour,
+			wantErr:  codeNotFound,
+			wantText: []string{notInServiceList},
 		},
 		{
 			name:       "example of another service",
@@ -226,6 +288,7 @@ func TestResolveQuery(t *testing.T) {
 
 			got, err := s.resolveQuery(t.Context(), callerAuthFromHeader(http.Header{"Authorization": {testToken}}), tt.ref)
 
+			assert.Len(t, fake.requestsTo("/v1/inventory/services"), 1, "one service list per resolution")
 			reports := fake.requestsTo(reportPath)
 			assert.Len(t, reports, tt.wantReport)
 			for _, r := range reports {
@@ -265,7 +328,7 @@ func TestResolveQuery(t *testing.T) {
 				for _, text := range tt.notText {
 					assert.NotContains(t, te.message, text)
 				}
-				if tt.name == "service_id outside the list" {
+				if slices.Contains(tt.wantText, notInServiceList) {
 					assert.Equal(t, notInServiceList, te.message)
 				}
 				return
@@ -273,6 +336,106 @@ func TestResolveQuery(t *testing.T) {
 			require.NoError(t, err)
 			tt.check(t, got)
 		})
+	}
+}
+
+// TestResolveRemediationFollowsInputForm checks that a resolver error names the fields of the input form the caller used:
+// the service_id and period inside query_ref for a query_ref, the flat fields otherwise.
+func TestResolveRemediationFollowsInputForm(t *testing.T) {
+	t.Parallel()
+
+	from := testNow.Add(-2 * time.Hour).Format(time.RFC3339)
+	to := testNow.Add(-time.Hour).Format(time.RFC3339)
+	unpinned := map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}
+	pinned := map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": from, "period_to": to}
+
+	tests := []struct {
+		name     string
+		report   string
+		args     map[string]any
+		wantErr  errorCode
+		wantText string
+		notText  string
+	}{
+		{
+			name:     "flat form seen on several services",
+			report:   reportTwo,
+			args:     map[string]any{"queryid": "QID-AAA"},
+			wantErr:  codeInvalidInput,
+			wantText: "; pass service_id to choose one",
+			notText:  "query_ref",
+		},
+		{
+			name:     "query_ref seen on several services",
+			report:   reportTwo,
+			args:     map[string]any{"query_ref": unpinned},
+			wantErr:  codeInvalidInput,
+			wantText: "; set service_id inside query_ref to one of these",
+			notText:  "pass service_id",
+		},
+		{
+			name:   "query_ref with service_id inside",
+			report: reportTwo,
+			args:   map[string]any{"query_ref": pinned},
+		},
+		{
+			name:     "flat form not seen",
+			report:   "report_by_service_empty.json",
+			args:     map[string]any{"queryid": "QID-AAA", "service_id": "svc-1"},
+			wantErr:  codeNotFound,
+			wantText: widenFlat,
+		},
+		{
+			name:     "query_ref not seen",
+			report:   "report_by_service_empty.json",
+			args:     map[string]any{"query_ref": pinned},
+			wantErr:  codeNotFound,
+			wantText: widenRef,
+			notText:  "pmm_top_queries",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			fake, _ := newActionStub(t, 0)
+			fake.routes["POST "+reportPath] = fixture{file: tt.report}
+			session := connect(t, newQANService(t, fake, true))
+
+			text, isError := callText(t, session, "pmm_get_explain", tt.args)
+			if tt.wantErr == "" {
+				assert.False(t, isError, text)
+				return
+			}
+			assert.True(t, isError)
+			assert.True(t, strings.HasPrefix(text, "error: "+string(tt.wantErr)+"\n"), text)
+			assert.Contains(t, text, tt.wantText)
+			if tt.notText != "" {
+				assert.NotContains(t, text, tt.notText)
+			}
+		})
+	}
+}
+
+// TestDetailFetchLogsNoToolName checks that the detail fetch, which pmm_query_detail, pmm_get_explain and pmm_get_schema
+// share, doesn't label its entries with one of those tools.
+func TestDetailFetchLogsNoToolName(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{"POST /v1/qan/query:getExample": failed}))
+	s := newQANService(t, fake, true)
+	logger, hook := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	s.l = logrus.NewEntry(logger)
+
+	ref := queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow}
+	_, err := s.resolveQuery(t.Context(), callerAuthFromHeader(http.Header{"Authorization": {testToken}}), ref)
+	require.NoError(t, err)
+
+	entries := hook.AllEntries()
+	require.NotEmpty(t, entries, "the failed example call must log, or this test checks nothing")
+	for _, e := range entries {
+		assert.NotContains(t, e.Data, "tool", e.Message)
 	}
 }
 

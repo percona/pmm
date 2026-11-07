@@ -330,9 +330,9 @@ func (s *Service) storedPlan(
 	}
 	if plan == nil || plan.QueryPlan == "" {
 		return explainResult{}, newToolError(codeNotFound,
-			"no stored plan for queryid '%s'. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
+			"no stored plan for this query. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
 				"pg_stat_monitor: monitor the service with pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on, "+
-				"then retry once the query has run again", ref.QueryID)
+				"then retry once the query has run again")
 	}
 
 	body := plan.QueryPlan

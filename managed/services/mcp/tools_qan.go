@@ -522,7 +522,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	serviceIDs, err := s.callerServiceIDs(ctx, auth, in.ServiceID)
+	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID)
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -545,31 +545,6 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 
 	return d.result(s.rawSQL(), s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
-}
-
-// callerServiceIDs returns the ids of the caller's services that QAN may be asked about:
-// the given one, which must be in the list, else every one that passes checkQANValue.
-func (s *Service) callerServiceIDs(ctx context.Context, auth callerAuth, serviceID string) ([]string, error) {
-	services, err := s.listServices(ctx, auth, false)
-	if err != nil {
-		return nil, err
-	}
-	ids := make([]string, 0, len(services))
-	for _, svc := range services {
-		if checkQANValue("service_id", svc.ServiceID) == nil {
-			ids = append(ids, svc.ServiceID)
-		}
-	}
-	if serviceID != "" {
-		if !slices.Contains(ids, serviceID) {
-			return nil, newToolError(codeNotFound, "%s", notInServiceList)
-		}
-		return []string{serviceID}, nil
-	}
-	if len(ids) == 0 {
-		return nil, newToolError(codeNotFound, "%s", notInServiceList)
-	}
-	return ids, nil
 }
 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample
@@ -596,8 +571,6 @@ type queryDetail struct {
 // partial data still returns with the other's error; it fails only when both fail.
 // Both calls are limited to serviceIDs, which the caller has checked against the service list.
 func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, serviceIDs []string, from, to time.Time) (*queryDetail, error) {
-	l := s.l.WithField("tool", "pmm_query_detail")
-
 	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
 	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
 	labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
@@ -612,7 +585,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		Totals:          false,
 	})
 	if metricsErr != nil {
-		l.Debugf("qan:getMetrics failed: %s.", metricsErr)
+		s.l.Debugf("qan:getMetrics failed: %s.", metricsErr)
 	}
 	examples, exampleErr := s.api.GetQueryExample(ctx, auth, qan_service.GetQueryExampleBody{
 		PeriodStartFrom: strfmt.DateTime(from),
@@ -623,7 +596,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		Limit:           1,
 	})
 	if exampleErr != nil {
-		l.Debugf("qan/query:getExample failed: %s.", exampleErr)
+		s.l.Debugf("qan/query:getExample failed: %s.", exampleErr)
 	}
 	if metricsErr != nil && exampleErr != nil {
 		return nil, metricsErr
@@ -704,7 +677,7 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 
 // windowLine renders a result's window for its text, in RFC 3339 UTC like the structured window.
 func windowLine(w window) string {
-	return "Window: " + w.From.UTC().Format(time.RFC3339) + " – " + w.To.UTC().Format(time.RFC3339)
+	return "Window: " + windowText(w)
 }
 
 // checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).

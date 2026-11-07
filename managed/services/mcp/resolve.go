@@ -84,7 +84,7 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	if err != nil {
 		return queryRef{}, err
 	}
-	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to}, nil
+	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to, fromQueryRef: ref != nil}, nil
 }
 
 // resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored example.
@@ -98,25 +98,9 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 		return nil, err
 	}
 
-	services, err := s.listServices(ctx, auth, false)
+	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID)
 	if err != nil {
 		return nil, err
-	}
-	if len(services) == 0 {
-		return nil, newToolError(codeNotFound, "%s", notInServiceList)
-	}
-
-	ids := make([]string, 0, len(services))
-	for _, svc := range services {
-		if checkQANValue("service_id", svc.ServiceID) == nil {
-			ids = append(ids, svc.ServiceID)
-		}
-	}
-	if ref.ServiceID != "" {
-		if !slices.Contains(ids, ref.ServiceID) {
-			return nil, newToolError(codeNotFound, "%s", notInServiceList)
-		}
-		ids = []string{ref.ServiceID}
 	}
 
 	candidates, total, err := s.queryCandidates(ctx, auth, ref, services, ids)
@@ -125,14 +109,17 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	}
 
 	w := window{From: ref.PeriodFrom, To: ref.PeriodTo}
+	widen := "pass period_from and period_to covering when it ran, or its query_ref from pmm_top_queries"
+	if ref.fromQueryRef {
+		widen = "pass a query_ref whose period covers when it ran"
+	}
 	switch {
 	case len(candidates) == 0 && ref.ServiceID != "":
-		return nil, newToolError(codeNotFound, "the query was not seen on that service in %s", windowText(w))
+		return nil, newToolError(codeNotFound, "the query was not seen on that service in %s; %s", windowText(w), widen)
 	case len(candidates) == 0:
-		return nil, newToolError(codeNotFound,
-			"the query was not seen on any of your services in %s; check the window, or pass a query_ref from pmm_top_queries", windowText(w))
+		return nil, newToolError(codeNotFound, "the query was not seen on any of your services in %s; %s", windowText(w), widen)
 	case len(candidates) > 1:
-		return nil, newToolError(codeInvalidInput, "%s", ambiguousMessage(candidates, total))
+		return nil, newToolError(codeInvalidInput, "%s", ambiguousMessage(candidates, total, ref.fromQueryRef))
 	}
 
 	svc := candidates[0]
@@ -174,6 +161,31 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	return out, nil
 }
 
+// callerServices returns the caller's services and the ids of those that QAN may be asked about: the given one,
+// which must be in the list, else every one that passes checkQANValue.
+func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID string) ([]serviceInfo, []string, error) {
+	services, err := s.listServices(ctx, auth, false)
+	if err != nil {
+		return nil, nil, err
+	}
+	ids := make([]string, 0, len(services))
+	for _, svc := range services {
+		if checkQANValue("service_id", svc.ServiceID) == nil {
+			ids = append(ids, svc.ServiceID)
+		}
+	}
+	if serviceID != "" {
+		if !slices.Contains(ids, serviceID) {
+			return nil, nil, newToolError(codeNotFound, "%s", notInServiceList)
+		}
+		ids = []string{serviceID}
+	}
+	if len(ids) == 0 {
+		return nil, nil, newToolError(codeNotFound, "%s", notInServiceList)
+	}
+	return services, ids, nil
+}
+
 // queryCandidates returns the services of the caller's list that the query was seen on, and the report's total row count.
 func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref queryRef, services []serviceInfo, ids []string) ([]serviceInfo, int64, error) {
 	report, err := s.api.GetReport(ctx, auth, qan_service.GetReportBody{
@@ -210,8 +222,8 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 	return out, report.TotalRows, nil
 }
 
-// ambiguousMessage lists the candidate services and asks for a service_id.
-func ambiguousMessage(candidates []serviceInfo, total int64) string {
+// ambiguousMessage lists the candidate services and asks for a service_id where the caller's input form takes one.
+func ambiguousMessage(candidates []serviceInfo, total int64, fromQueryRef bool) string {
 	listed := candidates[:min(len(candidates), maxListedCandidates)]
 	names := make([]string, 0, len(listed))
 	for _, svc := range listed {
@@ -220,6 +232,9 @@ func ambiguousMessage(candidates []serviceInfo, total int64) string {
 	text := "the query was seen on several services: " + strings.Join(names, ", ")
 	if more := total - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
 		text += fmt.Sprintf(", and %d more", more)
+	}
+	if fromQueryRef {
+		return text + "; set service_id inside query_ref to one of these"
 	}
 	return text + "; pass service_id to choose one"
 }

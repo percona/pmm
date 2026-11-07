@@ -82,6 +82,9 @@ type queryRef struct {
 	ServiceID  string    `json:"service_id,omitempty"`
 	PeriodFrom time.Time `json:"period_from"`
 	PeriodTo   time.Time `json:"period_to"`
+
+	// fromQueryRef is set when the caller passed the reference as query_ref, not as flat fields, so that messages name the right field.
+	fromQueryRef bool
 }
 
 // partError is the failure of one part of a partial result.

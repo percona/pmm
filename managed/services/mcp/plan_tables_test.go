@@ -89,6 +89,30 @@ func TestPlanTablesFixtures(t *testing.T) {
 	}
 }
 
+// TestAliasMapAliasShadowsTable reads the alias-shadows-table fixtures, where alias b is table a and alias a is table b,
+// so a map that swaps them fails here while the resolved table set stays the same.
+func TestAliasMapAliasShadowsTable(t *testing.T) {
+	t.Parallel()
+
+	// Format 1 only: format 2 names each table itself, with no note to map.
+	files, err := filepath.Glob("testdata/explain/*-?.?-alias-shadows-table.json")
+	require.NoError(t, err)
+	require.Len(t, files, 6)
+
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			t.Parallel()
+
+			plan, err := os.ReadFile(file)
+			require.NoError(t, err)
+			assert.Equal(t, map[string]tableRef{
+				"b": {database: "shop", name: "a"},
+				"a": {database: "shop", name: "b"},
+			}, aliasMap(plan))
+		})
+	}
+}
+
 func TestPlanTablesCTEShadowsTableKeepsBothEntries(t *testing.T) {
 	t.Parallel()
 

@@ -415,7 +415,8 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				check: func(t *testing.T, fake *fakePMM, text string) {
 					t.Helper()
 					assert.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1, "the resolver passed and the plan was looked up")
-					assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for queryid 'QID-PG'"), text)
+					assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for this query. "), text)
+					assert.NotContains(t, text, "QID-PG")
 				},
 			},
 			{

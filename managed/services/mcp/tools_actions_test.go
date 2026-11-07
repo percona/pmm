@@ -194,7 +194,8 @@ func TestExplainTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for queryid 'QID-AAA'"), text)
+		assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for this query. "), text)
+		assert.NotContains(t, text, "QID-AAA")
 		assert.Contains(t, text, "pgsm_enable_query_plan=on")
 	})
 
