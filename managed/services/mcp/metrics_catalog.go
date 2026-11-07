@@ -52,8 +52,9 @@ func metricInfoByName(name string) (metricInfo, bool) {
 	return i, ok
 }
 
-// metricsCatalog lists, per engine, the metrics of the dashboards that PMM ships and of the health signals that are
-// present in the exporter output captured under testdata/exporters. Counter queries use rate over 5 minutes.
+// metricsCatalog lists the dashboard and health-signal metrics present in the exporter output captured under
+// testdata/exporters: Oracle MySQL 8.0.46, PostgreSQL 17, Percona Server for MongoDB 7.0 (a secondary) and node_exporter.
+// A family only other versions expose, such as Percona Server's innodb_mem_* or the query cache of 5.7, is not listed.
 var metricsCatalog = []metricInfo{
 	{
 		Name: "mysql_global_status_aborted_clients", Engine: engineMySQL,
@@ -609,9 +610,9 @@ var metricsCatalog = []metricInfo{
 	},
 	{
 		Name: "pg_stat_user_tables_last_autovacuum", Engine: enginePostgreSQL,
-		Meaning: "Time of the most recent autovacuum on any user table, as a Unix timestamp.",
+		Meaning: "Time of the most recent autovacuum on any user table; the query returns milliseconds since the epoch.",
 		Unit:    "dateTimeAsSystem", Type: "gauge", Labels: []string{"datname", "relname", "schemaname", "server"},
-		Query: `max(pg_stat_user_tables_last_autovacuum{service_name="<service>"})`,
+		Query: `max(pg_stat_user_tables_last_autovacuum{service_name="<service>"}) * 1000`,
 	},
 	{
 		Name: "pg_stat_user_tables_n_dead_tup", Engine: enginePostgreSQL,
@@ -747,9 +748,9 @@ var metricsCatalog = []metricInfo{
 	},
 	{
 		Name: "node_boot_time_seconds", Engine: engineNode,
-		Meaning: "Unix time the node booted.",
-		Unit:    "s", Type: "gauge",
-		Query: `node_boot_time_seconds{node_name="<node>"}`,
+		Meaning: "Time the node booted; the query returns milliseconds since the epoch.",
+		Unit:    "dateTimeAsSystem", Type: "gauge",
+		Query: `node_boot_time_seconds{node_name="<node>"} * 1000`,
 	},
 	{
 		Name: "node_context_switches_total", Engine: engineNode,
@@ -945,21 +946,21 @@ var metricsCatalog = []metricInfo{
 	},
 	{
 		Name: "node_time_seconds", Engine: engineNode,
-		Meaning: "Node's current Unix time.",
-		Unit:    "s", Type: "gauge",
-		Query: `node_time_seconds{node_name="<node>"}`,
+		Meaning: "Node's current time; the query returns milliseconds since the epoch.",
+		Unit:    "dateTimeAsSystem", Type: "gauge",
+		Query: `node_time_seconds{node_name="<node>"} * 1000`,
 	},
 	{
 		Name: "node_vmstat_pgpgin", Engine: engineNode,
-		Meaning: "Data paged in from disk, per second, in KiB as the kernel reports it.",
+		Meaning: "Data paged in from disk, in bytes per second (the kernel counts KiB; the query multiplies by 1024).",
 		Unit:    "Bps", Type: "counter",
-		Query: `rate(node_vmstat_pgpgin{node_name="<node>"}[5m])`,
+		Query: `rate(node_vmstat_pgpgin{node_name="<node>"}[5m]) * 1024`,
 	},
 	{
 		Name: "node_vmstat_pgpgout", Engine: engineNode,
-		Meaning: "Data paged out to disk, per second, in KiB as the kernel reports it.",
+		Meaning: "Data paged out to disk, in bytes per second (the kernel counts KiB; the query multiplies by 1024).",
 		Unit:    "Bps", Type: "counter",
-		Query: `rate(node_vmstat_pgpgout{node_name="<node>"}[5m])`,
+		Query: `rate(node_vmstat_pgpgout{node_name="<node>"}[5m]) * 1024`,
 	},
 	{
 		Name: "node_vmstat_pswpin", Engine: engineNode,

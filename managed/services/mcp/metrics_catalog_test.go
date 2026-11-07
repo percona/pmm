@@ -165,6 +165,23 @@ func TestMetricsCatalogQueriesPass(t *testing.T) {
 	}
 }
 
+func TestMetricsCatalogUnitsMatchQueries(t *testing.T) {
+	t.Parallel()
+
+	for name, want := range map[string]struct{ unit, query string }{
+		"node_vmstat_pgpgin":                  {"Bps", `rate(node_vmstat_pgpgin{node_name="<node>"}[5m]) * 1024`},
+		"node_vmstat_pgpgout":                 {"Bps", `rate(node_vmstat_pgpgout{node_name="<node>"}[5m]) * 1024`},
+		"pg_stat_user_tables_last_autovacuum": {"dateTimeAsSystem", `max(pg_stat_user_tables_last_autovacuum{service_name="<service>"}) * 1000`},
+		"node_boot_time_seconds":              {"dateTimeAsSystem", `node_boot_time_seconds{node_name="<node>"} * 1000`},
+		"node_time_seconds":                   {"dateTimeAsSystem", `node_time_seconds{node_name="<node>"} * 1000`},
+	} {
+		i, ok := metricInfoByName(name)
+		require.True(t, ok, name)
+		assert.Equal(t, want.unit, i.Unit, name)
+		assert.Equal(t, want.query, i.Query, name)
+	}
+}
+
 func TestMetricInfoByName(t *testing.T) {
 	t.Parallel()
 
