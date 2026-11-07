@@ -1156,7 +1156,7 @@
           "type": "string"
         },
         "query": {
-          "description": "The expression that ran.",
+          "description": "The expression that ran; only its first 200 bytes when the whole does not fit in the response.",
           "type": "string"
         },
         "series": {

@@ -55,10 +55,10 @@ Reference data, such as the QAN metric names that pmm_top_queries takes in
 columns and order_by, comes from pmm_catalog.
 
 For metrics, start with pmm_service_health for one service. Before writing a
-pmm_query_metrics query, read pmm_catalog(kind: metrics) and pmm_list_metrics;
-the language is MetricsQL. Aggregate first (sum by, topk), filter by service_name
-or service_id, and use an instant query for the current value and a range query
-(period_from, period_to) for a trend. A query over 7 days or 2000 series is refused.
+pmm_query_metrics query in MetricsQL, read pmm_catalog(kind: metrics, engine: the
+service's engine) and pmm_list_metrics. Aggregate first (sum by, topk), filter by
+service_name or service_id, and use an instant query for the current value and a range
+query (period_from, period_to) for a trend. A query over 7 days or 2000 series is refused.
 
 All tools are read-only. MySQL EXPLAIN is never EXPLAIN ANALYZE; MongoDB explain
 runs the read to collect execution statistics but never modifies data. An error

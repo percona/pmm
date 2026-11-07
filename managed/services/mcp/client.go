@@ -588,8 +588,8 @@ func parseSampleValue(raw json.RawMessage) (float64, bool) {
 	return v, true
 }
 
-// getVM sends one request to VictoriaMetrics through the datasource proxy. It holds one of the replica's
-// VictoriaMetrics slots until the response is read, and reads at most maxVMResponseBytes of it.
+// getVM sends one request to VictoriaMetrics through the datasource proxy, holding one of the replica's
+// VictoriaMetrics slots until it has read the response, of which it reads at most maxVMResponseBytes.
 func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint string, query url.Values, out any) error {
 	select {
 	case c.vmSlots <- struct{}{}:

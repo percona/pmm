@@ -44,8 +44,8 @@ const maxHintExprBytes = 200
 // internalLabels are PMM's own labels, which tell a caller nothing about the workload.
 var internalLabels = []string{"agent_id", "agent_type", "node_id", "machine_id", "instance", "job"}
 
-// chooseStep returns the query step: the requested one, or the smallest whole number of seconds that keeps
-// the span within maxPoints points, and never under a second. An instant query (no span) has no step.
+// chooseStep returns the query step, 0 for an instant query (no span), else the larger of the requested one and the
+// smallest whole number of seconds that keeps the span within maxPoints points, and never under a second.
 func chooseStep(span, requested time.Duration) time.Duration {
 	if span <= 0 {
 		return 0
@@ -72,7 +72,7 @@ type seriesSummary struct {
 
 // metricsResult is the result of pmm_query_metrics.
 type metricsResult struct {
-	Query        string            `json:"query" jsonschema:"The expression that ran."`
+	Query        string            `json:"query" jsonschema:"The expression that ran; only its first 200 bytes when the whole does not fit in the response."`
 	Window       *window           `json:"window,omitempty" jsonschema:"The time range a range query covers."`
 	Step         string            `json:"step,omitempty" jsonschema:"The step of a range query."`
 	SharedLabels map[string]string `json:"shared_labels,omitempty" jsonschema:"Untrusted. Labels with the same value on every series shown."`
@@ -140,11 +140,15 @@ type rankedSeries struct {
 	points    []outPoint
 }
 
-// shapeSeries fits series to the response budget: the top limit series by maximum, raw points when they
-// fit and summaries when they don't, and fewer series while the text and the JSON together exceed 16 KiB.
-// The window and step, nil and empty for an instant query, count towards the budget.
+// shapeSeries fits series, with the query, window and step (nil and empty for an instant query), to the
+// response budget: the top limit series by maximum, raw points when they fit and summaries when they don't,
+// and fewer series while the text and the JSON together exceed 16 KiB.
 func shapeSeries(expr string, series []metricSeries, limit int, w *window, step string) metricsResult {
 	head := metricsResult{Query: expr, Window: w, Step: step}
+	// The JSON escapes <, > and & to six bytes each, so a query echoed twice can be over the budget alone.
+	if metricsSize(buildMetricsResult(head, nil, len(series), false)) > maxMetricsBytes {
+		head.Query = echo(expr)
+	}
 	if limit <= 0 {
 		limit = defaultSeries
 	}

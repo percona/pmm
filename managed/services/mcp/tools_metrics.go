@@ -476,8 +476,8 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 	return listPlan{kind: kind, match: match, start: start, end: end, limit: in.Limit}, nil
 }
 
-// nameSelector is the selector of a name search: names containing search, of the service when one is given.
-// It is the one selector that skips checkExpr, since it reads names only (ADR-15); empty when it has no matcher.
+// nameSelector is the selector of a name search (names containing search, of the service when one is given), empty
+// when it has no matcher, and the one selector that skips checkExpr, since it reads names only (ADR-15).
 func nameSelector(search, serviceID, serviceName string) string {
 	var matchers []string
 	if search != "" {
@@ -495,8 +495,8 @@ func nameSelector(search, serviceID, serviceName string) string {
 	return "{" + strings.Join(matchers, ",") + "}"
 }
 
-// groupNames returns names as they are when there are at most limit of them. Otherwise it returns
-// them grouped by their first three '_'-separated parts, or by the first two when that is still over limit.
+// groupNames returns names as they are when there are at most limit of them, and otherwise groups them by
+// their first three '_'-separated parts, or by the first two when that is still over limit.
 func groupNames(names []string, limit int) ([]string, []nameGroup) {
 	if len(names) <= limit {
 		return names, nil

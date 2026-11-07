@@ -34,15 +34,15 @@ import (
 // testToken is the caller credential every fixture test forwards.
 const testToken = "Bearer glsa_test_token"
 
-// fixture is one canned PMM API response, keyed by "METHOD /path" or by
-// "METHOD /path ?TEXT". The second form matches a request whose query parameter
-// contains TEXT, beats the plain key, and the longest TEXT wins. Body is served
-// instead of file when set. A block fixture never answers: the request waits until its caller gives up.
+// fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
+// whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
 type fixture struct {
-	file   string
+	file string
+	// body is served instead of file when set.
 	body   []byte
 	status int
-	block  bool
+	// block makes the fixture never answer: the request waits until its caller gives up.
+	block bool
 }
 
 // recordedRequest is what the fake PMM received for one call.

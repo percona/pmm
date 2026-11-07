@@ -72,9 +72,9 @@ type stepTooSmallError struct {
 
 func (e *stepTooSmallError) Unwrap() error { return e.toolError }
 
-// checkExpr refuses, before any request, an expression that would read more than 7 days
-// or select too broadly, and returns the span it reads: the range plus the largest lookbehind.
-// An instant query has span 0, and a step of 0 or less is instantStep.
+// checkExpr refuses, before any request, an expression that would read more than 7 days or select too broadly,
+// and returns the span it reads, the range plus the largest lookbehind, taking span 0 for an instant query and
+// a step of 0 or less as instantStep.
 func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	if step <= 0 {
 		step = instantStep

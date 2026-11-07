@@ -53,8 +53,8 @@ func metricInfoByName(name string) (metricInfo, bool) {
 }
 
 // metricsCatalog lists the dashboard and health-signal metrics present in the exporter output captured under
-// testdata/exporters: Oracle MySQL 8.0.46, PostgreSQL 17, Percona Server for MongoDB 7.0 (a secondary) and node_exporter.
-// A family only other versions expose, such as Percona Server's innodb_mem_* or the query cache of 5.7, is not listed.
+// testdata/exporters (Oracle MySQL 8.0.46, PostgreSQL 17, Percona Server for MongoDB 7.0 as a secondary, and
+// node_exporter), so a family only other versions expose, such as Percona Server's innodb_mem_* or 5.7's query cache, is not listed.
 var metricsCatalog = []metricInfo{
 	{
 		Name: "mysql_global_status_aborted_clients", Engine: engineMySQL,

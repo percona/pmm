@@ -101,7 +101,7 @@ func (l *limiter) acquire(key string) (func(), limitHit) {
 	}, limitNone
 }
 
-// rateLimiter is a token bucket per key. A bucket that has refilled to its burst is dropped,
+// rateLimiter is a token bucket per key that drops a bucket once it has refilled to its burst,
 // so the map holds only recent callers.
 type rateLimiter struct {
 	mu      sync.Mutex
@@ -123,7 +123,7 @@ func newRateLimiter(perMinute, burst int) *rateLimiter {
 	}
 }
 
-// take takes one token for key. It returns true, or the wait until the next token and false.
+// take takes one token for key and returns true, or returns the wait until the next token and false.
 func (r *rateLimiter) take(key string, now time.Time) (time.Duration, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

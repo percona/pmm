@@ -381,11 +381,20 @@ func TestServiceHealthTool(t *testing.T) {
 
 		fake := newFakePMM(t, healthRoutes(nil))
 		s := newQANService(t, fake, false)
-		_, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": "now-7d"})
-		require.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
-		assert.Contains(t, text, "the cap is 7d")
-		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "refused before any query")
+		for _, from := range []string{"now-7d", "now-30d", testNow.AddDate(-9, 0, 0).Format(time.RFC3339)} {
+			_, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": from})
+			require.True(t, isError, from)
+			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+			assert.Contains(t, text, "the cap is 7d, counting the 5m3s the signals read before the window: pass a window of at most 6d23h54m57s")
+		}
+		assert.Zero(t, fake.requestCount(), "refused before the inventory and any query")
+		s.metricRate.mu.Lock()
+		assert.Empty(t, s.metricRate.buckets, "a refused window takes no token")
+		s.metricRate.mu.Unlock()
+
+		largest := testNow.Add(-(7*24*time.Hour - 5*time.Minute - 3*time.Second)).Format(time.RFC3339)
+		_, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": largest})
+		require.False(t, isError, "the largest window the hint names: %s", text)
 
 		_, text, isError = healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": "now-6d"})
 		require.False(t, isError, text)

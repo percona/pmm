@@ -48,13 +48,13 @@ type serviceHealthInput struct {
 }
 
 // signal is one fixed MetricsQL query taken from a PMM dashboard.
-// Query takes the selector as %[1]s: service_name="…" or, for a node signal, node_name="…".
 type signal struct {
 	Name   string
 	Unit   string
 	Source string
-	Query  string
-	Node   bool
+	// Query takes the selector as %[1]s: service_name="…" or, for a node signal, node_name="…".
+	Query string
+	Node  bool
 }
 
 // healthSignals are the triage signals of each engine, and of the node under every service; each query is kept whole, as its dashboard target reads.
@@ -157,7 +157,7 @@ var healthSignals = map[string][]signal{
 	},
 	engineMongoDB: {
 		{
-			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
 			Name: "qps", Unit: "ops", Source: "mongodb_op_counters_total",
 			Query: `sum(rate(mongodb_op_counters_total{%[1]s,type!="command"}[5m]) or irate(mongodb_op_counters_total{%[1]s,type!="command"}[5m]))`,
 		},
@@ -166,7 +166,7 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name) (rate(mongodb_mongod_op_latencies_latency_total{%[1]s,type="command"}[5m]) / (rate(mongodb_mongod_op_latencies_ops_total{%[1]s,type="command"}[5m]) > 0) or irate(mongodb_mongod_op_latencies_latency_total{%[1]s,type="command"}[5m]) / (irate(mongodb_mongod_op_latencies_ops_total{%[1]s,type="command"}[5m]) > 0))`,
 		},
 		{
-			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
 			Name: "connections", Unit: "short", Source: "mongodb_connections",
 			Query: `avg by (service_name) (mongodb_connections{%[1]s, state="current"})`,
 		},
@@ -179,12 +179,12 @@ var healthSignals = map[string][]signal{
 			Query: `(sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])) or sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])))`,
 		},
 		{
-			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
 			Name: "asserts", Unit: "short", Source: "mongodb_asserts_total",
 			Query: `sum by (service_name) (avg by (service_name,type) (rate(mongodb_asserts_total{%[1]s}[5m]) or irate(mongodb_asserts_total{%[1]s}[5m])))`,
 		},
 		{
-			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
 			Name: "page_faults", Unit: "short", Source: "mongodb_extra_info_page_faults_total",
 			Query: `avg by (service_name) (rate(mongodb_extra_info_page_faults_total{%[1]s}[5m]) or irate(mongodb_extra_info_page_faults_total{%[1]s}[5m]))`,
 		},
@@ -286,6 +286,13 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	if err != nil {
 		return healthResult{}, err
 	}
+	span := end.Sub(start)
+	step := chooseStep(span, 0)
+	err = checkHealthWindow(span)
+	if err != nil {
+		return healthResult{}, err
+	}
+
 	auth := callerAuthFromHeader(req.Extra.Header)
 	release, err := s.startMetricCall(auth)
 	if err != nil {
@@ -303,8 +310,6 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 	svc := services[i]
 
-	span := end.Sub(start)
-	step := chooseStep(span, 0)
 	signals := slices.Concat(healthSignals[svc.Engine], healthSignals[engineNode])
 	queries := make([]string, len(signals))
 	for j, sig := range signals {
@@ -371,6 +376,28 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	res.Signals = results
 	res.Note = strings.Join(notes, " ")
 	return res, nil
+}
+
+// checkHealthWindow refuses a window that, with what the signals read before it, reads more than maxSpan.
+func checkHealthWindow(span time.Duration) error {
+	// Past maxSpan a window is refused whatever its step, so the step stops at maxSpan's to name the largest window that fits.
+	step := chooseStep(min(span, maxSpan), 0)
+	var lookbehind time.Duration
+	for _, signals := range healthSignals {
+		for _, sig := range signals {
+			read, err := checkExpr(fmt.Sprintf(sig.Query, `service_name="window"`), 0, step)
+			if err != nil {
+				return err
+			}
+			lookbehind = max(lookbehind, read)
+		}
+	}
+	if addCapped(span, lookbehind) <= maxSpan {
+		return nil
+	}
+	return newToolError(codeInvalidInput,
+		"the window is %s; the cap is %s, counting the %s the signals read before the window: pass a window of at most %s",
+		formatSpan(span), formatSpan(maxSpan), formatSpan(lookbehind), formatSpan(maxSpan-lookbehind))
 }
 
 func appendOnce(notes []string, note string) []string {

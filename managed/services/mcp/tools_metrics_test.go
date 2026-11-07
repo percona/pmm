@@ -87,12 +87,12 @@ func queryParams(t *testing.T, r recordedRequest) url.Values {
 
 func unixOf(t time.Time) string { return strconv.FormatInt(t.Unix(), 10) }
 
-// metricsCall calls pmm_query_metrics and returns the result.
-func metricsCall(t *testing.T, s *Service, args map[string]any) (res metricsResult, text string, isError bool) {
+// metricsCall calls pmm_query_metrics and returns the result, its text and whether it is an error.
+func metricsCall(t *testing.T, s *Service, args map[string]any) (metricsResult, string, bool) {
 	t.Helper()
 
 	r := callTool(t, connect(t, s), "pmm_query_metrics", args)
-	text = textOf(t, r)
+	text := textOf(t, r)
 	if r.IsError {
 		return metricsResult{}, text, true
 	}
@@ -496,6 +496,25 @@ func TestQueryMetricsTool(t *testing.T) {
 		size := len(textOf(t, r)) + len(mustJSON(t, r.StructuredContent))
 		assert.LessOrEqual(t, size, 16<<10, "text plus structured content")
 		assert.Greater(t, size, 12<<10, "the cut keeps as many series as fit")
+	})
+
+	t.Run("EscapedQueryFitsTheBudget", func(t *testing.T) {
+		t.Parallel()
+
+		const prefix, suffix = `mysql_up{service_name="`, `"}`
+		query := prefix + strings.Repeat("<", maxExprBytes-len(prefix)-len(suffix)) + suffix
+		require.Len(t, query, 4096)
+
+		fake := newFakePMM(t, metricsRoutes(nil))
+		r := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_query_metrics", map[string]any{"query": query})
+		require.False(t, r.IsError, textOf(t, r))
+		res := structured[metricsResult](t, r)
+
+		size := len(textOf(t, r)) + len(mustJSON(t, r.StructuredContent))
+		assert.LessOrEqual(t, size, 16<<10, "text plus structured content")
+		assert.Len(t, res.Series, 2, "the cut query leaves room for the series")
+		assert.Equal(t, echo(query), res.Query)
+		assert.Contains(t, res.Query, "…")
 	})
 
 	t.Run("Description", func(t *testing.T) {

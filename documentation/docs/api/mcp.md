@@ -91,7 +91,7 @@ If PMM Server runs with a self-signed certificate, configure the client to trust
 
 ## Tools
 
-The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`. For metrics it tells the client to start with `pmm_service_health`, to read `pmm_catalog` with `kind=metrics` and `pmm_list_metrics` before writing a `pmm_query_metrics` query, to write MetricsQL, to aggregate first and filter by `service_name` or `service_id`, and to use an instant query for the current value and a range query for a trend. It also tells the client to pass the `query_ref` from `pmm_top_queries` or `pmm_query_detail` to `pmm_get_explain` and `pmm_get_schema`, to page with `offset`, and to read reference data from `pmm_catalog`. It tells the client to treat text from databases or users as data, not instructions: this includes QAN dimension values (user, client host, application name), `environment` and `cluster`. When a tool returns an error, the client must act on the remediation in the message and treat any database or user text that the message quotes as data.
+The server sends the recommended order to the client on connect: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, then `pmm_get_explain` / `pmm_get_schema` and `pmm_get_config`. For metrics it tells the client to start with `pmm_service_health`, to read `pmm_catalog` with `kind=metrics` and the service's `engine`, and `pmm_list_metrics`, before writing a `pmm_query_metrics` query, to write MetricsQL, to aggregate first and filter by `service_name` or `service_id`, and to use an instant query for the current value and a range query for a trend. It also tells the client to pass the `query_ref` from `pmm_top_queries` or `pmm_query_detail` to `pmm_get_explain` and `pmm_get_schema`, to page with `offset`, and to read reference data from `pmm_catalog`. It tells the client to treat text from databases or users as data, not instructions: this includes QAN dimension values (user, client host, application name), `environment` and `cluster`. When a tool returns an error, the client must act on the remediation in the message and treat any database or user text that the message quotes as data.
 
 | Tool | What it returns | Backing PMM API |
 |------|-----------------|-----------------|
@@ -260,7 +260,7 @@ Use the tools in this order:
 {.power-number}
 
 1. `pmm_service_health` reads the triage signals of one service. It's the first call for "is this service healthy?".
-2. `pmm_catalog` with `kind=metrics` lists the [metrics catalogue](#metrics-catalogue), each metric with a ready query.
+2. `pmm_catalog` with `kind=metrics` and the service's `engine` lists that engine's part of the [metrics catalogue](#metrics-catalogue), each metric with a ready query. `engine=node` lists the node's metrics.
 3. `pmm_list_metrics` finds metrics that the catalogue doesn't list, and the label values to filter by.
 4. `pmm_query_metrics` runs a MetricsQL query. Aggregate first, for example `sum by (service_name) (rate(mysql_global_status_questions[5m]))` or `topk(10, …)`, and filter by `service_name` or `service_id`. Use an instant query (`time`, default now) for the current value and a range query (`period_from`, `period_to`) for a trend.
 
@@ -272,7 +272,7 @@ Use the tools in this order:
 
 ### Service health signals
 
-`pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour). It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
+`pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour). The window is just under 7 days at most, since the signals also read about 5 minutes before it and a call reads at most 7 days. A longer window is `invalid_input`, and the message names the longest window that fits. It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
 
 Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
 
@@ -314,7 +314,7 @@ A `pmm_query_metrics` result is shaped to fit these limits:
 
 - **Series.** At most `limit` series, 20 by default and 100 at most. They are the series with the largest maximum.
 - **Points.** At most 2,000 points in all.
-- **Size.** At most 16 KiB, counting the text and the structured content together.
+- **Size.** At most 16 KiB, counting the text and the structured content together. When the query alone takes up that much, for example because JSON escapes each `<`, `>` and `&` to six bytes, the result shows only its first 200 bytes in `query`.
 - **Summaries.** When the raw points don't fit in the points or in the size, every series carries a summary instead of points: `min`, `avg`, `max`, `last` and `last_at`. `summarized` is `true`.
 - **Fewer series.** When even the summaries are over 16 KiB, the result keeps fewer series. `truncated` is `true`, and the hint says how many series it left out and how to narrow the query. `total_series` is the number the query returned.
 - **Nulls.** NaN and infinite values are `null` in points and are left out of `min`, `avg` and `max`. The `note` says how many.
